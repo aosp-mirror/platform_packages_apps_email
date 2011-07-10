@@ -83,6 +83,32 @@
         <item>6</item>
     </string-array>
 
+    <!-- Mail sync window sizes for EAS mailboxes.  It's the same thing as
+         account_settings_mail_window_entries, but has 0=default.  -->
+    <string-array name="account_settings_mail_window_entries_with_default">
+        <item>@string/account_setup_options_mail_window_default</item>
+        <item>@string/account_setup_options_mail_window_auto</item>
+        <item>@string/account_setup_options_mail_window_1day</item>
+        <item>@string/account_setup_options_mail_window_3days</item>
+        <item>@string/account_setup_options_mail_window_1week</item>
+        <item>@string/account_setup_options_mail_window_2weeks</item>
+        <item>@string/account_setup_options_mail_window_1month</item>
+        <item>@string/account_setup_options_mail_window_all</item>
+    </string-array>
+
+    <!-- Mail sync window size codes for EAS milboxes.  It's the same thing as
+         account_settings_mail_window_values, but has 0=default.  -->
+    <string-array name="account_settings_mail_window_values_with_default" translatable="false">
+        <item>0</item>
+        <item>-2</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
     <!-- The vibrate notification modes -->
     <string-array name="account_settings_vibrate_when_entries">
         <!-- Always -->

@@ -17,12 +17,7 @@
 package com.android.email.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +37,6 @@ import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -82,9 +76,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     private BannerController mErrorBanner;
     /** Id of the account that had a messaging exception most recently. */
     private long mLastErrorAccountId;
-
-    // STOPSHIP Temporary mailbox settings UI
-    private int mDialogSelection = -1;
 
     /**
      * Create an intent to launch and open account's inbox.
@@ -333,118 +324,14 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         return true; // Event handled.
     }
 
-    // STOPSHIP Set column from user options
-    private void setMailboxColumn(long mailboxId, String column, String value) {
-        if (mailboxId > 0) {
-            ContentValues cv = new ContentValues();
-            cv.put(column, value);
-            getContentResolver().update(
-                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                    cv, null, null);
-            mUIController.onRefresh();
-        }
-    }
-    // STOPSHIP Temporary mailbox settings UI.  If this ends up being useful, it should
-    // be moved to Utility (emailcommon)
-    private int findInStringArray(String[] array, String item) {
-        int i = 0;
-        for (String str: array) {
-            if (str.equals(item)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
-    // STOPSHIP Temporary mailbox settings UI
-    private final DialogInterface.OnClickListener mSelectionListener =
-        new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                mDialogSelection = which;
-            }
-    };
-
-    // STOPSHIP Temporary mailbox settings UI
-    private final DialogInterface.OnClickListener mCancelListener =
-        new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-            }
-    };
-
-    // STOPSHIP Temporary mailbox settings UI
-    @Override
-    @Deprecated
-    protected Dialog onCreateDialog(int id, Bundle args) {
-        final long mailboxId = mUIController.getMailboxSettingsMailboxId();
-        if (mailboxId < 0) {
-            return null;
-        }
-        final Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
-        if (mailbox == null) return null;
-        switch (id) {
-            case MAILBOX_SYNC_FREQUENCY_DIALOG:
-                String freq = Integer.toString(mailbox.mSyncInterval);
-                final String[] freqValues = getResources().getStringArray(
-                        R.array.account_settings_check_frequency_values_push);
-                int selection = findInStringArray(freqValues, freq);
-                // If not found, this is a push mailbox; trust me on this
-                if (selection == -1) selection = 0;
-                return new AlertDialog.Builder(this)
-                    .setIconAttribute(android.R.attr.dialogIcon)
-                    .setTitle(R.string.mailbox_options_check_frequency_label)
-                    .setSingleChoiceItems(R.array.account_settings_check_frequency_entries_push,
-                            selection,
-                            mSelectionListener)
-                    .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            setMailboxColumn(mailboxId, MailboxColumns.SYNC_INTERVAL,
-                                    freqValues[mDialogSelection]);
-                        }})
-                    .setNegativeButton(R.string.cancel_action, mCancelListener)
-                   .create();
-
-            case MAILBOX_SYNC_LOOKBACK_DIALOG:
-                freq = Integer.toString(mailbox.mSyncLookback);
-                final String[] windowValues = getResources().getStringArray(
-                        R.array.account_settings_mail_window_values);
-                selection = findInStringArray(windowValues, freq);
-                return new AlertDialog.Builder(this)
-                    .setIconAttribute(android.R.attr.dialogIcon)
-                    .setTitle(R.string.mailbox_options_lookback_label)
-                    .setSingleChoiceItems(R.array.account_settings_mail_window_entries,
-                            selection,
-                            mSelectionListener)
-                    .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            setMailboxColumn(mailboxId, MailboxColumns.SYNC_LOOKBACK,
-                                    windowValues[mDialogSelection]);
-                        }})
-                    .setNegativeButton(R.string.cancel_action, mCancelListener)
-                   .create();
-        }
-        return null;
-    }
-
     @Override
     @SuppressWarnings("deprecation")
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mUIController.onOptionsItemSelected(item)) {
             return true;
         }
-        switch (item.getItemId()) {
-            // STOPSHIP Temporary mailbox settings UI
-            case R.id.sync_lookback:
-                showDialog(MAILBOX_SYNC_LOOKBACK_DIALOG);
-                return true;
-            // STOPSHIP Temporary mailbox settings UI
-            case R.id.sync_frequency:
-                showDialog(MAILBOX_SYNC_FREQUENCY_DIALOG);
-                return true;
-        }
         return super.onOptionsItemSelected(item);
     }
-
 
     /**
      * A {@link Controller.Result} to detect connection status.

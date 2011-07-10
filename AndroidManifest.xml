@@ -262,6 +262,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.setup.MailboxSettings"
+            android:label="@string/mailbox_settings_activity_title"
+            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
+            >
+        </activity>
+
         <receiver
             android:name=".service.AttachmentDownloadService$Watchdog"
             android:enabled="true"/>

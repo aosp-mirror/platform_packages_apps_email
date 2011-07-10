@@ -282,10 +282,6 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
                 :Account.NO_ACCOUNT;
     }
 
-
-    /*
-     * STOPSHIP Remove this -- see the base class method.
-     */
     @Override
     public long getMailboxSettingsMailboxId() {
         return getMessageListMailboxId();
@@ -545,12 +541,8 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         return false;
     }
 
-    /**
-     * Handles the "refresh" option item.  Opens the settings activity.
-     * TODO used by experimental code in the activity -- otherwise can be private.
-     */
     @Override
-    public void onRefresh() {
+    protected void onRefresh() {
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
                 getMessageListMailboxId()).cancelPreviousAndExecuteParallel();
