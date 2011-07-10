@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.utility.DelayedOperations;
 
 import android.content.Context;
 import android.database.AbstractCursor;
@@ -285,6 +286,20 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
+     *  "Non" delayed operation -- runs the runnable immediately
+     */
+    private static final class NonDelayedOperations extends DelayedOperations {
+        public NonDelayedOperations() {
+            super(new Handler());
+        }
+
+        @Override
+        public void post(Runnable r) {
+            r.run();
+        }
+    }
+
+    /**
      * MessageOrderManager for test.  Overrides {@link #startQuery}
      */
     private static class MessageOrderManagerForTest extends MessageOrderManager {
@@ -292,7 +307,7 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         public boolean mStartQueryCalled;
 
         public MessageOrderManagerForTest(Context context, long mailboxId, Callback callback) {
-            super(context, mailboxId, callback);
+            super(context, mailboxId, callback, new NonDelayedOperations());
         }
 
         @Override void startQuery() {
