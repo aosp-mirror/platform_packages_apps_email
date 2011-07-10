@@ -396,10 +396,10 @@ public class NotificationController {
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unreadCount > 1 ? unreadCount : null;
         final Intent intent;
-        if (unseenMessageCount >= 1) {
-            intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
-        } else {
+        if (unseenMessageCount > 1) {
             intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
+        } else {
+            intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
         }
 
         Notification notification = createAccountNotification(account, null, title, text,
