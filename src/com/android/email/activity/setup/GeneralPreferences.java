@@ -16,20 +16,22 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Preferences;
-import com.android.email.R;
-
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import android.widget.Toast;
+
+import com.android.email.Preferences;
+import com.android.email.R;
 
 public class GeneralPreferences extends PreferenceFragment implements OnPreferenceChangeListener  {
 
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
+    private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
@@ -63,6 +65,24 @@ public class GeneralPreferences extends PreferenceFragment implements OnPreferen
             reloadDynamicSummaries();
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        if (getActivity() == null) {
+            // Guard against monkeys.
+            return false;
+        }
+
+        String key = preference.getKey();
+        if (key.equals(PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS)) {
+            mPreferences.clearTrustedSenders();
+            Toast.makeText(
+                    getActivity(), R.string.trusted_senders_cleared, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
         return false;
     }
 

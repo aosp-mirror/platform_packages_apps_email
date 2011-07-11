@@ -22,7 +22,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.emailcommon.Logging;
-import com.google.common.annotations.VisibleForTesting;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -224,6 +223,17 @@ public class Preferences {
                     .putString(TRUSTED_SENDERS, packEmailSet(mTrustedSenders))
                     .apply();
         }
+    }
+
+    /**
+     * Clears all trusted senders asynchronously.
+     */
+    public void clearTrustedSenders() {
+        mTrustedSenders = new HashSet<String>();
+        mSharedPreferences
+                .edit()
+                .putString(TRUSTED_SENDERS, packEmailSet(mTrustedSenders))
+                .apply();
     }
 
     HashSet<String> parseEmailSet(String serialized) throws JSONException {

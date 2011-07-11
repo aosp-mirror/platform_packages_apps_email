@@ -36,5 +36,10 @@
             android:entryValues="@array/general_preference_text_zoom_values"
             android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
+        <PreferenceScreen
+            android:key="clear_trusted_senders"
+            android:title="@string/general_preferences_clear_trusted_senders_title"
+            android:summary="@string/general_preferences_clear_trusted_senders_summary" />
+
     </PreferenceCategory>
 </PreferenceScreen>

@@ -1141,6 +1141,18 @@ save attachment.</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
 
+    <!-- Settings screen, title used to clear the setting for the list of
+         senders to automatically show pictures for [CHAR LIMIT=80] -->
+    <string name="general_preferences_clear_trusted_senders_title"
+        >Restore default for \"Show pictures\"</string>
+    <!-- Settings screen, summary for clearing the settings for the list of
+         senders to automatically show pictures for [CHAR LIMIT=160] -->
+    <string name="general_preferences_clear_trusted_senders_summary"
+        >Restore default for all senders (don\'t show pictures automatically)</string>
+    <!-- Message shown in toast when the user taps to clear the lsit of senders
+         to automatically show pictures for [CHAR LIMIT=80] -->
+    <string name="trusted_senders_cleared">\"Show pictures\" cleared.</string>
+
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
             example="12">%2$s</xliff:g></string>
