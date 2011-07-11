@@ -1145,8 +1145,10 @@ public class MessageListFragment extends ListFragment
     }
 
     private void showSendCommand(boolean show) {
-        mShowSendCommand = show;
-        mActivity.invalidateOptionsMenu();
+        if (show != mShowSendCommand) {
+            mShowSendCommand = show;
+            mActivity.invalidateOptionsMenu();
+        }
     }
 
     private void showSendCommandIfNecessary() {
@@ -1247,25 +1249,28 @@ public class MessageListFragment extends ListFragment
             }
 
             // If this is a search mailbox, set the query; otherwise, clear it
-            if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
-                mListAdapter.setQuery(getListContext().getSearchParams().mFilter);
-                mSearchedMailbox = ((SearchResultsCursor) c).getSearchedMailbox();
-            } else {
-                mListAdapter.setQuery(null);
-                mSearchedMailbox = null;
+            if (mIsFirstLoad) {
+                if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
+                    mListAdapter.setQuery(getListContext().getSearchParams().mFilter);
+                    mSearchedMailbox = ((SearchResultsCursor) c).getSearchedMailbox();
+                } else {
+                    mListAdapter.setQuery(null);
+                    mSearchedMailbox = null;
+                }
+                showSendCommandIfNecessary();
+
+                // Show chips if combined view.
+                mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
             }
 
             // Update the list
             mListAdapter.swapCursor(cursor);
-            // Show chips if combined view.
-            mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
 
             // Various post processing...
             updateSearchHeader(cursor);
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
-            showSendCommandIfNecessary();
             showNoMessageText((cursor.getCount() == 0)
                     && (getListContext().isSearch() || (mListFooterMode == LIST_FOOTER_MODE_NONE)));
 
