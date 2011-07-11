@@ -208,6 +208,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="0dip"
+                android:gravity="top"
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
                 android:inputType="textLongMessage|textMultiLine|textAutoCorrect|textCapSentences"

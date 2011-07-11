@@ -16,6 +16,49 @@
 
 package com.android.email.activity;
 
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.FragmentTransaction;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.OpenableColumns;
+import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.util.Rfc822Tokenizer;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.common.contacts.DataUsageStatUpdater;
 import com.android.email.Controller;
 import com.android.email.Email;
@@ -37,59 +80,9 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
-import com.android.ex.chips.AccountSpecifier;
-import com.android.ex.chips.BaseRecipientAdapter;
-import com.android.ex.chips.ChipsUtil;
-import com.android.ex.chips.RecipientEditTextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.FragmentTransaction;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.provider.OpenableColumns;
-import android.text.InputFilter;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.util.Rfc822Tokenizer;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.webkit.WebView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.SimpleAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -98,7 +91,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -2085,10 +2077,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     @VisibleForTesting
     void processSourceMessage(Message message, Account account) {
-        final String subject = message.mSubject;
+        String subject = message.mSubject;
+        if (subject == null) {
+            subject = "";
+        }
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
             setupAddressViews(message, account, ACTION_REPLY_ALL.equals(mAction));
-            if (subject != null && !subject.toLowerCase().startsWith("re:")) {
+            if (!subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);
             } else {
                 mSubjectView.setText(subject);
@@ -2097,8 +2092,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             setIncludeQuotedText(true, false);
         } else if (ACTION_FORWARD.equals(mAction)) {
             clearAddressViews();
-            mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
-                    "Fwd: " + subject : subject);
+            mSubjectView.setText(!subject.toLowerCase().startsWith("fwd:")
+                    ? "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
         } else {
