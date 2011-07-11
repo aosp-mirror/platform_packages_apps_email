@@ -337,7 +337,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     /**
      * Set the sync lookback window.  Be sure to call save() to commit to database.
      * TODO define sentinel values for "all", "1 month", etc.  See Account.java
-     * @param value One of the {@code Account.SYNC_WINDOW_*} constants
+     * @param value One of the {@link com.android.emailcommon.service.SyncWindow} constants
      */
     public void setSyncLookback(int value) {
         mSyncLookback = value;

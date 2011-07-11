@@ -88,6 +88,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
         hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress,
                 HostAuth.SCHEME_POP3, null);
+        AccountSetupBasics.setFlagsForProtocol(account, HostAuth.SCHEME_POP3);
         SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
@@ -104,10 +105,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
         hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress,
                 HostAuth.SCHEME_IMAP, null);
-        // Delete policy must be set explicitly, because IMAP does not provide a UI selection
-        // for it. This logic needs to be followed in the auto setup flow as well.
-        account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        account.mFlags |= Account.FLAGS_SUPPORTS_SEARCH;
+        AccountSetupBasics.setFlagsForProtocol(account, HostAuth.SCHEME_IMAP);
         SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
@@ -125,10 +123,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
         sendAuth.setConnection(HostAuth.SCHEME_EAS, sendAuth.mAddress, sendAuth.mPort,
                 sendAuth.mFlags | HostAuth.FLAG_SSL);
-        // TODO: Confirm correct delete policy for exchange
-        account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-        account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
-        account.setSyncLookback(1);
+        AccountSetupBasics.setFlagsForProtocol(account, HostAuth.SCHEME_EAS);
         SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         AccountSetupExchange.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
