@@ -756,7 +756,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
 
         // TODO: Should use an isSyncable call to prevent drafts/outbox from allowing this
-        menu.findItem(R.id.search).setVisible(accountSearchable && isMessageListReady());
+        menu.findItem(R.id.search).setVisible(accountSearchable);
         // TODO Show only for syncable mailbox as well.
         menu.findItem(R.id.mailbox_settings).setVisible(isEas
                 && (getMailboxSettingsMailboxId() != Mailbox.NO_MAILBOX));
