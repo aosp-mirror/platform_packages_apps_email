@@ -122,7 +122,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:gravity="left|top"
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
                 android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
