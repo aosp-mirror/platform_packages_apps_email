@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
@@ -23,6 +24,7 @@ import com.android.email.DBTestHelper;
 import com.android.email.MockClock;
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
             ProviderTestUtils.setupMailbox("costello", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
             ProviderTestUtils.setupMailbox("bud_lou", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
             ProviderTestUtils.setupMailbox("laurel", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
-            ProviderTestUtils.setupMailbox("hardy", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
+            ProviderTestUtils.setupMailbox("hardy", 1L, true, mMockContext, Mailbox.TYPE_MAIL)
         };
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
@@ -215,5 +217,25 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         assertEquals(mMailboxArray[7].mId, (long) testList.get(2));
         assertEquals(mMailboxArray[10].mId, (long) testList.get(3));
         assertEquals(mMailboxArray[9].mId, (long) testList.get(4));
+    }
+
+    public void testDoesNotIncludeExtraMailboxes() throws Exception {
+        ArrayList<Long> testList;
+
+        // The search mailbox should not be visible.
+        Mailbox searchMailbox = ProviderTestUtils.setupMailbox(
+                "search", 1L, true, mMockContext, Mailbox.TYPE_SEARCH);
+        ContentValues cv = new ContentValues();
+        cv.put(MailboxColumns.FLAG_VISIBLE, false);
+        searchMailbox.mFlagVisible = false;
+        searchMailbox.update(mMockContext, cv);
+
+        mMockClock.advance(1000L); mManager.touch(searchMailbox.mId).get();
+
+        // Ensure search mailbox isn't returned
+        testList = mManager.getMostRecent(1L, false);
+        assertFalse(testList.contains(searchMailbox.mId));
+        testList = mManager.getMostRecent(1L, true);
+        assertFalse(testList.contains(searchMailbox.mId));
     }
 }

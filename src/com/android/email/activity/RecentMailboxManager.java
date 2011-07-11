@@ -16,17 +16,16 @@
 
 package com.android.email.activity;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
 import com.android.email.Clock;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 
@@ -49,6 +48,7 @@ public class RecentMailboxManager {
             "( SELECT " + MailboxColumns.ID
             + " FROM " + Mailbox.TABLE_NAME
             + " WHERE ( " + MailboxColumns.ACCOUNT_KEY + "=? "
+            +     " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION
             +     " AND " + MailboxColumns.LAST_TOUCHED_TIME + ">0 )"
             + " ORDER BY " + MailboxColumns.LAST_TOUCHED_TIME + " DESC"
             + " LIMIT ? )";
@@ -58,6 +58,7 @@ public class RecentMailboxManager {
             "( SELECT " + MailboxColumns.ID
             + " FROM " + Mailbox.TABLE_NAME
             + " WHERE ( " + MailboxColumns.ACCOUNT_KEY + "=? "
+            +     " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION
             +     " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL
             +     " AND " + MailboxColumns.LAST_TOUCHED_TIME + ">0 )"
             + " ORDER BY " + MailboxColumns.LAST_TOUCHED_TIME + " DESC"
