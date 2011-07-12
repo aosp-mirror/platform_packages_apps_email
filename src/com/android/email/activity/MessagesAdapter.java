@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.CursorWrapper;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -289,28 +288,10 @@ import java.util.Set;
 
         @Override
         public Cursor loadInBackground() {
-            final Cursor returnCursor;
-
-            // Only perform a load if the selected mailbox can hold messages
-            // box can be null on the combined view where we use negative mailbox ids.
-            final boolean canHaveMessages;
-            if (mMailboxId < 0) {
-                // Combined mailboxes can always have messages.
-                canHaveMessages = true;
-            } else {
-                Mailbox box = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                canHaveMessages = (box != null) && (box.mFlags & Mailbox.FLAG_HOLDS_MAIL) != 0;
-            }
-            if (canHaveMessages) {
-                // Build the where cause (which can't be done on the UI thread.)
-                setSelection(Message.buildMessageListSelection(mContext, mMailboxId));
-                // Then do a query to get the cursor
-                returnCursor = super.loadInBackground();
-            } else {
-                // return an empty cursor
-                returnCursor = new MatrixCursor(getProjection());
-            }
-            return loadExtras(returnCursor);
+            // Build the where cause (which can't be done on the UI thread.)
+            setSelection(Message.buildMessageListSelection(mContext, mMailboxId));
+            // Then do a query to get the cursor
+            return loadExtras(super.loadInBackground());
         }
 
         private Cursor loadExtras(Cursor baseCursor) {
