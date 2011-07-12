@@ -18,4 +18,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:inputType="textEmailAddress|textMultiLine"
     android:imeOptions="actionNext"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
     style="@style/message_compose_header_field_value"/>
