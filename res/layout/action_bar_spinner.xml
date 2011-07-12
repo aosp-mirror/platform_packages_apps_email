@@ -14,50 +14,42 @@
      limitations under the License.
 -->
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/account_spinner_width"
     android:layout_height="match_parent"
-    android:layout_gravity="center_vertical"
-    android:orientation="horizontal"
     style="@android:style/Widget.Holo.Spinner"
     >
-    <LinearLayout
-        android:layout_width="0dip"
-        android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical"
-        >
-        <TextView
-            android:id="@+id/spinner_line_1"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:textSize="16dip"
-            android:textColor="@color/text_primary_color"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            />
-        <TextView
-            android:id="@+id/spinner_line_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="12dip"
-            android:textColor="@color/text_primary_color"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            />
-    </LinearLayout>
     <TextView
         android:id="@+id/spinner_count"
         style="@style/action_bar_unread_count"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:includeFontPadding="false"
         android:singleLine="true"
         android:ellipsize="none"
         android:gravity="center"
         />
-</LinearLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/spinner_count"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        >
+        <TextView
+            android:id="@+id/spinner_line_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/action_bar_spinner_primary_text"
+            />
+        <TextView
+            android:id="@+id/spinner_line_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinner_line_1"
+            style="@style/action_bar_spinner_secondary_text"
+            />
+    </RelativeLayout>
+</RelativeLayout>

@@ -123,4 +123,16 @@
         <item name="android:layout_width">420dip</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
+    <style name="action_bar_spinner_primary_text">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/text_primary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="action_bar_spinner_secondary_text">
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>
