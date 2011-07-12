@@ -31,27 +31,16 @@
             android:text="@string/message_view_date_label"
             style="@style/message_details_label"
             />
-        <RelativeLayout
-            android:layout_width="wrap_content"
+
+        <!-- Put in some margin on the right to accomodate for the "hide
+             details" icon -->
+        <TextView
+            android:id="@+id/date"
+            style="@style/message_details_value"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
-            <ImageView
-                android:id="@+id/show_details"
-                android:src="@drawable/ic_menu_expander_maximized_holo_light"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                />
-            <TextView
-                android:id="@+id/date"
-                android:layout_toLeftOf="@+id/show_details"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                style="@style/message_details_value"
-                />
-        </RelativeLayout>
+            android:layout_marginRight="32dip"
+            />
     </TableRow>
     <TableRow
         android:id="@+id/to_row"
