@@ -349,9 +349,13 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         Account account = SetupData.getAccount();
         HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
 
-        String userName = mUsernameView.getText().toString().trim();
-        String userPassword = mPasswordView.getText().toString();
-        sendAuth.setLogin(userName, userPassword);
+        if (mRequireLoginView.isChecked()) {
+            String userName = mUsernameView.getText().toString().trim();
+            String userPassword = mPasswordView.getText().toString();
+            sendAuth.setLogin(userName, userPassword);
+        } else {
+            sendAuth.setLogin(null, null);
+        }
 
         String serverAddress = mServerView.getText().toString().trim();
         int serverPort;
