@@ -69,12 +69,9 @@
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
     </style>
-    <style name="message_compose_header_field_container" parent="android:Widget.Holo.Light.EditText">
+    <style name="message_compose_header_field_container" parent="@android:style/Widget.AutoCompleteTextView">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dip</item>
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:paddingTop">0dip</item>
-        <item name="android:paddingBottom">0dip</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">0dip</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:addStatesFromChildren">true</item>
