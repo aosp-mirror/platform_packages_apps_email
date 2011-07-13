@@ -1486,21 +1486,24 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testSetGetDefaultAccount() {
         // There should be no default account if there are no accounts
         long defaultAccountId = Account.getDefaultAccountId(mMockContext);
-        assertEquals(-1, defaultAccountId);
+        assertEquals(Account.NO_ACCOUNT, defaultAccountId);
 
-        Account account1 = ProviderTestUtils.setupAccount("account-default-1", true, mMockContext);
+        Account account1 = ProviderTestUtils.setupAccount("account-default-1", false, mMockContext);
+        account1.mIsDefault = false;
+        account1.save(mMockContext);
         long account1Id = account1.mId;
-        Account account2 = ProviderTestUtils.setupAccount("account-default-2", true, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("account-default-2", false, mMockContext);
+        account2.mIsDefault = false;
+        account2.save(mMockContext);
         long account2Id = account2.mId;
-        Account account3 = ProviderTestUtils.setupAccount("account-default-3", true, mMockContext);
+        Account account3 = ProviderTestUtils.setupAccount("account-default-3", false, mMockContext);
+        account3.mIsDefault = false;
+        account3.save(mMockContext);
         long account3Id = account3.mId;
 
-        // With three accounts, but none marked default, confirm that some default account
-        // is returned.  Which one is undefined here.
+        // With three accounts, but none marked default, confirm that the first one is the default.
         defaultAccountId = Account.getDefaultAccountId(mMockContext);
-        assertTrue(defaultAccountId == account1Id
-                    || defaultAccountId == account2Id
-                    || defaultAccountId == account3Id);
+        assertTrue(defaultAccountId == account1Id);
 
         updateIsDefault(account1, true);
         defaultAccountId = Account.getDefaultAccountId(mMockContext);
