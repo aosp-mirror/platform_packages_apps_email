@@ -31,6 +31,9 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
@@ -68,6 +71,7 @@ import java.util.ArrayList;
  * what notification URI each cursor has, and with which URI is notified when
  * inserting/updating/deleting.  (The former require a new method from AbstractCursor)
  */
+@LargeTest
 public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
     private EmailProvider mProvider;
@@ -133,6 +137,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test simple account save/retrieve
      */
+    @SmallTest
     public void testAccountSave() {
         Account account1 = ProviderTestUtils.setupAccount("account-save", true, mMockContext);
         long account1Id = account1.mId;
@@ -145,6 +150,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Test simple account save/retrieve with predefined hostauth records
      */
+    @SmallTest
     public void testAccountSaveHostAuth() {
         Account account1 = ProviderTestUtils.setupAccount("account-hostauth", false, mMockContext);
         // add hostauth data, which should be saved the first time
@@ -384,6 +390,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      *
      * TODO: serverId vs. serverIntId
      */
+    @MediumTest
     public void testMessageSave() {
         Account account1 = ProviderTestUtils.setupAccount("message-save", true, mMockContext);
         long account1Id = account1.mId;
@@ -1445,6 +1452,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         }
     }
 
+    @SmallTest
     public void testGetDefaultAccountNoneExplicitlySet() {
         Account account1 = ProviderTestUtils.setupAccount("account-default-1", false, mMockContext);
         account1.mIsDefault = false;
@@ -1454,13 +1462,18 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long defaultAccountId = Account.getDefaultAccountId(mMockContext);
         assertEquals(defaultAccountId, account1.mId);
 
-        Account account2 = ProviderTestUtils.setupAccount("account-default-1", false, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("account-default-2", false, mMockContext);
         account2.mIsDefault = false;
         account2.save(mMockContext);
 
-        // We should find one of the two as default
+        Account account3 = ProviderTestUtils.setupAccount("account-default-3", false, mMockContext);
+        account3.mIsDefault = false;
+        account3.save(mMockContext);
+
+        // We should find the earliest one as the default, so that it can be consistent on
+        // repeated calls.
         defaultAccountId = Account.getDefaultAccountId(mMockContext);
-        assertTrue(defaultAccountId == account1.mId || defaultAccountId == account2.mId);
+        assertTrue(defaultAccountId == account1.mId);
     }
 
     /**
