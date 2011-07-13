@@ -1763,7 +1763,9 @@ public class EmailProvider extends ContentProvider {
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
                     long accountId = Account.NO_ACCOUNT;
-                    // Find the account with "isDefault" set
+                    // Find the account with "isDefault" set, or the lowest account ID otherwise.
+                    // Note that the snapshot from the cached isn't guaranteed to be sorted in any
+                    // way.
                     Collection<Cursor> accounts = accountCache.values();
                     for (Cursor accountCursor: accounts) {
                         // For now, at least, we can have zero count cursors (e.g. if someone looks
@@ -1771,11 +1773,13 @@ public class EmailProvider extends ContentProvider {
                         if (accountCursor.moveToFirst()) {
                             boolean isDefault =
                                 accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1;
+                            long iterId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
                             // We'll remember this one if it's the default or the first one we see
-                            if (isDefault || accountId == Account.NO_ACCOUNT) {
-                                accountId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
-                                // If it's the default, we're done
-                                if (isDefault) break;
+                            if (isDefault) {
+                                accountId = iterId;
+                                break;
+                            } else if ((accountId == Account.NO_ACCOUNT) || (iterId < accountId)) {
+                                accountId = iterId;
                             }
                         }
                     }

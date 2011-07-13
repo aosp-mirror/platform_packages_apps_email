@@ -322,10 +322,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void setAccount(Intent intent) {
         long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        if (accountId == -1) {
+        if (accountId == Account.NO_ACCOUNT) {
             accountId = Account.getDefaultAccountId(this);
         }
-        if (accountId == -1) {
+        if (accountId == Account.NO_ACCOUNT) {
             // There are no accounts set up. This should not have happened. Prompt the
             // user to set up an account as an acceptable bailout.
             Welcome.actionStart(this);
@@ -1653,10 +1653,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void onActionBarHomePressed() {
         finish();
         if (isOpenedFromWithinApp()) {
-            // If opend from within the app, we just close it.
+            // If opened from within the app, we just close it.
         } else {
-            // Otherwise, need to open the main screen.  Let Welcome do that.
-            Welcome.actionStart(this);
+            // Otherwise, need to open the main screen for the appropriate account.
+            // Note that mAccount should always be set by the time the action bar is set up.
+            startActivity(Welcome.createOpenAccountInboxIntent(this, mAccount.mId));
         }
     }
 
