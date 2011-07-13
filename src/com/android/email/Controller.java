@@ -1134,8 +1134,11 @@ public class Controller {
                 return; // Already deleted?
             }
 
-            Uri uri = ContentUris.withAppendedId(
-                    Account.CONTENT_URI, accountId);
+            // Delete account data, attachments, PIM data, etc.
+            deleteSyncedDataSync(accountId);
+
+            // Now delete the account itself
+            Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
             context.getContentResolver().delete(uri, null, null);
 
             backupAccounts(context);
