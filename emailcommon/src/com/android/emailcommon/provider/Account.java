@@ -549,7 +549,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      * Return the id of the default account.  If one hasn't been explicitly specified, return
      * the first one in the database (the logic is provided within EmailProvider)
      * @param context the caller's context
-     * @return the id of the default account, or -1 if there are no accounts
+     * @return the id of the default account, or Account.NO_ACCOUNT if there are no accounts
      */
     static public long getDefaultAccountId(Context context) {
         Cursor c = context.getContentResolver().query(
@@ -561,7 +561,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         } finally {
             c.close();
         }
-        return -1;
+        return Account.NO_ACCOUNT;
     }
 
     /**
