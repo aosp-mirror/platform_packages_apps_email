@@ -183,7 +183,9 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
     // MessageListFragment$Callback
     @Override
     public boolean onDragStarted() {
-        Log.w(Logging.LOG_TAG, "Drag started");
+        if (Email.DEBUG) {
+            Log.i(Logging.LOG_TAG, "Drag started");
+        }
 
         if (((mListContext != null) && mListContext.isSearch())
                 || !mThreePane.isLeftPaneVisible()) {
@@ -191,17 +193,15 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
             return false;
         }
 
-        // STOPSHIP Save the current mailbox list
-
         return true;
     }
 
     // MessageListFragment$Callback
     @Override
     public void onDragEnded() {
-        Log.w(Logging.LOG_TAG, "Drag ended");
-
-        // STOPSHIP Restore the saved mailbox list
+        if (Email.DEBUG) {
+            Log.i(Logging.LOG_TAG, "Drag ended");
+        }
     }
 
 
