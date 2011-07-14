@@ -193,6 +193,10 @@ class ImapFolder extends Folder {
             return true;
 
         } catch (MessagingException me) {
+            // Treat IOERROR messaging exception as IOException
+            if (me.getExceptionType() == MessagingException.IOERROR) {
+                throw me;
+            }
             return false;
 
         } catch (IOException ioe) {
