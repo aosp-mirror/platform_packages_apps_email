@@ -19,7 +19,9 @@ package com.android.email.activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
+import com.android.email.Controller;
 import com.android.email.DBTestHelper;
 import com.android.email.MockClock;
 import com.android.email.provider.ContentCache;
@@ -28,6 +30,8 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Tests for the recent mailbox manager.
@@ -35,6 +39,7 @@ import java.util.ArrayList;
  * You can run this entire test case with:
  *   runtest -c com.android.email.activity.RecentMailboxManagerTest email
  */
+@MediumTest
 public class RecentMailboxManagerTest extends AndroidTestCase {
 
     private Context mMockContext;
@@ -53,6 +58,7 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         mMockClock = new MockClock();
         RecentMailboxManager.sClock = mMockClock;
         mManager = RecentMailboxManager.getInstance(mMockContext);
+        Controller.getInstance(mMockContext).setProviderContext(mMockContext);
         mMailboxArray = new Mailbox[] {
             ProviderTestUtils.setupMailbox("inbox", 1L, true, mMockContext, Mailbox.TYPE_INBOX),
             ProviderTestUtils.setupMailbox("drafts", 1L, true, mMockContext, Mailbox.TYPE_DRAFTS),
@@ -77,14 +83,22 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
     }
 
     public void testTouch() throws Exception {
+        Set<Integer> defaultRecents = new HashSet<Integer>() {{
+            for (int type : RecentMailboxManager.DEFAULT_RECENT_TYPES) {
+                add(type);
+            }
+        }};
+
         // Ensure all accounts can be touched
         for (Mailbox mailbox : mMailboxArray) {
             // Safety ... default touch time
             Mailbox untouchedMailbox = Mailbox.restoreMailboxWithId(mMockContext, mailbox.mId);
-            assertEquals(0L, untouchedMailbox.mLastTouchedTime);
+            if (!defaultRecents.contains(mailbox.mType)) {
+                assertEquals(0L, untouchedMailbox.mLastTouchedTime);
+            }
 
             // Touch the mailbox
-            mManager.touch(mailbox.mId).get();
+            mManager.touch(1L, mailbox.mId).get();
 
             // Touch time is actually set
             Mailbox touchedMailbox = Mailbox.restoreMailboxWithId(mMockContext, mailbox.mId);
@@ -123,17 +137,18 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
     public void testGetMostRecent02() throws Exception {
         ArrayList<Long> testList;
         // touch some mailboxes
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[0].mId); // inbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[3].mId); // sent
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[0].mId); // inbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
         // need to wait for the last one to ensure getMostRecent() has something to work on
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[7].mId).get(); // user mailbox #2
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[7].mId).get(); // user mailbox 2
 
-        // test recent list not full
+        // test recent list not full, so is padded with default mailboxes
         testList = mManager.getMostRecent(1L, false);
-        assertEquals(3, testList.size());
+        assertEquals(4, testList.size());
         assertEquals(mMailboxArray[7].mId, (long) testList.get(0));
-        assertEquals(mMailboxArray[0].mId, (long) testList.get(1));
-        assertEquals(mMailboxArray[3].mId, (long) testList.get(2));
+        assertEquals(mMailboxArray[1].mId, (long) testList.get(1));
+        assertEquals(mMailboxArray[0].mId, (long) testList.get(2));
+        assertEquals(mMailboxArray[3].mId, (long) testList.get(3));
         testList = mManager.getMostRecent(1L, true);
         assertEquals(1, testList.size());
         assertEquals(mMailboxArray[7].mId, (long) testList.get(0));
@@ -144,35 +159,37 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         ArrayList<Long> testList;
 
         // touch some more mailboxes
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[3].mId); // sent
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[4].mId); // trash
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[2].mId); // outbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[8].mId); // user mailbox #3
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[7].mId).get(); // user mailbox #2
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId); // trash
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[2].mId); // outbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[8].mId); // bud_lou
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[7].mId); // costello
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[9].mId).get(); // laurel
 
         // test full recent list
         testList = mManager.getMostRecent(1L, false);
         assertEquals(5, testList.size());
-        assertEquals(mMailboxArray[8].mId, (long) testList.get(0));
-        assertEquals(mMailboxArray[7].mId, (long) testList.get(1));
-        assertEquals(mMailboxArray[2].mId, (long) testList.get(2));
-        assertEquals(mMailboxArray[3].mId, (long) testList.get(3));
-        assertEquals(mMailboxArray[4].mId, (long) testList.get(4));
+        assertEquals(mMailboxArray[8].mId, (long) testList.get(0)); // bud_lou
+        assertEquals(mMailboxArray[7].mId, (long) testList.get(1)); // costello
+        assertEquals(mMailboxArray[9].mId, (long) testList.get(2)); // laurel
+        assertEquals(mMailboxArray[2].mId, (long) testList.get(3)); // outbox
+        assertEquals(mMailboxArray[4].mId, (long) testList.get(4)); // trash
         testList = mManager.getMostRecent(1L, true);
-        assertEquals(2, testList.size());
+        assertEquals(3, testList.size());
         assertEquals(mMailboxArray[8].mId, (long) testList.get(0));
         assertEquals(mMailboxArray[7].mId, (long) testList.get(1));
+        assertEquals(mMailboxArray[9].mId, (long) testList.get(2));
     }
 
     /** Test limit for system mailboxes */
     public void testGetMostRecent04() throws Exception {
         ArrayList<Long> testList;
 
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[0].mId); // inbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[1].mId); // drafts
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[2].mId); // outbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[3].mId); // sent
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[4].mId).get(); // trash
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[0].mId); // inbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[1].mId); // drafts
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[2].mId); // outbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId).get(); // trash
 
         // nothing but system mailboxes
         testList = mManager.getMostRecent(1L, false);
@@ -191,16 +208,16 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         ArrayList<Long> testList;
 
         // test limit for the filtered list
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[6].mId); // abbott
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[7].mId); // costello
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[8].mId); // bud_lou
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[9].mId); // laurel
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[10].mId); // hardy
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[0].mId); // inbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[1].mId); // drafts
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[2].mId); // outbox
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[3].mId); // sent
-        mMockClock.advance(1000L); mManager.touch(mMailboxArray[4].mId).get(); // trash
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[6].mId); // abbott
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[7].mId); // costello
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[8].mId); // bud_lou
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[9].mId); // laurel
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[10].mId); // hardy
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[0].mId); // inbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[1].mId); // drafts
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[2].mId); // outbox
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId).get(); // trash
 
         // nothing but user mailboxes
         testList = mManager.getMostRecent(1L, false);
@@ -230,7 +247,7 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         searchMailbox.mFlagVisible = false;
         searchMailbox.update(mMockContext, cv);
 
-        mMockClock.advance(1000L); mManager.touch(searchMailbox.mId).get();
+        mMockClock.advance(1000L); mManager.touch(1L, searchMailbox.mId).get();
 
         // Ensure search mailbox isn't returned
         testList = mManager.getMostRecent(1L, false);

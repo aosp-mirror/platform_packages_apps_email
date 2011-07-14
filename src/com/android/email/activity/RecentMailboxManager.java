@@ -16,18 +16,22 @@
 
 package com.android.email.activity;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
 import com.android.email.Clock;
+import com.android.email.Controller;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Manages recent data for mailboxes.
@@ -63,13 +67,16 @@ public class RecentMailboxManager {
             +     " AND " + MailboxColumns.LAST_TOUCHED_TIME + ">0 )"
             + " ORDER BY " + MailboxColumns.LAST_TOUCHED_TIME + " DESC"
             + " LIMIT ? )";
-    private final Context mContext;
 
     /** Mailbox types for default "recent mailbox" entries if none exist */
-    private static final int[] DEFAULT_RECENT_TYPES = new int[] {
+    @VisibleForTesting
+    static final int[] DEFAULT_RECENT_TYPES = new int[] {
         Mailbox.TYPE_DRAFTS,
         Mailbox.TYPE_SENT,
     };
+
+    private final Context mContext;
+    private final HashMap<Long, Boolean> mDefaultRecentsInitialized;
 
     public static synchronized RecentMailboxManager getInstance(Context context) {
         if (sInstance == null) {
@@ -81,11 +88,12 @@ public class RecentMailboxManager {
     /** Hide constructor */
     private RecentMailboxManager(Context context) {
         mContext = context;
+        mDefaultRecentsInitialized = Maps.newHashMap();
     }
 
     /** Updates the specified mailbox's touch time. Returns an async task for test only. */
-    public EmailAsyncTask<Void, Void, Void> touch(long mailboxId) {
-        return fireAndForget(mailboxId, sClock.getTime());
+    public EmailAsyncTask<Void, Void, Void> touch(long accountId, long mailboxId) {
+        return fireAndForget(accountId, mailboxId, sClock.getTime());
     }
 
     /**
@@ -98,6 +106,8 @@ public class RecentMailboxManager {
      *          Otherwise, only user defined mailboxes are eligible for the recent list.
      */
     public ArrayList<Long> getMostRecent(long accountId, boolean withExclusions) {
+        ensureDefaultsInitialized(accountId, sClock.getTime());
+
         String selection = withExclusions ? RECENT_SELECTION_WITH_EXCLUSIONS : RECENT_SELECTION;
         ArrayList<Long> returnList = new ArrayList<Long>();
         Cursor cursor = mContext.getContentResolver().query(Mailbox.CONTENT_URI,
@@ -112,35 +122,47 @@ public class RecentMailboxManager {
         } finally {
             cursor.close();
         }
-        if (returnList.size() == 0 && !withExclusions) {
-            returnList = getDefaultMostRecent(accountId);
-        }
-        return returnList;
-    }
-
-    /** Gets the default recent mailbox list. */
-    private ArrayList<Long> getDefaultMostRecent(long accountId) {
-        ArrayList<Long> returnList = new ArrayList<Long>();
-        for (int type : DEFAULT_RECENT_TYPES) {
-            Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId, type);
-            if (mailbox != null) {
-                returnList.add(mailbox.mId);
-            }
-        }
         return returnList;
     }
 
     /** Updates the last touched time for the mailbox in the background */
-    private EmailAsyncTask<Void, Void, Void> fireAndForget(final long mailboxId, final long time) {
+    private EmailAsyncTask<Void, Void, Void> fireAndForget(
+            final long accountId, final long mailboxId, final long time) {
         return EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
-                ContentValues values = new ContentValues();
-                values.put(MailboxColumns.LAST_TOUCHED_TIME, time);
-                mContext.getContentResolver().update(Mailbox.CONTENT_URI, values,
-                    EmailContent.ID_SELECTION,
-                    new String[] { Long.toString(mailboxId) });
+                ensureDefaultsInitialized(accountId, time);
+                touchMailboxSynchronous(accountId, mailboxId, time);
             }
         });
+    }
+
+    private void touchMailboxSynchronous(long accountId, long mailboxId, long time) {
+        ContentValues values = new ContentValues();
+        values.put(MailboxColumns.LAST_TOUCHED_TIME, time);
+        mContext.getContentResolver().update(
+                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                values, null, null);
+    }
+
+    /**
+     * Ensures the default recent mailboxes have been set for this account.
+     */
+    private synchronized void ensureDefaultsInitialized(long accountId, long time) {
+        if (Boolean.TRUE.equals(mDefaultRecentsInitialized.get(accountId))) {
+            return;
+        }
+
+        String[] args = new String[] { Long.toString(accountId), Integer.toString(LIMIT_RESULTS) };
+        if (EmailContent.count(mContext, Mailbox.CONTENT_URI, RECENT_SELECTION, args) == 0) {
+            // There are no recent mailboxes at all. Populate with default set.
+            for (int type : DEFAULT_RECENT_TYPES) {
+                long mailbox = Controller.getInstance(mContext).findOrCreateMailboxOfType(
+                        accountId, type);
+                touchMailboxSynchronous(accountId, mailbox, time);
+            }
+        }
+
+        mDefaultRecentsInitialized.put(accountId, true);
     }
 }

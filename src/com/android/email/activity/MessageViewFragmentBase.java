@@ -1079,7 +1079,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             reloadUiFromMessage(message, mOkToFetch);
             queryContactStatus();
             onMessageShown(mMessageId, mMailboxType);
-            RecentMailboxManager.getInstance(mContext).touch(message.mMailboxKey);
+            RecentMailboxManager.getInstance(mContext).touch(mAccountId, message.mMailboxKey);
         }
     }
 
