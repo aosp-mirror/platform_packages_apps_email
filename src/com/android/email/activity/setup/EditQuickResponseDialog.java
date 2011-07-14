@@ -28,15 +28,19 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 /**
  * Dialog to edit the text of a given or new quick response
  */
 public class EditQuickResponseDialog extends DialogFragment
-        implements DialogInterface.OnClickListener {
+        implements DialogInterface.OnClickListener, TextWatcher {
     private EditText mQuickResponseEditText;
     private QuickResponse mQuickResponse;
+    private AlertDialog mDialog;
 
     private static final String QUICK_RESPONSE_EDITED_STRING = "quick_response_edited_string";
     private static final String QUICK_RESPONSE = "quick_response";
@@ -66,11 +70,9 @@ public class EditQuickResponseDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Context context = getActivity();
-        final AlertDialog.Builder b = new AlertDialog.Builder(context);
-
-        mQuickResponseEditText = new EditText(context);
         mQuickResponse = (QuickResponse) getArguments().getParcelable(QUICK_RESPONSE);
 
+        mQuickResponseEditText = new EditText(context);
         if (savedInstanceState != null) {
             String quickResponseSavedString =
                     savedInstanceState.getString(QUICK_RESPONSE_EDITED_STRING);
@@ -81,13 +83,40 @@ public class EditQuickResponseDialog extends DialogFragment
             mQuickResponseEditText.setText(mQuickResponse.toString());
         }
         mQuickResponseEditText.setSelection(mQuickResponseEditText.length());
+        mQuickResponseEditText.addTextChangedListener(this);
 
+        final AlertDialog.Builder b = new AlertDialog.Builder(context);
         b.setTitle(getResources().getString(R.string.edit_quick_response_dialog))
                 .setView(mQuickResponseEditText)
                 .setNegativeButton(R.string.cancel_action, this)
                 .setPositiveButton(R.string.save_action, this);
-        return b.create();
+        mDialog = b.create();
+        return mDialog;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDialog.getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (mQuickResponseEditText.length() == 0) {
+            mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        }
+    }
+
+    // implements TextWatcher
+    @Override
+    public void afterTextChanged(Editable s) {
+            mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
+    }
+
+    // implements TextWatcher
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+    // implements TextWatcher
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     // Saves contents during orientation change
     @Override
