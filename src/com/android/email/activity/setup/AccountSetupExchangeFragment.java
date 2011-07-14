@@ -262,6 +262,10 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
         if (hostAuth.mPassword != null) {
             mPasswordView.setText(hostAuth.mPassword);
+            // Since username is uneditable, focus on the next editable field
+            if (mSettingsMode) {
+                mPasswordView.requestFocus();
+            }
         }
 
         String protocol = hostAuth.mProtocol;
