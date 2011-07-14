@@ -605,11 +605,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void initViews() {
         mToView = UiUtilities.getView(this, R.id.to);
-        mToView.setHint(R.string.message_compose_to_hint);
         mCcView = UiUtilities.getView(this, R.id.cc);
-        mCcView.setHint(R.string.message_compose_cc_hint);
         mBccView = UiUtilities.getView(this, R.id.bcc);
-        mBccView.setHint(R.string.message_compose_bcc_hint);
+        // add hints only when no labels exist
+        if (UiUtilities.getViewOrNull(this, R.id.to_label) == null) {
+            mToView.setHint(R.string.message_compose_to_hint);
+            mCcView.setHint(R.string.message_compose_cc_hint);
+            mBccView.setHint(R.string.message_compose_bcc_hint);
+        }
 
         mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
         mSubjectView = UiUtilities.getView(this, R.id.subject);
