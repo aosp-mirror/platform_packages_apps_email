@@ -606,7 +606,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
                 return;
             }
             if (isCurrentMailboxRefreshable) {
-                mRefreshManager.refreshMessageList(mAccountId, mMailboxId, false);
+                mRefreshManager.refreshMessageList(mAccountId, mMailboxId, true);
             }
             // Refresh mailbox list
             if (mAccountId != Account.NO_ACCOUNT) {
@@ -616,7 +616,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
             }
             // Refresh inbox
             if (shouldAutoRefreshInbox()) {
-                mRefreshManager.refreshMessageList(mAccountId, mInboxId, false);
+                mRefreshManager.refreshMessageList(mAccountId, mInboxId, true);
             }
         }
 
