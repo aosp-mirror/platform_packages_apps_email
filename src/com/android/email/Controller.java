@@ -493,10 +493,9 @@ public class Controller {
     /**
      * Returns the server-side name for a specific mailbox.
      *
-     * @param mailboxType the mailbox type
      * @return the resource string corresponding to the mailbox type, empty if not found.
      */
-    /* package */ String getMailboxServerName(int mailboxType) {
+    public static String getMailboxServerName(Context context, int mailboxType) {
         int resId = -1;
         switch (mailboxType) {
             case Mailbox.TYPE_INBOX:
@@ -518,7 +517,7 @@ public class Controller {
                 resId = R.string.mailbox_name_server_junk;
                 break;
         }
-        return resId != -1 ? mContext.getString(resId) : "";
+        return resId != -1 ? context.getString(resId) : "";
     }
 
     /**
@@ -532,17 +531,8 @@ public class Controller {
             Log.e(Logging.LOG_TAG, mes);
             throw new RuntimeException(mes);
         }
-        Mailbox box = new Mailbox();
-        box.mAccountKey = accountId;
-        box.mType = mailboxType;
-        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
-        box.mFlagVisible = true;
-        box.mServerId = box.mDisplayName = getMailboxServerName(mailboxType);
-        // All system mailboxes are off the top-level & can hold mail
-        if (mailboxType != Mailbox.TYPE_MAIL) {
-            box.mParentKey = Mailbox.NO_MAILBOX;
-            box.mFlags = Mailbox.FLAG_HOLDS_MAIL;
-        }
+        Mailbox box = Mailbox.newSystemMailbox(
+                accountId, mailboxType, getMailboxServerName(mContext, mailboxType));
         box.save(mProviderContext);
         return box.mId;
     }

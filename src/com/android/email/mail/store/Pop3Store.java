@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
@@ -150,6 +151,13 @@ public class Pop3Store extends Store {
         return folder;
     }
 
+    private final int[] DEFAULT_FOLDERS = {
+            Mailbox.TYPE_DRAFTS,
+            Mailbox.TYPE_OUTBOX,
+            Mailbox.TYPE_SENT,
+            Mailbox.TYPE_TRASH
+    };
+
     @Override
     public Folder[] updateFolders() {
         Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
@@ -161,6 +169,15 @@ public class Pop3Store extends Store {
         } else {
             mailbox.save(mContext);
         }
+
+        // Build default mailboxes as well, in case they're not already made.
+        for (int type : DEFAULT_FOLDERS) {
+            if (Mailbox.findMailboxOfType(mContext, mAccount.mId, type) == Mailbox.NO_MAILBOX) {
+                String name = Controller.getMailboxServerName(mContext, type);
+                Mailbox.newSystemMailbox(mAccount.mId, type, name).save(mContext);
+            }
+        }
+
         return new Folder[] { getFolder(POP3_MAILBOX_NAME) };
     }
 
@@ -701,7 +718,8 @@ public class Pop3Store extends Store {
                 for (int i = 0, count = messages.length; i < count; i++) {
                     Message message = messages[i];
                     if (!(message instanceof Pop3Message)) {
-                        throw new MessagingException("Pop3Store.fetch called with non-Pop3 Message");
+                        throw new MessagingException(
+                                "Pop3Store.fetch called with non-Pop3 Message");
                     }
                     Pop3Message pop3Message = (Pop3Message)message;
                     String response = executeSimpleCommand(String.format("LIST %d",
@@ -944,8 +962,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
-                throws MessagingException {
+        public Message[] getMessages(SearchParams params, MessageRetrievalListener listener) {
             return null;
         }
     }

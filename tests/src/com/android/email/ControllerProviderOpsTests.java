@@ -85,22 +85,22 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * These are strings that should not change per locale.
      */
     public void testGetMailboxServerName() {
-        assertEquals("", mTestController.getMailboxServerName(-1));
+        assertEquals("", Controller.getMailboxServerName(mContext, -1));
 
-        assertEquals("Inbox", mTestController.getMailboxServerName(Mailbox.TYPE_INBOX));
-        assertEquals("Outbox", mTestController.getMailboxServerName(Mailbox.TYPE_OUTBOX));
-        assertEquals("Trash", mTestController.getMailboxServerName(Mailbox.TYPE_TRASH));
-        assertEquals("Sent", mTestController.getMailboxServerName(Mailbox.TYPE_SENT));
-        assertEquals("Junk", mTestController.getMailboxServerName(Mailbox.TYPE_JUNK));
+        assertEquals("Inbox", Controller.getMailboxServerName(mContext, Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", Controller.getMailboxServerName(mContext, Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", Controller.getMailboxServerName(mContext, Mailbox.TYPE_TRASH));
+        assertEquals("Sent", Controller.getMailboxServerName(mContext, Mailbox.TYPE_SENT));
+        assertEquals("Junk", Controller.getMailboxServerName(mContext, Mailbox.TYPE_JUNK));
 
         // Now try again with translation
         Locale savedLocale = Locale.getDefault();
         Locale.setDefault(Locale.FRANCE);
-        assertEquals("Inbox", mTestController.getMailboxServerName(Mailbox.TYPE_INBOX));
-        assertEquals("Outbox", mTestController.getMailboxServerName(Mailbox.TYPE_OUTBOX));
-        assertEquals("Trash", mTestController.getMailboxServerName(Mailbox.TYPE_TRASH));
-        assertEquals("Sent", mTestController.getMailboxServerName(Mailbox.TYPE_SENT));
-        assertEquals("Junk", mTestController.getMailboxServerName(Mailbox.TYPE_JUNK));
+        assertEquals("Inbox", Controller.getMailboxServerName(mContext, Mailbox.TYPE_INBOX));
+        assertEquals("Outbox", Controller.getMailboxServerName(mContext, Mailbox.TYPE_OUTBOX));
+        assertEquals("Trash", Controller.getMailboxServerName(mContext, Mailbox.TYPE_TRASH));
+        assertEquals("Sent", Controller.getMailboxServerName(mContext, Mailbox.TYPE_SENT));
+        assertEquals("Junk", Controller.getMailboxServerName(mContext, Mailbox.TYPE_JUNK));
         Locale.setDefault(savedLocale);
     }
 

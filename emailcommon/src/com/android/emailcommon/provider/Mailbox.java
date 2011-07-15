@@ -223,6 +223,27 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     }
 
     /**
+     * Builds a new mailbox with "typical" settings for a system mailbox, such as a local "Drafts"
+     * mailbox. This is useful for protocols like POP3 or IMAP who don't have certain local
+     * system mailboxes synced with the server.
+     * Note: the mailbox is not persisted - clients must call {@link #save} themselves.
+     */
+    public static Mailbox newSystemMailbox(long accountId, int mailboxType, String name) {
+        if (mailboxType == Mailbox.TYPE_MAIL) {
+            throw new IllegalArgumentException("Cannot specify TYPE_MAIL for a system mailbox");
+        }
+        Mailbox box = new Mailbox();
+        box.mAccountKey = accountId;
+        box.mType = mailboxType;
+        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
+        box.mFlagVisible = true;
+        box.mServerId = box.mDisplayName = name;
+        box.mParentKey = Mailbox.NO_MAILBOX;
+        box.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+        return box;
+    }
+
+    /**
      * Returns a Mailbox from the database, given its pathname and account id. All mailbox
      * paths for a particular account must be unique. Paths are stored in the column
      * {@link MailboxColumns#SERVER_ID} for want of yet another column in the table.
