@@ -53,6 +53,8 @@
     <string name="compose_action" msgid="4045702519637388045">"Nov messadi"</string>
     <string name="search_action" msgid="6325101454876682308">"Tschertgar"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Parameters dal conto"</string>
+    <!-- no translation found for mailbox_settings_action (4810618229637583429) -->
+    <skip />
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar sco nunlegì"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
@@ -123,6 +125,10 @@
     <!-- no translation found for mailbox_list_user_mailboxes (484260487104726379) -->
     <skip />
     <!-- no translation found for mailbox_list_recent_mailboxes (8922653040520361032) -->
+    <skip />
+    <!-- no translation found for message_subject_description (3597047441062021199) -->
+    <skip />
+    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
     <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Chargiar ulteriurs messadis"</string>
   <plurals name="message_view_selected_message_count">
@@ -379,6 +385,8 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Duas emnas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"In mais"</string>
     <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tut ils e-mails"</string>
+    <!-- no translation found for account_setup_options_mail_window_default (8321351926520165832) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Num d\'utilisader u pled-clav nuncorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Num d\'utilisader u pled-clav nuncorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
@@ -488,6 +496,16 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» vegn stizzà da Voss e-mail."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Stizzar il conto"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Stizzar il conto"</string>
+    <!-- no translation found for mailbox_settings_activity_title (1508088285900401927) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6375095212457431269) -->
+    <skip />
+    <!-- no translation found for mailbox_preferences_header (9077316556563252246) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_mailbox_check_frequency_label (1246075442689328906) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (4140114925837071430) -->
+    <skip />
     <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
     <skip />
     <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
@@ -540,6 +558,12 @@
     <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
+    <skip />
+    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
+    <skip />
+    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
