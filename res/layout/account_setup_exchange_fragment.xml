@@ -32,7 +32,8 @@
         android:inputType="textEmailAddress"
         android:imeOptions="actionDone"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:contentDescription="@string/account_setup_exchange_username_label" />
     <TextView
         android:text="@string/account_setup_incoming_password_label"
         android:layout_height="wrap_content"
@@ -58,7 +59,8 @@
         android:inputType="textUri"
         android:imeOptions="actionDone"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:contentDescription="@string/account_setup_exchange_server_label" />
     <CheckBox
         android:id="@+id/account_ssl"
         android:layout_height="wrap_content"

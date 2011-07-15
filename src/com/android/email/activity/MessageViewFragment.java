@@ -26,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -259,6 +260,19 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     /**
+     * Sets the content description for the star icon based on whether it's currently starred.
+     */
+    private void setStarContentDescription(boolean isFavorite) {
+        if (isFavorite) {
+            mFavoriteIcon.setContentDescription(
+                    mContext.getResources().getString(R.string.remove_star_action));
+        } else {
+            mFavoriteIcon.setContentDescription(
+                    mContext.getResources().getString(R.string.set_star_action));
+        }
+    }
+
+    /**
      * Toggle favorite status and write back to provider
      */
     private void onClickFavorite() {
@@ -268,6 +282,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
         // Update UI
         boolean newFavorite = ! message.mFlagFavorite;
         mFavoriteIcon.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+
+        // Handle accessibility event
+        setStarContentDescription(newFavorite);
+        mFavoriteIcon.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
 
         // Update provider
         message.mFlagFavorite = newFavorite;
@@ -434,6 +452,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
     @Override
     protected void onPostLoadBody() {
         onMarkMessageAsRead(true);
+
+        // Initialize star content description for accessibility
+        Message message = getMessage();
+        setStarContentDescription(message.mFlagFavorite);
     }
 
     @Override
