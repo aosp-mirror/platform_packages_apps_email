@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dip"
                     android:baselineAligned="true"
-                    android:background="#3cb8e6"
+                    android:background="@color/message_view_header_color"
                     android:gravity="center_vertical"
                     >
                     <ImageView
@@ -107,23 +107,7 @@
                             android:ellipsize="end"
                             />
                     </RelativeLayout>
-                    <!-- Reply/Forward buttons are default gone for MessageFileView -->
-                    <ImageView
-                        android:id="@+id/reply"
-                        android:src="@drawable/reply"
-                        android:layout_width="32dip"
-                        android:layout_height="24dip"
-                        android:layout_margin="6dip"
-                        android:baselineAlignBottom="true"
-                        android:visibility="gone"
-                        />
-                    <ImageView
-                        android:id="@+id/favorite"
-                        android:layout_width="32dip"
-                        android:layout_height="24dip"
-                        android:layout_margin="6dip"
-                        android:src="@drawable/btn_star_off_normal_email_holo_light"
-                        />
+                    <include layout="@layout/message_view_header_actions" />
                 </LinearLayout>
 
                 <!-- Addresses, timestamp, "show details" -->
