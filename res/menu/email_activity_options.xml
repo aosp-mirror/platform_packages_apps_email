@@ -33,9 +33,18 @@
         android:icon="@drawable/ic_menu_compose_holo_light"
         android:showAsAction="ifRoom"
     />
+    <!-- STOPSHIP: replace with proper asset -->
+    <item
+        android:id="@+id/show_all_mailboxes"
+        android:orderInCategory="300"
+        android:alphabeticShortcut="c"
+        android:title="@string/mailbox_list_account_selector_show_all_folders"
+        android:icon="@drawable/ic_menu_move_to_holo_light"
+        android:showAsAction="ifRoom"
+    />
     <item
         android:id="@+id/refresh"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         android:alphabeticShortcut="r"
         android:title="@string/refresh_action"
         android:icon="@drawable/ic_menu_refresh_holo_light"

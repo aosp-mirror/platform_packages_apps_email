@@ -602,6 +602,9 @@ class UIControllerOnePane extends UIControllerBase {
             case R.id.older:
                 moveToOlder();
                 return true;
+            case R.id.show_all_mailboxes:
+                showAllMailboxes();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
