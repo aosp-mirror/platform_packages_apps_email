@@ -704,8 +704,17 @@ public class MessageListFragment extends ListFragment
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
+            // Always toggle the item.
+            MessageListItem listItem = (MessageListItem) view;
+            boolean toggled = false;
+            if (!mListAdapter.isSelected(listItem)) {
+                toggleSelection(listItem);
+                toggled = true;
+            }
+
+            // Additionally, check to see if we can drag the item.
             if (!mCallback.onDragStarted()) {
-                return false; // D&D not allowed.
+                return toggled; // D&D not allowed.
             }
             // We can't move from combined accounts view
             // We also need to check the actual mailbox to see if we can move items from it
@@ -714,10 +723,6 @@ public class MessageListFragment extends ListFragment
                 return false;
             } else if (mailboxId > 0 && !Mailbox.canMoveFrom(mActivity, mailboxId)) {
                 return false;
-            }
-            MessageListItem listItem = (MessageListItem)view;
-            if (!mListAdapter.isSelected(listItem)) {
-                toggleSelection(listItem);
             }
             // Start drag&drop.
 
@@ -747,6 +752,7 @@ public class MessageListFragment extends ListFragment
     }
 
     private void toggleSelection(MessageListItem itemView) {
+        itemView.invalidate();
         mListAdapter.toggleSelected(itemView);
     }
 
