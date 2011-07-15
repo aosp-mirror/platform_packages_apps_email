@@ -198,6 +198,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Controller mController;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
+    private boolean mInitiallyEmpty;
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     private AccountSpecifier mAddressAdapterTo;
@@ -215,7 +216,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-            setDraftNeedsSaving(true);
+            setMessageChanged(true);
         }
 
         @Override
@@ -394,7 +395,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 || Intent.ACTION_SEND.equals(mAction)
                 || Intent.ACTION_SEND_MULTIPLE.equals(mAction)) {
             initFromIntent(intent);
-            setDraftNeedsSaving(true);
+            setMessageChanged(true);
             setMessageLoaded(true);
         } else if (ACTION_REPLY.equals(mAction)
                 || ACTION_REPLY_ALL.equals(mAction)
@@ -527,14 +528,34 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (mMessageLoaded != isLoaded) {
             mMessageLoaded = isLoaded;
             addListeners();
+            mInitiallyEmpty = areViewsEmpty();
         }
     }
 
-    private void setDraftNeedsSaving(boolean needsSaving) {
+    private void setMessageChanged(boolean messageChanged) {
+        boolean needsSaving = messageChanged && !(mInitiallyEmpty && areViewsEmpty());
+
         if (mDraftNeedsSaving != needsSaving) {
             mDraftNeedsSaving = needsSaving;
             invalidateOptionsMenu();
         }
+    }
+
+    /**
+     * @return whether or not all text fields are empty (i.e. the entire compose message is empty)
+     */
+    private boolean areViewsEmpty() {
+        return (mToView.length() == 0)
+                && (mCcView.length() == 0)
+                && (mBccView.length() == 0)
+                && (mSubjectView.length() == 0)
+                && isBodyEmpty();
+    }
+
+    private boolean isBodyEmpty() {
+        return (mMessageContentView.length() == 0)
+                || mMessageContentView.getText()
+                        .toString().equals("\n" + getAccountSignature(mAccount));
     }
 
     public void setFocusShifter(int fromViewId, final int targetViewId) {
@@ -796,7 +817,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             showCcBccFieldsIfFilled();
             setNewMessageFocus();
         }
-        setDraftNeedsSaving(false);
+        setMessageChanged(false);
 
         // The quoted text must always be restored.
         displayQuotedText(message.mTextReply, message.mHtmlReply);
@@ -842,7 +863,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             if (processSourceMessageAttachments(
                                     mAttachments, mSourceAttachments, true)) {
                                 updateAttachmentUi();
-                                setDraftNeedsSaving(true);
+                                setMessageChanged(true);
                             }
                         }
                     }
@@ -1334,7 +1355,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (!mDraftNeedsSaving) {
             return;
         }
-        setDraftNeedsSaving(false);
+        setMessageChanged(false);
         sendOrSaveMessage(false);
     }
 
@@ -1365,7 +1386,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Toast.LENGTH_LONG).show();
         } else {
             sendOrSaveMessage(true);
-            setDraftNeedsSaving(false);
+            setMessageChanged(false);
             finish();
         }
     }
@@ -1404,7 +1425,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mController.deleteMessage(mDraft.mId);
         }
         Utility.showToast(MessageCompose.this, R.string.message_discarded_toast);
-        setDraftNeedsSaving(false);
+        setMessageChanged(false);
         finish();
     }
 
@@ -1557,7 +1578,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
         addAttachmentFromUri(data.getData());
-        setDraftNeedsSaving(true);
+        setMessageChanged(true);
     }
 
     private boolean includeQuotedText() {
@@ -1580,7 +1601,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedText.setVisibility(mIncludeQuotedTextCheckBox.isChecked()
                 ? View.VISIBLE : View.GONE);
         if (updateNeedsSaving) {
-            setDraftNeedsSaving(true);
+            setMessageChanged(true);
         }
     }
 
@@ -1589,7 +1610,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Attachment attachment = (Attachment) attachmentView.getTag();
         deleteAttachment(mAttachments, attachment);
         updateAttachmentUi();
-        setDraftNeedsSaving(true);
+        setMessageChanged(true);
     }
 
     /**
@@ -1690,7 +1711,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // if that's the case, and the attachments will be processed when they load.
         if (processSourceMessageAttachments(mAttachments, mSourceAttachments, isForward())) {
             updateAttachmentUi();
-            setDraftNeedsSaving(true);
+            setMessageChanged(true);
         }
 
         updateActionSelector();
