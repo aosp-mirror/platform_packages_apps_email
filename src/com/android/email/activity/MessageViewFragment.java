@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.emailcommon.mail.MeetingInfo;
-import com.android.emailcommon.mail.PackedString;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.EmailServiceConstants;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -39,13 +29,26 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.emailcommon.mail.MeetingInfo;
+import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.EmailServiceConstants;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * A {@link MessageViewFragmentBase} subclass for regular email messages.  (regular as in "not eml
  * files").
  */
 public class MessageViewFragment extends MessageViewFragmentBase
-        implements CheckBox.OnCheckedChangeListener, MoveMessageToDialog.Callback {
+        implements CheckBox.OnCheckedChangeListener,
+                    MoveMessageToDialog.Callback,
+                    OnMenuItemClickListener {
     /** Argument name(s) */
     private static final String ARG_MESSAGE_ID = "messageId";
 
@@ -58,6 +61,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     /* Nullable - not available on phone. */
     private View mForwardButton;
+
+
+    private View mMoreButton;
 
     // calendar meeting invite answers
     private CheckBox mMeetingYes;
@@ -188,14 +194,14 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mMeetingMaybe = (CheckBox) UiUtilities.getView(view, R.id.maybe);
         mMeetingNo = (CheckBox) UiUtilities.getView(view, R.id.decline);
 
-        // Star is only visible on this fragment (as opposed to MessageFileViewFragment.)
-        UiUtilities.getView(view, R.id.favorite).setVisibility(View.VISIBLE);
-
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
         if (mReplyAllButton != null) {
             mReplyAllButton.setOnClickListener(this);
             mForwardButton.setOnClickListener(this);
+        } else {
+            mMoreButton = UiUtilities.getView(view, R.id.more);
+            mMoreButton.setOnClickListener(this);
         }
         mMeetingYes.setOnCheckedChangeListener(this);
         mMeetingMaybe.setOnCheckedChangeListener(this);
@@ -333,9 +339,35 @@ public class MessageViewFragment extends MessageViewFragmentBase
             case R.id.invite_link:
                 onInviteLinkClicked();
                 return;
+
+            case R.id.more: {
+                PopupMenu popup = new PopupMenu(getActivity(), mMoreButton);
+                popup.getMenuInflater().inflate(R.menu.message_header_overflow_menu,
+                        popup.getMenu());
+                popup.setOnMenuItemClickListener(this);
+                popup.show();
+                break;
+            }
+
         }
         super.onClick(view);
     }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if (isMessageOpen()) {
+            switch (item.getItemId()) {
+                case R.id.reply_all:
+                    mCallback.onReplyAll();
+                    return true;
+                case R.id.forward:
+                    mCallback.onForward();
+                    return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public void onCheckedChanged(CompoundButton view, boolean isChecked) {

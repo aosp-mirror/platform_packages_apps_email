@@ -16,16 +16,19 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
-
-import android.app.Activity;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
 
 /**
  * A {@link MessageViewFragmentBase} subclass for file based messages. (aka EML files)
@@ -47,6 +50,18 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         super.onCreate(savedInstanceState);
         sFragmentCount++;
     }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View result = super.onCreateView(inflater, container, savedInstanceState);
+
+        // Star is not visible in this view.
+        UiUtilities.getView(result, R.id.favorite).setVisibility(View.GONE);
+
+        return result;
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
