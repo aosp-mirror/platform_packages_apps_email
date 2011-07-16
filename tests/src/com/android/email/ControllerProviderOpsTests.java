@@ -16,6 +16,10 @@
 
 package com.android.email;
 
+import android.content.Context;
+import android.net.Uri;
+import android.test.ProviderTestCase2;
+
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -25,10 +29,6 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.content.Context;
-import android.net.Uri;
-import android.test.ProviderTestCase2;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
