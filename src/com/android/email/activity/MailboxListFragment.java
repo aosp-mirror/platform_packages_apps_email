@@ -583,10 +583,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                     long nextHighlightedMailboxId, long nextSelectedMailboxId) {
 
                 startLoading(nextParentMailboxId, nextHighlightedMailboxId);
-
-                if (nextSelectedMailboxId != Mailbox.NO_MAILBOX) {
-                    mCallback.onMailboxSelected(getAccountId(), nextSelectedMailboxId, true);
-                }
             }
         };
         new FindParentMailboxTask(
@@ -695,8 +691,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * @param parentMailboxId Mailbox ID to be used as the "parent" mailbox
      * @param highlightedMailboxId Mailbox ID that should be highlighted when the data is loaded.
      */
-    private void startLoading(long parentMailboxId, long highlightedMailboxId
-            ) {
+    private void startLoading(long parentMailboxId, long highlightedMailboxId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " startLoading  parent=" + parentMailboxId
                     + " highlighted=" + highlightedMailboxId);
@@ -824,9 +819,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 // We want to make visible the selection only for the first load.
                 // Re-load caused by content changed events shouldn't scroll the list.
                 if (!updateHighlightedMailbox(mIsFirstLoad)) {
-
-                    // TODO We should just select the parent mailbox, or Inbox if it's already
-                    // top-level.  Make sure to call onMailboxSelected().
+                    // This may happen if the mailbox to be selected is not actually in the list
+                    // that was loaded. Let the user just pick one manually if needed.
                     return;
                 }
             }
