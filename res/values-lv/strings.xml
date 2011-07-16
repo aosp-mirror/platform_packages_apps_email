@@ -47,6 +47,7 @@
     <string name="compose_action" msgid="4045702519637388045">"Rakstīt"</string>
     <string name="search_action" msgid="6325101454876682308">"Meklēt"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Konta iestatījumi"</string>
+    <string name="mailbox_settings_action" msgid="4810618229637583429">"Mapes iestatījumi"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Atzīmēt kā nelasītu"</string>
     <string name="move_action" msgid="3059189775933985898">"Pārvietot"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ kop./d. kop."</string>
@@ -105,6 +106,10 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Jaunākās mapes (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Visas mapes"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Jaunākās mapes"</string>
+    <!-- no translation found for message_subject_description (3597047441062021199) -->
+    <skip />
+    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Ielādēt vairāk ziņojumu"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> atlasīts"</item>
@@ -308,6 +313,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Divas nedēļas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Viens mēnesis"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Visi"</string>
+    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Izmantot konta noklusēj."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Lietotājvārds vai parole nav pareiza."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Lietotājvārds vai parole nav pareiza."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nevar izveidot drošu savienojumu ar serveri."</string>
@@ -386,6 +392,11 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Konts “<xliff:g id="ACCOUNT">%s</xliff:g>” tiks noņemts no e-pasta."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Noņemt kontu"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Noņemt kontu"</string>
+    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"Mapes iestatījumi"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"Mapes iestatījumi (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Sinhronizācijas iestatījumi"</string>
+    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Pārbaudes biežums"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"Sinhronizējamais apjoms"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pasta k."</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Atlasīt kontu"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Mapes atlase"</string>
@@ -424,6 +435,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Parasts"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Liels"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Milzīgs"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Atjaunot noklusējuma vērtību iestatījumam Rādīt attēlus"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Atjaunot noklusējuma iestatījumus visiem sūtītājiem (nerādīt attēlus automātiski)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"Iestatījums Rādīt attēlus ir notīrīts."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> no <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Gaida sinhronizāciju"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"E-pasta saturs drīz tiks parādīts."</string>
