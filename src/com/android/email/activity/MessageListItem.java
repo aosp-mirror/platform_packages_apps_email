@@ -16,9 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.emailcommon.utility.TextUtilities;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -41,6 +38,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+
+import com.android.email.R;
+import com.android.emailcommon.utility.TextUtilities;
+import com.google.common.base.Objects;
 
 /**
  * This custom View is the list item for the MessageList activity, and serves two purposes:
@@ -185,7 +186,7 @@ public class MessageListItem extends View {
      * Sets message subject safely, ensuring the cache is invalidated.
      */
     public void setSubject(String subject) {
-        if (!subject.equals(mSubject)) {
+        if (!Objects.equal(mSubject, subject)) {
             mSubject = subject;
             mSubjectAndDescription = null;
         }
