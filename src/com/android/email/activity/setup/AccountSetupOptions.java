@@ -207,9 +207,14 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      */
     private void onDone() {
         final Account account = SetupData.getAccount();
+        if (account.isSaved()) {
+            // Disrupting the normal flow could get us here, but if the account is already
+            // saved, we've done this work
+            return;
+        }
         account.setDisplayName(account.getEmailAddress());
         int newFlags = account.getFlags() &
-                ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_BACKGROUND_ATTACHMENTS);
+            ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_BACKGROUND_ATTACHMENTS);
         if (mNotifyView.isChecked()) {
             newFlags |= Account.FLAGS_NOTIFY_NEW_MAIL;
         }
@@ -225,9 +230,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         }
         account.setDefaultAccount(mDefaultView.isChecked());
 
-        if (account.isSaved()) {
-            throw new IllegalStateException("in AccountSetupOptions with already-saved account");
-        }
         if (account.mHostAuthRecv == null) {
             throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");
         }
@@ -321,14 +323,18 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private void optionsComplete() {
         // If the account manager initiated the creation, report success at this point
         AccountAuthenticatorResponse authenticatorResponse =
-                SetupData.getAccountAuthenticatorResponse();
+            SetupData.getAccountAuthenticatorResponse();
         if (authenticatorResponse != null) {
             authenticatorResponse.onResult(null);
             SetupData.setAccountAuthenticatorResponse(null);
         }
 
-        // If we've got policies for this account, ask the user to accept.
+        // Now that AccountManager account creation is complete, clear the INCOMPLETE flag
         Account account = SetupData.getAccount();
+        account.mFlags &= ~Account.FLAGS_INCOMPLETE;
+        AccountSettingsUtils.commitSettings(AccountSetupOptions.this, account);
+
+        // If we've got policies for this account, ask the user to accept.
         if ((account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
             Intent intent = AccountSecurity.actionUpdateSecurityIntent(this, account.mId, false);
             startActivityForResult(intent, AccountSetupOptions.REQUEST_CODE_ACCEPT_POLICIES);
@@ -358,9 +364,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             @Override
             public void run() {
                 AccountSetupOptions context = AccountSetupOptions.this;
-                // Clear the incomplete/security hold flag now
+                // Clear the security hold flag now
                 Account account = SetupData.getAccount();
-                account.mFlags &= ~(Account.FLAGS_INCOMPLETE | Account.FLAGS_SECURITY_HOLD);
+                account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
                 AccountSettingsUtils.commitSettings(context, account);
                 // Start up services based on new account(s)
                 Email.setServicesEnabledSync(context);
