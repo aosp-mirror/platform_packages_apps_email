@@ -617,7 +617,7 @@ public class MessageComposeTests
      *
      * In this case, we're doing a "reply all"
      * The user is CC2 (a "cc" recipient)
-     * The to should be: FROM, 
+     * The to should be: FROM,
      * The cc should be: TO1, TO2, CC1 and CC3 (CC2 is our account's email address)
      */
     public void testReplyAllAddresses2() throws Throwable {
@@ -999,60 +999,6 @@ public class MessageComposeTests
             }
         });
 
-    }
-
-    /**
-     * Tests for the comma-inserting logic.  The logic is applied equally to To: Cc: and Bcc:
-     * but we only run the full set on To:
-     */
-    public void testCommaInserting() throws Throwable {
-        if (!TestUtils.isScreenOnAndNotLocked(mContext)) {
-            Log.w(Logging.LOG_TAG, "SKIP testCommaInserting: Screen off or locked");
-            return;
-        }
-
-        // simple appending cases
-        checkCommaInsert("a", "", false);
-        checkCommaInsert("a@", "", false);
-        checkCommaInsert("a@b", "", false);
-        checkCommaInsert("a@b.", "", true); // non-optimal, but matches current implementation
-        checkCommaInsert("a@b.c", "", true);
-
-        // confirm works properly for internal editing
-        checkCommaInsert("me@foo.com, you", " they@bar.com", false);
-        checkCommaInsert("me@foo.com, you@", "they@bar.com", false);
-        checkCommaInsert("me@foo.com, you@bar", " they@bar.com", false);
-        checkCommaInsert("me@foo.com, you@bar.", " they@bar.com", true); // non-optimal
-        checkCommaInsert("me@foo.com, you@bar.com", " they@bar.com", true);
-
-        // check a couple of multi-period cases
-        checkCommaInsert("me.myself@foo", "", false);
-        checkCommaInsert("me.myself@foo.com", "", true);
-        checkCommaInsert("me@foo.co.uk", "", true);
-
-        // cases that should not append because there's already a comma
-        checkCommaInsert("a@b.c,", "", false);
-        checkCommaInsert("me@foo.com, you@bar.com,", " they@bar.com", false);
-        checkCommaInsert("me.myself@foo.com,", "", false);
-        checkCommaInsert("me@foo.co.uk,", "", false);
-    }
-
-    /**
-     * Check comma insertion logic for a single try on the To: field
-     */
-    private void checkCommaInsert(final String before, final String after, boolean expectComma)
-            throws Throwable {
-        String expect = new String(before + (expectComma ? ", " : " ") + after);
-
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mToView.setText(before + after);
-                mToView.setSelection(before.length());
-            }
-        });
-        getInstrumentation().sendStringSync(" ");
-        String result = mToView.getText().toString();
-        assertEquals(expect, result);
     }
 
     private static int sAttachmentId = 1;
