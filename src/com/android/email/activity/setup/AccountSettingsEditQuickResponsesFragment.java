@@ -61,6 +61,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     private Context mContext;
     private EmailAsyncTask.Tracker mTaskTracker;
 
+    private static final String BUNDLE_KEY_ACTIVITY_TITLE
+            = "AccountSettingsEditQuickResponsesFragment.title";
+
     // Helper class to place a TextView alongside "Delete" icon in the ListView
     // displaying the QuickResponses
     private static class ArrayAdapterWithButtons extends ArrayAdapter<QuickResponse> {
@@ -203,6 +206,21 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // startPreferencePanel launches this fragment with the right title initially, but
+        // if the device is rotate we must set the title ourselves
+        if (savedInstanceState != null) {
+            getActivity().setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
     }
 
     @Override
