@@ -681,7 +681,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         if (mQuickContactLookupUri != null) {
             QuickContact.showQuickContact(mContext, mFromBadge, mQuickContactLookupUri,
-                        QuickContact.MODE_LARGE, null);
+                        QuickContact.MODE_MEDIUM, null);
         } else {
             // No matching contact, ask user to create one
             final Uri mailUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
