@@ -128,6 +128,8 @@
     <string name="search_action">Search</string>
     <!-- Menu item -->
     <string name="account_settings_action">Account settings</string>
+    <!-- Menu item for settings [CHAR LIMIT=40]-->
+    <string name="settings_action">Settings</string>
     <!-- Menu item [CHAR LIMIT=32] -->
     <string name="mailbox_settings_action">Folder settings</string>
     <!-- Menu item -->

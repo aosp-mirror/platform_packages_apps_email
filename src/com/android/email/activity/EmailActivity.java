@@ -62,9 +62,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     /** Loader IDs starting with this is safe to use from ActionBarController. */
     static final int ACTION_BAR_CONTROLLER_LOADER_ID_BASE = 200;
 
-    private static final int MAILBOX_SYNC_FREQUENCY_DIALOG = 1;
-    private static final int MAILBOX_SYNC_LOOKBACK_DIALOG = 2;
-
     private Controller mController;
     private Controller.Result mControllerResult;
 
