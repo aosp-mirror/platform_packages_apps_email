@@ -581,16 +581,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return;
         }
 
-        // TODO: remove this when the search mailbox no longer shows up on the list
-        // Special case search. Since the search mailbox shows up in the mailbox list, the mailbox
-        // list can give us a callback to open that mailbox, and it will look like a normal
-        // mailbox open instead of a search, blowing away a perfectly good list context.
-        if (mListContext != null
-                && mListContext.isSearch()
-                && mListContext.getMailboxId() == listContext.getMailboxId()) {
-            return;
-        }
-
         if (Email.DEBUG && Logging.DEBUG_LIFECYCLE) {
             Log.i(Logging.LOG_TAG, this + " setListContext: " + listContext);
         }

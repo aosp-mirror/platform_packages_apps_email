@@ -391,8 +391,9 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         long mailboxId = mListContext.getMailboxId();
         if ((getUIAccountId() != accountId) || (getMailboxListMailboxId() != mailboxId)) {
             removeMailboxListFragment(ft);
+            boolean enableHighlight = !mListContext.isSearch();
             ft.add(mThreePane.getLeftPaneId(),
-                    MailboxListFragment.newInstance(accountId, mailboxId, true));
+                    MailboxListFragment.newInstance(accountId, mailboxId, enableHighlight));
         }
         if (clearDependentPane) {
             removeMessageListFragment(ft);
