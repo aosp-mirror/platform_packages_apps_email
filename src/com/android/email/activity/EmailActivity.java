@@ -386,30 +386,19 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
                     }
                 }
             } else {
-                // Connection error; show the error message banner
-                new EmailAsyncTask<Void, Void, String>(mTaskTracker) {
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        Account account =
-                            Account.restoreAccountWithId(EmailActivity.this, accountId);
-                        return (account == null) ? null : account.mDisplayName;
-                    }
-
-                    @Override
-                    protected void onSuccess(String accountName) {
-                        String message =
-                            MessagingExceptionStrings.getErrorString(EmailActivity.this, result);
-                        if (!TextUtils.isEmpty(accountName)) {
-                            // TODO Use properly designed layout. Don't just concatenate strings;
-                            // which is generally poor for I18N.
-                            message = message + "   (" + accountName + ")";
-                        }
-                        if (mErrorBanner.show(message)) {
-                            mLastErrorAccountId = accountId;
-                        }
-                    }
-                }.executeParallel();
-            }
+                Account account = Account.restoreAccountWithId(EmailActivity.this, accountId);
+                if (account == null) return;
+                String message =
+                    MessagingExceptionStrings.getErrorString(EmailActivity.this, result);
+                if (!TextUtils.isEmpty(account.mDisplayName)) {
+                    // TODO Use properly designed layout. Don't just concatenate strings;
+                    // which is generally poor for I18N.
+                    message = message + "   (" + account.mDisplayName + ")";
+                }
+                if (mErrorBanner.show(message)) {
+                    mLastErrorAccountId = accountId;
+                }
+             }
         }
     }
 }
