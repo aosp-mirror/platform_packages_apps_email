@@ -857,17 +857,9 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    private void onSetMessageRead(long messageId, boolean newRead) {
-        mController.setMessageRead(messageId, newRead);
-    }
-
-    private void onSetMessageFavorite(long messageId, boolean newFavorite) {
-        mController.setMessageFavorite(messageId, newFavorite);
-    }
-
     /**
      * Toggles a set read/unread states.  Note, the default behavior is "mark unread", so the
-     * sense of the helper methods is "true=unread".
+     * sense of the helper methods is "true=unread"; this may be called from the UI thread
      *
      * @param selectedSet The current list of selected items
      */
@@ -880,19 +872,17 @@ public class MessageListFragment extends ListFragment
             }
 
             @Override
-            public boolean setField(long messageId, Cursor c, boolean newValue) {
+            public void setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
-                    onSetMessageRead(messageId, !newValue);
-                    return true;
-                }
-                return false;
+                    mController.setMessageReadSync(messageId, !newValue);
+                 }
             }
         });
     }
 
     /**
-     * Toggles a set of favorites (stars)
+     * Toggles a set of favorites (stars); this may be called from the UI thread
      *
      * @param selectedSet The current list of selected items
      */
@@ -905,14 +895,12 @@ public class MessageListFragment extends ListFragment
             }
 
             @Override
-            public boolean setField(long messageId, Cursor c, boolean newValue) {
+            public void setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
-                    onSetMessageFavorite(messageId, newValue);
-                    return true;
+                    mController.setMessageFavoriteSync(messageId, newValue);
                 }
-                return false;
-            }
+             }
         });
     }
 
@@ -936,25 +924,25 @@ public class MessageListFragment extends ListFragment
         public boolean getField(long messageId, Cursor c);
 
         /**
-         * Set or clear the field of interest.  Return true if a change was made.
+         * Set or clear the field of interest; setField is called asynchronously via EmailAsyncTask
          * @param messageId the message id of the current message
          * @param c the cursor, positioned to the item of interest
          * @param newValue the new value to be set at this row
          * @return true if a change was actually made
          */
-        public boolean setField(long messageId, Cursor c, boolean newValue);
+        public void setField(long messageId, Cursor c, boolean newValue);
     }
 
     /**
      * Toggle multiple fields in a message, using the following logic:  If one or more fields
-     * are "clear", then "set" them.  If all fields are "set", then "clear" them all.
+     * are "clear", then "set" them.  If all fields are "set", then "clear" them all.  Provider
+     * calls are applied asynchronously in setField
      *
      * @param selectedSet the set of messages that are selected
      * @param helper functions to implement the specific getter & setter
-     * @return the number of messages that were updated
      */
-    private int toggleMultiple(Set<Long> selectedSet, MultiToggleHelper helper) {
-        Cursor c = mListAdapter.getCursor();
+    private void toggleMultiple(final Set<Long> selectedSet, final MultiToggleHelper helper) {
+        final Cursor c = mListAdapter.getCursor();
         boolean anyWereFound = false;
         boolean allWereSet = true;
 
@@ -970,22 +958,20 @@ public class MessageListFragment extends ListFragment
             }
         }
 
-        int numChanged = 0;
-
         if (anyWereFound) {
-            boolean newValue = !allWereSet;
+            final boolean newValue = !allWereSet;
             c.moveToPosition(-1);
-            while (c.moveToNext()) {
-                long id = c.getInt(MessagesAdapter.COLUMN_ID);
-                if (selectedSet.contains(Long.valueOf(id))) {
-                    if (helper.setField(id, c, newValue)) {
-                        ++numChanged;
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+               @Override
+                public void run() {
+                    while (c.moveToNext()) {
+                        long id = c.getInt(MessagesAdapter.COLUMN_ID);
+                        if (selectedSet.contains(Long.valueOf(id))) {
+                            helper.setField(id, c, newValue);
+                        }
                     }
-                }
-            }
+                }});
         }
-
-        return numChanged;
     }
 
     /**
@@ -1048,13 +1034,13 @@ public class MessageListFragment extends ListFragment
     /** Implements {@link MessagesAdapter.Callback} */
     @Override
     public void onAdapterFavoriteChanged(MessageListItem itemView, boolean newFavorite) {
-        onSetMessageFavorite(itemView.mMessageId, newFavorite);
+        mController.setMessageFavorite(itemView.mMessageId, newFavorite);
     }
 
     /** Implements {@link MessagesAdapter.Callback} */
     @Override
-    public void onAdapterSelectedChanged(
-            MessageListItem itemView, boolean newSelected, int mSelectedCount) {
+    public void onAdapterSelectedChanged(MessageListItem itemView, boolean newSelected,
+            int mSelectedCount) {
         updateSelectionMode();
     }
 

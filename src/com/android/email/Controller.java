@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -857,10 +856,25 @@ public class Controller {
      *
      * @param messageId the message to update
      * @param isRead the new value for the isRead flag
-     * @return the AsyncTask that will execute the changes (for testing only)
      */
-    public AsyncTask<Void, Void, Void> setMessageRead(final long messageId, final boolean isRead) {
-        return setMessageBoolean(messageId, EmailContent.MessageColumns.FLAG_READ, isRead);
+    public void setMessageReadSync(long messageId, boolean isRead) {
+        setMessageBooleanSync(messageId, EmailContent.MessageColumns.FLAG_READ, isRead);
+    }
+
+    /**
+     * Set/clear the unread status of a message from UI thread
+     *
+     * @param messageId the message to update
+     * @param isRead the new value for the isRead flag
+     * @return the EmailAsyncTask created
+     */
+    public EmailAsyncTask<Void, Void, Void> setMessageRead(final long messageId,
+            final boolean isRead) {
+        return EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
+            public void run() {
+                setMessageBooleanSync(messageId, EmailContent.MessageColumns.FLAG_READ, isRead);
+            }});
     }
 
     /**
@@ -904,15 +918,29 @@ public class Controller {
     }
 
     /**
+     * Set/clear the favorite status of a message from UI thread
+     *
+     * @param messageId the message to update
+     * @param isFavorite the new value for the isFavorite flag
+     * @return the EmailAsyncTask created
+     */
+    public EmailAsyncTask<Void, Void, Void> setMessageFavorite(final long messageId,
+            final boolean isFavorite) {
+        return EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
+            public void run() {
+                setMessageBooleanSync(messageId, EmailContent.MessageColumns.FLAG_FAVORITE,
+                        isFavorite);
+            }});
+    }
+    /**
      * Set/clear the favorite status of a message
      *
      * @param messageId the message to update
      * @param isFavorite the new value for the isFavorite flag
-     * @return the AsyncTask that will execute the changes (for testing only)
      */
-    public AsyncTask<Void, Void, Void> setMessageFavorite(final long messageId,
-            final boolean isFavorite) {
-        return setMessageBoolean(messageId, EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
+    public void setMessageFavoriteSync(long messageId, boolean isFavorite) {
+        setMessageBooleanSync(messageId, EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
     }
 
     /**
@@ -921,18 +949,13 @@ public class Controller {
      * @param messageId the message to update
      * @param columnName the column to update
      * @param columnValue the new value for the column
-     * @return the AsyncTask that will execute the changes (for testing only)
      */
-    private AsyncTask<Void, Void, Void> setMessageBoolean(final long messageId,
-            final String columnName, final boolean columnValue) {
-        return Utility.runAsync(new Runnable() {
-            public void run() {
-                ContentValues cv = new ContentValues();
-                cv.put(columnName, columnValue);
-                updateMessageSync(messageId, cv);
-            }
-        });
+    private void setMessageBooleanSync(long messageId, String columnName, boolean columnValue) {
+        ContentValues cv = new ContentValues();
+        cv.put(columnName, columnValue);
+        updateMessageSync(messageId, cv);
     }
+
 
     private static final HashMap<Long, SearchParams> sSearchParamsMap =
         new HashMap<Long, SearchParams>();
