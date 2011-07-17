@@ -16,14 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.SecurityPolicy;
-import com.android.email.activity.ActivityHelper;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -37,6 +29,14 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.SecurityPolicy;
+import com.android.email.activity.ActivityHelper;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Psuedo-activity (no UI) to bootstrap the user up to a higher desired security level.  This
@@ -229,6 +229,7 @@ public class AccountSecurity extends Activity {
                 Log.d(TAG, "Security active; clear holds");
             }
             Account.clearSecurityHoldOnAllAccounts(this);
+            security.clearNotification(account.mId);
             finish();
             return;
         }
@@ -285,6 +286,7 @@ public class AccountSecurity extends Activity {
             Log.d(TAG, "Policies enforced; clear holds");
         }
         Account.clearSecurityHoldOnAllAccounts(this);
+        security.clearNotification(account.mId);
         finish();
     }
 
