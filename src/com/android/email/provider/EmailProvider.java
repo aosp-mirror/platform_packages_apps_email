@@ -1631,7 +1631,7 @@ public class EmailProvider extends ContentProvider {
                             flags = values.getAsInteger(Attachment.FLAGS);
                         }
                         // Report all new attachments to the download service
-                        AttachmentDownloadService.attachmentChanged(longId, flags);
+                        AttachmentDownloadService.attachmentChanged(getContext(), longId, flags);
                     }
                     break;
                 case MAILBOX_ID:
@@ -2177,7 +2177,7 @@ outer:
                     if (match == ATTACHMENT_ID) {
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
-                            AttachmentDownloadService.attachmentChanged(
+                            AttachmentDownloadService.attachmentChanged(getContext(),
                                     Integer.parseInt(id), flags);
                         }
                     }

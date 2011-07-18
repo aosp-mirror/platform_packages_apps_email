@@ -16,21 +16,6 @@
 
 package com.android.email.service;
 
-import com.android.email.AttachmentInfo;
-import com.android.email.Controller.ControllerService;
-import com.android.email.Email;
-import com.android.email.EmailConnectivityManager;
-import com.android.email.NotificationController;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.service.EmailServiceStatus;
-import com.android.emailcommon.service.IEmailServiceCallback;
-import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.emailcommon.utility.Utility;
-
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -46,6 +31,21 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.format.DateUtils;
 import android.util.Log;
+
+import com.android.email.AttachmentInfo;
+import com.android.email.Controller.ControllerService;
+import com.android.email.Email;
+import com.android.email.EmailConnectivityManager;
+import com.android.email.NotificationController;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -88,6 +88,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
     private static final int MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT = 1;
     // Limit on the number of attachments we'll check for background download
     private static final int MAX_ATTACHMENTS_TO_CHECK = 25;
+
+    private static final String EXTRA_ATTACHMENT =
+        "com.android.email.AttachmentDownloadService.attachment";
 
     // sRunningService is only set in the UI thread; it's visibility elsewhere is guaranteed
     // by the use of "volatile"
@@ -298,6 +301,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
             return null;
+        }
+
+        public synchronized boolean isEmpty() {
+            return super.isEmpty() && mDownloadsInProgress.isEmpty();
         }
 
         /**
@@ -772,22 +779,22 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     /**
      * Called directly by EmailProvider whenever an attachment is inserted or changed
+     * @param context the caller's context
      * @param id the attachment's id
      * @param flags the new flags for the attachment
      */
-    public static void attachmentChanged(final long id, final int flags) {
-        final AttachmentDownloadService service = sRunningService;
-        if (service == null) return;
+    public static void attachmentChanged(final Context context, final long id, final int flags) {
         Utility.runAsync(new Runnable() {
             public void run() {
-                final Attachment attachment =
-                    Attachment.restoreAttachmentWithId(service, id);
+                Attachment attachment = Attachment.restoreAttachmentWithId(context, id);
                 if (attachment != null) {
                     // Store the flags we got from EmailProvider; given that all of this
                     // activity is asynchronous, we need to use the newest data from
                     // EmailProvider
                     attachment.mFlags = flags;
-                    service.onChange(attachment);
+                    Intent intent = new Intent(context, AttachmentDownloadService.class);
+                    intent.putExtra(EXTRA_ATTACHMENT, attachment);
+                    context.startService(intent);
                 }
             }});
     }
@@ -877,6 +884,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
             // Here's where we run our attachment loading logic...
             mConnectivityManager.waitForConnectivity();
             mDownloadSet.processQueue();
+            if (mDownloadSet.isEmpty()) {
+                Log.d(TAG, "*** All done; shutting down service");
+                stopSelf();
+                break;
+            }
             synchronized(mLock) {
                 try {
                     mLock.wait(PROCESS_QUEUE_WAIT_TIME);
@@ -887,23 +899,27 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         // Unregister now that we're done
-        mConnectivityManager.unregister();
+        if (mConnectivityManager != null) {
+            mConnectivityManager.unregister();
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        sRunningService = this;
+        if (sRunningService == null) {
+            sRunningService = this;
+        }
+        if (intent.hasExtra(EXTRA_ATTACHMENT)) {
+            Attachment att = (Attachment)intent.getParcelableExtra(EXTRA_ATTACHMENT);
+            Log.d(TAG, "*** ONSTARTCOMMAND, changed: " + att.mId);
+            onChange(att);
+        }
         return Service.START_STICKY;
     }
 
-    /**
-     * The lifecycle of this service is managed by Email.setServicesEnabled(), which is called
-     * throughout the code, in particular 1) after boot and 2) after accounts are added or removed
-     * The goal is that this service should be running at all times when there's at least one
-     * email account present.
-     */
     @Override
     public void onCreate() {
+        Log.d(TAG, "**** ON CREATE!");
         // Start up our service thread
         new Thread(this, "AttachmentDownloadService").start();
     }
@@ -914,12 +930,17 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
+        // STOPSHIP Remove this, and other, lifecycle logging
         Log.d(TAG, "**** ON DESTROY!");
         if (sRunningService != null) {
             mStop = true;
             kick();
+            sRunningService = null;
         }
-        sRunningService = null;
+        if (mConnectivityManager != null) {
+            mConnectivityManager.unregister();
+            mConnectivityManager = null;
+        }
     }
 
     @Override
