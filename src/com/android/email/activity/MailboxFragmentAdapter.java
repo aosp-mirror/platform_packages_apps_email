@@ -16,22 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.FolderProperties;
-import com.android.email.R;
-import com.android.email.ResourceHelper;
-import com.android.email.data.ClosingMatrixCursor;
-import com.android.email.data.ThrottlingCursorLoader;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
@@ -48,6 +32,22 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.android.email.Email;
+import com.android.email.FolderProperties;
+import com.android.email.R;
+import com.android.email.ResourceHelper;
+import com.android.email.data.ClosingMatrixCursor;
+import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 
@@ -210,6 +210,9 @@ class MailboxFragmentAdapter extends CursorAdapter {
 
     private boolean isHeader(int position) {
         Cursor c = getCursor();
+        if (c == null) {
+            return false;
+        }
         c.moveToPosition(position);
         int rowType = c.getInt(c.getColumnIndex(ROW_TYPE));
         return rowType == ROW_TYPE_HEADER;
