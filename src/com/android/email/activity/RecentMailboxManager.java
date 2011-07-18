@@ -53,6 +53,7 @@ public class RecentMailboxManager {
             + " FROM " + Mailbox.TABLE_NAME
             + " WHERE ( " + MailboxColumns.ACCOUNT_KEY + "=? "
             +     " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION
+            +     " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_INBOX
             +     " AND " + MailboxColumns.LAST_TOUCHED_TIME + ">0 )"
             + " ORDER BY " + MailboxColumns.LAST_TOUCHED_TIME + " DESC"
             + " LIMIT ? )";

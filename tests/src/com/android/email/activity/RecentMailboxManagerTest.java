@@ -136,19 +136,15 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
     /** Test recent list not full */
     public void testGetMostRecent02() throws Exception {
         ArrayList<Long> testList;
-        // touch some mailboxes
-        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[0].mId); // inbox
-        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
         // need to wait for the last one to ensure getMostRecent() has something to work on
-        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[7].mId).get(); // user mailbox 2
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[7].mId).get(); // costello
 
         // test recent list not full, so is padded with default mailboxes
         testList = mManager.getMostRecent(1L, false);
-        assertEquals(4, testList.size());
-        assertEquals(mMailboxArray[7].mId, (long) testList.get(0));
-        assertEquals(mMailboxArray[1].mId, (long) testList.get(1));
-        assertEquals(mMailboxArray[0].mId, (long) testList.get(2));
-        assertEquals(mMailboxArray[3].mId, (long) testList.get(3));
+        assertEquals(3, testList.size());
+        assertEquals(mMailboxArray[7].mId, (long) testList.get(0)); // costello
+        assertEquals(mMailboxArray[1].mId, (long) testList.get(1)); // Drafts
+        assertEquals(mMailboxArray[3].mId, (long) testList.get(2)); // Sent
         testList = mManager.getMostRecent(1L, true);
         assertEquals(1, testList.size());
         assertEquals(mMailboxArray[7].mId, (long) testList.get(0));
@@ -191,14 +187,13 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId).get(); // trash
 
-        // nothing but system mailboxes
+        // nothing but system mailboxes, but inbox is never included
         testList = mManager.getMostRecent(1L, false);
-        assertEquals(5, testList.size());
+        assertEquals(4, testList.size());
         assertEquals(mMailboxArray[1].mId, (long) testList.get(0));
-        assertEquals(mMailboxArray[0].mId, (long) testList.get(1));
-        assertEquals(mMailboxArray[2].mId, (long) testList.get(2));
-        assertEquals(mMailboxArray[3].mId, (long) testList.get(3));
-        assertEquals(mMailboxArray[4].mId, (long) testList.get(4));
+        assertEquals(mMailboxArray[2].mId, (long) testList.get(1));
+        assertEquals(mMailboxArray[3].mId, (long) testList.get(2));
+        assertEquals(mMailboxArray[4].mId, (long) testList.get(3));
         testList = mManager.getMostRecent(1L, true);
         assertEquals(0, testList.size());
     }
@@ -213,17 +208,17 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[8].mId); // bud_lou
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[9].mId); // laurel
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[10].mId); // hardy
-        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[0].mId); // inbox
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[1].mId); // drafts
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[2].mId); // outbox
         mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[3].mId); // sent
-        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId).get(); // trash
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[4].mId); // trash
+        mMockClock.advance(1000L); mManager.touch(1L, mMailboxArray[5].mId).get(); // junk
 
         // nothing but user mailboxes
         testList = mManager.getMostRecent(1L, false);
         assertEquals(5, testList.size());
         assertEquals(mMailboxArray[1].mId, (long) testList.get(0));
-        assertEquals(mMailboxArray[0].mId, (long) testList.get(1));
+        assertEquals(mMailboxArray[5].mId, (long) testList.get(1));
         assertEquals(mMailboxArray[2].mId, (long) testList.get(2));
         assertEquals(mMailboxArray[3].mId, (long) testList.get(3));
         assertEquals(mMailboxArray[4].mId, (long) testList.get(4));
