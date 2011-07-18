@@ -909,7 +909,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         if (sRunningService == null) {
             sRunningService = this;
         }
-        if (intent.hasExtra(EXTRA_ATTACHMENT)) {
+        if (intent != null && intent.hasExtra(EXTRA_ATTACHMENT)) {
             Attachment att = (Attachment)intent.getParcelableExtra(EXTRA_ATTACHMENT);
             Log.d(TAG, "*** ONSTARTCOMMAND, changed: " + att.mId);
             onChange(att);
