@@ -1375,6 +1375,7 @@ public class MessageListFragment extends ListFragment
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             Set<Long> selectedConversations = mListAdapter.getSelectedSet();
+            if (selectedConversations.isEmpty()) return true;
             switch (item.getItemId()) {
                 case R.id.mark_read:
                     // Note - marking as read does not trigger auto-advance.
