@@ -1525,7 +1525,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
-     * Reload the UI from a provider cursor.  {@link LoadMessageTask#onPostExecute} calls it.
+     * Reload the UI from a provider cursor.  {@link LoadMessageTask#onSuccess} calls it.
      *
      * Update the header views, and start loading the body.
      *
