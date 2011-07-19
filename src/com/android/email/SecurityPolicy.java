@@ -16,16 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.service.EmailBroadcastProcessorService;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.PolicyColumns;
-import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
@@ -36,6 +26,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
+
+import com.android.email.service.EmailBroadcastProcessorService;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.PolicyColumns;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Utility functions to support reading and writing security policies, and handshaking the device
@@ -534,7 +534,7 @@ public class SecurityPolicy {
      * Called from the notification's intent receiver to register that the notification can be
      * cleared now.
      */
-    public void clearNotification(long accountId) {
+    public void clearNotification() {
         NotificationController.getInstance(mContext).cancelSecurityNeededNotification();
     }
 

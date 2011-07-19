@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -109,58 +108,46 @@ public class AccountSecurity extends Activity {
         final boolean passwordExpiring = i.getBooleanExtra(EXTRA_PASSWORD_EXPIRING, false);
         final boolean passwordExpired = i.getBooleanExtra(EXTRA_PASSWORD_EXPIRED, false);
         SecurityPolicy security = SecurityPolicy.getInstance(this);
-        security.clearNotification(accountId);
+        security.clearNotification();
         if (accountId == -1) {
             finish();
             return;
         }
 
-        // Let onCreate exit, while background thread retrieves account.
-        // Then start the security check/bootstrap process.
-        new AsyncTask<Void, Void, Account>() {
-            @Override
-            protected Account doInBackground(Void... params) {
-                return Account.restoreAccountWithId(AccountSecurity.this, accountId);
+        mAccount = Account.restoreAccountWithId(AccountSecurity.this, accountId);
+        if (mAccount == null) {
+            finish();
+            return;
+        }
+        // Special handling for password expiration events
+        if (passwordExpiring || passwordExpired) {
+            FragmentManager fm = getFragmentManager();
+            if (fm.findFragmentByTag("password_expiration") == null) {
+                PasswordExpirationDialog dialog =
+                    PasswordExpirationDialog.newInstance(mAccount.getDisplayName(),
+                            passwordExpired);
+                dialog.show(fm, "password_expiration");
             }
-
-            @Override
-            protected void onPostExecute(Account result) {
-                mAccount = result;
-                if (mAccount == null) {
-                    finish();
-                    return;
+            return;
+        }
+        // Otherwise, handle normal security settings flow
+        if (mAccount.mPolicyKey != 0) {
+            // This account wants to control security
+            if (showDialog) {
+                // Show dialog first, unless already showing (e.g. after rotation)
+                FragmentManager fm = getFragmentManager();
+                if (fm.findFragmentByTag("security_needed") == null) {
+                    SecurityNeededDialog dialog =
+                        SecurityNeededDialog.newInstance(mAccount.getDisplayName());
+                    dialog.show(fm, "security_needed");
                 }
-                // Special handling for password expiration events
-                if (passwordExpiring || passwordExpired) {
-                    FragmentManager fm = getFragmentManager();
-                    if (fm.findFragmentByTag("password_expiration") == null) {
-                        PasswordExpirationDialog dialog =
-                            PasswordExpirationDialog.newInstance(mAccount.getDisplayName(),
-                                    passwordExpired);
-                        dialog.show(fm, "password_expiration");
-                    }
-                    return;
-                }
-                // Otherwise, handle normal security settings flow
-                if (mAccount.mPolicyKey != 0) {
-                    // This account wants to control security
-                    if (showDialog) {
-                        // Show dialog first, unless already showing (e.g. after rotation)
-                        FragmentManager fm = getFragmentManager();
-                        if (fm.findFragmentByTag("security_needed") == null) {
-                            SecurityNeededDialog dialog =
-                                SecurityNeededDialog.newInstance(mAccount.getDisplayName());
-                            dialog.show(fm, "security_needed");
-                        }
-                    } else {
-                        // Go directly to security settings
-                        tryAdvanceSecurity(mAccount);
-                    }
-                    return;
-                }
-                finish();
+            } else {
+                // Go directly to security settings
+                tryAdvanceSecurity(mAccount);
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            return;
+        }
+        finish();
     }
 
     /**
@@ -229,7 +216,7 @@ public class AccountSecurity extends Activity {
                 Log.d(TAG, "Security active; clear holds");
             }
             Account.clearSecurityHoldOnAllAccounts(this);
-            security.clearNotification(account.mId);
+            security.clearNotification();
             finish();
             return;
         }
@@ -286,7 +273,7 @@ public class AccountSecurity extends Activity {
             Log.d(TAG, "Policies enforced; clear holds");
         }
         Account.clearSecurityHoldOnAllAccounts(this);
-        security.clearNotification(account.mId);
+        security.clearNotification();
         finish();
     }
 
@@ -295,6 +282,7 @@ public class AccountSecurity extends Activity {
      * eventually.
      */
     private void repostNotification(final Account account, final SecurityPolicy security) {
+        if (account == null) return;
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {
