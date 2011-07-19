@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -427,16 +428,37 @@ public class MessageListItem extends View {
         mAdapter = adapter;
     }
 
+
+    private static final int TOUCH_SLOP = 16;
+    private static int sScaledTouchSlop = -1;
+
+    private void initializeSlop(Context context) {
+        if (sScaledTouchSlop == -1) {
+            final Resources res = context.getResources();
+            final Configuration config = res.getConfiguration();
+            final float density = res.getDisplayMetrics().density;
+            final float sizeAndDensity;
+            if (config.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_XLARGE)) {
+                sizeAndDensity = density * 1.5f;
+            } else {
+                sizeAndDensity = density;
+            }
+            sScaledTouchSlop = (int) (sizeAndDensity * TOUCH_SLOP + 0.5f);
+        }
+    }
+
     /**
      * Overriding this method allows us to "catch" clicks in the checkbox or star
      * and process them accordingly.
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        initializeSlop(getContext());
+
         boolean handled = false;
         int touchX = (int) event.getX();
-        int checkRight = mCoordinates.checkmarkWidthIncludingMargins;
-        int starLeft = mViewWidth - mCoordinates.starWidthIncludingMargins;
+        int checkRight = mCoordinates.checkmarkWidthIncludingMargins + sScaledTouchSlop;
+        int starLeft = mViewWidth - mCoordinates.starWidthIncludingMargins - sScaledTouchSlop;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
