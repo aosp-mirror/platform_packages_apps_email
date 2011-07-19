@@ -28,11 +28,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.test.IsolatedContext;
 import android.util.Log;
 
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.MailService;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
@@ -1119,20 +1121,12 @@ public class Controller {
      * Delete an account.
      */
     public void deleteAccount(final long accountId) {
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 deleteAccountSync(accountId, mProviderContext);
             }
         });
-    }
-
-    /**
-     * Backup our accounts; define this here so that unit tests can override the behavior
-     * @param context the caller's context
-     */
-    @VisibleForTesting
-    protected void backupAccounts(Context context) {
-        AccountBackupRestore.backup(context);
     }
 
     /**
@@ -1154,20 +1148,17 @@ public class Controller {
             Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
             context.getContentResolver().delete(uri, null, null);
 
-            backupAccounts(context);
+            // For unit tests, don't run backup, security, and ui pieces
+            if (context instanceof IsolatedContext) return;
 
-            // Release or relax device administration, if relevant
+            // Clean up
+            AccountBackupRestore.backup(context);
             SecurityPolicy.getInstance(context).reducePolicies();
-
             Email.setServicesEnabledSync(context);
+            Email.setNotifyUiAccountsChanged(true);
+            MailService.actionReschedule(context);
         } catch (Exception e) {
             Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
-        } finally {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.deleteAccountCallback(accountId);
-                }
-            }
         }
     }
 
@@ -1328,12 +1319,6 @@ public class Controller {
          */
         public void sendMailCallback(MessagingException result, long accountId,
                 long messageId, int progress) {
-        }
-
-        /**
-         * Callback from {@link Controller#deleteAccount}.
-         */
-        public void deleteAccountCallback(long accountId) {
         }
     }
 

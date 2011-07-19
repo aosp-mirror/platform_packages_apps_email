@@ -307,17 +307,6 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2b.mFlags);
     }
 
-    private static class MockController extends Controller {
-        protected MockController(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void backupAccounts(Context context) {
-            // For testing, we don't want to back up our accounts
-        }
-    }
-
     /**
      * Test the response to disabling DeviceAdmin status
      */
@@ -352,23 +341,15 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertNull(a3a.mSecuritySyncKey);
         assertTrue(a3a.mPolicyKey == 0);
 
-        // Simulate revoke of device admin; directly call deleteSecuredAccounts, which is normally
-        // called from a background thread
-        MockController mockController = new MockController(mMockContext);
-        Controller.injectMockControllerForTest(mockController);
-        try {
-            mSecurityPolicy.deleteSecuredAccounts(mMockContext);
-            Policy after2 = mSecurityPolicy.getAggregatePolicy();
-            assertEquals(EMPTY_POLICY, after2);
-            Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
-            assertNull(a1b);
-            Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
-            assertNull(a2b);
-            Account a3b = Account.restoreAccountWithId(mMockContext, a3.mId);
-            assertNull(a3b.mSecuritySyncKey);
-        } finally {
-            Controller.injectMockControllerForTest(null);
-        }
+        mSecurityPolicy.deleteSecuredAccounts(mMockContext);
+        Policy after2 = mSecurityPolicy.getAggregatePolicy();
+        assertEquals(EMPTY_POLICY, after2);
+        Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
+        assertNull(a1b);
+        Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
+        assertNull(a2b);
+        Account a3b = Account.restoreAccountWithId(mMockContext, a3.mId);
+        assertNull(a3b.mSecuritySyncKey);
     }
 
     /**

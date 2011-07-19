@@ -22,8 +22,7 @@ interface IAccountService {
     oneway void notifyLoginFailed(long accountId);
     oneway void notifyLoginSucceeded(long accountId);
 
-    void accountDeleted();
-    void restoreAccountsIfNeeded();
+    void reconcileAccounts(String protocol, String accountManagerType);
 
     int getAccountColor(long accountId);
 

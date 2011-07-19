@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.emailcommon.utility;
-
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.google.common.annotations.VisibleForTesting;
+package com.android.email.provider;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.util.Log;
+
+import com.android.email.Controller;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.util.List;
@@ -57,7 +56,7 @@ public class AccountReconciler {
      */
     public static boolean reconcileAccounts(Context context,
             List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
-            ContentResolver resolver) {
+            Context providerContext) {
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account
         boolean accountsDeleted = false;
@@ -80,9 +79,8 @@ public class AccountReconciler {
                 Log.d(Logging.LOG_TAG,
                         "Account deleted in AccountManager; deleting from provider: " +
                         providerAccountName);
-                // TODO This will orphan downloaded attachments; need to handle this
-                resolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
-                        providerAccount.mId), null, null);
+                Controller.getInstance(context).deleteAccountSync(providerAccount.mId,
+                        providerContext);
                 accountsDeleted = true;
             }
         }

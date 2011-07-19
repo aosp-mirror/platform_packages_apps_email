@@ -16,22 +16,27 @@
 
 package com.android.email.service;
 
+import android.accounts.AccountManager;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.os.IBinder;
+
 import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.service.IAccountService;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.IBinder;
-
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AccountService extends Service {
 
@@ -50,16 +55,33 @@ public class AccountService extends Service {
             NotificationController.getInstance(mContext).cancelLoginFailedNotification(accountId);
         }
 
-        @Override
-        public void restoreAccountsIfNeeded() {
-            // Obsolete -- this is done 100% transparently in EmailProvider.
-            // We leave the method because we don't want to change the service interface.
-            // (It may be okay to remove it, but we're not sure at this point.)
+        private ArrayList<Account> getAccountList(String forProtocol) {
+            ArrayList<Account> providerAccounts = new ArrayList<Account>();
+            Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
+                    Account.ID_PROJECTION, null, null, null);
+            try {
+                while (c.moveToNext()) {
+                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    String protocol = Account.getProtocol(mContext, accountId);
+                    if ((protocol != null) && forProtocol.equals(protocol)) {
+                        Account account = Account.restoreAccountWithId(mContext, accountId);
+                        if (account != null) {
+                            providerAccounts.add(account);
+                        }
+                    }
+                }
+            } finally {
+                c.close();
+            }
+            return providerAccounts;
         }
 
         @Override
-        public void accountDeleted() {
-            MailService.accountDeleted(mContext);
+        public void reconcileAccounts(String protocol, String accountManagerType) {
+            ArrayList<Account> providerList = getAccountList(protocol);
+            android.accounts.Account[] accountMgrList =
+                AccountManager.get(mContext).getAccountsByType(accountManagerType);
+            AccountReconciler.reconcileAccounts(mContext, providerList, accountMgrList, mContext);
         }
 
         @Override

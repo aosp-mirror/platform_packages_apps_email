@@ -68,11 +68,6 @@ public class MailServiceTests extends AccountTestCase {
         super.tearDown();
         // Delete any test accounts we might have created earlier
         deleteTemporaryAccountManagerAccounts();
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(getContext(), EasTestAuthenticatorService.class),
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
     }
 
     /**
@@ -147,7 +142,7 @@ public class MailServiceTests extends AccountTestCase {
         // Run the reconciler
         ContentResolver resolver = mMockContext.getContentResolver();
         MailService.reconcileAccountsWithAccountManager(context,
-                makeExchangeServiceAccountList(), accountManagerAccounts, true, resolver);
+                makeExchangeServiceAccountList(), accountManagerAccounts, mMockContext);
 
         // There should now be only two EmailProvider accounts
         assertEquals(2, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
@@ -160,7 +155,7 @@ public class MailServiceTests extends AccountTestCase {
 
         // Run the reconciler
         MailService.reconcileAccountsWithAccountManager(context,
-                makeExchangeServiceAccountList(), accountManagerAccounts, true, resolver);
+                makeExchangeServiceAccountList(), accountManagerAccounts, mMockContext);
 
         // There should now be only one AccountManager account
         accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);
