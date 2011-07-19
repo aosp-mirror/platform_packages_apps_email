@@ -16,12 +16,12 @@
 
 package com.android.email;
 
+import android.os.Handler;
+
 import com.android.email.Controller.Result;
 import com.android.emailcommon.mail.MessagingException;
 
 import java.util.ArrayList;
-
-import android.os.Handler;
 
 /**
  * A {@link Result} that wraps another {@link Result} and makes sure methods gets called back
@@ -129,14 +129,5 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             }
         });
     }
-
-    @Override
-    public void deleteAccountCallback(final long accountId) {
-        run(new Runnable() {
-            public void run() {
-                if (!isRegistered()) return;
-                mWrappee.deleteAccountCallback(accountId);
-            }
-        });
-    }
 }
+ 

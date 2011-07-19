@@ -38,16 +38,14 @@ import android.util.Log;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.Preferences;
-import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
-import com.android.email.provider.AccountBackupRestore;
+import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.AccountReconciler;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -703,7 +701,7 @@ public class MailService extends Service {
                             .getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
                     ArrayList<Account> providerAccounts = getPopImapAccountList(context);
                     MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
-                            accountManagerAccounts, false, context.getContentResolver());
+                            accountManagerAccounts, context);
 
                 }
     };
@@ -716,37 +714,19 @@ public class MailService extends Service {
     }
 
     /**
-     * Handles a variety of cleanup actions that must be performed when an account has been deleted.
-     * This includes triggering an account backup, ensuring that security policies are properly
-     * reset, if necessary, notifying the UI of the change, and resetting scheduled syncs and
-     * notifications.
-     * @param context the caller's context
-     */
-    public static void accountDeleted(Context context) {
-        AccountBackupRestore.backup(context);
-        SecurityPolicy.getInstance(context).reducePolicies();
-        Email.setNotifyUiAccountsChanged(true);
-        MailService.actionReschedule(context);
-    }
-
-    /**
      * See Utility.reconcileAccounts for details
      * @param context The context in which to operate
      * @param emailProviderAccounts the exchange provider accounts to work from
      * @param accountManagerAccounts The account manager accounts to work from
      * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
-     * @param resolver the content resolver for making provider updates (injected for testability)
+     * @param providerContext the provider's context (in unit tests, this may differ from context)
      */
     @VisibleForTesting
     public static void reconcileAccountsWithAccountManager(Context context,
             List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
-            boolean blockExternalChanges, ContentResolver resolver) {
-        boolean accountsDeleted = AccountReconciler.reconcileAccounts(context,
-                emailProviderAccounts, accountManagerAccounts, resolver);
-        // If we changed the list of accounts, refresh the backup & security settings
-        if (!blockExternalChanges && accountsDeleted) {
-            accountDeleted(context);
-        }
+            Context providerContext) {
+        AccountReconciler.reconcileAccounts(context, emailProviderAccounts, accountManagerAccounts,
+                providerContext);
     }
 
     public static void setupAccountManagerAccount(Context context, Account account,

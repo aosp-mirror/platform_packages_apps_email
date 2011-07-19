@@ -65,25 +65,13 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void accountDeleted() {
+    public void reconcileAccounts(final String protocol, final String accountManagerType) {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.accountDeleted();
+                mService.reconcileAccounts(protocol, accountManagerType);
             }
-        }, "accountDeleted");
-    }
-
-    // The following call is synchronous, and should not be made from the UI thread
-    @Override
-    public void restoreAccountsIfNeeded() {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.restoreAccountsIfNeeded();
-            }
-        }, "restoreAccountsIfNeeded");
-        waitForCompletion();
+        }, "reconcileAccounts");
     }
 
     // The following call is synchronous, and should not be made from the UI thread
