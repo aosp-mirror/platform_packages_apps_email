@@ -136,8 +136,12 @@
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
     <string name="move_action">Move</string>
-    <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
+    <!-- Button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
     <string name="add_cc_bcc_action">+ Cc/Bcc</string>
+    <!-- Menu item label for adding CC/BCC fields on message compose. [CHAR LIMIT=20] -->
+    <string name="add_cc_bcc_menu">Add Cc/Bcc</string>
+    <!-- Menu item label for adding an attachment on message compose. [CHAR LIMIT=20] -->
+    <string name="add_attachment_menu">Attach file</string>
     <!-- Generic button [CHAR LIMIT=16] -->
     <string name="close_action">Close</string>
     <!-- Command shown on Outbox to send all pending messages [CHAR LIMIT=20] -->

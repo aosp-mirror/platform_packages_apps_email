@@ -17,28 +17,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/send"
-        android:orderInCategory="1000"
         android:title="@string/send_action"
         android:showAsAction="ifRoom|withText"
         android:icon="@drawable/ic_menu_send_holo_light"
         android:alphabeticShortcut="s"
     />
     <item
+        android:id="@+id/add_cc_bcc"
+        android:title="@string/add_cc_bcc_menu"
+    />
+    <item
+        android:id="@+id/add_attachment"
+        android:title="@string/add_attachment_menu"
+    />
+    <item
         android:id="@+id/save"
-        android:orderInCategory="1100"
         android:title="@string/save_draft_action"
         android:alphabeticShortcut="d"
     />
     <item
         android:id="@+id/discard"
-        android:orderInCategory="1200"
         android:title="@string/discard_action"
         android:icon="@drawable/ic_menu_trash_holo_light"
         android:alphabeticShortcut="q"
     />
     <item
         android:id="@+id/show_quick_text_list_dialog"
-        android:orderInCategory="1300"
         android:title="@string/show_quick_text_list_dialog_action"
         android:alphabeticShortcut="r"
     />

@@ -21,7 +21,6 @@
     android:orientation="vertical" android:background="#ffffff">
     <ScrollView android:layout_width="match_parent"
         android:layout_height="0dip" android:layout_weight="1"
-        android:scrollbarStyle="outsideInset"
         android:fillViewport="true">
         <LinearLayout android:orientation="vertical"
             android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -36,25 +35,13 @@
                     android:visibility="gone"
                     />
 
-                <LinearLayout
-                    android:orientation="horizontal"
+                <include android:id="@+id/to"
+                    layout="@layout/address_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip">
+                    android:layout_marginRight="6dip" />
 
-                    <include android:id="@+id/to"
-                        layout="@layout/address_text_view"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <ImageView
-                        android:id="@+id/add_cc_bcc"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:src="@drawable/ic_menu_cc_holo_light" />
-                </LinearLayout>
                 <LinearLayout
                     android:id="@+id/cc_bcc_container"
                     android:layout_width="match_parent"
@@ -66,37 +53,27 @@
                     >
                     <include android:id="@+id/cc"
                         layout="@layout/address_text_view"
-                        android:layout_width="match_parent"               
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                     <include android:id="@+id/bcc"
                         layout="@layout/address_text_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-                    <EditText android:id="@+id/subject"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_marginLeft="6dip"
-                        android:layout_marginRight="6dip"
-                        android:hint="@string/message_compose_subject_hint"
-                        android:inputType
-                            ="textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine"
-                        android:imeOptions="actionNext"
-                        />
-                    <ImageView
-                        android:id="@+id/add_attachment"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:src="@drawable/ic_attachment_holo_light" />
-                </LinearLayout>
+                <EditText android:id="@+id/subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginLeft="6dip"
+                    android:layout_marginRight="6dip"
+                    android:hint="@string/message_compose_subject_hint"
+                    android:inputType
+                        ="textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine"
+                    android:imeOptions="actionNext"
+                    />
+
                 <!--
                     Empty container for storing attachments. We'll stick
                     instances of message_compose_attachment.xml in here.
