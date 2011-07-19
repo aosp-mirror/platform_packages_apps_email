@@ -51,7 +51,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     public static Bundle sSetupModeArgs = null;
     protected static URI sDefaultUri;
 
-    private final static String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
+    private static final String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
+    private static final String BUNDLE_KEY_ACTIVITY_TITLE = "AccountServerBaseFragment.title";
 
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
@@ -150,6 +151,21 @@ public abstract class AccountServerBaseFragment extends Fragment
             mProceedButton.setOnClickListener(this);
             mProceedButton.setEnabled(false);
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        // startPreferencePanel launches this fragment with the right title initially, but
+        // if the device is rotate we must set the title ourselves
+        if (mSettingsMode && savedInstanceState != null) {
+            getActivity().setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
+        }
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
     }
 
     @Override
