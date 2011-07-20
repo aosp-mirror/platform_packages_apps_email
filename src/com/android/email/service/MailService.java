@@ -647,7 +647,7 @@ public class MailService extends Service {
                 }
                 AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                 reschedule(alarmManager);
-                int serviceId = MailService.this.mStartId;
+                int serviceId = mStartId;
                 if (tag != 0) {
                     serviceId = (int) tag;
                 }
@@ -718,7 +718,6 @@ public class MailService extends Service {
      * @param context The context in which to operate
      * @param emailProviderAccounts the exchange provider accounts to work from
      * @param accountManagerAccounts The account manager accounts to work from
-     * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
      * @param providerContext the provider's context (in unit tests, this may differ from context)
      */
     @VisibleForTesting

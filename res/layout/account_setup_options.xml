@@ -46,14 +46,12 @@
             <TextView
                 android:id="@+id/account_sync_window_label"
                 android:text="@string/account_setup_options_mail_window_label"
-                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary" />
             <Spinner
                 android:id="@+id/account_sync_window"
-                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent" />
         </LinearLayout>

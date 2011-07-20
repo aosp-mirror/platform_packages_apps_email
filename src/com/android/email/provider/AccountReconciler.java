@@ -52,7 +52,7 @@ public class AccountReconciler {
      * @param context The context in which to operate
      * @param emailProviderAccounts the exchange provider accounts to work from
      * @param accountManagerAccounts The account manager accounts to work from
-     * @param resolver the content resolver for making provider updates (injected for testability)
+     * @param providerContext application provider context
      */
     public static boolean reconcileAccounts(Context context,
             List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
