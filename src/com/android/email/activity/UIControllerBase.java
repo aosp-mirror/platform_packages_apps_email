@@ -623,6 +623,20 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * is actually submitted.
      */
     public void onSearchRequested() {
+        long accountId = getActualAccountId();
+        boolean accountSearchable = false;
+        if (accountId > 0) {
+            Account account = Account.restoreAccountWithId(mActivity, accountId);
+            if (account != null) {
+                String protocol = account.getProtocol(mActivity);
+                accountSearchable = (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
+            }
+        }
+
+        if (!accountSearchable) {
+            return;
+        }
+
         if (isMessageListReady()) {
             mActionBarController.enterSearchMode(null);
         }
