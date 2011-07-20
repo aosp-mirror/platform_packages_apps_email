@@ -32,6 +32,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.Set;
 
@@ -86,19 +87,23 @@ class UIControllerOnePane extends UIControllerBase {
     // MessageListFragment.Callback
     @Override
     public void onEnterSelectionMode(boolean enter) {
-        // TODO Auto-generated method stub
+        // Noop.
     }
 
     // MessageListFragment.Callback
     @Override
     public void onListLoaded() {
-        // TODO Auto-generated method stub
+        // Noop.
     }
 
     // MessageListFragment.Callback
     @Override
     public void onMailboxNotFound() {
-        switchAccount(getUIAccountId(), true);
+        // Something bad happened - the account or mailbox we were looking for was deleted.
+        // Just restart and let the entry flow find a good default view.
+        Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
+        Welcome.actionStart(mActivity);
+        mActivity.finish();
     }
 
     // MessageListFragment.Callback
@@ -401,7 +406,12 @@ class UIControllerOnePane extends UIControllerBase {
      */
     private void commitFragmentTransaction(FragmentTransaction ft) {
         if (!ft.isEmpty()) {
-            // STOPSHIP Don't use AllowingStateLoss.  See b/4519430
+            // NB: there should be no cases in which a transaction is committed after
+            // onSaveInstanceState. Unfortunately, the "state loss" check also happens when in
+            // LoaderCallbacks.onLoadFinished, and we wish to perform transactions there. The check
+            // by the framework is conservative and prevents cases where there are transactions
+            // affecting Loader lifecycles - but we have no such cases.
+            // TODO: use asynchronous callbacks from loaders to avoid this implicit dependency
             ft.commitAllowingStateLoss();
             mFragmentManager.executePendingTransactions();
         }

@@ -1053,6 +1053,11 @@ save attachment.</string>
          [CHAR_LIMIT=none]-->
     <string name="toast_account_not_found">Account not found. It may have been removed.</string>
 
+    <!-- Toast shown when the selected folder no longer exists.  This is used when, for example,
+         a shotcut or a widget is stale and points at a deleted folder.
+         [CHAR_LIMIT=none]-->
+    <string name="toast_mailbox_not_found">Folder not found. It may have been removed.</string>
+
     <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
     <string name="provider_note_live">Only some \"Plus\" accounts include POP access
         allowing this program to connect. If you are not able to sign in with
