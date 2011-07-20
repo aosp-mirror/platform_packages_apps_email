@@ -16,19 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.activity.ShortcutPicker;
-import com.android.email.activity.MessageCompose;
-import com.android.email.service.AttachmentDownloadService;
-import com.android.email.service.MailService;
-import com.android.email.service.NotificationService;
-import com.android.email.widget.WidgetConfiguration;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.TempDirectory;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,6 +23,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.util.Log;
+
+import com.android.email.activity.MessageCompose;
+import com.android.email.activity.ShortcutPicker;
+import com.android.email.service.AttachmentDownloadService;
+import com.android.email.service.MailService;
+import com.android.email.widget.WidgetConfiguration;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.TempDirectory;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 
 public class Email extends Application {
     /**
@@ -162,11 +161,6 @@ public class Email extends Application {
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, NotificationService.class),
-                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
         if (enabled && pm.getComponentEnabledSetting(
                 new ComponentName(context, MailService.class)) ==
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
@@ -179,7 +173,7 @@ public class Email extends Application {
 
         // Start/stop the various services depending on whether there are any accounts
         startOrStopService(enabled, context, new Intent(context, AttachmentDownloadService.class));
-        startOrStopService(enabled, context, new Intent(context, NotificationService.class));
+        NotificationController.getInstance(context).watchForMessages(enabled);
     }
 
     /**

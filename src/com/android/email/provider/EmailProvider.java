@@ -159,8 +159,9 @@ public class EmailProvider extends ContentProvider {
     // Version 25: Added QuickResponse table
     // Version 26: Update IMAP accounts to add FLAG_SUPPORTS_SEARCH flag
     // Version 27: Add protocolSearchInfo to Message table
+    // Version 28: Add notifiedMessageId and notifiedMessageCount to Account
 
-    public static final int DATABASE_VERSION = 27;
+    public static final int DATABASE_VERSION = 28;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -612,7 +613,9 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer"
+            + AccountColumns.POLICY_KEY + " integer, "
+            + AccountColumns.NOTIFIED_MESSAGE_ID + " integer, "
+            + AccountColumns.NOTIFIED_MESSAGE_COUNT + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -1329,6 +1332,18 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
                 }
                 oldVersion = 27;
+            }
+            if (oldVersion == 27) {
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + Account.NOTIFIED_MESSAGE_ID + " integer;");
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 27 " + e);
+                }
+                oldVersion = 28;
             }
         }
 

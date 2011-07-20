@@ -109,6 +109,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public String mSecuritySyncKey;
     public String mSignature;
     public long mPolicyKey;
+    public long mNotifiedMessageId;
+    public int mNotifiedMessageCount;
 
     // Convenience for creating/working with an account
     public transient HostAuth mHostAuthRecv;
@@ -135,6 +137,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 15;
     public static final int CONTENT_SIGNATURE_COLUMN = 16;
     public static final int CONTENT_POLICY_KEY = 17;
+    public static final int CONTENT_NOTIFIED_MESSAGE_ID = 18;
+    public static final int CONTENT_NOTIFIED_MESSAGE_COUNT = 19;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -144,7 +148,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
         AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
-        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY
+        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY,
+        AccountColumns.NOTIFIED_MESSAGE_ID, AccountColumns.NOTIFIED_MESSAGE_COUNT
     };
 
     public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -249,6 +254,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
         mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
         mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY);
+        mNotifiedMessageId = cursor.getLong(CONTENT_NOTIFIED_MESSAGE_ID);
+        mNotifiedMessageCount = cursor.getInt(CONTENT_NOTIFIED_MESSAGE_COUNT);
     }
 
     private long getId(Uri u) {
@@ -830,6 +837,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
         values.put(AccountColumns.SIGNATURE, mSignature);
         values.put(AccountColumns.POLICY_KEY, mPolicyKey);
+        values.put(AccountColumns.NOTIFIED_MESSAGE_ID, mNotifiedMessageId);
+        values.put(AccountColumns.NOTIFIED_MESSAGE_COUNT, mNotifiedMessageCount);
         return values;
     }
 
@@ -881,6 +890,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         dest.writeString(mSecuritySyncKey);
         dest.writeString(mSignature);
         dest.writeLong(mPolicyKey);
+        dest.writeLong(mNotifiedMessageId);
+        dest.writeInt(mNotifiedMessageCount);
 
         if (mHostAuthRecv != null) {
             dest.writeByte((byte)1);
@@ -920,6 +931,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mSecuritySyncKey = in.readString();
         mSignature = in.readString();
         mPolicyKey = in.readLong();
+        mNotifiedMessageId = in.readLong();
+        mNotifiedMessageCount = in.readInt();
 
         mHostAuthRecv = null;
         if (in.readByte() == 1) {
