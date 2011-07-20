@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.test.IsolatedContext;
 import android.util.Log;
 
 import com.android.email.mail.store.Pop3Store.Pop3Message;
@@ -117,11 +116,22 @@ public class Controller {
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
 
+    private volatile boolean mInUnitTests = false;
+
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
         mProviderContext = _context;
         mLegacyController = MessagingController.getInstance(mProviderContext, this);
         mLegacyController.addListener(mLegacyListener);
+    }
+
+    /**
+     * Mark this controller as being in use in a unit test.
+     * This is a kludge vs having proper mocks and dependency injection; since the Controller is a
+     * global singleton there isn't much else we can do.
+     */
+    public void markForUnitTest(boolean inUnitTests) {
+        mInUnitTests = inUnitTests;
     }
 
     /**
@@ -472,7 +482,7 @@ public class Controller {
     }
 
     /**
-     * Look for a specific mailbox, creating it if necessary, and return the mailbox id.
+     * Look for a specific system mailbox, creating it if necessary, and return the mailbox id.
      * This is a blocking operation and should not be called from the UI thread.
      *
      * Synchronized so multiple threads can call it (and not risk creating duplicate boxes).
@@ -1148,8 +1158,10 @@ public class Controller {
             Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
             context.getContentResolver().delete(uri, null, null);
 
-            // For unit tests, don't run backup, security, and ui pieces
-            if (context instanceof IsolatedContext) return;
+            // For unit tests, don't run backup, security, and ui pieces.
+            if (mInUnitTests) {
+                return;
+            }
 
             // Clean up
             AccountBackupRestore.backup(context);

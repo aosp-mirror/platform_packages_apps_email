@@ -58,6 +58,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         mMockContext = new MockContext2(getMockContext(), mContext);
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
+        Controller.getInstance(mMockContext).markForUnitTest(true);
     }
 
     /**
@@ -65,6 +66,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      */
     @Override
     protected void tearDown() throws Exception {
+        Controller.getInstance(mMockContext).markForUnitTest(false);
         super.tearDown();
     }
 
@@ -398,10 +400,10 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      * Lightweight subclass of the Controller class allows injection of mock context
      */
     public static class TestController extends Controller {
-
         protected TestController(Context providerContext, Context systemContext) {
             super(systemContext);
             setProviderContext(providerContext);
+            markForUnitTest(true);
         }
     }
 

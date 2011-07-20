@@ -136,15 +136,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         assertNotNull(testMailbox);
         assertEquals(8, testMailbox.mFlags);        // Flags should be "holds mail"
         assertEquals(-1L, testMailbox.mParentKey);  // Parent is off the top-level
-
-        // Test creating user mailbox; some fields have changed
-        mTestController.createMailbox(1L, Mailbox.TYPE_MAIL);
-        testMailboxId = Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_MAIL);
-        assertTrue(testMailboxId != Mailbox.NO_MAILBOX);
-        testMailbox = Mailbox.restoreMailboxWithId(mProviderContext, testMailboxId);
-        assertNotNull(testMailbox);
-        assertEquals(0, testMailbox.mFlags);        // Flags are not set
-        assertEquals(0L, testMailbox.mParentKey);   // Parent is not set
     }
 
     /**
