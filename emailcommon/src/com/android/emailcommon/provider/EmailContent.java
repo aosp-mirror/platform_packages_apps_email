@@ -1316,6 +1316,10 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
+        // The last notified message id
+        public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
+        // The most recent notified message count
+        public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
     public interface QuickResponseColumns {

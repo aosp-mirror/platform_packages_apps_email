@@ -22,6 +22,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -35,7 +36,6 @@ import android.os.Looper;
 import android.os.Process;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 
 import com.android.email.activity.ContactStatusLoader;
@@ -46,6 +46,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -88,7 +89,7 @@ public class NotificationController {
     // for now since the assumption is that we only ever look for changes in an account's
     // INBOX. We should adjust our logic to use the mailbox ID instead.
     /** Maps account id to the message data */
-    private final HashMap<Long, MessageData> mNotificationMap;
+    private final HashMap<Long, ContentObserver> mNotificationMap;
     private ContentObserver mAccountObserver;
     /**
      * Suspend notifications for this account. If {@link Account#NO_ACCOUNT}, no
@@ -107,7 +108,7 @@ public class NotificationController {
         mGenericSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.ic_contact_picture);
         mClock = clock;
-        mNotificationMap = new HashMap<Long, MessageData>();
+        mNotificationMap = new HashMap<Long, ContentObserver>();
     }
 
     /** Singleton access */
@@ -208,7 +209,6 @@ public class NotificationController {
             @Override
             public void run() {
                 ContentResolver resolver = mContext.getContentResolver();
-                HashMap<Long, long[]> table;
                 if (!watch) {
                     unregisterMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                     if (mAccountObserver != null) {
@@ -300,10 +300,9 @@ public class NotificationController {
                 c.close();
             }
         } else {
-            MessageData data = mNotificationMap.get(accountId);
-            if (data != null) return;  // we're already observing; nothing to do
+            ContentObserver obs = mNotificationMap.get(accountId);
+            if (obs != null) return;  // we're already observing; nothing to do
 
-            data = new MessageData();
             Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
             if (mailbox == null) {
                 Log.w(Logging.LOG_TAG, "Could not load INBOX for account id: " + accountId);
@@ -312,10 +311,9 @@ public class NotificationController {
             ContentObserver observer = new MessageContentObserver(
                     sNotificationHandler, mContext, mailbox.mId, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
-            data.mObserver = observer;
-            mNotificationMap.put(accountId, data);
+            mNotificationMap.put(accountId, observer);
             // Now, ping the observer for any initial notifications
-            data.mObserver.onChange(true);
+            observer.onChange(true);
         }
     }
 
@@ -331,15 +329,13 @@ public class NotificationController {
         ContentResolver resolver = mContext.getContentResolver();
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             // cancel all existing message observers
-            for (MessageData data : mNotificationMap.values()) {
-                ContentObserver observer = data.mObserver;
+            for (ContentObserver observer : mNotificationMap.values()) {
                 resolver.unregisterContentObserver(observer);
             }
             mNotificationMap.clear();
         } else {
-            MessageData data = mNotificationMap.remove(accountId);
-            if (data != null) {
-                ContentObserver observer = data.mObserver;
+            ContentObserver observer = mNotificationMap.remove(accountId);
+            if (observer != null) {
                 resolver.unregisterContentObserver(observer);
             }
         }
@@ -592,14 +588,15 @@ public class NotificationController {
                 return;
             }
 
-            MessageData data = sInstance.mNotificationMap.get(mAccountId);
-            if (data == null) {
+            ContentObserver observer = sInstance.mNotificationMap.get(mAccountId);
+            if (observer == null) {
                 // notification for a mailbox that we aren't observing; this should not happen
                 Log.e(Logging.LOG_TAG, "Received notifiaction when observer data was null");
                 return;
             }
-            long oldMessageId = data.mNotifiedMessageId;
-            int oldMessageCount = data.mNotifiedMessageCount;
+            Account account = Account.restoreAccountWithId(mContext, mAccountId);
+            long oldMessageId = account.mNotifiedMessageId;
+            int oldMessageCount = account.mNotifiedMessageCount;
 
             ContentResolver resolver = mContext.getContentResolver();
             long lastSeenMessageId = Utility.getFirstRowLong(
@@ -646,8 +643,12 @@ public class NotificationController {
                                 sInstance.getNewMessageNotificationId(mAccountId), n);
                     }
                 }
-                data.mNotifiedMessageId = newMessageId;
-                data.mNotifiedMessageCount = newMessageCount;
+                // Save away the new values
+                ContentValues cv = new ContentValues();
+                cv.put(AccountColumns.NOTIFIED_MESSAGE_ID, newMessageId);
+                cv.put(AccountColumns.NOTIFIED_MESSAGE_COUNT, newMessageCount);
+                resolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId), cv,
+                        null, null);
             } finally {
                 c.close();
             }
@@ -708,16 +709,6 @@ public class NotificationController {
                 sInstance.mNotificationManager.cancel(notificationId);
             }
         }
-    }
-
-    /** Information about the message(s) we're notifying the user about. */
-    private static class MessageData {
-        /** The database observer */
-        ContentObserver mObserver;
-        /** Message ID used in the user notification */
-        long mNotifiedMessageId;
-        /** Message count used in the user notification */
-        int mNotifiedMessageCount;
     }
 
     /**
