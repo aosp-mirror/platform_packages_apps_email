@@ -16,14 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -38,6 +30,14 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * "Move (messages) to" dialog.
@@ -242,7 +242,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 if (accountId == Account.NO_ACCOUNT) {
                     // First, check if the account supports move
                     accountId = message.mAccountKey;
-                    if (!Account.supportsMoveMessages(c, accountId)) {
+                    if (!Account.restoreAccountWithId(c, accountId).supportsMoveMessages(c)) {
                         Utility.showToast(
                                 mActivity, R.string.cannot_move_protocol_not_supported_toast);
                         accountId = Account.NO_ACCOUNT;
@@ -250,7 +250,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                     }
                     mailboxId = message.mMailboxKey;
                     // Second, check if the mailbox supports move
-                    if (!Mailbox.canMoveFrom(c, mailboxId)) {
+                    if (!Mailbox.restoreMailboxWithId(c, mailboxId).canHaveMessagesMoved()) {
                         Utility.showToast(mActivity, R.string.cannot_move_special_mailboxes_toast);
                         accountId = Account.NO_ACCOUNT;
                         mailboxId = Mailbox.NO_MAILBOX;

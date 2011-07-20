@@ -453,11 +453,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         return "eas".equals(getProtocol(context));
     }
 
-    /**
-     * @return true if the account supports "move messages".
-     */
-    public static boolean supportsMoveMessages(Context context, long accountId) {
-        String protocol = getProtocol(context, accountId);
+    public boolean supportsMoveMessages(Context context) {
+        String protocol = getProtocol(context);
         return "eas".equals(protocol) || "imap".equals(protocol);
     }
 
@@ -477,15 +474,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     public void setDefaultAccount(boolean newDefaultState) {
         mIsDefault = newDefaultState;
-    }
-
-    /**
-     * Helper method for finding the default account.
-     */
-    static private long getDefaultAccountWhere(Context context, String where) {
-        return Utility.getFirstRowLong(context, CONTENT_URI,
-                DEFAULT_ID_PROJECTION,
-                where, null, null, 0, Long.valueOf(-1));
     }
 
     /**

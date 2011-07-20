@@ -128,8 +128,8 @@ public class MessageListFragment extends ListFragment
 
     // Misc members
 
-    /** Whether "Send all messages" should be shown. */
     private boolean mShowSendCommand;
+    private boolean mShowMoveCommand;
 
     /**
      * If true, we disable the CAB even if there are selected messages.
@@ -706,7 +706,7 @@ public class MessageListFragment extends ListFragment
             final long mailboxId = getMailboxId();
             if (mAccount == null || mMailbox == null) {
                 return false;
-            } else if (mailboxId > 0 && !Mailbox.canMoveFrom(mActivity, mailboxId)) {
+            } else if (mailboxId > 0 && !mMailbox.canHaveMessagesMoved()) {
                 return false;
             }
             // Start drag&drop.
@@ -1127,10 +1127,16 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    private void showSendCommandIfNecessary() {
+    private void updateMailboxSpecificActions() {
         final boolean isOutbox = (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX)
                 || ((mMailbox != null) && (mMailbox.mType == Mailbox.TYPE_OUTBOX));
         showSendCommand(isOutbox && (mListAdapter != null) && (mListAdapter.getCount() > 0));
+
+        // A null account/mailbox means we're in a combined view. We show the move icon there,
+        // even though it may be the case that we can't move messages from one of the mailboxes.
+        // There's no good way to tell that right now, though.
+        mShowMoveCommand = (mAccount == null || mAccount.supportsMoveMessages(getActivity()))
+                && (mMailbox == null || mMailbox.canHaveMessagesMoved());
     }
 
     private void showNoMessageText(boolean visible) {
@@ -1233,7 +1239,7 @@ public class MessageListFragment extends ListFragment
                     mListAdapter.setQuery(null);
                     mSearchedMailbox = null;
                 }
-                showSendCommandIfNecessary();
+                updateMailboxSpecificActions();
 
                 // Show chips if combined view.
                 mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
@@ -1319,6 +1325,7 @@ public class MessageListFragment extends ListFragment
         private MenuItem mMarkUnread;
         private MenuItem mAddStar;
         private MenuItem mRemoveStar;
+        private MenuItem mMove;
 
         /* package */ boolean mClosedByUser = true;
 
@@ -1332,6 +1339,7 @@ public class MessageListFragment extends ListFragment
             mMarkUnread = menu.findItem(R.id.mark_unread);
             mAddStar = menu.findItem(R.id.add_star);
             mRemoveStar = menu.findItem(R.id.remove_star);
+            mMove = menu.findItem(R.id.move);
             return true;
         }
 
@@ -1349,6 +1357,7 @@ public class MessageListFragment extends ListFragment
             mMarkUnread.setVisible(readExists);
             mAddStar.setVisible(nonStarExists);
             mRemoveStar.setVisible(!nonStarExists);
+            mMove.setVisible(mShowMoveCommand);
             return true;
         }
 
