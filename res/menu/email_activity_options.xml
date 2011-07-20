@@ -18,22 +18,21 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/search"
-        android:orderInCategory="100"
-        android:alphabeticShortcut="s"
-        android:title="@string/search_action"
-        android:icon="@drawable/ic_menu_search_holo_light"
-        android:showAsAction="ifRoom"
-    />
-    <item
         android:id="@+id/compose"
-        android:orderInCategory="200"
+        android:orderInCategory="100"
         android:alphabeticShortcut="c"
         android:title="@string/compose_action"
         android:icon="@drawable/ic_menu_compose_holo_light"
         android:showAsAction="ifRoom"
     />
-    <!-- STOPSHIP: replace with proper asset -->
+    <item
+        android:id="@+id/search"
+        android:orderInCategory="200"
+        android:alphabeticShortcut="s"
+        android:title="@string/search_action"
+        android:icon="@drawable/ic_menu_search_holo_light"
+        android:showAsAction="ifRoom"
+    />
     <item
         android:id="@+id/show_all_mailboxes"
         android:orderInCategory="300"
