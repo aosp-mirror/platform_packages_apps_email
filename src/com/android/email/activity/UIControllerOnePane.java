@@ -32,7 +32,6 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
 
 import java.util.Set;
 

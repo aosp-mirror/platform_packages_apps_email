@@ -870,7 +870,13 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         // Something bad happened - the account or mailbox we were looking for was deleted.
         // Just restart and let the entry flow find a good default view.
         Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
-        Welcome.actionStart(mActivity);
+        long accountId = getUIAccountId();
+        if (accountId != Account.NO_ACCOUNT) {
+            mActivity.startActivity(Welcome.createOpenAccountInboxIntent(mActivity, accountId));
+        } else {
+            Welcome.actionStart(mActivity);
+
+        }
         mActivity.finish();
     }
 
