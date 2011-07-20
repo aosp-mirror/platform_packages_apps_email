@@ -1041,7 +1041,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private class LoadMessageTask extends EmailAsyncTask<Void, Void, Message> {
 
         private final boolean mOkToFetch;
-        private int mMailboxType;
+        private Mailbox mMailbox;
 
         /**
          * Special constructor to cache some local info
@@ -1059,8 +1059,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 message = openMessageSync(activity);
             }
             if (message != null) {
-                mMailboxType = Mailbox.getMailboxType(mContext, message.mMailboxKey);
-                if (mMailboxType == Mailbox.NO_MAILBOX) {
+                mMailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+                if (mMailbox == null) {
                     message = null; // mailbox removed??
                 }
             }
@@ -1078,7 +1078,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
             reloadUiFromMessage(message, mOkToFetch);
             queryContactStatus();
-            onMessageShown(mMessageId, mMailboxType);
+            onMessageShown(mMessageId, mMailbox);
             RecentMailboxManager.getInstance(mContext).touch(mAccountId, message.mMailboxKey);
         }
     }
@@ -1116,7 +1116,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Called when a message is shown to the user.
      */
-    protected void onMessageShown(long messageId, int mailboxType) {
+    protected void onMessageShown(long messageId, Mailbox mailbox) {
     }
 
     /**

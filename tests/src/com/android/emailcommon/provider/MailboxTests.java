@@ -196,10 +196,10 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         Mailbox bd = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_DRAFTS);
         Mailbox bo = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_OUTBOX);
 
-        assertTrue(Mailbox.canMoveFrom(c, bi.mId));
-        assertTrue(Mailbox.canMoveFrom(c, bm.mId));
-        assertFalse(Mailbox.canMoveFrom(c, bd.mId));
-        assertFalse(Mailbox.canMoveFrom(c, bo.mId));
+        assertTrue(bi.canHaveMessagesMoved());
+        assertTrue(bm.canHaveMessagesMoved());
+        assertFalse(bd.canHaveMessagesMoved());
+        assertFalse(bo.canHaveMessagesMoved());
     }
 
     public void testGetMailboxForMessageId() {

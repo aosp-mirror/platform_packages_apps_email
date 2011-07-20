@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +38,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceConstants;
@@ -63,7 +65,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     /* Nullable - not available on phone. */
     private View mForwardButton;
 
-
     private View mMoreButton;
 
     // calendar meeting invite answers
@@ -72,6 +73,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private CheckBox mMeetingNo;
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
+
+    /** Whether or not the message can be moved from the mailbox it's in. */
+    private boolean mSupportsMove;
 
     private int mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
 
@@ -219,6 +223,11 @@ public class MessageViewFragment extends MessageViewFragmentBase
         inflater.inflate(R.menu.message_view_fragment_option, menu);
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.move).setVisible(mSupportsMove);
+    }
+
     private void enableReplyForwardButtons(boolean enabled) {
         // We don't have disabled button assets, so let's hide them for now
         final int visibility = enabled ? View.VISIBLE : View.GONE;
@@ -252,11 +261,22 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
-    protected void onMessageShown(long messageId, int mailboxType) {
-        super.onMessageShown(messageId, mailboxType);
+    protected void onMessageShown(long messageId, Mailbox mailbox) {
+        super.onMessageShown(messageId, mailbox);
+
+        Account account = Account.restoreAccountWithId(mContext, getAccountId());
+        boolean supportsMove = account.supportsMoveMessages(mContext)
+                && mailbox.canHaveMessagesMoved();
+        if (mSupportsMove != supportsMove) {
+            mSupportsMove = supportsMove;
+            Activity host = getActivity();
+            if (host != null) {
+                host.invalidateOptionsMenu();
+            }
+        }
 
         // Disable forward/reply buttons as necessary.
-        enableReplyForwardButtons(Mailbox.isMailboxTypeReplyAndForwardable(mailboxType));
+        enableReplyForwardButtons(Mailbox.isMailboxTypeReplyAndForwardable(mailbox.mType));
     }
 
     /**

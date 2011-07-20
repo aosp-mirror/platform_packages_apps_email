@@ -454,22 +454,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     }
 
     /**
-     * @param mailboxId ID of a mailbox.  This method DOES NOT accept magic mailbox IDs, such as
-     * {@link #QUERY_ALL_INBOXES} (because only the actual mailbox ID matters here. e.g.
-     * {@link #QUERY_ALL_FAVORITES} can contain ANY kind of messages), so don't pass a negative
-     * value.
-     * @return true if messages in a mailbox can be moved to another mailbox.
-     * This method only checks the mailbox information. It doesn't check its account/protocol,
-     * so it may return true even for POP3 mailbox.
+     * @return whether or not this mailbox supports moving messages out of it
      */
-    public static boolean canMoveFrom(Context context, long mailboxId) {
-        if (mailboxId < 0) {
-            throw new IllegalArgumentException();
-        }
-        Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
-        int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
-                null, null, null, MAILBOX_TYPE_TYPE_COLUMN);
-        switch (type) {
+    public boolean canHaveMessagesMoved() {
+        switch (mType) {
             case TYPE_INBOX:
             case TYPE_MAIL:
             case TYPE_TRASH:
