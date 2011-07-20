@@ -33,6 +33,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Set;
@@ -120,17 +121,6 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
     }
 
     // MessageListFragment$Callback
-    @Override
-    public void onMailboxNotFound() {
-        Log.e(Logging.LOG_TAG, "unable to find mailbox");
-    }
-
-    // MessageListFragment$Callback
-    @Override
-    public void onEnterSelectionMode(boolean enter) {
-    }
-
-    // MessageListFragment$Callback
     /**
      * Apply the auto-advance policy upon initation of a batch command that could potentially
      * affect the currently selected conversation.
@@ -173,11 +163,6 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
                 navigateToMessage(orderManager.getCurrentMessageId());
                 break;
         }
-    }
-
-    // MessageListFragment$Callback
-    @Override
-    public void onListLoaded() {
     }
 
     // MessageListFragment$Callback
@@ -335,21 +320,6 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
 
         if (isMessageListInstalled()) {
             getMessageListFragment().setSelectedMessage(fragment.getMessageId());
-        }
-    }
-
-
-    /**
-     * Commit a {@link FragmentTransaction}.
-     */
-    private void commitFragmentTransaction(FragmentTransaction ft) {
-        if (DEBUG_FRAGMENTS) {
-            Log.d(Logging.LOG_TAG, this + " commitFragmentTransaction: " + ft);
-        }
-        if (!ft.isEmpty()) {
-            // STOPSHIP Don't use AllowingStateLoss.  See b/4519430
-            ft.commitAllowingStateLoss();
-            mFragmentManager.executePendingTransactions();
         }
     }
 

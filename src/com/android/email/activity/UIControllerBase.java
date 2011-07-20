@@ -459,6 +459,25 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     }
 
     /**
+     * Commit a {@link FragmentTransaction}.
+     */
+    protected void commitFragmentTransaction(FragmentTransaction ft) {
+        if (DEBUG_FRAGMENTS) {
+            Log.d(Logging.LOG_TAG, this + " commitFragmentTransaction: " + ft);
+        }
+        if (!ft.isEmpty()) {
+            // NB: there should be no cases in which a transaction is committed after
+            // onSaveInstanceState. Unfortunately, the "state loss" check also happens when in
+            // LoaderCallbacks.onLoadFinished, and we wish to perform transactions there. The check
+            // by the framework is conservative and prevents cases where there are transactions
+            // affecting Loader lifecycles - but we have no such cases.
+            // TODO: use asynchronous callbacks from loaders to avoid this implicit dependency
+            ft.commitAllowingStateLoss();
+            mFragmentManager.executePendingTransactions();
+        }
+    }
+
+    /**
      * @return the currently selected account ID, *or* {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      *
      * @see #getActualAccountId()
@@ -843,6 +862,16 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             mActionBarController.refresh();
         }
         mActivity.invalidateOptionsMenu();
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onMailboxNotFound() {
+        // Something bad happened - the account or mailbox we were looking for was deleted.
+        // Just restart and let the entry flow find a good default view.
+        Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
+        Welcome.actionStart(mActivity);
+        mActivity.finish();
     }
 
     protected final MessageOrderManager getMessageOrderManager() {

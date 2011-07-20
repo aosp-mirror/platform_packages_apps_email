@@ -160,9 +160,6 @@ public class MessageListFragment extends ListFragment
         public static final int TYPE_DRAFT = 1;
         public static final int TYPE_TRASH = 2;
 
-        /** Called when a mailbox list is loaded.  */
-        public void onListLoaded();
-
         /**
          * Called when the specified mailbox does not exist.
          */
@@ -182,12 +179,6 @@ public class MessageListFragment extends ListFragment
          */
         public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
                 int type);
-
-        /**
-         * Called when entering/leaving selection mode.
-         * @param enter true if entering, false if leaving
-         */
-        public void onEnterSelectionMode(boolean enter);
 
         /**
          * Called when an operation is initiated that can potentially advance the current
@@ -213,18 +204,12 @@ public class MessageListFragment extends ListFragment
         public static final Callback INSTANCE = new EmptyCallback();
 
         @Override
-        public void onListLoaded() {
+        public void onMailboxNotFound() {
         }
 
         @Override
-        public void onMailboxNotFound() {
-        }
-        @Override
         public void onMessageOpen(
                 long messageId, long messageMailboxId, long listMailboxId, int type) {
-        }
-        @Override
-        public void onEnterSelectionMode(boolean enter) {
         }
 
         @Override
@@ -928,7 +913,6 @@ public class MessageListFragment extends ListFragment
          * @param messageId the message id of the current message
          * @param c the cursor, positioned to the item of interest
          * @param newValue the new value to be set at this row
-         * @return true if a change was actually made
          */
         public void setField(long messageId, Cursor c, boolean newValue);
     }
@@ -1276,8 +1260,6 @@ public class MessageListFragment extends ListFragment
 
             // Clear this for next reload triggered by content changed events.
             mIsFirstLoad = false;
-
-            mCallback.onListLoaded();
         }
 
         @Override
@@ -1350,8 +1332,6 @@ public class MessageListFragment extends ListFragment
             mMarkUnread = menu.findItem(R.id.mark_unread);
             mAddStar = menu.findItem(R.id.add_star);
             mRemoveStar = menu.findItem(R.id.remove_star);
-
-            mCallback.onEnterSelectionMode(true);
             return true;
         }
 
@@ -1404,8 +1384,6 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            mCallback.onEnterSelectionMode(false);
-
             // Clear this before onDeselectAll() to prevent onDeselectAll() from trying to close the
             // contextual mode again.
             mSelectionMode = null;

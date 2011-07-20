@@ -86,28 +86,6 @@ class UIControllerOnePane extends UIControllerBase {
 
     // MessageListFragment.Callback
     @Override
-    public void onEnterSelectionMode(boolean enter) {
-        // Noop.
-    }
-
-    // MessageListFragment.Callback
-    @Override
-    public void onListLoaded() {
-        // Noop.
-    }
-
-    // MessageListFragment.Callback
-    @Override
-    public void onMailboxNotFound() {
-        // Something bad happened - the account or mailbox we were looking for was deleted.
-        // Just restart and let the entry flow find a good default view.
-        Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
-        Welcome.actionStart(mActivity);
-        mActivity.finish();
-    }
-
-    // MessageListFragment.Callback
-    @Override
     public void onMessageOpen(
             long messageId, long messageMailboxId, long listMailboxId, int type) {
         if (type == MessageListFragment.Callback.TYPE_DRAFT) {
@@ -398,23 +376,6 @@ class UIControllerOnePane extends UIControllerBase {
 
     private void openMessage(long messageId) {
         showFragment(MessageViewFragment.newInstance(messageId));
-    }
-
-    /**
-     * Use this instead of {@link FragmentTransaction#commit}.  We may switch to the asynchronous
-     * transaction some day.
-     */
-    private void commitFragmentTransaction(FragmentTransaction ft) {
-        if (!ft.isEmpty()) {
-            // NB: there should be no cases in which a transaction is committed after
-            // onSaveInstanceState. Unfortunately, the "state loss" check also happens when in
-            // LoaderCallbacks.onLoadFinished, and we wish to perform transactions there. The check
-            // by the framework is conservative and prevents cases where there are transactions
-            // affecting Loader lifecycles - but we have no such cases.
-            // TODO: use asynchronous callbacks from loaders to avoid this implicit dependency
-            ft.commitAllowingStateLoss();
-            mFragmentManager.executePendingTransactions();
-        }
     }
 
     /**
