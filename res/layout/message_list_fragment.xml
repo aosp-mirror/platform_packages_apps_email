@@ -24,28 +24,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <RelativeLayout
-        android:id="@+id/search_header"
-        style="@style/search_header"
-        android:gravity="center_vertical"
-        android:background="#666"
-        android:visibility="gone"
-        >
-        <TextView
-            android:id="@+id/search_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:textColor="@android:color/white"
-            />
-        <TextView
-            android:id="@+id/search_header_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:textColor="@android:color/white"
-            />
-    </RelativeLayout>
     <TextView
         android:id="@+id/no_messages_panel"
         android:text="@string/message_list_no_messages"
@@ -56,12 +34,12 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:visibility="gone"
         />
-    <FrameLayout
+
+    <include
+        layout="@android:layout/list_content"
         android:id="@+id/list_panel"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        >
-        <include layout="@android:layout/list_content" />
-    </FrameLayout>
+        />
 </LinearLayout>

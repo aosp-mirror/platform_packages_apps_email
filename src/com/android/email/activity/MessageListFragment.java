@@ -103,7 +103,6 @@ public class MessageListFragment extends ListFragment
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
-    private View mListPanel;
     private View mNoMessagesPanel;
     private ViewGroup mSearchHeader;
     private TextView mSearchHeaderText;
@@ -345,13 +344,22 @@ public class MessageListFragment extends ListFragment
         }
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
-        mListPanel = UiUtilities.getView(root, R.id.list_panel);
         mNoMessagesPanel = UiUtilities.getView(root, R.id.no_messages_panel);
-        mSearchHeader = UiUtilities.getView(root, R.id.search_header);
-        mSearchHeaderText = UiUtilities.getView(mSearchHeader, R.id.search_header_text);
-        mSearchHeaderCount = UiUtilities.getView(mSearchHeader, R.id.search_count);
         mIsViewCreated = true;
         return root;
+    }
+
+    private void initSearchHeader() {
+        if (mSearchHeader == null) {
+            ViewGroup root = (ViewGroup) getView();
+            mSearchHeader = (ViewGroup) LayoutInflater.from(mActivity).inflate(
+                    R.layout.message_list_search_header, root, false);
+            mSearchHeaderText = UiUtilities.getView(mSearchHeader, R.id.search_header_text);
+            mSearchHeaderCount = UiUtilities.getView(mSearchHeader, R.id.search_count);
+
+            // Add above the actual list.
+            root.addView(mSearchHeader, 0);
+        }
     }
 
     /**
@@ -1031,11 +1039,12 @@ public class MessageListFragment extends ListFragment
     private void updateSearchHeader(Cursor cursor) {
         MessageListContext listContext = getListContext();
         if (!listContext.isSearch() || cursor == null) {
-            mSearchHeader.setVisibility(View.GONE);
+            UiUtilities.setVisibilitySafe(mSearchHeader, View.GONE);
             return;
         }
 
         SearchResultsCursor searchCursor = (SearchResultsCursor) cursor;
+        initSearchHeader();
         mSearchHeader.setVisibility(View.VISIBLE);
         String header = String.format(
                 mActivity.getString(R.string.search_header_text_fmt),
@@ -1141,7 +1150,7 @@ public class MessageListFragment extends ListFragment
 
     private void showNoMessageText(boolean visible) {
         mNoMessagesPanel.setVisibility(visible ? View.VISIBLE : View.GONE);
-        mListPanel.setVisibility(visible ? View.GONE : View.VISIBLE);
+        getListView().setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
     /**
