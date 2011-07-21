@@ -1452,6 +1452,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void showCcBccFields() {
         mCcBccContainer.setVisibility(View.VISIBLE);
         UiUtilities.setVisibilitySafe(this, R.id.add_cc_bcc, View.INVISIBLE);
+        invalidateOptionsMenu();
     }
 
     /**
@@ -1856,6 +1857,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.save).setEnabled(mDraftNeedsSaving);
+        menu.findItem(R.id.add_cc_bcc).setVisible(
+                (mCcBccContainer == null) || (mCcBccContainer.getVisibility() != View.VISIBLE));
         return true;
     }
 
