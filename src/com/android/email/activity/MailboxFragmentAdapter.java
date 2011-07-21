@@ -210,7 +210,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
 
     private boolean isHeader(int position) {
         Cursor c = getCursor();
-        if (c == null) {
+        if ((c == null) || c.isClosed()) {
             return false;
         }
         c.moveToPosition(position);
