@@ -549,7 +549,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 && (mCcView.length() == 0)
                 && (mBccView.length() == 0)
                 && (mSubjectView.length() == 0)
-                && isBodyEmpty();
+                && isBodyEmpty()
+                && mAttachments.isEmpty();
     }
 
     private boolean isBodyEmpty() {
