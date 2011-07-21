@@ -1544,7 +1544,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             TextView sizeView = UiUtilities.getView(view, R.id.attachment_size);
 
             nameView.setText(attachment.mFileName);
-            sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
+            if (attachment.mSize > 0) {
+                sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
+            } else {
+                sizeView.setVisibility(View.GONE);
+            }
             if (allowDelete) {
                 delete.setOnClickListener(this);
                 delete.setTag(view);
