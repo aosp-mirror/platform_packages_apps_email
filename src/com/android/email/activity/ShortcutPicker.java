@@ -31,6 +31,7 @@ import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 
 /**
  * This class implements a launcher shortcut for directly accessing a single account.
@@ -87,7 +88,14 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
 
     @Override
     public void onSelected(Account account, long mailboxId) {
-        setupShortcut(account, mailboxId);
+        String shortcutName;
+        if (Account.isNormalAccount(account.mId) &&
+                (Mailbox.getMailboxType(this, mailboxId) != Mailbox.TYPE_INBOX)) {
+            shortcutName = Mailbox.getDisplayName(this, mailboxId);
+        } else {
+            shortcutName = account.getDisplayName();
+        }
+        setupShortcut(account, mailboxId, shortcutName);
         finish();
     }
 
@@ -124,7 +132,7 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
      * with an appropriate Uri for your content, but any Intent will work here as long as it
      * triggers the desired action within your Activity.
      */
-    private void setupShortcut(Account account, long mailboxId) {
+    private void setupShortcut(Account account, long mailboxId, String shortcutName) {
         Activity myActivity = this;
         // First, set up the shortcut intent.
         final Intent shortcutIntent;
@@ -145,7 +153,7 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
         // Then, set up the container intent (the response to the caller)
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
         Parcelable iconResource
                 = Intent.ShortcutIconResource.fromContext(myActivity, R.mipmap.ic_launcher_email);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
