@@ -345,17 +345,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             throw new IllegalArgumentException();
         }
         mAccount = account;
+        mFromView.setText(account.mEmailAddress);
         mAddressAdapterTo
                 .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
         mAddressAdapterCc
                 .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
         mAddressAdapterBcc
                 .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
-
-        if (mFromView != null) {
-            // Some configurations don't show the from field.
-            mFromView.setText(account.mEmailAddress);
-        }
 
         new QuickResponseChecker(mTaskTracker).executeParallel((Void) null);
     }
@@ -676,6 +672,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mBccView.setHint(R.string.message_compose_bcc_hint);
         }
 
+        mFromView = UiUtilities.getView(this, R.id.from);
         mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
         mSubjectView = UiUtilities.getView(this, R.id.subject);
         mMessageContentView = UiUtilities.getView(this, R.id.message_content);
@@ -733,7 +730,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mMessageContentView.setOnFocusChangeListener(this);
 
-        mFromView = UiUtilities.getViewOrNull(this, R.id.from);
         mActionSpinner = UiUtilities.getViewOrNull(this, R.id.action_spinner);
 
         updateAttachmentContainer();

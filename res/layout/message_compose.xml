@@ -35,6 +35,18 @@
                     android:visibility="gone"
                     />
 
+                <!-- Not actually editable -->
+                <TextView
+                    android:id="@+id/from"
+                    style="?android:attr/editTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dip"
+                    android:layout_marginRight="6dip"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    />
+
                 <include android:id="@+id/to"
                     layout="@layout/address_text_view"
                     android:layout_width="match_parent"
