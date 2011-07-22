@@ -110,7 +110,7 @@ public class NotificationController {
      * several notifications consecutively, it can be pretty overwhelming to get a barrage of
      * notification sounds. Throttle them using this value.
      */
-    private static final long MIN_SOUND_INTERVAL = 15 * 1000; // 15 seconds
+    private static final long MIN_SOUND_INTERVAL_MS = 15 * 1000; // 15 seconds
 
     /** Constructor */
     @VisibleForTesting
@@ -428,7 +428,7 @@ public class NotificationController {
         }
 
         long now = mClock.getTime();
-        boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL;
+        boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
         Notification notification = createAccountNotification(
                 account, title.toString(), title, text,
                 intent, largeIcon, number, enableAudio);
@@ -600,8 +600,10 @@ public class NotificationController {
     private static class MessageContentObserver extends ContentObserver {
         /** A selection to get messages the user hasn't seen before */
         private final static String MESSAGE_SELECTION =
-            MessageColumns.MAILBOX_KEY + "=? AND " + MessageColumns.ID + ">? AND "
-            + MessageColumns.FLAG_READ + "=0";
+                MessageColumns.MAILBOX_KEY + "=? AND "
+                + MessageColumns.ID + ">? AND "
+                + MessageColumns.FLAG_READ + "=0 AND "
+                + Message.FLAG_LOADED_SELECTION;
         private final Context mContext;
         private final long mMailboxId;
         private final long mAccountId;
