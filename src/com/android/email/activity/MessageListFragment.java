@@ -69,7 +69,9 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -860,16 +862,13 @@ public class MessageListFragment extends ListFragment
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             @Override
-            public boolean getField(long messageId, Cursor c) {
+            public boolean getField(Cursor c) {
                 return c.getInt(MessagesAdapter.COLUMN_READ) == 0;
             }
 
             @Override
-            public void setField(long messageId, Cursor c, boolean newValue) {
-                boolean oldValue = getField(messageId, c);
-                if (oldValue != newValue) {
-                    mController.setMessageReadSync(messageId, !newValue);
-                 }
+            public void setField(long messageId, boolean newValue) {
+                mController.setMessageReadSync(messageId, !newValue);
             }
         });
     }
@@ -883,16 +882,13 @@ public class MessageListFragment extends ListFragment
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             @Override
-            public boolean getField(long messageId, Cursor c) {
+            public boolean getField(Cursor c) {
                 return c.getInt(MessagesAdapter.COLUMN_FAVORITE) != 0;
             }
 
             @Override
-            public void setField(long messageId, Cursor c, boolean newValue) {
-                boolean oldValue = getField(messageId, c);
-                if (oldValue != newValue) {
-                    mController.setMessageFavoriteSync(messageId, newValue);
-                }
+            public void setField(long messageId, boolean newValue) {
+                mController.setMessageFavoriteSync(messageId, newValue);
              }
         });
     }
@@ -910,19 +906,17 @@ public class MessageListFragment extends ListFragment
         /**
          * Return true if the field of interest is "set".  If one or more are false, then our
          * bulk action will be to "set".  If all are set, our bulk action will be to "clear".
-         * @param messageId the message id of the current message
          * @param c the cursor, positioned to the item of interest
          * @return true if the field at this row is "set"
          */
-        public boolean getField(long messageId, Cursor c);
+        public boolean getField(Cursor c);
 
         /**
          * Set or clear the field of interest; setField is called asynchronously via EmailAsyncTask
          * @param messageId the message id of the current message
-         * @param c the cursor, positioned to the item of interest
          * @param newValue the new value to be set at this row
          */
-        public void setField(long messageId, Cursor c, boolean newValue);
+        public void setField(long messageId, boolean newValue);
     }
 
     /**
@@ -935,33 +929,35 @@ public class MessageListFragment extends ListFragment
      */
     private void toggleMultiple(final Set<Long> selectedSet, final MultiToggleHelper helper) {
         final Cursor c = mListAdapter.getCursor();
-        boolean anyWereFound = false;
+        if (c == null || c.isClosed()) {
+            return;
+        }
+
+        final HashMap<Long, Boolean> setValues = Maps.newHashMap();
         boolean allWereSet = true;
 
         c.moveToPosition(-1);
         while (c.moveToNext()) {
             long id = c.getInt(MessagesAdapter.COLUMN_ID);
-            if (selectedSet.contains(Long.valueOf(id))) {
-                anyWereFound = true;
-                if (!helper.getField(id, c)) {
-                    allWereSet = false;
-                    break;
-                }
+            if (selectedSet.contains(id)) {
+                boolean value = helper.getField(c);
+                setValues.put(id, value);
+                allWereSet = allWereSet && value;
             }
         }
 
-        if (anyWereFound) {
+        if (!setValues.isEmpty()) {
             final boolean newValue = !allWereSet;
             c.moveToPosition(-1);
+            // TODO: we should probably put up a dialog or some other progress indicator for this.
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                @Override
                 public void run() {
-                    while (c.moveToNext()) {
-                        long id = c.getInt(MessagesAdapter.COLUMN_ID);
-                        if (selectedSet.contains(Long.valueOf(id))) {
-                            helper.setField(id, c, newValue);
-                        }
-                    }
+                   for (long id : setValues.keySet()) {
+                       if (setValues.get(id) != newValue) {
+                           helper.setField(id, newValue);
+                       }
+                   }
                 }});
         }
     }
@@ -969,12 +965,12 @@ public class MessageListFragment extends ListFragment
     /**
      * Test selected messages for showing appropriate labels
      * @param selectedSet
-     * @param column_id
+     * @param columnId
      * @param defaultflag
      * @return true when the specified flagged message is selected
      */
-    private boolean testMultiple(Set<Long> selectedSet, int column_id, boolean defaultflag) {
-        Cursor c = mListAdapter.getCursor();
+    private boolean testMultiple(Set<Long> selectedSet, int columnId, boolean defaultflag) {
+        final Cursor c = mListAdapter.getCursor();
         if (c == null || c.isClosed()) {
             return false;
         }
@@ -982,7 +978,7 @@ public class MessageListFragment extends ListFragment
         while (c.moveToNext()) {
             long id = c.getInt(MessagesAdapter.COLUMN_ID);
             if (selectedSet.contains(Long.valueOf(id))) {
-                if (c.getInt(column_id) == (defaultflag ? 1 : 0)) {
+                if (c.getInt(columnId) == (defaultflag ? 1 : 0)) {
                     return true;
                 }
             }
