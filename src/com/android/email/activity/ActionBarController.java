@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListPopupWindow;
@@ -69,15 +70,15 @@ public class ActionBarController {
     /** "Folders" label shown with account name on 1-pane mailbox list */
     private final String mAllFoldersLabel;
 
-    private final View mActionBarCustomView;
+    private final ViewGroup mActionBarCustomView;
     private final View mAccountSpinner;
     private final Drawable mAccountSpinnerDefaultBackground;
     private final TextView mAccountSpinnerLine1View;
     private final TextView mAccountSpinnerLine2View;
     private final TextView mAccountSpinnerCountView;
 
-    private final View mSearchContainer;
-    private final SearchView mSearchView;
+    private View mSearchContainer;
+    private SearchView mSearchView;
 
     private final AccountDropdownPopup mAccountDropdown;
 
@@ -205,7 +206,7 @@ public class ActionBarController {
 
         // Prepare the custom view
         final LayoutInflater inflater = LayoutInflater.from(mContext);
-        mActionBarCustomView = inflater.inflate(R.layout.action_bar_custom_view, null);
+        mActionBarCustomView = (ViewGroup) inflater.inflate(R.layout.action_bar_custom_view, null);
         final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
                 ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
@@ -220,12 +221,6 @@ public class ActionBarController {
         mAccountSpinnerLine2View = UiUtilities.getView(mActionBarCustomView, R.id.spinner_line_2);
         mAccountSpinnerCountView = UiUtilities.getView(mActionBarCustomView, R.id.spinner_count);
 
-        // Search
-        mSearchContainer = UiUtilities.getView(mActionBarCustomView, R.id.search_container);
-        mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
-        mSearchView.setSubmitButtonEnabled(false);
-        mSearchView.setOnQueryTextListener(mOnQueryText);
-
         // Account dropdown
         mAccountDropdown = new AccountDropdownPopup(mContext);
         mAccountDropdown.setAdapter(mAccountsSelectorAdapter);
@@ -238,6 +233,18 @@ public class ActionBarController {
             }
         });
     }
+
+    private void initSearchViews() {
+        if (mSearchContainer == null) {
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
+            mSearchContainer = inflater.inflate(R.layout.action_bar_search, null);
+            mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
+            mSearchView.setSubmitButtonEnabled(false);
+            mSearchView.setOnQueryTextListener(mOnQueryText);
+            mActionBarCustomView.addView(mSearchContainer);
+        }
+    }
+
 
     /** Must be called from {@link UIControllerBase#onActivityCreated()} */
     public void onActivityCreated() {
@@ -287,6 +294,7 @@ public class ActionBarController {
      * @param initialQueryTerm if non-empty, set to the search box.
      */
     public void enterSearchMode(String initialQueryTerm) {
+        initSearchViews();
         if (isInSearchMode()) {
             return;
         }
@@ -423,6 +431,7 @@ public class ActionBarController {
         mTitleMode = mCallback.getTitleMode();
 
         if (shouldShowSearchBar()) {
+            initSearchViews();
             // In search mode, the search box is a replacement of the account spinner, so ignore
             // the work needed to update that. It will get updated when it goes visible again.
             mAccountSpinner.setVisibility(View.GONE);
@@ -432,7 +441,7 @@ public class ActionBarController {
 
         // Account spinner visible.
         mAccountSpinner.setVisibility(View.VISIBLE);
-        mSearchContainer.setVisibility(View.GONE);
+        UiUtilities.setVisibilitySafe(mSearchContainer, View.GONE);
 
         // Get mailbox name
         final String mailboxName;
