@@ -67,7 +67,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
     private static final String BUNDLE_KEY_ACCOUNT_EMAIL = "AccountSettingsFragment.Email";
 
-    private static final String PREFERENCE_CATEGORY_TOP = "account_settings";
     public static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
@@ -76,6 +75,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_BACKGROUND_ATTACHMENTS =
             "account_background_attachments";
     private static final String PREFERENCE_DEFAULT = "account_default";
+    private static final String PREFERENCE_CATEGORY_DATA_USAGE = "data_usage";
     private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
     private static final String PREFERENCE_NOTIFY = "account_notify";
     private static final String PREFERENCE_VIBRATE_WHEN = "account_settings_vibrate_when";
@@ -360,10 +360,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
         // Once loaded the data is ready to be saved, as well
         mSaveOnExit = false;
 
-        PreferenceCategory topCategory =
-            (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_TOP);
-        topCategory.setTitle(mContext.getString(R.string.account_settings_title_fmt));
-
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDisplayName());
         mAccountDescription.setText(mAccount.getDisplayName());
@@ -452,6 +448,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 });
 
         // Add check window preference
+        PreferenceCategory dataUsageCategory =
+                (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
+
         mSyncWindow = null;
         if (HostAuth.SCHEME_EAS.equals(protocol)) {
             mSyncWindow = new ListPreference(mContext);
@@ -460,7 +459,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
             mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             mSyncWindow.setSummary(mSyncWindow.getEntry());
-            mSyncWindow.setOrder(5);
+
+            // Must correspond to the hole in the XML file that's reserved.
+            mSyncWindow.setOrder(2);
             mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String summary = newValue.toString();
@@ -471,14 +472,14 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     return false;
                 }
             });
-            topCategory.addPreference(mSyncWindow);
+            dataUsageCategory.addPreference(mSyncWindow);
         }
 
         // Show "background attachments" for IMAP & EAS - hide it for POP3.
         mAccountBackgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
         if (HostAuth.SCHEME_POP3.equals(mAccount.mHostAuthRecv.mProtocol)) {
-            topCategory.removePreference(mAccountBackgroundAttachments);
+            dataUsageCategory.removePreference(mAccountBackgroundAttachments);
         } else {
             mAccountBackgroundAttachments.setChecked(
                     0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
@@ -558,7 +559,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
-        if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+        if (mAccount.mHostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS)) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     AccountManagerTypes.TYPE_EXCHANGE);
             mSyncContacts.setChecked(ContentResolver
@@ -571,11 +572,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
             mSyncEmail.setOnPreferenceChangeListener(mPreferenceChangeListener);
         } else {
-            PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
-                    PREFERENCE_CATEGORY_SERVER);
-            serverCategory.removePreference(mSyncContacts);
-            serverCategory.removePreference(mSyncCalendar);
-            serverCategory.removePreference(mSyncEmail);
+            dataUsageCategory.removePreference(mSyncContacts);
+            dataUsageCategory.removePreference(mSyncCalendar);
+            dataUsageCategory.removePreference(mSyncEmail);
         }
 
         // Temporary home for delete account

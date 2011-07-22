@@ -157,7 +157,8 @@
         </activity>
         <activity
             android:name=".activity.setup.AccountSettings"
-            android:label="@string/account_settings_action"
+            android:label="@string/settings_activity_title"
+            android:theme="@android:style/Theme.Holo.Light"
             >
             <intent-filter>
                 <action

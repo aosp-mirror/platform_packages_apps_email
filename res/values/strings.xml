@@ -54,6 +54,8 @@
     <string name="dump_settings_action"/>
     <!-- Do Not Translate.  Unused string. -->
     <string name="search_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_settings_title_fmt"></string>
 
     <!-- End of deprecated strings. -->
     <skip />
@@ -936,8 +938,6 @@ save attachment.</string>
          The username or password for <xliff:g id="account">%s</xliff:g> is incorrect.
          Update them now?</string>
 
-    <!-- On Settings screen, section heading -->
-    <string name="account_settings_title_fmt">General settings</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_default_label">Default account</string>
     <!-- Check box "summary" label on "Account options" screen to make this the default account -->
@@ -984,6 +984,8 @@ save attachment.</string>
     <string name="account_settings_signature_hint">Append text to messages you send</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_notifications">Notification settings</string>
+    <!-- On Settings screen, section heading for data usage [CHAR LIMIT=70] -->
+    <string name="account_settings_data_usage">Data usage</string>
 
     <!-- On settings screen, dialog heading informing user to edit a quick response -->
     <string name="edit_quick_response_dialog">Edit quick response</string>
@@ -1102,9 +1104,12 @@ save attachment.</string>
         from <xliff:g id="domain">%2$s</xliff:g></item>
     </plurals>
 
+    <!-- Settings activity title [CHAR LIMIT=40]-->
+    <string name="settings_activity_title">Settings</string>
+
     <!-- General Preferences Screen -->
     <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
-    <string name="header_label_general_preferences">Email Preferences</string>
+    <string name="header_label_general_preferences">General Preferences</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application Preferences</string>
 

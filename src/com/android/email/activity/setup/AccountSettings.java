@@ -108,7 +108,6 @@ public class AccountSettings extends PreferenceActivity {
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
-    private boolean mResumed;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -194,18 +193,6 @@ public class AccountSettings extends PreferenceActivity {
     public void onResume() {
         super.onResume();
         updateAccounts();
-        mResumed = true;
-
-        // When we're resuming, enable/disable the add account button
-        if (hasHeaders()) {
-            invalidateOptionsMenu();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mResumed = false;
     }
 
     @Override
@@ -325,8 +312,8 @@ public class AccountSettings extends PreferenceActivity {
      */
     private boolean shouldShowNewAccount() {
         // If in single pane mode, only add accounts at top level
-        if (!isMultiPane()) {
-            if (!hasHeaders()) return false;
+        if (!onIsMultiPane()) {
+            return hasHeaders();
         } else {
             // If in multi pane mode, only add accounts when showing a top level fragment
             // Note: null is OK; This is the case when we first launch the activity
@@ -559,9 +546,7 @@ public class AccountSettings extends PreferenceActivity {
         mCurrentFragment = f;
 
         // When we're changing fragments, enable/disable the add account button
-        if (mResumed && hasHeaders()) {
-            invalidateOptionsMenu();
-        }
+        invalidateOptionsMenu();
     }
 
     /**
@@ -718,7 +703,7 @@ public class AccountSettings extends PreferenceActivity {
 
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
-        if (isMultiPane()) {
+        if (onIsMultiPane()) {
             Header prefsHeader = getAppPreferencesHeader();
             this.switchToHeader(prefsHeader.fragment, prefsHeader.fragmentArguments);
             mDeletingAccountId = account.mId;
