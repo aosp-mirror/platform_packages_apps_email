@@ -103,6 +103,9 @@
     <string name="create_action">Create new</string>
     <!--  Button name used to delete a quick response [CHAR_LIMIT=16] -->
     <string name="delete_quick_response_action">Delete</string>
+    <!-- Message informing user when a list that would contain quick responses
+            is empty [CHAR_LIMIT=80] -->
+    <string name="quick_responses_empty_view">No quick responses</string>
     <!-- Menu item/button name -->
     <string name="discard_action">Discard</string>
     <!-- Menu item/button name [CHAR_LIMIT=16] -->

@@ -71,12 +71,15 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -199,6 +202,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
     private boolean mInitiallyEmpty;
+    private Boolean mQuickResponsesAvailable = true;
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     private AccountSpecifier mAddressAdapterTo;
@@ -352,6 +356,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Some configurations don't show the from field.
             mFromView.setText(account.mEmailAddress);
         }
+
+        new QuickResponseChecker(mTaskTracker).executeParallel((Void) null);
     }
 
     @Override
@@ -438,6 +444,35 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setAction(intent.getAction());
     }
 
+    private void setQuickResponsesAvailable(boolean quickResponsesAvailable) {
+        if (mQuickResponsesAvailable != quickResponsesAvailable) {
+            mQuickResponsesAvailable = quickResponsesAvailable;
+            invalidateOptionsMenu();
+        }
+    }
+
+    /**
+     * Given an accountId and context, finds if the database has any QuickResponse
+     * entries and returns the result to the Callback.
+     */
+    private class QuickResponseChecker extends EmailAsyncTask<Void, Void, Boolean> {
+        public QuickResponseChecker(EmailAsyncTask.Tracker tracker) {
+            super(tracker);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return EmailContent.count(MessageCompose.this, QuickResponse.CONTENT_URI,
+                    QuickResponseColumns.ACCOUNT_KEY + "=?",
+                    new String[] {Long.toString(mAccount.mId)}) > 0;
+        }
+
+        @Override
+        protected void onSuccess(Boolean quickResponsesAvailable) {
+            setQuickResponsesAvailable(quickResponsesAvailable);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -447,6 +482,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Welcome.actionStart(this);
             finish();
             return;
+        }
+
+        // If activity paused and quick responses are removed/added, possibly update options menu
+        if (mAccount != null) {
+            new QuickResponseChecker(mTaskTracker).executeParallel((Void) null);
         }
     }
 
@@ -1859,6 +1899,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         menu.findItem(R.id.save).setEnabled(mDraftNeedsSaving);
         menu.findItem(R.id.add_cc_bcc).setVisible(
                 (mCcBccContainer == null) || (mCcBccContainer.getVisibility() != View.VISIBLE));
+        MenuItem insertQuickResponse = menu.findItem(R.id.show_quick_text_list_dialog);
+        insertQuickResponse.setVisible(mQuickResponsesAvailable);
+        insertQuickResponse.setEnabled(mQuickResponsesAvailable);
         return true;
     }
 

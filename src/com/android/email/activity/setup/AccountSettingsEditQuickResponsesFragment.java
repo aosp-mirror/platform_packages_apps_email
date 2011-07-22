@@ -42,6 +42,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * Lists quick responses associated with the specified email account. Allows users to create,
@@ -247,6 +248,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
 
         mQuickResponsesView = UiUtilities.getView(view,
                 R.id.account_settings_quick_responses_list);
+        TextView emptyView = (TextView)
+                UiUtilities.getView(((ViewGroup) mQuickResponsesView.getParent()), R.id.empty_view);
+        mQuickResponsesView.setEmptyView(emptyView);
 
         new QuickResponseFinder(mTaskTracker, mAccount.mId, mQuickResponsesView,
                 mContext, getFragmentManager(), null, true)

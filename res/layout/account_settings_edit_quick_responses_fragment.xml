@@ -23,14 +23,24 @@
     android:paddingRight="@dimen/settings_fragment_padding_right"
     >
 
-    <!-- List of quick responses -->
+    <!-- List of quick responses and empty view for when there are none-->
     <ListView
         android:id="@+id/account_settings_quick_responses_list"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         />
-
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:focusable="true"
+        android:visibility="gone"
+        android:text="@string/quick_responses_empty_view"
+        />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,12 +52,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="@string/create_action" />
+            android:text="@string/create_action"
+            />
         <Button
             android:id="@+id/done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="@string/done_action" />
+            android:text="@string/done_action"
+            />
     </RelativeLayout>
 </LinearLayout>
