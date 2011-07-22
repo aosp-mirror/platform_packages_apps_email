@@ -1897,8 +1897,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.save).setEnabled(mDraftNeedsSaving);
-        menu.findItem(R.id.add_cc_bcc).setVisible(
-                (mCcBccContainer == null) || (mCcBccContainer.getVisibility() != View.VISIBLE));
+        MenuItem addCcBcc = menu.findItem(R.id.add_cc_bcc);
+        if (addCcBcc != null) {
+            // Only available on phones.
+            addCcBcc.setVisible(
+                    (mCcBccContainer == null) || (mCcBccContainer.getVisibility() != View.VISIBLE));
+        }
         MenuItem insertQuickResponse = menu.findItem(R.id.show_quick_text_list_dialog);
         insertQuickResponse.setVisible(mQuickResponsesAvailable);
         insertQuickResponse.setEnabled(mQuickResponsesAvailable);
