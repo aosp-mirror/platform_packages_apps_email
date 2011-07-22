@@ -200,6 +200,9 @@ public class NotificationController {
      *              notifications enabled. Otherwise, all observers are unregistered.
      */
     public void watchForMessages(final boolean watch) {
+        if (Email.DEBUG) {
+            Log.i(Logging.LOG_TAG, "Notifications being toggled: " + watch);
+        }
         // Don't create the thread if we're only going to stop watching
         if (!watch && sNotificationThread == null) return;
 
@@ -226,6 +229,9 @@ public class NotificationController {
                 registerMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                 // If we're already observing account changes, don't do anything else
                 if (mAccountObserver == null) {
+                    if (Email.DEBUG) {
+                        Log.i(Logging.LOG_TAG, "Observing account changes for notifications");
+                    }
                     mAccountObserver = new AccountContentObserver(sNotificationHandler, mContext);
                     resolver.registerContentObserver(Account.NOTIFIER_URI, true, mAccountObserver);
                 }
@@ -308,6 +314,9 @@ public class NotificationController {
                 Log.w(Logging.LOG_TAG, "Could not load INBOX for account id: " + accountId);
                 return;
             }
+            if (Email.DEBUG) {
+                Log.i(Logging.LOG_TAG, "Registering for notifications for account " + accountId);
+            }
             ContentObserver observer = new MessageContentObserver(
                     sNotificationHandler, mContext, mailbox.mId, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
@@ -328,12 +337,18 @@ public class NotificationController {
     private void unregisterMessageNotification(long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            if (Email.DEBUG) {
+                Log.i(Logging.LOG_TAG, "Unregistering notifications for all accounts");
+            }
             // cancel all existing message observers
             for (ContentObserver observer : mNotificationMap.values()) {
                 resolver.unregisterContentObserver(observer);
             }
             mNotificationMap.clear();
         } else {
+            if (Email.DEBUG) {
+                Log.i(Logging.LOG_TAG, "Unregistering notifications for account " + accountId);
+            }
             ContentObserver observer = mNotificationMap.remove(accountId);
             if (observer != null) {
                 resolver.unregisterContentObserver(observer);
@@ -590,27 +605,38 @@ public class NotificationController {
 
             ContentObserver observer = sInstance.mNotificationMap.get(mAccountId);
             if (observer == null) {
-                // notification for a mailbox that we aren't observing; this should not happen
-                Log.e(Logging.LOG_TAG, "Received notifiaction when observer data was null");
+                // Notification for a mailbox that we aren't observing; account is probably
+                // being deleted.
+                Log.w(Logging.LOG_TAG, "Received notification when observer data was null");
                 return;
             }
             Account account = Account.restoreAccountWithId(mContext, mAccountId);
+            if (account == null) {
+                Log.w(Logging.LOG_TAG, "Couldn't find account for changed message notification");
+                return;
+            }
             long oldMessageId = account.mNotifiedMessageId;
             int oldMessageCount = account.mNotifiedMessageCount;
 
             ContentResolver resolver = mContext.getContentResolver();
-            long lastSeenMessageId = Utility.getFirstRowLong(
+            Long lastSeenMessageId = Utility.getFirstRowLong(
                     mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
                     new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
-                    null, null, null, 0, 0L);
+                    null, null, null, 0);
+            if (lastSeenMessageId == null) {
+                // Mailbox got nuked. Could be that the account is in the process of being deleted
+                Log.w(Logging.LOG_TAG, "Couldn't find mailbox for changed message notification");
+                return;
+            }
+
             Cursor c = resolver.query(
                     Message.CONTENT_URI, EmailContent.ID_PROJECTION,
                     MESSAGE_SELECTION,
                     new String[] { Long.toString(mMailboxId), Long.toString(lastSeenMessageId) },
                     MessageColumns.ID + " DESC");
             if (c == null) {
-                // Suspender time ... theoretically, this will never happen
-                Log.wtf(Logging.LOG_TAG, "#onChange(); NULL response for message id query");
+                // Couldn't find message info - things may be getting deleted in bulk.
+                Log.w(Logging.LOG_TAG, "#onChange(); NULL response for message id query");
                 return;
             }
             try {
@@ -629,10 +655,14 @@ public class NotificationController {
                     // Either the count or last message has changed; update the notification
                     boolean playAudio = (oldMessageCount == 0); // play audio on first notification
 
-                    int unreadCount = Utility.getFirstRowInt(
+                    Integer unreadCount = Utility.getFirstRowInt(
                             mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
                             new String[] { MailboxColumns.UNREAD_COUNT },
-                            null, null, null, 0, 0);
+                            null, null, null, 0);
+                    if (unreadCount == null) {
+                        Log.w(Logging.LOG_TAG, "Couldn't find unread count for mailbox");
+                        return;
+                    }
 
                     Notification n = sInstance.createNewMessageNotification(
                             mAccountId, mMailboxId, newMessageId,
