@@ -98,6 +98,20 @@ public class NotificationController {
      */
     private long mSuspendAccountId = Account.NO_ACCOUNT;
 
+    /**
+     * Timestamp indicating when the last message notification sound was played.
+     * Used for throttling.
+     */
+    private long mLastMessageNotifyTime;
+
+    /**
+     * Minimum interval between notification sounds.
+     * Since a long sync (either on account setup or after a long period of being offline) can cause
+     * several notifications consecutively, it can be pretty overwhelming to get a barrage of
+     * notification sounds. Throttle them using this value.
+     */
+    private static final long MIN_SOUND_INTERVAL = 15 * 1000; // 15 seconds
+
     /** Constructor */
     @VisibleForTesting
     NotificationController(Context context, Clock clock) {
@@ -381,7 +395,7 @@ public class NotificationController {
      */
     @VisibleForTesting
     Notification createNewMessageNotification(long accountId, long mailboxId, long messageId,
-            int unseenMessageCount, int unreadCount, boolean enableAudio) {
+            int unseenMessageCount, int unreadCount) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
             return null;
@@ -413,8 +427,12 @@ public class NotificationController {
             intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
         }
 
-        Notification notification = createAccountNotification(account, null, title, text,
+        long now = mClock.getTime();
+        boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL;
+        Notification notification = createAccountNotification(
+                account, title.toString(), title, text,
                 intent, largeIcon, number, enableAudio);
+        mLastMessageNotifyTime = now;
         return notification;
     }
 
@@ -653,8 +671,6 @@ public class NotificationController {
                 } else if (newMessageCount != oldMessageCount
                         || (newMessageId != 0 && newMessageId != oldMessageId)) {
                     // Either the count or last message has changed; update the notification
-                    boolean playAudio = (oldMessageCount == 0); // play audio on first notification
-
                     Integer unreadCount = Utility.getFirstRowInt(
                             mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
                             new String[] { MailboxColumns.UNREAD_COUNT },
@@ -666,7 +682,7 @@ public class NotificationController {
 
                     Notification n = sInstance.createNewMessageNotification(
                             mAccountId, mMailboxId, newMessageId,
-                            newMessageCount, unreadCount, playAudio);
+                            newMessageCount, unreadCount);
                     if (n != null) {
                         // Make the notification visible
                         sInstance.mNotificationManager.notify(
