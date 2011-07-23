@@ -24,7 +24,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingTop="@dimen/setup_fragment_padding_top"
+        android:paddingLeft="@dimen/setup_fragment_padding_left"
+        android:paddingRight="@dimen/setup_fragment_padding_right" >
+
         <TextView
             android:text="@string/account_setup_options_mail_check_frequency_label"
             android:layout_height="wrap_content"
@@ -83,21 +87,13 @@
             android:layout_width="match_parent"
             android:text="@string/account_setup_options_sync_email_label" />
 
-        <!-- TODO - quick placeholder - phone UX still TBD -->
         <CheckBox
             android:id="@+id/account_background_attachments"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="@string/account_setup_options_background_attachments_label" />
-        <Button
-            android:id="@+id/previous"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/previous_action" />
-        <Button
-            android:id="@+id/next"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/next_action" />
+
+        <include layout="@layout/account_setup_buttons" />
+
     </LinearLayout>
 </ScrollView>

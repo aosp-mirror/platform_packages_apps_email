@@ -28,6 +28,17 @@
     <!-- distance of any button above the bottom of the screen -->
     <dimen name="setup_buttons_padding_bottom">48dip</dimen>
 
+    <!-- Account settings fragments -->
+    <dimen name="settings_fragment_padding_top">32dip</dimen>
+    <dimen name="settings_fragment_padding_left">32dip</dimen>
+    <dimen name="settings_fragment_padding_right">32dip</dimen>
+
+    <!-- On tablets, we don't need additional padding in setup mode since the
+         base settings fragments that are reused already have padding. -->
+    <dimen name="setup_fragment_padding_top">0dip</dimen>
+    <dimen name="setup_fragment_padding_left">0dip</dimen>
+    <dimen name="setup_fragment_padding_right">0dip</dimen>
+
     <!-- In setup screens, the inset for all items below the headline+hairline -->
     <dimen name="setup_item_inset_left">16dip</dimen>
     <dimen name="setup_item_inset_right">64dip</dimen>

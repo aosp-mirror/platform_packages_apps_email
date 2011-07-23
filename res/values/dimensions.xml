@@ -39,11 +39,15 @@
     <dimen name="message_compose_header_button_area_width">120dip</dimen>
 
     <!-- Account settings fragments -->
-    <!-- In containers for settings fragments, the padding to use for all items
-         (this matches PreferenceActivity hairline) -->
     <dimen name="settings_fragment_padding_top">32dip</dimen>
-    <dimen name="settings_fragment_padding_left">32dip</dimen>
-    <dimen name="settings_fragment_padding_right">32dip</dimen>
+    <dimen name="settings_fragment_padding_left">0dip</dimen>
+    <dimen name="settings_fragment_padding_right">0dip</dimen>
+
+    <!-- On the phone, we need padding on the setup fragments but not in
+         settings mode. Ugh. -->
+    <dimen name="setup_fragment_padding_top">16dip</dimen>
+    <dimen name="setup_fragment_padding_left">16dip</dimen>
+    <dimen name="setup_fragment_padding_right">16dip</dimen>
 
     <!-- inset distance for settings buttons -->
     <dimen name="settings_buttons_padding_top">48dip</dimen>

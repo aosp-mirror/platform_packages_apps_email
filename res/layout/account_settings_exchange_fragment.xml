@@ -47,24 +47,6 @@
             android:layout_height="0dip"
             android:layout_weight="1" />
 
-        <!-- Cancel & Done buttons -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="@dimen/settings_buttons_padding_top"
-            android:paddingBottom="@dimen/settings_buttons_padding_bottom"
-            >
-            <Button
-                android:id="@+id/cancel"
-                android:layout_alignParentLeft="true"
-                style="@style/accountSettingsButton"
-                android:text="@string/cancel_action" />
-            <Button
-                android:id="@+id/done"
-                android:layout_alignParentRight="true"
-                style="@style/accountSettingsButton"
-                android:text="@string/done_action" />
-        </RelativeLayout>
+        <include layout="@layout/account_settings_buttons" />
     </LinearLayout>
 </ScrollView>

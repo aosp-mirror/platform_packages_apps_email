@@ -23,6 +23,9 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="@dimen/setup_fragment_padding_top"
+        android:paddingLeft="@dimen/setup_fragment_padding_left"
+        android:paddingRight="@dimen/setup_fragment_padding_right"
         >
 
         <!-- Frame on the left containing the (common) setup info -->
@@ -42,20 +45,27 @@
         </FrameLayout>
 
         <!-- Buttons below -->
-        <Button
-            android:id="@+id/manual_setup"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/common"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/account_setup_basics_manual_setup_action" />
-        <Button
-            android:id="@+id/next"
-            android:layout_below="@+id/common"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/next_action" />
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/settings_buttons_padding_top"
+            android:paddingBottom="@dimen/settings_buttons_padding_bottom"
+            >
+            <Button
+                android:id="@+id/manual_setup"
+                style="@style/accountSetupButton"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:text="@string/account_setup_basics_manual_setup_action" />
+            <Button
+                android:id="@+id/next"
+                style="@style/accountSetupButton"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:text="@string/next_action" />
+        </LinearLayout>
 
     </RelativeLayout>
 

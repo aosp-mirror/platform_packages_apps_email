@@ -20,6 +20,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:paddingTop="@dimen/setup_fragment_padding_top"
+    android:paddingLeft="@dimen/setup_fragment_padding_left"
+    android:paddingRight="@dimen/setup_fragment_padding_right"
     >
     <TextView
         android:text="@string/account_setup_account_type_instructions"

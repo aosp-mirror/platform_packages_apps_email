@@ -55,15 +55,16 @@
     <style name="accountSetupButton">
         <item name="android:layout_width">160sp</item>
         <item name="android:layout_height">40sp</item>
-        <item name="android:textAppearance">?android:attr/textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
 
     <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
-    <!-- TODO these are estimates for the phone UX - final sizes TBD -->
     <style name="accountSettingsButton">
         <item name="android:layout_width">160sp</item>
         <item name="android:layout_height">40sp</item>
-        <item name="android:textAppearance">?android:attr/textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
 
     <!-- EditText style without the "tray" -->

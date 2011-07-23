@@ -23,7 +23,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingTop="@dimen/setup_fragment_padding_top"
+        android:paddingLeft="@dimen/setup_fragment_padding_left"
+        android:paddingRight="@dimen/setup_fragment_padding_right" >
         <TextView
             android:layout_height="wrap_content"
             android:layout_width="match_parent"

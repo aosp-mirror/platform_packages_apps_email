@@ -20,34 +20,25 @@
     android:layout_height="match_parent"
     android:fillViewport="true" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/setup_fragment_padding_top"
+        android:paddingLeft="@dimen/setup_fragment_padding_left"
+        android:paddingRight="@dimen/setup_fragment_padding_right" >
 
         <fragment
             android:id="@+id/setup_fragment"
             class="com.android.email.activity.setup.AccountSetupOutgoingFragment"
             android:layout_alignParentTop="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dip"
             android:layout_weight="1"
         />
 
-        <!-- Buttons below -->
-        <!-- TODO - quick placeholder - phone UX still TBD -->
-        <Button
-            android:id="@+id/previous"
-            android:layout_below="@+id/setup_fragment"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/previous_action" />
-        <Button
-            android:id="@+id/next"
-            android:layout_below="@+id/setup_fragment"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="16dip"
-            style="@style/accountSetupButton"
-            android:text="@string/next_action" />
-    </RelativeLayout>
+        <include layout="@layout/account_setup_buttons"
+            android:layout_below="@+id/setup_fragment" />
+
+    </LinearLayout>
 </ScrollView>
