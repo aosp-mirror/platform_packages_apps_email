@@ -38,4 +38,8 @@
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
+
+    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+        <item name="android:minHeight">40dip</item>
+    </style>
 </resources>
