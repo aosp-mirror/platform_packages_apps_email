@@ -34,7 +34,7 @@ public class RecipientAdapter extends BaseRecipientAdapter {
                 r.getDrawable(R.drawable.chip_background),
                 r.getDrawable(R.drawable.chip_background_selected),
                 r.getDrawable(R.drawable.chip_background_invalid),
-                r.getDrawable(R.drawable.chip_delete), def, R.string.more_string,
+                r.getDrawable(R.drawable.chip_delete), def, R.layout.more_item,
                 R.layout.chips_alternate_item,
                         r.getDimension(R.dimen.chip_height),
                         r.getDimension(R.dimen.chip_padding),
