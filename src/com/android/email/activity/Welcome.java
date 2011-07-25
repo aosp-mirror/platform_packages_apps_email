@@ -24,11 +24,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;
@@ -198,6 +201,27 @@ public class Welcome extends Activity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Only create the menu if we had to stop and show a loading spinner - otherwise
+        // this is a transient activity with no UI.
+        if (mInboxFinder == null) {
+            return super.onCreateOptionsMenu(menu);
+        }
+
+        getMenuInflater().inflate(R.menu.welcome, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.account_settings) {
+            AccountSettings.actionSettings(this, mAccountId);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onStop() {
         // Cancel all running tasks.
         // (If it's stopping for configuration changes, we just re-do everything on the new
@@ -258,6 +282,7 @@ public class Welcome extends Activity {
                 R.layout.waiting_for_sync_message, null);
         addContentView(mWaitingForSyncView, new LayoutParams(
                 LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        invalidateOptionsMenu();
     }
 
     /**
