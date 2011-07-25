@@ -511,14 +511,6 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      * Test small Folder functions that don't really do anything in Imap
      */
     public void testSmallFolderFunctions() {
-        // getPermanentFlags() returns { Flag.DELETED, Flag.SEEN, Flag.FLAGGED }
-        Flag[] flags = mFolder.getPermanentFlags();
-        assertEquals(3, flags.length);
-        // TODO: Write flags into hashset and compare them to a hashset and compare them
-        assertEquals(Flag.DELETED, flags[0]);
-        assertEquals(Flag.SEEN, flags[1]);
-        assertEquals(Flag.FLAGGED, flags[2]);
-
         // canCreate() returns true
         assertTrue(mFolder.canCreate(FolderType.HOLDS_FOLDERS));
         assertTrue(mFolder.canCreate(FolderType.HOLDS_MESSAGES));

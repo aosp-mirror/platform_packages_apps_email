@@ -130,7 +130,7 @@ public class Controller {
      * This is a kludge vs having proper mocks and dependency injection; since the Controller is a
      * global singleton there isn't much else we can do.
      */
-    public void markForUnitTest(boolean inUnitTests) {
+    public void markForTest(boolean inUnitTests) {
         mInUnitTests = inUnitTests;
     }
 

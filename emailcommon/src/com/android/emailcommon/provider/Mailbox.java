@@ -352,7 +352,9 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
             try {
                 c.moveToFirst();
                 Long mailboxId = c.getLong(ID_PROJECTION_COLUMN);
-                if (mailboxId != null && mailboxId.intValue() != 0) {
+                if (mailboxId != null
+                        && mailboxId != 0L
+                        && mailboxId != NO_MAILBOX) {
                     return mailboxId;
                 } else {
                     Log.w(Logging.LOG_TAG, "========== Mailbox of type " + type
@@ -362,6 +364,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 c.close();
             }
         }
+        // Fallback to querying the database directly.
         String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
         return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
                 ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null,
