@@ -53,6 +53,9 @@
     <uses-permission
         android:name="android.permission.READ_CONTACTS"/>
 
+    <uses-permission
+        android:name="android.permission.NFC"/>
+
     <!-- Only required if a store implements push mail and needs to keep network open -->
     <uses-permission
         android:name="android.permission.WAKE_LOCK"/>

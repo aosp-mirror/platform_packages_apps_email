@@ -94,6 +94,12 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     private final List<Fragment> mRemovedFragments = new LinkedList<Fragment>();
 
     /**
+     * The NfcHandler implements Near Field Communication sharing features
+     * whenever the activity is in the foreground.
+     */
+    private NfcHandler mNfcHandler;
+
+    /**
      * The active context for the current MessageList.
      * In some UI layouts such as the one-pane view, the message list may not be visible, but is
      * on the backstack. This list context will still be accessible in those cases.
@@ -143,6 +149,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (DEBUG_FRAGMENTS) {
             FragmentManager.enableDebugLogging(true);
         }
+        mNfcHandler = new NfcHandler(this, activity);
     }
 
     /**
@@ -196,6 +203,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             Log.d(Logging.LOG_TAG, this + " onActivityResume");
         }
         refreshActionBar();
+        mNfcHandler.onResume();
     }
 
     /**
@@ -205,6 +213,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityPause");
         }
+        mNfcHandler.onPause();
     }
 
     /**
@@ -529,7 +538,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             // Do nothing if the account is already selected.  Not even going back to the inbox.
             return;
         }
-
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             openMailbox(accountId, Mailbox.QUERY_ALL_INBOXES);
         } else {
@@ -541,11 +549,11 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
                         + " to Welcome...");
                 Welcome.actionOpenAccountInbox(mActivity, accountId);
                 mActivity.finish();
-                return;
             } else {
                 openMailbox(accountId, inboxId);
             }
         }
+        mNfcHandler.onAccountChanged();
     }
 
     /**
