@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Готово"</string>
     <string name="create_action" msgid="3062715563215392251">"Направи нови"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Избриши"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Одбаци"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Сачувај недов. пор."</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Уметни брзи одговор"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Нова порука"</string>
     <string name="search_action" msgid="6325101454876682308">"Претрага"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Подешавања налога"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Подешавања директоријума"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Означи као непрочитано"</string>
     <string name="move_action" msgid="3059189775933985898">"Премести"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ копија/скривена копија"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Затвори"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Пошаљи све поруке"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Одаберите прилог"</string>
@@ -352,7 +360,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Желите ли да одбаците несачуване промене?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Пријављивање није успело"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Корисничко име или лозинка за <xliff:g id="ACCOUNT">%s</xliff:g> су нетачни. Желите ли да их ажурирате сада?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Општа подешавања"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Подразумевани налог"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Подразумевано шаљи поруке е-поште са овог налога"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Аутоматско преузимање прилога"</string>
@@ -372,6 +379,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Измените текст који често умећете при писању порука е-поште"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Додајте текст порукама које шаљете"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Подешавања обавештења"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Измена брзог одговора"</string>
     <string name="save_action" msgid="1988862706623227093">"Сачувај"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Синхронизација контаката"</string>
@@ -401,6 +410,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Избор налога"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Избор директоријума"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Налог није пронађен. Можда је уклоњен."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Пре него што конфигуришете овај налог е-поште, посетите T-Online веб сајт и одредите лозинку за приступ е-пошти преко POP3 протокола."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
@@ -413,7 +424,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> резултата од <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> резултата са домена <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Подешавања е-поште"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Подешавања е-поште"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Подешавања апликације"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Аутоматски пређи"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Изаберите који екран желите да прикажете након брисања поруке"</string>
@@ -435,12 +448,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Нормалан"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Велика"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромно"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Враћање подразумеваних подешавања за „Прикажи слике“"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Враћање подразумеваних подешавања за све пошиљаоце (слике се не приказују аутоматски)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"Избор опције „Прикажи слике“ је опозван."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> од <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Чека се синхронизација"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Адреса е-поште ће се ускоро приказати."</string>

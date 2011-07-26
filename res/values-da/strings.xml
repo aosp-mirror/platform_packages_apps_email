@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Udfør"</string>
     <string name="create_action" msgid="3062715563215392251">"Opret nyt"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Slet"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Kassér"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Gem kladde"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Indsæt hurtigt svar"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Skriv"</string>
     <string name="search_action" msgid="6325101454876682308">"Søg"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Indstillinger for konto"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Indstillinger for mapper"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marker som ulæst"</string>
     <string name="move_action" msgid="3059189775933985898">"Flyt"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Luk"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Send alle beskeder"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Vælg vedhæftet fil"</string>
@@ -106,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Nylige mapper (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Alle mapper"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Seneste mapper"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"Emne"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Intet emne"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Indlæs flere beskeder"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> markeret"</item>
@@ -352,7 +358,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vil du kassere ændringer, som ikke er gemt?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Login mislykkedes"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Brugernavn eller adgangskode for <xliff:g id="ACCOUNT">%s</xliff:g> er forkert. Vil du opdatere dem nu?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Generelle indstillinger"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send e-mail fra denne konto som standard"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Download vedhæftning automatisk"</string>
@@ -372,6 +377,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediger tekst, du ofte indsætter, når du skriver e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Vedhæft tekst til beskeder, du sender"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for meddelelser"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Rediger hurtigt svar"</string>
     <string name="save_action" msgid="1988862706623227093">"Gem"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synkroniser kontaktpersoner"</string>
@@ -401,6 +408,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Vælg en konto"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Vælg en mappe"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Kontoen blev ikke fundet. Den kan være blevet fjernet."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader denne applikation at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
@@ -413,7 +422,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Indstillinger for e-mail"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Indstillinger for e-mail"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Indstillinger for applikationer"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Gå automatisk frem"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Vælg, hvilken skærm der skal vises, når du har slettet en besked"</string>
@@ -435,12 +446,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Stor"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Kæmpestor"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Gendan standard for \"Vis billeder\""</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Gendan standard for alle afsendere (vis ikke billeder automatisk)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Vis billeder\" er ryddet."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> af <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Venter på synkronisering"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Din e-mail vises om et øjeblik."</string>
