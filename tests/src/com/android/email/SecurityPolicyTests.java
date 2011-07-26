@@ -58,7 +58,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         mMockContext = new MockContext2(getMockContext(), mContext);
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
-        Controller.getInstance(mMockContext).markForUnitTest(true);
+        Controller.getInstance(mMockContext).markForTest(true);
     }
 
     /**
@@ -66,7 +66,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      */
     @Override
     protected void tearDown() throws Exception {
-        Controller.getInstance(mMockContext).markForUnitTest(false);
+        Controller.getInstance(mMockContext).markForTest(false);
         super.tearDown();
     }
 
@@ -205,16 +205,6 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertTrue(p5out.mRequireRemoteWipe);
         assertFalse(p5out.mRequireEncryptionExternal);
         assertTrue(p5out.mDontAllowCamera);
-
-        // add another account that continues to mutate fields
-        // encryption external req'd - OR logic - will change here because true
-        Policy p6in = setupPolicy(0, Policy.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0,
-                false, false);
-        Account a6 = ProviderTestUtils.setupAccount("sec-6", true, mMockContext);
-        Policy.setAccountPolicy(mMockContext, a6, p6in, null);
-        Policy p6out = mSecurityPolicy.computeAggregatePolicy();
-        assertNotNull(p6out);
-        assertTrue(p6out.mRequireEncryptionExternal);
     }
 
     private long assertAccountPolicyConsistent(long accountId, long oldKey) {
@@ -403,7 +393,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         protected TestController(Context providerContext, Context systemContext) {
             super(systemContext);
             setProviderContext(providerContext);
-            markForUnitTest(true);
+            markForTest(true);
         }
     }
 

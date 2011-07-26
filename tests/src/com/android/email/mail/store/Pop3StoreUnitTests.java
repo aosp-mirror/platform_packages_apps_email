@@ -16,11 +16,15 @@
 
 package com.android.email.mail.store;
 
-import android.test.InstrumentationTestCase;
+import android.content.Context;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.email.Controller;
+import com.android.email.DBTestHelper;
 import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MockTransport;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.Address;
@@ -40,7 +44,7 @@ import com.android.emailcommon.provider.HostAuth;
  * complete - no server(s) required.
  */
 @SmallTest
-public class Pop3StoreUnitTests extends InstrumentationTestCase {
+public class Pop3StoreUnitTests extends AndroidTestCase {
     final String UNIQUE_ID_1 = "20080909002219r1800rrjo9e00";
 
     final static int PER_MESSAGE_SIZE = 100;
@@ -49,23 +53,31 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     private Pop3Store mStore = null;
     private Pop3Store.Pop3Folder mFolder = null;
 
+    private Context mMockContext;
+
     /**
      * Setup code.  We generate a lightweight Pop3Store and Pop3Store.Pop3Folder.
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        mMockContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
+                getContext());
+        Controller.getInstance(mMockContext).setProviderContext(mMockContext);
+        Controller.getInstance(mMockContext).markForTest(true);
+
         // Use the target's (i.e. the Email application) context
-        TempDirectory.setTempDirectory(getInstrumentation().getTargetContext());
+        TempDirectory.setTempDirectory(mMockContext);
 
         // These are needed so we can get at the inner classes
         HostAuth testAuth = new HostAuth();
-        Account testAccount = new Account();
+        Account testAccount = ProviderTestUtils.setupAccount("acct1", false, mMockContext);
 
         testAuth.setLogin("user", "password");
         testAuth.setConnection("pop3", "server", 999);
         testAccount.mHostAuthRecv = testAuth;
-        mStore = (Pop3Store) Pop3Store.newInstance(testAccount, getInstrumentation().getContext());
+        testAccount.save(mMockContext);
+        mStore = (Pop3Store) Pop3Store.newInstance(testAccount, mMockContext);
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
     }
 

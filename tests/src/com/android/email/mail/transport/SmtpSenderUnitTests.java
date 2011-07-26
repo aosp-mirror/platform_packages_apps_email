@@ -16,6 +16,10 @@
 
 package com.android.email.mail.transport;
 
+import android.content.Context;
+import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.email.DBTestHelper;
 import com.android.email.mail.Transport;
 import com.android.email.provider.EmailProvider;
@@ -27,21 +31,9 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 
-import org.apache.commons.io.IOUtils;
-
-import android.content.Context;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.regex.Pattern;
 
 /**
  * This is a series of unit tests for the SMTP Sender class.  These tests must be locally
@@ -150,119 +142,12 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
         message.save(mProviderContext);
 
         // Creates an attachment with a bogus file (so we get headers only)
-        Attachment attachment = setupSimpleAttachment(mProviderContext, message.mId, false);
+        Attachment attachment = setupSimpleAttachment(mProviderContext, message.mId);
         attachment.save(mProviderContext);
 
         expectSimpleMessage(mockTransport);
         mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
         mockTransport.expect("");
-        mockTransport.expect("----.*");
-        expectSimpleAttachment(mockTransport, attachment);
-        mockTransport.expect("");
-        mockTransport.expect("----.*--");
-        mockTransport.expect("\r\n\\.", "250 2.0.0 kv2f1a00C02Rf8w3Vv mail accepted for delivery");
-
-        // Now trigger the transmission
-        mSender.sendMessage(message.mId);
-    }
-
-    /**
-     * Test:  Open and send a single message with an attachment (sunny day)
-     */
-    public void testSendMessageWithAttachment() throws MessagingException, IOException {
-        MockTransport mockTransport = openAndInjectMockTransport();
-
-        // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
-        mockTransport.expectClose();
-        setupOpen(mockTransport, null);
-
-        Message message = setupSimpleMessage();
-        message.save(mProviderContext);
-
-        // Creates an attachment with a real file
-        Attachment attachment = setupSimpleAttachment(mProviderContext, message.mId, true);
-        attachment.save(mProviderContext);
-
-        expectSimpleMessage(mockTransport);
-        mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
-        mockTransport.expect("");
-        mockTransport.expect("----.*");
-        expectSimpleAttachment(mockTransport, attachment);
-        mockTransport.expect("");
-        mockTransport.expect("----.*--");
-        mockTransport.expect("\r\n\\.", "250 2.0.0 kv2f1a00C02Rf8w3Vv mail accepted for delivery");
-
-        // Now trigger the transmission
-        mSender.sendMessage(message.mId);
-    }
-
-    /**
-     * Test:  Open and send a single message with two attachments
-     */
-    public void testSendMessageWithTwoAttachments() throws MessagingException, IOException {
-        MockTransport mockTransport = openAndInjectMockTransport();
-
-        // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
-        mockTransport.expectClose();
-        setupOpen(mockTransport, null);
-
-        Message message = setupSimpleMessage();
-        message.save(mProviderContext);
-
-        // Creates an attachment with a real file
-        Attachment attachment = setupSimpleAttachment(mProviderContext, message.mId, true);
-        attachment.save(mProviderContext);
-
-        // Creates an attachment with a real file
-        Attachment attachment2 = setupSimpleAttachment(mProviderContext, message.mId, true);
-        attachment2.save(mProviderContext);
-
-        expectSimpleMessage(mockTransport);
-        mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
-        mockTransport.expect("");
-        mockTransport.expect("----.*");
-        expectSimpleAttachment(mockTransport, attachment);
-        mockTransport.expect("");
-        mockTransport.expect("----.*");
-        expectSimpleAttachment(mockTransport, attachment2);
-        mockTransport.expect("");
-        mockTransport.expect("----.*--");
-        mockTransport.expect("\r\n\\.", "250 2.0.0 kv2f1a00C02Rf8w3Vv mail accepted for delivery");
-
-        // Now trigger the transmission
-        mSender.sendMessage(message.mId);
-    }
-
-    /**
-     * Test:  Open and send a single message with body & attachment (sunny day)
-     */
-    public void testSendMessageWithBodyAndAttachment() throws MessagingException, IOException {
-        MockTransport mockTransport = openAndInjectMockTransport();
-
-        // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
-        mockTransport.expectClose();
-        setupOpen(mockTransport, null);
-
-        Message message = setupSimpleMessage();
-        message.save(mProviderContext);
-
-        Body body = new Body();
-        body.mMessageKey = message.mId;
-        body.mTextContent = TEST_STRING;
-        body.save(mProviderContext);
-
-        Attachment attachment = setupSimpleAttachment(mProviderContext, message.mId, true);
-        attachment.save(mProviderContext);
-
-        // prepare for the message traffic we'll see
-        expectSimpleMessage(mockTransport);
-        mockTransport.expect("Content-Type: multipart/mixed; boundary=\".*");
-        mockTransport.expect("");
-        mockTransport.expect("----.*");
-        mockTransport.expect("Content-Type: text/plain; charset=utf-8");
-        mockTransport.expect("Content-Transfer-Encoding: base64");
-        mockTransport.expect("");
-        mockTransport.expect(TEST_STRING_BASE64);
         mockTransport.expect("----.*");
         expectSimpleAttachment(mockTransport, attachment);
         mockTransport.expect("");
@@ -304,8 +189,7 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
     /**
      * Prepare to send a simple attachment
      */
-    private Attachment setupSimpleAttachment(Context context, long messageId, boolean withBody)
-            throws IOException {
+    private Attachment setupSimpleAttachment(Context context, long messageId) {
         Attachment attachment = new Attachment();
         attachment.mFileName = "the file.jpg";
         attachment.mMimeType = "image/jpg";
@@ -315,17 +199,6 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
         attachment.mMessageKey = messageId;
         attachment.mLocation = null;
         attachment.mEncoding = null;
-
-        if (withBody) {
-            // Is there an easier way to set up a temp file?
-            InputStream inStream = new ByteArrayInputStream(TEST_STRING.getBytes());
-            File cacheDir = context.getCacheDir();
-            File tmpFile = File.createTempFile("setupSimpleAttachment", "tmp", cacheDir);
-            OutputStream outStream = new FileOutputStream(tmpFile);
-
-            IOUtils.copy(inStream, outStream);
-            attachment.mContentUri = "file://" + tmpFile.getAbsolutePath();
-        }
 
         return attachment;
     }
@@ -357,7 +230,7 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
 
         // Load up just the bare minimum to expose the error
         mockTransport.expect(null, "220 MockTransport 2000 Ready To Assist You Peewee");
-        mockTransport.expect("EHLO " + Pattern.quote(LOCAL_ADDRESS), "");
+        mockTransport.expectLiterally("EHLO [" + LOCAL_ADDRESS + "]", null);
 
         // Now trigger the transmission
         // Note, a null message is sufficient here, as we won't even get past open()
