@@ -402,7 +402,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return count;
         }
 
+        /**
+         * Watchdog for downloads; we use this in case we are hanging on a download, which might
+         * have failed silently (the connection dropped, for example)
+         */
         private void onWatchdogAlarm() {
+            // If our service instance is gone, just leave...
+            if (mStop) return;
             long now = System.currentTimeMillis();
             for (DownloadRequest req: mDownloadsInProgress.values()) {
                 // Check how long it's been since receiving a callback
@@ -932,8 +938,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
     public void onDestroy() {
         // STOPSHIP Remove this, and other, lifecycle logging
         Log.d(TAG, "**** ON DESTROY!");
+        // Mark this instance of the service as stopped
+        mStop = true;
         if (sRunningService != null) {
-            mStop = true;
             kick();
             sRunningService = null;
         }
