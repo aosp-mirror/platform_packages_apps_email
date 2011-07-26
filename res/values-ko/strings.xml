@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"완료"</string>
     <string name="create_action" msgid="3062715563215392251">"새로 만들기"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"삭제"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"삭제"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"임시보관함에 저장"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"빠른 응답 삽입"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"메시지작성"</string>
     <string name="search_action" msgid="6325101454876682308">"검색"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"계정 설정"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"폴더 설정"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"읽지않음으로 표시"</string>
     <string name="move_action" msgid="3059189775933985898">"이동"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ 참조/숨은참조"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"닫기"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"메일 모두 보내기"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"첨부파일 선택"</string>
@@ -106,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"최근 폴더(<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"모든 폴더"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"최근 폴더"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"제목"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"제목 없음"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
@@ -352,7 +358,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"저장되지 않은 변경사항을 삭제하시겠습니까?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"로그인 실패"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"<xliff:g id="ACCOUNT">%s</xliff:g>의 사용자 이름 또는 비밀번호가 잘못되었습니다. 지금 업데이트하시겠습니까?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"일반 설정"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"이 계정에서 이메일 보냄(기본값)"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"첨부파일 자동 다운로드"</string>
@@ -372,6 +377,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"이메일을 작성할 때 자주 사용하는 텍스트 수정"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"보내는 메일에 텍스트 첨부"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"알림 설정"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"빠른 응답 수정"</string>
     <string name="save_action" msgid="1988862706623227093">"저장"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"주소록 동기화"</string>
@@ -401,6 +408,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"계정 선택"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"폴더 선택"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"계정을 찾을 수 없습니다. 삭제되었을 수 있습니다."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"일부 \'Plus\' 계정에만 이 프로그램에 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 유료 \'Plus\' 계정이 없기 때문일 수 있습니다. 이러한 메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"이메일 계정을 설정하기 전에 T-온라인 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
     <string name="exchange_name" msgid="1190783774800310346">"회사"</string>
@@ -413,7 +422,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%1$d</xliff:g>개"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%1$d</xliff:g>개"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"이메일 환경설정"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"이메일 환경설정"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"애플리케이션 환경설정"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"자동 진행"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"메일을 삭제한 다음 표시할 화면 선택"</string>
@@ -435,12 +446,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"보통"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"크게"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"아주 크게"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"\'이미지 표시\'에 대한 기본값 복원"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"모든 발신자에 대한 기본값 복원(자동으로 이미지 표시 안함)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\'이미지 표시\'가 초기화되었습니다."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"동기화 대기 중"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"이메일이 곧 표시됩니다."</string>

@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Ferdig"</string>
     <string name="create_action" msgid="3062715563215392251">"Opprett ny"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Slett"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Forkast"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Lagre utkast"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Sett inn hurtigsvar"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Skriv e-post"</string>
     <string name="search_action" msgid="6325101454876682308">"Søk"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoinnstillinger"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Mappeinnstillinger"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Merk som ulest"</string>
     <string name="move_action" msgid="3059189775933985898">"Flytt"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kopi/blindkopi"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Lukk"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Send alle meldinger"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Velg vedlegg"</string>
@@ -352,7 +360,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vil du forkaste endringer som ikke er lagret?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Pålogging mislyktes"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Brukernavn eller passord for <xliff:g id="ACCOUNT">%s</xliff:g> er feil. Vil du oppdatere nå?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Generelle innstillinger"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Bruk denne kontoen som standard for utgående e-post."</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Automatisk nedlasting av vedlegg"</string>
@@ -372,6 +379,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediger tekst som du ofte setter inn når du skriver e-poster"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Legg til tekst i e-postmeldinger"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Innstillinger for varsling"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Rediger hurtigsvar"</string>
     <string name="save_action" msgid="1988862706623227093">"Lagre"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synkroniser kontakter"</string>
@@ -401,6 +410,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Velg en konto"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Velg en mappe"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Fant ikke konto. Den kan ha blitt fjernet."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Bare noen «pluss-kontoer» tilbyr POP-tilgang som dette programmet trenger for å koble til. Hvis du ikke klarer å logge på med riktig e-postadresse og passord, kan det være du ikke har en betalt «pluss»-tilgang. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Før du setter opp denne e-postkontoen, besøk T-Online-nettstedet og velg et passord for e-posttilgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
@@ -413,7 +424,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Innstillinger for e-post"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Innstillinger for e-post"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Innstillinger for program"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Velg hvilken skjerm som skal vises når du sletter en melding"</string>
@@ -435,12 +448,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Stor"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Kjempestor"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Gjenopprett standard for «Vis bilder»"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Gjenopprett standard for alle avsendere (ikke vis bilder automatisk)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"«Vis bilder» er tømt."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> av <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Venter på synkronisering"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"E-posten din vises snart."</string>

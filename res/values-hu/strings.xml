@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Kész"</string>
     <string name="create_action" msgid="3062715563215392251">"Új létrehozása"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Törlés"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Elvetés"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Piszkozatmentés"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Gyors válasz beilleszt."</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Levélírás"</string>
     <string name="search_action" msgid="6325101454876682308">"Keresés"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Fiókbeállítások"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Mappabeállítások"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Megjelölés olvasatlanként"</string>
     <string name="move_action" msgid="3059189775933985898">"Áthelyezés"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Másolatok"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Bezárás"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Minden üzenet elküldése"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Melléklet kiválasztása"</string>
@@ -106,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Legutóbbi mappák (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Összes mappa"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Legutóbbi mappák"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"Tárgy"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Nincs tárgy"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"További üzenetek betöltése"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> kiválasztva"</item>
@@ -352,7 +358,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Elveti a nem mentett módosításokat?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Sikertelen bejelentkezés"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"<xliff:g id="ACCOUNT">%s</xliff:g> felhasználóneve vagy jelszava helytelen. Frissíti most?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Általános beállítások"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Alapértelmezett fiók"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-mail küldése ebből a fiókból alapértelmezés szerint"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Mellékletek automatikus letöltése"</string>
@@ -372,6 +377,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"E-mail íráskor gyakran beillesztett szöveg szerkesztése"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Szöveg hozzáfűzése az elküldendő üzenetekhez"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Értesítési beállítások"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Gyors válasz szerkesztése"</string>
     <string name="save_action" msgid="1988862706623227093">"Mentés"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Névjegyek szinkr."</string>
@@ -401,6 +408,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Fiók kiválasztása"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Mappa kiválasztása"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"A fiók nem található. Lehet, hogy törölték."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Csak bizonyos \"Plus\" típusú fiókok rendelkeznek olyan POP-hozzáféréssel, amely lehetővé teszi a program számára a kapcsolódást. Ha nem tud bejelentkezni a megfelelő e-mail címmel és jelszóval, valószínűleg nem fizetett elő \"Plus\" típusú fiókra. Kérjük, indítsa el a webböngészőt az ilyen e-mail fiókok eléréséhez."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Kérjük, az e-mail fiók beállítása előtt keresse fel a T-Online webhelyét, és hozzon létre jelszót a POP3-alapú hozzáféréshez."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Vállalati"</string>
@@ -413,7 +422,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> találat a(z) <xliff:g id="DOMAIN">%2$s</xliff:g> domainből"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> találat a(z) <xliff:g id="DOMAIN">%2$s</xliff:g> domainből"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"E-mail preferenciái"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"E-mail preferenciái"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Alkalmazáspreferenciák"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatikus lépegetés"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Válassza ki, melyik képernyő jelenjen meg üzenet törlése után"</string>

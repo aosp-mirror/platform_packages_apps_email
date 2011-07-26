@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Valmis"</string>
     <string name="create_action" msgid="3062715563215392251">"Luo uusi"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Poista"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Hylkää"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Tallenna luonnos"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Lisää pikavastaus"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Viestin kirjoitus"</string>
     <string name="search_action" msgid="6325101454876682308">"Haku"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Tilin asetukset"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Kansion asetukset"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Merkitse lukemattomaksi"</string>
     <string name="move_action" msgid="3059189775933985898">"Siirrä"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kopio/piilok."</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Sulje"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Lähetä kaikki viestit"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Valitse liite"</string>
@@ -352,7 +360,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Hylätäänkö tallentamattomat muutokset?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Kirjautuminen epäonnistui"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Tilin <xliff:g id="ACCOUNT">%s</xliff:g> käyttäjänimi tai salasana on virheellinen. Päivitetäänkö?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Yleiset asetukset"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Oletustili"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Lähetä sähköposti oletuksena tältä tililtä"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Lataa liitetiedostot automaattisesti"</string>
@@ -372,6 +379,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Muokkaa tekstiä, jota lisäät usein sähköpostiviesteihin"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Liitä lähettämiisi viesteihin teksti"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Ilmoitusasetukset"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Muokkaa pikavastausta"</string>
     <string name="save_action" msgid="1988862706623227093">"Tallenna"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synkronoi yhteystiedot"</string>
@@ -401,6 +410,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Valitse tili"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Valitse kansio"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Tiliä ei löydy. Se on saatettu poistaa."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Vain joihinkin Plus-tileihin sisältyy POP-käyttö, joka sallii tämän ohjelman muodostaa yhteyden. Jos et pysty kirjautumaan tiliisi sähköpostiosoitteellasi ja salasanallasi, sinulla ei ehkä ole maksullista Plus-tiliä. Pääset käyttämään näitä sähköpostitilejä käynnistämällä verkkoselaimen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Käy ennen tämän sähköpostitilin luomista T-Onlinen sivustossa ja luo salasana sähköpostin POP3-käyttöä varten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Yritys"</string>
@@ -413,7 +424,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> tulos osoitteella <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> tulosta osoitteella <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Sähköpostiasetukset"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Sähköpostiasetukset"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Sovellusasetukset"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automaattinen siirtyminen"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Valitse, mikä ruutu näytetään viestin poistamisen jälkeen"</string>
@@ -435,12 +448,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normaali"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Suuri"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Hyvin suuri"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Palauta Näytä kuvat -oletusasetukset"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Palauta kaikkien lähettäjien oletukset (kuvia ei näytetä automaattisesti)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"Näytä kuvat poistettu."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Odotetaan synkronointia"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Sähköposti näytetään piakkoin."</string>

@@ -51,6 +51,8 @@
     <skip />
     <!-- no translation found for delete_quick_response_action (3076922270182841978) -->
     <skip />
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <!-- no translation found for discard_action (6532206074859505968) -->
     <skip />
     <string name="save_draft_action" msgid="6413714270991417223">"Londoloza okusazolungiswa"</string>
@@ -70,12 +72,18 @@
     <skip />
     <!-- no translation found for account_settings_action (4494079183315085171) -->
     <skip />
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <!-- no translation found for mailbox_settings_action (4810618229637583429) -->
     <skip />
     <!-- no translation found for mark_as_unread_action (3766298115778767554) -->
     <skip />
     <string name="move_action" msgid="3059189775933985898">"Khipha"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Vala"</string>
     <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Thumela imiyalezo ephumayo."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Khetha isinamathiseli"</string>
@@ -166,7 +174,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Isihloko:"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Qamba Imeyili"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Bhala i-imeyili"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Umyalezo Wangempela --------"\n"Isihloko: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Kusuka ku: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kuya ku: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>ubhale:"\n\n</string>
     <!-- no translation found for message_compose_quoted_text_label (5722467956990009520) -->
@@ -296,7 +304,7 @@
     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Okusha kunokunye"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Okudadlana"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"Ukuhlela i-akhawunti"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Yengeza i-akhawunti Yokushintshanisa"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Yengeza i-akhawunti Yokuvumelanisa Okusebenzsayo Kokushintshanisa"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"I-akhawunti ye-Imeyli"</string>
@@ -320,17 +328,17 @@
     <skip />
     <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4033015234096725343) -->
     <skip />
-    <string name="account_setup_names_title" msgid="8483517350241119291">"Ukuhlela i-akhawunti"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"I-akhawunti yakho imisiwe, futhi i-imeyli isendleleni!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nike le-akhawunti igama (okokuzikhethela)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Igama lakho (liboniswa emiyalezweni ephumayo)"</string>
     <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
     <skip />
-    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Ukuhlela i-akhawunti"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Uhlobo lwe-akhawunti"</string>
     <!-- no translation found for account_setup_account_type_instructions (114515540798408760) -->
     <skip />
-    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Ukuhlela i-akhawunti"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Izilungiselelo zeseva engenayo"</string>
     <!-- no translation found for account_setup_incoming_username_label (5700581386104070302) -->
     <skip />
@@ -359,7 +367,7 @@
     <skip />
     <!-- no translation found for account_setup_incoming_imap_path_prefix_hint (9190845919067906033) -->
     <skip />
-    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Ukuhlela i-akhawunti"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Izilungiselelo zeseva eziphumayo"</string>
     <!-- no translation found for account_setup_outgoing_smtp_server_label (6035137446691195177) -->
     <skip />
@@ -477,8 +485,6 @@
     <skip />
     <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
     <skip />
-    <!-- no translation found for account_settings_title_fmt (1702058877284382340) -->
-    <skip />
     <!-- no translation found for account_settings_default_label (3575963379680943640) -->
     <skip />
     <!-- no translation found for account_settings_default_summary (1531901438624688482) -->
@@ -512,6 +518,8 @@
     <skip />
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Jobelela umbhalo emiyalezweni oyithumelayo"</string>
     <!-- no translation found for account_settings_notifications (1042620094281375043) -->
+    <skip />
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
     <skip />
     <!-- no translation found for edit_quick_response_dialog (4322494050816995390) -->
     <skip />
@@ -553,6 +561,8 @@
     <skip />
     <!-- no translation found for toast_account_not_found (2483831308629565584) -->
     <skip />
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Kuphela amanye ama-akhawunti \"Okuhlanganisa\" ahlanganisa ukufinyelela i-POP okuvumela lolu hlelo ukuxhuma. Uma ungakwazi ukungena ngekheli lakho le-imeyili elilungile kanye nephasiwedi, kungase kwenzeke awunayo i-akhawunti ekhokhelwe \"Hlanganisa\". Sicela uqalise isipheqululis seWebhu ukuthola ukufinyelela kulama akhawunti e-imeyili."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Ngaphambi kokuhlela le-akhawunti ye-imeyili, sicela uvakashele Iwebhusayithi ye-T-Online bese wenza iphasiwedi ukufinyelel i-imeyili ye-POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Inhlangano"</string>
@@ -565,7 +575,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> imiphumela ephuma <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> imiphumela ephuma <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Izintandokazi ze-Imeyli"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Izintandokazi ze-Imeyli"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Izintandokazi Zohlelo Lokusebenza"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Okuseqophelweni okuzenzakalelayo"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Khetha ukuthi isiphi isikrini esizoboniswa emuva kokuba ususe umyalezo"</string>

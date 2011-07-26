@@ -51,6 +51,8 @@
     <skip />
     <!-- no translation found for delete_quick_response_action (3076922270182841978) -->
     <skip />
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <!-- no translation found for discard_action (6532206074859505968) -->
     <skip />
     <string name="save_draft_action" msgid="6413714270991417223">"ረቂቅ አስቀምጥ"</string>
@@ -70,12 +72,18 @@
     <skip />
     <!-- no translation found for account_settings_action (4494079183315085171) -->
     <skip />
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <!-- no translation found for mailbox_settings_action (4810618229637583429) -->
     <skip />
     <!-- no translation found for mark_as_unread_action (3766298115778767554) -->
     <skip />
     <string name="move_action" msgid="3059189775933985898">"አንቀሳቅስ"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ካርቦን ቅጂ/ስውር ቅጂ"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"ዝጋ"</string>
     <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"ወጪ መልዕክቶችን ላክ"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"አባሪ ምረጥ"</string>
@@ -477,8 +485,6 @@
     <skip />
     <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
     <skip />
-    <!-- no translation found for account_settings_title_fmt (1702058877284382340) -->
-    <skip />
     <!-- no translation found for account_settings_default_label (3575963379680943640) -->
     <skip />
     <!-- no translation found for account_settings_default_summary (1531901438624688482) -->
@@ -512,6 +518,8 @@
     <skip />
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"ወደ ሚልኩት መለልዕክቶች ፅሁፍ  ይጨምሩ"</string>
     <!-- no translation found for account_settings_notifications (1042620094281375043) -->
+    <skip />
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
     <skip />
     <!-- no translation found for edit_quick_response_dialog (4322494050816995390) -->
     <skip />
@@ -553,6 +561,8 @@
     <skip />
     <!-- no translation found for toast_account_not_found (2483831308629565584) -->
     <skip />
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"ጥቂት \"Plus\" መለያዎች ይህን ፕሮግራም ለማያያዝ ብቻ የPOP ድረስ ያካትታሉ።ከትክክለኛ ኢሜይል አድራሻዎ እና የይለፍ ቃልዎ መግባት ካልቻሉ የተከፈለበት የ\"Plus\"  መለያ ሊኖርዎት አይችልም። እባክዎ ወደ እነዚህ የመልዕክት መለያዎች ድረስ ለማግኘት የድረ አሳሹን ያስነሱ ።"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"ይህን ኢሜይል ከመፍጠርዎ በፊት፣ እባክዎ የT-Online ድረ ገፅን ይጎብኙ እና ለPOP3 ኢሜይል መድረስ ይለፍ ቃል ይፍጠሩ።"</string>
     <string name="exchange_name" msgid="1190783774800310346">"ኮርፖሬት"</string>
@@ -565,7 +575,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g>ውጤት ከ<xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g>ውጤቶች ከ<xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"የኢመይል ምርጫዎች"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"የኢመይል ምርጫዎች"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"የትግበራ ምርጫዎች"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"ራስ- ላቅ"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"መልዕክት ከሰረዙ በኋላ በየትኛው ማያ ለማሳየት ይምረጡ።"</string>

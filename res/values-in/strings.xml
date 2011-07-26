@@ -35,6 +35,8 @@
     <string name="done_action" msgid="7497990549515580249">"Selesai"</string>
     <string name="create_action" msgid="3062715563215392251">"Buat baru"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Hapus"</string>
+    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
+    <skip />
     <string name="discard_action" msgid="6532206074859505968">"Buang"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Simpan konsep"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Masukkan tanggapan cepat"</string>
@@ -47,10 +49,16 @@
     <string name="compose_action" msgid="4045702519637388045">"Tulis"</string>
     <string name="search_action" msgid="6325101454876682308">"Telusuri"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Setelan akun"</string>
+    <!-- no translation found for settings_action (6334807007967459412) -->
+    <skip />
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Setelan map"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Tandai belum dibaca"</string>
     <string name="move_action" msgid="3059189775933985898">"Pindahkan"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
+    <skip />
+    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Tutup"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Kirim semua pesan"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pilih lampiran"</string>
@@ -352,7 +360,6 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Buang perubahan yang tidak tersimpan?"</string>
     <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Gagal masuk"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Nama pengguna atau sandi untuk <xliff:g id="ACCOUNT">%s</xliff:g> salah. Mutakhirkan keduanya sekarang?"</string>
-    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Setelan umum"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akun bawaan"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Kirim email dari akun ini secara bawaan"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Unduh-otomatis lampiran"</string>
@@ -372,6 +379,8 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Edit teks yang sering Anda masukkan ketika membuat email"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Menambahkan teks ke pesan yang Anda kirim"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Setelan pemberitahuan"</string>
+    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit tanggapan cepat"</string>
     <string name="save_action" msgid="1988862706623227093">"Simpan"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sinkronkan Kenalan"</string>
@@ -401,6 +410,8 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Pilih akun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih map"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Akun tidak ditemukan. Akun mungkin telah dihapus."</string>
+    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Hanya beberapa akun \"Plus\" termasuk akses POP yang memungkinkan program ini terhubung. Jika tidak dapat masuk dengan alamat dan sandi email yang benar, Anda mungkin tidak memiliki akun \"Plus\" berbayar. Buka peramban Web untuk mendapat akses ke akun surat ini."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Sebelum menyiapkan akun email ini, kunjungi Situs web T-Online dan buat sandi untuk akses email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Perusahaan"</string>
@@ -413,7 +424,9 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> hasil dari <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> hasil dari <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"Preferensi Email"</string>
+    <!-- no translation found for settings_activity_title (5185915603716333904) -->
+    <skip />
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Preferensi Email"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Preferensi Aplikasi"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Maju otomatis"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Pilih layar mana yang akan ditampilkan setelah menghapus pesan"</string>
@@ -435,12 +448,9 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Besar"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sangat besar"</string>
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
-    <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
-    <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
-    <skip />
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Pulihkan bawaan untuk \"Tampilkan gambar\""</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Pulihkan bawaan untuk semua pengirim (jangan tampilkan gambar secara otomatis)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Tampilkan gambar\" dihapus."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> dari <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Menunggu sinkronisasi"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Email Anda akan segera muncul."</string>
