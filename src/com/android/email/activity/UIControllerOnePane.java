@@ -545,14 +545,17 @@ class UIControllerOnePane extends UIControllerBase {
         super.onPrepareOptionsMenu(inflater, menu);
 
         // Then override
-        final boolean messageViewVisible = isMessageViewInstalled();
-        if (messageViewVisible) {
+        final boolean messageListVisible = isMessageListInstalled();
+        if (!messageListVisible) {
             menu.findItem(R.id.search).setVisible(false);
             menu.findItem(R.id.compose).setVisible(false);
             menu.findItem(R.id.refresh).setVisible(false);
             menu.findItem(R.id.show_all_mailboxes).setVisible(false);
             menu.findItem(R.id.mailbox_settings).setVisible(false);
+        }
 
+        final boolean messageViewVisible = isMessageViewInstalled();
+        if (messageViewVisible) {
             final MessageOrderManager om = getMessageOrderManager();
             menu.findItem(R.id.newer).setVisible(true);
             menu.findItem(R.id.older).setVisible(true);
