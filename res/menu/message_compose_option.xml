@@ -24,6 +24,7 @@
     />
     <item
         android:id="@+id/add_cc_bcc"
+        android:icon="@drawable/ic_menu_cc_holo_light"
         android:title="@string/add_cc_bcc_menu"
     />
     <item

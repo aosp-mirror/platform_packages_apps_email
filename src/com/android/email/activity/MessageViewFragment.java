@@ -182,8 +182,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
         setHasOptionsMenu(true);
 
         final Resources res = getActivity().getResources();
-        mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_on_normal_email_holo_light);
-        mFavoriteIconOff = res.getDrawable(R.drawable.btn_star_off_normal_email_holo_light);
+        mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_on_normal_holo_light);
+        mFavoriteIconOff = res.getDrawable(R.drawable.btn_star_off_normal_holo_light);
     }
 
     @Override

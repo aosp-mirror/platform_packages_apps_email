@@ -96,7 +96,7 @@
                 android:id="@+id/reply"
                 android:layout_marginRight="16dip"
                 android:contentDescription="@string/reply_action"
-                android:src="@drawable/ic_reply"
+                android:src="@drawable/ic_reply_holo_dark"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
                 />
@@ -104,7 +104,7 @@
                 android:id="@+id/reply_all"
                 android:layout_marginRight="16dip"
                 android:contentDescription="@string/reply_all_action"
-                android:src="@drawable/ic_reply_all"
+                android:src="@drawable/ic_reply_all_holo_dark"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
                 />
@@ -112,14 +112,14 @@
                 android:id="@+id/forward"
                 android:layout_marginRight="16dip"
                 android:contentDescription="@string/forward_action"
-                android:src="@drawable/ic_forward"
+                android:src="@drawable/ic_forward_holo_dark"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
                 />
             <ImageButton
                 android:id="@+id/favorite"
                 android:layout_marginRight="16dip"
-                android:src="@drawable/btn_star_off_normal_email_holo_light"
+                android:src="@drawable/btn_star_off_normal_holo_light"
                 style="@style/message_view_action_buttons"
                 />
         </LinearLayout>

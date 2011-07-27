@@ -163,9 +163,9 @@ public class MessageListItem extends View {
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
             sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite);
             sFavoriteIconOff =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_email_holo_light);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_holo_light);
             sFavoriteIconOn =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_on_normal_email_holo_light);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_on_normal_holo_light);
             sSelectedIconOff =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
@@ -173,11 +173,11 @@ public class MessageListItem extends View {
 
             //TODO: put the actual drawables when they exist. these are temps for visibile testing.
             sStateReplied =
-                BitmapFactory.decodeResource(r, R.drawable.reply);
+                BitmapFactory.decodeResource(r, R.drawable.ic_reply_holo_dark);
             sStateForwarded =
-                BitmapFactory.decodeResource(r, R.drawable.forward);
+                BitmapFactory.decodeResource(r, R.drawable.ic_forward_holo_dark);
             sStateRepliedAndForwarded =
-                BitmapFactory.decodeResource(r, R.drawable.reply_all);
+                BitmapFactory.decodeResource(r, R.drawable.ic_reply_all_holo_dark);
 
             sInit = true;
         }
