@@ -102,11 +102,12 @@ public class MessageListFragment extends ListFragment
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mIsViewCreated;
 
+    private View mListPanel;
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
-    private View mNoMessagesPanel;
     private ViewGroup mSearchHeader;
+    private ViewGroup mWarningContainer;
     private TextView mSearchHeaderText;
     private TextView mSearchHeaderCount;
 
@@ -335,7 +336,6 @@ public class MessageListFragment extends ListFragment
         mRefreshManager = RefreshManager.getInstance(mActivity);
 
         mListAdapter = new MessagesAdapter(mActivity, this);
-        setListAdapter(mListAdapter);
     }
 
     @Override
@@ -346,8 +346,8 @@ public class MessageListFragment extends ListFragment
         }
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
-        mNoMessagesPanel = UiUtilities.getView(root, R.id.no_messages_panel);
         mIsViewCreated = true;
+        mListPanel = UiUtilities.getView(root, R.id.list_panel);
         return root;
     }
 
@@ -392,6 +392,7 @@ public class MessageListFragment extends ListFragment
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
                 R.layout.message_list_item_footer, lv, false);
+        setEmptyText(getString(R.string.message_list_no_messages));
 
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
@@ -541,10 +542,6 @@ public class MessageListFragment extends ListFragment
         if (mResumed) {
             highlightSelectedMessage(true);
         }
-    }
-
-    /* package */MessagesAdapter getAdapterForTest() {
-        return mListAdapter;
     }
 
     /**
@@ -1144,11 +1141,6 @@ public class MessageListFragment extends ListFragment
                 && (mMailbox == null || mMailbox.canHaveMessagesMoved());
     }
 
-    private void showNoMessageText(boolean visible) {
-        mNoMessagesPanel.setVisibility(visible ? View.VISIBLE : View.GONE);
-        getListView().setVisibility(visible ? View.GONE : View.VISIBLE);
-    }
-
     /**
      * Adjusts message notification depending upon the state of the fragment and the currently
      * viewed mailbox. If the fragment is resumed, notifications for the current mailbox may
@@ -1176,13 +1168,32 @@ public class MessageListFragment extends ListFragment
             Log.d(Logging.LOG_TAG, this + " startLoading");
         }
         // Clear the list. (ListFragment will show the "Loading" animation)
-        showNoMessageText(false);
         showSendCommand(false);
         updateSearchHeader(null);
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
         lm.initLoader(LOADER_ID_MESSAGES_LOADER, null, new MessagesLoaderCallback());
+    }
+
+    /** Timeout to show a warning, since some IMAP searches could take a long time. */
+    private final int SEARCH_WARNING_DELAY_MS = 10000;
+
+    private void onSearchLoadTimeout() {
+        // Search is taking too long. Show an error message.
+        ViewGroup root = (ViewGroup) getView();
+        Activity host = getActivity();
+        if (root != null && host != null) {
+            mListPanel.setVisibility(View.GONE);
+            mWarningContainer = (ViewGroup) LayoutInflater.from(host).inflate(
+                    R.layout.message_list_warning, root, false);
+            TextView title = UiUtilities.getView(mWarningContainer, R.id.message_title);
+            TextView message = UiUtilities.getView(mWarningContainer, R.id.message_warning);
+            title.setText(R.string.search_slow_warning_title);
+            message.setText(R.string.search_slow_warning_message);
+            root.addView(mWarningContainer);
+        }
+
     }
 
     /**
@@ -1198,6 +1209,29 @@ public class MessageListFragment extends ListFragment
                 Log.d(Logging.LOG_TAG, MessageListFragment.this
                         + " onCreateLoader(messages) listContext=" + listContext);
             }
+
+            if (mListContext.isSearch()) {
+                final MessageListContext searchInfo = mListContext;
+
+                // Search results are not primed with local data, and so will usually be slow.
+                // In some cases, they could take a long time to return, so we need to be robust.
+                setListShownNoAnimation(false);
+                Utility.getMainThreadHandler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mListContext != searchInfo) {
+                            // Different list is being shown now.
+                            return;
+                        }
+                        if (!mIsFirstLoad) {
+                            // Something already returned. No need to do anything.
+                            return;
+                        }
+                        onSearchLoadTimeout();
+                    }
+                }, SEARCH_WARNING_DELAY_MS);
+            }
+
             mIsFirstLoad = true;
             return MessagesAdapter.createLoader(getActivity(), listContext);
         }
@@ -1258,8 +1292,6 @@ public class MessageListFragment extends ListFragment
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
-            showNoMessageText((cursor.getCount() == 0)
-                    && (getListContext().isSearch() || (mListFooterMode == LIST_FOOTER_MODE_NONE)));
 
             // We want to make visible the selection only for the first load.
             // Re-load caused by content changed events shouldn't scroll the list.
@@ -1269,7 +1301,12 @@ public class MessageListFragment extends ListFragment
             // "post processing" seems to reset the scroll position.
             lv.onRestoreInstanceState(listState);
 
-            // Clear this for next reload triggered by content changed events.
+            if (mIsFirstLoad) {
+                setListShownNoAnimation(true);
+                UiUtilities.setVisibilitySafe(mWarningContainer, View.GONE);
+                mListPanel.setVisibility(View.VISIBLE);
+                setListAdapter(mListAdapter);
+            }
             mIsFirstLoad = false;
         }
 
