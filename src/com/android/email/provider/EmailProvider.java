@@ -1890,6 +1890,10 @@ public class EmailProvider extends ContentProvider {
             if (cache != null && c != null && Email.DEBUG) {
                 cache.recordQueryTime(c, System.nanoTime() - time);
             }
+            if (c == null) {
+                // This should never happen, but let's be sure to log it...
+                Log.e(TAG, "Query returning null for uri: " + uri + ", selection: " + selection);
+            }
         }
 
         if ((c != null) && !isTemporary()) {
