@@ -1215,6 +1215,14 @@ save attachment.</string>
     <string name="search_header_text_fmt"
           >Search results for \"<xliff:g example="search query">%1$s</xliff:g>\"</string>
 
+    <!-- A warning title to show to the user when search results are taking a long
+         time. [CHAR LIMIT=NONE] -->
+    <string name="search_slow_warning_title">Waiting for results</string>
+
+    <!-- A warning message to show to the user when search results are taking a long
+         time. [CHAR LIMIT=NONE] -->
+    <string name="search_slow_warning_message">Some servers may take a long time.</string>
+
     <!-- Title shown on the action bar on the mailbox list screen. [CHAR LIMIT=16] -->
     <string name="action_bar_mailbox_list_title">Folders</string>
 

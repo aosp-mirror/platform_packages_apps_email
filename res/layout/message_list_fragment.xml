@@ -24,16 +24,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <TextView
-        android:id="@+id/no_messages_panel"
-        android:text="@string/message_list_no_messages"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:visibility="gone"
-        />
+
+    <!-- Search header is dynamically inserted here for search results -->
 
     <include
         layout="@android:layout/list_content"
@@ -42,4 +34,7 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         />
+
+    <!-- Message list error overlays are dynamically inserted here -->
+
 </LinearLayout>
