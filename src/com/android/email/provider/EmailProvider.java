@@ -1801,7 +1801,8 @@ public class EmailProvider extends ContentProvider {
                     // Return a cursor with an id projection
                     MatrixCursor mc = new MatrixCursor(EmailContent.ID_PROJECTION);
                     mc.addRow(new Object[] {accountId});
-                    return mc;
+                    c = mc;
+                    break;
                 case MAILBOX_ID_FROM_ACCOUNT_AND_TYPE:
                     // Get accountId and type and find the mailbox in our map
                     List<String> pathSegments = uri.getPathSegments();
@@ -1811,7 +1812,8 @@ public class EmailProvider extends ContentProvider {
                     // Return a cursor with an id projection
                     mc = new MatrixCursor(EmailContent.ID_PROJECTION);
                     mc.addRow(new Object[] {mailboxId});
-                    return mc;
+                    c = mc;
+                    break;
                 case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
