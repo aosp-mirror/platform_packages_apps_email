@@ -427,7 +427,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
             // Check whether we can start new downloads...
-            if (mConnectivityManager.hasConnectivity()) {
+            if (mConnectivityManager != null && mConnectivityManager.hasConnectivity()) {
                 processQueue();
             }
         }
