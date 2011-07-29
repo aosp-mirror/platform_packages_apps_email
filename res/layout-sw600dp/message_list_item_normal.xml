@@ -41,7 +41,7 @@
             android:id="@+id/reply_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/reply" />
+            android:src="@drawable/ic_reply_holo_dark" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="0dip"
@@ -99,6 +99,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dip"
             android:layout_marginRight="8dip"
-            android:src="@drawable/btn_star_off_normal_email_holo_light" />
+            android:src="@drawable/btn_star_off_normal_holo_light" />
     </LinearLayout>
 </LinearLayout>
