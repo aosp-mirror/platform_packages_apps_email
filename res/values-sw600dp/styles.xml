@@ -147,4 +147,14 @@
         <item name="android:ellipsize">end</item>
         <item name="android:gravity">center</item>
     </style>
+
+    <style name="message_list_item_normal">
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">32dip</item>
+    </style>
+
+    <style name="message_list_item_wide">
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
+    </style>
 </resources>

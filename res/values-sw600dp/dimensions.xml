@@ -43,9 +43,4 @@
     <dimen name="setup_item_inset_left">16dip</dimen>
     <dimen name="setup_item_inset_right">64dip</dimen>
 
-    <dimen name="message_list_item_height_wide">64dip</dimen>
-    <dimen name="message_list_item_height_narrow">80dip</dimen>
-    <dimen name="minimum_width_wide_mode">800dip</dimen>
-    <dimen name="minimum_width_normal_mode">550dip</dimen>
-
 </resources>

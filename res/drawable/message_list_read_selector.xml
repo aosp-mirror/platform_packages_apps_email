@@ -21,9 +21,9 @@
           android:drawable="@drawable/list_pressed_holo" />
     <item android:state_selected="true"
           android:state_activated="true"
-          android:drawable="@drawable/list_arrow_selected_holo" />
+          android:drawable="@color/message_activated_color" />
     <item android:state_activated="true"
-          android:drawable="@drawable/list_activated_holo" />
+          android:drawable="@color/message_activated_color" />
     <item android:state_selected="true"
           android:drawable="@drawable/list_selected_holo" />
     <item android:drawable="@drawable/list_read_holo" />

@@ -123,9 +123,8 @@ public class MessageListItem extends View {
     private int mViewWidth = 0;
     private int mViewHeight = 0;
 
-    private static int sTextSize;
     private static int sItemHeightWide;
-    private static int sItemHeightNarrow;
+    private static int sItemHeightNormal;
 
     // Note: these cannot be shared Drawables because they are selectors which have state.
     private Drawable mReadSelector;
@@ -144,19 +143,15 @@ public class MessageListItem extends View {
             sSubjectDescription = r.getString(R.string.message_subject_description).concat(", ");
             sSubjectEmptyDescription = r.getString(R.string.message_is_empty_description);
             sSubjectSnippetDivider = r.getString(R.string.message_list_subject_snippet_divider);
-            sTextSize =
-                r.getDimensionPixelSize(R.dimen.message_list_item_text_size);
             sItemHeightWide =
                 r.getDimensionPixelSize(R.dimen.message_list_item_height_wide);
-            sItemHeightNarrow =
-                r.getDimensionPixelSize(R.dimen.message_list_item_height_narrow);
+            sItemHeightNormal =
+                r.getDimensionPixelSize(R.dimen.message_list_item_height_normal);
 
             sDefaultPaint.setTypeface(Typeface.DEFAULT);
-            sDefaultPaint.setTextSize(sTextSize);
             sDefaultPaint.setAntiAlias(true);
             sDatePaint.setTypeface(Typeface.DEFAULT);
             sDatePaint.setAntiAlias(true);
-            sBoldPaint.setTextSize(sTextSize);
             sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setAntiAlias(true);
             sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
@@ -263,7 +258,7 @@ public class MessageListItem extends View {
 
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
         mSubjectLayout = new StaticLayout(mText, sDefaultPaint,
-                mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, true);
+                mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, false /* includePad */);
         if (mCoordinates.subjectLineCount < mSubjectLayout.getLineCount()) {
             // TODO: ellipsize.
             int end = mSubjectLayout.getLineEnd(mCoordinates.subjectLineCount - 1);
@@ -273,11 +268,12 @@ public class MessageListItem extends View {
 
         // Now, format the sender for its width
         TextPaint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
-        int senderWidth = mCoordinates.sendersWidth;
         // And get the ellipsized string for the calculated width
         if (TextUtils.isEmpty(mSender)) {
             mFormattedSender = "";
         } else {
+            int senderWidth = mCoordinates.sendersWidth;
+            senderPaint.setTextSize(mCoordinates.sendersFontSize);
             mFormattedSender = TextUtils.ellipsize(mSender, senderPaint, senderWidth,
                     TruncateAt.END);
         }
@@ -320,7 +316,7 @@ public class MessageListItem extends View {
             if (mMode == MODE_WIDE) {
                 result = sItemHeightWide;
             } else {
-                result = sItemHeightNarrow;
+                result = sItemHeightNormal;
             }
             if (specMode == MeasureSpec.AT_MOST) {
                 // Respect AT_MOST value if that was what is called for by
@@ -363,7 +359,7 @@ public class MessageListItem extends View {
 
         // Draw the checkbox
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
-                mCoordinates.checkmarkX, mCoordinates.checkmarkY, sDefaultPaint);
+                mCoordinates.checkmarkX, mCoordinates.checkmarkY, null);
 
         // Draw the sender name
         canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
@@ -373,13 +369,13 @@ public class MessageListItem extends View {
         // Draw the reply state. Draw nothing if neither replied nor forwarded.
         if (mHasBeenRepliedTo && mHasBeenForwarded) {
             canvas.drawBitmap(sStateRepliedAndForwarded,
-                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+                    mCoordinates.stateX, mCoordinates.stateY, null);
         } else if (mHasBeenRepliedTo) {
             canvas.drawBitmap(sStateReplied,
-                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+                    mCoordinates.stateX, mCoordinates.stateY, null);
         } else if (mHasBeenForwarded) {
             canvas.drawBitmap(sStateForwarded,
-                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+                    mCoordinates.stateX, mCoordinates.stateY, null);
         }
 
         // Subject and snippet.
@@ -402,7 +398,7 @@ public class MessageListItem extends View {
 
         // Draw the favorite icon
         canvas.drawBitmap(mIsFavorite ? sFavoriteIconOn : sFavoriteIconOff,
-                mCoordinates.starX, mCoordinates.starY, sDefaultPaint);
+                mCoordinates.starX, mCoordinates.starY, null);
 
         // TODO: deal with the icon layouts better from the coordinate class so that this logic
         // doesn't have to exist.
@@ -410,11 +406,11 @@ public class MessageListItem extends View {
         int iconsLeft = dateX;
         if (mHasAttachment) {
             iconsLeft = iconsLeft - sAttachmentIcon.getWidth();
-            canvas.drawBitmap(sAttachmentIcon, iconsLeft, mCoordinates.paperclipY, sDefaultPaint);
+            canvas.drawBitmap(sAttachmentIcon, iconsLeft, mCoordinates.paperclipY, null);
         }
         if (mHasInvite) {
             iconsLeft -= sInviteIcon.getWidth();
-            canvas.drawBitmap(sInviteIcon, iconsLeft, mCoordinates.paperclipY, sDefaultPaint);
+            canvas.drawBitmap(sInviteIcon, iconsLeft, mCoordinates.paperclipY, null);
         }
 
     }
@@ -457,8 +453,9 @@ public class MessageListItem extends View {
 
         boolean handled = false;
         int touchX = (int) event.getX();
-        int checkRight = mCoordinates.checkmarkWidthIncludingMargins + sScaledTouchSlop;
-        int starLeft = mViewWidth - mCoordinates.starWidthIncludingMargins - sScaledTouchSlop;
+        int checkRight = mCoordinates.checkmarkX
+                + mCoordinates.checkmarkWidthIncludingMargins + sScaledTouchSlop;
+        int starLeft = mCoordinates.starX;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:

@@ -22,6 +22,7 @@
     - Image View should set source to a specific asset -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/message_list_item_wide"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
@@ -59,7 +60,7 @@
         android:layout_marginRight="16dip"
         android:layout_gravity="center_vertical"
         android:text="@string/long_string"
-        android:textSize="@dimen/subject_font_size"
+        android:textSize="@dimen/wide_subject_font_size"
         android:lines="2" />
     <RelativeLayout
         android:layout_width="144dip"
