@@ -2441,15 +2441,22 @@ outer:
      * This entails creating AccountManager accounts for all pop3 and imap accounts
      */
 
-    private static final String[] RECV_PROJECTION =
+    private static final String[] V21_ACCOUNT_PROJECTION =
         new String[] {AccountColumns.HOST_AUTH_KEY_RECV};
-    private static final int EMAIL_AND_RECV_COLUMN_RECV = 0;
+    private static final int V21_ACCOUNT_RECV = 0;
 
-    static private void createAccountManagerAccount(Context context, HostAuth hostAuth) {
+    private static final String[] V21_HOSTAUTH_PROJECTION =
+        new String[] {HostAuthColumns.PROTOCOL, HostAuthColumns.LOGIN, HostAuthColumns.PASSWORD};
+    private static final int V21_HOSTAUTH_PROTOCOL = 0;
+    private static final int V21_HOSTAUTH_LOGIN = 1;
+    private static final int V21_HOSTAUTH_PASSWORD = 2;
+
+    static private void createAccountManagerAccount(Context context, String login,
+            String password) {
         AccountManager accountManager = AccountManager.get(context);
         android.accounts.Account amAccount =
-            new android.accounts.Account(hostAuth.mLogin, AccountManagerTypes.TYPE_POP_IMAP);
-        accountManager.addAccountExplicitly(amAccount, hostAuth.mPassword, null);
+            new android.accounts.Account(login, AccountManagerTypes.TYPE_POP_IMAP);
+        accountManager.addAccountExplicitly(amAccount, password, null);
         ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
         ContentResolver.setIsSyncable(amAccount, ContactsContract.AUTHORITY, 0);
@@ -2460,24 +2467,24 @@ outer:
     static void upgradeFromVersion21ToVersion22(SQLiteDatabase db, Context accountManagerContext) {
         try {
             // Loop through accounts, looking for pop/imap accounts
-            Cursor accountCursor = db.query(Account.TABLE_NAME, RECV_PROJECTION, null,
+            Cursor accountCursor = db.query(Account.TABLE_NAME, V21_ACCOUNT_PROJECTION, null,
                     null, null, null, null);
             try {
                 String[] hostAuthArgs = new String[1];
                 while (accountCursor.moveToNext()) {
-                    hostAuthArgs[0] = accountCursor.getString(EMAIL_AND_RECV_COLUMN_RECV);
+                    hostAuthArgs[0] = accountCursor.getString(V21_ACCOUNT_RECV);
                     // Get the "receive" HostAuth for this account
                     Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
-                            HostAuth.CONTENT_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
+                            V21_HOSTAUTH_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
                             null, null, null);
                     try {
                         if (hostAuthCursor.moveToFirst()) {
-                            HostAuth hostAuth = new HostAuth();
-                            hostAuth.restore(hostAuthCursor);
-                            String protocol = hostAuth.mProtocol;
+                            String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
                             // If this is a pop3 or imap account, create the account manager account
                             if ("imap".equals(protocol) || "pop3".equals(protocol)) {
-                                createAccountManagerAccount(accountManagerContext, hostAuth);
+                                createAccountManagerAccount(accountManagerContext,
+                                        hostAuthCursor.getString(V21_HOSTAUTH_LOGIN),
+                                        hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
                             }
                         }
                     } finally {
@@ -2525,36 +2532,37 @@ outer:
         }
     }
 
-
-    private static final String[] ID_FLAGS_RECV_PROJECTION =
+    private static final String[] V25_ACCOUNT_PROJECTION =
         new String[] {AccountColumns.ID, AccountColumns.FLAGS, AccountColumns.HOST_AUTH_KEY_RECV};
-    private static final int ID_FLAGS_RECV_COLUMN_ID = 0;
-    private static final int ID_FLAGS_RECV_COLUMN_FLAGS = 1;
-    private static final int ID_FLAGS_RECV_COLUMN_RECV = 2;
+    private static final int V25_ACCOUNT_ID = 0;
+    private static final int V25_ACCOUNT_FLAGS = 1;
+    private static final int V25_ACCOUNT_RECV = 2;
+
+    private static final String[] V25_HOSTAUTH_PROJECTION = new String[] {HostAuthColumns.PROTOCOL};
+    private static final int V25_HOSTAUTH_PROTOCOL = 0;
 
     /** Upgrades the database from v25 to v26 by adding FLAG_SUPPORTS_SEARCH to IMAP accounts */
     private static void upgradeFromVersion25ToVersion26(SQLiteDatabase db) {
         try {
             // Loop through accounts, looking for imap accounts
-            Cursor accountCursor = db.query(Account.TABLE_NAME, ID_FLAGS_RECV_PROJECTION, null,
+            Cursor accountCursor = db.query(Account.TABLE_NAME, V25_ACCOUNT_PROJECTION, null,
                     null, null, null, null);
             ContentValues cv = new ContentValues();
             try {
                 String[] hostAuthArgs = new String[1];
                 while (accountCursor.moveToNext()) {
-                    hostAuthArgs[0] = accountCursor.getString(ID_FLAGS_RECV_COLUMN_RECV);
+                    hostAuthArgs[0] = accountCursor.getString(V25_ACCOUNT_RECV);
                     // Get the "receive" HostAuth for this account
                     Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
-                            HostAuth.CONTENT_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
+                            V25_HOSTAUTH_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
                             null, null, null);
                     try {
                         if (hostAuthCursor.moveToFirst()) {
-                            HostAuth hostAuth = new HostAuth();
-                            hostAuth.restore(hostAuthCursor);
+                            String protocol = hostAuthCursor.getString(V25_HOSTAUTH_PROTOCOL);
                             // If this is an imap account, add the search flag
-                            if (HostAuth.SCHEME_IMAP.equals(hostAuth.mProtocol)) {
-                                String id = accountCursor.getString(ID_FLAGS_RECV_COLUMN_ID);
-                                int flags = accountCursor.getInt(ID_FLAGS_RECV_COLUMN_FLAGS);
+                            if (HostAuth.SCHEME_IMAP.equals(protocol)) {
+                                String id = accountCursor.getString(V25_ACCOUNT_ID);
+                                int flags = accountCursor.getInt(V25_ACCOUNT_FLAGS);
                                 cv.put(AccountColumns.FLAGS, flags | Account.FLAGS_SUPPORTS_SEARCH);
                                 db.update(Account.TABLE_NAME, cv, Account.RECORD_ID + "=?",
                                         new String[] {id});
