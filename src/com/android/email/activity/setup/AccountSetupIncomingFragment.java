@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
@@ -450,7 +451,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         }
         int securityType = (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
         recvAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
-        recvAuth.mDomain = null;
+        if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+            String prefix = mImapPathPrefixView.getText().toString().trim();
+            recvAuth.mDomain = TextUtils.isEmpty(prefix) ? null : ("/" + prefix);
+        } else {
+            recvAuth.mDomain = null;
+        }
 
         // Check for a duplicate account (requires async DB work) and if OK,
         // proceed with check
