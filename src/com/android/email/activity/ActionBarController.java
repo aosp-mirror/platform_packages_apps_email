@@ -443,30 +443,40 @@ public class ActionBarController {
         mAccountSpinner.setVisibility(View.VISIBLE);
         UiUtilities.setVisibilitySafe(mSearchContainer, View.GONE);
 
-        // Get mailbox name
-        final String mailboxName;
-        if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
-            mailboxName = mAllFoldersLabel;
-        } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
-            mailboxName = mCursor.getMailboxDisplayName();
-        } else if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
-            mailboxName = mCallback.getMessageSubject();
-        } else {
-            mailboxName = null;
-        }
-
-        if (TextUtils.isEmpty(mailboxName)) {
-            mAccountSpinnerLine1View.setText(mCursor.getAccountDisplayName());
-
-            // Only here we change the visibility of line 2, so line 1 will be vertically-centered.
+        if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
+            mAccountSpinnerLine1View.setSingleLine(false);
+            mAccountSpinnerLine1View.setText(mCallback.getMessageSubject());
             mAccountSpinnerLine2View.setVisibility(View.GONE);
+
+            mAccountSpinnerCountView.setVisibility(View.GONE);
+
         } else {
-            mAccountSpinnerLine1View.setText(mailboxName);
-            mAccountSpinnerLine2View.setVisibility(View.VISIBLE); // Make sure it's visible again.
-            mAccountSpinnerLine2View.setText(mCursor.getAccountDisplayName());
+            // Get mailbox name
+            final String mailboxName;
+            if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
+                mailboxName = mAllFoldersLabel;
+            } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
+                mailboxName = mCursor.getMailboxDisplayName();
+            } else {
+                mailboxName = null;
+            }
+
+            mAccountSpinnerLine1View.setSingleLine();
+            if (TextUtils.isEmpty(mailboxName)) {
+                mAccountSpinnerLine1View.setText(mCursor.getAccountDisplayName());
+
+                // Change the visibility of line 2, so line 1 will be vertically-centered.
+                mAccountSpinnerLine2View.setVisibility(View.GONE);
+            } else {
+                mAccountSpinnerLine1View.setText(mailboxName);
+                mAccountSpinnerLine2View.setVisibility(View.VISIBLE);
+                mAccountSpinnerLine2View.setText(mCursor.getAccountDisplayName());
+            }
+
+            mAccountSpinnerCountView.setVisibility(View.VISIBLE);
+            mAccountSpinnerCountView.setText(UiUtilities.getMessageCountForUi(
+                    mContext, mCursor.getMailboxMessageCount(), true));
         }
-        mAccountSpinnerCountView.setText(UiUtilities.getMessageCountForUi(
-                mContext, mCursor.getMailboxMessageCount(), true));
 
         boolean spinnerEnabled =
             ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0) && mCursor.shouldEnableSpinner();
