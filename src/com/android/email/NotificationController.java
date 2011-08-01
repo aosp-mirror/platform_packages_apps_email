@@ -134,6 +134,17 @@ public class NotificationController {
     }
 
     /**
+     * Return whether or not a notification, based on the passed-in id, needs to be "ongoing"
+     * @param notificationId the notification id to check
+     * @return whether or not the notification must be "ongoing"
+     */
+    private boolean needsOngoingNotification(int notificationId) {
+        // "Security needed" must be ongoing so that the user doesn't close it; otherwise, sync will
+        // be prevented until a reboot.  Consider also doing this for password expired.
+        return notificationId == NOTIFICATION_ID_SECURITY_NEEDED;
+    }
+
+    /**
      * Returns a {@link Notification} for an event with the given account. The account contains
      * specific rules on ring tone usage and these will be used to modify the notification
      * behaviour.
@@ -152,7 +163,7 @@ public class NotificationController {
      */
     private Notification createAccountNotification(Account account, String ticker,
             CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
-            Integer number, boolean enableAudio) {
+            Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
         PendingIntent pending = null;
         if (intent != null) {
@@ -169,7 +180,8 @@ public class NotificationController {
                 .setNumber(number == null ? 0 : number)
                 .setSmallIcon(R.drawable.stat_notify_email_generic)
                 .setWhen(mClock.getTime())
-                .setTicker(ticker);
+                .setTicker(ticker)
+                .setOngoing(ongoing);
 
         if (enableAudio) {
             setupSoundAndVibration(builder, account);
@@ -192,7 +204,7 @@ public class NotificationController {
     private void showAccountNotification(Account account, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
         Notification notification = createAccountNotification(account, ticker, title, contentText,
-                intent, null, null, true);
+                intent, null, null, true, needsOngoingNotification(notificationId));
         mNotificationManager.notify(notificationId, notification);
     }
 
@@ -431,7 +443,7 @@ public class NotificationController {
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
         Notification notification = createAccountNotification(
                 account, title.toString(), title, text,
-                intent, largeIcon, number, enableAudio);
+                intent, largeIcon, number, enableAudio, false);
         mLastMessageNotifyTime = now;
         return notification;
     }
