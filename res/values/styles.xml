@@ -184,5 +184,8 @@
         <item name="android:paddingRight">6dip</item>
     </style>
 
+    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+        <item name="android:minHeight">48dip</item>
+    </style>
 </resources>
 

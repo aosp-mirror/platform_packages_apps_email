@@ -21,4 +21,7 @@
     <style name="message_compose_scroll">
         <item name="android:layout_width">800dip</item>
     </style>
+    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+        <item name="android:minHeight">48dip</item>
+    </style>
 </resources>
