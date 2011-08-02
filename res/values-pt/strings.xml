@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Concluído"</string>
     <string name="create_action" msgid="3062715563215392251">"Criar nova"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Excluir"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Sem respostas rápidas"</string>
     <string name="discard_action" msgid="6532206074859505968">"Descartar"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Salvar rascunho"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Inserir resposta rápida"</string>
@@ -49,16 +48,13 @@
     <string name="compose_action" msgid="4045702519637388045">"Escrever"</string>
     <string name="search_action" msgid="6325101454876682308">"Pesquisa"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Configurações da conta"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
+    <string name="settings_action" msgid="6334807007967459412">"Configurações"</string>
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Configurações da pasta"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como não lida"</string>
     <string name="move_action" msgid="3059189775933985898">"Mover"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Cco"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Adicionar Cc/Cco"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Anexar arquivo"</string>
     <string name="close_action" msgid="533058985745238100">"Fechar"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Enviar todas as mensagens"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Escolher anexo"</string>
@@ -114,10 +110,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Pastas recentes (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Todas as pastas"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Pastas recentes"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"Assunto"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Sem assunto"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selecionada(s)"</item>
@@ -379,8 +373,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Edite o texto que você costuma inserir ao compor e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Acrescentar texto às mensagens que você envia"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configurações de notificação"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de dados"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editar resposta rápida"</string>
     <string name="save_action" msgid="1988862706623227093">"Salvar"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sincronizar contatos"</string>
@@ -410,8 +403,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Selecione uma conta"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Selecionar uma pasta"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Conta não encontrada. Ela pode ter sido removida."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Pasta não encontrada. Ela pode ter sido removida."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Somente algumas contas \"Plus\" incluem o acesso POP permitindo que este programa seja conectado. Se não for possível fazer login com seu endereço de e-mail e senha corretos, você talvez não tenha uma conta \"Plus\" paga. Inicie o navegador da web para acessar estas contas de email."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar essa conta de e-mail, visite o site T-Online e crie uma senha para acessar email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporativa"</string>
@@ -424,9 +416,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultado de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultados de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Preferências de e-mail"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Configurações"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"Preferências gerais"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Preferências do aplicativo"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avanço automático"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Selecione qual tela mostrar após a exclusão de uma mensagem"</string>
@@ -464,6 +455,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Pesquisar e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Pesquisar <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Resultados da pesquisa para \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Pastas"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Lookback de verificação de pastas"</string>
 </resources>

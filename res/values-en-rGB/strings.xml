@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Done"</string>
     <string name="create_action" msgid="3062715563215392251">"Create new"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Delete"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"No quick responses"</string>
     <string name="discard_action" msgid="6532206074859505968">"Discard"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Save draft"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Insert quick response"</string>
@@ -49,16 +48,13 @@
     <string name="compose_action" msgid="4045702519637388045">"Compose"</string>
     <string name="search_action" msgid="6325101454876682308">"Search"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Account settings"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
+    <string name="settings_action" msgid="6334807007967459412">"Settings"</string>
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Folder settings"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Mark as unread"</string>
     <string name="move_action" msgid="3059189775933985898">"Move"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Add Cc/Bcc"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Attach file"</string>
     <string name="close_action" msgid="533058985745238100">"Close"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Send all messages"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choose attachment"</string>
@@ -377,8 +373,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Edit text that you frequently insert when composing emails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Append text to messages that you send"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Notification settings"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Data usage"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit quick response"</string>
     <string name="save_action" msgid="1988862706623227093">"Save"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sync contacts"</string>
@@ -408,8 +403,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Select an account"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Select a folder"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Account not found. It may have been removed."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Account not found. It may have been removed."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Only some \"Plus\" accounts include POP access allowing this programme to connect. If you are not able to sign in with your correct email address and password, you may not have a paid \"Plus\" account. Please launch the web browser to gain access to these mail accounts."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Before setting up this email account, please visit the T-Online website and create a password for POP3 email access."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
@@ -422,9 +416,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> result from <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> results from <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Email Preferences"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Settings"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"General Preferences"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Application Preferences"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Auto-advance"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Select which screen to show after you delete a message"</string>
@@ -462,6 +455,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Search emails"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Search <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Search results for \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folders"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Folder check look-back"</string>
 </resources>

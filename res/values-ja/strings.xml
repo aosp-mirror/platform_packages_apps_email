@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"完了"</string>
     <string name="create_action" msgid="3062715563215392251">"新規作成"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"削除"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"クイック返信がありません"</string>
     <string name="discard_action" msgid="6532206074859505968">"破棄"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"下書きを保存"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"クイック返信を挿入"</string>
@@ -49,16 +48,13 @@
     <string name="compose_action" msgid="4045702519637388045">"作成"</string>
     <string name="search_action" msgid="6325101454876682308">"検索"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"アカウントの設定"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
+    <string name="settings_action" msgid="6334807007967459412">"設定"</string>
     <string name="mailbox_settings_action" msgid="4810618229637583429">"フォルダの設定"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"未読にする"</string>
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"Cc/Bccを追加"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bccを追加"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"ファイルを添付"</string>
     <string name="close_action" msgid="533058985745238100">"閉じる"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"全メッセージを送信"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"添付ファイルの選択"</string>
@@ -114,10 +110,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"最近開いたフォルダ（<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>）"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"すべてのフォルダ"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"最近開いたフォルダ"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"件名"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"件名なし"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"さらにメールを読み込む"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>件を選択済み"</item>
@@ -379,8 +373,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"メールの作成時に頻繁に挿入する文章を編集する"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"送信メッセージに署名を付ける"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"データ使用"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"クイック返信の編集"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"連絡先を同期"</string>
@@ -410,8 +403,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"アカウントを選択"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"フォルダを選択"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"アカウントが見つかりません。削除された可能性があります。"</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"フォルダが見つかりません。削除された可能性があります。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"コーポレート"</string>
@@ -424,9 +416,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%2$s</xliff:g>からの結果: <xliff:g id="RESULTS">%1$d</xliff:g>件"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g>からの結果: <xliff:g id="RESULTS">%1$d</xliff:g>件"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"メール設定"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"設定"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"全般設定"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"アプリケーション設定"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"自動表示"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"メッセージを削除した後に表示する画面を選択します"</string>
@@ -448,8 +439,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"標準"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"極大"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"[画像を表示]を初期設定に戻す"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"すべての送信者を初期設定に戻す（画像を自動的に表示しない）"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"[画像を表示]をデフォルトに戻す"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"すべての送信者をデフォルトに戻す（画像を自動的に表示しない）"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"[画像を表示]を解除しました。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"同期を待機中"</string>
@@ -464,6 +455,10 @@
     <string name="search_hint" msgid="2200412192574686497">"メールを検索"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g>を検索します"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"「<xliff:g id="ID_1">%1$s</xliff:g>」の検索結果"</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"フォルダ"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"フォルダチェック履歴の確認"</string>
 </resources>

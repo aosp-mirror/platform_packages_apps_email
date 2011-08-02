@@ -114,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Dosare recente (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Toate dosarele"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Dosare recente"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"Subiect"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Fără subiect"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Încărcaţi mai multe mesaje"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selectate"</item>
@@ -321,7 +319,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Două săptămâni"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"O lună"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Toate"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Ut. set. prest. ale cont."</string>
+    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Setări prestabilite cont"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nume de utilizator sau parolă incorectă."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nume de utilizator sau parolă incorectă."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nu este posibilă conectarea în siguranţă la server."</string>
@@ -464,6 +462,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Căutaţi în e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Căutaţi în <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultatele căutării pentru „<xliff:g id="ID_1">%1$s</xliff:g>”"</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Dosare"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Verificare retrospectivă a dosarelor"</string>
 </resources>
