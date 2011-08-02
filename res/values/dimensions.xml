@@ -56,7 +56,6 @@
     <dimen name="setup_item_inset_left">0dip</dimen>
     <dimen name="setup_item_inset_right">0dip</dimen>
 
-    <dimen name="account_spinner_width">250dip</dimen>
     <dimen name="account_spinner_dropdown_width">300dip</dimen>
 
     <!-- MessageListItem -->

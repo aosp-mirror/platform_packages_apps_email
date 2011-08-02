@@ -26,7 +26,7 @@
     android:layout_height="0dip"
     >
     <include
-        android:id="@+id/account_spinner"
+        android:id="@+id/account_spinner_container"
         layout="@layout/action_bar_spinner"
         android:visibility="gone"
         />

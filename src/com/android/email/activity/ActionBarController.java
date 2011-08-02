@@ -71,6 +71,7 @@ public class ActionBarController {
     private final String mAllFoldersLabel;
 
     private final ViewGroup mActionBarCustomView;
+    private final ViewGroup mAccountSpinnerContainer;
     private final View mAccountSpinner;
     private final Drawable mAccountSpinnerDefaultBackground;
     private final TextView mAccountSpinnerLine1View;
@@ -214,6 +215,8 @@ public class ActionBarController {
         mActionBar.setCustomView(mActionBarCustomView, customViewLayout);
 
         // Account spinner
+        mAccountSpinnerContainer =
+                UiUtilities.getView(mActionBarCustomView, R.id.account_spinner_container);
         mAccountSpinner = UiUtilities.getView(mActionBarCustomView, R.id.account_spinner);
         mAccountSpinnerDefaultBackground = mAccountSpinner.getBackground();
 
@@ -434,13 +437,13 @@ public class ActionBarController {
             initSearchViews();
             // In search mode, the search box is a replacement of the account spinner, so ignore
             // the work needed to update that. It will get updated when it goes visible again.
-            mAccountSpinner.setVisibility(View.GONE);
+            mAccountSpinnerContainer.setVisibility(View.GONE);
             mSearchContainer.setVisibility(View.VISIBLE);
             return;
         }
 
         // Account spinner visible.
-        mAccountSpinner.setVisibility(View.VISIBLE);
+        mAccountSpinnerContainer.setVisibility(View.VISIBLE);
         UiUtilities.setVisibilitySafe(mSearchContainer, View.GONE);
 
         if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {

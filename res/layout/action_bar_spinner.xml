@@ -14,43 +14,44 @@
      limitations under the License.
 -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/account_spinner_width"
-    android:layout_height="match_parent"
-    android:focusable="true"
-    style="@android:style/Widget.Holo.Spinner"
+    style="@style/action_bar_spinner"
+    android:orientation="horizontal"
     >
-    <TextView
-        android:id="@+id/spinner_count"
-        style="@style/action_bar_unread_count"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:includeFontPadding="false"
-        android:singleLine="true"
-        android:ellipsize="none"
-        android:gravity="center"
-        />
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/spinner_count"
-        android:layout_alignParentLeft="true"
+        android:id="@+id/account_spinner"
+        style="@android:style/Widget.Holo.Spinner"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:layout_centerVertical="true"
+        android:focusable="true"
         >
         <TextView
             android:id="@+id/spinner_line_1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/action_bar_spinner_primary_text"
             />
         <TextView
             android:id="@+id/spinner_line_2"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/spinner_line_1"
             style="@style/action_bar_spinner_secondary_text"
             />
     </RelativeLayout>
-</RelativeLayout>
+    <TextView
+        android:id="@+id/spinner_count"
+        style="@style/action_bar_unread_count"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:gravity="center"
+        />
+</LinearLayout>

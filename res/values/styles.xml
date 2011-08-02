@@ -157,10 +157,15 @@
     </style>
 
     <style name="action_bar_unread_count">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">36sp</item>
         <item name="android:textColor">@color/text_ternary_color</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="action_bar_spinner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="action_bar_spinner_primary_text">

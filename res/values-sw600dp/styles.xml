@@ -121,6 +121,11 @@
         <item name="android:layout_height">match_parent</item>
     </style>
 
+    <style name="action_bar_spinner">
+        <item name="android:layout_width">350dip</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
     <style name="action_bar_spinner_primary_text">
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">18sp</item>
