@@ -39,9 +39,6 @@ import android.content.Context;
  * impossible to test in the wild.
  */
 public class AccountBackupRestore {
-    // We only need to do this once, so prevent extra work by remembering this...
-    private static boolean sBackupsChecked = false;
-
     /**
      * Backup user Account and HostAuth data into our backup database
      *

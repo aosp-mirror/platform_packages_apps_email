@@ -2442,8 +2442,9 @@ outer:
      */
 
     private static final String[] V21_ACCOUNT_PROJECTION =
-        new String[] {AccountColumns.HOST_AUTH_KEY_RECV};
+        new String[] {AccountColumns.HOST_AUTH_KEY_RECV, AccountColumns.DISPLAY_NAME};
     private static final int V21_ACCOUNT_RECV = 0;
+    private static final int V21_ACCOUNT_NAME = 1;
 
     private static final String[] V21_HOSTAUTH_PROJECTION =
         new String[] {HostAuthColumns.PROTOCOL, HostAuthColumns.LOGIN, HostAuthColumns.PASSWORD};
@@ -2481,7 +2482,12 @@ outer:
                         if (hostAuthCursor.moveToFirst()) {
                             String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
                             // If this is a pop3 or imap account, create the account manager account
-                            if ("imap".equals(protocol) || "pop3".equals(protocol)) {
+                            if (HostAuth.SCHEME_IMAP.equals(protocol) ||
+                                    HostAuth.SCHEME_POP3.equals(protocol)) {
+                                if (Email.DEBUG) { 
+                                    Log.d(TAG, "Create AccountManager account for " + protocol +
+                                            "account: " + accountCursor.getString(V21_ACCOUNT_NAME));
+                                }
                                 createAccountManagerAccount(accountManagerContext,
                                         hostAuthCursor.getString(V21_HOSTAUTH_LOGIN),
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
