@@ -47,8 +47,8 @@ import com.android.emailcommon.Logging;
 public class ThreePaneLayout extends LinearLayout implements View.OnClickListener {
     private static final boolean ANIMATION_DEBUG = false; // DON'T SUBMIT WITH true
 
-    private static final int ANIMATION_DURATION = ANIMATION_DEBUG ? 1000 : 80;
-    private static final TimeInterpolator INTERPOLATOR = new DecelerateInterpolator(1.5f);
+    private static final int ANIMATION_DURATION = ANIMATION_DEBUG ? 1000 : 150;
+    private static final TimeInterpolator INTERPOLATOR = new DecelerateInterpolator(1.75f);
 
     /** Uninitialized state -- {@link #changePaneState} hasn't been called yet. */
     private static final int STATE_UNINITIALIZED = -1;
