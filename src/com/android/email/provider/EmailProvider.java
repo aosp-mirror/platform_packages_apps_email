@@ -2442,15 +2442,14 @@ outer:
      */
 
     private static final String[] V21_ACCOUNT_PROJECTION =
-        new String[] {AccountColumns.HOST_AUTH_KEY_RECV, AccountColumns.DISPLAY_NAME};
+        new String[] {AccountColumns.HOST_AUTH_KEY_RECV, AccountColumns.EMAIL_ADDRESS};
     private static final int V21_ACCOUNT_RECV = 0;
-    private static final int V21_ACCOUNT_NAME = 1;
+    private static final int V21_ACCOUNT_EMAIL = 1;
 
     private static final String[] V21_HOSTAUTH_PROJECTION =
-        new String[] {HostAuthColumns.PROTOCOL, HostAuthColumns.LOGIN, HostAuthColumns.PASSWORD};
+        new String[] {HostAuthColumns.PROTOCOL, HostAuthColumns.PASSWORD};
     private static final int V21_HOSTAUTH_PROTOCOL = 0;
-    private static final int V21_HOSTAUTH_LOGIN = 1;
-    private static final int V21_HOSTAUTH_PASSWORD = 2;
+    private static final int V21_HOSTAUTH_PASSWORD = 1;
 
     static private void createAccountManagerAccount(Context context, String login,
             String password) {
@@ -2486,10 +2485,11 @@ outer:
                                     HostAuth.SCHEME_POP3.equals(protocol)) {
                                 if (Email.DEBUG) { 
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
-                                            "account: " + accountCursor.getString(V21_ACCOUNT_NAME));
+                                            "account: " +
+                                            accountCursor.getString(V21_ACCOUNT_EMAIL));
                                 }
                                 createAccountManagerAccount(accountManagerContext,
-                                        hostAuthCursor.getString(V21_HOSTAUTH_LOGIN),
+                                        accountCursor.getString(V21_ACCOUNT_EMAIL),
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
                             }
                         }
