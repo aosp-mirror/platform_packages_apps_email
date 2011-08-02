@@ -91,6 +91,7 @@
         android:label="@string/app_name"
         android:name="Email"
         android:theme="@style/EmailTheme"
+        android:uiOptions="splitActionBarWhenNarrow"
         android:hardwareAccelerated="false"
         >
         <activity

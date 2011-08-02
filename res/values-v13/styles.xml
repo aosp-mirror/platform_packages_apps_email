@@ -16,6 +16,6 @@
 
 <!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
-    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light.SplitActionBarWhenNarrow">
+    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
     </style>
 </resources>
