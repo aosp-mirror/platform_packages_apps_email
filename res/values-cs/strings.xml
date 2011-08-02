@@ -401,7 +401,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odebrat účet"</string>
     <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"Nastavení složek"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"Nastavení složek (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Natavení synchronizace"</string>
+    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Nastavení synchronizace"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Frekvence kontrol"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"Množství k synchronizaci"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mailový účet"</string>
@@ -462,6 +462,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Hledat v e-mailu"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Vyhledávat ve složce <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Vyhledat výsledky pro dotaz <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Složky"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Sledování kontroly složky"</string>
 </resources>

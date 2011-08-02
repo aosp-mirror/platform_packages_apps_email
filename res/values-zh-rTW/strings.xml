@@ -114,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"最近使用的資料夾 (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"所有資料夾"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"最近使用的資料夾"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"主旨"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"無主旨"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"載入更多郵件"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"已選取 <xliff:g id="MESSAGE_COUNT">%d</xliff:g> 封郵件"</item>
@@ -464,6 +462,10 @@
     <string name="search_hint" msgid="2200412192574686497">"搜尋電子郵件"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"搜尋<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"「<xliff:g id="ID_1">%1$s</xliff:g>」的搜尋結果"</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"資料夾"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"資料夾檢查回顧"</string>
 </resources>

@@ -462,6 +462,10 @@
     <string name="search_hint" msgid="2200412192574686497">"جستجوی ایمیل"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"جستجوی <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"نتایج جستجو برای \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"پوشه ها"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"بررسی مجدد پوشه"</string>
 </resources>

@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Udfør"</string>
     <string name="create_action" msgid="3062715563215392251">"Opret nyt"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Slet"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Ingen hurtige svar"</string>
     <string name="discard_action" msgid="6532206074859505968">"Kassér"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Gem kladde"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Indsæt hurtigt svar"</string>
@@ -49,16 +48,13 @@
     <string name="compose_action" msgid="4045702519637388045">"Skriv"</string>
     <string name="search_action" msgid="6325101454876682308">"Søg"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Indstillinger for konto"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
+    <string name="settings_action" msgid="6334807007967459412">"Indstillinger"</string>
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Indstillinger for mapper"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marker som ulæst"</string>
     <string name="move_action" msgid="3059189775933985898">"Flyt"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Tilføj Cc/Bcc"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Vedhæft fil"</string>
     <string name="close_action" msgid="533058985745238100">"Luk"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Send alle beskeder"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Vælg vedhæftet fil"</string>
@@ -377,8 +373,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediger tekst, du ofte indsætter, når du skriver e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Vedhæft tekst til beskeder, du sender"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for meddelelser"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataforbrug"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Rediger hurtigt svar"</string>
     <string name="save_action" msgid="1988862706623227093">"Gem"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synkroniser kontaktpersoner"</string>
@@ -408,8 +403,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Vælg en konto"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Vælg en mappe"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Kontoen blev ikke fundet. Den kan være blevet fjernet."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Mappen blev ikke fundet. Den kan være blevet fjernet."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader denne applikation at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
@@ -422,9 +416,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Indstillinger for e-mail"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Indstillinger"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"Generelle præferencer"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Indstillinger for applikationer"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Gå automatisk frem"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Vælg, hvilken skærm der skal vises, når du har slettet en besked"</string>
@@ -462,6 +455,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Søg i e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søg i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Søgeresultater for \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapper"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Tjek i mappe"</string>
 </resources>

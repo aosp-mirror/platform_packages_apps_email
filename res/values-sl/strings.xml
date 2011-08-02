@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Dokončano"</string>
     <string name="create_action" msgid="3062715563215392251">"Ustvari nov"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Izbriši"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Ni hitrih odzivov"</string>
     <string name="discard_action" msgid="6532206074859505968">"Zavrzi"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Shrani osnutek"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Vstavi hiter odgovor"</string>
@@ -49,16 +48,13 @@
     <string name="compose_action" msgid="4045702519637388045">"Novo sporočilo"</string>
     <string name="search_action" msgid="6325101454876682308">"Iskanje"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Nastavitve računa"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
+    <string name="settings_action" msgid="6334807007967459412">"Nastavitve"</string>
     <string name="mailbox_settings_action" msgid="4810618229637583429">"Nastavitve mape"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Označi kot neprebrano"</string>
     <string name="move_action" msgid="3059189775933985898">"Premakni"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kp/Skp"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Dodaj Kp/Skp"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Priložitev datoteke"</string>
     <string name="close_action" msgid="533058985745238100">"Zapri"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Pošlji vsa sporočila"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Izberite prilogo"</string>
@@ -319,7 +315,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Dva tedna"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"En mesec"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Vse"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Uporabi privzeto računa"</string>
+    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Uporabi privzeto v računu"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nepravilno uporabniško ime ali geslo."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nepravilno uporabniško ime ali geslo."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Ni se mogoče varno povezati s strežnikom."</string>
@@ -377,8 +373,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Uredite besedilo, ki ga pogosto vstavite, ko sestavljate e-pošto"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Pripni besedilo k poslanim sporočilom"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavitve obvestil"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Uporaba podatkov"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Uredi hiter odgovor"</string>
     <string name="save_action" msgid="1988862706623227093">"Shrani"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sinhroniziraj stike"</string>
@@ -408,8 +403,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Izberite račun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Izberite mapo"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Računa ni mogoče najti. Morda je bil odstranjen."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Računa ni mogoče najti. Morda je odstranjen."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo nekateri računi »Plus« vsebujejo tudi dostop do strežnika POP, da se ta program lahko poveže. Če ste pravilno vnesli svoj e-poštni naslov in geslo in se ne morete prijaviti, morda nimate plačljivega računa »Plus«. Zaženite brskalnik, če želite dostopati do teh e-poštnih računov."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Preden nastavite ta e-poštni račun, obiščite spletno mesto T-Online in ustvarite geslo za e-poštni dostop POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Podjetje"</string>
@@ -422,9 +416,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> rezultat z <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> rezultatov iz <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"E-poštne nastavitve"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Nastavitve"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"Splošne nastavitve"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Nastavitve programa"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Samodejno napredovanje"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Izberite, kateri zaslon naj se prikaže po brisanju sporočila"</string>
@@ -462,6 +455,10 @@
     <string name="search_hint" msgid="2200412192574686497">"Iskanje po e-pošti"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Iskanje po mapi <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultati iskanja za »<xliff:g id="ID_1">%1$s</xliff:g>«."</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mape"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Pregled preverjanja map"</string>
 </resources>

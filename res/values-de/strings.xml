@@ -114,10 +114,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Letzte Ordner (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Alle Ordner"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Letzte Ordner"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"Betreff"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Kein Betreff"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Weitere Nachrichten laden"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> ausgewählt"</item>
@@ -464,6 +462,10 @@
     <string name="search_hint" msgid="2200412192574686497">"E-Mail durchsuchen"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> durchsuchen"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Suchergebnisse für \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
+    <skip />
+    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
+    <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Ordner"</string>
     <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Ordner - Rückblick überprüfen"</string>
 </resources>
