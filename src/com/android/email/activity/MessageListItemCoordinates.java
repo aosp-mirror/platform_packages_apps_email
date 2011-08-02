@@ -17,8 +17,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -31,6 +29,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 
+import com.android.email.R;
+
 /**
  * Represents the coordinates of elements inside a CanvasConversationHeaderView
  * (eg, checkmark, star, subject, sender, labels, etc.) It will inflate a view,
@@ -42,11 +42,9 @@ public class MessageListItemCoordinates {
     // Modes.
     public static final int WIDE_MODE = 0;
     public static final int NORMAL_MODE = 1;
-    public static final int NARROW_MODE = 2;
 
     // Static threshold.
     private static int MINIMUM_WIDTH_WIDE_MODE = -1;
-    private static int MINIMUM_WIDTH_NORMAL_MODE = -1;
     private static int[] CONVERSATION_HEIGHTS;
     private static int[] SUBJECT_LENGTHS;
 
@@ -59,14 +57,10 @@ public class MessageListItemCoordinates {
     // Reply and forward state.
     int stateX;
     int stateY;
-    int stateWidthIncludingMargins;
-    int stateHeightIncludingMargins;
 
     // Star.
     int starX;
     int starY;
-    int starWidthIncludingMargins;
-    int starHeightIncludingMargins;
 
     // Senders.
     int sendersX;
@@ -121,17 +115,12 @@ public class MessageListItemCoordinates {
      */
     public static int getMode(Context context, int width) {
         Resources res = context.getResources();
-        if (MINIMUM_WIDTH_NORMAL_MODE <= 0) {
+        if (MINIMUM_WIDTH_WIDE_MODE <= 0) {
             MINIMUM_WIDTH_WIDE_MODE = res.getDimensionPixelSize(R.dimen.minimum_width_wide_mode);
-            MINIMUM_WIDTH_NORMAL_MODE = res
-                    .getDimensionPixelSize(R.dimen.minimum_width_normal_mode);
         }
 
         // Choose the correct mode based on view width.
-        int mode = NARROW_MODE;
-        if (width > MINIMUM_WIDTH_NORMAL_MODE) {
-            mode = NORMAL_MODE;
-        }
+        int mode = NORMAL_MODE;
         if (width > MINIMUM_WIDTH_WIDE_MODE) {
             mode = WIDE_MODE;
         }
@@ -147,8 +136,6 @@ public class MessageListItemCoordinates {
                 return R.layout.message_list_item_wide;
             case NORMAL_MODE:
                 return R.layout.message_list_item_normal;
-            case NARROW_MODE:
-                return R.layout.message_list_item_narrow;
             default:
                 throw new IllegalArgumentException("Unknown conversation header view mode " + mode);
         }
@@ -273,12 +260,10 @@ public class MessageListItemCoordinates {
             View star = view.findViewById(R.id.star);
             coordinates.starX = getX(star);
             coordinates.starY = getY(star);
-            coordinates.starWidthIncludingMargins = getWidth(star, true);
 
             View state = view.findViewById(R.id.reply_state);
             coordinates.stateX = getX(state);
             coordinates.stateY = getY(state);
-            coordinates.stateWidthIncludingMargins = getWidth(state, true);
 
             TextView senders = (TextView) view.findViewById(R.id.senders);
             coordinates.sendersX = getX(senders);
@@ -287,8 +272,7 @@ public class MessageListItemCoordinates {
             coordinates.sendersLineCount = getLineCount(senders);
             coordinates.sendersLineHeight = senders.getLineHeight();
             coordinates.sendersFontSize = (int) senders.getTextSize();
-            sPaint.setTextSize(coordinates.sendersFontSize);
-            coordinates.sendersAscent = (int) sPaint.ascent();
+            coordinates.sendersAscent = Math.round(senders.getPaint().ascent());
 
             TextView subject = (TextView) view.findViewById(R.id.subject);
             coordinates.subjectX = getX(subject);
@@ -297,8 +281,7 @@ public class MessageListItemCoordinates {
             coordinates.subjectLineCount = getLineCount(subject);
             coordinates.subjectLineHeight = subject.getLineHeight();
             coordinates.subjectFontSize = (int) subject.getTextSize();
-            sPaint.setTextSize(coordinates.subjectFontSize);
-            coordinates.subjectAscent = (int) sPaint.ascent();
+            coordinates.subjectAscent = Math.round(subject.getPaint().ascent());
 
             View chip = view.findViewById(R.id.color_chip);
             coordinates.chipX = getX(chip);
@@ -310,8 +293,7 @@ public class MessageListItemCoordinates {
             coordinates.dateXEnd = getX(date) + date.getWidth();
             coordinates.dateY = getY(date);
             coordinates.dateFontSize = (int) date.getTextSize();
-            sPaint.setTextSize(coordinates.dateFontSize);
-            coordinates.dateAscent = (int) sPaint.ascent();
+            coordinates.dateAscent = Math.round(date.getPaint().ascent());
 
             // The x-value is computed relative to the date.
             View paperclip = view.findViewById(R.id.paperclip);

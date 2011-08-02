@@ -61,6 +61,7 @@
 
     <color name="message_view_info_back_color">#deecfa</color>
     <color name="message_view_header_color">#3cb8e6</color>
+    <color name="message_activated_color">#3cb8e6</color>
 
     <color name="error_bar_background">#ffff66</color>
 </resources>

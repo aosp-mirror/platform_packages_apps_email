@@ -16,7 +16,7 @@
 
 <!-- non-xlarge.  See also values-xlarge for specializations for xlarge screens -->
 <resources>
-    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
+    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light.SolidActionBar.Inverse">
     </style>
 
     <style name="unreadCount">
@@ -186,6 +186,13 @@
 
     <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
         <item name="android:minHeight">48dip</item>
+    </style>
+
+    <style name="message_list_item_normal">
+        <!-- no styles on phones -->
+    </style>
+    <style name="message_list_item_wide">
+        <!-- no styles on phones -->
     </style>
 </resources>
 
