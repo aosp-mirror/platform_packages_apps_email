@@ -74,7 +74,7 @@
             android:layout_below="@id/subject_divider"
             android:layout_toRightOf="@id/badge"
             android:layout_alignRight="@id/subject"
-            android:background="@drawable/message_header_bg"
+            android:background="@color/message_view_header_color"
             />
 
         <!--
@@ -160,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="18dip"
-                    android:textColor="@color/text_primary_color"
+                    android:textColor="@color/text_primary_color_inverse"
                     android:textStyle="bold"
                     android:singleLine="true"
                     android:ellipsize="end"
@@ -172,9 +172,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dip"
-                android:layout_marginLeft="40dip"
+                android:layout_marginLeft="34dip"
                 android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
+                android:textColor="@color/text_secondary_color_inverse"
                 android:singleLine="true"
                 android:ellipsize="end"
                 />
