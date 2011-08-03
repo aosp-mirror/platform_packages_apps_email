@@ -76,7 +76,11 @@ public abstract class ServiceProxy {
             // Run our task on a new thread
             new Thread(new Runnable() {
                 public void run() {
-                    runTask();
+                    try {
+                        runTask();
+                    } finally {
+                        endTask();
+                    }
                 }}).start();
         }
 
@@ -134,7 +138,6 @@ public abstract class ServiceProxy {
             thread.join();
         } catch (InterruptedException e) {
         }
-        endTask();
     }
 
     public boolean setTask(ProxyTask task, String name) {
