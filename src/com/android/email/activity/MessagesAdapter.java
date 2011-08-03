@@ -196,11 +196,9 @@ import java.util.Set;
         itemView.mHasBeenRepliedTo = (flags & Message.FLAG_REPLIED_TO) != 0;
         itemView.mHasBeenForwarded = (flags & Message.FLAG_FORWARDED) != 0;
         itemView.mHasAttachment = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-        itemView.mTimestamp = cursor.getLong(COLUMN_DATE);
+        itemView.setTimestamp(cursor.getLong(COLUMN_DATE));
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
-        itemView.mSnippet = cursor.getString(COLUMN_SNIPPET);
-        itemView.setSubject(cursor.getString(COLUMN_SUBJECT));
-        itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
+        itemView.setText(cursor.getString(COLUMN_SUBJECT), cursor.getString(COLUMN_SNIPPET));
         itemView.mColorChipPaint =
             mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
 

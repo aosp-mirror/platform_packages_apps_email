@@ -52,7 +52,6 @@ public class MessageListItemCoordinates {
     int checkmarkX;
     int checkmarkY;
     int checkmarkWidthIncludingMargins;
-    int checkmarkHeightIncludingMargins;
 
     // Reply and forward state.
     int stateX;
@@ -67,7 +66,6 @@ public class MessageListItemCoordinates {
     int sendersY;
     int sendersWidth;
     int sendersLineCount;
-    int sendersLineHeight;
     int sendersFontSize;
     int sendersAscent;
 
@@ -76,7 +74,6 @@ public class MessageListItemCoordinates {
     int subjectY;
     int subjectWidth;
     int subjectLineCount;
-    int subjectLineHeight;
     int subjectFontSize;
     int subjectAscent;
 
@@ -270,7 +267,6 @@ public class MessageListItemCoordinates {
             coordinates.sendersY = getY(senders);
             coordinates.sendersWidth = getWidth(senders, false);
             coordinates.sendersLineCount = getLineCount(senders);
-            coordinates.sendersLineHeight = senders.getLineHeight();
             coordinates.sendersFontSize = (int) senders.getTextSize();
             coordinates.sendersAscent = Math.round(senders.getPaint().ascent());
 
@@ -279,7 +275,6 @@ public class MessageListItemCoordinates {
             coordinates.subjectY = getY(subject);
             coordinates.subjectWidth = getWidth(subject, false);
             coordinates.subjectLineCount = getLineCount(subject);
-            coordinates.subjectLineHeight = subject.getLineHeight();
             coordinates.subjectFontSize = (int) subject.getTextSize();
             coordinates.subjectAscent = Math.round(subject.getPaint().ascent());
 

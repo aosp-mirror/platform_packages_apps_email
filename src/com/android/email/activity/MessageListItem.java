@@ -109,7 +109,6 @@ public class MessageListItem extends View {
     private String mSubjectAndDescription;
     private StaticLayout mSubjectLayout;
     public boolean mRead;
-    public long mTimestamp;
     public boolean mHasAttachment = false;
     public boolean mHasInvite = true;
     public boolean mIsFavorite = false;
@@ -132,7 +131,7 @@ public class MessageListItem extends View {
     private Drawable mWideReadSelector;
     private Drawable mWideUnreadSelector;
 
-    public int mSnippetLineCount = NEEDS_LAYOUT;
+    private int mSnippetLineCount = NEEDS_LAYOUT;
     private CharSequence mFormattedSender;
     private CharSequence mFormattedDate;
 
@@ -179,13 +178,44 @@ public class MessageListItem extends View {
     }
 
     /**
-     * Sets message subject safely, ensuring the cache is invalidated.
+     * Sets message subject and snippet safely, ensuring the cache is invalidated.
      */
-    public void setSubject(String subject) {
+    public void setText(String subject, String snippet) {
+        boolean changed = false;
         if (!Objects.equal(mSubject, subject)) {
             mSubject = subject;
+            changed = true;
             mSubjectAndDescription = null;
         }
+
+        if (!Objects.equal(mSnippet, snippet)) {
+            mSnippet = snippet;
+            mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
+            changed = true;
+        }
+
+        if (changed) {
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+            boolean hasSubject = false;
+            if (!TextUtils.isEmpty(mSubject)) {
+                SpannableString ss = new SpannableString(mSubject);
+                ss.setSpan(new StyleSpan(mRead ? Typeface.NORMAL : Typeface.BOLD), 0, ss.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.append(ss);
+                hasSubject = true;
+            }
+            if (!TextUtils.isEmpty(mSnippet)) {
+                if (hasSubject) {
+                    ssb.append(sSubjectSnippetDivider);
+                }
+                ssb.append(mSnippet);
+            }
+            mText = ssb;
+        }
+    }
+
+    public void setTimestamp(long timestamp) {
+        mFormattedDate = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
     }
 
     /**
@@ -239,24 +269,9 @@ public class MessageListItem extends View {
     }
 
     private void calculateDrawingData() {
-        SpannableStringBuilder ssb = new SpannableStringBuilder();
-        boolean hasSubject = false;
-        if (!TextUtils.isEmpty(mSubject)) {
-            SpannableString ss = new SpannableString(mSubject);
-            ss.setSpan(new StyleSpan(mRead ? Typeface.NORMAL : Typeface.BOLD), 0, ss.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ssb.append(ss);
-            hasSubject = true;
-        }
-        if (!TextUtils.isEmpty(mSnippet)) {
-            if (hasSubject) {
-                ssb.append(sSubjectSnippetDivider);
-            }
-            ssb.append(mSnippet);
-        }
-        mText = ssb;
-
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
+        sDefaultPaint.setColor(mContext.getResources().getColor(
+                isActivated() ? android.R.color.white : android.R.color.black));
         mSubjectLayout = new StaticLayout(mText, sDefaultPaint,
                 mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, false /* includePad */);
         if (mCoordinates.subjectLineCount < mSubjectLayout.getLineCount()) {
@@ -277,8 +292,6 @@ public class MessageListItem extends View {
             mFormattedSender = TextUtils.ellipsize(mSender, senderPaint, senderWidth,
                     TruncateAt.END);
         }
-        // Get a nicely formatted date string (relative to today)
-        mFormattedDate = DateUtils.getRelativeTimeSpanString(getContext(), mTimestamp).toString();
     }
 
     @Override
@@ -357,14 +370,19 @@ public class MessageListItem extends View {
                     mColorChipPaint);
         }
 
+        int fontColor = mContext.getResources().getColor(
+                (isActivated() || isPressed()) ? android.R.color.white : android.R.color.black);
+
         // Draw the checkbox
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
                 mCoordinates.checkmarkX, mCoordinates.checkmarkY, null);
 
         // Draw the sender name
+        Paint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
+        senderPaint.setColor(fontColor);
         canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
                 mCoordinates.sendersX, mCoordinates.sendersY - mCoordinates.sendersAscent,
-                mRead ? sDefaultPaint : sBoldPaint);
+                senderPaint);
 
         // Draw the reply state. Draw nothing if neither replied nor forwarded.
         if (mHasBeenRepliedTo && mHasBeenForwarded) {
@@ -381,6 +399,7 @@ public class MessageListItem extends View {
         // Subject and snippet.
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
         sDefaultPaint.setTypeface(Typeface.DEFAULT);
+        sDefaultPaint.setColor(fontColor);
         canvas.save();
         canvas.translate(
                 mCoordinates.subjectX,
@@ -390,6 +409,7 @@ public class MessageListItem extends View {
 
         // Draw the date
         sDatePaint.setTextSize(mCoordinates.dateFontSize);
+        sDatePaint.setColor(fontColor);
         int dateX = mCoordinates.dateXEnd
                 - (int) sDatePaint.measureText(mFormattedDate, 0, mFormattedDate.length());
 
