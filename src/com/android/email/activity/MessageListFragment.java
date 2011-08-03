@@ -116,6 +116,7 @@ public class MessageListFragment extends ListFragment
     private int mListFooterMode;
 
     private MessagesAdapter mListAdapter;
+    private boolean mIsFirstLoad;
 
     /** ID of the message to hightlight. */
     private long mSelectedMessageId = -1;
@@ -336,6 +337,7 @@ public class MessageListFragment extends ListFragment
         mRefreshManager = RefreshManager.getInstance(mActivity);
 
         mListAdapter = new MessagesAdapter(mActivity, this);
+        mIsFirstLoad = true;
     }
 
     @Override
@@ -453,6 +455,10 @@ public class MessageListFragment extends ListFragment
         mIsViewCreated = false; // Clear this first for updateSelectionMode(). See isViewCreated().
         UiUtilities.uninstallFragment(this);
         updateSelectionMode();
+
+        // Reset the footer mode since we just blew away the footer view we were holding on to.
+        // This will get re-updated when/if this fragment is restored.
+        mListFooterMode = LIST_FOOTER_MODE_NONE;
         super.onDestroyView();
     }
 
@@ -1047,48 +1053,58 @@ public class MessageListFragment extends ListFragment
                 mActivity, searchCursor.getResultsCount(), false /* replaceZeroWithBlank */));
     }
 
-    private void determineFooterMode() {
-        mListFooterMode = LIST_FOOTER_MODE_NONE;
+    private int determineFooterMode() {
+        int result = LIST_FOOTER_MODE_NONE;
         if ((mMailbox == null)
                 || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
-            return; // No footer
+            return result; // No footer
         }
         if (mMailbox.mType == Mailbox.TYPE_SEARCH) {
             // Determine how many results have been loaded.
             Cursor c = mListAdapter.getCursor();
             if (c == null || c.isClosed()) {
                 // Unknown yet - don't do anything.
-                return;
+                return result;
             }
             int total = ((SearchResultsCursor) c).getResultsCount();
             int loaded = c.getCount();
 
             if (loaded < total) {
-                mListFooterMode = LIST_FOOTER_MODE_MORE;
+                result = LIST_FOOTER_MODE_MORE;
             }
         } else if (!mIsEasAccount) {
             // IMAP, POP has "load more" for regular mailboxes.
-            mListFooterMode = LIST_FOOTER_MODE_MORE;
+            result = LIST_FOOTER_MODE_MORE;
         }
+        return result;
     }
 
-    private void addFooterView() {
+    private void updateFooterView() {
         // Only called from onLoadFinished -- always has views.
-        ListView lv = getListView();
-        if (mListFooterView != null) {
-            lv.removeFooterView(mListFooterView);
+        int mode = determineFooterMode();
+        if (mListFooterMode == mode) {
+            return;
         }
-        determineFooterMode();
+        mListFooterMode = mode;
+
+        ListView lv = getListView();
         if (mListFooterMode != LIST_FOOTER_MODE_NONE) {
             lv.addFooterView(mListFooterView);
-            lv.setAdapter(mListAdapter);
+            if (getListAdapter() != null) {
+                // Already have an adapter - reset it to force the mode. But save the scroll
+                // position so that we don't get kicked to the top.
+                Parcelable listState = lv.onSaveInstanceState();
+                setListAdapter(mListAdapter);
+                lv.onRestoreInstanceState(listState);
+            }
 
             mListFooterProgress = mListFooterView.findViewById(R.id.progress);
             mListFooterText = (TextView) mListFooterView.findViewById(R.id.main_text);
-
-            updateListFooter();
+        } else {
+            lv.removeFooterView(mListFooterView);
         }
+        updateListFooter();
     }
 
     /**
@@ -1200,8 +1216,6 @@ public class MessageListFragment extends ListFragment
      * Loader callbacks for message list.
      */
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
-        private boolean mIsFirstLoad;
-
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             final MessageListContext listContext = getListContext();
@@ -1259,16 +1273,6 @@ public class MessageListFragment extends ListFragment
             // Suspend message notifications as long as we're resumed
             adjustMessageNotification(false);
 
-            // Save list view state (primarily scroll position)
-            final ListView lv = getListView();
-            final Parcelable listState;
-            if (mSavedListState != null) {
-                listState = mSavedListState;
-                mSavedListState = null;
-            } else {
-                listState = lv.onSaveInstanceState();
-            }
-
             // If this is a search mailbox, set the query; otherwise, clear it
             if (mIsFirstLoad) {
                 if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
@@ -1290,23 +1294,26 @@ public class MessageListFragment extends ListFragment
             // Various post processing...
             updateSearchHeader(cursor);
             autoRefreshStaleMailbox();
-            addFooterView();
+            updateFooterView();
             updateSelectionMode();
 
             // We want to make visible the selection only for the first load.
             // Re-load caused by content changed events shouldn't scroll the list.
             highlightSelectedMessage(mIsFirstLoad);
 
-            // Restore the state -- this step has to be the last, because Some of the
-            // "post processing" seems to reset the scroll position.
-            lv.onRestoreInstanceState(listState);
-
             if (mIsFirstLoad) {
-                setListShownNoAnimation(true);
                 UiUtilities.setVisibilitySafe(mWarningContainer, View.GONE);
                 mListPanel.setVisibility(View.VISIBLE);
                 setListAdapter(mListAdapter);
             }
+
+            // Restore the state -- this step has to be the last, because Some of the
+            // "post processing" seems to reset the scroll position.
+            if (mSavedListState != null) {
+                getListView().onRestoreInstanceState(mSavedListState);
+                mSavedListState = null;
+            }
+
             mIsFirstLoad = false;
         }
 
