@@ -16,15 +16,13 @@
 
 package com.android.email.activity;
 
-import com.android.emailcommon.provider.Account;
-
 import android.app.Activity;
-import android.content.Context;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.text.TextUtils;
-import android.util.Log;
+
+import com.android.emailcommon.provider.Account;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -42,7 +40,6 @@ public class NfcHandler implements NfcAdapter.NdefPushCallback {
     private UIControllerBase mUiController;
     private Activity mActivity;
     private String mCurrentEmail;
-    private static final String TAG = "ContactsNfcHandler";
 
     public NfcHandler(UIControllerBase controller, Activity
             activity) {
@@ -54,8 +51,8 @@ public class NfcHandler implements NfcAdapter.NdefPushCallback {
     public void onAccountChanged() {
         if (mUiController.isActualAccountSelected()) {
             final long accountId = mUiController.getActualAccountId();
-            final Account account = Account.restoreAccountWithId(
-                    mActivity, accountId);
+            final Account account = Account.restoreAccountWithId(mActivity, accountId);
+            if (account == null) return;
             mCurrentEmail = account.mEmailAddress;
         } else {
             mCurrentEmail = null;
