@@ -155,6 +155,15 @@ class UIControllerOnePane extends UIControllerBase {
         // TODO Auto-generated method stub
     }
 
+    private boolean isInboxShown() {
+        if (!isMessageListInstalled()) {
+            return false;
+        }
+        long inboxId = Mailbox.findMailboxOfType(
+                mActivity, mListContext.mAccountId, Mailbox.TYPE_INBOX);
+        return mListContext.getMailboxId() == inboxId;
+    }
+
     // This is all temporary as we'll have a different action bar controller for 1-pane.
     private class ActionBarControllerCallback implements ActionBarController.Callback {
         @Override
@@ -179,7 +188,8 @@ class UIControllerOnePane extends UIControllerBase {
         @Override
         public boolean shouldShowUp() {
             return isMessageViewInstalled()
-                     || (isMailboxListInstalled() && getMailboxListFragment().canNavigateUp());
+                    || (isMessageListInstalled() && !isInboxShown())
+                    || isMailboxListInstalled();
         }
 
         @Override
@@ -320,13 +330,21 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         // No entry in the back stack.
-        // If the message view is shown, show the "parent" message list.
-        // This happens when we get a deep link to a message.  (e.g. from a widget)
         if (isMessageViewInstalled()) {
             if (DEBUG_FRAGMENTS) {
                 Log.d(Logging.LOG_TAG, this + " Back: Message view -> Message List");
             }
+            // If the message view is shown, show the "parent" message list.
+            // This happens when we get a deep link to a message.  (e.g. from a widget)
             openMailbox(mListContext.mAccountId, mListContext.getMailboxId());
+            return true;
+        } else if (isMailboxListInstalled()) {
+            // If the mailbox list is shown, always go back to the inbox.
+            switchAccount(getMailboxListFragment().getAccountId(), true /* force show inbox */);
+            return true;
+        } else if (isMessageListInstalled() && !isInboxShown()) {
+            // Non-inbox list. Go to inbox.
+            switchAccount(mListContext.mAccountId, true /* force show inbox */);
             return true;
         }
         return false;
@@ -454,29 +472,19 @@ class UIControllerOnePane extends UIControllerBase {
 
         // Okay now we have 2 fragments; the one in the back stack and the one that's currently
         // installed.
-        if (mPreviousFragment.getClass() == installed.getClass()) {
-            // We never want to go back to the same kind of fragment, which happens when the user
-            // is on the message list, and selects another mailbox on the action bar.
+        if (isInboxShown()) {
+            // Inbox is the top level list - never go back from here.
             return false;
         }
 
-        if (isSystemBackKey) {
-            // In other cases, the system back key should always work.
-            return true;
-        } else {
-            // Home icon press -- there are cases where we don't want it to work.
-
-            // Disallow the Message list <-> mailbox list transition
-            if ((mPreviousFragment instanceof MailboxListFragment)
-                    && (installed  instanceof MessageListFragment)) {
-                return false;
-            }
-            if ((mPreviousFragment instanceof MessageListFragment)
-                    && (installed  instanceof MailboxListFragment)) {
-                return false;
-            }
-            return true;
+        // Disallow the MailboxList--> non-inbox MessageList transition as the Mailbox list
+        // is always considered "higher" than a non-inbox MessageList
+        if ((mPreviousFragment instanceof MessageListFragment)
+                && (!((MessageListFragment) mPreviousFragment).isInboxList())
+                && (installed  instanceof MailboxListFragment)) {
+            return false;
         }
+        return true;
     }
 
     /**

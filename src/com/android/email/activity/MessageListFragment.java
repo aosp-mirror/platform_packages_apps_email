@@ -309,6 +309,14 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
+     * @return Whether or not this message list is showing a user's inbox. If no data is loaded,
+     *     false is returned.
+     */
+    public boolean isInboxList() {
+        return hasDataLoaded() && (mMailbox.mType == Mailbox.TYPE_INBOX);
+    }
+
+    /**
      * @return The mailbox being searched, when known. Null if not yet known or if not a search
      *    result.
      */
