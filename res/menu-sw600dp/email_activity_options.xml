@@ -52,15 +52,15 @@
         android:visible="false"
     />
     <item
-        android:id="@+id/account_settings"
+        android:id="@+id/mailbox_settings"
         android:orderInCategory="2000"
-        android:title="@string/account_settings_action"
+        android:title="@string/mailbox_settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
     />
     <item
-        android:id="@+id/mailbox_settings"
+        android:id="@+id/account_settings"
         android:orderInCategory="3000"
-        android:title="@string/mailbox_settings_action"
+        android:title="@string/settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
     />
 </menu>

@@ -16,28 +16,24 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-            android:title="@string/mailbox_preferences_header">
+    <!-- summary is set at runtime -->
+    <ListPreference
+        android:key="check_frequency"
+        android:title="@string/mailbox_settings_mailbox_check_frequency_label"
+        android:dialogTitle="@string/mailbox_settings_mailbox_check_frequency_label"
+        android:entries="@array/account_settings_check_frequency_entries_push"
+        android:entryValues="@array/account_settings_check_frequency_values_push"
+        android:persistent="false"
+        />
 
-        <!-- summary is set at runtime -->
-        <ListPreference
-            android:key="check_frequency"
-            android:title="@string/mailbox_settings_mailbox_check_frequency_label"
-            android:dialogTitle="@string/mailbox_settings_mailbox_check_frequency_label"
-            android:entries="@array/account_settings_check_frequency_entries_push"
-            android:entryValues="@array/account_settings_check_frequency_values_push"
-            android:persistent="false"
-            />
+    <!-- summary is set at runtime -->
+    <ListPreference
+        android:key="sync_window"
+        android:title="@string/mailbox_settings_mailbox_sync_window_label"
+        android:dialogTitle="@string/mailbox_settings_mailbox_sync_window_label"
+        android:entries="@array/account_settings_mail_window_entries_with_default"
+        android:entryValues="@array/account_settings_mail_window_values_with_default"
+        android:persistent="false"
+        />
 
-        <!-- summary is set at runtime -->
-        <ListPreference
-            android:key="sync_window"
-            android:title="@string/mailbox_settings_mailbox_sync_window_label"
-            android:dialogTitle="@string/mailbox_settings_mailbox_sync_window_label"
-            android:entries="@array/account_settings_mail_window_entries_with_default"
-            android:entryValues="@array/account_settings_mail_window_values_with_default"
-            android:persistent="false"
-            />
-
-    </PreferenceCategory>
 </PreferenceScreen>

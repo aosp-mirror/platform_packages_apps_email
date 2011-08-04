@@ -136,7 +136,7 @@
     <!-- Menu item for settings [CHAR LIMIT=40]-->
     <string name="settings_action">Settings</string>
     <!-- Menu item [CHAR LIMIT=32] -->
-    <string name="mailbox_settings_action">Folder settings</string>
+    <string name="mailbox_settings_action">Sync options</string>
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
@@ -777,7 +777,7 @@ save attachment.</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email lookback selector -->
-    <string name="account_setup_options_mail_window_label">Amount to synchronize</string>
+    <string name="account_setup_options_mail_window_label">Days to sync</string>
     <!-- In account setup options & account settings screens (exchange), sync window length; this
         implies loading a 'reasonable' number of messages [CHAR LIMIT=25] -->
     <string name="account_setup_options_mail_window_auto">Automatic</string>
@@ -1035,15 +1035,15 @@ save attachment.</string>
     <string name="account_settings_delete_account_label">Remove account</string>
 
     <!-- Mailbox settings activity title [CHAR LIMIT=none] -->
-    <string name="mailbox_settings_activity_title">Folder settings</string>
+    <string name="mailbox_settings_activity_title">Sync options</string>
     <!-- Mailbox settings activity title, with the target folder name [CHAR LIMIT=none] -->
-    <string name="mailbox_settings_activity_title_with_mailbox">Folder settings (<xliff:g id="mailboxx_name" example="Family">%s</xliff:g>)</string>
+    <string name="mailbox_settings_activity_title_with_mailbox">Sync options (<xliff:g id="mailboxx_name" example="Family">%s</xliff:g>)</string>
     <!-- Mailbox "sync settings" preference header [CHAR LIMIT=none] -->
     <string name="mailbox_preferences_header">Sync settings</string>
     <!-- On mailbox settings screen: Mailbox check frequency setting label [CHAR LIMIT=none] -->
     <string name="mailbox_settings_mailbox_check_frequency_label">Check frequency</string>
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
-    <string name="mailbox_settings_mailbox_sync_window_label">Amount to synchronize</string>
+    <string name="mailbox_settings_mailbox_sync_window_label">Days to sync</string>
 
     <!-- Strings used for account shortcut picker -->
     <!-- String displayed in launcher [CHAR_LIMIT=10] -->

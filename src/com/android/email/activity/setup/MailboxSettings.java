@@ -16,19 +16,7 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.FolderProperties;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -41,6 +29,20 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
+import android.view.MenuItem;
+
+import com.android.email.Email;
+import com.android.email.FolderProperties;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * "Mailbox settings" activity.
@@ -111,6 +113,12 @@ public class MailboxSettings extends PreferenceActivity {
         } else {
             onDataLoaded();
         }
+
+        // Always show "app up" as we expect our parent to be an Email activity.
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+        }
     }
 
     private void enablePreferences(boolean enabled) {
@@ -178,8 +186,15 @@ public class MailboxSettings extends PreferenceActivity {
         Preconditions.checkNotNull(mMailbox);
 
         // Update the title with the mailbox name.
-        setTitle(getString(R.string.mailbox_settings_activity_title_with_mailbox,
-                FolderProperties.getInstance(this).getDisplayName(mMailbox)));
+        ActionBar actionBar = getActionBar();
+        String mailboxName = FolderProperties.getInstance(this).getDisplayName(mMailbox);
+        if (actionBar != null) {
+            actionBar.setTitle(mailboxName);
+            actionBar.setSubtitle(getString(R.string.mailbox_settings_activity_title));
+        } else {
+            setTitle(getString(R.string.mailbox_settings_activity_title_with_mailbox, mailboxName));
+        }
+
 
         // Special case: If setting inbox, don't show "Use account's default".
         if (mMailbox.mType == Mailbox.TYPE_INBOX) {
@@ -195,6 +210,7 @@ public class MailboxSettings extends PreferenceActivity {
 
         // Make then enabled
         enablePreferences(true);
+
     }
 
     private void updatePreferenceSummary() {
@@ -287,7 +303,7 @@ public class MailboxSettings extends PreferenceActivity {
         // activity...)
         final Account account = mAccount;
         final Mailbox mailbox = mMailbox;
-        final Context context = this.getApplicationContext();
+        final Context context = getApplicationContext();
 
         new EmailAsyncTask<Void, Void, Void> (null /* no cancel */) {
             @Override
@@ -317,5 +333,14 @@ public class MailboxSettings extends PreferenceActivity {
                         true);
             }
         }.executeSerial((Void [])null);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
