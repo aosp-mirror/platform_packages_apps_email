@@ -32,7 +32,6 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -266,7 +265,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
                     }
                 });
 
-        UiUtilities.getView(view, R.id.done).setOnClickListener(this);
         UiUtilities.getView(view, R.id.create_new).setOnClickListener(this);
 
         return view;
@@ -283,11 +281,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
      */
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.done) {
-            // since launched using startPreferencePanel, this is the proper way to end it
-            // for both tablets and phones
-            ((PreferenceActivity) getActivity()).finishPreferencePanel(this, 0, null);
-        } else if (v.getId() == R.id.create_new) {
+        if (v.getId() == R.id.create_new) {
             EditQuickResponseDialog
                     .newInstance(null, mAccount.mId)
                     .show(getFragmentManager(), null);

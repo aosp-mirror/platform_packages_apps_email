@@ -41,25 +41,10 @@
         android:visibility="gone"
         android:text="@string/quick_responses_empty_view"
         />
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dip"
-        android:paddingBottom="10dip"
-        >
-        <Button
-            android:id="@+id/create_new"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="@string/create_action"
-            />
-        <Button
-            android:id="@+id/done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="@string/done_action"
-            />
-    </RelativeLayout>
+    <Button
+        android:id="@+id/create_new"
+        android:layout_gravity="center"
+        style="@style/accountSettingsButton"
+        android:text="@string/create_action"
+        />
 </LinearLayout>
