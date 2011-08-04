@@ -34,6 +34,10 @@
     <color name="text_ternary_color">#aaaaaa</color>
     <color name="text_disabled_color">#888888</color>
 
+    <!-- TODO: properly put these text colors in the theme and use selectors -->
+    <color name="text_primary_color_inverse">#ffffff</color>
+    <color name="text_secondary_color_inverse">#eeeeee</color>
+
     <color name="divider_color">#ff808080</color>
 
     <!-- Account color chips on combined view -->
