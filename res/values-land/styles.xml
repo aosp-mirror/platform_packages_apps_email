@@ -15,6 +15,10 @@
 -->
 
 <resources>
+    <style name="MessageComposeTheme" parent="EmailTheme">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="action_bar_unread_count">
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">30sp</item>

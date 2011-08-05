@@ -17,6 +17,9 @@
 <!-- tablet, landscape -->
 
 <resources>
+    <style name="MessageComposeTheme" parent="EmailTheme">
+    </style>
+
     <!-- Use fixed width in landscape -->
     <style name="message_compose_scroll">
         <item name="android:layout_width">800dip</item>
