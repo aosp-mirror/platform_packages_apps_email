@@ -1832,7 +1832,8 @@ public class EmailProvider extends ContentProvider {
                         if (accountCount < MAX_CACHED_ACCOUNTS) {
                             mc = new MatrixCursor(projection, 1);
                             mc.addRow(new Object[] {accountCount});
-                            return mc;
+                            c = mc;
+                            break;
                         }
                     }
                     c = db.query(tableName, projection,
