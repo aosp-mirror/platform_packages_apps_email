@@ -17,16 +17,10 @@
 
 package com.android.email.view;
 
-import com.android.email.R;
-import com.android.email.activity.UiUtilities;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.security.KeyChain;
-import android.security.KeyChainAliasCallback;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,22 +28,26 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.email.R;
+import com.android.email.activity.UiUtilities;
+
 /**
  * A simple view that can be used to select a certificate from the system {@link KeyChain}.
  *
- * Host activities must register themselves view {@link #setActivity} for this selector to work,
- * since it requires firing system {@link Intent}s.
+ * Host activities must register themselves view {@link #setHostActivity} for this selector to work.
  */
-public class CertificateSelector extends LinearLayout implements
-        OnClickListener, KeyChainAliasCallback {
+public class CertificateSelector extends LinearLayout implements OnClickListener {
 
     /** Button to select or remove the certificate. */
     private Button mSelectButton;
     private TextView mAliasText;
 
     /** The host activity. */
-    private Activity mActivity;
+    private HostCallback mHost;
 
+    public interface HostCallback {
+        void onCertificateRequested();
+    }
 
     public CertificateSelector(Context context) {
         super(context);
@@ -61,8 +59,11 @@ public class CertificateSelector extends LinearLayout implements
         super(context, attrs, defStyle);
     }
 
-    public void setActivity(Activity activity) {
-        mActivity = activity;
+    public void setHostActivity(HostCallback host) {
+        mHost = host;
+    }
+
+    public void setDelegate(String uri) {
     }
 
     @Override
@@ -98,31 +99,16 @@ public class CertificateSelector extends LinearLayout implements
 
     @Override
     public void onClick(View target) {
-        if (target == mSelectButton && mActivity != null) {
+        if (target == mSelectButton && mHost != null) {
             if (hasCertificate()) {
                 // Handle the click on the button when it says "Remove"
                 setCertificate(null);
-
             } else {
-                // We don't restrict the chooser for certificate types since 95% of the time the
-                // user will probably only have one certificate installed and it'll be the right
-                // "type". Just let them fail and select a different one if it doesn't match.
-                KeyChain.choosePrivateKeyAlias(
-                        mActivity, this,
-                        null /* keytypes */, null /* issuers */,
-                        null /* host */, -1 /* port */,
-                        null /* alias */);
+                mHost.onCertificateRequested();
             }
         }
     }
 
-    // KeyChainAliasCallback
-    @Override
-    public void alias(String alias) {
-        if (alias != null) {
-            setCertificate(alias);
-        }
-    }
     @Override
     protected void onRestoreInstanceState(Parcelable parcel) {
         SavedState savedState = (SavedState) parcel;

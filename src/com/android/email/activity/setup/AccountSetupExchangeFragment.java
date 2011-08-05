@@ -18,6 +18,8 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.Editable;
@@ -38,10 +40,12 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.view.CertificateSelector;
+import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
 
 import java.io.IOException;
@@ -53,8 +57,9 @@ import java.io.IOException;
  * (for editing existing accounts).
  */
 public class AccountSetupExchangeFragment extends AccountServerBaseFragment
-        implements OnCheckedChangeListener {
+        implements OnCheckedChangeListener, HostCallback {
 
+    private static final int CERTIFICATE_REQUEST = 0;
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupExchangeFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupExchangeFragment.loaded";
 
@@ -147,7 +152,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
-        mClientCertificateSelector.setActivity(getActivity());
+        mClientCertificateSelector.setHostActivity(this);
     }
 
     /**
@@ -412,6 +417,23 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         // Check for a duplicate account (requires async DB work) and if OK, proceed with check
         startDuplicateTaskCheck(account.mId, serverAddress, mCacheLoginCredential,
                 SetupData.CHECK_INCOMING);
+    }
+
+    @Override
+    public void onCertificateRequested() {
+        Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
+        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
+        startActivityForResult(intent, CERTIFICATE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
+            String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
+            if (certAlias != null) {
+                mClientCertificateSelector.setCertificate(certAlias);
+            }
+        }
     }
 
 }

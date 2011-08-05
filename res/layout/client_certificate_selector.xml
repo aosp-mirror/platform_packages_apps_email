@@ -20,10 +20,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="8dip"
-    android:layout_marginBottom="8dip"
-    android:layout_marginLeft="32dip"
-    android:layout_marginRight="32dip"
+    android:layout_margin="8dip"
+    android:gravity="center_vertical"
     android:orientation="horizontal" >
 
     <TextView
@@ -31,9 +29,12 @@
         android:layout_width="0dip"
         android:layout_weight="1"
         android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:visibility="gone" />
     <Button
         android:id="@+id/select_button"
+        style="@style/accountSetupButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/account_setup_exchange_use_certificate" />
