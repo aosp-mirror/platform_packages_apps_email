@@ -131,7 +131,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     // It is not really a tab, but looks like one of them.
     private TextView mShowPicturesTab;
     private ViewGroup mAlwaysShowPicturesContainer;
-    private Button mAlwaysShowPicturesButton;
+    private View mAlwaysShowPicturesButton;
 
     private View mAttachmentsScroll;
     private View mInviteScroll;
@@ -1926,6 +1926,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void setShowImagesForSender() {
         makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container), false);
+        Utility.showToast(getActivity(), R.string.message_view_always_show_pictures_confirmation);
 
         // Force redraw of the container.
         updateTabs(mTabFlags);

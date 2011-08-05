@@ -423,7 +423,11 @@ save attachment.</string>
     <!-- Prompt on the message view screen whether or not to always show pictures from the
          given sender [CHAR LIMIT=80] -->
     <string name="message_view_always_show_pictures_prompt"
-        >Always show pictures from this sender?</string>
+        >Always show pictures from this sender</string>
+    <!-- Confirmation toast to indicate that the user has chosen to always show
+         pictures from the given sender [CHAR LIMIT=160] -->
+    <string name="message_view_always_show_pictures_confirmation"
+      >Pictures from this sender will be shown automatically.</string>
     <!-- Calendar invitation, label of the button to open in calendar [CHAR LIMIT=24] -->
     <string name="message_view_invite_view">View in Calendar</string>
     <!-- String shown with a calendar invitation. -->

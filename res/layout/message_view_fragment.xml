@@ -130,9 +130,6 @@
             </LinearLayout>
             <!-- end of header area -->
 
-            <!--
-                tab area  TODO: Need visual spec
-            -->
             <LinearLayout
                 android:id="@+id/message_tabs_section"
                 android:layout_width="match_parent"
@@ -141,6 +138,36 @@
                 android:layout_marginRight="16dip"
                 android:orientation="vertical"
                 >
+                <Button
+                    android:id="@+id/show_pictures"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dip"
+                    android:drawableLeft="@drawable/ic_show_images_holo_light"
+                    android:drawablePadding="8dip"
+                    android:text="@string/message_view_show_pictures_action"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    />
+
+                <!-- The container is only used for compatibility with tablet
+                     views -->
+                <FrameLayout
+                    android:id="@+id/always_show_pictures_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    >
+                    <Button
+                        android:id="@+id/always_show_pictures_button"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dip"
+                        android:drawableLeft="@android:drawable/checkbox_on_background"
+                        android:drawablePadding="8dip"
+                        android:text="@string/message_view_always_show_pictures_prompt"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                </FrameLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -172,33 +199,6 @@
                         android:layout_height="0dip"
                         android:layout_weight="1"
                         />
-                    <Button
-                        android:id="@+id/show_pictures"
-                        android:text="@string/message_view_show_pictures_action"
-                        android:layout_width="wrap_content"
-                        style="@style/message_view_tab"
-                        />
-                    <RelativeLayout
-                        android:id="@+id/always_show_pictures_container"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        >
-                        <Button
-                            android:id="@+id/always_show_pictures_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:text="@string/message_view_always_show_pictures_button" />
-                        <TextView
-                            android:id="@+id/always_show_pictures_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toLeftOf="@+id/always_show_pictures_button"
-                            android:layout_centerVertical="true"
-                            android:text="@string/message_view_always_show_pictures_prompt" />
-                    </RelativeLayout>
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"
