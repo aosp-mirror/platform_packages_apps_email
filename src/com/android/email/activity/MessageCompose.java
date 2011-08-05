@@ -1407,10 +1407,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     @VisibleForTesting
     boolean isAddressAllValid() {
+        boolean supportsChips = ChipsUtil.supportsChipsUi();
         for (TextView view : new TextView[]{mToView, mCcView, mBccView}) {
             String addresses = view.getText().toString().trim();
             if (!Address.isAllValid(addresses)) {
-                view.setError(getString(R.string.message_compose_error_invalid_email));
+                // Don't show an error message if we're using chips as the chips have
+                // their own error state.
+                if (!supportsChips || !(view instanceof RecipientEditTextView)) {
+                    view.setError(getString(R.string.message_compose_error_invalid_email));
+                }
                 return false;
             }
         }

@@ -16,23 +16,20 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.ex.chips.RecipientEditTextView;
-
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.MultiAutoCompleteTextView;
+
+import com.android.ex.chips.RecipientEditTextView;
 
 /**
- * This is a MultiAutoCompleteTextView which sets the error state
- * (@see TextView.setError) when email address validation fails.
+ * This is a MultiAutoCompleteTextView which has a custom validator.
  */
 class ChipsAddressTextView extends RecipientEditTextView {
+    /** A noop validator that does not munge invalid texts. */
     private class ForwardValidator implements Validator {
         private Validator mValidator = null;
 
         public CharSequence fixText(CharSequence invalidText) {
-            mIsValid = false;
             return invalidText;
         }
 
@@ -45,7 +42,6 @@ class ChipsAddressTextView extends RecipientEditTextView {
         }
     }
 
-    private boolean mIsValid = true;
     private final ForwardValidator mInternalValidator = new ForwardValidator();
 
     public ChipsAddressTextView(Context context, AttributeSet attrs) {
@@ -56,20 +52,5 @@ class ChipsAddressTextView extends RecipientEditTextView {
     @Override
     public void setValidator(Validator validator) {
         mInternalValidator.setValidator(validator);
-    }
-
-    @Override
-    public void performValidation() {
-        mIsValid = true;
-        super.performValidation();
-        markError(!mIsValid);
-    }
-
-    private void markError(boolean enable) {
-        if (enable) {
-            setError(getContext().getString(R.string.message_compose_error_invalid_email));
-        } else {
-            setError(null);
-        }
     }
 }
