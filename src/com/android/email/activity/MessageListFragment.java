@@ -1155,6 +1155,9 @@ public class MessageListFragment extends ListFragment
         // There's no good way to tell that right now, though.
         mShowMoveCommand = (mAccount == null || mAccount.supportsMoveMessages(getActivity()))
                 && (mMailbox == null || mMailbox.canHaveMessagesMoved());
+
+        // Enable mailbox specific actions on the UIController level if needed.
+        mActivity.invalidateOptionsMenu();
     }
 
     /**

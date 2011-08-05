@@ -97,7 +97,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * The NfcHandler implements Near Field Communication sharing features
      * whenever the activity is in the foreground.
      */
-    private NfcHandler mNfcHandler;
+    private final NfcHandler mNfcHandler;
 
     /**
      * The active context for the current MessageList.
@@ -772,26 +772,26 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
 
         // Deal with protocol-specific menu options.
-        boolean isEas = false;
+        boolean mailboxHasServerCounterpart = false;
         boolean accountSearchable = false;
-        long accountId = getActualAccountId();
-        if (accountId > 0) {
-            Account account = Account.restoreAccountWithId(mActivity, accountId);
-            if (account != null) {
-                String protocol = account.getProtocol(mActivity);
-                if (HostAuth.SCHEME_EAS.equals(protocol)) {
-                    isEas = true;
+        boolean isEas = false;
+
+        if (isMessageListReady()) {
+            long accountId = getActualAccountId();
+            if (accountId > 0) {
+                Account account = Account.restoreAccountWithId(mActivity, accountId);
+                if (account != null) {
+                    String protocol = account.getProtocol(mActivity);
+                    isEas = HostAuth.SCHEME_EAS.equals(protocol);
+                    Mailbox mailbox = getMessageListFragment().getMailbox();
+                    mailboxHasServerCounterpart = mailbox.loadsFromServer(protocol);
+                    accountSearchable = (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
                 }
-                accountSearchable = (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
             }
         }
 
-        // TODO: Should use an isSyncable call to prevent drafts/outbox from allowing this
-        menu.findItem(R.id.search).setVisible(accountSearchable);
-        // TODO Show only for syncable mailbox as well.
-        menu.findItem(R.id.mailbox_settings).setVisible(isEas
-                && (getMailboxSettingsMailboxId() != Mailbox.NO_MAILBOX));
-
+        menu.findItem(R.id.search).setVisible(accountSearchable && mailboxHasServerCounterpart);
+        menu.findItem(R.id.mailbox_settings).setVisible(isEas && mailboxHasServerCounterpart);
         return true;
     }
 
