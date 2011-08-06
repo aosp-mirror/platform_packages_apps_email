@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Hotovo"</string>
     <string name="create_action" msgid="3062715563215392251">"Vytvoriť novú"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Odstrániť"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Žiadne rýchle odpovede"</string>
     <string name="discard_action" msgid="6532206074859505968">"Zahodiť"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Uložiť koncept"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Vložiť rýchlu odpoveď"</string>
@@ -49,16 +48,14 @@
     <string name="compose_action" msgid="4045702519637388045">"Napísať správu"</string>
     <string name="search_action" msgid="6325101454876682308">"Hľadať"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Nastavenia účtu"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
+    <string name="settings_action" msgid="6334807007967459412">"Nastavenia"</string>
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
     <skip />
-    <string name="mailbox_settings_action" msgid="4810618229637583429">"Nastavenia priečinka"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Označiť ako neprečítané"</string>
     <string name="move_action" msgid="3059189775933985898">"Presunúť"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+Kópia/Skr.kópia"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Pridať kópiu / skrytú kópiu"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Pripojiť súbor"</string>
     <string name="close_action" msgid="533058985745238100">"Zavrieť"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Poslať všetky správy"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Vyberte prílohu"</string>
@@ -166,7 +163,10 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Zobraziť obrázky"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Vždy zobraziť"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Vždy zobrazovať obrázky od tohto odosielateľa?"</string>
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
+    <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"Zobraziť v Kalendári"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Pozvánka z kalendára"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Zúčastníte sa?"</string>
@@ -311,7 +311,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synchronizovať e-mail z tohto účtu."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automaticky preberať prílohy počas pripojenia k sieti Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Nastavenie nie je možné dokončiť"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Množstvo na synchronizovanie"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Množstvo na synchronizovanie"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automaticky"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jeden deň"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tri dni"</string>
@@ -377,8 +377,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Upraviť text, ktorý často vkladáte pri písaní e-mailov."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text pripojiť k odosielaným správam"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavenia upozornení"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Spotreba dát"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Upraviť rýchlu odpoveď"</string>
     <string name="save_action" msgid="1988862706623227093">"Uložiť"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synchr. kontakty"</string>
@@ -399,17 +398,19 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude odstránený z aplikácie E-mail."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Odstrániť účet"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odstrániť účet"</string>
-    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"Nastavenia priečinka"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"Nastavenia priečinka (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
+    <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Nastavenia synchronizácie"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Frekvencia kontrol"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"Množstvo na synchronizovanie"</string>
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail. účet"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Výber účtu"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Výber priečinka"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Účet sa nenašiel. Je možné, že bol odstránený."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Priečinok sa nenašiel. Možno bol odstránený."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Prístup prostredníctvom protokolu POP, umožňujúci pripojenie tohto programu, obsahujú iba niektoré účty Plus. Ak sa nemôžete prihlásiť so správnou e-mailovou adresou a heslom, pravdepodobne nemáte platený účet Plus. Ak chcete pristupovať k týmto poštovým účtom, vykonajte to prostredníctvom webového prehliadača."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pred nastavením tohto e-mailového účtu navštívte webové stránky T-Online a vytvorte heslo pre e-mailový prístup POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Firemný"</string>
@@ -422,9 +423,8 @@
     <item quantity="one" msgid="7496785524617037642">"Počet výsledkov z webu <xliff:g id="DOMAIN">%2$s</xliff:g>: <xliff:g id="RESULTS">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"Počet výsledkov z webu <xliff:g id="DOMAIN">%2$s</xliff:g>: <xliff:g id="RESULTS">%1$d</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Predvoľby e-mailu"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Nastavenia"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"Všeobecné predvoľby"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Predvoľby aplikácie"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatický prechod"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Vyberte obrazovku, ktorá bude zobrazená po odstránení správy."</string>

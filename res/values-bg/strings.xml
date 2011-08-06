@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"Готово"</string>
     <string name="create_action" msgid="3062715563215392251">"Създаване на нов"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Изтриване"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Няма бързи отговори"</string>
     <string name="discard_action" msgid="6532206074859505968">"Отхвърляне"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Запазване на чернова"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Вмъкване на бърз отговор"</string>
@@ -49,16 +48,14 @@
     <string name="compose_action" msgid="4045702519637388045">"Ново съобщение"</string>
     <string name="search_action" msgid="6325101454876682308">"Търсене"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Настройки на профил"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
+    <string name="settings_action" msgid="6334807007967459412">"Настройки"</string>
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
     <skip />
-    <string name="mailbox_settings_action" msgid="4810618229637583429">"Настройки на папката"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Непрочетено"</string>
     <string name="move_action" msgid="3059189775933985898">"Местене"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Як/Ск"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Добавяне на Як:/Ск:"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"Прикачване на файл"</string>
     <string name="close_action" msgid="533058985745238100">"Затваряне"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Вс. съобщения: Изпр."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Избор на прикачен файл"</string>
@@ -166,7 +163,10 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Показване на изображенията"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Винаги да се показват"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Да се показват ли винаги снимките от този подател?"</string>
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
+    <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"Преглед в Календар"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Покана в календар"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Ще присъствате ли?"</string>
@@ -311,7 +311,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхрон на имейлите от този профил"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Автоматично изтегляне на прикачените файлове при връзка с Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Настройването не можа да завърши"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Количество за синхронизиране"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Количество за синхронизиране"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Автоматично"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Един ден"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Три дни"</string>
@@ -377,8 +377,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Редактиране на текст, който често вмъквате при писане на имейли"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Прибавяне на текст към изпращаните от вас съобщения"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Настройки за известия"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Използване на данни"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Редактиране на бърз отговор"</string>
     <string name="save_action" msgid="1988862706623227093">"Запазване"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Синхр. на контактите"</string>
@@ -399,17 +398,19 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Профилът „<xliff:g id="ACCOUNT">%s</xliff:g>“ ще бъде премахнат от имейла."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Премахване на профила"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Премахване на профила"</string>
-    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"Настройки на папката"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"Настройки на папката (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
+    <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Настройки за синхронизиране"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Честота на проверяване"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"Количество за синхронизиране"</string>
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Имейл"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Избор на профил"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Изберете папка"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Профилът не е намерен. Може да е премахнат."</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Папката не бе намерена. Може да е премахната."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Само някои „Plus“ профили включват достъп чрез POP, позволявайки на тази програма да се свърже. Ако не можете да влезете с правилния си имейл адрес и парола, може да не сте платили за такъв профил. Моля, стартирайте уеб браузъра, за да получите достъп до тези пощенски профили."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Преди да настроите този имейл профил, моля, посетете уебсайта на T-Online и създайте парола за достъп до имейл чрез POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Фирмен"</string>
@@ -422,9 +423,8 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> резултат от <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> резултата от <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Предпочитания за имейл"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Настройки"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"Общи предпочитания"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Предпочитания за приложението"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Автоматично преминаване"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Изберете екран, който да се показва след изтриване на съобщение"</string>
