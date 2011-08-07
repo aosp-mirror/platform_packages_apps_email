@@ -471,6 +471,31 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     }
 
     /**
+     * @return whether or not this mailbox retrieves its data from the server (as opposed to just
+     *     a local mailbox that is never synced).
+     */
+    public boolean loadsFromServer(String protocol) {
+        if (HostAuth.SCHEME_EAS.equals(protocol)) {
+            return mType != Mailbox.TYPE_DRAFTS
+                    && mType != Mailbox.TYPE_OUTBOX
+                    && mType != Mailbox.TYPE_SEARCH
+                    && mType < Mailbox.TYPE_NOT_SYNCABLE;
+
+        } else if (HostAuth.SCHEME_IMAP.equals(protocol)) {
+            // TODO: actually use a sync flag when creating the mailboxes. Right now we use an
+            // approximation for IMAP.
+            return mType != Mailbox.TYPE_DRAFTS
+                    && mType != Mailbox.TYPE_OUTBOX
+                    && mType != Mailbox.TYPE_SEARCH;
+
+        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
+            return TYPE_INBOX == mType;
+        }
+
+        return false;
+    }
+
+    /**
      * @return true if messages in a mailbox of a type can be replied/forwarded.
      */
     public static boolean isMailboxTypeReplyAndForwardable(int type) {
