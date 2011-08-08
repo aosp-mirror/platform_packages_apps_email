@@ -39,12 +39,12 @@ import android.view.MenuItem;
 import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.IntentUtilities;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 
 import java.util.List;

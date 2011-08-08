@@ -40,6 +40,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
