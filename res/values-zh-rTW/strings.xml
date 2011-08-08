@@ -35,8 +35,7 @@
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
     <string name="create_action" msgid="3062715563215392251">"建立新回應"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"刪除"</string>
-    <!-- no translation found for quick_responses_empty_view (1693308598242828422) -->
-    <skip />
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"沒有快速回應"</string>
     <string name="discard_action" msgid="6532206074859505968">"捨棄"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"儲存草稿"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"插入快速回應"</string>
@@ -49,16 +48,14 @@
     <string name="compose_action" msgid="4045702519637388045">"撰寫郵件"</string>
     <string name="search_action" msgid="6325101454876682308">"搜尋"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"帳戶設定"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
+    <string name="settings_action" msgid="6334807007967459412">"設定"</string>
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
     <skip />
-    <string name="mailbox_settings_action" msgid="4810618229637583429">"資料夾設定"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"標示為未讀取"</string>
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"新增副本/密件副本"</string>
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
-    <skip />
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"新增副本/密件副本"</string>
+    <string name="add_attachment_menu" msgid="6854757034409168845">"附加檔案"</string>
     <string name="close_action" msgid="533058985745238100">"關閉"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"傳送所有郵件"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
@@ -166,7 +163,10 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"顯示圖片"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"永遠顯示"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"永遠顯示這位寄件者所傳送的圖片？"</string>
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
+    <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"於日曆中查看"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"日曆邀請"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"您要參加嗎？"</string>
@@ -311,7 +311,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"同步處理此帳戶所寄的電子郵件。"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"連上 Wi-Fi 時自動下載附件"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"無法完成設定"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同步數量"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"同步數量"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"自動"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1 天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3 天"</string>
@@ -377,8 +377,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"編輯您撰寫電子郵件時經常插入的文字"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在送出的郵件後面附加文字"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
-    <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
-    <skip />
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"資料用量"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"編輯快速回應"</string>
     <string name="save_action" msgid="1988862706623227093">"儲存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"同步處理聯絡人"</string>
@@ -399,17 +398,19 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"移除帳戶"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"移除帳戶"</string>
-    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"資料夾設定"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"資料夾設定 (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
+    <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"同步處理設定"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"檢查頻率"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"要同步處理的數量"</string>
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"電子郵件帳戶"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"選取帳戶"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"選取資料夾"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"找不到帳戶，帳戶可能已遭移除。"</string>
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
-    <skip />
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"找不到資料夾，資料夾可能已遭移除。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
@@ -422,9 +423,8 @@
     <item quantity="one" msgid="7496785524617037642">"只有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
     <item quantity="other" msgid="7816121892960632123">"共有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
   </plurals>
-    <!-- no translation found for settings_activity_title (5185915603716333904) -->
-    <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"電子郵件接收設定"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"設定"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"一般偏好設定"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"應用程式偏好設定"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"自動推進"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"選取在您刪除郵件後所要顯示的畫面"</string>

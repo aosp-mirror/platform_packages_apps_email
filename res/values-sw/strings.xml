@@ -74,7 +74,7 @@
     <skip />
     <!-- no translation found for settings_action (6334807007967459412) -->
     <skip />
-    <!-- no translation found for mailbox_settings_action (4810618229637583429) -->
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
     <skip />
     <!-- no translation found for mark_as_unread_action (3766298115778767554) -->
     <skip />
@@ -219,7 +219,9 @@
     <skip />
     <!-- no translation found for message_view_always_show_pictures_button (6523810929103546865) -->
     <skip />
-    <!-- no translation found for message_view_always_show_pictures_prompt (3305231364331259741) -->
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
     <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"Tazama katika Kalenda"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Mwaliko wa Kalenda"</string>
@@ -419,7 +421,7 @@
     <skip />
     <!-- no translation found for account_setup_failed_dlg_title (7827583313117521383) -->
     <skip />
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Kiwango cha kusawazisha"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Kiwango cha kusawazisha"</string>
     <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
     <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Siku moja"</string>
@@ -545,15 +547,15 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Akaunti \"<xliff:g id="ACCOUNT">%s</xliff:g>\" itaondolewa kutoka kwa Barua pepe."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Ondoa akaunti"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Ondoa akaunti"</string>
-    <!-- no translation found for mailbox_settings_activity_title (1508088285900401927) -->
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
     <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6375095212457431269) -->
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
     <skip />
     <!-- no translation found for mailbox_preferences_header (9077316556563252246) -->
     <skip />
     <!-- no translation found for mailbox_settings_mailbox_check_frequency_label (1246075442689328906) -->
     <skip />
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (4140114925837071430) -->
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
     <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akaunti ya barua pepe"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Chagua akaunti"</string>

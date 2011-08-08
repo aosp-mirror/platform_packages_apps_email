@@ -49,7 +49,8 @@
     <string name="search_action" msgid="6325101454876682308">"Ara"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Hesap ayarları"</string>
     <string name="settings_action" msgid="6334807007967459412">"Ayarlar"</string>
-    <string name="mailbox_settings_action" msgid="4810618229637583429">"Klasör ayarları"</string>
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
+    <skip />
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Okunmadı olarak işaretle"</string>
     <string name="move_action" msgid="3059189775933985898">"Taşı"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
@@ -162,7 +163,10 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Resimleri göster"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Her zaman göster"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Bu gönderenden gelen resimler her zaman gösterilsin mi?"</string>
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
+    <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"Takvim\'de Görüntüle"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Takvim Daveti"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Katılıyor musunuz?"</string>
@@ -307,7 +311,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"E-postayı bu hesaptan senkronize et."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Kablosuz\'a bağlandığında ekleri otomatik olarak indir"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Kurulum tamamlanamadı"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Senkronize edilecek miktar"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Senkronize edilecek miktar"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Otomatik"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Bir gün"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Üç gün"</string>
@@ -394,11 +398,14 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı E-postadan kaldırılacak."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Hesabı kaldır"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Hesabı kaldır"</string>
-    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"Klasör ayarları"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"Klasör ayarları (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
+    <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Senkronizasyon ayarları"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kontrol sıklığı"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"Senkronize edilecek miktar"</string>
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Eposta hes"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Bir hesap seçin"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Klasör seçin"</string>

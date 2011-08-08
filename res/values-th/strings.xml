@@ -49,7 +49,8 @@
     <string name="search_action" msgid="6325101454876682308">"ค้นหา"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"การตั้งค่าบัญชี"</string>
     <string name="settings_action" msgid="6334807007967459412">"การตั้งค่า"</string>
-    <string name="mailbox_settings_action" msgid="4810618229637583429">"การตั้งค่าโฟลเดอร์"</string>
+    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
+    <skip />
     <string name="mark_as_unread_action" msgid="3766298115778767554">"ทำเครื่องหมายว่ายังไม่ได้อ่าน"</string>
     <string name="move_action" msgid="3059189775933985898">"ย้าย"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ สำเนา/สำเนาลับ"</string>
@@ -162,7 +163,10 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"แสดงรูปภาพ"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"แสดงเสมอ"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"แสดงรูปภาพจากผู้ส่งรายนี้เสมอหรือไม่"</string>
+    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
+    <skip />
+    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
+    <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"ดูในปฏิทิน"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"ข้อความเชิญในปฏิทิน"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"เข้าร่วมหรือไม่"</string>
@@ -307,7 +311,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"ซิงค์อีเมลจากบัญชีนี้"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"ดาวน์โหลดไฟล์แนบโดยอัตโนมัติเมื่อเชื่อมต่อ Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"การตั้งค่าไม่สมบูรณ์"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"จำนวนที่จะซิงค์"</string>
+    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"จำนวนที่จะซิงค์"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"อัตโนมัติ"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"หนึ่งวัน"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3 วัน"</string>
@@ -394,11 +398,14 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"บัญชี \"<xliff:g id="ACCOUNT">%s</xliff:g>\" จะถูกลบจากอีเมล"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"นำบัญชีออก"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"นำบัญชีออก"</string>
-    <string name="mailbox_settings_activity_title" msgid="1508088285900401927">"การตั้งค่าโฟลเดอร์"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6375095212457431269">"การตั้งค่าโฟลเดอร์ (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
+    <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"การตั้งค่าการซิงค์"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"ตรวจสอบความถี่"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="4140114925837071430">"จำนวนวันที่จะซิงค์"</string>
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"บัญชีอีเมล"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"เลือกบัญชี"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"เลือกโฟลเดอร์"</string>

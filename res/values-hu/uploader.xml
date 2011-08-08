@@ -108,18 +108,18 @@
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Fotók és videók mobilhálózaton keresztül"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Fotók és videók csak Wi-Fin keresztül"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Névjegy"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Azonnali felt. verz."</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Verziószám"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Javasolt: 1600 képpont (megosztásra, nyomtatásra és képernyőkímélőnek)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Eredeti méret (leglassabb feltöltés)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"szüneteltetve -- az SD-kártya nem érhető el"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Az SD-kártya nem érhető el"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Azonnali felt. beál."</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Feltöltés beállítása"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Azonnali feltöltés"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Új fotók és videók automatikus feltöltése egy személyes albumba az interneten"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Feltöltés állapota"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Speciális"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobil feltöltések"</string>
-    <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Barangolásfeltöltések"</string>
+    <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Feltöltés barangoláskor"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Fotók és videók feltöltése adathálózaton barangolás során"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Akkumulátorfeltöltések"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Fotók és videók feltöltése csak töltés közben"</string>
@@ -128,7 +128,7 @@
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Letiltva"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Feltöltés (%1$d%%)"</string>
-    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d of %2$d"</string>
+    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %2$d/%1$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Felfüggesztve: a feltöltés folytatásához érintse meg"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Már meglévő fotók feltöltése"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Eltarthat egy ideig azoknak a fotóknak és videóknak a feltöltése, amelyek még nem lettek feltöltve telefonjáról egy interneten található személyes albumba, de a művelet a háttérben fog történni. Biztos benne, hogy folytatja?"</string>
