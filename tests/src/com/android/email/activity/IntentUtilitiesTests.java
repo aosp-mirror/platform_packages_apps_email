@@ -16,7 +16,7 @@
 
 package com.android.email.activity;
 
-import com.android.email.activity.IntentUtilities;
+import com.android.emailcommon.utility.IntentUtilities;
 
 import android.content.Intent;
 import android.net.Uri;

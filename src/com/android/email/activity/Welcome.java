@@ -41,6 +41,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
