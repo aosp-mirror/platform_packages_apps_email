@@ -22,8 +22,7 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dip"
-    android:layout_height="0dip"
+    style="@style/action_bar_custom_view"
     >
     <include
         android:id="@+id/account_spinner_container"

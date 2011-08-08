@@ -206,13 +206,8 @@ public class ActionBarController {
         mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM);
 
         // Prepare the custom view
-        final LayoutInflater inflater = LayoutInflater.from(mContext);
-        mActionBarCustomView = (ViewGroup) inflater.inflate(R.layout.action_bar_custom_view, null);
-        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(0, 0, 0, 0);
-        mActionBar.setCustomView(mActionBarCustomView, customViewLayout);
+        mActionBar.setCustomView(R.layout.action_bar_custom_view);
+        mActionBarCustomView = (ViewGroup) mActionBar.getCustomView();
 
         // Account spinner
         mAccountSpinnerContainer =
@@ -244,6 +239,7 @@ public class ActionBarController {
             mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
             mSearchView.setSubmitButtonEnabled(false);
             mSearchView.setOnQueryTextListener(mOnQueryText);
+            mSearchView.onActionViewExpanded();
             mActionBarCustomView.addView(mSearchContainer);
         }
     }
