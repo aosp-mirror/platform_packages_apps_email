@@ -28,13 +28,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:background="#ededed">
 
-                <Spinner
-                    android:id="@+id/action_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    />
-
                 <!-- Not actually editable -->
                 <TextView
                     android:id="@+id/from"

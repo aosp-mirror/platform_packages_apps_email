@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
@@ -195,7 +196,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mQuotedTextBar;
     private CheckBox mIncludeQuotedTextCheckBox;
     private WebView mQuotedText;
-    private Spinner mActionSpinner;
     private ActionSpinnerAdapter mActionSpinnerAdapter;
 
     private Controller mController;
@@ -729,8 +729,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setFocusShifter(R.id.tap_trap, R.id.message_content);
 
         mMessageContentView.setOnFocusChangeListener(this);
-
-        mActionSpinner = UiUtilities.getViewOrNull(this, R.id.action_spinner);
 
         updateAttachmentContainer();
         mToView.requestFocus();
@@ -1775,11 +1773,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * Updates UI components that allows the user to switch between reply/reply all/forward.
      */
     private void updateActionSelector() {
-        // Update reply/reply all/forward switcher.
+        ActionBar actionBar = getActionBar();
         if (shouldUseActionTabs()) {
             // Tab-based mode switching.
-            ActionBar actionBar = getActionBar();
-
             if (actionBar.getTabCount() > 0) {
                 actionBar.removeAllTabs();
             }
@@ -1787,30 +1783,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
             createAndAddTab(R.string.forward_action, ACTION_FORWARD);
 
-            actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         } else {
             // Spinner based mode switching.
             if (mActionSpinnerAdapter == null) {
                 mActionSpinnerAdapter = new ActionSpinnerAdapter(this);
-                mActionSpinner.setAdapter(mActionSpinnerAdapter);
-                mActionSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        setAction(ActionSpinnerAdapter.getAction(position));
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // Should not happen.
-                    }
-                });
+                actionBar.setListNavigationCallbacks(
+                        mActionSpinnerAdapter, ACTION_SPINNER_LISTENER);
             }
-            int position = mActionSpinnerAdapter.getPosition(mAction);
-            mActionSpinner.setSelection(position);
-            mActionSpinner.setVisibility(View.VISIBLE);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actionBar.setSelectedNavigationItem(
+                    ActionSpinnerAdapter.getActionPosition(mAction));
         }
+        actionBar.setDisplayShowTitleEnabled(false);
     }
 
     private final TabListener ACTION_TAB_LISTENER = new TabListener() {
@@ -1821,6 +1806,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
             String action = (String) tab.getTag();
             setAction(action);
+        }
+    };
+
+    private final OnNavigationListener ACTION_SPINNER_LISTENER = new OnNavigationListener() {
+        @Override
+        public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+            setAction(ActionSpinnerAdapter.getAction(itemPosition));
+            return true;
         }
     };
 
@@ -1870,6 +1863,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 default:
                     throw new IllegalArgumentException("Invalid action type for spinner");
             }
+        }
+
+        public static int getActionPosition(String action) {
+            if (ACTION_REPLY.equals(action)) {
+                return 0;
+            } else if (ACTION_REPLY_ALL.equals(action)) {
+                return 1;
+            } else if (ACTION_FORWARD.equals(action)) {
+                return 2;
+            }
+            throw new IllegalArgumentException("Invalid action type for spinner");
         }
 
     }
