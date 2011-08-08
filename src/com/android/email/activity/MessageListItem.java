@@ -190,11 +190,11 @@ public class MessageListItem extends View {
 
         if (!Objects.equal(mSnippet, snippet)) {
             mSnippet = snippet;
-            mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
+            mSnippetLineCount = NEEDS_LAYOUT;
             changed = true;
         }
 
-        if (changed) {
+        if (changed || (mSubject == null && mSnippet == null) /* first time */) {
             SpannableStringBuilder ssb = new SpannableStringBuilder();
             boolean hasSubject = false;
             if (!TextUtils.isEmpty(mSubject)) {
