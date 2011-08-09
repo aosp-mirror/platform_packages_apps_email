@@ -115,12 +115,13 @@
     <style name="Attachment" />
 
     <style name="Attachment.Button" parent="@android:style/Widget.Holo.Button">
+        <item name="android:minHeight">0dip</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dip</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:paddingTop">0dip</item>
-        <item name="android:paddingBottom">0dip</item>
+        <item name="android:paddingTop">2dip</item>
+        <item name="android:paddingBottom">2dip</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">@color/buttontext</item>
         <item name="android:singleLine">true</item>
