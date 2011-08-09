@@ -42,6 +42,8 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.android.email.R;
 import com.android.emailcommon.utility.TextUtilities;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 
 /**
@@ -54,6 +56,13 @@ public class MessageListItem extends View {
     /* package */ long mMessageId;
     /* package */ long mMailboxId;
     /* package */ long mAccountId;
+
+    /**
+     * Set to true when testing. Enables pre-populating items with content descriptions so that
+     * automated testing can see it without first selecting each item one-by-one.
+     */
+    @VisibleForTesting
+    public boolean isTesting = false;
 
     private MessagesAdapter mAdapter;
     private MessageListItemCoordinates mCoordinates;
@@ -106,7 +115,6 @@ public class MessageListItem extends View {
     public CharSequence mText;
     public CharSequence mSnippet;
     private String mSubject;
-    private String mSubjectAndDescription;
     private StaticLayout mSubjectLayout;
     public boolean mRead;
     public boolean mHasAttachment = false;
@@ -185,7 +193,7 @@ public class MessageListItem extends View {
         if (!Objects.equal(mSubject, subject)) {
             mSubject = subject;
             changed = true;
-            mSubjectAndDescription = null;
+            setContentDescription(null);
         }
 
         if (!Objects.equal(mSnippet, snippet)) {
@@ -211,6 +219,11 @@ public class MessageListItem extends View {
                 ssb.append(mSnippet);
             }
             mText = ssb;
+
+            // Avoid setting the contentDescription for every item unless needed.
+            if (isTesting) {
+                populateContentDescription();
+            }
         }
     }
 
@@ -516,28 +529,24 @@ public class MessageListItem extends View {
 
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-        CharSequence contentDescription = getContentDescription(mContext);
-        if (!TextUtils.isEmpty(contentDescription)) {
-            event.setClassName(getClass().getName());
-            event.setPackageName(getContext().getPackageName());
-            event.setEnabled(true);
-            event.setContentDescription(contentDescription);
-            return true;
-        }
-        return false;
+        populateContentDescription();
+        event.setClassName(getClass().getName());
+        event.setPackageName(getContext().getPackageName());
+        event.setEnabled(true);
+        event.setContentDescription(getContentDescription());
+        return true;
     }
 
     /**
-     * Get message information to use for accessibility.
+     * Sets the content description for this item, used for accessibility.
      */
-    private CharSequence getContentDescription(Context context) {
-        if (mSubjectAndDescription == null) {
+    private void populateContentDescription() {
+        if (TextUtils.isEmpty(getContentDescription())) {
             if (!TextUtils.isEmpty(mSubject)) {
-                mSubjectAndDescription = sSubjectDescription + mSubject;
+                setContentDescription(sSubjectDescription + mSubject);
             } else {
-                mSubjectAndDescription = sSubjectEmptyDescription;
+                setContentDescription(sSubjectEmptyDescription);
             }
         }
-        return mSubjectAndDescription;
     }
 }
