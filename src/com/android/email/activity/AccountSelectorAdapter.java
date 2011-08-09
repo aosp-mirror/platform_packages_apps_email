@@ -16,23 +16,6 @@
 
 package com.android.email.activity;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-
-import com.android.email.FolderProperties;
-import com.android.email.R;
-import com.android.email.data.ClosingMatrixCursor;
-import com.android.email.data.ThrottlingCursorLoader;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -45,6 +28,23 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import com.android.email.FolderProperties;
+import com.android.email.R;
+import com.android.email.ResourceHelper;
+import com.android.email.data.ClosingMatrixCursor;
+import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Account selector spinner.
@@ -91,12 +91,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
     };
 
     /** Sort order.  Show the default account first. */
-    private static final String ORDER_BY =
-            Account.IS_DEFAULT + " desc, " + Account.RECORD_ID;
+    private static final String ORDER_BY = Account.IS_DEFAULT + " desc, " + Account.RECORD_ID;
 
-    private final LayoutInflater mInflater;
     @SuppressWarnings("hiding")
     private final Context mContext;
+    private final LayoutInflater mInflater;
+    private final ResourceHelper mResourceHelper;
 
     /**
      * Returns a loader that can populate the account spinner.
@@ -110,7 +110,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
     public AccountSelectorAdapter(Context context) {
         super(context, null, 0 /* no auto-requery */);
         mContext = context;
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = LayoutInflater.from(context);
+        mResourceHelper = ResourceHelper.getInstance(context);
     }
 
     /**
@@ -147,6 +148,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
             final TextView emailAddressView = (TextView) view.findViewById(R.id.email_address);
             final TextView unreadCountView = (TextView) view.findViewById(R.id.unread_count);
+            final View chipView = view.findViewById(R.id.color_chip);
 
             final String displayName = getDisplayName(c);
             final String emailAddress = getAccountEmailAddress(c);
@@ -167,9 +169,18 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 unreadCountView.setVisibility(View.VISIBLE);
                 unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
                         getAccountUnreadCount(c), true));
+
+                if (((CursorWithExtras) c).getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                    chipView.setBackgroundColor(mResourceHelper.getAccountColor(id));
+                    chipView.setVisibility(View.VISIBLE);
+                } else {
+                    chipView.setVisibility(View.GONE);
+                }
             } else {
                 unreadCountView.setVisibility(View.INVISIBLE);
+                chipView.setVisibility(View.GONE);
             }
+
         }
         return view;
     }
