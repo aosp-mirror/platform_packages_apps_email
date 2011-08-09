@@ -57,13 +57,6 @@ public class MessageListItem extends View {
     /* package */ long mMailboxId;
     /* package */ long mAccountId;
 
-    /**
-     * Set to true when testing. Enables pre-populating items with content descriptions so that
-     * automated testing can see it without first selecting each item one-by-one.
-     */
-    @VisibleForTesting
-    public boolean isTesting = false;
-
     private MessagesAdapter mAdapter;
     private MessageListItemCoordinates mCoordinates;
     private Context mContext;
@@ -193,7 +186,7 @@ public class MessageListItem extends View {
         if (!Objects.equal(mSubject, subject)) {
             mSubject = subject;
             changed = true;
-            setContentDescription(null);
+            populateContentDescription();
         }
 
         if (!Objects.equal(mSnippet, snippet)) {
@@ -219,11 +212,6 @@ public class MessageListItem extends View {
                 ssb.append(mSnippet);
             }
             mText = ssb;
-
-            // Avoid setting the contentDescription for every item unless needed.
-            if (isTesting) {
-                populateContentDescription();
-            }
         }
     }
 
@@ -529,7 +517,6 @@ public class MessageListItem extends View {
 
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-        populateContentDescription();
         event.setClassName(getClass().getName());
         event.setPackageName(getContext().getPackageName());
         event.setEnabled(true);
@@ -541,12 +528,10 @@ public class MessageListItem extends View {
      * Sets the content description for this item, used for accessibility.
      */
     private void populateContentDescription() {
-        if (TextUtils.isEmpty(getContentDescription())) {
-            if (!TextUtils.isEmpty(mSubject)) {
-                setContentDescription(sSubjectDescription + mSubject);
-            } else {
-                setContentDescription(sSubjectEmptyDescription);
-            }
+        if (!TextUtils.isEmpty(mSubject)) {
+            setContentDescription(sSubjectDescription + mSubject);
+        } else {
+            setContentDescription(sSubjectEmptyDescription);
         }
     }
 }
