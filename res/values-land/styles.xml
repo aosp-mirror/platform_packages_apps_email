@@ -46,4 +46,12 @@
     <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
         <item name="android:minHeight">40dip</item>
     </style>
+
+    <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_width">32dip</item>
+        <item name="android:layout_height">24dip</item>
+        <item name="android:layout_marginLeft">8dip</item>
+        <item name="android:layout_marginRight">8dip</item>
+        <item name="android:padding">2dip</item>
+    </style>
 </resources>

@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffffff"
+    android:background="@android:color/white"
     >
     <ProgressBar
         android:id="@+id/loading_progress"
@@ -38,97 +38,39 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
-            <!-- header area -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/subject"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_marginTop="8dip"
+                android:layout_marginBottom="4dip"
+                android:layout_marginLeft="8dip"
+                android:layout_marginRight="8dip"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="bold"
+                />
+            <!-- Upper header area. -->
+            <include layout="@layout/message_view_header_upper" />
+
+            <!-- Addresses, timestamp, "show details" -->
+            <FrameLayout
+                android:id="@+id/message_view_subheader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
                 >
-                <TextView
-                    android:id="@+id/subject"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dip"
-                    android:layout_marginBottom="4dip"
-                    android:layout_marginLeft="8dip"
-                    android:layout_marginRight="8dip"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textStyle="bold"
-                    />
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="48dip"
-                    android:baselineAligned="true"
-                    android:background="@color/message_view_header_color"
-                    android:gravity="center_vertical"
-                    >
-                    <ImageView
-                        android:id="@+id/badge"
-                        android:layout_width="48dip"
-                        android:layout_height="48dip"
-                        />
-                    <View
-                        android:layout_width="1dip"
-                        android:layout_height="match_parent"
-                        android:background="#fff"
-                        />
-                    <ImageView
-                        android:id="@+id/presence"
-                        android:src="@android:drawable/presence_offline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="2dip"
-                        />
-                    <RelativeLayout
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.0"
-                        >
-                        <TextView
-                            android:id="@+id/from_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="16dip"
-                            android:textColor="@color/text_primary_color_inverse"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            />
-                        <TextView
-                            android:id="@+id/from_address"
-                            android:layout_below="@+id/from_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14dip"
-                            android:textColor="@color/text_secondary_color_inverse"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            />
-                    </RelativeLayout>
-                    <include layout="@layout/message_view_header_actions" />
-                </LinearLayout>
+                <include layout="@layout/message_view_subheader" />
+            </FrameLayout>
 
-                <!-- Addresses, timestamp, "show details" -->
-                <FrameLayout
-                    android:id="@+id/message_view_subheader"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    >
-                    <include layout="@layout/message_view_subheader" />
-                </FrameLayout>
-
-                <!-- divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_marginLeft="16dip"
-                    android:layout_marginRight="16dip"
-                    style="@style/message_view_horizontal_divider"
-                    />
-
-            </LinearLayout>
-            <!-- end of header area -->
+            <!-- divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                style="@style/message_view_horizontal_divider"
+                />
 
             <LinearLayout
                 android:id="@+id/message_tabs_section"

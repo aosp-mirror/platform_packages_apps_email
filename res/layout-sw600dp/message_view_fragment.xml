@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffffff"
+    android:background="@android:color/white"
     >
     <ProgressBar
         android:id="@+id/loading_progress"
@@ -56,129 +56,18 @@
             style="@style/message_view_horizontal_divider"
             />
 
-        <!-- Badge -->
-        <ImageButton
-            android:id="@+id/badge"
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:layout_below="@id/subject_divider"
-            android:layout_alignLeft="@id/subject"
-            android:padding="0dip"
-            android:scaleType="fitCenter"
-            />
-        <!-- Background for sender name and buttons -->
-        <View
-            android:id="@+id/header_background"
-            android:layout_width="0dip"
-            android:layout_height="64dip"
-            android:layout_below="@id/subject_divider"
-            android:layout_toRightOf="@id/badge"
-            android:layout_alignRight="@id/subject"
-            android:background="@color/message_view_header_color"
-            />
-
-        <!--
-            reply, reply-all, forward, Star
-            These buttons can all be gone at runtime, so don't refer to individual buttons from
-            other views.  Instead refer to this outer layout.
-        -->
-        <LinearLayout
-            android:id="@+id/forward_reply_buttons"
-            android:layout_width="wrap_content"
+        <!-- Upper header. Outer container needed only since the relative layout
+             params can't be passed in an include tag.-->
+        <FrameLayout
+            android:id="@+id/message_view_header_upper"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dip"
-            android:layout_marginLeft="0dip"
-            android:layout_alignTop="@id/header_background"
-            android:layout_alignRight="@id/header_background"
-            android:orientation="horizontal"
+            android:layout_marginLeft="32dip"
+            android:layout_marginRight="32dip"
+            android:layout_below="@id/subject_divider"
             >
-            <ImageButton
-                android:id="@+id/reply"
-                android:layout_marginRight="16dip"
-                android:contentDescription="@string/reply_action"
-                android:src="@drawable/ic_reply_holo_dark"
-                android:visibility="gone"
-                style="@style/message_view_action_buttons"
-                />
-            <ImageButton
-                android:id="@+id/reply_all"
-                android:layout_marginRight="16dip"
-                android:contentDescription="@string/reply_all_action"
-                android:src="@drawable/ic_reply_all_holo_dark"
-                android:visibility="gone"
-                style="@style/message_view_action_buttons"
-                />
-            <ImageButton
-                android:id="@+id/forward"
-                android:layout_marginRight="16dip"
-                android:contentDescription="@string/forward_action"
-                android:src="@drawable/ic_forward_holo_dark"
-                android:visibility="gone"
-                style="@style/message_view_action_buttons"
-                />
-            <ImageButton
-                android:id="@+id/favorite"
-                android:layout_marginRight="16dip"
-                android:src="@drawable/btn_star_off_normal_holo_light"
-                style="@style/message_view_action_buttons"
-                />
-        </LinearLayout>
-
-        <!-- presence, sender address, sender name: make them center_vertical -->
-        <LinearLayout
-            android:id="@+id/presence_from_name"
-            android:layout_width="0dip"
-            android:layout_height="0dip"
-            android:layout_alignTop="@id/header_background"
-            android:layout_alignBottom="@id/header_background"
-            android:layout_alignLeft="@id/header_background"
-            android:layout_toLeftOf="@id/forward_reply_buttons"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            >
-            <LinearLayout
-                android:id="@+id/presence_from_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center|center_vertical"
-                >
-                <!-- Presence icon -->
-                <ImageView
-                    android:id="@+id/presence"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:layout_marginLeft="8dip"
-                    android:layout_marginRight="8dip"
-                    android:src="@android:drawable/presence_offline"
-                    />
-                <!-- Sender display name -->
-                <TextView
-                    android:id="@+id/from_name"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="18dip"
-                    android:textColor="@color/text_primary_color_inverse"
-                    android:textStyle="bold"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    />
-            </LinearLayout>
-            <!-- From address -->
-            <TextView
-                android:id="@+id/from_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dip"
-                android:layout_marginLeft="34dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color_inverse"
-                android:singleLine="true"
-                android:ellipsize="end"
-                />
-        </LinearLayout>
+            <include layout="@layout/message_view_header_upper" />
+        </FrameLayout>
 
         <!-- Addresses, timestamp  -->
         <FrameLayout
@@ -187,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="32dip"
             android:layout_marginRight="32dip"
-            android:layout_below="@id/header_background"
+            android:layout_below="@id/message_view_header_upper"
             >
             <include layout="@layout/message_view_subheader" />
         </FrameLayout>
@@ -196,8 +85,8 @@
             android:id="@+id/address_divider"
             android:layout_width="0dip"
             android:layout_below="@id/message_view_subheader"
-            android:layout_alignLeft="@id/badge"
-            android:layout_alignRight="@id/header_background"
+            android:layout_alignLeft="@id/message_view_header_upper"
+            android:layout_alignRight="@id/message_view_header_upper"
             style="@style/message_view_horizontal_divider"
             />
 
@@ -209,8 +98,8 @@
             android:layout_width="0dip"
             android:layout_height="0dip"
             android:layout_below="@id/address_divider"
-            android:layout_alignLeft="@id/badge"
-            android:layout_alignRight="@id/header_background"
+            android:layout_alignLeft="@id/message_view_header_upper"
+            android:layout_alignRight="@id/message_view_header_upper"
             android:layout_alignParentBottom="true"
             android:orientation="vertical"
             >
