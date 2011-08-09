@@ -309,11 +309,21 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * @return Whether or not this message list is showing a user's inbox. If no data is loaded,
-     *     false is returned.
+     * @return Whether or not this message list is showing a user's inbox.
+     *     Note that combined inbox view is treated as an inbox view.
      */
     public boolean isInboxList() {
-        return hasDataLoaded() && (mMailbox.mType == Mailbox.TYPE_INBOX);
+        long accountId = mListContext.mAccountId;
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            return mListContext.getMailboxId() == Mailbox.QUERY_ALL_INBOXES;
+        }
+
+        if (!hasDataLoaded()) {
+            // If the data hasn't finished loading, we don't have the full mailbox - infer from ID.
+            long inboxId = Mailbox.findMailboxOfType(mActivity, accountId, Mailbox.TYPE_INBOX);
+            return mListContext.getMailboxId() == inboxId;
+        }
+        return (mMailbox != null) && (mMailbox.mType == Mailbox.TYPE_INBOX);
     }
 
     /**

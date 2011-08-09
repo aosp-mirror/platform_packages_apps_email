@@ -159,9 +159,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (!isMessageListInstalled()) {
             return false;
         }
-        long inboxId = Mailbox.findMailboxOfType(
-                mActivity, mListContext.mAccountId, Mailbox.TYPE_INBOX);
-        return mListContext.getMailboxId() == inboxId;
+        return getMessageListFragment().isInboxList();
     }
 
     // This is all temporary as we'll have a different action bar controller for 1-pane.
