@@ -181,7 +181,7 @@ public class MessageListItem extends View {
     /**
      * Sets message subject and snippet safely, ensuring the cache is invalidated.
      */
-    public void setText(String subject, String snippet) {
+    public void setText(String subject, String snippet, boolean forceUpdate) {
         boolean changed = false;
         if (!Objects.equal(mSubject, subject)) {
             mSubject = subject;
@@ -195,7 +195,7 @@ public class MessageListItem extends View {
             changed = true;
         }
 
-        if (changed || (mSubject == null && mSnippet == null) /* first time */) {
+        if (forceUpdate || changed || (mSubject == null && mSnippet == null) /* first time */) {
             SpannableStringBuilder ssb = new SpannableStringBuilder();
             boolean hasSubject = false;
             if (!TextUtils.isEmpty(mSubject)) {
