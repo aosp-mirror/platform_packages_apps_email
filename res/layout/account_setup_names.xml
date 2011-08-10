@@ -65,6 +65,7 @@
         <Button
             android:id="@+id/next"
             android:layout_marginTop="16dip"
+            android:layout_gravity="right"
             style="@style/accountSetupButton"
             android:text="@string/next_action" />
     </LinearLayout>
