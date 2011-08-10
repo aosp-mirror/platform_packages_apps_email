@@ -20,15 +20,19 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.MailboxShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Activity to configure the Email widget.
@@ -41,6 +45,9 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setResult(RESULT_CANCELED);
+        if (Email.DEBUG) {
+            Log.i(Logging.LOG_TAG, "WidgetConfiguration initiated");
+        }
         if (!AppWidgetManager.ACTION_APPWIDGET_CONFIGURE.equals(getIntent().getAction())) {
             // finish() immediately if we aren't supposed to be here
             finish();
@@ -98,7 +105,10 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
 
     @Override
     public void onMissingData(boolean missingAccount, boolean missingMailbox) {
-        // TODO what's the proper handling if the mailbox list is '0'? display toast?
+        if (Email.DEBUG) {
+            Log.i(Logging.LOG_TAG, "WidgetConfiguration exited abnormally. Probably no accounts.");
+        }
+        Utility.showToast(this, R.string.widget_no_accounts);
         finish();
     }
 

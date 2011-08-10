@@ -1202,8 +1202,12 @@ save attachment.</string>
     <string name="widget_starred">Starred</string>
     <!-- Shown when waiting for mail data to be loaded into the widget list view [CHAR LIMIT=20] -->
     <string name="widget_loading">Loading\u2026</string>
-    <!-- Shown when no accounts are configured [CHAR LIMIT=35] -->
+    <!-- Shown when no accounts are configured and the widget supports changing
+         on the fly [CHAR LIMIT=35] -->
     <string name="widget_touch_to_configure">Touch to configure</string>
+    <!-- Shown in a toast when no accounts are configured and the Email widget
+         cannot be created in the first place [CHAR LIMIT=none] -->
+    <string name="widget_no_accounts">You haven\'t set up an email account yet.</string>
 
     <!-- Generic string shown instead of regular numbers, when a number is larger than 999.
          This should not be altered if the original string ("999+") makes sense in the
