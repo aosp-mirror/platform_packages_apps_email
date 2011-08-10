@@ -32,10 +32,11 @@
     <string name="reply_all_action" msgid="6192179825726332152">"رد على الكل"</string>
     <string name="delete_action" msgid="8421026208288857155">"حذف"</string>
     <string name="forward_action" msgid="669174181042344116">"إعادة توجيه"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"وضع في المُفضلة"</string>
     <string name="done_action" msgid="7497990549515580249">"تم"</string>
     <string name="create_action" msgid="3062715563215392251">"إنشاء رد جديد"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"حذف"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"ليست هناك ردود سريعة"</string>
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"ليس هناك ردود سريعة"</string>
     <string name="discard_action" msgid="6532206074859505968">"إلغاء"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"حفظ المسودة"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"إدراج رد سريع"</string>
@@ -54,7 +55,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"تعليمها بـ \"غير مقروءة\""</string>
     <string name="move_action" msgid="3059189775933985898">"نقل"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ نسخة إلى/نسخة مخفية الوجهة"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"إضافة نسخة/نس. مخفية"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"إضافة نسخة/نسخة مخفية"</string>
     <string name="add_attachment_menu" msgid="6854757034409168845">"إرفاق ملف"</string>
     <string name="close_action" msgid="533058985745238100">"إغلاق"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"إرسال جميع الرسائل"</string>
@@ -458,6 +459,8 @@
     <string name="widget_starred" msgid="8290352707134011791">"الرسائل المميزة بنجمة"</string>
     <string name="widget_loading" msgid="2340962056927255554">"جارٍ التحميل…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"يمكنك اللمس للتهيئة"</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"+999"</string>
     <string name="search_hint" msgid="2200412192574686497">"البحث في البريد الإلكتروني"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"البحث في <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -467,5 +470,4 @@
     <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
     <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"المجلدات"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"استرجاع فحص المجلد"</string>
 </resources>

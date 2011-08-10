@@ -7,7 +7,7 @@
     <string name="picasa_default_destination" msgid="2052406684123992574">"Album za takojšnji prenos"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Prenos"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Končano"</string>
-    <string name="summary_title_paused" msgid="8936561302881926595">"Začasno zaustavljeno"</string>
+    <string name="summary_title_paused" msgid="8936561302881926595">"Začasno ustavljeno"</string>
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? št. fotografij: %2$d ??? št. videoposnetkov: %3$d"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"št. fotografij: %1$d ??? št. videoposnetkov: %2$d"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"baterija je skoraj prazna"</string>
@@ -26,14 +26,14 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Skrij podrobnosti"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Nastavitve"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Preneseno: %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Račun"</string>
     <string name="upload" msgid="2615541458361216022">"Prenesi"</string>
     <string name="ok" msgid="2516349681897895312">"V redu"</string>
     <string name="cancel" msgid="1207103189404543868">"Prekliči"</string>
     <string name="uploading_to" msgid="3986362895940069510">"Prenos v "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" za "<b>"%s"</b></string>
-    <string name="destination_format" msgid="7472552212462849956">"%1$s »%2$s«"</string>
+    <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"Inicializacija prenosa ni uspela."</string>
     <string name="toast_file_error" msgid="1315722681020841350">"Datoteka ni na voljo."</string>
     <string name="account_error" msgid="1904775271866104941">"Podatkov računa ni bilo mogoče prenesti."</string>
@@ -43,13 +43,13 @@
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Čakanje na povezavo Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Prenos"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Ni uspelo"</string>
-    <string name="upload_state_completed" msgid="5638163990418071018">"Dokončano"</string>
+    <string name="upload_state_completed" msgid="5638163990418071018">"Končano"</string>
     <string name="pause_state_running" msgid="711411177620353982">"prenos"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"ročno ustavljeno"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"začasno ustavljeno – baterija je skoraj prazna"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"začasno ustavljeno – odloženo do polnjenja"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"začasno ustavljeno – čakanje na povezavo"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"zaustavljeno - presežena količinska omejitev PWA"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"začasno ustavljeno - presežena količinska omejitev PWA"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"začasno ustavljeno – čakanje na Wi-Fi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"začasno ustavljeno – gostovanje"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"čakanje na vnovični poskus"</string>
@@ -69,9 +69,9 @@
     <string name="manager_upload_now" msgid="2284408578936376342">"Prenesi zdaj"</string>
     <string name="manager_upload_later" msgid="5453932124711705632">"Prenesi pozneje"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Ne prenesi"</string>
-    <string name="manager_view_media" msgid="3714544539986850549">"Pokaži"</string>
+    <string name="manager_view_media" msgid="3714544539986850549">"Prikaži"</string>
     <string name="manager_retry" msgid="939534318469518843">"Poskusi znova"</string>
-    <string name="manager_toast_canceled" msgid="2331820022556147571">"Nalaganje je bilo preklicano"</string>
+    <string name="manager_toast_canceled" msgid="2331820022556147571">"Prenos je bil preklican"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Prenos se je že končal"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Sinhroniziraj vse"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Zadnja sinhronizacija:"\n"%1$s"\n"%2$s"</string>
@@ -87,14 +87,14 @@
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Težava pri komunikaciji s strežnikom. Poskusite znova pozneje."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Preklicana sinhroniziracija vsega"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Sinhroniziraj vse"</string>
-    <string name="manager_view_completed" msgid="5119780300858727185">"Ogled končan"</string>
+    <string name="manager_view_completed" msgid="5119780300858727185">"Ogled dokončanih"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Ogled čakajočih"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"Splošno"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Začasno ustavi prenose"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"Polnjenje"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Prenesi samo, ko se baterija telefona polni."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
-    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Prenesi samo, ko je na voljo Wi-Fi."</string>
+    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Prenesi samo, ko je na voljo Wi-Fi"</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Fotografije"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Račun"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Pogoji prenosa"</string>
@@ -107,13 +107,13 @@
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Samo fotografije prek mobilnih omrežij"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Prenos fotografij in videoposnetkov po mobilnih omrežjih"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Prenos fotografij in videoposnetkov samo prek povezave Wi-Fi"</string>
-    <string name="preference_category_title_about" msgid="3001183168471659844">"O"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Različica takojšnjega prenosa"</string>
+    <string name="preference_category_title_about" msgid="3001183168471659844">"Vizitka"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Razl. takoj. prenosa"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Priporočeno: 1600 slikovnih pik (za deljenje z drugimi, tiskanje in ohranjevalnike zaslona)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Izvirna velikost (najpočasnejši prenos)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"začasno ustavljeno – kartica SD ni na voljo"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Kartica SD ni na voljo"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Nastavitve takojšnjega prenosa"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Nast. takoj. prenosa"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Takojšnji prenos"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Samodejni prenos novih fotografij in videoposnetkov v zasebni spletni album"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Stanje prenosa"</string>
@@ -124,7 +124,7 @@
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Prenosi med polnjenjem baterije"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Prenos fotografij in videoposnetkov samo med polnjenjem"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Prenos obstoječih fotografij"</string>
-    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Prenos vseh obstoječih fotografij in videoposnetkov iz telefona zdaj"</string>
+    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Prenos vseh obstoječih fotografij in videoposnetkov iz telefona"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Onemogočeno"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Prenos (%1$d%%)"</string>

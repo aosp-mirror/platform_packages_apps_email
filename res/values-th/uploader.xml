@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"แบตเตอรี่อ่อน"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"รูปภาพเกินโควต้าแล้ว"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"โรมมิ่ง"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"กำลังรอ Wi-Fi"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"กำลังรอ WiFi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"ล่าช้าจนกว่าจะมีการชาร์จ"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"กำลังรอการเชื่อมต่อ"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"กำลังลองใหม่ใน %s"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"พบปัญหาในการลงชื่อเข้าใช้บัญชีของคุณ"</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"กำลังรอที่จะลองอีกครั้ง"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"กำลังรอ Wi-Fi"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"กำลังรอ WiFi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"กำลังอัปโหลด"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"ล้มเหลว"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"เสร็จสิ้น"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"หยุดชั่วคราว - ล่าช้าจนกว่าจะมีการชาร์จ"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"หยุดชั่วคราว - กำลังรอการเชื่อมต่อ"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"หยุดชั่วคราว - หมดโควต้า PWA"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"หยุดชั่วคราว - กำลังรอ Wi-Fi"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"หยุดชั่วคราว - กำลังรอ WiFi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"หยุดชั่วคราว - โรมมิ่ง"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"กำลังรอที่จะลองอีกครั้ง"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 นาที"</string>
@@ -59,7 +59,7 @@
     <string name="retry_no_data" msgid="630347885498641534">"ไม่มีการเชื่อมต่อข้อมูล"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"ไม่มีโควต้าดิสก์สำหรับบัญชีแล้ว"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"ไม่พบไฟล์"</string>
-    <string name="failed_bad_response" msgid="8357723053952213242">"บริการเกิดข้อผิดพลาด"</string>
+    <string name="failed_bad_response" msgid="8357723053952213242">"ข้อผิดพลาดของบริการ"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"ข้อผิดพลาดของเครือข่าย"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"การตรวจสอบสิทธิ์ล้มเหลว"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"อัปโหลดที่ค้างอยู่ [%d]"</string>
@@ -74,13 +74,13 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"ยกเลิกการอัปโหลดแล้ว"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"การอัปโหลดเสร็จแล้ว"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"ซิงค์ทั้งหมด"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"ซิงค์ครั้งล่าสุด"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"ซิงค์ครั้งล่าสุด:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"ไม่มีรายการใดที่เสร็จสิ้น"</string>
     <string name="notify_uploads" msgid="8593982942665493037">"อัปโหลดทันใจ"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"การอัปโหลดเสร็จแล้ว"</string>
     <string name="notify_paused" msgid="3999817913227671338">"หยุดการอัปโหลดไว้ชั่วคราว"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"ยังไม่ได้เปิดใช้งานการอัปโหลดทันใจ"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"ไฟล์ขนาดใหญ่จะได้รับการอัปโหลดผ่านการเชื่อมต่อ Wi-Fi เท่านั้น"</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"ไฟล์ขนาดใหญ่จะได้รับการอัปโหลดผ่านการเชื่อมต่อ WiFi เท่านั้น"</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"กำลังสแกนหาไฟล์..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"กำลังเตรียมภาพ <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> ภาพและวิดีโอ <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> รายการสำหรับอัปโหลด..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"ไม่มีรูปภาพ/วิดีโอใดที่จำเป็นต้องอัปโหลดเพิ่มเติม"</string>
@@ -113,7 +113,7 @@
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"ขนาดดั้งเดิม (อัปโหลดช้าที่สุด)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"หยุดชั่วคราว - ไม่มีการ์ด SD"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"ไม่มีการ์ด SD"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"ค่าอัปโหลดทันใจ"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"ตั้งค่าอัปโหลดทันใจ"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"อัปโหลดทันใจ"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"อัปโหลดรูปภาพและวิดีโอใหม่ไปยังอัลบั้มส่วนตัวบนเว็บโดยอัตโนมัติ"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"สถานะการอัปโหลด"</string>
@@ -125,11 +125,11 @@
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"อัปโหลดรูปภาพและวิดีโอเมื่อชาร์จเท่านั้น"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"อัปโหลดรูปภาพที่มีอยู่"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"อัปโหลดรูปภาพและวิดีโอที่มีอยู่จากโทรศัพท์ของคุณเดี๋ยวนี้"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"ปิดใช้งานแล้ว"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"ปิดการใช้งานแล้ว"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"กำลังอัปโหลด (%1$d%%)"</string>
-    <string name="preference_summary_uploading_format" msgid="6092575579212954671">"%1$d จาก %2$d"</string>
-    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"หยุดชั่วคราวอยู่: แตะเพื่ออัปโหลดต่อ"</string>
+    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d จาก %2$d"</string>
+    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"หยุดชั่วคราว: แตะเพื่ออัปโหลดต่อ"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"อัปโหลดรูปภาพที่มีอยู่"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"การอัปโหลดรูปภาพและวิดีโอซึ่งยังไม่ได้รับการอัปโหลดจากโทรศัพท์ของคุณไปยังอัลบั้มส่วนตัวบนเว็บอาจใช้เวลานาน แต่จะดำเนินการในเบื้องหลัง คุณต้องการดำเนินการต่อหรือไม่"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"ใช่"</string>

@@ -32,6 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Odgovori vsem"</string>
     <string name="delete_action" msgid="8421026208288857155">"Izbriši"</string>
     <string name="forward_action" msgid="669174181042344116">"Posreduj"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Priljubljen"</string>
     <string name="done_action" msgid="7497990549515580249">"Dokončano"</string>
     <string name="create_action" msgid="3062715563215392251">"Ustvari nov"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Izbriši"</string>
@@ -410,7 +411,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Izberite račun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Izberite mapo"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Računa ni mogoče najti. Morda je bil odstranjen."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Računa ni mogoče najti. Morda je odstranjen."</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Mape ni mogoče najti. Morda je bila odstranjena."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo nekateri računi »Plus« vsebujejo tudi dostop do strežnika POP, da se ta program lahko poveže. Če ste pravilno vnesli svoj e-poštni naslov in geslo in se ne morete prijaviti, morda nimate plačljivega računa »Plus«. Zaženite brskalnik, če želite dostopati do teh e-poštnih računov."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Preden nastavite ta e-poštni račun, obiščite spletno mesto T-Online in ustvarite geslo za e-poštni dostop POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Podjetje"</string>
@@ -458,14 +459,13 @@
     <string name="widget_starred" msgid="8290352707134011791">"Z zvezdico"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Nalaganje ..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Če želite nastaviti, se dotaknite"</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Iskanje po e-pošti"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Iskanje po mapi <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultati iskanja za »<xliff:g id="ID_1">%1$s</xliff:g>«."</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Čakanje rezultatov"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Odziv nekaterih strežnikov je lahko počasen."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mape"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Pregled preverjanja map"</string>
 </resources>

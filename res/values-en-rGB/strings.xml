@@ -32,6 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Reply all"</string>
     <string name="delete_action" msgid="8421026208288857155">"Delete"</string>
     <string name="forward_action" msgid="669174181042344116">"Forward"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Favourite"</string>
     <string name="done_action" msgid="7497990549515580249">"Done"</string>
     <string name="create_action" msgid="3062715563215392251">"Create new"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Delete"</string>
@@ -410,7 +411,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Select an account"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Select a folder"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Account not found. It may have been removed."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Account not found. It may have been removed."</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Folder not found. It may have been removed."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Only some \"Plus\" accounts include POP access allowing this programme to connect. If you are not able to sign in with your correct email address and password, you may not have a paid \"Plus\" account. Please launch the web browser to gain access to these mail accounts."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Before setting up this email account, please visit the T-Online website and create a password for POP3 email access."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
@@ -458,14 +459,13 @@
     <string name="widget_starred" msgid="8290352707134011791">"Starred"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Loading…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Touch to configure"</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Search emails"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Search <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Search results for \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Waiting for results"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Some servers may take a long time."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folders"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Folder check look-back"</string>
 </resources>

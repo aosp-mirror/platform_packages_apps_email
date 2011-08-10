@@ -45,6 +45,7 @@
     <skip />
     <!-- no translation found for forward_action (669174181042344116) -->
     <skip />
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Gunsteling"</string>
     <!-- no translation found for done_action (7497990549515580249) -->
     <skip />
     <!-- no translation found for create_action (3062715563215392251) -->
@@ -619,6 +620,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"Laai tans…"</string>
     <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
     <skip />
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
     <!-- no translation found for search_hint (2200412192574686497) -->
@@ -632,7 +635,5 @@
     <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
     <skip />
     <!-- no translation found for action_bar_mailbox_list_title (7484457755531286333) -->
-    <skip />
-    <!-- no translation found for mailbox_options_lookback_label (8578791177958723989) -->
     <skip />
 </resources>

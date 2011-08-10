@@ -104,7 +104,7 @@
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"동영상 업로드에 사진 계정이 사용됩니다."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"업로드 조건"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"지금은 사진 연결 설정이 사용됩니다."</string>
-    <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"모바일 네트워크를 통한 사진만"</string>
+    <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"모바일 네트워크를 통해 사진만"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"모바일 네트워크를 통해 사진과 동영상 업로드"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Wi-Fi를 통해서만 사진과 동영상 업로드"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"정보"</string>

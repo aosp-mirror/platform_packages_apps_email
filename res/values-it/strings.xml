@@ -32,6 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Rispondi a tutti"</string>
     <string name="delete_action" msgid="8421026208288857155">"Elimina"</string>
     <string name="forward_action" msgid="669174181042344116">"Inoltra"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Preferito"</string>
     <string name="done_action" msgid="7497990549515580249">"Fine"</string>
     <string name="create_action" msgid="3062715563215392251">"Crea nuova"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Elimina"</string>
@@ -458,12 +459,13 @@
     <string name="widget_starred" msgid="8290352707134011791">"Speciali"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Caricamento..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tocca per configurare"</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Cerca email"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Cerca in <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Risultati di ricerca per \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"In attesa dei risultati"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"Alcuni server possono richiedere molto tempo."</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Alcuni server potrebbero richiedere molto tempo."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Cartelle"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Loopback controllo cartella"</string>
 </resources>
