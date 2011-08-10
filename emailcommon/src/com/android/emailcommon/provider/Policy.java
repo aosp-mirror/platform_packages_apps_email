@@ -40,7 +40,6 @@ import java.util.ArrayList;
  * a limit on the sync window for the Account)
  */
 public final class Policy extends EmailContent implements EmailContent.PolicyColumns, Parcelable {
-    // STOPSHIP Change to false after a few days of debugging
     public static final boolean DEBUG_POLICY = false;  // DO NOT SUBMIT WITH THIS SET TO TRUE
     public static final String TAG = "Email/Policy";
 

@@ -919,7 +919,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
         if (intent != null && intent.hasExtra(EXTRA_ATTACHMENT)) {
             Attachment att = (Attachment)intent.getParcelableExtra(EXTRA_ATTACHMENT);
-            Log.d(TAG, "*** ONSTARTCOMMAND, changed: " + att.mId);
             onChange(att);
         }
         return Service.START_STICKY;
@@ -927,7 +926,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "**** ON CREATE!");
         // Start up our service thread
         new Thread(this, "AttachmentDownloadService").start();
     }
@@ -938,8 +936,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
-        // STOPSHIP Remove this, and other, lifecycle logging
-        Log.d(TAG, "**** ON DESTROY!");
         // Mark this instance of the service as stopped
         mStop = true;
         if (sRunningService != null) {
