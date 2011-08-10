@@ -184,12 +184,18 @@ import java.util.Set;
         MessageListItem itemView = (MessageListItem) view;
         itemView.bindViewInit(this);
 
+        // TODO: just move thise all to a MessageListItem.bindTo(cursor) so that the fields can
+        // be private, and their inter-dependence when they change can be abstracted away.
+
         // Load the public fields in the view (for later use)
         itemView.mMessageId = cursor.getLong(COLUMN_ID);
         itemView.mMailboxId = cursor.getLong(COLUMN_MAILBOX_KEY);
         final long accountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
         itemView.mAccountId = accountId;
-        itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
+
+        boolean isRead = cursor.getInt(COLUMN_READ) != 0;
+        boolean readChanged = isRead != itemView.mRead;
+        itemView.mRead = isRead;
         itemView.mIsFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
         final int flags = cursor.getInt(COLUMN_FLAGS);
         itemView.mHasInvite = (flags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
@@ -198,7 +204,8 @@ import java.util.Set;
         itemView.mHasAttachment = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
         itemView.setTimestamp(cursor.getLong(COLUMN_DATE));
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
-        itemView.setText(cursor.getString(COLUMN_SUBJECT), cursor.getString(COLUMN_SNIPPET));
+        itemView.setText(
+                cursor.getString(COLUMN_SUBJECT), cursor.getString(COLUMN_SNIPPET), readChanged);
         itemView.mColorChipPaint =
             mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
 
