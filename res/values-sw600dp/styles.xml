@@ -116,13 +116,8 @@
         <item name="android:layout_alignParentRight">true</item>
     </style>
 
-    <style name="SearchBar">
+    <style name="action_bar_custom_view">
         <item name="android:layout_width">420dip</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <style name="action_bar_spinner">
-        <item name="android:layout_width">350dip</item>
         <item name="android:layout_height">match_parent</item>
     </style>
 
