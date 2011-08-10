@@ -201,5 +201,27 @@
     <style name="message_list_item_wide">
         <!-- no styles on phones -->
     </style>
+
+    <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_width">24dip</item>
+        <item name="android:layout_height">24dip</item>
+        <item name="android:layout_marginLeft">8dip</item>
+        <item name="android:layout_marginRight">8dip</item>
+        <item name="android:padding">2dip</item>
+    </style>
+
+    <style name="message_header_sender_name">
+        <item name="android:textSize">16dip</item>
+        <item name="android:textColor">@color/text_primary_color_inverse</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="message_header_sender_address">
+        <item name="android:textSize">14dip</item>
+        <item name="android:textColor">@color/text_secondary_color_inverse</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 </resources>
 

@@ -16,30 +16,32 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <ImageButton
-        android:id="@+id/favorite"
-        style="@style/message_view_action_buttons"
-        android:src="@drawable/btn_star_off_normal_holo_light"
-        android:contentDescription="@string/favorite_action"
-        />
-    <ImageButton
         android:id="@+id/reply"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_reply_holo_dark"
         android:contentDescription="@string/reply_action"
+        android:baselineAlignBottom="true"
         />
     <ImageButton
         android:id="@+id/reply_all"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_reply_all_holo_dark"
         android:contentDescription="@string/reply_all_action"
+        android:baselineAlignBottom="true"
         />
-
-    <!-- Add extra margin on the right for the last action on landscape -->
     <ImageButton
         android:id="@+id/forward"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_forward_holo_dark"
         android:contentDescription="@string/forward_action"
-        android:layout_marginRight="24dip"
+        android:baselineAlignBottom="true"
+        />
+    <ImageButton
+        android:id="@+id/favorite"
+        style="@style/message_view_action_buttons"
+        android:src="@drawable/btn_star_off_normal_holo_light"
+        android:contentDescription="@string/favorite_action"
+        android:baselineAlignBottom="true"
         />
 </merge>
+

@@ -23,8 +23,6 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="read_unread_action"/>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="favorite_action"/>
-    <!-- Do Not Translate.  Unused string. -->
     <string name="deselect_all_action"/>
     <!-- Do Not Translate.  Unused string. -->
     <string name="remove_account_action"/>
@@ -99,6 +97,9 @@
     <string name="delete_action">Delete</string>
     <!-- Menu item/button name -->
     <string name="forward_action">Forward</string>
+    <!-- Menu/Button item name and label for marking a message as a favorite
+         (usually called starred) [CHAR LIMIT=40] -->
+    <string name="favorite_action">Star</string>
     <!--  Button name used to complete a multi-step process -->
     <string name="done_action">Done</string>
     <!--  Button name used to create a new quick response [CHAR_LIMIT=16] -->
