@@ -17,11 +17,11 @@
 
 package com.android.emailcommon;
 
-import com.android.emailcommon.utility.Utility;
-
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.android.emailcommon.utility.Utility;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -64,10 +64,6 @@ public class Device {
                     if (!f.delete()) {
                         Log.e(Logging.LOG_TAG, "Can't delete null deviceName file; try overwrite.");
                     }
-                } else {
-                    // STOPSHIP Remove logging
-                    Log.w(Logging.LOG_TAG, "deviceId read as: " + id);
-                    return id;
                 }
             } else {
                 Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
