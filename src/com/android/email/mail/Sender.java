@@ -16,6 +16,10 @@
 
 package com.android.email.mail;
 
+import android.content.Context;
+import android.content.res.XmlResourceParser;
+import android.util.Log;
+
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
@@ -24,18 +28,10 @@ import com.android.emailcommon.provider.HostAuth;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.content.res.XmlResourceParser;
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.io.IOException;
-import java.util.HashMap;
 
 public abstract class Sender {
     protected static final int SOCKET_CONNECT_TIMEOUT = 10000;
-
-    private static final HashMap<String, Sender> sSenders = new HashMap<String, Sender>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
@@ -101,55 +97,24 @@ public abstract class Sender {
     }
 
     /**
-     * Gets a unique key for the given account.
-     * @throws MessagingException If the account is not setup properly (i.e. there is no address
-     * or login)
-     */
-    private static String getSenderKey(Context context, Account account) throws MessagingException {
-        final StringBuffer key = new StringBuffer();
-        final HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
-        if (sendAuth.mAddress == null) {
-            throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
-        }
-        final String address = sendAuth.mAddress.trim();
-        if (TextUtils.isEmpty(address)) {
-            throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
-        }
-        key.append(address);
-        if (sendAuth.mLogin != null) {
-            key.append(sendAuth.mLogin.trim());
-        }
-        return key.toString();
-    }
-
-    /**
      * Get an instance of a mail sender for the given account. The account must be valid (i.e. has
      * at least an outgoing server name).
      *
-     * @param account The account of the sender.
+     * @param context the caller's context
+     * @param account the account of the sender.
      * @return an initialized sender of the appropriate class
      * @throws MessagingException If the sender cannot be obtained or if the account is invalid.
      */
     public synchronized static Sender getInstance(Context context, Account account)
             throws MessagingException {
-        String senderKey = getSenderKey(context, account);
-        Sender sender = sSenders.get(senderKey);
+        Context appContext = context.getApplicationContext();
+        Sender sender = findSender(appContext, R.xml.senders_product, account);
         if (sender == null) {
-            Context appContext = context.getApplicationContext();
-            sender = findSender(appContext, R.xml.senders_product, account);
-            if (sender == null) {
-                sender = findSender(appContext, R.xml.senders, account);
-            }
-
-            if (sender != null) {
-                sSenders.put(senderKey, sender);
-            }
+            sender = findSender(appContext, R.xml.senders, account);
         }
-
         if (sender == null) {
             throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
         }
-
         return sender;
     }
 
@@ -163,39 +128,6 @@ public abstract class Sender {
     }
 
     public abstract void open() throws MessagingException;
-
-    public String validateSenderLimit(long messageId) {
-        return null;
-    }
-
-    /**
-     * Check message has any limitation of Sender or not.
-     *
-     * @param messageId the message that will be checked.
-     * @throws LimitViolationException
-     */
-    public void checkSenderLimitation(long messageId) throws LimitViolationException {
-    }
-
-    public static class LimitViolationException extends MessagingException {
-        public final int mMsgResourceId;
-        public final long mActual;
-        public final long mLimit;
-
-        private LimitViolationException(int msgResourceId, long actual, long limit) {
-            super(UNSPECIFIED_EXCEPTION);
-            mMsgResourceId = msgResourceId;
-            mActual = actual;
-            mLimit = limit;
-        }
-
-        public static void check(int msgResourceId, long actual, long limit)
-            throws LimitViolationException {
-            if (actual > limit) {
-                throw new LimitViolationException(msgResourceId, actual, limit);
-            }
-        }
-    }
 
     public abstract void sendMessage(long messageId) throws MessagingException;
 
