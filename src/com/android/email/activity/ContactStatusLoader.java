@@ -16,9 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.AsyncTaskLoader;
 import android.content.ContentUris;
 import android.content.Context;
@@ -33,11 +30,14 @@ import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.StatusUpdates;
 import android.util.Log;
 
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.utility.Utility;
+
 /**
  * Loader to load presence statuses and the contact photo.
  */
 public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Result> {
-    public static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
+    private static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
 
     /** email address -> photo id, presence */
     /* package */ static final String[] PROJECTION_PHOTO_ID_PRESENCE = new String[] {
@@ -75,6 +75,10 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
             mPhoto = photo;
             mPresenceResId = presenceResId;
             mLookupUri = lookupUri;
+        }
+
+        public boolean isUnknown() {
+            return PRESENCE_UNKNOWN_RESOURCE_ID == mPresenceResId;
         }
     }
 

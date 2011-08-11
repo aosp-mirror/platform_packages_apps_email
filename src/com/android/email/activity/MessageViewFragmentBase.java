@@ -530,7 +530,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private void initContactStatusViews() {
         mContactStatusState = CONTACT_STATUS_STATE_UNLOADED;
         mQuickContactLookupUri = null;
-        mSenderPresenceView.setImageResource(ContactStatusLoader.PRESENCE_UNKNOWN_RESOURCE_ID);
         showDefaultQuickContactBadgeImage();
     }
 
@@ -731,7 +730,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     (mFragment.mContactStatusState == CONTACT_STATUS_STATE_UNLOADED_TRIGGERED);
             mFragment.mContactStatusState = CONTACT_STATUS_STATE_LOADED;
             mFragment.mQuickContactLookupUri = result.mLookupUri;
-            mFragment.mSenderPresenceView.setImageResource(result.mPresenceResId);
+
+            if (result.isUnknown()) {
+                mFragment.mSenderPresenceView.setVisibility(View.GONE);
+            } else {
+                mFragment.mSenderPresenceView.setVisibility(View.VISIBLE);
+                mFragment.mSenderPresenceView.setImageResource(result.mPresenceResId);
+            }
             if (result.mPhoto != null) { // photo will be null if unknown.
                 mFragment.mFromBadge.setImageBitmap(result.mPhoto);
             }
