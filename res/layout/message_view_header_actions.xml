@@ -28,6 +28,7 @@
         android:contentDescription="@string/reply_action"
         />
     <View
+        android:id="@+id/more_separator"
         android:layout_width="1dip"
         android:layout_height="24dip"
         android:layout_margin="3dip"

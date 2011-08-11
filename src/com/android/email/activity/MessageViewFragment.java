@@ -234,6 +234,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
         if (mReplyAllButton != null) {
             mReplyAllButton.setVisibility(visibility);
             mForwardButton.setVisibility(visibility);
+        } else if (mMoreButton != null) {
+            mMoreButton.setVisibility(visibility);
         }
     }
 

@@ -56,8 +56,13 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View result = super.onCreateView(inflater, container, savedInstanceState);
 
-        // Star is not visible in this view.
-        UiUtilities.getView(result, R.id.favorite).setVisibility(View.GONE);
+        // Actions are not available in this view.
+        UiUtilities.setVisibilitySafe(result, R.id.favorite, View.GONE);
+        UiUtilities.setVisibilitySafe(result, R.id.reply, View.GONE);
+        UiUtilities.setVisibilitySafe(result, R.id.reply_all, View.GONE);
+        UiUtilities.setVisibilitySafe(result, R.id.forward, View.GONE);
+        UiUtilities.setVisibilitySafe(result, R.id.more_separator, View.GONE);
+        UiUtilities.setVisibilitySafe(result, R.id.more, View.GONE);
 
         return result;
     }
