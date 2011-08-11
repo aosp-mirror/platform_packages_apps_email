@@ -39,14 +39,15 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?android:attr/textColorSecondary"
                     />
-
-                <include android:id="@+id/to"
-                    layout="@layout/address_text_view"
-                    android:layout_width="match_parent"
+                <!-- To -->
+                <FrameLayout
                     android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
                     android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip" />
-
+                    android:layout_marginRight="6dip">
+                    <include android:id="@+id/to_content"
+                        layout="@layout/address_text_view"/>
+                </FrameLayout>
                 <LinearLayout
                     android:id="@+id/cc_bcc_container"
                     android:layout_width="match_parent"
@@ -54,16 +55,16 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip"
-                    >
-                    <include android:id="@+id/cc"
+                    android:layout_marginRight="6dip">
+
+                    <include android:id="@+id/cc_content"
                         layout="@layout/address_text_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                    <include android:id="@+id/bcc"
+                        android:layout_marginLeft="6dip"
+                        android:layout_marginRight="6dip"/>
+                    <include android:id="@+id/bcc_content"
                         layout="@layout/address_text_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_marginLeft="6dip"
+                        android:layout_marginRight="6dip"/>
                 </LinearLayout>
 
                 <EditText android:id="@+id/subject"

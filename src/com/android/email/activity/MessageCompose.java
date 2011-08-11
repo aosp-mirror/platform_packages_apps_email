@@ -662,14 +662,30 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     };
 
     private void initViews() {
-        mToView = UiUtilities.getView(this, R.id.to);
-        mCcView = UiUtilities.getView(this, R.id.cc);
-        mBccView = UiUtilities.getView(this, R.id.bcc);
-        // add hints only when no labels exist
-        if (UiUtilities.getViewOrNull(this, R.id.to_label) == null) {
-            mToView.setHint(R.string.message_compose_to_hint);
-            mCcView.setHint(R.string.message_compose_cc_hint);
-            mBccView.setHint(R.string.message_compose_bcc_hint);
+        ViewGroup toParent = UiUtilities.getViewOrNull(this, R.id.to_content);
+        if (toParent != null) {
+            mToView = (MultiAutoCompleteTextView) toParent.findViewById(R.id.address_field);
+            ((TextView) toParent.findViewById(R.id.label))
+                    .setText(R.string.message_compose_to_hint);
+            ViewGroup ccParent, bccParent;
+            ccParent = (ViewGroup) findViewById(R.id.cc_content);
+            mCcView = (MultiAutoCompleteTextView) ccParent.findViewById(R.id.address_field);
+            ((TextView) ccParent.findViewById(R.id.label))
+                    .setText(R.string.message_compose_cc_hint);
+            bccParent = (ViewGroup) findViewById(R.id.bcc_content);
+            mBccView = (MultiAutoCompleteTextView) bccParent.findViewById(R.id.address_field);
+            ((TextView) bccParent.findViewById(R.id.label))
+                    .setText(R.string.message_compose_bcc_hint);
+        } else {
+            mToView = UiUtilities.getView(this, R.id.to);
+            mCcView = UiUtilities.getView(this, R.id.cc);
+            mBccView = UiUtilities.getView(this, R.id.bcc);
+            // add hints only when no labels exist
+            if (UiUtilities.getViewOrNull(this, R.id.to_label) == null) {
+                mToView.setHint(R.string.message_compose_to_hint);
+                mCcView.setHint(R.string.message_compose_cc_hint);
+                mBccView.setHint(R.string.message_compose_bcc_hint);
+            }
         }
 
         mFromView = UiUtilities.getView(this, R.id.from);
