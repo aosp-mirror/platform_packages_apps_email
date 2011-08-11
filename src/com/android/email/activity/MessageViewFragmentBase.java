@@ -1036,6 +1036,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     protected abstract Message openMessageSync(Activity activity);
 
     /**
+     * Called in a background thread to reload a new copy of the Message in case something has
+     * changed.
+     */
+    protected Message reloadMessageSync(Activity activity) {
+        return openMessageSync(activity);
+    }
+
+    /**
      * Async task for loading a single message outside of the UI thread
      */
     private class LoadMessageTask extends EmailAsyncTask<Void, Void, Message> {
@@ -1097,7 +1105,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (activity == null) {
                 return null;
             } else {
-                return openMessageSync(activity);
+                return reloadMessageSync(activity);
             }
         }
 
@@ -1878,7 +1886,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         public void onChange(boolean selfChange) {
-            mThrottle.onEvent();
+            if (mRegistered) {
+                mThrottle.onEvent();
+            }
         }
 
         /** This method is delay-called by {@link Throttle} on the UI thread. */

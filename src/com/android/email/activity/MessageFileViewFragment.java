@@ -121,6 +121,12 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         return msg;
     }
 
+    @Override
+    protected Message reloadMessageSync(Activity activity) {
+        // EML files will never change, so just return the same copy.
+        return getMessage();
+    }
+
     /**
      * {@inheritDoc}
      *
