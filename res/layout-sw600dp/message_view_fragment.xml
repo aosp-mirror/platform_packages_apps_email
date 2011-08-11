@@ -218,7 +218,7 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="14dip"
                 android:layout_marginRight="14dip"
-                android:background="#ffffffff"
+                android:background="@android:color/white"
                 android:visibility="gone"
                 />
 
