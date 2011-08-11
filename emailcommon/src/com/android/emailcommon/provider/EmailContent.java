@@ -685,6 +685,13 @@ public abstract class EmailContent {
 
         public String mProtocolSearchInfo;
 
+        /**
+         * Base64-encoded representation of the byte array provided by servers for identifying
+         * messages belonging to the same conversation thread. Currently unsupported and not
+         * persisted in the database.
+         */
+        public String mServerConversationId;
+
         // The following transient members may be used while building and manipulating messages,
         // but they are NOT persisted directly by EmailProvider. See Body for related fields.
         transient public String mText;
