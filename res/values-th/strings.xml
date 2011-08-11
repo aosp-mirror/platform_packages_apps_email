@@ -32,6 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"ตอบกลับทั้งหมด"</string>
     <string name="delete_action" msgid="8421026208288857155">"ลบ"</string>
     <string name="forward_action" msgid="669174181042344116">"ส่งต่อ"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"รายการโปรด"</string>
     <string name="done_action" msgid="7497990549515580249">"เสร็จสิ้น"</string>
     <string name="create_action" msgid="3062715563215392251">"สร้างใหม่"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"ลบ"</string>
@@ -458,14 +459,13 @@
     <string name="widget_starred" msgid="8290352707134011791">"ที่ติดดาว"</string>
     <string name="widget_loading" msgid="2340962056927255554">"กำลังโหลด…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"แตะเพื่อกำหนดค่า"</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"ค้นหาอีเมล"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"ค้นหา <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"ผลการค้นหาสำหรับ \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"กำลังรอผลลัพธ์"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"เซิร์ฟเวอร์บางอย่างอาจใช้เวลานาน"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"โฟลเดอร์"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"ย้อนไปตรวจสอบโฟลเดอร์"</string>
 </resources>

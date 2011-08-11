@@ -103,7 +103,7 @@
     <string name="preference_title_videos_account" msgid="6675545508568161301">"Account"</string>
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"The photo account will be used for video uploads."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Upload conditions"</string>
-    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Photos connectivity settings are used for now."</string>
+    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Photo connectivity settings are used for now."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Only photos via mobile networks"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Photos &amp; videos via mobile networks"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Photos &amp; videos via Wi-Fi only"</string>

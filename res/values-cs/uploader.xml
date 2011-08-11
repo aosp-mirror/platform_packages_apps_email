@@ -82,7 +82,7 @@
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Okamžité nahrávání zatím nebylo aktivováno"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"Velké soubory budou nahrány pouze prostřednictvím připojení Wi-Fi."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Vyhledávání souborů..."</string>
-    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Příprava <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> fotografií <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videí k nahrávání..."</string>
+    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Příprava <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> fotografií a <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videí k nahrávání..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Není potřeba nahrávat žádné další fotografie nebo videa."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Při komunikaci se serverem došlo k chybě. Opakujte prosím akci později."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Synchronizace všeho zrušena"</string>

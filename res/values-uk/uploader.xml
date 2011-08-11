@@ -107,7 +107,7 @@
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Лише фото через мобільні мережі"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Фото та відео через мобільні мережі"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Фото та відео лише через Wi-Fi"</string>
-    <string name="preference_category_title_about" msgid="3001183168471659844">"Про"</string>
+    <string name="preference_category_title_about" msgid="3001183168471659844">"Інфо"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Версія моб. завант."</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Рекомендовано: 1600 пікселів (для надсилання, друку та заставок)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Оригінальний розмір (найповільніше завантаження)"</string>
@@ -131,7 +131,7 @@
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d of %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Призупинено: торкніться, щоб відновити завантаження"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Завантажити існуючі фото"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Завантаження фото та відео, які ще не було завантажено з телефону в приватний альбом в Інтернеті, може тривати якийсь час, однак це відбуватиметься у фоновому режимі. Дійсно продовжити?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Завантаження фотографій та відео, які ще не було завантажено з телефону в приватний альбом в Інтернеті, може тривати якийсь час, однак це відбуватиметься у фоновому режимі. Продовжити?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Так"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Ні"</string>
 </resources>

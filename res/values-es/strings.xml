@@ -32,6 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Responder a todos"</string>
     <string name="delete_action" msgid="8421026208288857155">"Eliminar"</string>
     <string name="forward_action" msgid="669174181042344116">"Reenviar"</string>
+    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Favoritos"</string>
     <string name="done_action" msgid="7497990549515580249">"Listo"</string>
     <string name="create_action" msgid="3062715563215392251">"Crear nueva"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Eliminar"</string>
@@ -447,7 +448,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorme"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Restaurar valores predeterminados para Mostrar imágenes"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Restaurar valores predeterminados para todos los destinatarios (no mostrar imágenes automáticamente)"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Restaurar valores predeterminados para todos los remitentes (no mostrar imágenes automáticamente)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Se ha restaurado la opción Mostrar imágenes."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Esperando para sincronizar"</string>
@@ -458,6 +459,8 @@
     <string name="widget_starred" msgid="8290352707134011791">"Destacados"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toca para iniciar la configuración."</string>
+    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Buscar email"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Buscar <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -467,5 +470,4 @@
     <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
     <skip />
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Carpetas"</string>
-    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Opción lookback de comprobación de carpetas"</string>
 </resources>

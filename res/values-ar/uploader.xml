@@ -33,7 +33,7 @@
     <string name="cancel" msgid="1207103189404543868">"إلغاء"</string>
     <string name="uploading_to" msgid="3986362895940069510">"تحميل إلى "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" لـ "<b>"_"</b></string>
-    <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
+    <string name="destination_format" msgid="7472552212462849956">"%2$s\" %1$s‏\""</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"أخفقت تهيئة التحميل."</string>
     <string name="toast_file_error" msgid="1315722681020841350">"الملف غير متاح."</string>
     <string name="account_error" msgid="1904775271866104941">"أخفق استرداد معلومات الحساب."</string>
@@ -49,7 +49,7 @@
     <string name="pause_state_low_battery" msgid="3154677586511229063">"تم الإيقاف مؤقتًا - البطارية منخفضة"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"تم الإيقاف مؤقتًا - متأخر لحين الشحن"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"تم الإيقاف مؤقتًا - في انتظار الاتصال"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"تم الإيقاف مؤقتًا - نفدت حصة PWA"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"تم الإيقاف مؤقتًا - نفدت حصة  ألبومات بيكاسا"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"تم الإيقاف مؤقتًا - في انتظار WiFi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"تم الإيقاف مؤقتًا - تجوال"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"في انتظار إعادة المحاولة"</string>
@@ -83,7 +83,7 @@
     <string name="dialog_first_wifi" msgid="4318047428346248089">"سيتم تحميل الملفات كبيرة الحجم عبر اتصال WiFi فقط."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"جارٍ الفحص للملفات..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"جارٍ تحضير <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> من الصور و<xliff:g id="VIDEOCOUNT">%2$d</xliff:g> من مقاطع الفيديو للتحميل..."</string>
-    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"ليست هناك صور/مقاطع فيديو إضافية يلزم تحميلها."</string>
+    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"ليس هناك صور/مقاطع فيديو إضافية يلزم تحميلها."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"هناك مشكلة في الاتصال بالخادم. الرجاء إعادة المحاولة لاحقًا."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"تم إلغاء مزامنة الكل"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"مزامنة الكل"</string>
@@ -101,7 +101,7 @@
     <string name="preference_title_photo_size" msgid="2291608017215972660">"حجم الصورة"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"مقاطع فيديو"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"الحساب"</string>
-    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"سيُستخدم حساب الصور لتحميلات الفيديو."</string>
+    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"سيتم استخدام حساب الصور لتحميلات الفيديو."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"شروط التحميل"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"يتم استخدام إعدادات اتصال الصور حاليًا."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"تحميل الصور فقط عبر شبكات الجوال"</string>

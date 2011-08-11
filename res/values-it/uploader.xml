@@ -3,7 +3,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="7812006268714926951">"Caricam. istantaneo"</string>
+    <string name="application_name" msgid="7812006268714926951">"Caricamento istantaneo"</string>
     <string name="picasa_default_destination" msgid="2052406684123992574">"Album caricamento istantaneo"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Caricamento"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Terminati"</string>
@@ -42,7 +42,7 @@
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"In attesa di nuovo tentativo"</string>
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"In attesa di Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Caricamento"</string>
-    <string name="upload_state_failed" msgid="3799932718800848294">"Non riuscito"</string>
+    <string name="upload_state_failed" msgid="3799932718800848294">"Errore"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Completato"</string>
     <string name="pause_state_running" msgid="711411177620353982">"caricamento"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"messo in pausa manualmente"</string>
@@ -54,7 +54,7 @@
     <string name="pause_state_roaming" msgid="1811348200068311099">"in pausa - roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"in attesa di nuovo tentativo"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 minuto"</string>
-    <string name="retry_in_2min" msgid="5845688527405283031">"2 minuti"</string>
+    <string name="retry_in_2min" msgid="5845688527405283031">"due minuti"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 minuti"</string>
     <string name="retry_no_data" msgid="630347885498641534">"Nessuna connessione dati"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"L\'account ha superato la quota disco"</string>
@@ -76,15 +76,15 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Sincronizza tutto"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Ultima sincronizzazione:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"L\'elenco di elementi terminati è vuoto."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Caricam. istantaneo"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Caricamento istantaneo"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Caricamenti terminati"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Caricamenti sospesi"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"La funzione Caricamento istantaneo non è stata ancora attivata"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"I file di grandi dimensioni verranno caricati solo tramite connessioni Wi-Fi."</string>
-    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Ricerca file..."</string>
+    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Ricerca file in corso..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Preparazione di <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto e <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video per il caricamento..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Nessun altro video/foto da caricare."</string>
-    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Si è verificato un problema di comunicazione con il server. Riprova più tardi."</string>
+    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Si è verificato un problema durante la comunicazione con il server. Riprova più tardi."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Sincronizzazione di tutti gli elementi annullata"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Sincronizza tutto"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Visualizza Completati"</string>
@@ -131,7 +131,7 @@
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d di %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"In pausa: tocca per riprendere il caricamento"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Carica foto esistenti"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Caricare le foto e i video che non siano già stati caricati dal tuo telefono in un album privato sul Web può richiedere un po\' di tempo, ma sarà fatto in background. Continuare?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Caricare le foto e i video che non siano già stati caricati dal tuo telefono in un album privato sul Web può richiedere un po\' di tempo, ma sarà fatto in background. Vuoi continuare?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Sì"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"No"</string>
 </resources>
