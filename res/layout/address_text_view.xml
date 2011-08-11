@@ -14,10 +14,22 @@
      limitations under the License.
 -->
 
-<com.android.email.activity.AddressTextView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:textAppearance="?android:attr/textAppearanceMedium"
-    android:textColor="?android:attr/textColorSecondary"
-    android:inputType="textEmailAddress|textMultiLine"
-    android:imeOptions="actionNext"
-    android:layout_weight="1" />
+    style="@style/ComposeFieldLinearLayout"
+    android:layout_alignParentTop="true">
+
+    <TextView style="@style/ComposeHeading"
+        android:text="@string/message_compose_to_hint"
+        android:id="@+id/label"/>
+
+    <com.android.email.activity.AddressTextView
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorSecondary"
+        android:inputType="textEmailAddress|textMultiLine"
+        android:imeOptions="actionNext"
+        android:layout_weight="1"
+        android:layout_toRightOf="@id/label"
+        android:id="@+id/address_field" />
+
+</RelativeLayout>

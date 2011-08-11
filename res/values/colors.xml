@@ -68,4 +68,7 @@
     <color name="message_activated_color">#3cb8e6</color>
 
     <color name="error_bar_background">#ffff66</color>
+
+    <!-- Compose colors -->
+    <color name="compose_label_text">#aaaaaa</color>
 </resources>

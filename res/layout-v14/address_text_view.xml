@@ -14,6 +14,18 @@
      limitations under the License.
 -->
 
-<com.android.email.activity.ChipsAddressTextView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/EmailRecipientEditTextView" />
+    style="@style/ComposeFieldLinearLayout"
+    android:layout_alignParentTop="true">
+
+    <TextView style="@style/ComposeHeading"
+        android:text="@string/message_compose_to_hint"
+        android:id="@+id/label"/>
+
+    <com.android.email.activity.ChipsAddressTextView
+        style="@style/RecipientEditTextView"
+        android:layout_toRightOf="@id/label"
+        android:id="@+id/address_field" />
+
+</RelativeLayout>
