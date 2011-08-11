@@ -16,48 +16,6 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
-         and remove the actual text.  These will be removed in a bulk operation. -->
-    <skip />
-
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="read_unread_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="deselect_all_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="remove_account_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="folders_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="accounts_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="mark_as_read_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="add_attachment_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="notification_new_title"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="debug_enable_sensitive_logging_label"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_folder_list_separator_accounts"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_folder_list_refresh_toast"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="mailbox_list_title"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="gal_completed_limited_fmt"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="open_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="dump_settings_action"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="search_title"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="account_settings_title_fmt"></string>
-
-    <!-- End of deprecated strings. -->
-    <skip />
-
     <!-- Permissions label for reading attachments -->
     <string name="permission_read_attachment_label">Read Email attachments</string>
     <!-- Permissions description for reading attachments -->
@@ -1234,12 +1192,6 @@ save attachment.</string>
 
     <!-- Title shown on the action bar on the mailbox list screen. [CHAR LIMIT=16] -->
     <string name="action_bar_mailbox_list_title">Folders</string>
-
-    <!-- STOPSHIP Temporary UI DO NOT TRANSLATE-->
-    <!-- In Mailbox setings, label for email check frequency selector -->
-    <string name="mailbox_options_check_frequency_label">Folder check frequency</string>
-    <!-- In Mailbox setings, label for email check lookback selector -->
-    <string name="mailbox_options_lookback_label">Folder check lookback</string>
 
     <!-- A long placeholder string to be used in template XML files message_list_item_*.xml.
          Used only in layout computation, and never actually exposed to the user. -->
