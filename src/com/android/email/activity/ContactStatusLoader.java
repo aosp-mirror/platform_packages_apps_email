@@ -32,12 +32,14 @@ import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Loader to load presence statuses and the contact photo.
  */
 public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Result> {
-    private static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
+    @VisibleForTesting
+    static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
 
     /** email address -> photo id, presence */
     /* package */ static final String[] PROJECTION_PHOTO_ID_PRESENCE = new String[] {
