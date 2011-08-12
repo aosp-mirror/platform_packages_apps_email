@@ -29,7 +29,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,14 +48,11 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -202,6 +198,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
     private boolean mInitiallyEmpty;
+    private boolean mPickingAttachment = false;
     private Boolean mQuickResponsesAvailable = true;
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -1372,13 +1369,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
+        private boolean shouldShowSaveToast() {
+            // Don't show the toast when rotating, or when opening an Activity on top of this one.
+            return !isChangingConfigurations() && !mPickingAttachment;
+        }
+
         @Override
         protected void onSuccess(Long draftId) {
             // Note that send or save tasks are always completed, even if the activity
             // finishes earlier.
             sActiveSaveTasks.remove(mTaskId);
             // Don't display the toast if the user is just changing the orientation
-            if (!mSend && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+            if (!mSend && shouldShowSaveToast()) {
                 Toast.makeText(mContext, R.string.message_saved_toast, Toast.LENGTH_LONG).show();
             }
         }
@@ -1517,6 +1519,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType(AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES[0]);
+        mPickingAttachment = true;
         startActivityForResult(
                 Intent.createChooser(i, getString(R.string.choose_attachment_dialog_title)),
                 ACTIVITY_REQUEST_PICK_ATTACHMENT);
@@ -1641,6 +1644,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mPickingAttachment = false;
         if (data == null) {
             return;
         }
