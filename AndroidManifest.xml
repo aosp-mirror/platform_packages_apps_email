@@ -27,10 +27,6 @@
     <uses-permission
         android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission
-        android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission
-        android:name="android.permission.READ_OWNER_DATA"/>
-    <uses-permission
         android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission
         android:name="android.permission.INTERNET"/>
@@ -46,7 +42,7 @@
     <uses-permission
         android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission
-        android:name="android.permission.WRITE_SYNC_SETTINGS" />
+        android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 
     <uses-permission
         android:name="android.permission.WRITE_CONTACTS"/>
