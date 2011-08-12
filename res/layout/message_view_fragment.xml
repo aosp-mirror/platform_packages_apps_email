@@ -150,17 +150,14 @@
             <!-- end of tab area -->
             <!--
                 content area - only one of them is visible at a time.
-
-                TODO Decide what to do with the scrollview+webview issue, and remove the scrollviews
-                     below if we go with the outer scrollview.
             -->
-            <WebView
+            <com.android.email.view.RigidWebView
                 android:id="@+id/message_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dip"
                 android:layout_marginRight="16dip"
-                android:background="#ffffff"
+                android:background="@android:color/white"
                 android:visibility="gone"
                 />
             <!--
