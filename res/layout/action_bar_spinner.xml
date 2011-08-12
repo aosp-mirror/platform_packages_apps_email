@@ -27,6 +27,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_centerVertical="true"
+        android:paddingTop="0dip"
+        android:paddingBottom="0dip"
         android:focusable="true"
         >
         <TextView

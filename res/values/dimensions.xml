@@ -66,7 +66,7 @@
     <dimen name="account_spinner_dropdown_width">300dip</dimen>
 
     <!-- MessageListItem -->
-    <dimen name="senders_font_size">16sp</dimen>
+    <dimen name="senders_font_size">18sp</dimen>
     <dimen name="wide_senders_font_size">16sp</dimen>
     <dimen name="subject_font_size">14sp</dimen>
     <dimen name="wide_subject_font_size">16sp</dimen>
