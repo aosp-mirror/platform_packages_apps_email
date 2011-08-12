@@ -480,18 +480,32 @@ public class ActionBarController {
         boolean spinnerEnabled =
             ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0) && mCursor.shouldEnableSpinner();
 
-        if (spinnerEnabled) {
-            if (!mAccountSpinner.isEnabled()) {
-                mAccountSpinner.setEnabled(true);
-                mAccountSpinner.setBackgroundDrawable(mAccountSpinnerDefaultBackground);
-            }
-        } else {
-            if (mAccountSpinner.isEnabled()) {
-                mAccountSpinner.setEnabled(false);
-                mAccountSpinner.setBackgroundDrawable(null);
-            }
-        }
+
+        setSpinnerEnabled(spinnerEnabled);
     }
+
+    private void setSpinnerEnabled(boolean enabled) {
+        if (enabled == mAccountSpinner.isEnabled()) {
+            return;
+        }
+
+        mAccountSpinner.setEnabled(enabled);
+        if (enabled) {
+            mAccountSpinner.setBackgroundDrawable(mAccountSpinnerDefaultBackground);
+        } else {
+            mAccountSpinner.setBackgroundDrawable(null);
+        }
+
+        // For some reason, changing the background mucks with the padding so we have to manually
+        // reset vertical padding here (also specified in XML, but it seems to be ignored for
+        // some reason.
+        mAccountSpinner.setPadding(
+                mAccountSpinner.getPaddingLeft(),
+                0,
+                mAccountSpinner.getPaddingRight(),
+                0);
+    }
+
 
     private final SearchView.OnQueryTextListener mOnQueryText
             = new SearchView.OnQueryTextListener() {
