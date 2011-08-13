@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Atlikta"</string>
     <string name="create_action" msgid="3062715563215392251">"Sukurti naują"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Ištrinti"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Nėra greitų atsakų"</string>
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Nėra greitų atsakymų"</string>
     <string name="discard_action" msgid="6532206074859505968">"Atmesti"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Išsaug. juodraš."</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Įterpti greitą atsaką"</string>
@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Paieška el. pašte"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Ieškoti <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Paieškos rezultatai pagal „<xliff:g id="ID_1">%1$s</xliff:g>“"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Laukiama rezultatų"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Gali užtrukti, kol kai kurie serveriai pateiks rezultatus."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Aplankai"</string>
 </resources>

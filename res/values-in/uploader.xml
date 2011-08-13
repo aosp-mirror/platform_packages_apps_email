@@ -70,7 +70,7 @@
     <string name="manager_upload_later" msgid="5453932124711705632">"Unggah nanti"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Jangan unggah"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Lihat"</string>
-    <string name="manager_retry" msgid="939534318469518843">"Coba lagi"</string>
+    <string name="manager_retry" msgid="939534318469518843">"Mencoba kembali"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Unggahan dibatalkan"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Pengunggahan telah selesai"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Sinkronkan semua"</string>
@@ -85,14 +85,14 @@
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Menyiapkan <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto dan <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video untuk diunggah..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Tidak ada foto/video tambahan yang perlu diunggah."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Terjadi masalah saat berkomunikasi dengan server. Coba lagi nanti."</string>
-    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Semua sinkronisasi dibatalkan"</string>
+    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Sinkronkan semua yang dibatalkan"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Sinkronkan Semua"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Lihat yang Selesai"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Lihat yang Tertunda"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"Umum"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Jeda semua unggahan"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"Daya"</string>
-    <string name="preference_summary_need_power" msgid="1829578224249216151">"Hanya unggah ketika ponsel sedang mengisi daya."</string>
+    <string name="preference_summary_need_power" msgid="1829578224249216151">"Unggah ketika ponsel sedang mengisi daya saja."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Unggah hanya ketika Wi-Fi tersedia."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Foto"</string>
@@ -106,26 +106,26 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Setelan konektivitas foto digunakan untuk saat ini."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Foto melalui jaringan seluler saja"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto &amp; video melalui jaringan seluler"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Unggah foto &amp; video melalui Wi-Fi saja"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Foto &amp; video melalui Wi-Fi saja"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Tentang"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Versi Unggah Sekejap"</string>
-    <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Disarankan: 1600 piksel (untuk berbagi, dicetak, dan tirai layar)"</string>
+    <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Disarankan: 1600 piksel (untuk berbagi, dicetak, dan screensaver)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Ukuran asli (unggahan paling lambat)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"dijeda - kartu SD tidak tersedia"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Kartu SD tidak tersedia"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Setelan Unggah Sekejap"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Unggah Sekejap"</string>
-    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Mengunggah foto &amp; video baru ke album web pribadi secara otomatis"</string>
+    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Otomatis mengunggah foto &amp; video baru ke album web pribadi"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Status unggahan"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Lanjutan"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Unggahan seluler"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Unggahan roaming"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Unggah foto &amp; video saat roaming di jaringan data"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Unggahan baterai"</string>
-    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Unggah foto &amp; video hanya saat mengisi daya"</string>
+    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Unggah foto &amp; video saat mengisi daya saja"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Unggah foto yang ada"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Unggah foto &amp; video apa pun yang ada di ponsel Anda sekarang"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Dinonaktifkan"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Nonaktif"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Mengunggah (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d dari %2$d"</string>

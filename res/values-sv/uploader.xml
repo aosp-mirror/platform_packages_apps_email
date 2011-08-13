@@ -19,7 +19,7 @@
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"försöker igen om %s"</string>
     <string name="summary_menu_show_pending" msgid="658361192495996">"Visa väntande överföringar"</string>
     <string name="summary_menu_show_finished" msgid="8544099132633066086">"Visa slutförda överföringar"</string>
-    <string name="menu_view_online" msgid="6546633605818509942">"Se online"</string>
+    <string name="menu_view_online" msgid="6546633605818509942">"Visa online"</string>
     <string name="menu_show_pending_items" msgid="8798191388238604213">"Visa väntande överföringar"</string>
     <string name="menu_hide_pending_items" msgid="9216079748638469160">"Dölj väntande överföringar"</string>
     <string name="menu_show_completed_items" msgid="4380487776635859783">"Visa detaljer"</string>
@@ -44,7 +44,7 @@
     <string name="upload_state_uploading" msgid="82854465974176047">"Överförs"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Misslyckades"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Slutförd"</string>
-    <string name="pause_state_running" msgid="711411177620353982">"överförs"</string>
+    <string name="pause_state_running" msgid="711411177620353982">"överför"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"manuellt pausad"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"pausad – lågt batteri"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"pausad – fördröjs tills laddaren ansluts"</string>
@@ -81,10 +81,10 @@
     <string name="notify_paused" msgid="3999817913227671338">"Paus i överföringen"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Direktöverföring har inte aktiverats än"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"Stora videoklipp överförs bara via en Wi-Fi-anslutning."</string>
-    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Söker efter filer..."</string>
-    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foton och <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videor förbereds för överföring..."</string>
+    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Söker efter filer ..."</string>
+    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foton och <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videor förbereds för överföring ..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Inga fler foton/videoklipp behöver överföras."</string>
-    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Ett problem uppstod i kommunikationen med servern. Försök igen senare."</string>
+    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Det gick inte att kontakta servern. Försök igen senare."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Synka alla avbröts"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Synka alla"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Visa slutförda"</string>
@@ -118,7 +118,7 @@
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Överför nya bilder och videor till ett privat webbalbum automatiskt"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Överföringsstatus"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avancerat"</string>
-    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobilöverföring"</string>
+    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobilöverföringar"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Överföring vid roaming"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Överför bilder och videor under roaming"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Batteriöverföring"</string>
@@ -127,11 +127,11 @@
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Överför alla befintliga bilder och videor från telefonen nu"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Inaktiverad"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
-    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Överföring (%1$d%%)"</string>
+    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Överför (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d av %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Pausad: Tryck om du vill återuppta överföringen."</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Överför befintliga foton"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Det kan ta en stund att överföra foton och videor som inte redan har överförts från mobilen till ett privat album på webben, men det sker i bakgrunden. Är du säker på att du vill fortsätta?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Det kan ta en stund att överföra foton och videor som inte redan har överförts från mobilen till ett privat album på webben, men det sker i bakgrunden. Vill du fortsätta?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Ja"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Nej"</string>
 </resources>

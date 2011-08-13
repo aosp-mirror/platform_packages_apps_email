@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Αναζήτηση"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Ρυθμίσεις λογαριασμού"</string>
     <string name="settings_action" msgid="6334807007967459412">"Ρυθμίσεις"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Επιλογές συγχρονισμού"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Επισήμανση ως μη αναγνωσμένα"</string>
     <string name="move_action" msgid="3059189775933985898">"Μετακίνηση"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"Κοιν./Κρυφή κοιν."</string>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Εμφάνιση εικόνων"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Να εμφανίζονται πάντα"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Να εμφανίζονται πάντα οι εικόνες από αυτόν τον παραλήπτη"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Οι εικόνες από αυτόν τον αποστολέα θα εμφανίζονται αυτόματα."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Προβολή στο Ημερολόγιο"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Πρόσκληση Ημερολογίου"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Θα πάτε;"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Συγχρονισμός μηνυμάτων ηλεκτρονικού ταχυδρομείου από αυτόν τον λογαριασμό."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Αυτόματη λήψη συνημμένων κατά τη σύνδεση σε δίκτυο Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Η ρύθμιση δεν μπόρεσε να ολοκληρωθεί"</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Όγκος προς συγχρονισμό"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Ημέρες για συγχρονισμό"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Αυτόματη"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Μία ημέρα"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Τρεις ημέρες"</string>
@@ -399,14 +396,11 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Ο λογαριασμός \"<xliff:g id="ACCOUNT">%s</xliff:g>\" θα καταργηθεί από το ηλεκτρονικό ταχυδρομείο."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Κατάργηση λογαριασμού"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Κατάργηση λογαριασμού"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Επιλογές συγχρονισμού"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Επιλογές συγχρονισμού (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Ρυθμίσεις συγχρονισμού"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Ελέγξτε τη συχνότητα"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Ημέρες για συγχρονισμό"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Λογαριασμός ηλεκτρονικού ταχυδρομείου"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Επιλογή λογαριασμού"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Επιλέξτε φάκελο"</string>
@@ -465,9 +459,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Αναζήτηση ηλεκτρονικού ταχυδρομείου"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Αναζήτηση <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Αποτελέσματα αναζήτησης για \" <xliff:g id="ID_1">%1$s</xliff:g> \""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Αναμονή για αποτελέσματα"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Ορισμένοι διακομιστές ενδέχεται να χρειαστούν αρκετό χρόνο."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Φάκελοι"</string>
 </resources>

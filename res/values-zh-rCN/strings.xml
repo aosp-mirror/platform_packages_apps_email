@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"搜索"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"帐户设置"</string>
     <string name="settings_action" msgid="6334807007967459412">"设置"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"同步选项"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"标记为未读"</string>
     <string name="move_action" msgid="3059189775933985898">"移动"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"添加抄送/密送"</string>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"显示图片"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"总是显示"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"总是显示来自此发件人的图片"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"自动显示来自该发件人的图片。"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"在日历中查看"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"日历邀请"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"参加吗？"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"同步此帐户中的电子邮件。"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"连接到 Wi-Fi 后自动下载附件"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"设置无法完成"</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"要同步的数量"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"要同步的天数"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"自动"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"一天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"三天"</string>
@@ -378,7 +375,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"编辑撰写电子邮件时经常插入的文本"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在您发送的邮件中附加文本"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知设置"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"数据使用情况"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"数据使用"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"编辑快速回复"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"同步联系人"</string>
@@ -399,19 +396,16 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"将会从电子邮件中删除“<xliff:g id="ACCOUNT">%s</xliff:g>”帐户。"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"删除帐户"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"删除帐户"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"同步选项"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"同步选项（<xliff:g id="MAILBOXX_NAME">%s</xliff:g>）"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"同步设置"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"检查频率"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"要同步的天数"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"电子邮件帐户"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"选择帐户"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"选择文件夹"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"未找到帐户。该帐户可能已删除。"</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"未找到文件夹。该文件夹可能已被删除。"</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"未找到文件夹。该文件夹可能已删除。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有某些“Plus”帐户支持 POP 访问而允许此程序进行连接。如果您使用正确的电子邮件地址和密码无法登录，则可能还未开通付费的“Plus”帐户。请启动网络浏览器以获取对这些邮件帐户的访问权限。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
@@ -425,7 +419,7 @@
     <item quantity="other" msgid="7816121892960632123">"来自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的 <xliff:g id="RESULTS">%1$d</xliff:g> 条结果"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"设置"</string>
-    <string name="header_label_general_preferences" msgid="265431682990288581">"一般偏好设置"</string>
+    <string name="header_label_general_preferences" msgid="265431682990288581">"常规偏好设置"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"应用程序偏好设置"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"自动跳转"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"选择要在删除邮件后显示的屏幕"</string>
@@ -465,9 +459,7 @@
     <string name="search_hint" msgid="2200412192574686497">"搜索电子邮件"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"搜索<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"关于“<xliff:g id="ID_1">%1$s</xliff:g>”的搜索结果"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"正在等待结果"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能需要很长的时间。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
 </resources>

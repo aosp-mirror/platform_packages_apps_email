@@ -33,7 +33,7 @@
     <string name="cancel" msgid="1207103189404543868">"Отказ"</string>
     <string name="uploading_to" msgid="3986362895940069510">"Качва се във: "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" за "<b>"%s"</b></string>
-    <string name="destination_format" msgid="7472552212462849956">"„%2$s“ от %1$s"</string>
+    <string name="destination_format" msgid="7472552212462849956">"%1$s „%2$s“"</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"Качването започна неуспешно."</string>
     <string name="toast_file_error" msgid="1315722681020841350">"Файлът не е наличен."</string>
     <string name="account_error" msgid="1904775271866104941">"Извличането на информация за профила не бе успешно."</string>
@@ -46,12 +46,12 @@
     <string name="upload_state_completed" msgid="5638163990418071018">"Завършени"</string>
     <string name="pause_state_running" msgid="711411177620353982">"качва се"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"ръчно поставено на пауза"</string>
-    <string name="pause_state_low_battery" msgid="3154677586511229063">"на пауза – изтощена батерия"</string>
-    <string name="pause_state_need_charger" msgid="5014741655713255815">"на пауза – отложено, докато се зарежда"</string>
-    <string name="pause_state_need_connectivity" msgid="338696137467815955">"на пауза – изчаква се връзка"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"на пауза - квотата за Picasa Уеб Албуми е изчерпана"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"на пауза – изчаква се WiFi"</string>
-    <string name="pause_state_roaming" msgid="1811348200068311099">"на пауза – роуминг"</string>
+    <string name="pause_state_low_battery" msgid="3154677586511229063">"поставено на пауза – изтощена батерия"</string>
+    <string name="pause_state_need_charger" msgid="5014741655713255815">"поставено на пауза – отложено, докато се зарежда"</string>
+    <string name="pause_state_need_connectivity" msgid="338696137467815955">"поставено на пауза – изчаква се връзка"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"поставено на пауза - квотата за Picasa Уеб Албуми е изчерпана"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"поставено на пауза – изчаква се WiFi"</string>
+    <string name="pause_state_roaming" msgid="1811348200068311099">"поставено на пауза – роуминг"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"изчаква се за нов опит"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 минута"</string>
     <string name="retry_in_2min" msgid="5845688527405283031">"2 минути"</string>
@@ -70,7 +70,7 @@
     <string name="manager_upload_later" msgid="5453932124711705632">"Качване по-късно"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Да не се качва"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Преглед"</string>
-    <string name="manager_retry" msgid="939534318469518843">"Нов опит"</string>
+    <string name="manager_retry" msgid="939534318469518843">"Повторен опит"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Качването е анулирано"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Качването вече приключи"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Синхронизиране на всичко"</string>
@@ -111,7 +111,7 @@
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Незаб. качв.: Версия"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Препоръчително: 1 600 пиксела (за споделяне, отпечатване и скрийнсейвъри)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Оригинален размер (най-бавно качване)"</string>
-    <string name="pause_state_need_media" msgid="3849758767808306320">"на пауза – няма налична SD карта"</string>
+    <string name="pause_state_need_media" msgid="3849758767808306320">"поставено на пауза – няма налична SD карта"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Няма налична SD карта"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Незаб. качв.: Настр."</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Незабавно качване"</string>

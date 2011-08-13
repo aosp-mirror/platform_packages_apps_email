@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Búsqueda"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Ajustes de la cuenta"</string>
     <string name="settings_action" msgid="6334807007967459412">"Ajustes"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Opciones de sincronización"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar como no leído"</string>
     <string name="move_action" msgid="3059189775933985898">"Mover"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Cco"</string>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imágenes"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Mostrar siempre"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Mostrar siempre las imágenes de este remitente"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Las imágenes de este remitente se mostrarán automáticamente."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Ver en calendario"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Invitación de calendario"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"¿Asistirás?"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronizar mensajes de correo procedentes de esta cuenta"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descargar adjuntos automáticamente al conectar a una red WiFi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"No se ha podido completar la configuración."</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Cantidad para sincronizar"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Días para sincronizar"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automática"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un día"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tres días"</string>
@@ -399,14 +396,11 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Eliminar cuenta"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Eliminar cuenta"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Opciones de sincronización"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opciones de sincronización (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Ajustes de sincronización"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Frecuencia de comprobación"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Días para sincronizar"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleccionar cuenta"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Seleccionar carpeta"</string>
@@ -465,9 +459,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Buscar email"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Buscar <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Resultados de búsqueda de \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Esperando resultados"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Algunos servidores pueden tardar mucho tiempo."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Carpetas"</string>
 </resources>

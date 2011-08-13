@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Căutaţi în e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Căutaţi în <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultatele căutării pentru „<xliff:g id="ID_1">%1$s</xliff:g>”"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Se aşteaptă rezultatele"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Pentru unele servere poate fi necesar un interval mare de timp."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Dosare"</string>
 </resources>

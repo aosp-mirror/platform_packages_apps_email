@@ -29,7 +29,7 @@
     <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Hesap"</string>
     <string name="upload" msgid="2615541458361216022">"Yükle"</string>
-    <string name="ok" msgid="2516349681897895312">"Tamam"</string>
+    <string name="ok" msgid="2516349681897895312">"TAMAM"</string>
     <string name="cancel" msgid="1207103189404543868">"İptal"</string>
     <string name="uploading_to" msgid="3986362895940069510">"Şuraya yükleniyor: "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" "<b>"%s"</b>" için"</string>
@@ -70,7 +70,7 @@
     <string name="manager_upload_later" msgid="5453932124711705632">"Daha sonra yükle"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Yükleme"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Görüntüle"</string>
-    <string name="manager_retry" msgid="939534318469518843">"Yeniden dene"</string>
+    <string name="manager_retry" msgid="939534318469518843">"Tekrar dene"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Yükleme iptal edildi"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Yükleme zaten tamamlandı"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Tümünü senkronize et"</string>
@@ -84,7 +84,7 @@
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Dosyalar taranıyor..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> fotoğraf ve <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video yüklenmek üzere hazırlanıyor..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Yüklenmesi gereken başka fotoğraf/video yok."</string>
-    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Sunucuyla iletişimde bir sorun oldu. Lütfen daha sonra tekrar deneyin."</string>
+    <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Sunucuyla iletişimde bir sorun oluştu. Lütfen daha sonra tekrar deneyin."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Tümünü senkronize etme işlemi iptal edildi"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Tümünü Senkronize Et"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Tamamlananları Görüntüle"</string>
@@ -113,11 +113,11 @@
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Orijinal boyut (en yavaş yükleme)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"duraklatıldı - SD kart kullanılamıyor"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD kart kullanılamıyor"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Anında Yüklm ayrları"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Hızlı Yükleme ayarları"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Anında Yükleme"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Yeni fotoğrafları ve videoları kişisel web albümüne otomatik olarak yükle"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Yükleme durumu"</string>
-    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Gelişmiş"</string>
+    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"İleri Düzey"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobil yüklemeler"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Dolaşımda yüklemeler"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Fotoğrafları ve videoları veri ağında dolaşımdayken yükle"</string>
