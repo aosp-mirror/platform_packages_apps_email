@@ -5,10 +5,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="application_name" msgid="7812006268714926951">"Instant Upload"</string>
     <string name="picasa_default_destination" msgid="2052406684123992574">"Album Instant Upload"</string>
-    <string name="summary_title_uploading" msgid="3357617474017589370">"Transfert"</string>
+    <string name="summary_title_uploading" msgid="3357617474017589370">"Transfert..."</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Terminé"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Interrompu"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% %2$d photos et %3$d vidéos"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d photos ??? %3$d vidéos"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d photos et %2$d vidéos"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"batterie faible"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"quota photos dépassé"</string>
@@ -42,7 +42,7 @@
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"En attente d\'une nouvelle tentative"</string>
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"En attente d\'une connexion Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Transfert..."</string>
-    <string name="upload_state_failed" msgid="3799932718800848294">"Échec"</string>
+    <string name="upload_state_failed" msgid="3799932718800848294">"Échec."</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Terminé"</string>
     <string name="pause_state_running" msgid="711411177620353982">"transfert..."</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"interrompu manuellement"</string>
@@ -80,16 +80,16 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Transferts terminés"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Transferts interrompus"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Instant Upload n\'a pas encore été activé."</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Les fichiers volumineux ne seront transférés que via une connexion Wi-Fi."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"Les fichiers volumineux ne seront transférés qu\'au moyen d\'une connexion Wi-Fi."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Recherche de fichiers..."</string>
-    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Préparation du transfert de <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> photos et <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> vidéos..."</string>
-    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Aucune autre photo/vidéo à transférer."</string>
+    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Préparation du transfert de <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> photos et de <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> vidéos..."</string>
+    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Aucune autre photo ou vidéo à transférer."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Un problème est survenu lors de la communication avec le serveur. Veuillez réessayer ultérieurement."</string>
-    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Opération \"Tout synchroniser\" annulée"</string>
+    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Opération \"Tout synchroniser\" annulée."</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Tout synchroniser"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Afficher les transferts terminés"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Afficher les transferts en attente"</string>
-    <string name="preference_category_title_general" msgid="330919434495694575">"Général"</string>
+    <string name="preference_category_title_general" msgid="330919434495694575">"Paramètres généraux"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Interrompre tous les transferts"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"En charge"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Transférer uniquement lorsque le téléphone est en charge"</string>
@@ -103,9 +103,9 @@
     <string name="preference_title_videos_account" msgid="6675545508568161301">"Compte"</string>
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"Le compte de photos sera utilisé pour transférer des vidéos."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Conditions de transfert"</string>
-    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Les paramètres de connectivité des photos sont actuellement utilisés."</string>
+    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Les paramètres de connectivité des photos sont actuellement utilisés"</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Réseaux mobiles uniquement pour les photos"</string>
-    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Transférer les photos et les vidéos via les réseaux mobiles"</string>
+    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Photos et vidéos via les réseaux mobiles"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Photos et vidéos via Wi-Fi uniquement"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"À propos de"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Version Instant Upload"</string>
@@ -118,18 +118,18 @@
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Transférer automatiquement les nouvelles photos et vidéos vers un album Web privé"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"État du transfert"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avancés"</string>
-    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Transferts via connexion Internet mobile"</string>
+    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Transferts via connexion mobile"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Transferts en itinérance"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Transférer les photos et les vidéos en itinérance"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Transferts lorsque la batterie est en charge"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Transférer les photos et les vidéos uniquement lors de la mise en charge"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Transférer les photos existantes"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Transférer toutes les photos et les vidéos de votre téléphone"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Désactivée"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Désactivé"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s : %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Transfert (%1$d%%)"</string>
-    <string name="preference_summary_uploading_format" msgid="6092575579212954671">" : %1$d sur %2$d"</string>
-    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Transfert interrompu : appuyez pour reprendre"</string>
+    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d sur %2$d"</string>
+    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Transfert interrompu : appuyez pour reprendre."</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Transférer les photos existantes"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Le transfert de photos et de vidéos n\'ayant pas déjà été transférées à partir de votre téléphone vers un album Web privé peut prendre un certain temps. Toutefois, cette opération se fera en arrière-plan. Voulez-vous vraiment continuer ?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Oui"</string>

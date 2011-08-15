@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
     <string name="create_action" msgid="3062715563215392251">"Neue erstellen"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Löschen"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Keine schnellen Antworten"</string>
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Keine Kurzantworten"</string>
     <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Speichern"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Schnellantwort einfügen"</string>
@@ -55,7 +55,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
     <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"\"Cc\"/\"Bcc\" hinzuf."</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc hinzufügen"</string>
     <string name="add_attachment_menu" msgid="6854757034409168845">"Datei anhängen"</string>
     <string name="close_action" msgid="533058985745238100">"Schließen"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Alle senden"</string>
@@ -374,7 +374,7 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
-    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Schnellantworten"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Kurzantworten"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Bearbeiten Sie beim Verfassen von E-Mails oft eingefügten Text."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an ausgehende Nachrichten anhängen"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"E-Mail durchsuchen"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> durchsuchen"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Suchergebnisse für \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Warten auf Ergebnisse"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Bei einigen Servern benötigen Sie möglicherweise etwas mehr Geduld."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Ordner"</string>
 </resources>

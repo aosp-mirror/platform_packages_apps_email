@@ -34,24 +34,24 @@
     <string name="uploading_to" msgid="3986362895940069510">"Laster opp til "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" for "<b>"%s"</b></string>
     <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
-    <string name="toast_intent_error" msgid="6164928822619692280">"Opplastingsinitialisering mislyktes."</string>
+    <string name="toast_intent_error" msgid="6164928822619692280">"Opplastingsinitialiserign mislyktes."</string>
     <string name="toast_file_error" msgid="1315722681020841350">"Filen er ikke tilgjengelig."</string>
     <string name="account_error" msgid="1904775271866104941">"Kan ikke hente kontoinformasjon."</string>
-    <string name="toast_failed_auth" msgid="2196450105656960566">"Det oppsto et problem ved pålogging til kontoen din."</string>
+    <string name="toast_failed_auth" msgid="2196450105656960566">"Det oppsto et problem under pålogging til kontoen din."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"Venter på å prøve på nytt"</string>
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Venter på Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Laster opp"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Mislyktes"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Fullført"</string>
-    <string name="pause_state_running" msgid="711411177620353982">"lastes opp"</string>
-    <string name="pause_state_manually_paused" msgid="4837627990158796573">"satt på pause manuelt"</string>
+    <string name="pause_state_running" msgid="711411177620353982">"laster opp"</string>
+    <string name="pause_state_manually_paused" msgid="4837627990158796573">"manuelt satt på pause"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"satt på pause – lavt batteri"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"satt på pause – utsatt inntil enheten lades"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"satt på pause – venter på tilkobling"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"satt på pause – PWA-kvote brukt opp"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"satt på pause – venter på Wi-Fi"</string>
-    <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – bruker annet nettverk"</string>
+    <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – streifing"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"venter på å prøve på nytt"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"Ett minutt"</string>
     <string name="retry_in_2min" msgid="5845688527405283031">"To minutter"</string>
@@ -59,7 +59,7 @@
     <string name="retry_no_data" msgid="630347885498641534">"Ingen datatilkobling"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"Kontoen har ingen tilgjengelig diskkvote"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"Finner ikke filen"</string>
-    <string name="failed_bad_response" msgid="8357723053952213242">"Feil ved tjeneste"</string>
+    <string name="failed_bad_response" msgid="8357723053952213242">"Tjenestefeil"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"Nettverksfeil"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"Autentisering mislyktes"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"Ventende opplastinger [%d]"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Opplastinger er fullført"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Opplastinger satt på pause"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Direkteopplasting er ikke aktivert ennå"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Store filer kan kun lastes opp via Wi-Fi-tilkobling."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"Store filer kan lastes opp bare via Wi-Fi-tilkobling."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Skanner etter filer …"</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Forbereder <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> bilder og <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videoer for opplasting …"</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Ingen flere bilder eller videoer trenger å lastes opp."</string>
@@ -101,7 +101,7 @@
     <string name="preference_title_photo_size" msgid="2291608017215972660">"Bildestørrelse"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"Videoer"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"Konto"</string>
-    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"Bildekontoen brukes til videoopplastinger."</string>
+    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"Bildekontoen blir brukt til videoopplastinger."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Opplastingsforhold"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Tilkoblingsinnstillinger for bilder brukes inntil videre."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Bare bilder via mobile nettverk"</string>
@@ -111,27 +111,27 @@
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Direktopplast.-ver."</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Anbefalt: 1600 piksler (for deling, utskrift og skjermbeskyttere)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Originalstørrelse (tregeste opplasting)"</string>
-    <string name="pause_state_need_media" msgid="3849758767808306320">"satt på pause – SD-kort ikke tilgjengelig"</string>
+    <string name="pause_state_need_media" msgid="3849758767808306320">"midlertidig stoppert – SD-kort er ikke tilgjengelig"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD-kortet er ikke tilgjengelig"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Dir.opplast.-innst."</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Innst. for dir.oppl."</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Direkteopplasting"</string>
-    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Automatisk opplasting av nye bilder og videoer til et privat nettalbum"</string>
+    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Automatisk opplasting av nye bilder og videoer til privat nettalbum"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Opplastingsstatus"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avansert"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Opplastinger fra mobil"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Opplastinger ved streifing"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Last opp bilder og videoer ved streifing i datanettverk"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Last opp bilder og videoer ved streifing på datanettverk"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Batteriopplastinger"</string>
-    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Last opp bilder og videoer bare ved lading"</string>
+    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Last opp bilder og videoer bare under lading"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Last opp eksisterende bilder"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Last opp alle eksisterende bilder og videoer fra telefonen din nå"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Deaktivert"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
-    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Opplasting (%1$d%%)"</string>
+    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Laster opp (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d av %2$d"</string>
-    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Midlertidig stoppet: Berør for å gjenoppta opplasting"</string>
+    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Midlertidig stoppet: Trykk for å gjenoppta opplasting"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Last opp eksisterende bilder"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Det kan ta litt tid å laste opp bilder og videoer som ikke allerede har blitt lastet opp fra telefonen din til et privat album på nettet, men handlingen blir utført i bakgrunnen. Er du sikker på at du vil fortsette?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Det kan ta litt tid å laste opp bilder og videoer som ikke allerede har blitt lastet opp fra telefonen din, til et privat album på nettet. Handlingen utføres imidlertid i bakgrunnen. Er du sikker på at du vil fortsette?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Ja"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Nei"</string>
 </resources>

@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Søg i e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søg i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Søgeresultater for \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Venter på resultater"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Det kan tage lang med nogle servere."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapper"</string>
 </resources>

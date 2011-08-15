@@ -55,7 +55,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markera som oläst"</string>
     <string name="move_action" msgid="3059189775933985898">"Flytta"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kopia/heml. k."</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Lägg till kopia/dold"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Lägg till kopia/hemlig kopia"</string>
     <string name="add_attachment_menu" msgid="6854757034409168845">"Bifoga fil"</string>
     <string name="close_action" msgid="533058985745238100">"Stäng"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Skicka meddelanden"</string>
@@ -411,7 +411,7 @@
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Välj ett konto"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Välj en mapp"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Kontot kunde inte hittas. Det kan ha tagits bort."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Kontot hittades inte. Det kan ha tagits bort."</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Mappen hittades inte. Den kan ha tagits bort."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"POP-åtkomst, som gör så att detta program kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst tills dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>
@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Sök efter e-post"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Sök i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Sökresultat för <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Väntar på resultat"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Vissa servrar kan ta lång tid."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mappar"</string>
 </resources>

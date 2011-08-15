@@ -404,7 +404,7 @@
     <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
     <skip />
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Synkroniseringsinnstillinger"</string>
-    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Hvor ofte postboksen skal kontrolleres"</string>
+    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Hvor ofte innboksen skal kontrolleres"</string>
     <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
     <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-postkonto"</string>
@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Søk i e-post"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søk i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Søkeresultater for «<xliff:g id="ID_1">%1$s</xliff:g>»"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Venter på resultater"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Noen tjenere kan ta lang tid."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapper"</string>
 </resources>

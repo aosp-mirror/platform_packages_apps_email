@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Tapos na"</string>
     <string name="create_action" msgid="3062715563215392251">"Lumikha ng bago"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Tanggalin"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Walang mga mabilis na pagtugon"</string>
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Walang mga mabilisang pagtugon"</string>
     <string name="discard_action" msgid="6532206074859505968">"Itapon"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"I-save ang draft"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Ipasok mabilisang tugon"</string>
@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Paghahanap"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Mga setting ng account"</string>
     <string name="settings_action" msgid="6334807007967459412">"Mga Setting"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Mga pagpipilian sa pag-sync"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markahan bilang hindi pa nababasa"</string>
     <string name="move_action" msgid="3059189775933985898">"Ilipat"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Ipakita ang mga larawan"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Palaging ipakita"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Palaging ipakita ang mga larawan mula sa nagpadalang ito"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Awtomatikong ipapakita ang mga larawan mula sa nagpadalang ito."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Tingnan sa Kalendaryo"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Imbitasyon sa Kalendaryo"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Pupunta?"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"I-sync ang email mula sa account na ito."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Awtomatikong i-download ang mga attachment kapag nakakonekta sa Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Hindi matapos ang pag-setup"</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Halagang isi-synchronize"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Mga araw upang i-sync"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Awtomatiko"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Isang araw"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tatlong araw"</string>
@@ -399,19 +396,16 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Aalisin ang account na \"<xliff:g id="ACCOUNT">%s</xliff:g>\" mula sa Email."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Alisin ang account"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Alisin ang account"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Mga pagpipilian sa pag-sync"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Mga pagpipilian sa pag-sync (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Mga setting ng pag-sync"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Suriin ang dalas"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Mga araw upang i-sync"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Email account"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Pumili ng account"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pumili ng folder"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Hindi nakita ang account. Maaaring naalis ito."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Hindi nakita ang account. Maaaring naalis ito."</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Hindi nakita ang folder. Maaaring naalis ito."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Ang ilan lang na \"Plus\" account ang kinabibilangan ng access sa POP at nagbibigay-daan sa programang ito na makakonekta. Kung hindi mo magawang mag-sign in gamit ang iyong tamang email address at password, maaaring wala kang bayad na \"Plus\" account. Pakilunsad ang Web browser upang makakuha ng access sa mga mail account na ito."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Bago ang pag-set up ng email account na ito, pakibisita ang T-Online Web site at lumikha ng password para sa access sa POP3 email."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
@@ -465,9 +459,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Maghanap sa email"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Hanapin ang <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Mga resulta ng paghahanap para sa \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Naghihintay ng mga resulta"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Maaaring magtagal ang ilang server."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mga Folder"</string>
 </resources>

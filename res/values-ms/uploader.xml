@@ -14,7 +14,7 @@
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"melebihi kuota foto"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"perayauan"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"menunggu WiFi"</string>
-    <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"ditunda sehingga dicaskan"</string>
+    <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"ditunda sehingga mengecas"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"menunggu sambungan"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"mencuba semula dalam %s"</string>
     <string name="summary_menu_show_pending" msgid="658361192495996">"Tunjukkan Muat Naik Yang Belum Selesai"</string>
@@ -47,7 +47,7 @@
     <string name="pause_state_running" msgid="711411177620353982">"memuat naik"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"dijeda secara manual"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"dijeda - bateri lemah"</string>
-    <string name="pause_state_need_charger" msgid="5014741655713255815">"dijeda - ditunda sehingga dicaskan"</string>
+    <string name="pause_state_need_charger" msgid="5014741655713255815">"dijeda - ditunda sehingga mengecas"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"dijeda - menunggu sambungan"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"dijeda - kehabisan kuota PWA"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"dijeda - menunggu wifi"</string>
@@ -69,7 +69,7 @@
     <string name="manager_upload_now" msgid="2284408578936376342">"Muat naik sekarang"</string>
     <string name="manager_upload_later" msgid="5453932124711705632">"Muat naik kemudian"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Jangan muat naik"</string>
-    <string name="manager_view_media" msgid="3714544539986850549">"Lihat"</string>
+    <string name="manager_view_media" msgid="3714544539986850549">"Tonton"</string>
     <string name="manager_retry" msgid="939534318469518843">"Cuba semula"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Muat naik dibatalkan"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Muat naik sudah pun selesai"</string>
@@ -97,12 +97,12 @@
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Muat naik hanya apabila Wi-Fi tersedia."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Foto"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Akaun"</string>
-    <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Keadaan muat naik"</string>
+    <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Syarat muat naik"</string>
     <string name="preference_title_photo_size" msgid="2291608017215972660">"Saiz foto"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"Video"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"Akaun"</string>
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"Akaun foto akan digunakan untuk muat naik video."</string>
-    <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Keadaan muat naik"</string>
+    <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Syarat muat naik"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Tetapan kesambungan foto digunakan buat masa sekarang."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Foto sahaja melalui rangkaian mudah alih"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto &amp; video melalui rangkaian mudah alih"</string>
@@ -113,11 +113,11 @@
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Saiz asal (muat naik paling perlahan)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"dijeda - kad SD tidak tersedia"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Kad SD tidak tersedia"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Ttpn M/Naik Srt-mrta"</string>
-    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Muat Naik Srta-mrta"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Tetapan Muat Naik Serta-merta"</string>
+    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Muat Naik Serta-merta"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Muat naik foto &amp; video baru ke album web peribadi secara automatik"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Status muat naik"</string>
-    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Lanjutan"</string>
+    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Terperinci"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Muat naik mudah alih"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Muat naik perayauan"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Muat naik foto &amp; video apabila merayau pada rangkaian data"</string>

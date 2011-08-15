@@ -55,7 +55,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Atzīmēt kā nelasītu"</string>
     <string name="move_action" msgid="3059189775933985898">"Pārvietot"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ kop./d. kop."</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Pievien. kopiju/d.k."</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Piev. kop./d. kop."</string>
     <string name="add_attachment_menu" msgid="6854757034409168845">"Pievienot failu"</string>
     <string name="close_action" msgid="533058985745238100">"Aizvērt"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Sūtīt visus ziņoj."</string>
@@ -465,9 +465,7 @@
     <string name="search_hint" msgid="2200412192574686497">"Meklējiet e-pastu"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Meklējiet <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Meklēšanas rezultāti vaicājumam “<xliff:g id="ID_1">%1$s</xliff:g>”"</string>
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
+    <string name="search_slow_warning_title" msgid="2826118321880530239">"Tiek gaidīti rezultāti"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Dažu serveru darbība var aizņemt ilgu laiku."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapes"</string>
 </resources>

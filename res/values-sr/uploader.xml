@@ -43,7 +43,7 @@
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Чека се WiFi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Отпремање"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Није успело"</string>
-    <string name="upload_state_completed" msgid="5638163990418071018">"Довршено"</string>
+    <string name="upload_state_completed" msgid="5638163990418071018">"Завршено"</string>
     <string name="pause_state_running" msgid="711411177620353982">"отпремање"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"ручно паузирано"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"паузирано – слаба батерија"</string>
@@ -56,7 +56,7 @@
     <string name="retry_in_1min" msgid="2242454935194420914">"1 минут"</string>
     <string name="retry_in_2min" msgid="5845688527405283031">"2 минута"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 минута"</string>
-    <string name="retry_no_data" msgid="630347885498641534">"Нема везе за пренос података"</string>
+    <string name="retry_no_data" msgid="630347885498641534">"Није успостављена веза за пренос података"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"Налог је премашио квоту за диск"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"Датотека није пронађена"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"Грешка у услузи"</string>
@@ -85,11 +85,11 @@
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Припрема <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> фотографије(а) и <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> видео сним(а)ка за отпремање..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Није потребно отпремање додатних фотографија/видео снимака."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Дошло је до проблема у комуникацији са сервером. Покушајте поново касније."</string>
-    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Синхронизуј све је отказано"</string>
+    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Синхронизуј све отказано"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Синхронизација свих ставки"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Приказ је довршен"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Приказ на чекању"</string>
-    <string name="preference_category_title_general" msgid="330919434495694575">"Опште"</string>
+    <string name="preference_category_title_general" msgid="330919434495694575">"Опште информације"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Паузирање свих отпремања"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"Напајање"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Отпремај само када се телефон пуни."</string>
@@ -107,7 +107,7 @@
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Само фотографије преко мобилних мрежа"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Фотографије и видео снимци преко мобилних мрежа"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Фотографије и видео снимци само преко Wi-Fi везе"</string>
-    <string name="preference_category_title_about" msgid="3001183168471659844">"О"</string>
+    <string name="preference_category_title_about" msgid="3001183168471659844">"Основни подаци"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Са Инстант отпремањем"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Препоручено: 1600 пиксела (за дељење, штампање и позадине)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Оригинална величина (најспорије отпремање)"</string>
@@ -124,7 +124,7 @@
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Отпремања током пуњења батерије"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Отпремање фотографија и видео снимака само током пуњења"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Отпремање постојећих фотографија"</string>
-    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Отпремање свих постојећих фотографија и видео снимака са телефона одмах"</string>
+    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Отпремање свих постојећих фотографија и видео снимака са телефона"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Онемогућено"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Отпремање (%1$d%%)"</string>
