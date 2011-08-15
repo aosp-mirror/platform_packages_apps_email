@@ -22,7 +22,7 @@
     >
     <RelativeLayout
         android:id="@+id/account_spinner"
-        style="?android:attr/dropDownSpinnerStyle"
+        style="?android:attr/actionDropDownStyle"
         android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"

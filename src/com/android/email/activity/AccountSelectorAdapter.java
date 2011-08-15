@@ -330,10 +330,6 @@ public class AccountSelectorAdapter extends CursorAdapter {
             int accountPosition = UNKNOWN_POSITION;
             accountCursor.moveToPosition(-1);
 
-            // Add a header for the accounts
-            addHeaderRow(matrixCursor, mContext.getString(
-                    R.string.mailbox_list_account_selector_account_header));
-
             matrixCursor.mAccountCount = accountCursor.getCount();
             int totalUnread = 0;
             int currentPosition = 1;
