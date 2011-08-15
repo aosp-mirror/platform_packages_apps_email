@@ -27,8 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
@@ -48,9 +46,7 @@ import com.android.emailcommon.utility.Utility;
  * files").
  */
 public class MessageViewFragment extends MessageViewFragmentBase
-        implements CheckBox.OnCheckedChangeListener,
-                    MoveMessageToDialog.Callback,
-                    OnMenuItemClickListener {
+        implements MoveMessageToDialog.Callback, OnMenuItemClickListener {
     /** Argument name(s) */
     private static final String ARG_MESSAGE_ID = "messageId";
 
@@ -67,9 +63,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private View mMoreButton;
 
     // calendar meeting invite answers
-    private CheckBox mMeetingYes;
-    private CheckBox mMeetingMaybe;
-    private CheckBox mMeetingNo;
+    private View mMeetingYes;
+    private View mMeetingMaybe;
+    private View mMeetingNo;
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
@@ -194,9 +190,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mReplyButton = UiUtilities.getView(view, R.id.reply);
         mReplyAllButton = UiUtilities.getViewOrNull(view, R.id.reply_all);
         mForwardButton = UiUtilities.getViewOrNull(view, R.id.forward);
-        mMeetingYes = (CheckBox) UiUtilities.getView(view, R.id.accept);
-        mMeetingMaybe = (CheckBox) UiUtilities.getView(view, R.id.maybe);
-        mMeetingNo = (CheckBox) UiUtilities.getView(view, R.id.decline);
+        mMeetingYes = UiUtilities.getView(view, R.id.accept);
+        mMeetingMaybe = UiUtilities.getView(view, R.id.maybe);
+        mMeetingNo = UiUtilities.getView(view, R.id.decline);
 
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
@@ -207,9 +203,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
             mMoreButton = UiUtilities.getView(view, R.id.more);
             mMoreButton.setOnClickListener(this);
         }
-        mMeetingYes.setOnCheckedChangeListener(this);
-        mMeetingMaybe.setOnCheckedChangeListener(this);
-        mMeetingNo.setOnCheckedChangeListener(this);
+        mMeetingYes.setOnClickListener(this);
+        mMeetingMaybe.setOnClickListener(this);
+        mMeetingNo.setOnClickListener(this);
         UiUtilities.getView(view, R.id.invite_link).setOnClickListener(this);
 
         enableReplyForwardButtons(false);
@@ -247,9 +243,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     @Override
     protected void resetView() {
         super.resetView();
-        mMeetingYes.setChecked(false);
-        mMeetingNo.setChecked(false);
-        mMeetingMaybe.setChecked(false);
         mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
     }
 
@@ -379,6 +372,18 @@ public class MessageViewFragment extends MessageViewFragmentBase
                 onInviteLinkClicked();
                 return;
 
+            case R.id.accept:
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
+                        R.string.message_view_invite_toast_yes);
+                return;
+            case R.id.maybe:
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
+                        R.string.message_view_invite_toast_maybe);
+                return;
+            case R.id.decline:
+                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_DECLINED,
+                        R.string.message_view_invite_toast_no);
+
             case R.id.more: {
                 PopupMenu popup = new PopupMenu(getActivity(), mMoreButton);
                 popup.getMenuInflater().inflate(R.menu.message_header_overflow_menu,
@@ -407,25 +412,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         return false;
     }
 
-
-    @Override
-    public void onCheckedChanged(CompoundButton view, boolean isChecked) {
-        if (!isChecked) return;
-        switch (view.getId()) {
-            case R.id.accept:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
-                        R.string.message_view_invite_toast_yes);
-                return;
-            case R.id.maybe:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_TENTATIVE,
-                        R.string.message_view_invite_toast_maybe);
-                return;
-            case R.id.decline:
-                onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_DECLINED,
-                        R.string.message_view_invite_toast_no);
-                return;
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

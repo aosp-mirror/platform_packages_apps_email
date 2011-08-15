@@ -160,6 +160,9 @@
                 android:background="@android:color/white"
                 android:visibility="gone"
                 />
+
+            <!-- TODO: remove these useless scroll views. They are carry-over
+                 from an existing design and are no longer needed. -->
             <!--
                 Even though the "invite" section is only for MessageViewFragment,
                 Its visibility is controlled by MessageViewFragmentBase for simplicity.
@@ -170,6 +173,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dip"
                 android:layout_marginRight="16dip"
+                android:paddingTop="16dip"
+                android:paddingBottom="16dip"
                 android:visibility="gone"
                 >
                 <!--
@@ -192,7 +197,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dip"
-                    android:background="#ffffff"
+                    android:background="@android:color/white"
                     />
             </ScrollView>
             <!-- end of content area -->
