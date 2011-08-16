@@ -116,7 +116,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                     R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
             new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
                     R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
+            new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, context.getString(
                     R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
