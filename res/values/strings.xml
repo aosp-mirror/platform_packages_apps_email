@@ -638,18 +638,26 @@ save attachment.</string>
     <string name="account_setup_incoming_port_label">Port</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->
     <string name="account_setup_incoming_security_label">Security type</string>
-    <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
+    <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
+        the desire for an unencrypted session -->
     <string name="account_setup_incoming_security_none_label">None</string>
-    <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
+    <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
+        the desire for an encrypted session on the selected port, accepting all SSL certificates -->
     <string name="account_setup_incoming_security_ssl_trust_certificates_label">
-        SSL (Accept all certificates)</string>
-    <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_label">SSL</string>
-    <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
+        SSL/TLS (Accept all certificates)</string>
+    <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
+        the desire for an encrypted session on the selected port, including SSL certificate
+        checks -->
+    <string name="account_setup_incoming_security_ssl_label">SSL/TLS</string>
+    <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
+        the desire for an encrypted session overlaid on a plain text session using the selected
+        port, accepting all SSL certificates -->
     <string name="account_setup_incoming_security_tls_trust_certificates_label">
-        TLS (Accept all certificates)</string>
-    <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_label">TLS</string>
+        STARTTLS (Accept all certificates)</string>
+    <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
+        the desire for an encrypted session overlaid on a plain text session on the selected
+        port, including SSL certificate checks -->
+    <string name="account_setup_incoming_security_tls_label">STARTTLS</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->
     <string name="account_setup_incoming_delete_policy_label">Delete email from server</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
