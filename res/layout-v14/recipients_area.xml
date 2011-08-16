@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- We must have unique ID's for the address fields in order to have the text
+automatically saved by framework.-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_marginLeft="6dip"
+    android:layout_marginRight="6dip">
+
+    <RelativeLayout
+        style="@style/ComposeFieldLinearLayout"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/to_content">
+
+        <TextView style="@style/ComposeHeading"
+            android:text="@string/message_compose_to_hint"
+            android:id="@+id/label"/>
+
+        <com.android.email.activity.ChipsAddressTextView
+            style="@style/RecipientEditTextView"
+            android:layout_toRightOf="@id/label"
+            android:id="@+id/to_address_field" />
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_below="@id/to_content"
+        android:id="@+id/cc_bcc_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <RelativeLayout
+            style="@style/ComposeFieldLinearLayout"
+            android:layout_alignParentTop="true"
+            android:id="@+id/cc_content">
+
+            <TextView style="@style/ComposeHeading"
+                android:text="@string/message_compose_to_hint"
+                android:id="@+id/label"/>
+
+            <com.android.email.activity.ChipsAddressTextView
+                style="@style/RecipientEditTextView"
+                android:layout_toRightOf="@id/label"
+                android:id="@+id/cc_address_field" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            style="@style/ComposeFieldLinearLayout"
+            android:layout_alignParentTop="true"
+            android:id="@+id/bcc_content">
+
+            <TextView style="@style/ComposeHeading"
+                android:text="@string/message_compose_to_hint"
+                android:id="@+id/label"/>
+
+            <com.android.email.activity.ChipsAddressTextView
+                style="@style/RecipientEditTextView"
+                android:layout_toRightOf="@id/label"
+                android:id="@+id/bcc_address_field" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
