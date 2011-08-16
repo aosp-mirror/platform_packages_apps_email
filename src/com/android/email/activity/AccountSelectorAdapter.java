@@ -332,7 +332,6 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
             matrixCursor.mAccountCount = accountCursor.getCount();
             int totalUnread = 0;
-            int currentPosition = 1;
             while (accountCursor.moveToNext()) {
                 // Add account, with its unread count.
                 final long accountId = accountCursor.getLong(0);
@@ -344,9 +343,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
                     UNKNOWN_POSITION, accountId);
                 totalUnread += unread;
                 if (accountId == mAccountId) {
-                    accountPosition = currentPosition;
+                    accountPosition = accountCursor.getPosition();
                 }
-                currentPosition++;
             }
             // Add "combined view" if more than one account exists
             final int countAccounts = accountCursor.getCount();
