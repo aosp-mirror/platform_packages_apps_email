@@ -661,16 +661,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void initViews() {
         ViewGroup toParent = UiUtilities.getViewOrNull(this, R.id.to_content);
         if (toParent != null) {
-            mToView = (MultiAutoCompleteTextView) toParent.findViewById(R.id.address_field);
+            mToView = (MultiAutoCompleteTextView) toParent.findViewById(R.id.to_address_field);
             ((TextView) toParent.findViewById(R.id.label))
                     .setText(R.string.message_compose_to_hint);
             ViewGroup ccParent, bccParent;
             ccParent = (ViewGroup) findViewById(R.id.cc_content);
-            mCcView = (MultiAutoCompleteTextView) ccParent.findViewById(R.id.address_field);
+            mCcView = (MultiAutoCompleteTextView) ccParent.findViewById(R.id.cc_address_field);
             ((TextView) ccParent.findViewById(R.id.label))
                     .setText(R.string.message_compose_cc_hint);
             bccParent = (ViewGroup) findViewById(R.id.bcc_content);
-            mBccView = (MultiAutoCompleteTextView) bccParent.findViewById(R.id.address_field);
+            mBccView = (MultiAutoCompleteTextView) bccParent.findViewById(R.id.bcc_address_field);
             ((TextView) bccParent.findViewById(R.id.label))
                     .setText(R.string.message_compose_bcc_hint);
         } else {
