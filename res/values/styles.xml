@@ -16,13 +16,7 @@
 
 <!-- non-xlarge.  See also values-xlarge for specializations for xlarge screens -->
 <resources>
-    <!-- Default theme for all Activity's in the app, unless otherwise
-         overridden and specified -->
     <style name="EmailTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
-    </style>
-
-    <style name="MessageComposeTheme" parent="EmailTheme">
-        <!-- This gets changed in some other views -->
     </style>
 
     <style name="unreadCount">
