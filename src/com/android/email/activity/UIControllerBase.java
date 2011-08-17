@@ -783,7 +783,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
                     String protocol = account.getProtocol(mActivity);
                     isEas = HostAuth.SCHEME_EAS.equals(protocol);
                     Mailbox mailbox = getMessageListFragment().getMailbox();
-                    mailboxHasServerCounterpart = mailbox.loadsFromServer(protocol);
+                    mailboxHasServerCounterpart = (mailbox != null)
+                            && mailbox.loadsFromServer(protocol);
                     accountSearchable = (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
                 }
             }
