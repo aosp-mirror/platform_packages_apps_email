@@ -366,34 +366,37 @@ class ImapFolder extends Folder {
         throw new Error("ImapStore.delete() not yet implemented");
     }
 
-    /* package */ String[] searchForUids(String searchCriteria)
-            throws MessagingException {
+    String[] getSearchUids(List<ImapResponse> responses) {
+        // S: * SEARCH 2 3 6
+        final ArrayList<String> uids = new ArrayList<String>();
+        for (ImapResponse response : responses) {
+            if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
+                continue;
+            }
+            // Found SEARCH response data
+            for (int i = 1; i < response.size(); i++) {
+                ImapString s = response.getStringOrEmpty(i);
+                if (s.isString()) {
+                    uids.add(s.getString());
+                }
+            }
+        }
+        return uids.toArray(Utility.EMPTY_STRINGS);
+    }
+
+    @VisibleForTesting
+    String[] searchForUids(String searchCriteria) throws MessagingException {
         checkOpen();
-        List<ImapResponse> responses;
         try {
             try {
-                responses = mConnection.executeSimpleCommand(
-                        ImapConstants.UID_SEARCH + " " + searchCriteria);
+                String command = ImapConstants.UID_SEARCH + " " + searchCriteria;
+                return getSearchUids(mConnection.executeSimpleCommand(command));
             } catch (ImapException e) {
+                Log.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria);
                 return Utility.EMPTY_STRINGS; // not found;
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
-            // S: * SEARCH 2 3 6
-            final ArrayList<String> uids = new ArrayList<String>();
-            for (ImapResponse response : responses) {
-                if (!response.isDataResponse(0, ImapConstants.SEARCH)) {
-                    continue;
-                }
-                // Found SEARCH response data
-                for (int i = 1; i < response.size(); i++) {
-                    ImapString s = response.getStringOrEmpty(i);
-                    if (s.isString()) {
-                        uids.add(s.getString());
-                    }
-                }
-            }
-            return uids.toArray(Utility.EMPTY_STRINGS);
         } finally {
             destroyResponses();
         }
@@ -413,29 +416,58 @@ class ImapFolder extends Folder {
         return null;
     }
 
+    @VisibleForTesting
+    protected static boolean isAsciiString(String str) {
+        int len = str.length();
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+            if (c >= 128) return false;
+        }
+        return true;
+    }
+
     /**
      * Retrieve messages based on search parameters.  We search FROM, TO, CC, SUBJECT, and BODY
-     * We send: SEARCH OR FROM "foo" (OR TO "foo" (OR CC "foo" (OR SUBJECT "foo" BODY "foo")))
-     * TODO: Properly quote the filter
+     * We send: SEARCH OR FROM "foo" (OR TO "foo" (OR CC "foo" (OR SUBJECT "foo" BODY "foo"))), but
+     * with the additional CHARSET argument and sending "foo" as a literal (e.g. {3}<CRLF>foo}
      */
     @Override
     @VisibleForTesting
     public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
             throws MessagingException {
+        List<String> commands = new ArrayList<String>();
         String filter = params.mFilter;
-        StringBuilder sb = new StringBuilder();
-        sb.append("OR FROM \"");
-        sb.append(filter);
-        sb.append("\" (OR TO \"");
-        sb.append(filter);
-        sb.append("\" (OR CC \"");
-        sb.append(filter);
-        sb.append("\" (OR SUBJECT \"");
-        sb.append(filter);
-        sb.append("\" BODY \"");
-        sb.append(filter);
-        sb.append("\")))");
-        return getMessagesInternal(searchForUids(sb.toString()), listener);
+        // All servers MUST accept US-ASCII, so we'll send this as the CHARSET unless we're really
+        // dealing with a string that contains non-ascii characters
+        String charset = "US-ASCII";
+        if (!isAsciiString(filter)) {
+            charset = "UTF-8";
+        }
+        // This is the length of the string in octets (bytes), formatted as a string literal {n}
+        String octetLength = "{" + filter.getBytes().length + "}";
+        // Break the command up into pieces ending with the string literal length
+        commands.add(ImapConstants.UID_SEARCH + " CHARSET " + charset + " OR FROM " + octetLength);
+        commands.add(filter + " (OR TO " + octetLength);
+        commands.add(filter + " (OR CC " + octetLength);
+        commands.add(filter + " (OR SUBJECT " + octetLength);
+        commands.add(filter + " BODY " + octetLength);
+        commands.add(filter + ")))");
+        return getMessagesInternal(complexSearchForUids(commands), listener);
+    }
+
+    /* package */ String[] complexSearchForUids(List<String> commands) throws MessagingException {
+        checkOpen();
+        try {
+            try {
+                return getSearchUids(mConnection.executeComplexCommand(commands, false));
+            } catch (ImapException e) {
+                return Utility.EMPTY_STRINGS; // not found;
+            } catch (IOException ioe) {
+                throw ioExceptionHandler(mConnection, ioe);
+            }
+        } finally {
+            destroyResponses();
+        }
     }
 
     @Override
