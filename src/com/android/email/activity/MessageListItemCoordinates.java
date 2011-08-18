@@ -45,7 +45,6 @@ public class MessageListItemCoordinates {
 
     // Static threshold.
     private static int MINIMUM_WIDTH_WIDE_MODE = -1;
-    private static int[] CONVERSATION_HEIGHTS;
     private static int[] SUBJECT_LENGTHS;
 
     // Checkmark.
@@ -153,13 +152,10 @@ public class MessageListItemCoordinates {
      * Returns the height of the view in this mode.
      */
     public static int getHeight(Context context, int mode) {
-        Resources res = context.getResources();
-        float density = res.getDisplayMetrics().scaledDensity;
-        if (CONVERSATION_HEIGHTS == null) {
-            CONVERSATION_HEIGHTS = getDensityDependentArray(
-                    res.getIntArray(R.array.conversation_heights), density);
-        }
-        return CONVERSATION_HEIGHTS[mode];
+        return context.getResources().getDimensionPixelSize(
+                (mode == WIDE_MODE)
+                        ? R.dimen.message_list_item_height_wide
+                        : R.dimen.message_list_item_height_normal);
     }
 
     /**

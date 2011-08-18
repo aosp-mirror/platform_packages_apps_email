@@ -219,20 +219,9 @@
         <item>@color/combined_view_account_color_9</item>
     </array>
 
-    <!-- TODO: rename -->
-    <!-- Values in dip of the message list item heights in the various modes:
-         wide, normal, and narrow -->
-    <integer-array name="conversation_heights">
-        <item>61</item>
-        <item>77</item>
-        <item>77</item>
-    </integer-array>
-
-    <!-- TODO: rename to subject_widths -->
     <!-- Length of the subject text in the message list items in dips for the
-         various modes: wide, normal, and narrow -->
+         various modes: wide, and narrow -->
     <integer-array name="subject_lengths">
-        <item>50</item>
         <item>50</item>
         <item>25</item>
     </integer-array>

@@ -57,7 +57,6 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:paddingRight="16dip"
-        android:paddingBottom="15dip"
         >
         <View
             android:id="@+id/color_chip"
@@ -71,8 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="16dip"
+            android:layout_centerVertical="true"
             android:src="@drawable/btn_star_off_normal_holo_light" />
 
         <LinearLayout
@@ -118,6 +116,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/star"
+            android:layout_marginBottom="8dip"
             android:text="@string/long_string"
             android:textSize="@dimen/subject_font_size"
             android:lines="2" />
