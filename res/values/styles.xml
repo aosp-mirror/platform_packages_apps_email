@@ -210,6 +210,27 @@
         <item name="android:layout_gravity">center_vertical</item>
      </style>
 
+    <style name="RecipientComposeHeading">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dip</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/compose_label_text</item>
+     </style>
+
+    <style name="RecipientComposeFieldLayout" parent="android:Widget.Holo.Light.EditText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:addStatesFromChildren">true</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+        <item name="android:paddingTop">0dip</item>
+        <item name="android:paddingBottom">8dip</item>
+    </style>
+
     <style name="message_list_item_normal">
         <!-- no styles on phones -->
     </style>

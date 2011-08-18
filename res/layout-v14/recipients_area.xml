@@ -22,18 +22,18 @@ automatically saved by framework.-->
     android:layout_marginRight="6dip">
 
     <RelativeLayout
-        style="@style/ComposeFieldLinearLayout"
+        style="@style/RecipientComposeFieldLayout"
         android:layout_alignParentTop="true"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:id="@+id/to_content">
 
-        <TextView style="@style/ComposeHeading"
+        <TextView style="@style/RecipientComposeHeading"
             android:text="@string/message_compose_to_hint"
             android:id="@+id/label"/>
 
         <com.android.email.activity.ChipsAddressTextView
-            style="@style/RecipientEditTextView"
+            style="@style/EmailRecipientEditTextView"
             android:layout_toRightOf="@id/label"
             android:id="@+id/to_address_field" />
 
@@ -47,32 +47,32 @@ automatically saved by framework.-->
         android:visibility="gone">
 
         <RelativeLayout
-            style="@style/ComposeFieldLinearLayout"
+            style="@style/RecipientComposeFieldLayout"
             android:layout_alignParentTop="true"
             android:id="@+id/cc_content">
 
-            <TextView style="@style/ComposeHeading"
+            <TextView style="@style/RecipientComposeHeading"
                 android:text="@string/message_compose_to_hint"
                 android:id="@+id/label"/>
 
             <com.android.email.activity.ChipsAddressTextView
-                style="@style/RecipientEditTextView"
+                style="@style/EmailRecipientEditTextView"
                 android:layout_toRightOf="@id/label"
                 android:id="@+id/cc_address_field" />
 
         </RelativeLayout>
 
         <RelativeLayout
-            style="@style/ComposeFieldLinearLayout"
+            style="@style/RecipientComposeFieldLayout"
             android:layout_alignParentTop="true"
             android:id="@+id/bcc_content">
 
-            <TextView style="@style/ComposeHeading"
+            <TextView style="@style/RecipientComposeHeading"
                 android:text="@string/message_compose_to_hint"
                 android:id="@+id/label"/>
 
             <com.android.email.activity.ChipsAddressTextView
-                style="@style/RecipientEditTextView"
+                style="@style/EmailRecipientEditTextView"
                 android:layout_toRightOf="@id/label"
                 android:id="@+id/bcc_address_field" />
 

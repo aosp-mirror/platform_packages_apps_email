@@ -18,4 +18,8 @@
 <resources>
     <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
     </style>
+    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+        <item name="android:layout_marginBottom">2dip</item>
+        <item name="android:layout_marginTop">2dip</item>
+    </style>
 </resources>
