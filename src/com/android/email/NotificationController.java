@@ -84,6 +84,7 @@ public class NotificationController {
     private final NotificationManager mNotificationManager;
     private final AudioManager mAudioManager;
     private final Bitmap mGenericSenderIcon;
+    private final Bitmap mGenericMultipleSenderIcon;
     private final Clock mClock;
     // TODO We're maintaining all of our structures based upon the account ID. This is fine
     // for now since the assumption is that we only ever look for changes in an account's
@@ -121,6 +122,8 @@ public class NotificationController {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mGenericSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.ic_contact_picture);
+        mGenericMultipleSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.ic_notification_multiple_mail_holo_dark);
         mClock = clock;
         mNotificationMap = new HashMap<Long, ContentObserver>();
     }
@@ -423,7 +426,9 @@ public class NotificationController {
             senderName = ""; // Happens when a message has no from.
         }
         final boolean multipleUnseen = unseenMessageCount > 1;
-        final Bitmap senderPhoto = multipleUnseen ? null : getSenderPhoto(message);
+        final Bitmap senderPhoto = multipleUnseen
+                ? mGenericMultipleSenderIcon
+                : getSenderPhoto(message);
         final SpannableString title = getNewMessageTitle(senderName, unseenMessageCount);
         // TODO: add in display name on the second line for the text, once framework supports
         // multiline texts.
