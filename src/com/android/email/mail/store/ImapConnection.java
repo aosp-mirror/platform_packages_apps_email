@@ -16,6 +16,9 @@
 
 package com.android.email.mail.store;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.mail.Transport;
 import com.android.email.mail.store.ImapStore.ImapException;
@@ -30,9 +33,6 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
-
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -248,14 +248,53 @@ class ImapConnection {
         return tag;
     }
 
+
+    /**
+     * Send a single, complex command to the server.  The command will be preceded by an IMAP
+     * command tag and followed by \r\n (caller need not supply them).  After each piece of the
+     * command, a response will be read which MUST be a continuation request.
+     *
+     * @param commands An array of Strings comprising the command to be sent to the server
+     * @return Returns the command tag that was sent
+     */
+    String sendComplexCommand(List<String> commands, boolean sensitive) throws MessagingException,
+            IOException {
+        open();
+        String tag = Integer.toString(mNextCommandTag.incrementAndGet());
+        int len = commands.size();
+        for (int i = 0; i < len; i++) {
+            String commandToSend = commands.get(i);
+            // The first part of the command gets the tag
+            if (i == 0) {
+                commandToSend = tag + " " + commandToSend;
+            } else {
+                // Otherwise, read the response from the previous part of the command
+                ImapResponse response = readResponse();
+                // If it isn't a continuation request, that's an error
+                if (!response.isContinuationRequest()) {
+                    throw new MessagingException("Expected continuation request");
+                }
+            }
+            // Send the command
+            mTransport.writeLine(commandToSend, null);
+            mDiscourse.addSentCommand(sensitive ? IMAP_REDACTED_LOG : commandToSend);
+        }
+        return tag;
+    }
+
     List<ImapResponse> executeSimpleCommand(String command) throws IOException,
             MessagingException {
         return executeSimpleCommand(command, false);
     }
 
-    List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
-            throws IOException, MessagingException {
-        String tag = sendCommand(command, sensitive);
+    /**
+     * Read and return all of the responses from the most recent command sent to the server
+     *
+     * @return a list of ImapResponses
+     * @throws IOException
+     * @throws MessagingException
+     */
+    List<ImapResponse> getCommandResponses() throws IOException, MessagingException {
         ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
         ImapResponse response;
         do {
@@ -269,6 +308,38 @@ class ImapConnection {
             throw new ImapException(toString, alert);
         }
         return responses;
+    }
+
+    /**
+     * Execute a simple command at the server, a simple command being one that is sent in a single
+     * line of text
+     *
+     * @param command the command to send to the server
+     * @param sensitive whether the command should be redacted in logs (used for login)
+     * @return a list of ImapResponses
+     * @throws IOException
+     * @throws MessagingException
+     */
+     List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
+            throws IOException, MessagingException {
+        sendCommand(command, sensitive);
+        return getCommandResponses();
+    }
+
+     /**
+      * Execute a complex command at the server, a complex command being one that must be sent in
+      * multiple lines due to the use of string literals
+      *
+      * @param commands a list of strings that comprise the command to be sent to the server
+      * @param sensitive whether the command should be redacted in logs (used for login)
+      * @return a list of ImapResponses
+      * @throws IOException
+      * @throws MessagingException
+      */
+      List<ImapResponse> executeComplexCommand(List<String> commands, boolean sensitive)
+            throws IOException, MessagingException {
+        sendComplexCommand(commands, sensitive);
+        return getCommandResponses();
     }
 
     /**
