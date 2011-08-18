@@ -156,14 +156,14 @@ public class AccountSelectorAdapter extends CursorAdapter {
             displayNameView.setText(displayName);
 
             // Show the email address only when it's different from the display name.
-            if (displayName.equals(emailAddress)) {
+            boolean isAccount = isAccountItem(c);
+            if (displayName.equals(emailAddress) || !isAccount) {
                 emailAddressView.setVisibility(View.GONE);
             } else {
                 emailAddressView.setVisibility(View.VISIBLE);
                 emailAddressView.setText(emailAddress);
             }
 
-            boolean isAccount = isAccountItem(c);
             long id = getId(c);
             if (isAccount || id != Mailbox.NO_MAILBOX) {
                 unreadCountView.setVisibility(View.VISIBLE);

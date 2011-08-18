@@ -444,6 +444,7 @@ public class ActionBarController {
 
         if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
             mAccountSpinnerLine1View.setSingleLine(false);
+            mAccountSpinnerLine1View.setMaxLines(2);
             mAccountSpinnerLine1View.setText(mCallback.getMessageSubject());
             mAccountSpinnerLine2View.setVisibility(View.GONE);
 
@@ -460,7 +461,10 @@ public class ActionBarController {
                 mailboxName = null;
             }
 
+            // Note - setSingleLine is needed as well as setMaxLines since they set different
+            // flags on the view.
             mAccountSpinnerLine1View.setSingleLine();
+            mAccountSpinnerLine1View.setMaxLines(1);
             if (TextUtils.isEmpty(mailboxName)) {
                 mAccountSpinnerLine1View.setText(mCursor.getAccountDisplayName());
 
