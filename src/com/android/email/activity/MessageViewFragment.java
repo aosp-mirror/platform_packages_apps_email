@@ -383,6 +383,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
             case R.id.decline:
                 onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_DECLINED,
                         R.string.message_view_invite_toast_no);
+                return;
 
             case R.id.more: {
                 PopupMenu popup = new PopupMenu(getActivity(), mMoreButton);
