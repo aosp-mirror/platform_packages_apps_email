@@ -31,14 +31,7 @@
                 android:layout_height="wrap_content">
 
                 <!-- Not actually editable -->
-                <TextView
-                    android:id="@+id/from"
-                    style="?android:attr/editTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    />
+                <include layout="@layout/compose_from"/>
 
                 <include layout="@layout/recipients_area"/>
 

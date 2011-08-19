@@ -51,7 +51,7 @@ import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -1599,7 +1599,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
                     mAttachmentContentView, false);
             TextView nameView = UiUtilities.getView(view, R.id.attachment_name);
-            ImageButton delete = UiUtilities.getView(view, R.id.attachment_delete);
+            ImageView delete = UiUtilities.getView(view, R.id.attachment_delete);
             TextView sizeView = UiUtilities.getView(view, R.id.attachment_size);
 
             nameView.setText(attachment.mFileName);
