@@ -18,15 +18,17 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent" android:layout_width="match_parent"
-    android:orientation="vertical" android:background="#ffffff">
+    android:orientation="vertical">
     <ScrollView android:layout_width="match_parent"
         android:layout_height="0dip" android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip">
         <LinearLayout android:orientation="vertical"
             android:layout_width="match_parent" android:layout_height="wrap_content">
             <LinearLayout android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:background="#ededed">
+                android:layout_height="wrap_content">
 
                 <!-- Not actually editable -->
                 <TextView
@@ -34,26 +36,13 @@
                     style="?android:attr/editTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?android:attr/textColorSecondary"
                     />
 
                 <include layout="@layout/recipients_area"/>
 
-                <EditText android:id="@+id/subject"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip"
-                    android:hint="@string/message_compose_subject_hint"
-                    android:inputType
-                        ="textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine"
-                    android:imeOptions="actionNext|flagNoExtractUi"
-                    />
+                <include layout="@layout/compose_subject"/>
 
                 <!--
                     Empty container for storing attachments. We'll stick
@@ -72,20 +61,10 @@
                     />
                 <View android:layout_width="match_parent"
                     android:layout_height="1dip"
-                    android:background="@drawable/divider_horizontal_email" />
+                    android:background="@drawable/divider_horizontal_email"
+                    android:visibility="gone" />
             </LinearLayout>
-            <EditText android:id="@+id/message_content"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.0"
-                android:gravity="top"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:minLines="3"
-                android:hint="@string/message_compose_body_hint"
-                android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
-                android:imeOptions="actionDone|flagNoEnterAction|flagNoExtractUi"
-                />
+            <include layout="@layout/message_compose_body"/>
         <!--  quoted text bar -->
             <RelativeLayout
                 android:id="@+id/quoted_text_bar"

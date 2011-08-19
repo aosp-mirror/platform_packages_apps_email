@@ -231,6 +231,31 @@
         <item name="android:paddingBottom">8dip</item>
     </style>
 
+    <style name="ComposeBodyStyle">
+        <item name="android:paddingTop">0dip</item>
+        <item name="android:minHeight">48dip</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:inputType">textLongMessage|textMultiLine|textAutoCorrect|textCapSentences</item>
+        <item name="android:hint">@string/message_compose_body_hint</item>
+        <item name="android:imeOptions">flagNoExtractUi|actionDone|flagNoEnterAction</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:textColorHint">@color/compose_label_text</item>
+    </style>
+
+    <style name="ComposeSubjectStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColorHint">@color/compose_label_text</item>
+        <item name="android:hint">@string/message_compose_subject_hint</item>
+        <item name="android:inputType">textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine</item>
+        <item name="android:imeOptions">actionNext|flagNoExtractUi</item>
+        <item name="android:paddingLeft">8dip</item>
+    </style>
+
     <style name="message_list_item_normal">
         <!-- no styles on phones -->
     </style>
