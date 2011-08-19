@@ -64,6 +64,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
         }, "notifyLoginSucceeded");
     }
 
+    // The following call is synchronous, and should not be made from the UI thread
     @Override
     public void reconcileAccounts(final String protocol, final String accountManagerType) {
         setTask(new ProxyTask() {
@@ -72,6 +73,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
                 mService.reconcileAccounts(protocol, accountManagerType);
             }
         }, "reconcileAccounts");
+        waitForCompletion();
     }
 
     // The following call is synchronous, and should not be made from the UI thread
