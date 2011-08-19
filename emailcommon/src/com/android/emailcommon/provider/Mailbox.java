@@ -356,9 +356,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                         && mailboxId != 0L
                         && mailboxId != NO_MAILBOX) {
                     return mailboxId;
-                } else {
-                    Log.w(Logging.LOG_TAG, "========== Mailbox of type " + type
-                            + " not found in cache");
                 }
             } finally {
                 c.close();
