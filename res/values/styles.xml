@@ -121,6 +121,29 @@
         <item name="android:singleLine">true</item>
     </style>
 
+    <style name="attachment_container">
+        <item name="android:background">@drawable/attachment_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="attachment_name">
+        <item name="android:id">@id/attachment_name</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_primary_color</item>
+    </style>
+
+    <style name="attachment_thumbnail">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:layout_width">32dip</item>
+        <item name="android:layout_height">32dip</item>
+    </style>
+
     <style name="action_bar_custom_view">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
