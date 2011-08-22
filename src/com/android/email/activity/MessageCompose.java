@@ -63,6 +63,7 @@ import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.RecipientAdapter;
+import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
@@ -1740,6 +1741,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return true;
         case R.id.add_attachment:
             onAddAttachment();
+            return true;
+        case R.id.settings:
+            AccountSettings.actionSettings(this, mAccount.mId);
             return true;
         }
         return false;
