@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Търсене"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Настройки на профил"</string>
     <string name="settings_action" msgid="6334807007967459412">"Настройки"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Опции за синхронизиране"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Непрочетено"</string>
     <string name="move_action" msgid="3059189775933985898">"Местене"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Як/Ск"</string>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Показване на изображенията"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Винаги да се показват"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Снимките от този подател да се показват винаги"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Снимките от този подател ще се показват автоматично."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Преглед в Календар"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Покана в календар"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Ще присъствате ли?"</string>
@@ -269,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Порт"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Вид защита"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Няма"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Приемане на всички сертификати)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (Приемане на всички сертификати)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
+    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (Приемане на всички сертификати)"</string>
+    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
+    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (Приемане на всички сертификати)"</string>
+    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Изтриване на имейл от сървъра"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Никога"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"При изтриване от „Вх. поща“"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхрон на имейлите от този профил"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Автоматично изтегляне на прикачените файлове при връзка с Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Настройването не можа да завърши"</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Количество за синхронизиране"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Дни за синхронизиране"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Автоматично"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Един ден"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Три дни"</string>
@@ -399,14 +396,11 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Профилът „<xliff:g id="ACCOUNT">%s</xliff:g>“ ще бъде премахнат от имейла."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Премахване на профила"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Премахване на профила"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Опции за синхронизиране"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Опции за синхронизиране (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Настройки за синхронизиране"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Честота на проверяване"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Дни за синхронизиране"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Имейл"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Избор на профил"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Изберете папка"</string>

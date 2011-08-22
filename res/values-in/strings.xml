@@ -266,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Jenis keamanan"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Tak Satu Pun"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Terima semua sertifikat)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (Terima semua sertifikat)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
+    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (Terima semua sertifikat)"</string>
+    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
+    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (Terima semua sertifikat)"</string>
+    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Hapus email dari server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Tidak pernah"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Jika saya hapus dari Kotak Masuk"</string>

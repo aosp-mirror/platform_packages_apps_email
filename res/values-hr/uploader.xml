@@ -106,7 +106,7 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Zasad se upotrebljavaju postavke povezivosti fotografija."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Samo fotografije putem mobilnih mreža"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Fotografije i videozapisi putem mobilnih mreža"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Fotografije i videozapisi samo putem Wi-Fi mreže"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Fotog. i videoz. samo preko Wi-Fi veze"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"O"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Verzija trenutnog prijenosa"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Preporučeno: 1600 piksela (za dijeljenje, ispis i čuvare zaslona)"</string>
