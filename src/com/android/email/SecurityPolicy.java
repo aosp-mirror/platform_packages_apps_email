@@ -411,6 +411,9 @@ public class SecurityPolicy {
                     reasons |= INACTIVE_NEED_ENCRYPTION;
                 }
             }
+            if (policy.mDontAllowCamera && !dpm.getCameraDisabled(mAdminName)) {
+                reasons |= INACTIVE_NEED_CONFIGURATION;
+            }
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
