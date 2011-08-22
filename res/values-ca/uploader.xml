@@ -69,7 +69,7 @@
     <string name="manager_upload_now" msgid="2284408578936376342">"Penja-la ara"</string>
     <string name="manager_upload_later" msgid="5453932124711705632">"Penja més tard"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"No la pengis"</string>
-    <string name="manager_view_media" msgid="3714544539986850549">"Veure"</string>
+    <string name="manager_view_media" msgid="3714544539986850549">"Visualitza"</string>
     <string name="manager_retry" msgid="939534318469518843">"Torna-ho a provar"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"S\'ha cancel·lat la càrrega"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"La càrrega ja ha finalitzat"</string>
@@ -120,9 +120,9 @@
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avançada"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Càrregues de mòbil"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Càrregues d\'itinerància"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Quan es troba en itinerància, penja les fotos i els vídeos a la xarxa de dades"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Penja les fotos i els vídeos a la xarxa de dades en itinerancia"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Càrregues amb bateria"</string>
-    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Penja fotos i vídeos només en carregar"</string>
+    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Penja fotos i vídeos només quan s\'etigui carregant"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Càrrega de fotos existents"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Penja fotos i vídeos existents del telèfon ara"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Desactivat"</string>
@@ -130,7 +130,7 @@
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"S\'està penjant (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d de %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"En pausa: toca per reprendre la càrrega"</string>
-    <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Càrrega de fotos existents"</string>
+    <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Carrega les fotos existents"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Penjar fotos i vídeos que encara no s\'han penjat des del telèfon a un àlbum privat al web pot trigar una mica, però es durà a terme en segon pla. Estàs segur que vols continuar?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Sí"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"No"</string>

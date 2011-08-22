@@ -50,8 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Pretraži"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Postavke računa"</string>
     <string name="settings_action" msgid="6334807007967459412">"Postavke"</string>
-    <!-- no translation found for mailbox_settings_action (8008375875310554776) -->
-    <skip />
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Opcije sinkronizacije"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Označi kao nepročitano"</string>
     <string name="move_action" msgid="3059189775933985898">"Premjesti"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kop/sk.kop"</string>
@@ -112,8 +111,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Nedavne mape (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Sve mape"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Nedavne mape"</string>
-    <string name="message_subject_description" msgid="3597047441062021199">"Predmet"</string>
-    <string name="message_is_empty_description" msgid="4004644319382041459">"Bez predmeta"</string>
+    <string name="message_subject_description" msgid="3597047441062021199">"Naslov"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"Bez naslova"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Učitaj više poruka"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"Odabrano: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
@@ -164,10 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Prikaži slike"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Uvijek prikaži"</string>
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Uvijek prikaži slike ovog pošiljatelja"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Slike od ovog pošiljatelja automatski će se prikazati."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Prikaži u Kalendaru"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Pozivnica kalendara"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Dolazite?"</string>
@@ -269,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Vrsta sigurnosti"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ništa"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Prihvati sve certifikate)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (Prihvati sve certifikate)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
+    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (Prihvati sve certifikate)"</string>
+    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
+    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (Prihvati sve certifikate)"</string>
+    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Izbriši e-poštu s poslužitelja"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nikad"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Kad izbrišem iz Pristigle pošte"</string>
@@ -312,7 +309,7 @@
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sink. e-poštu za ovaj račun."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automatski preuzmi privitke za vrijeme povezanosti s Wi-Fi mrežom"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Postavljanje se ne može dovršiti"</string>
-    <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Količina za sinkronizaciju"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dani za sinkronizaciju"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatski"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jedan dan"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tri dana"</string>
@@ -399,14 +396,11 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Račun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" bit će uklonjen iz e-pošte."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Brisanje računa"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Brisanje računa"</string>
-    <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
-    <skip />
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Opcije sinkronizacije"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opcije sinkronizacije (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Postavke sinkronizacije"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Provjerite frekvenciju"</string>
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
-    <skip />
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dani za sinkronizaciju"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"R. e-pošte"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Odaberite račun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Odaberite mapu"</string>
@@ -466,6 +460,6 @@
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Pretraži <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultati pretraživanja za \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Čekaju se rezultati"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"Nekim poslužiteljima može trebati više vremena."</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Nekim poslužiteljima možda treba više vremena."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mape"</string>
 </resources>
