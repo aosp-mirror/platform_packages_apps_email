@@ -15,6 +15,9 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/delete" android:title="@string/delete_action"
+        android:icon="@drawable/ic_menu_trash_holo_light"
+        android:showAsAction="always" />
     <item android:id="@+id/move" android:title="@string/move_action"
         android:icon="@drawable/ic_menu_move_to_holo_light"
         android:showAsAction="always" />
@@ -29,8 +32,5 @@
         android:showAsAction="always" />
     <item android:id="@+id/remove_star" android:title="@string/remove_star_action"
         android:icon="@drawable/ic_menu_star_off_holo_light"
-        android:showAsAction="always" />
-    <item android:id="@+id/delete" android:title="@string/delete_action"
-        android:icon="@drawable/ic_menu_trash_holo_light"
         android:showAsAction="always" />
 </menu>
