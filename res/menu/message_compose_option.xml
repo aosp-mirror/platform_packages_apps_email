@@ -23,13 +23,13 @@
         android:alphabeticShortcut="s"
     />
     <item
+        android:id="@+id/add_attachment"
+        android:title="@string/add_attachment_menu"
+    />
+    <item
         android:id="@+id/add_cc_bcc"
         android:icon="@drawable/ic_menu_cc_holo_light"
         android:title="@string/add_cc_bcc_menu"
-    />
-    <item
-        android:id="@+id/add_attachment"
-        android:title="@string/add_attachment_menu"
     />
     <item
         android:id="@+id/save"
@@ -46,5 +46,10 @@
         android:id="@+id/show_quick_text_list_dialog"
         android:title="@string/show_quick_text_list_dialog_action"
         android:alphabeticShortcut="r"
+    />
+    <item
+        android:id="@+id/settings"
+        android:title="@string/settings_action"
+        android:icon="@android:drawable/ic_menu_preferences"
     />
 </menu>
