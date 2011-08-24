@@ -303,6 +303,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return null;
         }
 
+        @Override
         public synchronized boolean isEmpty() {
             return super.isEmpty() && mDownloadsInProgress.isEmpty();
         }

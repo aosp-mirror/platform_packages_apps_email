@@ -937,25 +937,22 @@ public class MessageComposeTests
         mToView.performValidation();
 
         // address is validated as errorneous
-        assertNotNull(mToView.getError());
         assertFalse(messageCompose.isAddressAllValid());
 
         // the wrong address is preserved by validation
-        assertEquals("foo, ", mToView.getText().toString());
+        assertEquals("foo", mToView.getText().toString());
 
         mToView.setText("a@b.c");
         mToView.performValidation();
 
         // address is validated as correct
-        assertNull(mToView.getError());
         assertTrue(messageCompose.isAddressAllValid());
 
         mToView.setText("a@b.c, foo");
         mToView.performValidation();
 
-        assertNotNull(mToView.getError());
         assertFalse(messageCompose.isAddressAllValid());
-        assertEquals("a@b.c, foo, ", mToView.getText().toString());
+        assertEquals("a@b.c, foo", mToView.getText().toString());
     }
 
     /**

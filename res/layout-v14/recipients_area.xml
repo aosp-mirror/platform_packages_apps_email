@@ -33,7 +33,7 @@ automatically saved by framework.-->
         <com.android.email.activity.ChipsAddressTextView
             style="@style/EmailRecipientEditTextView"
             android:layout_toRightOf="@id/label"
-            android:id="@+id/to_address_field" />
+            android:id="@+id/to" />
 
     </RelativeLayout>
     <LinearLayout
@@ -56,7 +56,7 @@ automatically saved by framework.-->
             <com.android.email.activity.ChipsAddressTextView
                 style="@style/EmailRecipientEditTextView"
                 android:layout_toRightOf="@id/label"
-                android:id="@+id/cc_address_field" />
+                android:id="@+id/cc" />
 
         </RelativeLayout>
 
@@ -72,7 +72,7 @@ automatically saved by framework.-->
             <com.android.email.activity.ChipsAddressTextView
                 style="@style/EmailRecipientEditTextView"
                 android:layout_toRightOf="@id/label"
-                android:id="@+id/bcc_address_field" />
+                android:id="@+id/bcc" />
 
         </RelativeLayout>
 

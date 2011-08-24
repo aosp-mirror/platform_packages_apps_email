@@ -23,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -35,6 +36,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.email.provider.EmailProvider.AttachmentService;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -80,11 +82,48 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
+    // TODO: move this out to a common place. There are other places that have similar mocks.
+    /**
+     * Private context wrapper used to add back getPackageName() for these tests.
+     */
+    private static class MockContext2 extends ContextWrapper {
+
+        private final Context mRealContext;
+
+        public MockContext2(Context mockContext, Context realContext) {
+            super(mockContext);
+            mRealContext = realContext;
+        }
+
+        @Override
+        public Context getApplicationContext() {
+            return this;
+        }
+
+        @Override
+        public String getPackageName() {
+            return mRealContext.getPackageName();
+        }
+
+        @Override
+        public Object getSystemService(String name) {
+            return mRealContext.getSystemService(name);
+        }
+    }
+
+    private static final AttachmentService MOCK_ATTACHMENT_SERVICE = new AttachmentService() {
+        @Override
+        public void attachmentChanged(Context context, long id, int flags) {
+            // Noop. Don't download attachments.
+        }
+    };
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mMockContext = getMockContext();
+        mMockContext = new MockContext2(getMockContext(), getContext());
         mProvider = getProvider();
+        mProvider.injectAttachmentService(MOCK_ATTACHMENT_SERVICE);
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
     }
@@ -92,6 +131,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
+        mProvider.injectAttachmentService(null);
     }
 
     /**
@@ -431,6 +471,14 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals("reply html", htmlReply2, body2.mHtmlReply);
         assertEquals("source key", sourceKey2, body2.mSourceKey);
         assertEquals("intro text", introText2, body2.mIntroText);
+    }
+
+    @MediumTest
+    public void testMessageWithAttachment() {
+        Account account1 = ProviderTestUtils.setupAccount("message-save", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
 
         // Message with attachments and body
         Message message3 = ProviderTestUtils.setupMessage("message3", account1Id, box1Id, true,
@@ -470,11 +518,21 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         } finally {
             c.close();
         }
+    }
+
+
+    @MediumTest
+    public void testMessageSaveWithJustAttachments() {
+        Account account1 = ProviderTestUtils.setupAccount("message-save", true, mMockContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
+        long box1Id = box1.mId;
+        Cursor c = null;
 
         // Message with attachments but no body
         Message message4 = ProviderTestUtils.setupMessage("message4", account1Id, box1Id, false,
                 false, mMockContext);
-        atts = new ArrayList<Attachment>();
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
         for (int i = 0; i < 3; i++) {
             atts.add(ProviderTestUtils.setupAttachment(
                     -1, expectedAttachmentNames[i], expectedAttachmentSizes[i],
@@ -2281,11 +2339,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      */
     private boolean amAccountListHasAccount(android.accounts.Account[] amAccountList,
             Account account, Context context) {
-        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
-        if (hostAuth == null) return false;
-        String login = hostAuth.mLogin;
+        String email = account.mEmailAddress;
         for (android.accounts.Account amAccount: amAccountList) {
-            if (amAccount.name.equals(login)) {
+            if (amAccount.name.equals(email)) {
                 return true;
             }
         }

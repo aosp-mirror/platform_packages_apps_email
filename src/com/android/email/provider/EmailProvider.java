@@ -1646,7 +1646,7 @@ public class EmailProvider extends ContentProvider {
                             flags = values.getAsInteger(Attachment.FLAGS);
                         }
                         // Report all new attachments to the download service
-                        AttachmentDownloadService.attachmentChanged(getContext(), longId, flags);
+                        mAttachmentService.attachmentChanged(getContext(), longId, flags);
                     }
                     break;
                 case MAILBOX_ID:
@@ -2199,7 +2199,7 @@ outer:
                     if (match == ATTACHMENT_ID) {
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
-                            AttachmentDownloadService.attachmentChanged(getContext(),
+                            mAttachmentService.attachmentChanged(getContext(),
                                     Integer.parseInt(id), flags);
                         }
                     }
@@ -2484,7 +2484,7 @@ outer:
                             // If this is a pop3 or imap account, create the account manager account
                             if (HostAuth.SCHEME_IMAP.equals(protocol) ||
                                     HostAuth.SCHEME_POP3.equals(protocol)) {
-                                if (Email.DEBUG) { 
+                                if (Email.DEBUG) {
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
                                             "account: " +
                                             accountCursor.getString(V21_ACCOUNT_EMAIL));
@@ -2602,5 +2602,29 @@ outer:
         if (cache == null) return false;
         Cursor cc = cache.get(Long.toString(id));
         return (cc != null);
+    }
+
+    public static interface AttachmentService {
+        /**
+         * Notify the service that an attachment has changed.
+         */
+        void attachmentChanged(Context context, long id, int flags);
+    }
+
+    private final AttachmentService DEFAULT_ATTACHMENT_SERVICE = new AttachmentService() {
+        @Override
+        public void attachmentChanged(Context context, long id, int flags) {
+            // The default implementation delegates to the real service.
+            AttachmentDownloadService.attachmentChanged(context, id, flags);
+        }
+    };
+    private AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
+
+    /**
+     * Injects a custom attachment service handler. If null is specified, will reset to the
+     * default service.
+     */
+    public void injectAttachmentService(AttachmentService as) {
+        mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
     }
 }
