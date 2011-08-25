@@ -16,13 +16,13 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true"
-          android:drawable="@drawable/list_wide_read_pressed_holo" />
+          android:drawable="@drawable/list_conversation_wide_read_pressed_holo" />
     <item android:state_selected="true"
-          android:drawable="@drawable/list_wide_read_selected_holo" />
+          android:drawable="@drawable/list_conversation_wide_read_selected_holo" />
     <item android:state_selected="true"
           android:state_activated="true"
-          android:drawable="@drawable/list_wide_read_selected_holo" />
+          android:drawable="@drawable/list_conversation_wide_read_selected_holo" />
     <item android:state_activated="true"
           android:drawable="@drawable/list_activated_holo" />
-    <item android:drawable="@drawable/list_wide_read_normal_holo" />
+    <item android:drawable="@drawable/list_conversation_wide_read_normal_holo" />
 </selector>

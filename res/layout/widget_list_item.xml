@@ -22,7 +22,7 @@
     android:paddingLeft="16dip"
     android:paddingRight="8dip"
     android:orientation="vertical"
-    android:background="@drawable/widget_unread_conversation_selector"
+    android:background="@drawable/message_list_unread_selector"
     >
     <ImageView
         android:id="@+id/color_chip"
@@ -51,13 +51,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-4sp"
-            android:src="@drawable/ic_badge_invite_widget" />
+            android:src="@drawable/ic_badge_invite_holo_light" />
         <ImageView
             android:id="@+id/widget_attachment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-4sp"
-            android:src="@drawable/ic_badge_attachment_widget" />
+            android:src="@drawable/ic_attachment_holo_light" />
         <TextView
             android:id="@+id/widget_date"
             android:layout_width="wrap_content"

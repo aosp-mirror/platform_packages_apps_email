@@ -22,7 +22,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/text_box"
     >
 
     <RelativeLayout
@@ -37,7 +36,7 @@
              android:ellipsize="end"
              android:text="@string/message_view_invite_title"
              android:textAppearance="?android:attr/textAppearanceSmall"
-             android:drawableLeft="@drawable/ic_event_email"
+             android:drawableLeft="@drawable/ic_badge_invite_holo_light"
              android:layout_marginLeft="12dip"
              android:layout_alignParentLeft="true"
              android:layout_centerVertical="true"
@@ -95,7 +94,7 @@
              android:text="@string/message_view_invite_accept"
              android:singleLine="true"
              android:textAppearance="?android:attr/textAppearanceSmall"
-             android:drawableLeft="@drawable/btn_invite_yes"
+             android:drawableLeft="@drawable/btn_yes_off"
              android:gravity="center_vertical"
              android:focusable="true"
              />
@@ -109,7 +108,7 @@
              android:text="@string/message_view_invite_maybe"
              android:singleLine="true"
              android:textAppearance="?android:attr/textAppearanceSmall"
-             android:drawableLeft="@drawable/btn_invite_maybe"
+             android:drawableLeft="@drawable/btn_maybe_off"
              android:gravity="center_vertical"
              android:focusable="true"
              />
@@ -122,7 +121,7 @@
              android:text="@string/message_view_invite_decline"
              android:singleLine="true"
              android:textAppearance="?android:attr/textAppearanceSmall"
-             android:drawableLeft="@drawable/btn_invite_no"
+             android:drawableLeft="@drawable/btn_no_off"
              android:gravity="center_vertical"
              android:focusable="true"
              />

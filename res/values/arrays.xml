@@ -201,9 +201,9 @@
         <!-- TYPE_SENT = 5 -->
         <item>@drawable/ic_folder_sent_holo_light</item>
         <!-- TYPE_TRASH = 6 -->
-        <item>@drawable/ic_folder_trash_holo_light</item>
+        <item>@drawable/ic_menu_trash_holo_light</item>
         <!-- TYPE_JUNK = 7 -->
-        <item>@drawable/ic_list_spam</item>
+        <item>@drawable/ic_spam_normal_holo_light</item>
     </array>
 
     <!-- Account color chips on combined view -->

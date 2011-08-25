@@ -27,7 +27,7 @@
         android:layout_width="64dip"
         android:layout_height="match_parent"
         android:layout_weight="0"
-        android:src="@drawable/attached_image_placeholder"
+        android:src="@drawable/ic_attachment_holo_light"
         android:scaleType="fitCenter"
         />
     <LinearLayout

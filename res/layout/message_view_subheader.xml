@@ -49,7 +49,7 @@
         <!--  Set proper background to reflect selected state -->
         <ImageView
             android:id="@+id/show_details"
-            android:src="@drawable/ic_menu_expander_minimized_holo_light"
+            android:src="@drawable/expander_open_holo_light"
             android:layout_width="wrap_content"
             android:layout_height="48dip"
             android:layout_marginLeft="4dip"
@@ -72,7 +72,7 @@
              The height here needs to match the height of the collapsed subheader -->
         <ImageView
             android:id="@+id/show_details"
-            android:src="@drawable/ic_menu_expander_maximized_holo_light"
+            android:src="@drawable/expander_close_holo_light"
             android:layout_width="wrap_content"
             android:layout_height="48dip"
             android:layout_marginLeft="4dip"

@@ -52,18 +52,13 @@
                     android:layout_height="0dip"
                     android:visibility="gone"
                     />
-                <View android:layout_width="match_parent"
-                    android:layout_height="1dip"
-                    android:background="@drawable/divider_horizontal_email"
-                    android:visibility="gone" />
             </LinearLayout>
             <include layout="@layout/message_compose_body"/>
-        <!--  quoted text bar -->
+            <!--  quoted text bar -->
             <RelativeLayout
                 android:id="@+id/quoted_text_bar"
                 android:layout_width="match_parent"
                 android:layout_height="45dip"
-                android:background="@drawable/email_quoted_bar"
                 >
                 <TextView
                     android:layout_width="wrap_content"

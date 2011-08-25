@@ -57,11 +57,10 @@
     <color name="mailbox_drop_destructive_bg_color">#fff10000</color>
 
     <!--  Widget colors -->
-    <color name="widget_label_shadow_color">#0d0d0d</color>
-    <color name="widget_account_color">#99ffffff</color>
-    <color name="widget_unread_count_color">#b2ffffff</color>
     <color name="widget_default_text_color">#ff000000</color>
     <color name="widget_light_text_color">#ff666666</color>
+    <color name="widget_title_color">#333333</color>
+    <color name="widget_unread_color">#777777</color>
 
     <color name="message_view_info_back_color">#deecfa</color>
     <color name="message_view_header_color">#3cb8e6</color>

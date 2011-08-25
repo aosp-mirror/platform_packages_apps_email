@@ -32,20 +32,21 @@
         android:paddingRight="8dip"
         >
         <ImageView
-            android:id="@+id/reply_state"
-            android:layout_width="16dip"
-            android:layout_height="16dip"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="10dip"
-            android:src="@drawable/ic_reply_holo_dark"
-            />
-        <ImageView
             android:id="@+id/checkmark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dip"
-            android:layout_below="@+id/reply_state"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/btn_check_on_normal_holo_light"
+            />
+        <ImageView
+            android:id="@+id/reply_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/checkmark"
+            android:src="@drawable/ic_badge_reply_holo_light"
             />
     </RelativeLayout>
 
@@ -87,8 +88,7 @@
                 android:layout_width="36dip"
                 android:layout_height="16dip"
                 android:layout_gravity="top"
-                android:layout_marginRight="2dip"
-                android:src="@drawable/ic_attachment_holo_light" />
+                android:src="@drawable/ic_badge_attachment" />
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"

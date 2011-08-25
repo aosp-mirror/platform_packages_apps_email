@@ -18,93 +18,71 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="5dip"
-    android:paddingBottom="2dip"
     android:layout_marginTop="6dip"
-    android:layout_marginBottom="17dip"
-    android:layout_marginLeft="12dip"
-    android:layout_marginRight="12dip"
-    android:orientation="vertical"
-    android:background="@drawable/gradient_bg_email_widget_holo">
+    android:layout_marginBottom="6dip"
+    android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="42sp"
-        android:layout_marginLeft="5dip"
-        android:layout_marginRight="5dip"
-        android:orientation="horizontal"
-        android:paddingTop="4dip"
+        android:layout_height="48dip"
+        android:gravity="center_vertical"
         android:paddingLeft="8dip"
         android:paddingRight="8dip"
-        android:background="@drawable/widget_header_bg">
+        android:orientation="horizontal"
+        android:background="@drawable/header_bg_email_widget_holo">
         <ImageView
             android:id="@+id/widget_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1sp"
-            android:paddingRight="8dip"
-            android:src="@drawable/ic_email_email_widget_holo" />
+            android:layout_width="32dip"
+            android:layout_height="32dip"
+            android:layout_marginRight="8dip"
+            android:src="@mipmap/ic_launcher_email" />
         <LinearLayout
             android:id="@+id/widget_header"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_weight = "1"
+            android:layout_weight="1"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/widget_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-1sp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/widget_all_mail"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:shadowColor="@color/widget_label_shadow_color"
-                android:shadowRadius="3"
-                android:freezesText="true" />
+                android:textColor="@color/widget_title_color"
+                />
             <TextView
                 android:id="@+id/widget_tap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-5sp"
                 android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/widget_other_views"
-                android:textSize="14sp"
-                android:textColor="@color/widget_account_color" />
+                android:textColor="@color/widget_title_color"
+                />
         </LinearLayout>
         <TextView
             android:id="@+id/widget_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-16sp"
-            android:paddingRight="8dip"
-            android:textSize="48sp"
-            android:textColor="@color/widget_unread_count_color"
+            android:layout_marginRight="12dip"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@color/widget_unread_color"
             android:freezesText="true" />
         <ImageView
             android:id="@+id/widget_compose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="2dip"
-            android:src="@drawable/btn_ic_new_email_email_widget_holo_dark" />
+            android:src="@drawable/ic_menu_compose_normal_holo_light" />
     </LinearLayout>
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
-        android:background="@drawable/list_div_top_btm_email_widget_holo" />
     <ListView
         android:id="@+id/message_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginLeft="5dip"
-        android:layout_marginRight="5dip"
-        android:paddingTop="6dip"
-        android:clipToPadding="false"
-        android:fadingEdge="none"
-        android:divider="@drawable/list_div_email_widget_holo"
-        android:cacheColorHint="#00000000" />
+        android:cacheColorHint="#00000000"
+        android:background="@drawable/gradient_bg_email_widget_holo" />
+
+    <!-- TODO: remove this tap to configure logic. It's obsolete. -->
     <TextView
         android:id="@+id/tap_to_configure"
         android:layout_width="match_parent"
@@ -114,15 +92,11 @@
         android:layout_weight="1"
         android:layout_gravity="fill"
         android:gravity="center"
-        android:paddingTop="6dip"
         android:text="@string/widget_touch_to_configure"
         android:textSize="16sp"
-        android:textColor="@android:color/white"
         android:visibility="gone"/>
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
         android:background="@drawable/list_div_top_btm_email_widget_holo" />
 </LinearLayout>

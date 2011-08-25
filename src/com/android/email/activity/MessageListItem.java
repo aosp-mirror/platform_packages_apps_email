@@ -156,7 +156,7 @@ public class MessageListItem extends View {
             sBoldPaint.setAntiAlias(true);
             sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
-            sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite);
+            sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite_holo_light);
             sFavoriteIconOff =
                 BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_holo_light);
             sFavoriteIconOn =
@@ -166,13 +166,12 @@ public class MessageListItem extends View {
             sSelectedIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_on_normal_holo_light);
 
-            //TODO: put the actual drawables when they exist. these are temps for visibile testing.
             sStateReplied =
-                BitmapFactory.decodeResource(r, R.drawable.ic_reply_holo_dark);
+                BitmapFactory.decodeResource(r, R.drawable.ic_badge_reply_holo_light);
             sStateForwarded =
-                BitmapFactory.decodeResource(r, R.drawable.ic_forward_holo_dark);
+                BitmapFactory.decodeResource(r, R.drawable.ic_badge_forward_holo_light);
             sStateRepliedAndForwarded =
-                BitmapFactory.decodeResource(r, R.drawable.ic_reply_all_holo_dark);
+                BitmapFactory.decodeResource(r, R.drawable.ic_badge_reply_forward_holo_light);
 
             sInit = true;
         }

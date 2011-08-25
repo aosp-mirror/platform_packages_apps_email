@@ -23,10 +23,7 @@
     <dimen name="message_list_item_color_tip_width">35dip</dimen>
     <dimen name="message_list_item_color_tip_height">6dip</dimen>
 
-    <!-- Bottom padding used to compensate for the built in drop shadow in the
-         asset. -->
-    <dimen name="message_header_height">52dip</dimen>
-    <dimen name="message_header_bottom_padding">4dip</dimen>
+    <dimen name="message_header_height">48dip</dimen>
     <dimen name="message_header_badge_width">48dip</dimen>
     <dimen name="message_header_name_margin">4dip</dimen>
 

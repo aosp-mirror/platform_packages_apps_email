@@ -22,7 +22,7 @@
         android:orderInCategory="100"
         android:alphabeticShortcut="c"
         android:title="@string/compose_action"
-        android:icon="@drawable/ic_menu_compose_holo_light"
+        android:icon="@drawable/ic_menu_compose_normal_holo_light"
         android:showAsAction="ifRoom"
     />
     <item

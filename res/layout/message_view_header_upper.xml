@@ -21,8 +21,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/message_header_height"
-    android:paddingBottom="@dimen/message_header_bottom_padding"
-    android:background="@drawable/message_header_bg_holo"
+    android:background="@drawable/header_convo_view_sender_bg_holo"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     >

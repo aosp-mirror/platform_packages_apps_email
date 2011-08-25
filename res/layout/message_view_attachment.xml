@@ -44,7 +44,7 @@
             android:id="@+id/attachment_icon"
             android:layout_width="48dip"
             android:layout_height="48dip"
-            android:src="@drawable/attached_image_placeholder"
+            android:src="@drawable/ic_attachment_holo_light"
             />
     </LinearLayout>
     <LinearLayout
