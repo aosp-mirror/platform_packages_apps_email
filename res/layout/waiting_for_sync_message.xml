@@ -14,34 +14,40 @@
      limitations under the License.
 -->
 
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/waiting_for_sync_message"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dip"
     >
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="32dip"
-        android:text="@string/waitinf_for_sync_message_1"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="32dip"
-        android:textSize="20dip"
-        android:text="@string/waitinf_for_sync_message_2"
-        />
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="32dip"
-        />
-</LinearLayout>
+        android:layout_gravity="center|top"
+        >
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dip"
+            />
+        <TextView
+          android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/progress"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/waitinf_for_sync_message_1"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/progress"
+            android:layout_below="@+id/title"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/waitinf_for_sync_message_2"
+            />
+    </RelativeLayout>
+</FrameLayout>
