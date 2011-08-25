@@ -64,6 +64,8 @@ public class Device {
                     if (!f.delete()) {
                         Log.e(Logging.LOG_TAG, "Can't delete null deviceName file; try overwrite.");
                     }
+                } else {
+                    return id;
                 }
             } else {
                 Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
