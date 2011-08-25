@@ -494,6 +494,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         makeVisible(mLoadingProgress, !showContent && showProgressWhenHidden);
     }
 
+    // TODO: clean this up - most of this is not needed since the WebView and Fragment is not
+    // reused for multiple messages.
     protected void resetView() {
         showContent(false, false);
         updateTabs(0);
@@ -501,7 +503,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (mMessageContentView != null) {
             blockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
-            mMessageContentView.clearView();
 
             // Dynamic configuration of WebView
             final WebSettings settings = mMessageContentView.getSettings();
