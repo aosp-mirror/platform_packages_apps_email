@@ -14,7 +14,7 @@
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"fotoquotum overschreden"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"wachten op Wi-Fi"</string>
-    <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"vertraagd tot opladen"</string>
+    <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"uitgesteld tot opladen"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"wachten op verbinding"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"opnieuw proberen over %s"</string>
     <string name="summary_menu_show_pending" msgid="658361192495996">"Uploads in behandeling weergeven"</string>
@@ -22,10 +22,10 @@
     <string name="menu_view_online" msgid="6546633605818509942">"Online bekijken"</string>
     <string name="menu_show_pending_items" msgid="8798191388238604213">"Uploads in behandeling weergeven"</string>
     <string name="menu_hide_pending_items" msgid="9216079748638469160">"Uploads in behandeling verbergen"</string>
-    <string name="menu_show_completed_items" msgid="4380487776635859783">"Gegevens weergeven"</string>
+    <string name="menu_show_completed_items" msgid="4380487776635859783">"Details weergeven"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Details verbergen"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Instellingen"</string>
-    <string name="format_date_uploaded" msgid="803752037646090928">"%s geüpload"</string>
+    <string name="format_date_uploaded" msgid="803752037646090928">"Geüpload op %s"</string>
     <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Account"</string>
     <string name="upload" msgid="2615541458361216022">"Uploaden"</string>
@@ -47,7 +47,7 @@
     <string name="pause_state_running" msgid="711411177620353982">"uploaden"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"handmatig gepauzeerd"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"onderbroken - de accu is bijna leeg"</string>
-    <string name="pause_state_need_charger" msgid="5014741655713255815">"onderbroken - vertraagd tot opladen"</string>
+    <string name="pause_state_need_charger" msgid="5014741655713255815">"onderbroken - uitgesteld tot opladen"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"onderbroken - wachten op verbinding"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"onderbroken - PWA-quotum overschreden"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"onderbroken - wachten op Wi-Fi"</string>
@@ -70,7 +70,7 @@
     <string name="manager_upload_later" msgid="5453932124711705632">"Later uploaden"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Niet uploaden"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Weergeven"</string>
-    <string name="manager_retry" msgid="939534318469518843">"Opnieuw"</string>
+    <string name="manager_retry" msgid="939534318469518843">"Opnieuw proberen"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Upload geannuleerd"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Upload al voltooid"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Alles synchroniseren"</string>
@@ -97,15 +97,15 @@
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Alleen uploaden wanneer Wi-Fi beschikbaar is."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Foto\'s"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Account"</string>
-    <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Uploadomstandigheden"</string>
+    <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Uploadvoorwaarden"</string>
     <string name="preference_title_photo_size" msgid="2291608017215972660">"Formaat van foto"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"Video\'s"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"Account"</string>
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"Het account voor foto\'s wordt gebruikt voor video-uploads."</string>
-    <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Uploadomstandigheden"</string>
+    <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Uploadvoorwaarden"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"De verbindingsinstellingen van foto\'s worden momenteel gebruikt."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Alleen foto\'s uploaden via mobiele netwerken"</string>
-    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto\'s en video\'s uploaden via mobiele netwerken"</string>
+    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto\'s en video\'s via mobiele netwerken"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Foto\'s en video\'s alleen via Wi-Fi uploaden"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Over"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Auto-uploadversie"</string>
@@ -113,7 +113,7 @@
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Oorspronkelijk formaat (traagste upload)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"onderbroken - SD-kaart niet beschikbaar"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD-kaart niet beschikbaar"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Instellingen voor automatisch uploaden"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Inst. Auto-uploaden"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Automatisch uploaden"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Nieuwe foto\'s en video\'s automatisch uploaden naar een persoonlijk webalbum"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Uploadstatus"</string>

@@ -32,7 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Svar alle"</string>
     <string name="delete_action" msgid="8421026208288857155">"Slett"</string>
     <string name="forward_action" msgid="669174181042344116">"Videresend"</string>
-    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Favoritt"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"Stjernemerk"</string>
     <string name="done_action" msgid="7497990549515580249">"Ferdig"</string>
     <string name="create_action" msgid="3062715563215392251">"Opprett ny"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Slett"</string>
@@ -266,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Sikkerhetstype"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ingen"</string>
-    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (godta alle sertifikater)"</string>
-    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL (alltid)"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (godta alle sertifikater)"</string>
-    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS (alltid)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Godta alle sertifikater)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (Godta alle sertifikater)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Slett e-post fra tjener"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Aldri"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Når jeg sletter den fra innboksen"</string>
@@ -453,8 +453,7 @@
     <string name="widget_starred" msgid="8290352707134011791">"Stjernemerket"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Laster inn …"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Trykk for å konfigurere"</string>
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
+    <string name="widget_no_accounts" msgid="2412482205591224408">"Du har ikke konfigurert en e-postkonto ennå."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Søk i e-post"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søk i <xliff:g id="ID_1">%1$s</xliff:g>"</string>

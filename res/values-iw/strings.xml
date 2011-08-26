@@ -32,7 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"השב לכולם"</string>
     <string name="delete_action" msgid="8421026208288857155">"מחק"</string>
     <string name="forward_action" msgid="669174181042344116">"העבר"</string>
-    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"מועדף"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"סמן בכוכב"</string>
     <string name="done_action" msgid="7497990549515580249">"סיום"</string>
     <string name="create_action" msgid="3062715563215392251">"צור חדש"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"מחק"</string>
@@ -79,11 +79,11 @@
     <item quantity="few" msgid="1991747245324120305">"ב-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> חשבונות"</item>
     <item quantity="other" msgid="2723797835410343458">"ב-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> חשבונות"</item>
   </plurals>
-    <string name="notification_to_account" msgid="2078557719010667913">"עבור <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_to_account" msgid="2078557719010667913">"אל <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> הודעות חדשות"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"כל החשבונות"</string>
   <plurals name="number_of_accounts">
-    <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> חשבון"</item>
+    <item quantity="one" msgid="6343953132237244947">"חשבון <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> חשבונות"</item>
   </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"תיבת דואר נכנס"</string>
@@ -111,10 +111,8 @@
     <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"תיקיות אחרונות (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"כל התיקיות"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"תיקיות אחרונות"</string>
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
+    <string name="message_subject_description" msgid="3597047441062021199">"נושא"</string>
+    <string name="message_is_empty_description" msgid="4004644319382041459">"ללא נושא"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"טען הודעות נוספות"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> נבחרו"</item>
@@ -127,7 +125,7 @@
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"נושא"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"מאת:"</string>
     <string name="message_compose_to_label" msgid="6806045787441348009">"אל:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"עותק:"</string>
+    <string name="message_compose_cc_label" msgid="5608567337432359209">"עותקים:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"עותק מוסתר:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"נושא:"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"כתוב דואר"</string>
@@ -191,7 +189,7 @@
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"לא ניתן להתקין יישומים ישירות מהדוא\"ל. שמור יישום זה תחילה ולאחר מכן התקן אותו באמצעות היישום \'הורדות\'."</string>
     <string name="attachment_not_found" msgid="2593390852574725378">"לא היתה אפשרות להוריד את הקובץ המצורף."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"שגיאה במהלך פענוח ההודעה."</string>
-    <string name="eml_view_title" msgid="8827210108543430336">"צופה ב-<xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="eml_view_title" msgid="8827210108543430336">"צפייה בקובץ <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"מחק הודעה"</string>
   <plurals name="message_delete_confirm">
     <item quantity="one" msgid="8452608582303152000">"למחוק הודעה זו?"</item>
@@ -210,10 +208,10 @@
     <item quantity="one" msgid="3098493230185412871">"הודעה <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> הועברה אל <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> הודעות הועברו אל <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="forward_download_failed_ticker" msgid="328380505427633405">"אין אפשרות להעביר קובץ מצורף אחד או יותר"</string>
+    <string name="forward_download_failed_ticker" msgid="328380505427633405">"לא ניתן להעביר קובץ מצורף אחד או יותר"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"הקובץ המצורף לא הועבר"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"הכניסה לחשבון <xliff:g id="ACCOUNT_NAME">%s</xliff:g> נכשלה"</string>
-    <string name="login_failed_title" msgid="6948780582524747622">"הכניסה לחשבון  נכשלה"</string>
+    <string name="login_failed_title" msgid="6948780582524747622">"הכניסה לחשבון נכשלה"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"‎<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"‎<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -232,7 +230,7 @@
   </plurals>
     <string name="message_view_move_to_newer" msgid="2190862552581773765">"חדש יותר"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"ישן יותר"</string>
-    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
+    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" ??? "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"הגדרת חשבון"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"הוספת חשבון Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"הוסף חשבון Exchange ActiveSync"</string>
@@ -255,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"החשבון שלך הוגדר והדוא\"ל בדרך!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"תן שם לחשבון זה (אופציונלי)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"שמך (מוצג בהודעות יוצאות)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"שדה זה לא יכול להיות ריק."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"שדה זה לא יכול להיות ריק"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"הגדרת חשבון"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"סוג חשבון"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"איזה סוג חשבון זה?"</string>
@@ -268,17 +266,17 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"יציאה"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"סוג אבטחה"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"ללא"</string>
-    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (קבל את כל האישורים)"</string>
-    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (קבל את כל האישורים)"</string>
-    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (קבל את כל האישורים)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (קבל את כל האישורים)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"מחק דוא\"ל מהשרת"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"אף פעם"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"בעת מחיקה מתיבת דואר נכנס"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"קידומת נתיב IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"אופציונלי"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"הגדרת חשבון"</string>
-    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"הגדרות שרת דואר יוצא"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"הגדרות של שרת דואר יוצא"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"שרת SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"יציאה"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"סוג אבטחה"</string>
@@ -336,27 +334,27 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"הזנת כתובת שרת שגויה, או שהשרת דרש גרסת פרוטוקול שהדוא\"ל לא תומך בה."</string>
     <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"אין לך אישור לסנכרן באמצעות שרת זה. צור קשר עם מנהל המערכת של השרת לקבלת מידע נוסף."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"ניהול אבטחה מרחוק"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות בהתקן Android שלך. האם ברצונך לסיים הגדרת חשבון זה?"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר Android שלך. האם ברצונך לסיים הגדרת חשבון זה?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"שרת זה דורש תכונות אבטחה שהתקן Android שלך לא תומך בהן. כולל: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"לא ניתן לשנות שם משתמש של חשבון. כדי להוסיף חשבון עם שם משתמש אחר, גע ב\'הוסף חשבון\'."</string>
-    <string name="disable_admin_warning" msgid="4940147098039352135">"אזהרה: השבתת ההרשאה של יישום הדוא\"ל לטפל בהתקן תגרום למחיקת כל חשבונות הדוא\"ל שדורשים אותה יחד עם הודעות הדוא\"ל, אנשי הקשר, אירועים בלוח השנה ונתונים אחרים."</string>
+    <string name="disable_admin_warning" msgid="4940147098039352135">"אזהרה: השבתת ההרשאה של יישום הדוא\"ל לטפל במכשיר תגרום למחיקת כל חשבונות הדוא\"ל שדורשים הרשאה זו, יחד עם הודעות הדוא\"ל, אנשי הקשר, האירועים בלוח השנה ונתונים אחרים של חשבונות אלה."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"נדרש עדכון אבטחה"</string>
-    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> דורש שתעדכן את הגדרות האבטחה שלך."</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> דורש שתעדכן את הגדרות האבטחה."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"החשבון \"<xliff:g id="ACCOUNT">%s</xliff:g>\" דורש עדכון של הגדרות אבטחה."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"נדרש עדכון אבטחה"</string>
     <string name="account_security_title" msgid="4441470647344315196">"אבטחת המכשיר"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות בהתקן Android שלך."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר ה-Android שלך."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ערוך פרטים"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" דורש ממך לשנות את ה-PIN או הסיסמה של נעילת המסך."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"תוקף הסיסמה של נעילת המסך עומד לפוג"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"פג תוקף ה-PIN או הסיסמה של נעילת המסך שלך."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"פג תוקף הסיסמה של נעילת המסך"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"תוקף הסיסמה של נעילת המסך עומד לפוג"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"עליך לשנות את ה-PIN או הסיסמה של נעילת המסך בקרוב, או שהנתונים עבור <xliff:g id="ACCOUNT">%s</xliff:g> יימחקו. לשנות זאת כעת?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"עליך לשנות את ה-PIN או הסיסמה של נעילת המסך בקרוב, אחרת הנתונים של <xliff:g id="ACCOUNT">%s</xliff:g> יימחקו. לשנות זאת כעת?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"פג תוקף הסיסמה של נעילת המסך"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"הנתונים עבור <xliff:g id="ACCOUNT">%s</xliff:g> נמחקים מההתקן שלך. תוכל לשחזר אותם על ידי שינוי ה-PIN או הסיסמה של נעילת המסך. לשנות זאת כעת?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"הנתונים עבור <xliff:g id="ACCOUNT">%s</xliff:g> נמחקים מהמכשיר שלך. תוכל לשחזר אותם על ידי שינוי ה-PIN או הסיסמה של נעילת המסך. לשנות זאת כעת?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"למחוק שינויים שלא נשמרו?"</string>
-    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"הכניסה לחשבון  נכשלה"</string>
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"הכניסה לחשבון נכשלה"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"שם המשתמש או הסיסמה עבור <xliff:g id="ACCOUNT">%s</xliff:g> שגויים. לעדכן אותם כעת?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"חשבון ברירת מחדל"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"שלח דוא\"ל מחשבון זה כברירת מחדל"</string>
@@ -438,29 +436,28 @@
     <item msgid="235926149071179467">"הצג תוכן של הודעות בטקסט בגודל ענק"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"גודל טקסט בהודעה"</string>
-    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"זעיר"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"פיצפון"</string>
     <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"קטן"</string>
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"רגיל"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"גדול"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"ענק"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"שחזר ברירת מחדל עבור \"הצג תמונות\""</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"שחזר ברירת מחדל עבור \'הצג תמונות\'"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"שחזר ברירת מחדל עבור כל השולחים (אל תציג תמונות באופן אוטומטי)"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"האפשרות \"הצג תמונות\" בוטלה."</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"האפשרות \'הצג תמונות\' בוטלה."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> מתוך <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"ממתין לסינכרון"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"הדוא\"ל שלך יופיע בעוד זמן קצר."</string>
     <string name="widget_other_views" msgid="2265335608760083337">"גע בסמל כדי לשנות"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"דואר נכנס משולב"</string>
     <string name="widget_unread" msgid="4404711399009077833">"לא נקרא"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכב"</string>
-    <string name="widget_loading" msgid="2340962056927255554">"טוען…"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכבית"</string>
+    <string name="widget_loading" msgid="2340962056927255554">"טוען???"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"גע כדי להגדיר"</string>
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
+    <string name="widget_no_accounts" msgid="2412482205591224408">"עוד לא הגדרת חשבון דואר אלקטרוני."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"חפש דוא\"ל"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"חיפוש <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="search_header_text_fmt" msgid="3857004638127418247">"תוצאות חיפוש עבור <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"תוצאות חיפוש עבור \'<xliff:g id="ID_1">%1$s</xliff:g>\'"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"ממתין לתוצאות"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"שרתים מסוימים עשויים לדרוש זמן רב."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"תיקיות"</string>

@@ -32,7 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Odpovědět všem"</string>
     <string name="delete_action" msgid="8421026208288857155">"Smazat"</string>
     <string name="forward_action" msgid="669174181042344116">"Předat dál"</string>
-    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Oblíbené"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"Označit hvězdičkou"</string>
     <string name="done_action" msgid="7497990549515580249">"Hotovo"</string>
     <string name="create_action" msgid="3062715563215392251">"Vytvořit novou"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Smazat"</string>
@@ -266,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Typ zabezpečení"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Žádný"</string>
-    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (Přijímat všechny certifikáty)"</string>
-    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (Přijímat všechny certifikáty)"</string>
-    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Přijímat všechny certifikáty)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (Přijímat všechny certifikáty)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Mazat e-maily ze serveru"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nikdy"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Při smazání z Doručené pošty"</string>
@@ -453,13 +453,12 @@
     <string name="widget_starred" msgid="8290352707134011791">"S hvězdičkou"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Načítání..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Dotykem zahájíte konfiguraci"</string>
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
+    <string name="widget_no_accounts" msgid="2412482205591224408">"Zatím jste nenastavili e-mailový účet."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Hledat v e-mailu"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Vyhledávat ve složce <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Vyhledat výsledky pro dotaz <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Čekání na výsledky"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"Některým serverům může tento proces trvat dlouhou dobu."</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"Některým serverům může tento proces trvat dlouho."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Složky"</string>
 </resources>

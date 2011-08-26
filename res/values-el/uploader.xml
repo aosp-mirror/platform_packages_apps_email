@@ -7,7 +7,7 @@
     <string name="picasa_default_destination" msgid="2052406684123992574">"Άλμπουμ άμεσης μεταφόρτωσης"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Μεταφόρτωση"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Ολοκληρώθηκε"</string>
-    <string name="summary_title_paused" msgid="8936561302881926595">"Παύση"</string>
+    <string name="summary_title_paused" msgid="8936561302881926595">"Σε παύση"</string>
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d φωτογραφίες ??? %3$d βίντεο"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d φωτογραφίες ??? %2$d βίντεο"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"χαμηλή ισχύς μπαταρίας"</string>
@@ -25,17 +25,17 @@
     <string name="menu_show_completed_items" msgid="4380487776635859783">"Εμφάνιση λεπτομερειών"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Απόκρυψη λεπτομερειών"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Ρυθμίσεις"</string>
-    <string name="format_date_uploaded" msgid="803752037646090928">"%s μεταφορτώθηκαν"</string>
+    <string name="format_date_uploaded" msgid="803752037646090928">"Μεταφορτώθηκαν %s"</string>
     <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Λογαριασμός"</string>
     <string name="upload" msgid="2615541458361216022">"Μεταφόρτωση"</string>
-    <string name="ok" msgid="2516349681897895312">"OK"</string>
+    <string name="ok" msgid="2516349681897895312">"ΟΚ"</string>
     <string name="cancel" msgid="1207103189404543868">"Ακύρωση"</string>
     <string name="uploading_to" msgid="3986362895940069510">"Μεταφόρτωση σε "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" για "<b>"%s"</b></string>
     <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"Η προετοιμασία της μεταφόρτωσης απέτυχε."</string>
-    <string name="toast_file_error" msgid="1315722681020841350">"Το αρχείο δεν είναι διαθέσιμο"</string>
+    <string name="toast_file_error" msgid="1315722681020841350">"Το αρχείο δεν είναι διαθέσιμο."</string>
     <string name="account_error" msgid="1904775271866104941">"Αποτυχία ανάκτησης πληροφοριών λογαριασμού."</string>
     <string name="toast_failed_auth" msgid="2196450105656960566">"Παρουσιάστηκε πρόβλημα κατά τη σύνδεση στον λογαριασμό σας."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
@@ -43,7 +43,7 @@
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Αναμονή για WiFi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Μεταφόρτωση"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Αποτυχία"</string>
-    <string name="upload_state_completed" msgid="5638163990418071018">"Ολοκληρωμένη"</string>
+    <string name="upload_state_completed" msgid="5638163990418071018">"Ολοκληρώθηκε"</string>
     <string name="pause_state_running" msgid="711411177620353982">"μεταφόρτωση"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"μη αυτόματη παύση"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"παύση - χαμηλή ισχύς μπαταρίας"</string>
@@ -57,7 +57,7 @@
     <string name="retry_in_2min" msgid="5845688527405283031">"2 λεπτά"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 λεπτά"</string>
     <string name="retry_no_data" msgid="630347885498641534">"Δεν υπάρχει σύνδεση δεδομένων"</string>
-    <string name="account_out_of_quota" msgid="1849612079678906607">"Ο ελεύθερος χώρος στον λογαριασμό εξαντλήθηκε"</string>
+    <string name="account_out_of_quota" msgid="1849612079678906607">"Εξαντλήθηκε ο ελεύθερος αποθηκευτικός χώρος στον λογαριασμό"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"Το αρχείο δεν βρέθηκε"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"Σφάλμα υπηρεσίας"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"Σφάλμα δικτύου"</string>
@@ -68,14 +68,14 @@
     <string name="manager_resume" msgid="1608630525599824933">"Συνέχιση μεταφορτώσεων"</string>
     <string name="manager_upload_now" msgid="2284408578936376342">"Άμεση μεταφόρτωση"</string>
     <string name="manager_upload_later" msgid="5453932124711705632">"Μεταφόρτωση αργότερα"</string>
-    <string name="manager_do_not_upload" msgid="1934417351195364210">"Να μη γίνει μεταφόρτωση"</string>
+    <string name="manager_do_not_upload" msgid="1934417351195364210">"Να μην γίνει μεταφόρτωση"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Προβολή"</string>
     <string name="manager_retry" msgid="939534318469518843">"Επανάληψη"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Η μεταφόρτωση ακυρώθηκε"</string>
-    <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Η μεταφόρτωση ολοκληρώθηκε ήδη"</string>
+    <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Η μεταφόρτωση ήδη ολοκληρώθηκε"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Συγχρονισμός όλων"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Τελευταίος συγχρονισμός:"\n"%1$s"\n"%2$s"</string>
-    <string name="finished_empty" msgid="689924777356099393">"Η λίστα ολοκληρωμένων στοιχείων είναι κενή."</string>
+    <string name="finished_empty" msgid="689924777356099393">"Η λίστα ολοκληρωμένων αντικειμένων είναι κενή."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"Άμεση μεταφόρτωση"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Οι μεταφορτώσεις ολοκληρώθηκαν"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Οι μεταφορτώσεις τέθηκαν σε παύση"</string>
@@ -85,13 +85,13 @@
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Προετοιμασία <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> φωτογραφιών και <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> βίντεο για μεταφόρτωση..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Δεν είναι απαραίτητη η μεταφόρτωση πρόσθετων φωτογραφιών/βίντεο."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Παρουσιάστηκε πρόβλημα κατά την επικοινωνία με το διακομιστή. Προσπαθήστε ξανά αργότερα."</string>
-    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Ο συγχρονισμός όλων ακυρώθηκε"</string>
+    <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Ακυρώθηκε ο συγχρονισμός όλων"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"Συγχρονισμός όλων"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"Προβολή ολοκληρωμένων"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Προβολή μεταφορτώσεων σε εκκρεμότητα"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"Γενικά"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Παύση όλων των μεταφορτώσεων"</string>
-    <string name="preference_title_need_power" msgid="9165152026296632685">"Τροφοδοσία"</string>
+    <string name="preference_title_need_power" msgid="9165152026296632685">"Ισχύς"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Να πραγματοποιείται μεταφόρτωση μόνο κατά τη φόρτιση του τηλεφώνου."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Μεταφόρτωση μόνο όταν υπάρχει διαθέσιμο Wi-Fi."</string>
@@ -107,29 +107,29 @@
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Μόνο φωτογραφίες μέσω δικτύων κινητής τηλεφωνίας"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Φωτογραφίες και βίντεο μέσω δικτύων κινητής τηλεφωνίας"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Φωτογραφίες και βίντεο μόνο μέσω Wi-Fi"</string>
-    <string name="preference_category_title_about" msgid="3001183168471659844">"Πληροφορίες"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Έκδ.άμεσ.μεταφόρτ."</string>
+    <string name="preference_category_title_about" msgid="3001183168471659844">"Σχετικά με"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Άμεση μεταφόρτωση"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Συνιστάται: 1600 εικονοστοιχεία (για κοινή χρήση, εκτυπώσεις και προφυλάξεις οθόνης)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Αρχικό μέγεθος (πιο αργή μεταφόρτωση)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"παύση - μη διαθέσιμη κάρτα SD"</string>
-    <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Η κάρτα SD δεν είναι διαθέσιμη"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Ρυθμ.άμεσ.μεταφόρτ."</string>
+    <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Μη διαθέσιμη κάρτα SD"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Ρυθμ. άμεσης μεταφ."</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Άμεση μεταφόρτωση"</string>
-    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Αυτόματη μεταφόρτωση νέων φωτογραφιών και βίντεο σε προσωπικό λεύκωμα ιστού"</string>
+    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Αυτόματη μεταφόρτωση νέων φωτογραφιών και βίντεο σε προσωπικό άλμπουμ ιστού"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Κατάσταση μεταφόρτωσης"</string>
-    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Σύνθετες"</string>
+    <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Σύνθετες ρυθμίσεις"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Μεταφορτώσεις για κινητά"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Μεταφορτώσεις περιαγωγής"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Μεταφόρτωση φωτογραφιών και βίντεο κατά την περιαγωγή στο δίκτυο δεδομένων"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Μεταφόρτωση φωτογραφιών και βίντεο κατά την περιαγωγή σε δίκτυο δεδομένων"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Μεταφορτώσεις μπαταρίας"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Μεταφόρτωση φωτογραφιών και βίντεο μόνο κατά τη φόρτιση"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Μεταφόρτωση υπαρχουσών φωτογραφιών"</string>
-    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Μεταφορτώστε υπάρχουσες φωτογραφίες και βίντεο από το τηλέφωνό σας τώρα"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Απενεργοποιημένη"</string>
+    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Άμεση μεταφόρτωση όλων των υπαρχουσών φωτογραφιών και βίντεο από το τηλέφωνό σας"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Απενργοποιημένο"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Μεταφόρτωση (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d από %2$d"</string>
-    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Παύση: αγγίξτε για να επαναληφθεί η μεταφόρτωση"</string>
+    <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Παύση: αγγίξτε για να συνεχιστεί η μεταφόρτωση"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Μεταφόρτωση υπαρχουσών φωτογραφιών"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Η μεταφόρτωση φωτογραφιών και βίντεο που δεν έχουν ήδη μεταφορτωθεί από το τηλέφωνό σας σε ιδιωτικό λεύκωμα στον ιστό μπορεί να διαρκέσει ορισμένο χρονικό διάστημα, αλλά θα γίνει στο παρασκήνιο. Είστε βέβαιοι ότι θέλετε να συνεχίσετε;"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Ναι"</string>

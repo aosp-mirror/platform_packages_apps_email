@@ -32,7 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"رد على الكل"</string>
     <string name="delete_action" msgid="8421026208288857155">"حذف"</string>
     <string name="forward_action" msgid="669174181042344116">"إعادة توجيه"</string>
-    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"وضع في المُفضلة"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"تمييز بنجمة"</string>
     <string name="done_action" msgid="7497990549515580249">"تم"</string>
     <string name="create_action" msgid="3062715563215392251">"إنشاء رد جديد"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"حذف"</string>
@@ -54,7 +54,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"تعليمها بـ \"غير مقروءة\""</string>
     <string name="move_action" msgid="3059189775933985898">"نقل"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ نسخة إلى/نسخة مخفية الوجهة"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"إضافة نسخة/نس. مخفية"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"إضافة نسخة/ مخفية"</string>
     <string name="add_attachment_menu" msgid="6854757034409168845">"إرفاق ملف"</string>
     <string name="close_action" msgid="533058985745238100">"إغلاق"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"إرسال جميع الرسائل"</string>
@@ -266,10 +266,10 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"المنفذ"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"نوع الأمان"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"لا شيء"</string>
-    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"طبقة المقابس الآمنة (قبول جميع الشهادات)"</string>
-    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"طبقة المقابس الآمنة"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"طبقة النقل الآمنة (قبول جميع الشهادات)"</string>
-    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"طبقة النقل الآمنة"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"طبقة المقابس الآمنة/طبقة النقل الآمنة (قبول جميع الشهادات)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"طبقة المقابس الآمنة/طبقة النقل الآمنة"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (قبول جميع الشهادات)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"حذف البريد إلكتروني من الخادم"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"مطلقًا"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"عند الحذف من بريد الوارد"</string>
@@ -453,13 +453,12 @@
     <string name="widget_starred" msgid="8290352707134011791">"الرسائل المميزة بنجمة"</string>
     <string name="widget_loading" msgid="2340962056927255554">"جارٍ التحميل…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"يمكنك اللمس للتهيئة"</string>
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
+    <string name="widget_no_accounts" msgid="2412482205591224408">"لم يتم إعداد حساب بريد إلكتروني حتى الآن."</string>
     <string name="more_than_999" msgid="8704425397397918798">"+999"</string>
     <string name="search_hint" msgid="2200412192574686497">"البحث في البريد الإلكتروني"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"البحث في <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"نتائج البحث عن \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"في انتظار النتائج"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"قد تستغرق بعض الخوادم وقتًا طويلاً."</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"قد يستغرق بعض الخوادم وقتًا طويلاً."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"المجلدات"</string>
 </resources>

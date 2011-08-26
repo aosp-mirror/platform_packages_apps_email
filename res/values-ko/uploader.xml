@@ -8,8 +8,8 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"업로드 중"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"완료"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"일시중지됨"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? 사진 %2$d장 ??? 동영상 %3$d개"</string>
-    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"사진 %1$d장 ??? 동영상 %2$d개"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • 사진 %2$d장 • 동영상 %3$d개"</string>
+    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"사진 %1$d장 • 동영상 %2$d개"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"배터리 전원 부족"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"사진 용량을 초과했습니다."</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"로밍 중"</string>
@@ -103,9 +103,9 @@
     <string name="preference_title_videos_account" msgid="6675545508568161301">"계정"</string>
     <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"동영상 업로드에 사진 계정이 사용됩니다."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"업로드 조건"</string>
-    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"현재 포토 연결 설정이 사용되고 있습니다."</string>
-    <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"모바일 네트워크를 통한 사진만"</string>
-    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"모바일 네트워크를 통한 사진과 동영상"</string>
+    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"현재 사진 연결 설정이 사용되고 있습니다."</string>
+    <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"모바일 네트워크를 통해 사진만 업로드"</string>
+    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"모바일 네트워크를 통해 사진과 동영상 업로드"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Wi-Fi를 통해서만 사진과 동영상 업로드"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"정보"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"자동 업로드 버전"</string>

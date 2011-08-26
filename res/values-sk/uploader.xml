@@ -8,7 +8,7 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"Odovzdáva sa"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Dokončené"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Pozastavené"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"Počet fotografií: %1$d%% ??? %2$d ??? Počet videí: %3$d videos"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"Počet fotografií: %1$d%% ??? %2$d ??? Počet videí: %3$d"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"Počet fotografií: %1$d ??? Počet videí: %2$d"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"slabá batéria"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"kvóta pre fotografie bola prekročená"</string>
@@ -95,7 +95,7 @@
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Odovzdávať len počas nabíjania telefónu."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Odovzdať, len ak je k dispozícii sieť Wi-Fi."</string>
-    <string name="preference_category_title_photos" msgid="8558221017057440259">"Fotky"</string>
+    <string name="preference_category_title_photos" msgid="8558221017057440259">"Fotografie"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Účet"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Podmienky odovzdávania"</string>
     <string name="preference_title_photo_size" msgid="2291608017215972660">"Veľkosť fotografie"</string>
@@ -108,7 +108,7 @@
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Fotografie a videá cez mobilné siete"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Fotografie a videá len cez sieť Wi-Fi"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"O aplikácii"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Verzia Okamžitého odovzdania"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Ver. Okamž. odovzd."</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Odporúčaná veľkosť: 1 600 pixlov (na zdieľanie, tlač a šetriče obrazovky)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Pôvodná veľkosť (najpomalšie odovzdávanie)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"pozastavené – karta SD nie je k dispozícii"</string>
@@ -125,10 +125,10 @@
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Odovzdávať fotografie a videá len počas nabíjania"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Odovzdať fotografie"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Odovzdanie všetkých fotografií a videí z telefónu"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Zablokované"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Zakázané"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Prebieha odovzdávanie (%1$d%%)"</string>
-    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d of %2$d"</string>
+    <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d z %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Pozastavené: odovzdávanie obnovíte dotykom"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Odovzdať fotografie"</string>
     <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Odovzdanie neodovzdaných fotografií a videí z telefónu do súkromného albumu na webe môže chvíľu trvať, ale akcia prebehne na pozadí. Chcete pokračovať?"</string>

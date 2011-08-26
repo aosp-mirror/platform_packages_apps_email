@@ -11,17 +11,17 @@
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d 張相片 ??? %3$d 部影片"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d 張相片 ??? %2$d 部影片"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"低電量"</string>
-    <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"超出相片配額上限"</string>
+    <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"超出相片配額"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"漫遊中"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"正在等待 WiFi 連線"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"充電時繼續執行"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"正在等待連線"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"%s 內重試"</string>
-    <string name="summary_menu_show_pending" msgid="658361192495996">"顯示待處理的上傳內容"</string>
-    <string name="summary_menu_show_finished" msgid="8544099132633066086">"顯示已完成的上傳內容"</string>
+    <string name="summary_menu_show_pending" msgid="658361192495996">"顯示待處理的上傳項目"</string>
+    <string name="summary_menu_show_finished" msgid="8544099132633066086">"顯示已完成的上傳項目"</string>
     <string name="menu_view_online" msgid="6546633605818509942">"線上查看"</string>
-    <string name="menu_show_pending_items" msgid="8798191388238604213">"顯示待處理的上傳內容"</string>
-    <string name="menu_hide_pending_items" msgid="9216079748638469160">"隱藏待處理的上傳內容"</string>
+    <string name="menu_show_pending_items" msgid="8798191388238604213">"顯示待處理的上傳項目"</string>
+    <string name="menu_hide_pending_items" msgid="9216079748638469160">"隱藏待處理的上傳項目"</string>
     <string name="menu_show_completed_items" msgid="4380487776635859783">"顯示詳細資料"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"隱藏詳細資料"</string>
     <string name="menu_settings" msgid="5088116127086866634">"設定"</string>
@@ -49,7 +49,7 @@
     <string name="pause_state_low_battery" msgid="3154677586511229063">"已暫停 - 低電量"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"已暫停 - 充電時繼續執行"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"已暫停 - 正在等待連線"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"已暫停 - 超出 Picasa 網路相簿配額上限"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"已暫停 - 超出 Picasa 網路相簿配額"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"已暫停 - 正在等待 WiFi 連線"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"已暫停 - 漫遊中"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"正在等待重試"</string>
@@ -60,9 +60,9 @@
     <string name="account_out_of_quota" msgid="1849612079678906607">"帳戶的磁碟空間配額不足"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"找不到檔案"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"服務錯誤"</string>
-    <string name="failed_network_error" msgid="2531660472217573602">"網絡錯誤"</string>
+    <string name="failed_network_error" msgid="2531660472217573602">"網路錯誤"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"驗證失敗"</string>
-    <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"待處理的上傳內容 [%d]"</string>
+    <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"待處理的上傳項目 [%d]"</string>
     <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"已完成上傳 [%d]"</string>
     <string name="manager_pause" msgid="7046645023617816964">"暫停上傳"</string>
     <string name="manager_resume" msgid="1608630525599824933">"繼續上傳"</string>
@@ -87,7 +87,7 @@
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"與伺服器通訊時發生錯誤，請稍後再試。"</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"全部同步處理已取消"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"全部同步處理"</string>
-    <string name="manager_view_completed" msgid="5119780300858727185">"查看已完成的上傳內容"</string>
+    <string name="manager_view_completed" msgid="5119780300858727185">"查看已完成的上傳項目"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"查看待處理項目"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"一般"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"暫停上傳所有項目"</string>
@@ -124,7 +124,7 @@
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"使用電池電源時上傳"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"僅於充電時上傳相片和影片"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"上傳現有的相片"</string>
-    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"立即上傳手機中任何現有的相片和影片"</string>
+    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"立即上傳手機中現存的所有相片和影片"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"已停用"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s：%2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"上傳中 (%1$d%%)"</string>

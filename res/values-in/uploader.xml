@@ -49,7 +49,7 @@
     <string name="pause_state_low_battery" msgid="3154677586511229063">"dijeda - baterai lemah"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"dijeda - ditunda hingga pengisian daya"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"dijeda - menunggu sambungan"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"dijeda - melebihi kuota PWA"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"dijeda - melebihi kuota AWP"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"dijeda - menunggu wifi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"dijeda - roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"menunggu untuk mencoba lagi"</string>
@@ -70,7 +70,7 @@
     <string name="manager_upload_later" msgid="5453932124711705632">"Unggah nanti"</string>
     <string name="manager_do_not_upload" msgid="1934417351195364210">"Jangan unggah"</string>
     <string name="manager_view_media" msgid="3714544539986850549">"Lihat"</string>
-    <string name="manager_retry" msgid="939534318469518843">"Mencoba kembali"</string>
+    <string name="manager_retry" msgid="939534318469518843">"Coba lagi"</string>
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Unggahan dibatalkan"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Pengunggahan telah selesai"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Sinkronkan semua"</string>

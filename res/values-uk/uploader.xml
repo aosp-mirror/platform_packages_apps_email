@@ -3,8 +3,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="7812006268714926951">"Миттєве завантаження"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Альбом миттєвого завантаження"</string>
+    <string name="application_name" msgid="7812006268714926951">"Мобільне завантаження"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Альбом мобільного завантаження"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Завантаження"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Завершено"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Призупинено"</string>
@@ -76,7 +76,7 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Синхронізувати все"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Востаннє синхронізовано:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Список завершених елементів порожній."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Миттєве завантаження"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Мобільне завантаження"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Завантаження завершено"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Завантаження призупинено"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Миттєве завантаження ще не активовано"</string>
@@ -94,7 +94,7 @@
     <string name="preference_title_need_power" msgid="9165152026296632685">"Живлення"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Завантажувати лише коли телефон заряджається."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
-    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Завантажувати лише коли є доступ до Wi-Fi."</string>
+    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Завантажувати, лише коли є доступ до Wi-Fi."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Фото"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Обліковий запис"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Умови завантаження"</string>
@@ -107,13 +107,13 @@
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Лише фото через мобільні мережі"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Фото та відео через мобільні мережі"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Фото та відео лише через Wi-Fi"</string>
-    <string name="preference_category_title_about" msgid="3001183168471659844">"Про"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Версія Миттєв. завант."</string>
+    <string name="preference_category_title_about" msgid="3001183168471659844">"Відомості"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Версія Моб. завантаження"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Рекомендовано: 1600 пікселів (для надсилання, друку та заставок)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Оригінальний розмір (найповільніше завантаження)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"призупинено – карта SD недоступна"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Карта SD недоступна"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Налашт. миттєв. завант."</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Налашт. моб. завантаж."</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Мобільне завантаж."</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Автоматично завантажувати нові фото та відео в приватний веб-альбом"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Статус завантаження"</string>

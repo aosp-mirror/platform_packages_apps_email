@@ -16,7 +16,9 @@
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"در انتظار WiFi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"تأخیر تا زمان شارژ شدن"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"در انتظار برقراری اتصال"</string>
-    <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"سعی مجدد در %s"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for summary_subtitle_paused_retry_format (3851931944505090119) -->
+    <skip />
     <string name="summary_menu_show_pending" msgid="658361192495996">"نمایش آپلودهای در حال تعلیق"</string>
     <string name="summary_menu_show_finished" msgid="8544099132633066086">"نمایش آپلودهای تکمیل شده"</string>
     <string name="menu_view_online" msgid="6546633605818509942">"مشاهده به صورت آنلاین"</string>
@@ -25,7 +27,9 @@
     <string name="menu_show_completed_items" msgid="4380487776635859783">"نمایش جزئیات"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"پنهان کردن جزئیات"</string>
     <string name="menu_settings" msgid="5088116127086866634">"تنظیمات"</string>
-    <string name="format_date_uploaded" msgid="803752037646090928">"%s آپلود شد"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for format_date_uploaded (803752037646090928) -->
+    <skip />
     <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"حساب"</string>
     <string name="upload" msgid="2615541458361216022">"آپلود"</string>
@@ -63,7 +67,9 @@
     <string name="failed_network_error" msgid="2531660472217573602">"خطای شبکه"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"تأیید اعتبار انجام نشد"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"آپلودهای در حال تعلیق [%d]"</string>
-    <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"آپلودهای انجام شده [%d]"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for manager_list_switcher_completed_format (4700366545949687846) -->
+    <skip />
     <string name="manager_pause" msgid="7046645023617816964">"توقف موقت آپلودها"</string>
     <string name="manager_resume" msgid="1608630525599824933">"ازسرگیری آپلودها"</string>
     <string name="manager_upload_now" msgid="2284408578936376342">"اکنون آپلود شود"</string>
@@ -91,7 +97,7 @@
     <string name="manager_view_pending" msgid="4403346072556950609">"مشاهده موارد در حال تعلیق"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"عمومی"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"توقف موقت همه آپلودها"</string>
-    <string name="preference_title_need_power" msgid="9165152026296632685">"نیرو"</string>
+    <string name="preference_title_need_power" msgid="9165152026296632685">"برق"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"فقط در هنگام شارژ تلفن  آپلود شود."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"فقط هنگام در دسترس بودن Wi-Fi، آپلود انجام شود."</string>
@@ -120,7 +126,7 @@
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"پیشرفته"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"آپلودهای تلفن همراه"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"آپلودهای رومینگ"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"عکس‌ها و ویدیوها در هنگام رومینگ در شبکه داده آپلود شود"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"آپلود  عکس‌ها و ویدیوها در هنگام رومینگ در شبکه داده انجام شود"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"آپلودهای باتری"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"آپلود عکس‌ها و ویدیوها فقط هنگام شارژ کردن"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"آپلود عکس‌های موجود"</string>
@@ -128,10 +134,12 @@
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"غیرفعال شد"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"درحال آپلود (%1$d%%)"</string>
-    <string name="preference_summary_uploading_format" msgid="6092575579212954671">"%1$d از %2$d:"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for preference_summary_uploading_format (6092575579212954671) -->
+    <skip />
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"موقتاً متوقف شد: برای از سرگیری آپلود، لمس کنید"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"آپلود عکس‌های موجود"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"آپلود عکس‌ها و ویدیوهایی که از تلفن شما در یک آلبوم خصوصی روی وب آپلود نشده باشد، ممکن است مدتی طول بکشد، اما در پس زمینه انجام خواهد شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"آپلود عکس‌ها و ویدیوهایی که هنوز از تلفن شما در یک آلبوم خصوصی روی وب آپلود نشده‌اند ممکن است کمی طول بکشد، اما در پس زمینه انجام خواهد شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"بله"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"خیر"</string>
 </resources>

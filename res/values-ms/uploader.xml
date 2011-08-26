@@ -114,7 +114,7 @@
     <string name="pause_state_need_media" msgid="3849758767808306320">"dijeda - kad SD tidak tersedia"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Kad SD tidak tersedia"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Tetapan Muat Naik Serta-merta"</string>
-    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Muat Naik Serta-merta"</string>
+    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"M/Naik Serta-merta"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Muat naik foto &amp; video baru ke album web peribadi secara automatik"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Status muat naik"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Terperinci"</string>

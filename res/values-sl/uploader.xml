@@ -90,7 +90,7 @@
     <string name="manager_view_completed" msgid="5119780300858727185">"Ogled dokončanih"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"Ogled čakajočih"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"Splošno"</string>
-    <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Začasno ustavi prenose"</string>
+    <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Začasno ustavi vse prenose"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"Polnjenje"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Prenesi samo, ko se baterija telefona polni."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>

@@ -10,7 +10,7 @@
     <string name="summary_title_paused" msgid="8936561302881926595">"Pausad"</string>
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d foton ??? %3$d videor"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d foton ??? %2$d videor"</string>
-    <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"lågt batteri"</string>
+    <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"svagt batteri"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"bildkvoten har överskridits"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"väntar på Wi-Fi"</string>
@@ -46,7 +46,7 @@
     <string name="upload_state_completed" msgid="5638163990418071018">"Slutförd"</string>
     <string name="pause_state_running" msgid="711411177620353982">"överför"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"manuellt pausad"</string>
-    <string name="pause_state_low_battery" msgid="3154677586511229063">"pausad – lågt batteri"</string>
+    <string name="pause_state_low_battery" msgid="3154677586511229063">"pausad – svagt batteri"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"pausad – fördröjs tills laddaren ansluts"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"pausad – väntar på anslutning"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"pausad - utanför PWA-kvot"</string>

@@ -11,7 +11,7 @@
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? ‏%2$d תמונות ??? %3$d סרטוני וידאו"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d תמונות ??? %2$d סרטוני וידאו"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"סוללה חלשה"</string>
-    <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"חריגה ממיכסת התמונות"</string>
+    <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"חריגה ממכסת התמונות"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"נדידה"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"ממתין ל-WiFi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"מעוכב עד לטעינה"</string>
@@ -57,7 +57,7 @@
     <string name="retry_in_2min" msgid="5845688527405283031">"2 דקות"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 דקות"</string>
     <string name="retry_no_data" msgid="630347885498641534">"אין חיבור נתונים"</string>
-    <string name="account_out_of_quota" msgid="1849612079678906607">"אזלה מיכסת הדיסק עבור החשבון"</string>
+    <string name="account_out_of_quota" msgid="1849612079678906607">"אזלה מכסת הדיסק עבור החשבון"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"הקובץ לא נמצא"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"שגיאת שירות"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"שגיאת רשת"</string>

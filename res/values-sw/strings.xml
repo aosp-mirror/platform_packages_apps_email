@@ -45,7 +45,7 @@
     <skip />
     <!-- no translation found for forward_action (669174181042344116) -->
     <skip />
-    <!-- outdated translation 2911296685862420689 -->     <string name="favorite_action" msgid="4664259801498253756">"Kipendwa"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"Nyota"</string>
     <!-- no translation found for done_action (7497990549515580249) -->
     <skip />
     <!-- no translation found for create_action (3062715563215392251) -->
@@ -354,10 +354,10 @@
     <skip />
     <!-- no translation found for account_setup_incoming_security_none_label (8300169413118264895) -->
     <skip />
-    <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (Kubali vyeti vyote)"</string>
-    <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (Kubali vyeti vyote)"</string>
-    <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Kubali vyeti vyote)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (Kubali vyeti vyote)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Futa barua pepe kutoka kwa seva"</string>
     <!-- no translation found for account_setup_incoming_delete_policy_never_label (3222897501875871041) -->
     <skip />
@@ -614,8 +614,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Inapakia…"</string>
     <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
     <skip />
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
+    <string name="widget_no_accounts" msgid="2412482205591224408">"Bado hujasanidi akaunti ya barua pepe."</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
     <!-- no translation found for search_hint (2200412192574686497) -->

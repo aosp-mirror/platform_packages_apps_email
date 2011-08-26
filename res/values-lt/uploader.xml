@@ -45,7 +45,7 @@
     <string name="upload_state_failed" msgid="3799932718800848294">"Įvyko klaida"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Užbaigta"</string>
     <string name="pause_state_running" msgid="711411177620353982">"įkeliama"</string>
-    <string name="pause_state_manually_paused" msgid="4837627990158796573">"pristabdyta rankiniu būdu"</string>
+    <string name="pause_state_manually_paused" msgid="4837627990158796573">"pristabdyta rankomis"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"pristabdyta – akumuliatorius senka"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"pristabdyta – atidėta iki įkrovimo"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"pristabdyta – laukiama ryšio"</string>
@@ -106,7 +106,7 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Dabar naudojami nuotraukų jungiamumo nustatymai."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Tik per mobiliojo ryšio tinklus gautos nuotraukos"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Įkelti nuotraukas ir vaizdo įrašus per mobiliojo ryšio tinklus"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Nuotr. ir vaizdo įrašai tik per „Wi-Fi“"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Įkelti nuotraukas ir vaizdo įrašus tik per „Wi-Fi“"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Apie"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Moment. įkėl. vers."</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Rekomenduojama: 1 600 pikselių (bendrinant, spausdinant ir naudojant ekrano užsklandas)"</string>
