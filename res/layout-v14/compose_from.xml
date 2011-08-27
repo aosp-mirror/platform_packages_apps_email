@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/RecipientComposeFieldLayout">
     <TextView
         android:id="@+id/from"
@@ -21,8 +21,5 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:background="@null"
-        android:paddingLeft="8dip"
-        android:paddingBottom="16dip"
-        android:paddingTop="16dip"
         />
-</RelativeLayout>
+</LinearLayout>

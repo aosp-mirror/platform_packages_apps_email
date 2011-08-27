@@ -15,9 +15,16 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/RecipientComposeFieldLayout">
-
-    <EditText android:id="@+id/message_content"
-        style="@style/ChipsComposeBodyStyle"
+    <TextView
+        android:id="@+id/subject_label"
+        style="@style/RecipientComposeHeading"
+        android:text="@string/message_compose_subject_label"
         />
-
+    <EditText
+        android:id="@+id/subject"
+        style="@style/ChipsComposeSubjectStyle"
+        android:inputType
+            ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
+        android:imeOptions="actionNext"
+        />
 </LinearLayout>

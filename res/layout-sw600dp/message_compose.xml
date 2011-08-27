@@ -65,70 +65,9 @@
                             />
                     </LinearLayout>
 
-                    <!-- to: -->
-                    <LinearLayout
-                        style="@style/message_compose_header_field_container"
-                        >
-                        <TextView
-                            android:id="@+id/to_label"
-                            style="@style/message_compose_header_field_label"
-                            android:text="@string/message_compose_to_label"
-                            />
-                        <include android:id="@+id/to"
-                            layout="@layout/address_text_view"/>
-                    </LinearLayout>
+                <include layout="@layout/recipients_area"/>
 
-                    <LinearLayout
-                        android:id="@+id/cc_bcc_container"
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        >
-                        <!-- cc: -->
-                        <LinearLayout
-                            style="@style/message_compose_header_field_container"
-                            >
-                            <TextView
-                                android:id="@+id/cc_label"
-                                style="@style/message_compose_header_field_label"
-                                android:text="@string/message_compose_cc_label"
-                                />
-                            <include android:id="@+id/cc"
-                                layout="@layout/address_text_view"/>
-                        </LinearLayout>
-
-                        <!-- bcc: -->
-                        <LinearLayout
-                            style="@style/message_compose_header_field_container"
-                            >
-                            <TextView
-                                android:id="@+id/bcc_label"
-                                style="@style/message_compose_header_field_label"
-                                android:text="@string/message_compose_bcc_label"
-                                />
-                            <include android:id="@+id/bcc"
-                                layout="@layout/address_text_view"/>
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- subject -->
-                    <LinearLayout
-                        style="@style/message_compose_header_field_container"
-                        >
-                        <TextView
-                            android:id="@+id/subject_label"
-                            style="@style/message_compose_header_field_label"
-                            android:text="@string/message_compose_subject_label"
-                            />
-                        <EditText
-                            android:id="@+id/subject"
-                            style="@style/message_compose_header_field_value"
-                            android:inputType
-                                ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
-                            android:imeOptions="actionNext"
-                            />
-                    </LinearLayout>
+                <include layout="@layout/compose_subject"/>
                 </LinearLayout> <!-- end of header -->
 
                 <!-- Buttons: +cc/bcc, add attachment -->
