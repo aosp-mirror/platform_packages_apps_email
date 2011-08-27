@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.text.TextUtils;
 
 import com.android.emailcommon.provider.Account;
@@ -35,17 +36,25 @@ import java.net.URLEncoder;
   * will be called to create the data to be sent over the link,
   * which is a vCard in this case.
   */
-public class NfcHandler implements NfcAdapter.NdefPushCallback {
-    private NfcAdapter mNfcAdapter;
-    private UIControllerBase mUiController;
-    private Activity mActivity;
-    private String mCurrentEmail;
+public class NfcHandler implements NfcAdapter.CreateNdefMessageCallback {
+    final UIControllerBase mUiController;
+    final Activity mActivity;
 
-    public NfcHandler(UIControllerBase controller, Activity
-            activity) {
+    String mCurrentEmail;
+
+    public static NfcHandler register(UIControllerBase controller, Activity activity) {
+        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(activity);
+        if (adapter == null) {
+            return null;  // NFC not available on this device
+        }
+        NfcHandler nfcHandler = new NfcHandler(controller, activity);
+        adapter.setNdefPushMessageCallback(nfcHandler, activity);
+        return nfcHandler;
+    }
+
+    public NfcHandler(UIControllerBase controller, Activity activity) {
         mUiController = controller;
         mActivity = activity;
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(mActivity);
     }
 
     public void onAccountChanged() {
@@ -56,22 +65,6 @@ public class NfcHandler implements NfcAdapter.NdefPushCallback {
             mCurrentEmail = account.mEmailAddress;
         } else {
             mCurrentEmail = null;
-        }
-
-    }
-
-    public void onPause() {
-        if (mNfcAdapter != null) {
-            mNfcAdapter.disableForegroundNdefPush(
-                    mActivity);
-        }
-    }
-
-    public void onResume() {
-        if (mNfcAdapter != null) {
-            mNfcAdapter.enableForegroundNdefPush(
-                    mActivity, this);
-            onAccountChanged(); // Fetch current account
         }
     }
 
@@ -95,15 +88,11 @@ public class NfcHandler implements NfcAdapter.NdefPushCallback {
     }
 
     @Override
-    public NdefMessage createMessage() {
+    public NdefMessage createNdefMessage(NfcEvent event) {
         if (mCurrentEmail != null) {
             return buildMailtoNdef(mCurrentEmail);
         } else {
             return null;
         }
-    }
-
-    @Override
-    public void onMessagePushed() {
     }
 }

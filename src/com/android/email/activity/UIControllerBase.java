@@ -97,7 +97,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * The NfcHandler implements Near Field Communication sharing features
      * whenever the activity is in the foreground.
      */
-    private final NfcHandler mNfcHandler;
+    private NfcHandler mNfcHandler;
 
     /**
      * The active context for the current MessageList.
@@ -149,7 +149,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (DEBUG_FRAGMENTS) {
             FragmentManager.enableDebugLogging(true);
         }
-        mNfcHandler = new NfcHandler(this, activity);
     }
 
     /**
@@ -181,6 +180,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
         mRefreshManager.registerListener(mRefreshListener);
         mActionBarController.onActivityCreated();
+        mNfcHandler = NfcHandler.register(this, mActivity);
     }
 
     /**
@@ -203,7 +203,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             Log.d(Logging.LOG_TAG, this + " onActivityResume");
         }
         refreshActionBar();
-        mNfcHandler.onResume();
+        if (mNfcHandler != null) {
+            mNfcHandler.onAccountChanged();  // workaround for email not set on initial load
+        }
     }
 
     /**
@@ -213,7 +215,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityPause");
         }
-        mNfcHandler.onPause();
     }
 
     /**
@@ -552,7 +553,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
                 openMailbox(accountId, inboxId);
             }
         }
-        mNfcHandler.onAccountChanged();
+        if (mNfcHandler != null) {
+            mNfcHandler.onAccountChanged();
+        }
     }
 
     /**
