@@ -433,8 +433,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     public void onNext() {
         Account account = SetupData.getAccount();
 
-        account.setDeletePolicy(
-                (Integer) ((SpinnerOption) mDeletePolicyView.getSelectedItem()).value);
+        // Make sure delete policy is an valid option before using it; otherwise, the results are
+        // indeterminate, I suspect...
+        if (mDeletePolicyView.getVisibility() == View.VISIBLE) {
+            account.setDeletePolicy(
+                    (Integer) ((SpinnerOption) mDeletePolicyView.getSelectedItem()).value);
+        }
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         String userName = mUsernameView.getText().toString().trim();
