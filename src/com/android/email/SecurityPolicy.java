@@ -397,7 +397,8 @@ public class SecurityPolicy {
             }
             if (policy.mPasswordHistory > 0) {
                 if (dpm.getPasswordHistoryLength(mAdminName) < policy.mPasswordHistory) {
-                    reasons |= INACTIVE_NEED_PASSWORD;
+                    // There's no user action for changes here; this is just a configuration change
+                    reasons |= INACTIVE_NEED_CONFIGURATION;
                 }
             }
             if (policy.mPasswordComplexChars > 0) {
