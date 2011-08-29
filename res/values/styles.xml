@@ -235,11 +235,10 @@
 
     <style name="RecipientComposeHeading">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">48dip</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:paddingLeft">8dip</item>
-        <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/compose_label_text</item>
+        <item name="android:layout_marginRight">4dip</item>
      </style>
 
     <style name="RecipientComposeFieldLayout" parent="android:Widget.Holo.Light.EditText">
@@ -248,14 +247,11 @@
         <item name="android:addStatesFromChildren">true</item>
         <item name="android:focusable">false</item>
         <item name="android:focusableInTouchMode">false</item>
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">0dip</item>
-        <item name="android:paddingTop">0dip</item>
-        <item name="android:paddingBottom">8dip</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:minHeight">48dip</item>
     </style>
 
     <style name="ComposeBodyStyle">
-        <item name="android:paddingTop">0dip</item>
         <item name="android:minHeight">48dip</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
@@ -263,7 +259,6 @@
         <item name="android:inputType">textLongMessage|textMultiLine|textAutoCorrect|textCapSentences</item>
         <item name="android:hint">@string/message_compose_body_hint</item>
         <item name="android:imeOptions">flagNoExtractUi|actionDone|flagNoEnterAction</item>
-        <item name="android:paddingLeft">8dip</item>
         <item name="android:textColorHint">@color/compose_label_text</item>
     </style>
 
@@ -273,10 +268,8 @@
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:textColorHint">@color/compose_label_text</item>
-        <item name="android:hint">@string/message_compose_subject_hint</item>
         <item name="android:inputType">textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine</item>
         <item name="android:imeOptions">actionNext|flagNoExtractUi</item>
-        <item name="android:paddingLeft">8dip</item>
     </style>
 
     <style name="message_list_item_normal">
