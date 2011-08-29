@@ -16,14 +16,14 @@
 
 package com.android.emailcommon.service;
 
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Policy;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Policy;
 
 public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
@@ -60,8 +60,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             Log.v(TAG, "clearUnsupportedPolicies: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
-            // Can this happen?
-            return null;
+            throw new ServiceUnavailableException("clearUnsupportedPolicies");
         } else {
             return (Policy)mReturn;
         }
@@ -79,8 +78,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             Log.v(TAG, "isActive: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
-            // Can this happen?
-            return false;
+            throw new ServiceUnavailableException("isActive");
         } else {
             return (Boolean)mReturn;
         }
@@ -98,8 +96,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             Log.v(TAG, "isActiveAdmin: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
-            // Can this happen?
-            return false;
+            throw new ServiceUnavailableException("isActiveAdmin");
         } else {
             return (Boolean)mReturn;
         }
@@ -117,8 +114,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             Log.v(TAG, "isSupported: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
-            // Can this happen?
-            return false;
+            throw new ServiceUnavailableException("isSupported");
         } else {
             return (Boolean)mReturn;
         }
