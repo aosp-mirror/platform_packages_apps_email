@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -112,6 +113,7 @@ public class AccountSettings extends PreferenceActivity {
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
     private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
+    private ContentObserver mAccountObserver;
 
     // Specific callbacks used by settings fragments
     private final AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
@@ -187,12 +189,26 @@ public class AccountSettings extends PreferenceActivity {
 
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+
+        mAccountObserver = new ContentObserver(Utility.getMainThreadHandler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                updateAccounts();
+            }
+        };
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        getContentResolver().registerContentObserver(Account.NOTIFIER_URI, true, mAccountObserver);
         updateAccounts();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getContentResolver().unregisterContentObserver(mAccountObserver);
     }
 
     @Override
