@@ -179,6 +179,11 @@ public class ActionBarController {
         public String getSearchHint();
 
         /**
+         * Called when the action bar initially shows the search entry field.
+         */
+        public void onSearchStarted();
+
+        /**
          * Called when a search is submitted.
          *
          * @param queryTerm query string
@@ -275,7 +280,7 @@ public class ActionBarController {
     /**
      * @return true if the search box is shown.
      */
-    private boolean isInSearchMode() {
+    public boolean isInSearchMode() {
         return mSearchMode == MODE_SEARCH;
     }
 
@@ -311,6 +316,7 @@ public class ActionBarController {
         mSearchView.setIconified(false);
 
         refresh();
+        mCallback.onSearchStarted();
     }
 
     public void exitSearchMode() {

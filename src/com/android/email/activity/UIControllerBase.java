@@ -627,6 +627,11 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      */
     public abstract boolean onBackPressed(boolean isSystemBackKey);
 
+    public void onSearchStarted() {
+        // Show/hide the original search icon.
+        mActivity.invalidateOptionsMenu();
+    }
+
     /**
      * Must be called from {@link Activity#onSearchRequested()}.
      * This initiates the search entry mode - see {@link #onSearchSubmit} for when the search
@@ -748,6 +753,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     protected void onSearchExit() {
         if ((mListContext != null) && mListContext.isSearch()) {
             mActivity.finish();
+        } else {
+            // Re show the search icon.
+            mActivity.invalidateOptionsMenu();
         }
     }
 
@@ -793,7 +801,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             }
         }
 
-        menu.findItem(R.id.search).setVisible(accountSearchable && mailboxHasServerCounterpart);
+        boolean showSearchIcon = !mActionBarController.isInSearchMode()
+                && accountSearchable && mailboxHasServerCounterpart;
+
+        menu.findItem(R.id.search).setVisible(showSearchIcon);
         menu.findItem(R.id.mailbox_settings).setVisible(isEas && mailboxHasServerCounterpart);
         return true;
     }

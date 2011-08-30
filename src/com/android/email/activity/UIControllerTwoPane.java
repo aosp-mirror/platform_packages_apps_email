@@ -695,6 +695,11 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         }
 
         @Override
+        public void onSearchStarted() {
+            UIControllerTwoPane.this.onSearchStarted();
+        }
+
+        @Override
         public void onSearchSubmit(final String queryTerm) {
             UIControllerTwoPane.this.onSearchSubmit(queryTerm);
         }

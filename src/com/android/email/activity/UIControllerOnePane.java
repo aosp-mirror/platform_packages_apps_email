@@ -234,6 +234,14 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
+        public void onSearchStarted() {
+            if (!isMessageListInstalled()) {
+                return;
+            }
+            UIControllerOnePane.this.onSearchStarted();
+        }
+
+        @Override
         public void onSearchSubmit(String queryTerm) {
             if (!isMessageListInstalled()) {
                 return;
