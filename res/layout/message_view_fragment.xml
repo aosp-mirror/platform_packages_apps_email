@@ -28,7 +28,7 @@
         android:layout_gravity="center"
         style="?android:attr/progressBarStyleLarge"
         />
-    <ScrollView
+    <com.android.email.view.NonLockingScrollView
         android:id="@+id/main_panel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -202,5 +202,5 @@
             </ScrollView>
             <!-- end of content area -->
         </LinearLayout>
-    </ScrollView>
+    </com.android.email.view.NonLockingScrollView>
 </FrameLayout>
