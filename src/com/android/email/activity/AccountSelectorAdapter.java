@@ -170,7 +170,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
                         getAccountUnreadCount(c), true));
 
-                if (((CursorWithExtras) c).getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // If we're on a combined account, show the color chip indicators for all real
+                // accounts so it can be used as a legend.
+                boolean isCombinedActive =
+                        ((CursorWithExtras) c).getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW;
+
+                if (isCombinedActive && Account.isNormalAccount(id)) {
                     chipView.setBackgroundColor(mResourceHelper.getAccountColor(id));
                     chipView.setVisibility(View.VISIBLE);
                 } else {

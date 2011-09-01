@@ -98,5 +98,5 @@
         android:layout_marginLeft="16dip"
         android:layout_marginRight="16dip"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/btn_star_off_normal_holo_light" />
+        android:src="@drawable/btn_star_off_normal_email_holo_light" />
 </LinearLayout>

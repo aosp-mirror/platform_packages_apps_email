@@ -23,6 +23,10 @@
     <dimen name="message_header_badge_width">64dip</dimen>
     <dimen name="message_header_name_margin">16dip</dimen>
 
+    <!-- hack around the fact that the checkbox below the reply state has a lot
+         of padding built into the asset -->
+    <dimen name="message_list_icon_padding_compensation">-6dip</dimen>
+
     <!-- Account Setup Activities -->
     <!-- inset distance for setup/settings buttons -->
     <dimen name="setup_buttons_padding_left">16dip</dimen>

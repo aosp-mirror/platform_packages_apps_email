@@ -35,7 +35,6 @@
             android:id="@+id/checkmark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dip"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
             android:src="@drawable/btn_check_on_normal_holo_light"
@@ -44,6 +43,7 @@
             android:id="@+id/reply_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/message_list_icon_padding_compensation"
             android:layout_centerHorizontal="true"
             android:layout_above="@+id/checkmark"
             android:src="@drawable/ic_badge_reply_holo_light"
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/btn_star_off_normal_holo_light" />
+            android:src="@drawable/btn_star_off_normal_email_holo_light" />
 
         <LinearLayout
             android:id="@+id/date_container"
@@ -80,6 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_above="@+id/star"
+            android:layout_marginBottom="@dimen/message_list_icon_padding_compensation"
             android:orientation="horizontal"
             >
             <!-- reserve enough vertical space for two icons -->

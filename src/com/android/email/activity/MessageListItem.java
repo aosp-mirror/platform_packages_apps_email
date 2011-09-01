@@ -93,6 +93,7 @@ public class MessageListItem extends View {
     private static final TextPaint sHighlightPaint = new TextPaint();
     private static Bitmap sAttachmentIcon;
     private static Bitmap sInviteIcon;
+    private static int sBadgeMargin;
     private static Bitmap sFavoriteIconOff;
     private static Bitmap sFavoriteIconOn;
     private static Bitmap sSelectedIconOn;
@@ -157,10 +158,11 @@ public class MessageListItem extends View {
             sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
             sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite_holo_light);
+            sBadgeMargin = r.getDimensionPixelSize(R.dimen.message_list_badge_margin);
             sFavoriteIconOff =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_holo_light);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_email_holo_light);
             sFavoriteIconOn =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_on_normal_holo_light);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_on_normal_email_holo_light);
             sSelectedIconOff =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
@@ -423,7 +425,7 @@ public class MessageListItem extends View {
         // TODO: deal with the icon layouts better from the coordinate class so that this logic
         // doesn't have to exist.
         // Draw the attachment and invite icons, if necessary.
-        int iconsLeft = dateX;
+        int iconsLeft = dateX - sBadgeMargin;
         if (mHasAttachment) {
             iconsLeft = iconsLeft - sAttachmentIcon.getWidth();
             canvas.drawBitmap(sAttachmentIcon, iconsLeft, mCoordinates.paperclipY, null);
