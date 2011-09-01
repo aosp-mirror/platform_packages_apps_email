@@ -445,7 +445,7 @@ public class MessageListItem extends View {
     }
 
 
-    private static final int TOUCH_SLOP = 16;
+    private static final int TOUCH_SLOP = 24;
     private static int sScaledTouchSlop = -1;
 
     private void initializeSlop(Context context) {
@@ -475,7 +475,7 @@ public class MessageListItem extends View {
         int touchX = (int) event.getX();
         int checkRight = mCoordinates.checkmarkX
                 + mCoordinates.checkmarkWidthIncludingMargins + sScaledTouchSlop;
-        int starLeft = mCoordinates.starX;
+        int starLeft = mCoordinates.starX - sScaledTouchSlop;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
