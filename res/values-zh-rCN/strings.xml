@@ -459,6 +459,6 @@
     <string name="search_mailbox_hint" msgid="7854987729678942790">"搜索<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"关于“<xliff:g id="ID_1">%1$s</xliff:g>”的搜索结果"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"正在等待结果"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能需要很长的时间。"</string>
+    <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能会花费较长的时间。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
 </resources>

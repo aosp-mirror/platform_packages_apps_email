@@ -8,8 +8,8 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"正在上传"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"已完成"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"已暂停"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • %2$d 张照片 • %3$d 段视频"</string>
-    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d 张照片 • %2$d 段视频"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d 张照片 ??? %3$d 段视频"</string>
+    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d 张照片 ??? %2$d 段视频"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"电量不足"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"超出照片配额"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"正在漫游"</string>
@@ -49,7 +49,7 @@
     <string name="pause_state_low_battery" msgid="3154677586511229063">"已暂停 - 电量不足"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"已暂停 - 充电时继续"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"已暂停 - 正在等待建立连接"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"已暂停 - PWA 配额不足"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"已暂停 - Picasa 网络相册配额不足"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"已暂停 - 正在等待建立 WiFi 连接"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"已暂停 - 正在漫游"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"正在等待重新尝试"</string>
@@ -57,7 +57,7 @@
     <string name="retry_in_2min" msgid="5845688527405283031">"2 分钟"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 分钟"</string>
     <string name="retry_no_data" msgid="630347885498641534">"没有数据连接"</string>
-    <string name="account_out_of_quota" msgid="1849612079678906607">"帐户磁盘配额不足"</string>
+    <string name="account_out_of_quota" msgid="1849612079678906607">"帐户服务器空间不足"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"未找到文件"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"服务错误"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"网络错误"</string>
@@ -98,19 +98,19 @@
     <string name="preference_category_title_photos" msgid="8558221017057440259">"照片"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"帐户"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"上传条件"</string>
-    <string name="preference_title_photo_size" msgid="2291608017215972660">"照片大小"</string>
+    <string name="preference_title_photo_size" msgid="2291608017215972660">"照片尺寸"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"视频"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"帐户"</string>
-    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"该相册帐户将用于上传视频。"</string>
+    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"将用于上传视频的相册帐户。"</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"上传条件"</string>
-    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"暂时采用 Google 相册的连接设置。"</string>
+    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"目前采用照片的连接设置。"</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"通过移动网络上传的内容仅限照片"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"通过移动网络上传照片和视频"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"仅通过 Wi-Fi 上传照片和视频"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"关于"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"“即时上传”版本"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"推荐：1600 像素（用于分享、打印和屏幕保护程序）"</string>
-    <string name="photos_upload_dimension_original" msgid="6807552546029109517">"原始大小（上传速度最慢）"</string>
+    <string name="photos_upload_dimension_original" msgid="6807552546029109517">"原始尺寸（上传速度最慢）"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"已暂停 - 无法读取 SD 卡"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"无法读取 SD 卡"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"“即时上传”设置"</string>

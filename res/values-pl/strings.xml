@@ -169,7 +169,7 @@
     <string name="message_view_invite_title" msgid="5024473745902772299">"Zaproszenie z kalendarza"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Zamierzasz uczestniczyć?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Tak"</string>
-    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Być może"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Może"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Nie"</string>
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Zaakceptowano to zaproszenie"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Nie udzielono konkretnej odpowiedzi na to zaproszenie"</string>
