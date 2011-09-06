@@ -163,8 +163,8 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Показать картинки"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Всегда показывать"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Всегда показывать картинки от этого отправителя"</string>
-    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Картинки от этого отправителя будут отображаться автоматически."</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Всегда показывать картинки с этого адреса"</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Картинки, отправленные с этого адреса, будут всегда показываться."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Посмотреть в Календаре"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Приглашение в Календаре"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Примете участие?"</string>

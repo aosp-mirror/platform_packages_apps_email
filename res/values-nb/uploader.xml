@@ -111,7 +111,7 @@
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Direktopplast.-ver."</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Anbefalt: 1600 piksler (for deling, utskrift og skjermbeskyttere)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Originalstørrelse (tregeste opplasting)"</string>
-    <string name="pause_state_need_media" msgid="3849758767808306320">"midlertidig stoppert – SD-kort er ikke tilgjengelig"</string>
+    <string name="pause_state_need_media" msgid="3849758767808306320">"midlertidig stoppet – SD-kort er ikke tilgjengelig"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD-kortet er ikke tilgjengelig"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Innst. for dir.oppl."</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Direkteopplasting"</string>
