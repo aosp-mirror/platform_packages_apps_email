@@ -163,7 +163,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     /**
      * Set the policy for an account atomically; this also removes any other policy associated with
      * the account and sets the policy key for the account.  If policy is null, the policyKey is
-     * set to 0 and the securitySyncKey to null
+     * set to 0 and the securitySyncKey to null.  Also, update the account object to reflect the
+     * current policyKey and securitySyncKey
      * @param context the caller's context
      * @param account the account whose policy is to be set
      * @param policy the policy to set, or null if we're clearing the policy
@@ -206,6 +207,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
 
         try {
             context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
+            account.refresh(context);
         } catch (RemoteException e) {
            // This is fatal to a remote process
             throw new IllegalStateException("Exception setting account policy.");
