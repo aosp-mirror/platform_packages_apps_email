@@ -16,7 +16,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/RecipientComposeFieldLayout">
     <EditText android:id="@+id/subject"
-        style="@style/ChipsComposeSubjectStyle"
+        style="@style/EmailRecipientEditTextView"
         android:hint="@string/message_compose_subject_hint"
+        android:textColorHint="@color/compose_label_text"
         />
 </LinearLayout>

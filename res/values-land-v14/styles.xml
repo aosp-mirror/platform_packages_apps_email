@@ -13,18 +13,24 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
-    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
+    <style name="RecipientComposeFieldLayout" parent="android:Widget.Holo.Light.EditText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:addStatesFromChildren">true</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:minHeight">48dip</item>
     </style>
+
+    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+        <item name="android:minHeight">0dip</item>
+    </style>
+
     <style name="ChipsComposeBodyStyle" parent="@style/ComposeBodyStyle">
         <item name="android:background">@null</item>
-        <item name="android:minHeight">42dip</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-    <style name="ChipsComposeSubjectStyle" parent="@style/ComposeSubjectStyle">
-        <item name="android:background">@null</item>
+        <item name="android:gravity">bottom</item>
         <item name="android:minHeight">0dip</item>
     </style>
 </resources>

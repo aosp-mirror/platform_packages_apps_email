@@ -210,7 +210,8 @@
     </style>
 
     <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
-        <item name="android:minHeight">48dip</item>
+        <item name="android:minHeight">42dip</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="ComposeFieldLinearLayout" parent="android:Widget.Holo.Light.EditText">
@@ -247,10 +248,10 @@
         <item name="android:addStatesFromChildren">true</item>
         <item name="android:focusable">false</item>
         <item name="android:focusableInTouchMode">false</item>
-        <item name="android:gravity">bottom</item>
+        <item name="android:gravity">center</item>
         <item name="android:minHeight">48dip</item>
+        <item name="android:paddingTop">4dip</item>
     </style>
-
     <style name="ComposeBodyStyle">
         <item name="android:minHeight">48dip</item>
         <item name="android:layout_height">wrap_content</item>
