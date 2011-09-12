@@ -29,7 +29,7 @@
     <string name="previous_action" msgid="5181616311579820981">"Önceki"</string>
     <string name="send_action" msgid="1729766205562446418">"Gönder"</string>
     <string name="reply_action" msgid="4262472229221507619">"Yanıtla"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"Tümünü yanıtla"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"Yanıtı tüm alıcılara gönder"</string>
     <string name="delete_action" msgid="8421026208288857155">"Sil"</string>
     <string name="forward_action" msgid="669174181042344116">"İleri"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Yıldız ekle"</string>

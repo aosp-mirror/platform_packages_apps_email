@@ -319,7 +319,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Todas"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Utilizar predef. da conta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nome de utilizador ou palavra passe incorrectos."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome de utilizador ou palavra-passe incorrectos."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome de utilizador ou palavra-passe incorretos."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Não é possível ligar ao servidor em segurança."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Não é possível ligar ao servidor em segurança."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"É necessário o certificado de utilizador para estabelecer ligação ao servidor."</string>

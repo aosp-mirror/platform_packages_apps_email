@@ -185,7 +185,7 @@
     <string name="attachment_info_policy" msgid="328224012587376154">"Dieser Anhang kann aufgrund der für dieses Konto geltenden Sicherheitsrichtlinien nicht gespeichert oder geöffnet werden."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Dieser Anhang ist zu groß, um ihn über ein Mobilfunknetz herunterzuladen. Sie können ihn herunterladen, sobald Sie das nächste Mal mit einem WLAN-Netzwerk verbunden sind."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Keine der installierten Anwendungen kann diesen Anhang öffnen. Laden Sie eine geeignete Anwendung von Android Market herunter und wiederholen Sie den Vorgang."</string>
-    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Dieser Anhang ist eine Anwendung. Sie müssen zuerst die unbekannten Quellen unter Anwendungen &gt; Einstellungen überprüfen, bevor Sie sie installieren können."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Dieser Anhang ist eine App. Sie müssen zuerst die unbekannten Quellen unter Apps &gt; Einstellungen überprüfen, bevor Sie sie installieren können."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Anwendungen können nicht direkt aus E-Mails installiert werden. Speichern Sie zunächst die Anwendung und installieren Sie sie dann mithilfe der Downloads-Anwendung."</string>
     <string name="attachment_not_found" msgid="2593390852574725378">"Der Anhang konnte nicht heruntergeladen werden."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Fehler beim Entschlüsseln der Nachricht"</string>

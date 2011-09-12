@@ -20,7 +20,7 @@
     <string name="permission_read_attachment_desc" msgid="7079397473503113579">"للسماح لهذا التطبيق بقراءة مرفقات البريد الإلكتروني."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"الدخول إلى بيانات موفر البريد الإلكتروني"</string>
     <string name="permission_access_provider_desc" msgid="2549843731779487336">"للسماح لهذا التطبيق بالدخول إلى قاعدة بيانات بريدك الإلكتروني، بما في ذلك الرسائل الواردة، والرسائل المرسلة، وأسماء المستخدمين وكلمات المرور."</string>
-    <string name="app_name" msgid="5815426892327290362">"إرسال رسالة إلكترونية"</string>
+    <string name="app_name" msgid="5815426892327290362">"بريد"</string>
     <string name="compose_title" msgid="427986915662706899">"إنشاء"</string>
     <string name="debug_title" msgid="5175710493691536719">"تصحيح الأخطاء"</string>
     <string name="next_action" msgid="3931301986364184415">"التالي"</string>

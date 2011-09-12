@@ -106,7 +106,7 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Zdaj se uporabljajo nastavitve povezljivosti fotografij."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Samo fotografije prek mobilnih omrežij"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Prenos fotografij in videoposnetkov po mobilnih omrežjih"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Prenos fotografij in videoposnetkov samo prek povezave Wi-Fi"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Prenos slik in videov samo prek Wi-Fi"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Vizitka"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Razl. takoj. prenosa"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Priporočeno: 1600 slikovnih pik (za deljenje z drugimi, tiskanje in ohranjevalnike zaslona)"</string>
