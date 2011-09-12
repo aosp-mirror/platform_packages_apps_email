@@ -61,7 +61,6 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         UiUtilities.setVisibilitySafe(result, R.id.reply, View.GONE);
         UiUtilities.setVisibilitySafe(result, R.id.reply_all, View.GONE);
         UiUtilities.setVisibilitySafe(result, R.id.forward, View.GONE);
-        UiUtilities.setVisibilitySafe(result, R.id.more_separator, View.GONE);
         UiUtilities.setVisibilitySafe(result, R.id.more, View.GONE);
 
         return result;

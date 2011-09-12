@@ -106,6 +106,12 @@
         <item name="android:singleLine">true</item>
     </style>
 
+    <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_width">56dip</item>
+        <item name="android:layout_height">56dip</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
     <style name="message_header_sender_name">
         <item name="android:textSize">18dip</item>
         <item name="android:textColor">@color/text_primary_color_inverse</item>
@@ -119,13 +125,6 @@
         <item name="android:textColor">@color/text_secondary_color_inverse</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
-        <item name="android:layout_width">48dip</item>
-        <item name="android:layout_height">48dip</item>
-        <item name="android:layout_marginRight">16dip</item>
-        <item name="android:padding">8dip</item>
     </style>
 
     <style name="accountSetupTypePrevious" parent="@style/accountSetupButton">

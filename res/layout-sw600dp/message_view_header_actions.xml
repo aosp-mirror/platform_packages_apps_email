@@ -39,7 +39,7 @@
     <ImageButton
         android:id="@+id/favorite"
         style="@style/message_view_action_buttons"
-        android:src="@drawable/btn_star_off_normal_holo_light"
+        android:src="@drawable/btn_star_off_convo_holo_light"
         android:contentDescription="@string/favorite_action"
         android:baselineAlignBottom="true"
         />

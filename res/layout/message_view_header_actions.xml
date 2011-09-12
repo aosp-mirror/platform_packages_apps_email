@@ -15,30 +15,22 @@
 -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageButton
+    <ImageView
         android:id="@+id/favorite"
         style="@style/message_view_action_buttons"
-        android:src="@drawable/btn_star_off_normal_holo_light"
+        android:src="@drawable/btn_star_off_convo_holo_light"
         android:contentDescription="@string/favorite_action"
         />
-    <ImageButton
+    <ImageView
         android:id="@+id/reply"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_reply_holo_dark"
         android:contentDescription="@string/reply_action"
         />
-    <View
-        android:id="@+id/more_separator"
-        android:layout_width="1dip"
-        android:layout_height="24dip"
-        android:layout_margin="3dip"
-        android:background="#ddd"
-        />
-    <ImageButton
+    <ImageView
         android:id="@+id/more"
         style="@android:style/Widget.Holo.ActionButton.Overflow"
-        android:layout_width="24dip"
-        android:layout_height="24dip"
-        android:layout_margin="6dip"
+        android:layout_width="48dip"
+        android:layout_height="match_parent"
         />
 </merge>
