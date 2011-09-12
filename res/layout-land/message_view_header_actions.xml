@@ -18,7 +18,7 @@
     <ImageButton
         android:id="@+id/favorite"
         style="@style/message_view_action_buttons"
-        android:src="@drawable/btn_star_off_normal_holo_light"
+        android:src="@drawable/btn_star_off_convo_holo_light"
         android:contentDescription="@string/favorite_action"
         />
     <ImageButton
@@ -34,12 +34,10 @@
         android:contentDescription="@string/reply_all_action"
         />
 
-    <!-- Add extra margin on the right for the last action on landscape -->
     <ImageButton
         android:id="@+id/forward"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_forward_holo_dark"
         android:contentDescription="@string/forward_action"
-        android:layout_marginRight="24dip"
         />
 </merge>
