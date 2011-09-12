@@ -20,7 +20,7 @@
     <string name="permission_read_attachment_desc" msgid="7079397473503113579">"允许此应用程序读取您的电子邮件附件。"</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"访问电子邮件提供者数据"</string>
     <string name="permission_access_provider_desc" msgid="2549843731779487336">"允许此应用程序访问您的电子邮件数据库，包括已接收邮件、已发送邮件、用户名和密码。"</string>
-    <string name="app_name" msgid="5815426892327290362">"发送电子邮件"</string>
+    <string name="app_name" msgid="5815426892327290362">"电子邮件"</string>
     <string name="compose_title" msgid="427986915662706899">"撰写"</string>
     <string name="debug_title" msgid="5175710493691536719">"调试"</string>
     <string name="next_action" msgid="3931301986364184415">"下一步"</string>

@@ -443,7 +443,7 @@
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"ענק"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"שחזר ברירת מחדל עבור \'הצג תמונות\'"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"שחזר ברירת מחדל עבור כל השולחים (אל תציג תמונות באופן אוטומטי)"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"האפשרות \'הצג תמונות\' בוטלה."</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"רשימת \'הצג תמונות\' נוקתה."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> מתוך <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"ממתין לסינכרון"</string>
     <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"הדוא\"ל שלך יופיע בעוד זמן קצר."</string>

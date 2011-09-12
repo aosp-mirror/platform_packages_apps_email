@@ -420,7 +420,7 @@
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Innstillinger"</string>
     <string name="header_label_general_preferences" msgid="265431682990288581">"Generelle innstillinger"</string>
-    <string name="category_general_preferences" msgid="6810399722493971651">"Innstillinger for program"</string>
+    <string name="category_general_preferences" msgid="6810399722493971651">"Appplikasjonsinnstillinger"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Velg hvilken skjerm som skal vises når du sletter en melding"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå til"</string>

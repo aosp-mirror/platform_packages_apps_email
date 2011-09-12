@@ -161,7 +161,7 @@
     <item quantity="one" msgid="7594476368958824007">"첨부파일 <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>개"</item>
     <item quantity="other" msgid="974463163535515223">"첨부파일 <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>개"</item>
   </plurals>
-    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"이미지 표시"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"항상 표시"</string>
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"이 발신자가 보낸 사진을 항상 표시"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"이 발신자가 보낸 이미지가 자동으로 표시됩니다."</string>
