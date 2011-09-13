@@ -783,7 +783,7 @@ save attachment.</string>
     <!-- An error message presented to the user when the server requires a
          client certificate to connect [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_certificate_required"
-        >User certificate required to connect to server.</string>
+        >Client certificate required to connect to server.</string>
     <!-- An error message presented to the user when the certificate they
          specified for connecting to a server is inaccessible [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_certificate_inaccessible"
