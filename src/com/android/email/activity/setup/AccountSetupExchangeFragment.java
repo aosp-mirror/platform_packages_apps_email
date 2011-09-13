@@ -333,6 +333,17 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         UiUtilities.setVisibilitySafe(getView(), R.id.client_certificate_divider, mode);
     }
 
+    @Override
+    public void onCheckSettingsComplete(final int result) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED) {
+            mSslSecurityView.setChecked(true);
+            onCertificateRequested();
+            return;
+        }
+        super.onCheckSettingsComplete(result);
+    }
+
+
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
      * Blocking - do not call from UI Thread.

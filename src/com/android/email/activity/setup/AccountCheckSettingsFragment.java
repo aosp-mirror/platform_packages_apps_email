@@ -79,9 +79,7 @@ public class AccountCheckSettingsFragment extends Fragment {
     // Support for UI
     private boolean mAttached;
     private CheckingDialog mCheckingDialog;
-    private int mErrorStringId;
-    private String mErrorMessage;
-    private HostAuth mAutoDiscoverResult;
+    private MessagingException mProgressException;
 
     // Support for AsyncTask and account checking
     AccountCheckTask mAccountCheckTask;
@@ -93,6 +91,8 @@ public class AccountCheckSettingsFragment extends Fragment {
     public final static int CHECK_SETTINGS_SERVER_ERROR = 1;
     /** Check settings failed due to user refusing to accept security requirements */
     public final static int CHECK_SETTINGS_SECURITY_USER_DENY = 2;
+    /** Check settings failed due to certificate being required - user needs to pick immediately. */
+    public final static int CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED = 3;
 
     // Result codes returned by onAutoDiscoverComplete.
     /** AutoDiscover completed successfully with server setup data */
@@ -170,7 +170,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         super.onResume();
 
         if (mState != STATE_START) {
-            reportProgress(mState, mErrorStringId, mErrorMessage, mAutoDiscoverResult);
+            reportProgress(mState, mProgressException);
         }
     }
 
@@ -200,16 +200,10 @@ public class AccountCheckSettingsFragment extends Fragment {
      * attached to an activity, update the progress immediately;  If not, simply hold the
      * progress for later.
      * @param newState The new progress state being reported
-     * @param errorStringId Resource Id of an error string to display
-     * @param errorMessage Additional string to insert if the resource string takes a parameter.
-     * @param autoDiscoverResult If doing autodiscovery, the setup info returned from AD server
      */
-    public void reportProgress(int newState, int errorStringId, String errorMessage,
-            HostAuth autoDiscoverResult) {
+    private void reportProgress(int newState, MessagingException ex) {
         mState = newState;
-        mErrorStringId = errorStringId;
-        mErrorMessage = errorMessage;
-        mAutoDiscoverResult = autoDiscoverResult;
+        mProgressException = ex;
 
         // If we are attached, create, recover, and/or update the dialog
         if (mAttached) {
@@ -230,8 +224,12 @@ public class AccountCheckSettingsFragment extends Fragment {
                     recoverAndDismissCheckingDialog();
                     // 2. launch the error dialog, if needed
                     if (fm.findFragmentByTag(SecurityRequiredDialog.TAG) == null) {
+                        String message = ex.getMessage();
+                        if (message != null) {
+                            message = message.trim();
+                        }
                         SecurityRequiredDialog securityRequiredDialog =
-                                SecurityRequiredDialog.newInstance(this, mErrorMessage);
+                                SecurityRequiredDialog.newInstance(this, message);
                         fm.beginTransaction()
                                 .add(securityRequiredDialog, SecurityRequiredDialog.TAG)
                                 .commit();
@@ -243,22 +241,23 @@ public class AccountCheckSettingsFragment extends Fragment {
                     recoverAndDismissCheckingDialog();
                     // 2. launch the error dialog, if needed
                     if (fm.findFragmentByTag(ErrorDialog.TAG) == null) {
-                        ErrorDialog errorDialog =
-                                ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
+                        ErrorDialog errorDialog = ErrorDialog.newInstance(
+                                getActivity(), this, mProgressException);
                         fm.beginTransaction()
                                 .add(errorDialog, ErrorDialog.TAG)
                                 .commit();
                     }
                     break;
                 case STATE_AUTODISCOVER_RESULT:
+                    HostAuth autoDiscoverResult = ((AutoDiscoverResults) ex).mHostAuth;
                     // 1. get rid of progress dialog (if any)
                     recoverAndDismissCheckingDialog();
                     // 2. exit self
                     fm.popBackStack();
                     // 3. report back to target fragment or activity
                     getCallbackTarget().onAutoDiscoverComplete(
-                            (mAutoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA,
-                                    mAutoDiscoverResult);
+                            (autoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA,
+                            autoDiscoverResult);
                     break;
                 default:
                     // Display a normal progress message
@@ -319,6 +318,12 @@ public class AccountCheckSettingsFragment extends Fragment {
         getFragmentManager().popBackStack();
     }
 
+    private void onEditCertificateOk() {
+        Callbacks callbackTarget = getCallbackTarget();
+        getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED);
+        finish();
+    }
+
     /**
      * This is called when the user clicks "edit" from the error dialog.  The error dialog
      * should have already dismissed itself.
@@ -335,7 +340,11 @@ public class AccountCheckSettingsFragment extends Fragment {
             // report check settings failure to target fragment or activity
             callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR);
         }
-        // 2. kill self if not already killed by callback
+        finish();
+    }
+
+    /** Kill self if not already killed. */
+    private void finish() {
         FragmentManager fm = getFragmentManager();
         if (fm != null) {
             fm.popBackStack();
@@ -544,7 +553,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (isCancelled()) return;
-            reportProgress(progress[0], 0, null, null);
+            reportProgress(progress[0], null);
         }
 
         /**
@@ -560,106 +569,107 @@ public class AccountCheckSettingsFragment extends Fragment {
         protected void onPostExecute(MessagingException result) {
             if (isCancelled()) return;
             if (result == null) {
-                reportProgress(STATE_CHECK_OK, 0, null, null);
+                reportProgress(STATE_CHECK_OK, null);
             } else {
                 int progressState = STATE_CHECK_ERROR;
                 int exceptionType = result.getExceptionType();
-                String message = result.getMessage();
-                if (message != null) {
-                    message = message.trim();
-                }
-                HostAuth hostAuth = null;
-                int id = 0;
 
                 switch (exceptionType) {
                     // NOTE: AutoDiscover reports have their own reporting state, handle differently
                     // from the other exception types
                     case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
-                        id = TextUtils.isEmpty(message)
-                            ? R.string.account_setup_failed_dlg_auth_message
-                            : R.string.account_setup_failed_dlg_auth_message_fmt;
                         progressState = STATE_AUTODISCOVER_AUTH_DIALOG;
                         break;
                     case MessagingException.AUTODISCOVER_AUTHENTICATION_RESULT:
-                        hostAuth = ((AutoDiscoverResults)result).mHostAuth;
                         progressState = STATE_AUTODISCOVER_RESULT;
                         break;
-
                     // NOTE: Security policies required has its own report state, handle it a bit
                     // differently from the other exception types.
                     case MessagingException.SECURITY_POLICIES_REQUIRED:
                         progressState = STATE_CHECK_SHOW_SECURITY;
                         break;
-
-                    // The remaining exception types are handled by setting the state to
-                    // STATE_CHECK_ERROR (above, default) and conversion to specific error strings.
-                    case MessagingException.CERTIFICATE_VALIDATION_ERROR:
-                        id = TextUtils.isEmpty(message)
-                            ? R.string.account_setup_failed_dlg_certificate_message
-                            : R.string.account_setup_failed_dlg_certificate_message_fmt;
-                        break;
-                    case MessagingException.AUTHENTICATION_FAILED:
-                        id = TextUtils.isEmpty(message)
-                            ? R.string.account_setup_failed_dlg_auth_message
-                            : R.string.account_setup_failed_dlg_auth_message_fmt;
-                        break;
-                    case MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR:
-                        id = R.string.account_setup_failed_check_credentials_message;
-                        break;
-                    case MessagingException.IOERROR:
-                        id = R.string.account_setup_failed_ioerror;
-                        break;
-                    case MessagingException.TLS_REQUIRED:
-                        id = R.string.account_setup_failed_tls_required;
-                        break;
-                    case MessagingException.AUTH_REQUIRED:
-                        id = R.string.account_setup_failed_auth_required;
-                        break;
-                    case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
-                        id = R.string.account_setup_failed_security_policies_unsupported;
-                        // Belt and suspenders here; there should always be a non-empty array here
-                        String[] unsupportedPolicies = (String[])result.getExceptionData();
-                        if (unsupportedPolicies == null) {
-                            Log.w(TAG, "No data for unsupported policies?");
-                            break;
-                        }
-                        // Build a string, concatenating policies we don't support
-                        StringBuilder sb = new StringBuilder();
-                        boolean first = true;
-                        for (String policyName: unsupportedPolicies) {
-                            if (first) {
-                                first = false;
-                            } else {
-                                sb.append(", ");
-                            }
-                            sb.append(policyName);
-                        }
-                        message = sb.toString();
-                        break;
-                    case MessagingException.ACCESS_DENIED:
-                        id = R.string.account_setup_failed_access_denied;
-                        break;
-                    case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
-                        id = R.string.account_setup_failed_protocol_unsupported;
-                        break;
-                    case MessagingException.GENERAL_SECURITY:
-                        id = R.string.account_setup_failed_security;
-                        break;
-                    case MessagingException.CLIENT_CERTIFICATE_REQUIRED:
-                        id = R.string.account_setup_failed_certificate_required;
-                        break;
-                    case MessagingException.CLIENT_CERTIFICATE_ERROR:
-                        id = R.string.account_setup_failed_certificate_inaccessible;
-                        break;
-                    default:
-                        id = TextUtils.isEmpty(message)
-                                ? R.string.account_setup_failed_dlg_server_message
-                                : R.string.account_setup_failed_dlg_server_message_fmt;
-                        break;
                 }
-                reportProgress(progressState, id, message, hostAuth);
+                reportProgress(progressState, result);
             }
         }
+    }
+
+    private static String getErrorString(Context context, MessagingException ex) {
+        int id;
+        String message = ex.getMessage();
+        if (message != null) {
+            message = message.trim();
+        }
+        switch (ex.getExceptionType()) {
+            // The remaining exception types are handled by setting the state to
+            // STATE_CHECK_ERROR (above, default) and conversion to specific error strings.
+            case MessagingException.CERTIFICATE_VALIDATION_ERROR:
+                id = TextUtils.isEmpty(message)
+                        ? R.string.account_setup_failed_dlg_certificate_message
+                        : R.string.account_setup_failed_dlg_certificate_message_fmt;
+                break;
+            case MessagingException.AUTHENTICATION_FAILED:
+                id = TextUtils.isEmpty(message)
+                        ? R.string.account_setup_failed_dlg_auth_message
+                        : R.string.account_setup_failed_dlg_auth_message_fmt;
+                break;
+            case MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR:
+                id = R.string.account_setup_failed_check_credentials_message;
+                break;
+            case MessagingException.IOERROR:
+                id = R.string.account_setup_failed_ioerror;
+                break;
+            case MessagingException.TLS_REQUIRED:
+                id = R.string.account_setup_failed_tls_required;
+                break;
+            case MessagingException.AUTH_REQUIRED:
+                id = R.string.account_setup_failed_auth_required;
+                break;
+            case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
+                id = R.string.account_setup_failed_security_policies_unsupported;
+                // Belt and suspenders here; there should always be a non-empty array here
+                String[] unsupportedPolicies = (String[]) ex.getExceptionData();
+                if (unsupportedPolicies == null) {
+                    Log.w(TAG, "No data for unsupported policies?");
+                    break;
+                }
+                // Build a string, concatenating policies we don't support
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (String policyName: unsupportedPolicies) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(", ");
+                    }
+                    sb.append(policyName);
+                }
+                message = sb.toString();
+                break;
+            case MessagingException.ACCESS_DENIED:
+                id = R.string.account_setup_failed_access_denied;
+                break;
+            case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
+                id = R.string.account_setup_failed_protocol_unsupported;
+                break;
+            case MessagingException.GENERAL_SECURITY:
+                id = R.string.account_setup_failed_security;
+                break;
+            case MessagingException.CLIENT_CERTIFICATE_REQUIRED:
+                id = R.string.account_setup_failed_certificate_required;
+                break;
+            case MessagingException.CLIENT_CERTIFICATE_ERROR:
+                id = R.string.account_setup_failed_certificate_inaccessible;
+                break;
+            default:
+                id = TextUtils.isEmpty(message)
+                        ? R.string.account_setup_failed_dlg_server_message
+                        : R.string.account_setup_failed_dlg_server_message_fmt;
+                break;
+        }
+        return TextUtils.isEmpty(message)
+                ? context.getString(id)
+                : context.getString(id, message);
     }
 
     /**
@@ -770,15 +780,19 @@ public class AccountCheckSettingsFragment extends Fragment {
         public final static String TAG = "ErrorDialog";
 
         // Bundle keys for arguments
-        private final static String ARGS_MESSAGE_ID = "ErrorDialog.Message.Id";
-        private final static String ARGS_MESSAGE_ARGS = "ErrorDialog.Message.Args";
+        private final static String ARGS_MESSAGE = "ErrorDialog.Message";
+        private final static String ARGS_EXCEPTION_ID = "ErrorDialog.ExceptionId";
 
-        public static ErrorDialog newInstance(AccountCheckSettingsFragment target,
-                int messageId, String... messageArguments) {
+        /** Use {@link #newInstance} */
+        private ErrorDialog() {
+        }
+
+        public static ErrorDialog newInstance(Context context, AccountCheckSettingsFragment target,
+                MessagingException ex) {
             ErrorDialog fragment = new ErrorDialog();
             Bundle arguments = new Bundle();
-            arguments.putInt(ARGS_MESSAGE_ID, messageId);
-            arguments.putStringArray(ARGS_MESSAGE_ARGS, messageArguments);
+            arguments.putString(ARGS_MESSAGE, getErrorString(context, ex));
+            arguments.putInt(ARGS_EXCEPTION_ID, ex.getExceptionType());
             fragment.setArguments(arguments);
             fragment.setTargetFragment(target, 0);
             return fragment;
@@ -788,25 +802,50 @@ public class AccountCheckSettingsFragment extends Fragment {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             final Context context = getActivity();
             final Bundle arguments = getArguments();
-            final int messageId = arguments.getInt(ARGS_MESSAGE_ID);
-            final Object[] messageArguments = arguments.getStringArray(ARGS_MESSAGE_ARGS);
+            final String message = arguments.getString(ARGS_MESSAGE);
+            final int exceptionId = arguments.getInt(ARGS_EXCEPTION_ID);
             final AccountCheckSettingsFragment target =
                     (AccountCheckSettingsFragment) getTargetFragment();
 
-            return new AlertDialog.Builder(context)
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(context.getString(R.string.account_setup_failed_dlg_title))
-                .setMessage(context.getString(messageId, messageArguments))
-                .setCancelable(true)
-                .setPositiveButton(
+                .setMessage(message)
+                .setCancelable(true);
+
+            if (exceptionId == MessagingException.CLIENT_CERTIFICATE_REQUIRED) {
+                // Certificate error - show two buttons so the host fragment can auto pop
+                // into the appropriate flow.
+                builder.setPositiveButton(
+                        context.getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dismiss();
+                                target.onEditCertificateOk();
+                            }
+                        });
+                builder.setNegativeButton(
+                        context.getString(android.R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dismiss();
+                                target.onErrorDialogEditButton();
+                            }
+                        });
+
+            } else {
+                // "Normal" error - just use a single "Edit details" button.
+                builder.setPositiveButton(
                         context.getString(R.string.account_setup_failed_dlg_edit_details_action),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dismiss();
                                 target.onErrorDialogEditButton();
                             }
-                        })
-                 .create();
+                        });
+            }
+
+            return builder.create();
         }
 
     }
