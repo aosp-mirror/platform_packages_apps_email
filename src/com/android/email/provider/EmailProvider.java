@@ -2400,7 +2400,8 @@ outer:
         // For posterity; this is the command we're executing:
         //sqlite> UPDATE mailbox SET serverid=displayname WHERE mailbox._id in (
         //        ...> SELECT mailbox._id FROM mailbox,account,hostauth WHERE
-        //        ...> mailbox.parentkey=0 AND mailbox.accountkey=account._id AND
+        //        ...> (mailbox.parentkey isnull OR mailbox.parentkey=0) AND
+        //        ...> mailbox.accountkey=account._id AND
         //        ...> account.hostauthkeyrecv=hostauth._id AND
         //        ...> (hostauth.protocol='imap' OR hostauth.protocol='pop3'));
         try {
@@ -2412,7 +2413,10 @@ outer:
                     + Mailbox.TABLE_NAME + "." + MailboxColumns.ID + " FROM "
                     + Mailbox.TABLE_NAME + "," + Account.TABLE_NAME + ","
                     + HostAuth.TABLE_NAME + " WHERE "
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + "=0 AND "
+                    + "("
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + " isnull OR "
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + "=0 "
+                    + ") AND "
                     + Mailbox.TABLE_NAME + "." + MailboxColumns.ACCOUNT_KEY + "="
                     + Account.TABLE_NAME + "." + AccountColumns.ID + " AND "
                     + Account.TABLE_NAME + "." + AccountColumns.HOST_AUTH_KEY_RECV + "="

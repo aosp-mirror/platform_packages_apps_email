@@ -325,7 +325,7 @@ public class ImapStore extends Store {
             final ImapFolder folder = mailboxes.get(path);
             final Mailbox mailbox = folder.mMailbox;
             int delimiterIdx = mailbox.mServerId.lastIndexOf(mailbox.mDelimiter);
-            long parentKey = -1L;
+            long parentKey = Mailbox.NO_MAILBOX;
             if (delimiterIdx != -1) {
                 String parentPath = path.substring(0, delimiterIdx);
                 final ImapFolder parentFolder = mailboxes.get(parentPath);
@@ -585,12 +585,12 @@ public class ImapStore extends Store {
 
     static class ImapMessage extends MimeMessage {
         ImapMessage(String uid, ImapFolder folder) {
-            this.mUid = uid;
-            this.mFolder = folder;
+            mUid = uid;
+            mFolder = folder;
         }
 
         public void setSize(int size) {
-            this.mSize = size;
+            mSize = size;
         }
 
         @Override
@@ -616,12 +616,12 @@ public class ImapStore extends Store {
 
         public ImapException(String message, String alertText, Throwable throwable) {
             super(message, throwable);
-            this.mAlertText = alertText;
+            mAlertText = alertText;
         }
 
         public ImapException(String message, String alertText) {
             super(message);
-            this.mAlertText = alertText;
+            mAlertText = alertText;
         }
 
         public String getAlertText() {
