@@ -44,12 +44,11 @@
     <dimen name="message_compose_header_button_area_width">120dip</dimen>
 
     <!-- Account settings fragments -->
-    <dimen name="settings_fragment_padding_top">32dip</dimen>
-    <dimen name="settings_fragment_padding_left">0dip</dimen>
-    <dimen name="settings_fragment_padding_right">0dip</dimen>
+    <dimen name="settings_fragment_padding_top">16dip</dimen>
+    <dimen name="settings_fragment_padding_left">16dip</dimen>
+    <dimen name="settings_fragment_padding_right">16dip</dimen>
 
-    <!-- On the phone, we need padding on the setup fragments but not in
-         settings mode. Ugh. -->
+    <!-- Account setup fragments -->
     <dimen name="setup_fragment_padding_top">16dip</dimen>
     <dimen name="setup_fragment_padding_left">16dip</dimen>
     <dimen name="setup_fragment_padding_right">16dip</dimen>
