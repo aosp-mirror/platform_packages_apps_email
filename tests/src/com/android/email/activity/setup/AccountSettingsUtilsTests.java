@@ -16,13 +16,12 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.tests.R;
-import com.android.email.activity.setup.AccountSettingsUtils.Provider;
-
 import android.content.Context;
-import android.test.AndroidTestCase;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.email.tests.R;
 
 /**
  * This is a series of unit tests for the AccountSettingsUtils class.
@@ -100,86 +99,38 @@ public class AccountSettingsUtilsTests extends InstrumentationTestCase {
         assertNull(testProvider);
     }
 
-    public void testGlobEndsWithIgnoreCase() {
-        assertTrue(AccountSettingsUtils.wildEndsWithIgnoreCase(
-                "yahoo.com.tw", ".??"));
-        assertTrue(AccountSettingsUtils.wildEndsWithIgnoreCase(
-                "abcd", "a??d"));
-        assertFalse(AccountSettingsUtils.wildEndsWithIgnoreCase(
-                "yahoo.com.tw.foo.com", ".??"));
-        assertFalse(AccountSettingsUtils.wildEndsWithIgnoreCase(
-                "abc", "a??d"));
-    }
+    public void testMatchProvider() {
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "foo.com"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.co", "foo.com"));
+        assertFalse(AccountSettingsUtils.matchProvider("", "foo.com"));
 
-    public void testGlobStartsWithIgnoreCase() {
-        assertTrue(AccountSettingsUtils.wildStartsWithIgnoreCase(
-                "tw.yahoo.com", "??."));
-        assertTrue(AccountSettingsUtils.wildStartsWithIgnoreCase(
-                "abcdxyz", "a??d"));
-        assertFalse(AccountSettingsUtils.wildStartsWithIgnoreCase(
-                "abc", "a??d"));
-    }
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "fo?.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "f??.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("fzz.com", "f??.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "???.???"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.com", "???.????"));
 
-    public void testGlobEqualsIgnoreCase() {
-        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
-                "tw.yahoo.com", "??.yahoo.com"));
-        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
-                "yahoo.com.tw", "yahoo.com.??"));
-        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
-                "abcdxyz", "a??dxyz"));
-        assertFalse(AccountSettingsUtils.wildEqualsIgnoreCase(
-                "abc", "a??d"));
-        assertFalse(AccountSettingsUtils.wildEqualsIgnoreCase(
-                "abccxyz", "a??d"));
-    }
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "*.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "foo.*"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "*.*"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.com", "fox.*"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.com", "*.???"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.com", "*.?"));
 
-    public void testGlobMatchIgnoreCase() {
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "mail.yahoo.com", "mail*yahoo.com"));
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "mail.foo.bar.yahoo.com", "mail*yahoo.com"));
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "mail.notwhatyouwant.myyahoo.com", "mail*yahoo.com"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.bar.com", "food.barge.comb"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.bar.com"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.bar.gag.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.*.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.*.*"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.bar.*.*"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.bar.*com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "*.bar.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "*.*.com"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "*.*.*"));
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.bar.*"));
 
-        // Test other combinations
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "yahoo.com", "yahoo.com"));
-        assertFalse(AccountSettingsUtils.globMatchIgnoreCase(
-                "yahoo.com.au", "yahoo.com"));
-        assertFalse(AccountSettingsUtils.globMatchIgnoreCase(
-                "yahoo.com", "yahoo.com.au"));
-
-        // Try mixed case in the domain name
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "GmAiL.cOm", "gMaIl.CoM"));
-
-        assertFalse(AccountSettingsUtils.globMatchIgnoreCase(
-                "nonexist.frr.com", "*.rr.com"));
-        assertFalse(AccountSettingsUtils.globMatchIgnoreCase(
-                "rr.com", "*.rr.com"));
-        assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
-                "abbc.com", "ab*bc.com"));
-        assertFalse(AccountSettingsUtils.globMatchIgnoreCase(
-                "abc.com", "ab*bc.com"));
-
-        try {
-            AccountSettingsUtils.globMatchIgnoreCase(
-                    "abc.com", "ab*bc*.com");
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        try {
-            AccountSettingsUtils.globMatchIgnoreCase(
-                    null, "ab*bc*.com");
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        try {
-            AccountSettingsUtils.globMatchIgnoreCase(
-                    "abc.com", null);
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
+        assertTrue(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.???.*"));
+        assertFalse(AccountSettingsUtils.matchProvider("foo.bar.com", "foo.*??.*"));
     }
 
     public void testExpandTemplates() {
