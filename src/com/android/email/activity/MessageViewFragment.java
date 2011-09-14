@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +33,7 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
@@ -54,10 +56,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     private View mReplyButton;
 
-    /* Nullable - not available on phone. */
     private View mReplyAllButton;
 
-    /* Nullable - not available on phone. */
+    /* Nullable - not available on phone portrait. */
     private View mForwardButton;
 
     private View mMoreButton;
@@ -68,6 +69,12 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private View mMeetingNo;
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
+
+    /** Default to ReplyAll if true. Otherwise Reply. */
+    boolean mDefaultReplyAll;
+
+    /** Whether or not to enable Reply/ReplyAll and Forward buttons */
+    boolean mEnableReplyForwardButtons;
 
     /** Whether or not the message can be moved from the mailbox it's in. */
     private boolean mSupportsMove;
@@ -182,26 +189,45 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mMoreButton != null) {
+            mDefaultReplyAll = Preferences.getSharedPreferences(mContext).getBoolean(
+                    Preferences.REPLY_ALL, Preferences.REPLY_ALL_DEFAULT);
+
+            int replyVisibility = View.GONE;
+            int replyAllVisibility = View.GONE;
+            if (mEnableReplyForwardButtons) {
+                replyVisibility = mDefaultReplyAll ? View.GONE : View.VISIBLE;
+                replyAllVisibility = mDefaultReplyAll ? View.VISIBLE : View.GONE;
+            }
+            mReplyButton.setVisibility(replyVisibility);
+            mReplyAllButton.setVisibility(replyAllVisibility);
+        }
+    }
+
+    @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
         mFavoriteIcon = (ImageView) UiUtilities.getView(view, R.id.favorite);
         mReplyButton = UiUtilities.getView(view, R.id.reply);
-        mReplyAllButton = UiUtilities.getViewOrNull(view, R.id.reply_all);
+        mReplyAllButton = UiUtilities.getView(view, R.id.reply_all);
         mForwardButton = UiUtilities.getViewOrNull(view, R.id.forward);
         mMeetingYes = UiUtilities.getView(view, R.id.accept);
         mMeetingMaybe = UiUtilities.getView(view, R.id.maybe);
         mMeetingNo = UiUtilities.getView(view, R.id.decline);
+        mMoreButton = UiUtilities.getViewOrNull(view, R.id.more);
 
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
-        if (mReplyAllButton != null) {
-            mReplyAllButton.setOnClickListener(this);
-            mForwardButton.setOnClickListener(this);
-        } else {
-            mMoreButton = UiUtilities.getView(view, R.id.more);
+        mReplyAllButton.setOnClickListener(this);
+        if (mMoreButton != null) {
             mMoreButton.setOnClickListener(this);
+        }
+        if (mForwardButton != null) {
+            mForwardButton.setOnClickListener(this);
         }
         mMeetingYes.setOnClickListener(this);
         mMeetingMaybe.setOnClickListener(this);
@@ -224,13 +250,26 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     private void enableReplyForwardButtons(boolean enabled) {
+        mEnableReplyForwardButtons = enabled;
         // We don't have disabled button assets, so let's hide them for now
         final int visibility = enabled ? View.VISIBLE : View.GONE;
-        mReplyButton.setVisibility(visibility);
-        if (mReplyAllButton != null) {
-            mReplyAllButton.setVisibility(visibility);
+
+        // Modify Reply All button only if there's no overflow OR there is
+        // overflow but default is to show the Reply All button
+        if (mMoreButton == null || mDefaultReplyAll) {
+            UiUtilities.setVisibilitySafe(mReplyAllButton, visibility);
+        }
+
+        // Modify Reply button only if there's no overflow OR there is
+        // overflow but default is to show the Reply button
+        if (mMoreButton == null || !mDefaultReplyAll) {
+               UiUtilities.setVisibilitySafe(mReplyButton, visibility);
+        }
+
+        if (mForwardButton != null) {
             mForwardButton.setVisibility(visibility);
-        } else if (mMoreButton != null) {
+        }
+        if (mMoreButton != null) {
             mMoreButton.setVisibility(visibility);
         }
     }
@@ -387,8 +426,12 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
             case R.id.more: {
                 PopupMenu popup = new PopupMenu(getActivity(), mMoreButton);
+                Menu menu = popup.getMenu();
                 popup.getMenuInflater().inflate(R.menu.message_header_overflow_menu,
-                        popup.getMenu());
+                        menu);
+
+                // Remove Reply if ReplyAll icon is visible or vice versa
+                menu.removeItem(mDefaultReplyAll ? R.id.reply_all : R.id.reply);
                 popup.setOnMenuItemClickListener(this);
                 popup.show();
                 break;
@@ -402,6 +445,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
     public boolean onMenuItemClick(MenuItem item) {
         if (isMessageOpen()) {
             switch (item.getItemId()) {
+                case R.id.reply:
+                    mCallback.onReply();
+                    return true;
                 case R.id.reply_all:
                     mCallback.onReplyAll();
                     return true;

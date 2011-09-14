@@ -15,19 +15,33 @@
 -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView
+    <ImageButton
         android:id="@+id/favorite"
         style="@style/message_view_action_buttons"
         android:src="@drawable/btn_star_off_convo_holo_light"
         android:contentDescription="@string/favorite_action"
         />
-    <ImageView
+    <!-- Either reply or replyall will be set to gone in code depending on setting -->
+    <ImageButton
         android:id="@+id/reply"
         style="@style/message_view_action_buttons"
         android:src="@drawable/ic_reply_holo_dark"
         android:contentDescription="@string/reply_action"
         />
-    <ImageView
+    <ImageButton
+        android:id="@+id/reply_all"
+        style="@style/message_view_action_buttons"
+        android:src="@drawable/ic_reply_all_holo_dark"
+        android:contentDescription="@string/reply_all_action"
+        />
+    <View
+        android:id="@+id/more_separator"
+        android:layout_width="1dip"
+        android:layout_height="24dip"
+        android:layout_margin="3dip"
+        android:background="#ddd"
+        />
+    <ImageButton
         android:id="@+id/more"
         style="@android:style/Widget.Holo.ActionButton.Overflow"
         android:layout_width="48dip"

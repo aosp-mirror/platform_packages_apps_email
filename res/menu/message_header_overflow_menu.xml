@@ -15,6 +15,11 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Reply or replyall may be removed in code depending on setting and layout -->
+    <item
+        android:id="@+id/reply"
+        android:title="@string/reply_action"
+    />
     <item
         android:id="@+id/reply_all"
         android:title="@string/reply_all_action"

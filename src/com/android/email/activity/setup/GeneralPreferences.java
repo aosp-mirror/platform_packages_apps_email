@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
@@ -26,11 +27,15 @@ import android.widget.Toast;
 
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 
 public class GeneralPreferences extends PreferenceFragment implements OnPreferenceChangeListener  {
 
+    private static final String PREFERENCE_CATEGORY_KEY = "category_general_preferences";
+
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
+    private static final String PREFERENCE_KEY_REPLY_ALL = Preferences.REPLY_ALL;
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private Preferences mPreferences;
@@ -43,8 +48,16 @@ public class GeneralPreferences extends PreferenceFragment implements OnPreferen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES_FILE);
+
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
+
+        if (UiUtilities.useTwoPane(getActivity())) {
+            // "Reply All" should only be shown on phones
+            PreferenceCategory pc = (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_KEY);
+            pc.removePreference(findPreference(PREFERENCE_KEY_REPLY_ALL));
+        }
     }
 
     @Override

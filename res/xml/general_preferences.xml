@@ -18,6 +18,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
+            android:key="category_general_preferences"
             android:title="@string/category_general_preferences">
 
         <ListPreference
@@ -35,6 +36,14 @@
             android:entries="@array/general_preference_text_zoom_entries"
             android:entryValues="@array/general_preference_text_zoom_values"
             android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
+
+        <!-- This may be removed in GeneralPreferences.java -->
+        <CheckBoxPreference
+            android:key="reply_all"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:title="@string/general_preference_reply_all_label"
+            android:summary="@string/general_preference_reply_all_summary" />
 
         <PreferenceScreen
             android:key="clear_trusted_senders"

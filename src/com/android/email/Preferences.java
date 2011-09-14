@@ -32,7 +32,7 @@ import java.util.UUID;
 public class Preferences {
 
     // Preferences file
-    private static final String PREFERENCES_FILE = "AndroidMail.Main";
+    public static final String PREFERENCES_FILE = "AndroidMail.Main";
 
     // Preferences field names
     private static final String ACCOUNT_UUIDS = "accountUuids";
@@ -64,6 +64,13 @@ public class Preferences {
     // "normal" will be the default
     public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
 
+    // Starting something new here:
+    // REPLY_ALL is saved by the framework (CheckBoxPreference's parent, Preference).
+    // i.e. android:persistent=true in general_preferences.xml
+    public static final String REPLY_ALL = "reply_all";
+    // Reply All Default - when changing this, be sure to update general_preferences.xml
+    public static final boolean REPLY_ALL_DEFAULT = false;
+
     private static Preferences sPreferences;
 
     private final SharedPreferences mSharedPreferences;
@@ -90,6 +97,10 @@ public class Preferences {
             sPreferences = new Preferences(context);
         }
         return sPreferences;
+    }
+
+    public static SharedPreferences getSharedPreferences(Context context) {
+        return getPreferences(context).mSharedPreferences;
     }
 
     public static String getLegacyBackupPreference(Context context) {
