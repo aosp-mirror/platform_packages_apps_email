@@ -315,7 +315,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         Utility.cancelTaskInterrupt(mAccountCheckTask);
         mAccountCheckTask = null;
         // 2. kill self with no report - this is "cancel"
-        getFragmentManager().popBackStack();
+        finish();
     }
 
     private void onEditCertificateOk() {
