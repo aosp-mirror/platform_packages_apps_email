@@ -222,15 +222,23 @@ public class MailboxSettings extends PreferenceActivity {
      * @return current sync interval setting from the objects
      */
     private int getSyncInterval() {
+        int syncInterval;
         if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-            return mAccount.mSyncInterval;
+            syncInterval = mAccount.mSyncInterval;
         } else {
             if (mMailbox.mSyncInterval == 0) {
                 // 0 is the default value, and it means "don't sync" (for non-inbox mailboxes)
-                return Mailbox.CHECK_INTERVAL_NEVER;
+                syncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            } else {
+                syncInterval = mMailbox.mSyncInterval;
             }
-            return mMailbox.mSyncInterval;
         }
+        // In the case of the internal push states, use "push"
+        if (syncInterval == Mailbox.CHECK_INTERVAL_PING ||
+                syncInterval == Mailbox.CHECK_INTERVAL_PUSH_HOLD) {
+            syncInterval = Mailbox.CHECK_INTERVAL_PUSH;
+        }
+        return syncInterval;
     }
 
     /**
