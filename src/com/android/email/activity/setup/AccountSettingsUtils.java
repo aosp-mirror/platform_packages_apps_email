@@ -16,13 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
@@ -30,15 +23,23 @@ import android.text.Editable;
 import android.util.Log;
 import android.widget.EditText;
 
+import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.Serializable;
-import java.util.regex.Pattern;
 
 public class AccountSettingsUtils {
 
-    /** Pattern to match globals in the domain */
-    private final static Pattern DOMAIN_GLOB_PATTERN = Pattern.compile("\\*");
+    /** Pattern to match any part of a domain */
+    private final static String WILD_STRING = "*";
     /** Will match any, single character */
     private final static char WILD_CHARACTER = '?';
+    private final static String DOMAIN_SEPARATOR = "\\.";
 
     /**
      * Commits the UI-related settings of an account to the provider.  This is static so that it
@@ -116,7 +117,7 @@ public class AccountSettingsUtils {
                         && "provider".equals(xml.getName())) {
                     String providerDomain = getXmlAttribute(context, xml, "domain");
                     try {
-                        if (globMatchIgnoreCase(domain, providerDomain)) {
+                        if (matchProvider(domain, providerDomain)) {
                             provider = new Provider();
                             provider.id = getXmlAttribute(context, xml, "id");
                             provider.label = getXmlAttribute(context, xml, "label");
@@ -154,97 +155,42 @@ public class AccountSettingsUtils {
     }
 
     /**
-     * Returns if the string <code>s1</code> matches the string <code>s2</code>. The string
-     * <code>s2</code> may contain any number of wildcards -- a '?' character -- and/or a
-     * single global character -- a '*' character. Wildcards match any, single character
-     * while a global character matches zero or more characters.
-     * @throws IllegalArgumentException if either string is null or <code>s2</code> has
-     * multiple globals.
+     * Returns true if the string <code>s1</code> matches the string <code>s2</code>. The string
+     * <code>s2</code> may contain any number of wildcards -- a '?' character -- and/or asterisk
+     * characters -- '*'. Wildcards match any single character, while the asterisk matches a domain
+     * part (i.e. substring demarcated by a period, '.')
      */
-    /*package*/ static boolean globMatchIgnoreCase(String s1, String s2)
-            throws IllegalArgumentException {
-        if (s1 == null || s2 == null) {
-            throw new IllegalArgumentException("one or both strings are null");
+    @VisibleForTesting
+    static boolean matchProvider(String testDomain, String providerDomain) {
+        String[] testParts = testDomain.split(DOMAIN_SEPARATOR);
+        String[] providerParts = providerDomain.split(DOMAIN_SEPARATOR);
+        if (testParts.length != providerParts.length) {
+            return false;
         }
-
-        // Handle the possible global in the domain name
-        String[] globParts = DOMAIN_GLOB_PATTERN.split(s2);
-        switch (globParts.length) {
-            case 1:
-                // No globals; test for simple equality
-                if (!wildEqualsIgnoreCase(s1, globParts[0])) {
-                    return false;
-                }
-                break;
-            case 2:
-                // Global; test the front & end parts of the domain
-                String d1 = globParts[0];
-                String d2 = globParts[1];
-                if (!wildStartsWithIgnoreCase(s1, d1) ||
-                        !wildEndsWithIgnoreCase(s1.substring(d1.length()), d2)) {
-                    return false;
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Multiple globals");
+        for (int i = 0; i < testParts.length; i++) {
+            String testPart = testParts[i].toLowerCase();
+            String providerPart = providerParts[i].toLowerCase();
+            if (!providerPart.equals(WILD_STRING) &&
+                    !matchWithWildcards(testPart, providerPart)) {
+                return false;
+            }
         }
         return true;
     }
 
-    /**
-     * Returns if the string <code>s1</code> equals the string <code>s2</code>. The string
-     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
-     * @throws IllegalArgumentException if the strings are null.
-     */
-    /*package*/ static boolean wildEqualsIgnoreCase(String s1, String s2)
-            throws IllegalArgumentException {
-        if (s1 == null || s2 == null) {
-            throw new IllegalArgumentException("one or both strings are null");
-        }
-        if (s1.length() != s2.length()) {
+    private static boolean matchWithWildcards(String testPart, String providerPart) {
+        int providerLength = providerPart.length();
+        if (testPart.length() != providerLength){
             return false;
         }
-        char[] charArray1 = s1.toLowerCase().toCharArray();
-        char[] charArray2 = s2.toLowerCase().toCharArray();
-        for (int i = 0; i < charArray2.length; i++) {
-            if (charArray2[i] == WILD_CHARACTER || charArray1[i] == charArray2[i]) continue;
-            return false;
+        for (int i = 0; i < providerLength; i++) {
+            char testChar = testPart.charAt(i);
+            char providerChar = providerPart.charAt(i);
+            if (testChar != providerChar && providerChar != WILD_CHARACTER) {
+                return false;
+            }
         }
         return true;
-    }
-
-    /**
-     * Returns if the string <code>s1</code> starts with the string <code>s2</code>. The string
-     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
-     * @throws IllegalArgumentException if the strings are null.
-     */
-    /*package*/ static boolean wildStartsWithIgnoreCase(String s1, String s2)
-            throws IllegalArgumentException {
-        if (s1 == null || s2 == null) {
-            throw new IllegalArgumentException("one or both strings are null");
-        }
-        if (s1.length() < s2.length()) {
-            return false;
-        }
-        s1 = s1.substring(0, s2.length());
-        return wildEqualsIgnoreCase(s1, s2);
-    }
-
-    /**
-     * Returns if the string <code>s1</code> ends with the string <code>s2</code>. The string
-     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
-     * @throws IllegalArgumentException if the strings are null.
-     */
-    /*package*/ static boolean wildEndsWithIgnoreCase(String s1, String s2)
-            throws IllegalArgumentException {
-        if (s1 == null || s2 == null) {
-            throw new IllegalArgumentException("one or both strings are null");
-        }
-        if (s1.length() < s2.length()) {
-            return false;
-        }
-        s1 = s1.substring(s1.length() - s2.length(), s1.length());
-        return wildEqualsIgnoreCase(s1, s2);
     }
 
     /**

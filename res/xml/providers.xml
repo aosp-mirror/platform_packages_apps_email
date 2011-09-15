@@ -91,9 +91,12 @@
         contain pattern matching characters that can be used to match user entered
         domains without knowing the exact domain.
 
-        The domain attribute may specify a most one global character - a '*'. The
-        global character matches zero or more characters. This is a very greedy wild
-        card and may lead to unexpected matches.
+        An asterisk (*) is used to match that part of a domain name that is demarcated
+        by a period (dot); no other characters may appear on either side of an asterisk.
+        Therefore, foo.*.com and *.mail.com are valid, whereas a*.com and foo.c* are not.
+        An asterisk is also not greedy; it only matches a single part of a domain name;
+        therefore, foo.bar.bletch is NOT matched by foo.*; it does, however, match
+        foo.*.* or foo.bar.*.
 
         The alternate is the wild card character - a '?'. The wild card character
         matches any single character. This is very useful when the number of characters
@@ -168,15 +171,39 @@
 
     <!-- Hotmail and variants.  NOTE: These are handled by exchange if available, else POP3. -->
     <!-- EXCHANGE-REMOVE-SECTION-START -->
-    <provider id="live" label="Windows Live Hotmail Plus" domain="live.com">
+    <provider id="live1" label="Windows Live Hotmail Plus" domain="live.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
     </provider>
-    <provider id="hotmail" label="Windows Live Hotmail Plus" domain="hotmail.com">
+    <provider id="live2" label="Windows Live Hotmail Plus" domain="live.*.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
     </provider>
-    <provider id="msn" label="Windows Live Hotmail Plus" domain="msn.com">
+    <provider id="live3" label="Windows Live Hotmail Plus" domain="*.live.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="hotmail1" label="Windows Live Hotmail Plus" domain="hotmail.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="hotmail2" label="Windows Live Hotmail Plus" domain="hotmail.*.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="hotmail3" label="Windows Live Hotmail Plus" domain="livemail.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="hotmail4" label="Windows Live Hotmail Plus" domain="livemail.*.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="msn" label="Windows Live Hotmail Plus" domain="msn.*">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="msnhotmail" label="Windows Live Hotmail Plus" domain="msnhotmail.com">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
     </provider>
