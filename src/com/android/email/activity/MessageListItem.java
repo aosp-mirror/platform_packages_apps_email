@@ -42,8 +42,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.android.email.R;
 import com.android.emailcommon.utility.TextUtilities;
-
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 
 /**
@@ -104,6 +102,8 @@ public class MessageListItem extends View {
     private static String sSubjectSnippetDivider;
     private static String sSubjectDescription;
     private static String sSubjectEmptyDescription;
+    private static int sFontColorActivated;
+    private static int sFontColor;
 
     public String mSender;
     public CharSequence mText;
@@ -133,7 +133,6 @@ public class MessageListItem extends View {
     private Drawable mWideReadSelector;
     private Drawable mWideUnreadSelector;
 
-    private int mSnippetLineCount = NEEDS_LAYOUT;
     private CharSequence mFormattedSender;
     private CharSequence mFormattedDate;
 
@@ -175,6 +174,9 @@ public class MessageListItem extends View {
             sStateRepliedAndForwarded =
                 BitmapFactory.decodeResource(r, R.drawable.ic_badge_reply_forward_holo_light);
 
+            sFontColor = r.getColor(android.R.color.black);
+            sFontColorActivated = r.getColor(android.R.color.white);
+
             sInit = true;
         }
     }
@@ -192,7 +194,6 @@ public class MessageListItem extends View {
 
         if (!Objects.equal(mSnippet, snippet)) {
             mSnippet = snippet;
-            mSnippetLineCount = NEEDS_LAYOUT;
             changed = true;
         }
 
@@ -213,11 +214,16 @@ public class MessageListItem extends View {
                 ssb.append(mSnippet);
             }
             mText = ssb;
+            requestLayout();
         }
     }
 
+    long mTimeFormatted = 0;
     public void setTimestamp(long timestamp) {
-        mFormattedDate = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
+        if (mTimeFormatted != timestamp) {
+            mFormattedDate = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
+            mTimeFormatted = timestamp;
+        }
     }
 
     /**
@@ -272,8 +278,6 @@ public class MessageListItem extends View {
 
     private void calculateDrawingData() {
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
-        sDefaultPaint.setColor(mContext.getResources().getColor(
-                isActivated() ? android.R.color.white : android.R.color.black));
         mSubjectLayout = new StaticLayout(mText, sDefaultPaint,
                 mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, false /* includePad */);
         if (mCoordinates.subjectLineCount < mSubjectLayout.getLineCount()) {
@@ -302,9 +306,7 @@ public class MessageListItem extends View {
             mViewWidth = MeasureSpec.getSize(widthMeasureSpec);
             int mode = getViewMode(mViewWidth);
             if (mode != mMode) {
-                // If the mode has changed, set the snippet line count to indicate layout required
                 mMode = mode;
-                mSnippetLineCount = NEEDS_LAYOUT;
             }
             mViewHeight = measureHeight(heightMeasureSpec, mMode);
         }
@@ -355,14 +357,11 @@ public class MessageListItem extends View {
         super.onLayout(changed, left, top, right, bottom);
 
         mCoordinates = MessageListItemCoordinates.forWidth(mContext, mViewWidth);
+        calculateDrawingData();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mSnippetLineCount == NEEDS_LAYOUT) {
-            calculateDrawingData();
-        }
-
         // Draw the color chip indicating the mailbox this belongs to
         if (mColorChipPaint != null) {
             canvas.drawRect(
@@ -372,8 +371,7 @@ public class MessageListItem extends View {
                     mColorChipPaint);
         }
 
-        int fontColor = mContext.getResources().getColor(
-                (isActivated() || isPressed()) ? android.R.color.white : android.R.color.black);
+        int fontColor = (isActivated() || isPressed()) ? sFontColorActivated : sFontColor;
 
         // Draw the checkbox
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
@@ -382,6 +380,7 @@ public class MessageListItem extends View {
         // Draw the sender name
         Paint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
         senderPaint.setColor(fontColor);
+        senderPaint.setTextSize(mCoordinates.sendersFontSize);
         canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
                 mCoordinates.sendersX, mCoordinates.sendersY - mCoordinates.sendersAscent,
                 senderPaint);
@@ -400,7 +399,6 @@ public class MessageListItem extends View {
 
         // Subject and snippet.
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
-        sDefaultPaint.setTypeface(Typeface.DEFAULT);
         sDefaultPaint.setColor(fontColor);
         canvas.save();
         canvas.translate(
