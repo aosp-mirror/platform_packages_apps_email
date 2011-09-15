@@ -47,14 +47,8 @@
     </RelativeLayout>
     <TextView
         android:id="@+id/spinner_count"
-        style="@style/action_bar_unread_count"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingLeft="16dip"
-        android:paddingRight="16dip"
+        style="@style/unread_count"
         android:includeFontPadding="false"
-        android:singleLine="true"
-        android:ellipsize="none"
-        android:gravity="center"
+        android:textStyle="normal"
         />
 </LinearLayout>

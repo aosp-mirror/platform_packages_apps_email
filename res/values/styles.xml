@@ -106,6 +106,18 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <style name="unread_count">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginRight">16dip</item>
+        <item name="android:layout_marginLeft">4dip</item>
+        <item name="android:textColor">@color/text_ternary_color</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="Attachment" />
 
     <style name="Attachment.Button" parent="@android:style/Widget.Holo.Button">
@@ -175,13 +187,6 @@
 
     <style name="action_bar_account_name_secondary">
         <item name="android:textSize">14dip</item>
-        <item name="android:textColor">@color/text_ternary_color</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="action_bar_unread_count">
-        <item name="android:textSize">36sp</item>
         <item name="android:textColor">@color/text_ternary_color</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
