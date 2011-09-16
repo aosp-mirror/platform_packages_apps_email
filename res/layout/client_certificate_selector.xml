@@ -21,22 +21,37 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dip"
-    android:gravity="center_vertical"
-    android:orientation="horizontal" >
+    android:gravity="center_vertical" >
 
-    <TextView
-        android:id="@+id/certificate_alias"
-        android:layout_width="0dip"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:visibility="gone" />
     <Button
         android:id="@+id/select_button"
         style="@style/accountSetupButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:text="@string/account_setup_exchange_use_certificate" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/select_button"
+        android:textStyle="bold"
+        android:text="@string/account_setup_exchange_certificate_title" />
+
+    <TextView
+        android:id="@+id/certificate_alias"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dip"
+        android:layout_below="@+id/title"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/select_button"
+        android:textColor="@color/text_secondary_color"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:text="@string/account_setup_exchange_no_certificate" />
 
 </com.android.email.view.CertificateSelector>

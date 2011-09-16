@@ -700,10 +700,15 @@ save attachment.</string>
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
     <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
     <string name="account_setup_exchange_trust_certificates_label">Accept all SSL certificates</string>
+    <!-- On "Exchange" setup screen, a heading title for the current client certificate [CHAR LIMIT=50] -->
+    <string name="account_setup_exchange_certificate_title">Client certificate</string>
     <!-- On "Exchange" setup screen, a button label to include a client certificate [CHAR LIMIT=35] -->
-    <string name="account_setup_exchange_use_certificate">Use client certificate</string>
+    <string name="account_setup_exchange_select_certificate">Select</string>
     <!-- On "Exchange" setup screen, a button label to remove the currently used client certificate [CHAR LIMIT=35] -->
     <string name="account_setup_exchange_remove_certificate">Remove</string>
+    <!-- On "Exchange" setup screen, placeholder text to indicate no client
+         certificate is used [CHAR LIMIT=50] -->
+    <string name="account_setup_exchange_no_certificate">None</string>
     <!-- On "Exchange" setup screen, the exchange device-id label [CHAR LIMIT=30] -->
     <string name="account_setup_exchange_device_id_label">Mobile Device ID</string>
 

@@ -18,6 +18,7 @@
 package com.android.email.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.security.KeyChain;
@@ -25,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.email.R;
@@ -36,11 +37,14 @@ import com.android.email.activity.UiUtilities;
  *
  * Host activities must register themselves view {@link #setHostActivity} for this selector to work.
  */
-public class CertificateSelector extends LinearLayout implements OnClickListener {
+public class CertificateSelector extends RelativeLayout implements OnClickListener {
 
     /** Button to select or remove the certificate. */
     private Button mSelectButton;
     private TextView mAliasText;
+
+    /** The value of the cert selected, if any. Null, otherwise. */
+    private String mValue;
 
     /** The host activity. */
     private HostCallback mHost;
@@ -77,23 +81,27 @@ public class CertificateSelector extends LinearLayout implements OnClickListener
     }
 
     public void setCertificate(String alias) {
-        mAliasText.setText(alias);
-        mAliasText.setVisibility((alias == null) ? View.GONE : View.VISIBLE);
-        mSelectButton.setText(getResources().getString(
+        Resources res = getResources();
+        mValue = alias;
+        mAliasText.setText(
                 (alias == null)
-                ? R.string.account_setup_exchange_use_certificate
+                ? res.getString(R.string.account_setup_exchange_no_certificate)
+                : alias);
+        mSelectButton.setText(res.getString(
+                (alias == null)
+                ? R.string.account_setup_exchange_select_certificate
                 : R.string.account_setup_exchange_remove_certificate));
     }
 
     public boolean hasCertificate() {
-        return mAliasText.getVisibility() == View.VISIBLE;
+        return mValue != null;
     }
 
     /**
      * Gets the alias for the currently selected certificate, or null if one is not selected.
      */
     public String getCertificate() {
-        return hasCertificate() ? mAliasText.getText().toString() : null;
+        return mValue;
     }
 
 
