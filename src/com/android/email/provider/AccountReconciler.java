@@ -36,7 +36,25 @@ public class AccountReconciler {
     // of reconcilation.  This is for unit test purposes only; the caller may NOT be in the same
     // package as this class, so we make the constant public.
     @VisibleForTesting
-    public static final String ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX = " _";
+    static final String ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX = " _";
+
+    /**
+     * Checks two account lists to see if there is any reconciling to be done. Can be done on the
+     * UI thread.
+     * @param context the app context
+     * @param emailProviderAccounts accounts as reported in the Email provider
+     * @param accountManagerAccounts accounts as reported by the system account manager, for the
+     *     particular protocol types that match emailProviderAccounts
+     */
+    public static boolean accountsNeedReconciling(
+            final Context context,
+            List<Account> emailProviderAccounts,
+            android.accounts.Account[] accountManagerAccounts) {
+
+        return reconcileAccountsInternal(
+                context, emailProviderAccounts, accountManagerAccounts,
+                context, false /* performReconciliation */);
+    }
 
     /**
      * Compare our account list (obtained from EmailProvider) with the account list owned by
@@ -54,12 +72,31 @@ public class AccountReconciler {
      * @param accountManagerAccounts The account manager accounts to work from
      * @param providerContext application provider context
      */
-    public static boolean reconcileAccounts(Context context,
-            List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
+    public static void reconcileAccounts(
+            Context context,
+            List<Account> emailProviderAccounts,
+            android.accounts.Account[] accountManagerAccounts,
             Context providerContext) {
+        reconcileAccountsInternal(
+                context, emailProviderAccounts, accountManagerAccounts,
+                providerContext, true /* performReconciliation */);
+    }
+
+    /**
+     * Internal method to actually perform reconciliation, or simply check that it needs to be done
+     * and avoid doing any heavy work, depending on the value of the passed in
+     * {@code performReconciliation}.
+     */
+    private static boolean reconcileAccountsInternal(
+            Context context,
+            List<Account> emailProviderAccounts,
+            android.accounts.Account[] accountManagerAccounts,
+            Context providerContext,
+            boolean performReconciliation) {
+        boolean needsReconciling = false;
+
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account
-        boolean accountsDeleted = false;
         for (Account providerAccount: emailProviderAccounts) {
             String providerAccountName = providerAccount.mEmailAddress;
             boolean found = false;
@@ -75,13 +112,16 @@ public class AccountReconciler {
                             "Account reconciler noticed incomplete account; ignoring");
                     continue;
                 }
-                // This account has been deleted in the AccountManager!
-                Log.d(Logging.LOG_TAG,
-                        "Account deleted in AccountManager; deleting from provider: " +
-                        providerAccountName);
-                Controller.getInstance(context).deleteAccountSync(providerAccount.mId,
-                        providerContext);
-                accountsDeleted = true;
+
+                needsReconciling = true;
+                if (performReconciliation) {
+                    // This account has been deleted in the AccountManager!
+                    Log.d(Logging.LOG_TAG,
+                            "Account deleted in AccountManager; deleting from provider: " +
+                            providerAccountName);
+                    Controller.getInstance(context).deleteAccountSync(providerAccount.mId,
+                            providerContext);
+                }
             }
         }
         // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
@@ -99,26 +139,30 @@ public class AccountReconciler {
             }
             if (!found) {
                 // This account has been deleted from the EmailProvider database
-                Log.d(Logging.LOG_TAG,
-                        "Account deleted from provider; deleting from AccountManager: " +
-                        accountManagerAccountName);
-                // Delete the account
-                AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
+                needsReconciling = true;
+
+                if (performReconciliation) {
+                    Log.d(Logging.LOG_TAG,
+                            "Account deleted from provider; deleting from AccountManager: " +
+                            accountManagerAccountName);
+                    // Delete the account
+                    AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
                     .removeAccount(accountManagerAccount, null, null);
-                try {
-                    // Note: All of the potential errors from removeAccount() are simply logged
-                    // here, as there is nothing to actually do about them.
-                    blockingResult.getResult();
-                } catch (OperationCanceledException e) {
-                    Log.w(Logging.LOG_TAG, e.toString());
-                } catch (AuthenticatorException e) {
-                    Log.w(Logging.LOG_TAG, e.toString());
-                } catch (IOException e) {
-                    Log.w(Logging.LOG_TAG, e.toString());
+                    try {
+                        // Note: All of the potential errors from removeAccount() are simply logged
+                        // here, as there is nothing to actually do about them.
+                        blockingResult.getResult();
+                    } catch (OperationCanceledException e) {
+                        Log.w(Logging.LOG_TAG, e.toString());
+                    } catch (AuthenticatorException e) {
+                        Log.w(Logging.LOG_TAG, e.toString());
+                    } catch (IOException e) {
+                        Log.w(Logging.LOG_TAG, e.toString());
+                    }
                 }
-                accountsDeleted = true;
             }
         }
-        return accountsDeleted;
+
+        return needsReconciling;
     }
 }

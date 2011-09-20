@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 
 import com.android.email.AccountTestCase;
 import com.android.email.Controller;
+import com.android.email.provider.AccountReconciler;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.MailService.AccountSyncReport;
@@ -33,7 +34,9 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Tests of the Email provider.
@@ -163,6 +166,51 @@ public class MailServiceTests extends AccountTestCase {
         // ... and it should be account "3"
         assertEquals(getTestAccountEmailAddress("3"), accountManagerAccounts[0].name);
     }
+
+    public void testReconcileDetection() {
+        Context context = getContext();
+        List<Account> providerAccounts;
+        android.accounts.Account[] accountManagerAccounts;
+
+        android.accounts.Account[] baselineAccounts =
+            AccountManager.get(context).getAccountsByType(TEST_ACCOUNT_TYPE);
+
+        // Empty lists match.
+        providerAccounts = new ArrayList<Account>();
+        accountManagerAccounts = new android.accounts.Account[0];
+        assertFalse(AccountReconciler.accountsNeedReconciling(
+                context, providerAccounts, accountManagerAccounts));
+
+        setupProviderAndAccountManagerAccount(getTestAccountName("1"));
+        accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);
+        providerAccounts = makeExchangeServiceAccountList();
+
+        // A single account, but empty list on the other side is detected as needing reconciliation
+        assertTrue(AccountReconciler.accountsNeedReconciling(
+                context, new ArrayList<Account>(), accountManagerAccounts));
+        assertTrue(AccountReconciler.accountsNeedReconciling(
+                context, providerAccounts, new android.accounts.Account[0]));
+
+        // Note that no reconciliation should have happened though - we just wanted to detect it.
+        assertEquals(1, makeExchangeServiceAccountList().size());
+        assertEquals(1, getAccountManagerAccounts(baselineAccounts).length);
+
+        // Single account matches - no reconciliation should be detected.
+        assertFalse(AccountReconciler.accountsNeedReconciling(
+                context, providerAccounts, accountManagerAccounts));
+
+        // Provider: 1,2,3. AccountManager: 1, 3.
+        String username = getTestAccountName("2");
+        ProviderTestUtils.setupAccount(getTestAccountName("2"), true, getMockContext());
+        setupProviderAndAccountManagerAccount(getTestAccountName("3"));
+
+        accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);
+        providerAccounts = makeExchangeServiceAccountList();
+        assertTrue(AccountReconciler.accountsNeedReconciling(
+                context, providerAccounts, accountManagerAccounts));
+    }
+
+
     /**
      * Lightweight subclass of the Controller class allows injection of mock context
      */
