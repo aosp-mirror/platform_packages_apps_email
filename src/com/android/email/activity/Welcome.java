@@ -91,10 +91,6 @@ public class Welcome extends Activity {
 
     private View mWaitingForSyncView;
 
-    // Account reconciler is started from AccountResolver, which we may run multiple times,
-    // so remember if we did it already to prevent from running it twice.
-    private boolean mAccountsReconciled;
-
     private long mAccountId;
     private long mMailboxId;
     private long mMessageId;
@@ -195,7 +191,19 @@ public class Welcome extends Activity {
         mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
         UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
 
-        startAccountResolver();
+        // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
+        if (MailService.hasMismatchInPopImapAccounts(this)) {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    // Reconciling can be heavy - so do it in the background.
+                    MailService.reconcilePopImapAccountsSync(Welcome.this);
+                    resolveAccount();
+                }
+            });
+        } else {
+            resolveAccount();
+        }
 
         // Reset the "accounts changed" notification, now that we're here
         Email.setNotifyUiAccountsChanged(false);
@@ -252,10 +260,6 @@ public class Welcome extends Activity {
     public void startActivity(Intent intent) {
         intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
         super.startActivity(intent);
-    }
-
-    private void startAccountResolver() {
-        new AccountResolver().executeParallel();
     }
 
     /**
@@ -334,56 +338,22 @@ public class Welcome extends Activity {
      *   2b. Otherwise open the main activity.
      * </pre>
      */
-    private class AccountResolver extends EmailAsyncTask<Void, Void, Void> {
-        private boolean mStartAccountSetup;
-        private boolean mStartInboxLookup;
-
-        public AccountResolver() {
-            super(mTaskTracker);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            final Activity activity = Welcome.this;
-
-            if (!mAccountsReconciled) {
-                mAccountsReconciled = true;
-
-                // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
-                //
-                // TODO Do we still really have to do it at startup?
-                //      Now that we use the broadcast to detect system account changes, our database
-                //      should always be in sync with the system accounts...
-                MailService.reconcilePopImapAccountsSync(activity);
-            }
-
-            final int numAccount = EmailContent.count(activity, Account.CONTENT_URI);
-            if (numAccount == 0) {
-                mStartAccountSetup = true;
-            } else {
-                mAccountId = resolveAccountId(activity, mAccountId, mAccountUuid);
-                if (Account.isNormalAccount(mAccountId) &&
-                        Mailbox.findMailboxOfType(activity, mAccountId, Mailbox.TYPE_INBOX)
-                        == Mailbox.NO_MAILBOX) {
-                    mStartInboxLookup = true;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onSuccess(Void noResult) {
-            final Activity activity = Welcome.this;
-
-            if (mStartAccountSetup) {
-                AccountSetupBasics.actionNewAccount(activity);
-                activity.finish();
-            } else if (mStartInboxLookup) {
+    private void resolveAccount() {
+        final int numAccount = EmailContent.count(this, Account.CONTENT_URI);
+        boolean startAccountSetup = false;
+        if (numAccount == 0) {
+            AccountSetupBasics.actionNewAccount(this);
+            finish();
+        } else {
+            mAccountId = resolveAccountId(this, mAccountId, mAccountUuid);
+            if (Account.isNormalAccount(mAccountId) &&
+                    Mailbox.findMailboxOfType(this, mAccountId, Mailbox.TYPE_INBOX)
+                            == Mailbox.NO_MAILBOX) {
                 startInboxLookup();
-            } else {
-                startEmailActivity();
+                return;
             }
         }
+        startEmailActivity();
     }
 
     /**
@@ -420,8 +390,8 @@ public class Welcome extends Activity {
             mMessageId = Message.NO_MESSAGE;
             mAccountUuid = null;
 
-            // Restart the task.
-            startAccountResolver();
+            // Restart the account resolution.
+            resolveAccount();
         }
 
         @Override

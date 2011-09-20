@@ -714,6 +714,18 @@ public class MailService extends Service {
     }
 
     /**
+     * Determines whether or not POP/IMAP accounts need reconciling or not. This is a safe operation
+     * to perform on the UI thread.
+     */
+    public static boolean hasMismatchInPopImapAccounts(Context context) {
+        android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
+                .getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
+        ArrayList<Account> providerAccounts = getPopImapAccountList(context);
+        return AccountReconciler.accountsNeedReconciling(
+                context, providerAccounts, accountManagerAccounts);
+    }
+
+    /**
      * See Utility.reconcileAccounts for details
      * @param context The context in which to operate
      * @param emailProviderAccounts the exchange provider accounts to work from
