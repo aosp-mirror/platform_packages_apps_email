@@ -402,7 +402,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Num d\'utilisader u pled-clav nuncorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impussibel da stabilir ina connexiun segirada cun il server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
+    <!-- no translation found for account_setup_failed_certificate_required (6885740669437744865) -->
     <skip />
     <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
     <skip />
@@ -574,6 +574,12 @@
     <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
+    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
+    <skip />
+    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
+    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
     <skip />
     <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
     <skip />
