@@ -106,11 +106,11 @@
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rasimu"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Kikasha toezi"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Mwonekano wa mchanganyiko"</string>
-    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Onyesha makabrasha yote"</string>
+    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Onyesha folda zote"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Akaunti"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Makabrasha <xliff:g id="EMAIL_ADDRESS">%s</xliff:g> ya hivi karibuni"</string>
-    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Ongeza makabrasha"</string>
-    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Makabrasha ya hivi karibuni"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Folda <xliff:g id="EMAIL_ADDRESS">%s</xliff:g> za hivi karibuni"</string>
+    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Folda zote"</string>
+    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Folda za hivi karibuni"</string>
     <string name="message_subject_description" msgid="3597047441062021199">"Kichwa"</string>
     <string name="message_is_empty_description" msgid="4004644319382041459">"Hakuna kichwa"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Pakia ujumbe zaidi"</string>
@@ -336,7 +336,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Udhibiti wa usalama kutoka mbali"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Seva <xliff:g id="SERVER">%s</xliff:g> inahitaji uiruhusu kudhibiti kwa umbali baadhi ya vipengele vya usalama vya simu yako. Ungependa kumaliza kuweka mipangilio ya akaunti hii?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Seva hii inahitaji vipengele vya usalama ambavyo kifaa chako cha Android hakisaidii, ikijumlisha: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Huwezi kubadilisha jina la mtumiaji la akaunti. Ili kuongeza akaunti na jina la mtumiaji tofauti, gusa Ongeza akaunti."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Huwezi kubadilisha jina la mtumiaji la akaunti. Ili kuongeza akaunti na jina tofauti la mtumiaji, gusa Ongeza akaunti."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ILANI: Kulemaza kibali cha programu ya Barua pepe ili kusimamia kifaa chako kutafuta akaunti zote za Barua pepe ambazo zinakihitaji, pamoja na barua pepe zake, anwani, matukio ya kalenda, na data nyingine."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Uboreshaji wa usalama unahitajika"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g>inakuhitaji kusasisha mipangilio yako ya usalama."</string>
@@ -403,9 +403,9 @@
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Siku hadi Usawazishaji"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akaunti ya barua pepe"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Chagua akaunti"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Chagua kabrasha"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Chagua folda"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Akaunti haipatikani. Huenda ikawa imeondolewa."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Kabrasha halipatikani. Huenda limeondolewa."</string>
+    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Folda haipatikani. Huenda imeondolewa."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Akaunti zingine za \"plus\" tu ndizo zinazojumuisha ufikiaji wa POP na kwa hivyo kuruhusu programu hii kuunganisha. Kama huwezi kuingia na anwani na nenosiri lako sahihi la barua pepe, huenda usiwe na akaunti iliyolipiwa ya \"Plus\". Tafadhali zindua kivinjari Wavuti ili uweze kufikia akaunti hizi za barua."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Kabla ya kuweka mipangilio ya akaunti hii ya barua pepe, tafadhali tembelea tovuti ya T-Online na uunde nenosiri la kufikia barua pepe kwa POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Shirika"</string>
@@ -466,5 +466,5 @@
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Tafuta \"<xliff:g id="ID_1">%1$s</xliff:g>\" katika matokeo"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Inasubiri matokeo"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Seva zingine zinaweza kuchukua muda mrefu."</string>
-    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Makabrasha"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folda"</string>
 </resources>

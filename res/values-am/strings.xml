@@ -322,7 +322,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"ተጠቃሚ ስም ወይም ይለፍ ቃል ተሳስቷል።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"ወደ አገልጋዩበደህና ማገናኘት አልተቻልም።"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"ወደ አገልጋዩበደህና ማገናኘት አልተቻልም።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 7425428621499591492 -->     <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"አገልጋይ ለማገናኘት የተጠቃሚ ዕውቅና ማረጋገጫ ይጠየቃል።"</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"የደንበኛ ምስክር ይጠበቃል። ከደንበኛ ምስርክር ጋር ወደ አገልጋይ ይገናኝ?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"ልክ ያልሆነ የዕውቅና ማረጋገጫ ወይም ተደራሽ ያልሆነ"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"አገልጋዩ ከክስተት ጋር መልሷል፤ እባክዎ የተጠቃሚ ስምዎን እና የይለፍ ቃልዎን ይመልከቱ እና እንደገና ይሞክሩ።"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"ወደ አገልጋይ መገናኘት አልቻልም።"</string>
@@ -441,12 +441,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"መደበኛ"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"ትልቅ"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"ግዙፍ"</string>
-    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
-    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
-    <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
-    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
-    <skip />
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"ለሁሉም ምላሽ ስጥ"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"ለመልዕክቶች ለመመለስ \'ለሁሉም መልስ\'ን ነባሪ አድርግ"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"ለ\"ምስሎችን አሳይ\" ነባሪ እነበረበት መልስ"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"ለሁሉም ላኪዎች(ፎቶዎችን በራስ ሰር አታሳይ) ነባሪ እነበረበት መልስ"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"ፎቶዎች አሳይ\" ጠርቷል።"</string>

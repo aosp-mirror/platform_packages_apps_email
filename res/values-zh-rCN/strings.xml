@@ -322,7 +322,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"用户名或密码不正确。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"无法安全地连接到服务器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"无法安全地连接到服务器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 7425428621499591492 -->     <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"需要拥有用户证书才能连接到服务器。"</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"需要客户端证书。要使用客户端证书连接到服务器吗？"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"证书无效或无法访问。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"服务器返回了包含错误讯息的响应，请检查您的用户名和密码，然后重试。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"无法连接到服务器。"</string>
@@ -441,12 +441,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"正常"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"超大"</string>
-    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
-    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
-    <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
-    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
-    <skip />
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"全部回复"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"将“全部回复”作为回复邮件的默认设置"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"恢复“显示图片”的默认设置"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"恢复所有发件人的默认设置（不自动显示图片）"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"“显示图片”设置已清除。"</string>
