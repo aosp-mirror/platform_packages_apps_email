@@ -322,7 +322,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi correttamente al server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impossibile connettersi correttamente al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"Per connettersi al server è necessario un certificato utente."</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Certificato client richiesto. Connettersi al server con certificato client?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Certificato non valido o non accessibile."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Il server ha risposto con un errore. Controlla nome utente e password e riprova."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impossibile connettersi al server."</string>
@@ -441,6 +441,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normali"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grandi"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Molto grandi"</string>
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Rispondi a tutti"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Imposta \"Rispondi a tutti\" come opzione predefinita per le risposte"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Ripristina impostazioni predefinite di \"Mostra immagini\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Ripristina impostazioni predefinite per tutti i mittenti (non visualizzare automaticamente le immagini)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Impostazioni di \"Mostra immagini\" cancellate."</string>
