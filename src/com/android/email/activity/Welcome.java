@@ -340,10 +340,10 @@ public class Welcome extends Activity {
      */
     private void resolveAccount() {
         final int numAccount = EmailContent.count(this, Account.CONTENT_URI);
-        boolean startAccountSetup = false;
         if (numAccount == 0) {
             AccountSetupBasics.actionNewAccount(this);
             finish();
+            return;
         } else {
             mAccountId = resolveAccountId(this, mAccountId, mAccountUuid);
             if (Account.isNormalAccount(mAccountId) &&
