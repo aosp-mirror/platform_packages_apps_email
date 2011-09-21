@@ -1231,7 +1231,6 @@ public class MessageListFragment extends ListFragment
             message.setText(R.string.search_slow_warning_message);
             root.addView(mWarningContainer);
         }
-
     }
 
     /**
@@ -1326,6 +1325,14 @@ public class MessageListFragment extends ListFragment
             if (mIsFirstLoad) {
                 UiUtilities.setVisibilitySafe(mWarningContainer, View.GONE);
                 mListPanel.setVisibility(View.VISIBLE);
+
+                // Setting the adapter will automatically transition from "Loading" to showing
+                // the list, which could show "No messages". Avoid showing that on the first sync,
+                // if we know we're still potentially loading more.
+                if (!isEmptyAndLoading(cursor)) {
+                    setListAdapter(mListAdapter);
+                }
+            } else if ((getListAdapter() == null) && !isEmptyAndLoading(cursor)) {
                 setListAdapter(mListAdapter);
             }
 
@@ -1337,6 +1344,16 @@ public class MessageListFragment extends ListFragment
             }
 
             mIsFirstLoad = false;
+        }
+
+        /**
+         * Determines whether or not the list is empty, but we're still potentially loading data.
+         * This represents an ambiguous state where we may not want to show "No messages", since
+         * it may still just be loading.
+         */
+        private boolean isEmptyAndLoading(Cursor cursor) {
+            return (cursor.getCount() == 0)
+                        && mRefreshManager.isMessageListRefreshing(mMailbox.mId);
         }
 
         @Override
