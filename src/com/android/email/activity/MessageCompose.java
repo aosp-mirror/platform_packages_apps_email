@@ -1801,11 +1801,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (shouldUseActionTabs()) {
             // Tab-based mode switching.
             if (actionBar.getTabCount() > 0) {
-                actionBar.removeAllTabs();
+                selectActionTab(mAction);
+            } else {
+                createAndAddTab(R.string.reply_action, ACTION_REPLY);
+                createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
+                createAndAddTab(R.string.forward_action, ACTION_FORWARD);
             }
-            createAndAddTab(R.string.reply_action, ACTION_REPLY);
-            createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
-            createAndAddTab(R.string.forward_action, ACTION_FORWARD);
 
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         } else {
@@ -1910,6 +1911,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         tab.setTabListener(ACTION_TAB_LISTENER);
         getActionBar().addTab(tab, selected);
         return tab;
+    }
+
+    private void selectActionTab(final String action) {
+        final ActionBar actionBar = getActionBar();
+        for (int i = 0, n = actionBar.getTabCount(); i < n; i++) {
+            ActionBar.Tab tab = actionBar.getTabAt(i);
+            if (action.equals(tab.getTag())) {
+                actionBar.selectTab(tab);
+                return;
+            }
+        }
     }
 
     private boolean shouldUseActionTabs() {
