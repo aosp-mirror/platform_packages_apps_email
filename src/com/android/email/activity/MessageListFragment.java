@@ -1068,8 +1068,14 @@ public class MessageListFragment extends ListFragment
                 mActivity.getString(R.string.search_header_text_fmt),
                 listContext.getSearchParams().mFilter);
         mSearchHeaderText.setText(header);
+        int resultCount = searchCursor.getResultsCount();
+        // Don't show a negative value here; this means that the server request failed
+        // TODO Use some other text for this case (e.g. "search failed")?
+        if (resultCount < 0) {
+            resultCount = 0;
+        }
         mSearchHeaderCount.setText(UiUtilities.getMessageCountForUi(
-                mActivity, searchCursor.getResultsCount(), false /* replaceZeroWithBlank */));
+                mActivity, resultCount, false /* replaceZeroWithBlank */));
     }
 
     private int determineFooterMode() {

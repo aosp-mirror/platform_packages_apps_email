@@ -365,10 +365,6 @@ import java.util.Set;
         public Mailbox getSearchedMailbox() {
             return mSearchedMailbox;
         }
-
-        public boolean hasResults() {
-            return getResultsCount() == 0;
-        }
     }
 
     /**
