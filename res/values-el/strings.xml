@@ -442,7 +442,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Μεγάλο"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Πολύ μεγάλο"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Απάντηση σε όλους"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Η επιλ. \"Απάντηση σε όλους\" να είναι ο προεπιλ.τρόπος απάντ. σε μηνύμ."</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Ορισμός \"Απάντηση σε όλους\" ως προεπιλογή για απάντηση"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Επαναφορά προεπιλογής για την επιλογή \"Εμφάνιση εικόνων\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Επαναφορά προεπιλογών για όλους τους αποστολείς (να μην εμφανίζονται εικόνες αυτόματα)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Καταργήθηκε η επιλογή του στοιχείου \"Εμφάνιση εικόνων\"."</string>

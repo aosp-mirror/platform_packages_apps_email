@@ -322,7 +322,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Неверное имя пользователя или пароль."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Не удается установить защищенное подключение к серверу."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Не удается установить защищенное подключение к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Необходим сертификат клиента. Подключиться к серверу с этим сертификатом?"</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Необходим сертификат клиента. Подключиться к серверу?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Сертификат недействителен или недоступен."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Ошибка сервера; проверьте имя пользователя и пароль и повторите попытку."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Не удается подключиться к серверу."</string>
