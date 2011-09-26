@@ -30,7 +30,7 @@
     <EditText
         android:id="@+id/account_username"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionNext"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_exchange_username_label" />
@@ -43,7 +43,7 @@
     <EditText
         android:id="@+id/account_password"
         android:inputType="textPassword"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionNext"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" />
     <!-- This text may be changed in code if the server is IMAP, etc. -->

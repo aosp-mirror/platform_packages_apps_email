@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -284,21 +285,25 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private void configureEditor() {
         if (mConfigured) return;
         Account account = SetupData.getAccount();
+        TextView lastView = mImapPathPrefixView;
         mBaseScheme = account.mHostAuthRecv.mProtocol;
         if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
             mServerView.setContentDescription(
                     getResources().getString(R.string.account_setup_incoming_pop_server_label));
             mImapPathPrefixSectionView.setVisibility(View.GONE);
+            lastView = mPortView;
         } else if (HostAuth.SCHEME_IMAP.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
             mServerView.setContentDescription(
                     getResources().getString(R.string.account_setup_incoming_imap_server_label));
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
+            mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         } else {
             throw new Error("Unknown account type: " + account);
         }
+        lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
         mConfigured = true;
     }
 
