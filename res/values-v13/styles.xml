@@ -18,13 +18,4 @@
 <resources>
     <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
     </style>
-    <style name="ChipsComposeBodyStyle" parent="@style/ComposeBodyStyle">
-        <item name="android:background">@null</item>
-        <item name="android:minHeight">42dip</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-    <style name="ChipsComposeSubjectStyle" parent="@style/ComposeSubjectStyle">
-        <item name="android:background">@null</item>
-        <item name="android:minHeight">0dip</item>
-    </style>
 </resources>
