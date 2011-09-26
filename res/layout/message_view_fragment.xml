@@ -91,24 +91,15 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     />
 
-                <!-- The container is only used for compatibility with tablet
-                     views -->
-                <FrameLayout
-                    android:id="@+id/always_show_pictures_container"
+                <Button
+                    android:id="@+id/always_show_pictures_button"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    >
-                    <Button
-                        android:id="@+id/always_show_pictures_button"
-                        style="?android:attr/borderlessButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dip"
-                        android:drawableLeft="@drawable/ic_menu_check_holo_light"
-                        android:drawablePadding="8dip"
-                        android:text="@string/message_view_always_show_pictures_prompt"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </FrameLayout>
+                    android:layout_height="48dip"
+                    android:drawableLeft="@drawable/ic_show_images_holo_light"
+                    android:drawablePadding="8dip"
+                    android:text="@string/message_view_always_show_pictures_prompt"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

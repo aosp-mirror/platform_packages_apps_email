@@ -130,7 +130,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private TextView mInviteTab;
     // It is not really a tab, but looks like one of them.
     private TextView mShowPicturesTab;
-    private ViewGroup mAlwaysShowPicturesContainer;
     private View mAlwaysShowPicturesButton;
 
     private View mAttachmentsScroll;
@@ -312,8 +311,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentTab = UiUtilities.getView(view, R.id.show_attachments);
         mShowPicturesTab = UiUtilities.getView(view, R.id.show_pictures);
         mAlwaysShowPicturesButton = UiUtilities.getView(view, R.id.always_show_pictures_button);
-        mAlwaysShowPicturesContainer = UiUtilities.getView(
-                view, R.id.always_show_pictures_container);
         // Invite is only used in MessageViewFragment, but visibility is controlled here.
         mInviteTab = UiUtilities.getView(view, R.id.show_invite);
 
@@ -593,7 +590,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // Hide the entire section if no tabs are visible.
         makeVisible(mTabSection, isVisible(mMessageTab) || isVisible(mInviteTab)
                 || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab)
-                || isVisible(mAlwaysShowPicturesContainer));
+                || isVisible(mAlwaysShowPicturesButton));
 
         // Restore previously selected tab after rotation
         if (mRestoredTab != TAB_NONE && isVisible(getTabViewForFlag(mRestoredTab))) {
@@ -918,7 +915,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             setMessageHtml(mHtmlTextWebView);
 
             // Prompt the user to always show images from this sender.
-            makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container), true);
+            makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_button), true);
 
             addTabFlags(TAB_FLAGS_PICTURE_LOADED);
         }
@@ -1941,7 +1938,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private void setShowImagesForSender() {
-        makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container), false);
+        makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_button), false);
         Utility.showToast(getActivity(), R.string.message_view_always_show_pictures_confirmation);
 
         // Force redraw of the container.
