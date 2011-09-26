@@ -783,8 +783,12 @@ public class AccountCheckSettingsFragment extends Fragment {
         private final static String ARGS_MESSAGE = "ErrorDialog.Message";
         private final static String ARGS_EXCEPTION_ID = "ErrorDialog.ExceptionId";
 
-        /** Use {@link #newInstance} */
-        private ErrorDialog() {
+        /**
+         * Use {@link #newInstance} This public constructor is still required so
+         * that DialogFragment state can be automatically restored by the
+         * framework.
+         */
+        public ErrorDialog() {
         }
 
         public static ErrorDialog newInstance(Context context, AccountCheckSettingsFragment target,
