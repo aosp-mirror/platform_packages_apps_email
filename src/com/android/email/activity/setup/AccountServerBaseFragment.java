@@ -16,23 +16,26 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.activity.UiUtilities;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+
+import com.android.email.R;
+import com.android.email.activity.UiUtilities;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -281,6 +284,32 @@ public abstract class AccountServerBaseFragment extends Fragment
             });
         }
     }
+
+    /**
+     * A keyboard listener which dismisses the keyboard when "DONE" is pressed, but doesn't muck
+     * around with focus. This is useful in settings screens, as we don't want focus to change
+     * since some fields throw up errors when they're focused to give the user more info.
+     */
+    protected final OnEditorActionListener mDismissImeOnDoneListener =
+            new OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // Dismiss soft keyboard but don't modify focus.
+                final Context context = getActivity();
+                if (context == null) {
+                    return false;
+                }
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                if (imm != null && imm.isActive()) {
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                }
+                return true;
+            }
+            return false;
+        }
+    };
 
     /**
      * Clears the "next" button de-bounce flags and allows the "next" button to activate.

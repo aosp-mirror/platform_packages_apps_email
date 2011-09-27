@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_incoming_username_label"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionDone" />
+        android:imeOptions="actionNext" />
     <TextView
         android:text="@string/account_setup_incoming_password_label"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_incoming_password_label"
         android:inputType="textPassword"
-        android:imeOptions="actionDone" />
+        android:imeOptions="actionNext" />
     <!-- This text may be changed in code if the server is IMAP, etc. -->
     <TextView
         android:id="@+id/account_server_label"
@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_incoming_pop_server_label"
         android:inputType="textUri"
-        android:imeOptions="actionDone" />
+        android:imeOptions="actionNext" />
     <TextView
         android:text="@string/account_setup_incoming_port_label"
         android:layout_height="wrap_content"

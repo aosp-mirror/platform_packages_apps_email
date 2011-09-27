@@ -104,7 +104,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
                 : R.layout.account_setup_exchange_fragment;
 
         View view = inflater.inflate(layoutId, container, false);
-        Context context = getActivity();
+        final Context context = getActivity();
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mPasswordView = UiUtilities.getView(view, R.id.account_password);
@@ -132,6 +132,10 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mUsernameView.addTextChangedListener(validationTextWatcher);
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
+
+        EditText lastView = mServerView;
+        lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
+
         String deviceId = "";
         try {
             deviceId = Device.getDeviceId(context);
