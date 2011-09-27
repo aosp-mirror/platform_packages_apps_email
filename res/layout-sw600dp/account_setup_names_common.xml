@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_names_account_name_label"
         android:inputType="textCapWords"
-        android:imeOptions="actionDone" />
+        android:imeOptions="actionNext" />
     <TextView
         android:id="@+id/account_name_label"
         android:layout_below="@+id/account_description"

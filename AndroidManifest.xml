@@ -50,6 +50,9 @@
         android:name="android.permission.READ_CONTACTS"/>
 
     <uses-permission
+        android:name="android.permission.READ_PROFILE"/>
+
+    <uses-permission
         android:name="android.permission.NFC"/>
 
     <!-- Only required if a store implements push mail and needs to keep network open -->
