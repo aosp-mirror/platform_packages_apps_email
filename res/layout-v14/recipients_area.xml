@@ -26,15 +26,23 @@ automatically saved by framework.-->
         android:layout_width="match_parent"
         android:id="@+id/to_content">
 
-        <TextView style="@style/RecipientComposeHeading"
-            android:text="@string/message_compose_to_hint"
-            android:id="@+id/label"/>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:addStatesFromChildren="true"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical">
+            <TextView style="@style/RecipientComposeHeading"
+                android:text="@string/message_compose_to_hint"
+                android:id="@+id/label"/>
 
-        <com.android.email.activity.ChipsAddressTextView
-            style="@style/EmailRecipientEditTextView"
-            android:id="@+id/to" />
+            <com.android.email.activity.ChipsAddressTextView
+                style="@style/EmailRecipientEditTextView"
+                android:id="@+id/to" />
+        </LinearLayout>
 
+        <View style="@style/RecipientComposeFieldSpacer"/>
     </LinearLayout>
+
     <LinearLayout
         android:layout_below="@id/to_content"
         android:id="@+id/cc_bcc_container"
@@ -47,30 +55,42 @@ automatically saved by framework.-->
             style="@style/RecipientComposeFieldLayout"
             android:layout_alignParentTop="true"
             android:id="@+id/cc_content">
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:addStatesFromChildren="true"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical">
+                <TextView style="@style/RecipientComposeHeading"
+                    android:text="@string/message_compose_to_hint"
+                    android:id="@+id/label"/>
 
-            <TextView style="@style/RecipientComposeHeading"
-                android:text="@string/message_compose_to_hint"
-                android:id="@+id/label"/>
+                <com.android.email.activity.ChipsAddressTextView
+                    style="@style/EmailRecipientEditTextView"
+                    android:id="@+id/cc" />
+            </LinearLayout>
 
-            <com.android.email.activity.ChipsAddressTextView
-                style="@style/EmailRecipientEditTextView"
-                android:id="@+id/cc" />
-
+            <View style="@style/RecipientComposeFieldSpacer"/>
         </LinearLayout>
 
         <LinearLayout
             style="@style/RecipientComposeFieldLayout"
             android:layout_alignParentTop="true"
             android:id="@+id/bcc_content">
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:addStatesFromChildren="true"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical">
+                <TextView style="@style/RecipientComposeHeading"
+                    android:text="@string/message_compose_to_hint"
+                    android:id="@+id/label"/>
 
-            <TextView style="@style/RecipientComposeHeading"
-                android:text="@string/message_compose_to_hint"
-                android:id="@+id/label"/>
+                <com.android.email.activity.ChipsAddressTextView
+                    style="@style/EmailRecipientEditTextView"
+                    android:id="@+id/bcc" />
+            </LinearLayout>
 
-            <com.android.email.activity.ChipsAddressTextView
-                style="@style/EmailRecipientEditTextView"
-                android:id="@+id/bcc" />
-
+            <View style="@style/RecipientComposeFieldSpacer"/>
         </LinearLayout>
 
     </LinearLayout>
