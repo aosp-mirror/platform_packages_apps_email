@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/RecipientComposeFieldLayout">
+    style="@style/ComposeFieldLayout">
     <TextView
         android:id="@+id/subject_label"
         style="@style/RecipientComposeHeading"
@@ -22,7 +22,7 @@
         />
     <EditText
         android:id="@+id/subject"
-        style="@style/ChipsComposeSubjectStyle"
+        style="@style/EmailRecipientEditTextView"
         android:inputType
             ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
         android:imeOptions="actionNext"

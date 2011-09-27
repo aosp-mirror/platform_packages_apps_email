@@ -13,11 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/RecipientComposeFieldLayout">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ComposeFieldLayout">
     <EditText android:id="@+id/subject"
-        style="@style/EmailRecipientEditTextView"
+        style="@style/EmailComposeEditTextView"
         android:hint="@string/message_compose_subject_hint"
         android:textColorHint="@color/compose_label_text"
         />
-</LinearLayout>
+</RelativeLayout>

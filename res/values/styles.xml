@@ -216,7 +216,26 @@
 
     <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
         <item name="android:minHeight">42dip</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:gravity">bottom</item>
+    </style>
+
+    <style name="EmailComposeEditTextView">
+        <item name="android:minHeight">44dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="LargeComposeAreaBody" parent="@style/ComposeBodyStyle" >
+        <item name="android:background">@null</item>
+        <item name="android:minHeight">42dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="RecipientComposeFieldSpacer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">4dip</item>
     </style>
 
     <style name="ComposeFieldLinearLayout" parent="android:Widget.Holo.Light.EditText">
@@ -245,18 +264,24 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/compose_label_text</item>
         <item name="android:layout_marginRight">4dip</item>
+        <item name="android:layout_marginTop">4dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
      </style>
 
-    <style name="RecipientComposeFieldLayout" parent="android:Widget.Holo.Light.EditText">
+    <style name="ComposeFieldLayout" parent="android:Widget.Holo.Light.EditText">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:addStatesFromChildren">true</item>
         <item name="android:focusable">false</item>
         <item name="android:focusableInTouchMode">false</item>
-        <item name="android:gravity">center</item>
-        <item name="android:minHeight">48dip</item>
-        <item name="android:paddingTop">4dip</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">0dip</item>
     </style>
+
+    <style name="RecipientComposeFieldLayout" parent="@style/ComposeFieldLayout">
+        <item name="android:orientation">vertical</item>
+    </style>
+
     <style name="ComposeBodyStyle">
         <item name="android:minHeight">48dip</item>
         <item name="android:layout_height">wrap_content</item>
