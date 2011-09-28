@@ -1309,6 +1309,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 mProgressView.setIndeterminate(false);
             }
             mProgressView.setProgress(progress);
+
+            // Hide on completion.
+            if (progress == 100) {
+                hideProgress();
+            }
         }
 
         public void showProgressIndeterminate() {
