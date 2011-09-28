@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:contentDescription="@string/account_setup_names_account_name_label"
             android:inputType="textCapWords"
-            android:imeOptions="actionDone" />
+            android:imeOptions="actionNext" />
         <TextView
             android:id="@+id/account_name_label"
             android:layout_height="wrap_content"
@@ -61,7 +61,6 @@
             android:inputType="textPersonName"
             android:imeOptions="actionDone" />
 
-        <!-- TODO - quick placeholder - phone UX still TBD -->
         <Button
             android:id="@+id/next"
             android:layout_marginTop="16dip"

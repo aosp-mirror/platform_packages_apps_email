@@ -16,20 +16,14 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.UiUtilities;
-import com.android.email.activity.Welcome;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract.Profile;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -40,15 +34,27 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.email.R;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
+import com.android.email.activity.Welcome;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
+
 /**
  * Final screen of setup process.  Collect account nickname and/or username.
  */
 public class AccountSetupNames extends AccountSetupActivity implements OnClickListener {
     private static final int REQUEST_SECURITY = 0;
 
+    private static final Uri PROFILE_URI = Profile.CONTENT_URI;
+
     private EditText mDescription;
     private EditText mName;
-    private View mAccountNameLabel;
     private Button mNextButton;
     private boolean mEasAccount = false;
 
@@ -63,7 +69,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         setContentView(R.layout.account_setup_names);
         mDescription = (EditText) UiUtilities.getView(this, R.id.account_description);
         mName = (EditText) UiUtilities.getView(this, R.id.account_name);
-        mAccountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
+        View accountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
         mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
 
@@ -88,30 +94,50 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         if (account.mHostAuthRecv == null) {
             throw new IllegalStateException("unexpected null hostauth");
         }
+        int flowMode = SetupData.getFlowMode();
+
+        if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
+                && flowMode != SetupData.FLOW_MODE_EDIT) {
+            String accountEmail = account.mEmailAddress;
+            mDescription.setText(accountEmail);
+
+            // Move cursor to the end so it's easier to erase in case the user doesn't like it.
+            mDescription.setSelection(accountEmail.length());
+        }
 
         // Remember whether we're an EAS account, since it doesn't require the user name field
-        mEasAccount = "eas".equals(account.mHostAuthRecv.mProtocol);
+        mEasAccount = HostAuth.SCHEME_EAS.equals(account.mHostAuthRecv.mProtocol);
         if (mEasAccount) {
             mName.setVisibility(View.GONE);
-            mAccountNameLabel.setVisibility(View.GONE);
-        }
-        /*
-         * Since this field is considered optional, we don't set this here. If
-         * the user fills in a value we'll reset the current value, otherwise we
-         * just leave the saved value alone.
-         */
-        // mDescription.setText(mAccount.getDescription());
-        if (account != null && account.getSenderName() != null) {
-            mName.setText(account.getSenderName());
+            accountNameLabel.setVisibility(View.GONE);
+        } else {
+            if (account != null && account.getSenderName() != null) {
+                mName.setText(account.getSenderName());
+            } else if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
+                    && flowMode != SetupData.FLOW_MODE_EDIT) {
+                // Attempt to prefill the name field from the profile if we don't have it,
+                prefillNameFromProfile();
+            }
         }
 
         // Make sure the "done" button is in the proper state
         validateFields();
 
         // Proceed immediately if in account creation mode
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+        if (flowMode == SetupData.FLOW_MODE_FORCE_CREATE) {
             onNext();
         }
+    }
+
+    private void prefillNameFromProfile() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
+            public void run() {
+                String[] projection = new String[] { Profile.DISPLAY_NAME };
+                mName.setText(Utility.getFirstRowString(
+                        AccountSetupNames.this, PROFILE_URI, projection, null, null, null, 0));
+            }
+        });
     }
 
     /**
@@ -206,8 +232,8 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
      */
     private class FinalSetupTask extends AsyncTask<Void, Void, Boolean> {
 
-        private Account mAccount;
-        private Context mContext;
+        private final Account mAccount;
+        private final Context mContext;
 
         public FinalSetupTask(Account account) {
             mAccount = account;
@@ -234,7 +260,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
                 if (isSecurityHold) {
                     Intent i = AccountSecurity.actionUpdateSecurityIntent(
                             AccountSetupNames.this, mAccount.mId, false);
-                    AccountSetupNames.this.startActivityForResult(i, REQUEST_SECURITY);
+                    startActivityForResult(i, REQUEST_SECURITY);
                 } else {
                     finishActivity();
                 }
