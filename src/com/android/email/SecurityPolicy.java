@@ -544,12 +544,12 @@ public class SecurityPolicy {
 
     /**
      * API: Remote wipe (from server).  This is final, there is no confirmation.  It will only
-     * return to the caller if there is an unexpected failure.
+     * return to the caller if there is an unexpected failure.  The wipe includes external storage.
      */
     public void remoteWipe() {
         DevicePolicyManager dpm = getDPM();
         if (dpm.isAdminActive(mAdminName)) {
-            dpm.wipeData(0);
+            dpm.wipeData(DevicePolicyManager.WIPE_EXTERNAL_STORAGE);
         } else {
             Log.d(Logging.LOG_TAG, "Could not remote wipe because not device admin.");
         }
