@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Transferts via connexion mobile"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Transferts en itinérance"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Transférer les photos et les vidéos en itinérance"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Transferts lorsque la batterie est en charge"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Transferts en charge"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Transférer les photos et les vidéos uniquement lors de la mise en charge"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Transférer les photos existantes"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Transférer toutes les photos et les vidéos de votre téléphone"</string>

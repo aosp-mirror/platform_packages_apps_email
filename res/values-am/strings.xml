@@ -322,7 +322,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"ተጠቃሚ ስም ወይም ይለፍ ቃል ተሳስቷል።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"ወደ አገልጋዩበደህና ማገናኘት አልተቻልም።"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"ወደ አገልጋዩበደህና ማገናኘት አልተቻልም።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"የደንበኛ ምስክር ይጠበቃል። ከደንበኛ ምስርክር ጋር ወደ አገልጋይ ይገናኝ?"</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"የደንበኛ የዕውቅና ማረጋገጫ ይጠበቃል። ከደንበኛ የዕውቅና ማረጋገጫ ጋር ወደ አገልጋይ ይገናኝ?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"ልክ ያልሆነ የዕውቅና ማረጋገጫ ወይም ተደራሽ ያልሆነ"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"አገልጋዩ ከክስተት ጋር መልሷል፤ እባክዎ የተጠቃሚ ስምዎን እና የይለፍ ቃልዎን ይመልከቱ እና እንደገና ይሞክሩ።"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"ወደ አገልጋይ መገናኘት አልቻልም።"</string>

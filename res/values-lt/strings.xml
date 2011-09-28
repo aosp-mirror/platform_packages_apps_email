@@ -442,7 +442,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Didelis"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Itin didelis"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Atsakyti visiems"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Atsakymams į praneš. pasirinkite „Atsakyti visiems“ kaip numat. nust."</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Atsakyti į pranešimus pasirinkite „Atsakyti visiems“ kaip numat. nust."</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Atkurti numatytuosius funkcijos „Rodyti paveikslėlius“ nustatymus"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Atkurti visų siuntėjų numatytuosius nustatymus (automatiškai nerodyti paveikslėlių)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"„Rodyti paveikslėlius“ išvalyta."</string>
