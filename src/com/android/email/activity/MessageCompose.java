@@ -850,7 +850,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 Utility.showToast(MessageCompose.this, R.string.error_loading_message_body);
                 finish();
             }
-        }).executeParallel((Void[]) null);
+        }).executeSerial((Void[]) null);
     }
 
     @VisibleForTesting
@@ -948,7 +948,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     finish();
                 }
             }
-        }).executeParallel((Void[]) null);
+        }).executeSerial((Void[]) null);
     }
 
     /**
@@ -1103,7 +1103,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
                 callback.onAttachmentLoaded(attachments);
             }
-        }.executeParallel((Void[]) null);
+        }.executeSerial((Void[]) null);
     }
 
     @Override
