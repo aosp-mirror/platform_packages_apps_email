@@ -40,10 +40,12 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 /**
- * "Move (messages) to" dialog.
+ * "Move (messages) to" dialog. This is a modal dialog and the design is such so that only one is
+ * active. If a new instance is created while an existing one is active, the existing one is
+ * dismissed.
  *
  * TODO The check logic in MessageCheckerCallback is not efficient.  It shouldn't restore full
- * Message objects.  But we don't bother at this point as the UI is still temporary.
+ * Message objects.
  */
 public class MoveMessageToDialog extends DialogFragment implements DialogInterface.OnClickListener {
     private static final String BUNDLE_MESSAGE_IDS = "message_ids";
@@ -124,7 +126,45 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
                 null, new MessageCheckerCallback());
 
-        return builder.show();
+        return builder.create();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mAdapter.getCursor() == null) {
+            // Data isn't ready - don't show yet.
+            getDialog().hide();
+        }
+    }
+
+    /**
+     * The active move message dialog. This dialog is fairly modal so it only makes sense to have
+     * one instance active, and for debounce purposes, we dismiss any existing ones.
+     *
+     * Only touched on the UI thread so doesn't require synchronization.
+     */
+    static MoveMessageToDialog sActiveDialog;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (sActiveDialog != null) {
+            // Something is already attached. Dismiss it!
+            sActiveDialog.dismissAsync();
+        }
+
+        sActiveDialog = this;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (sActiveDialog == this) {
+            sActiveDialog = null;
+        }
     }
 
     @Override
@@ -141,7 +181,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
      * is not allowed, so we use it instead.
      */
     private void dismissAsync() {
-        new Handler().post(new Runnable() {
+        Utility.getMainThreadHandler().post(new Runnable() {
             @Override
             public void run() {
                 if (!mDestroyed) {
@@ -199,7 +239,13 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
             if (mDestroyed) {
                 return;
             }
+            boolean needsShowing = (mAdapter.getCursor() == null);
             mAdapter.swapCursor(data);
+
+            // The first time data is loaded, we need to show the dialog.
+            if (needsShowing && isAdded()) {
+                getDialog().show();
+            }
         }
 
         @Override
