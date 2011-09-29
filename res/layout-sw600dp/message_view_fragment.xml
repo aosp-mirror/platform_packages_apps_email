@@ -219,7 +219,6 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/message_view_info_back_color"
                     android:divider="?android:attr/dividerHorizontal"
                     android:showDividers="beginning|middle|end"
                     />

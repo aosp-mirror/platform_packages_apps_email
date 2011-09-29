@@ -34,6 +34,9 @@
     <color name="text_ternary_color">#aaaaaa</color>
     <color name="text_disabled_color">#888888</color>
 
+    <color name="button_text_color">#777777</color>
+    <color name="button_text_disabled_color">#cccccc</color>
+
     <!-- TODO: properly put these text colors in the theme and use selectors -->
     <color name="text_primary_color_inverse">#ffffff</color>
     <color name="text_secondary_color_inverse">#eeeeee</color>
