@@ -21,15 +21,31 @@
     android:layout_width="match_parent"
     android:layout_height="64dip"
     android:orientation="horizontal"
+    android:background="@drawable/attachment_bg_holo"
     >
-    <ImageView
-        android:id="@+id/attachment_icon"
+    <FrameLayout
         android:layout_width="64dip"
-        android:layout_height="match_parent"
-        android:layout_weight="0"
-        android:src="@drawable/ic_attachment_holo_light"
-        android:scaleType="fitCenter"
-        />
+        android:layout_height="64dip"
+        android:orientation="vertical"
+        android:background="#e5e5e5"
+        >
+        <ImageView
+            android:id="@+id/attachment_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_attachment_holo_light"
+            android:scaleType="center"
+            />
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="0dip"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:max="100"
+            android:visibility="invisible"
+            />
+    </FrameLayout>
     <LinearLayout
         android:layout_width="0dip"
         android:layout_height="match_parent"
@@ -41,49 +57,31 @@
         >
         <RelativeLayout
             android:layout_width="0dip"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="center_vertical"
             android:layout_marginLeft="32dip"
             android:layout_marginRight="16dip"
             >
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="match_parent"
-                android:layout_height="16dip"
-                android:layout_alignParentBottom="true"
+            <TextView
+                android:id="@+id/attachment_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="2dip"
-                android:layout_marginBottom="6dip"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:max="100"
-                android:visibility="invisible"
-                android:gravity="center"
+                android:textSize="18dip"
+                android:textColor="#333333"
+                android:singleLine="true"
+                android:ellipsize="middle"
                 />
             <TextView
                 android:id="@+id/attachment_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_above="@id/progress"
-                android:layout_marginLeft="16dip"
-                android:textSize="14dip"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/attachment_name"
+                android:textSize="14sp"
                 android:textColor="@color/text_secondary_color"
                 android:singleLine="true"
-                android:gravity="right|bottom"
-                />
-            <TextView
-                android:id="@+id/attachment_name"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@id/attachment_info"
-                android:layout_above="@id/progress"
-                android:textSize="18dip"
-                android:textColor="@color/text_primary_color"
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:gravity="left|bottom"
                 />
         </RelativeLayout>
 
@@ -95,7 +93,6 @@
             android:orientation="horizontal"
             android:divider="?android:attr/dividerVertical"
             android:showDividers="middle"
-            android:dividerPadding="16dip"
             >
             <Button
                 android:id="@+id/load"
