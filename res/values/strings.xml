@@ -704,6 +704,8 @@ save attachment.</string>
     <string name="account_setup_exchange_certificate_title">Client certificate</string>
     <!-- On "Exchange" setup screen, a button label to include a client certificate [CHAR LIMIT=35] -->
     <string name="account_setup_exchange_select_certificate">Select</string>
+    <!-- On "Exchange" setup screen, a button label to include a client certificate [CHAR LIMIT=35] -->
+    <string name="account_setup_exchange_use_certificate">Use client certificate</string>
     <!-- On "Exchange" setup screen, a button label to remove the currently used client certificate [CHAR LIMIT=35] -->
     <string name="account_setup_exchange_remove_certificate">Remove</string>
     <!-- On "Exchange" setup screen, placeholder text to indicate no client
