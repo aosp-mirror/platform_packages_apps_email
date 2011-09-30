@@ -427,7 +427,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
             sb.append("No policies]");
         } else {
             if (mPasswordMode == PASSWORD_MODE_NONE) {
-                sb.append("Pwd no ");
+                sb.append("Pwd none ");
             } else {
                 appendPolicy(sb, "Pwd strong", mPasswordMode == PASSWORD_MODE_STRONG ? 1 : 0);
                 appendPolicy(sb, "len", mPasswordMinLength);
@@ -437,8 +437,24 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
                 appendPolicy(sb, "fail", mPasswordMaxFails);
                 appendPolicy(sb, "idle", mMaxScreenLockTime);
             }
-            appendPolicy(sb, "crypt", mRequireEncryption ? 1 : 0);
-            appendPolicy(sb, "crypt/ex", mRequireEncryptionExternal ? 1 : 0);
+            if (mRequireEncryption) {
+                sb.append("encrypt ");
+            }
+            if (mRequireEncryptionExternal) {
+                sb.append("encryptsd ");
+            }
+            if (mDontAllowCamera) {
+                sb.append("nocamera ");
+            }
+            if (mDontAllowAttachments) {
+                sb.append("noatts ");
+            }
+            if (mRequireManualSyncWhenRoaming) {
+                sb.append("nopushroam ");
+            }
+            if (mMaxAttachmentSize > 0) {
+                appendPolicy(sb, "attmax", mMaxAttachmentSize);
+            }
             sb.append("]");
         }
         return sb.toString();
