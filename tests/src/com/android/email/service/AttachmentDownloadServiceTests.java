@@ -16,6 +16,9 @@
 
 package com.android.email.service;
 
+import android.content.Context;
+import android.content.Intent;
+
 import com.android.email.AccountTestCase;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.provider.ProviderTestUtils;
@@ -27,9 +30,6 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
-
-import android.content.Context;
-import android.content.Intent;
 
 import java.io.File;
 import java.util.Iterator;
@@ -226,7 +226,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         }
 
         @Override
-        public boolean isBackgroundDataAllowed() {
+        public boolean isAutoSyncAllowed() {
             return true;
         }
     }
