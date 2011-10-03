@@ -130,14 +130,20 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     private void prefillNameFromProfile() {
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
+        new EmailAsyncTask<Void, Void, String>(null) {
             @Override
-            public void run() {
+            protected String doInBackground(Void... params) {
                 String[] projection = new String[] { Profile.DISPLAY_NAME };
-                mName.setText(Utility.getFirstRowString(
-                        AccountSetupNames.this, PROFILE_URI, projection, null, null, null, 0));
+                return Utility.getFirstRowString(
+                        AccountSetupNames.this, PROFILE_URI, projection, null, null, null, 0);
             }
-        });
+
+            @Override
+            public void onSuccess(String result) {
+                // Views can only be modified on the main thread.
+                mName.setText(result);
+            }
+        }.executeParallel((Void[]) null);
     }
 
     /**
