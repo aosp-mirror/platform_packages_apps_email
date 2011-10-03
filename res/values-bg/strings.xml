@@ -289,8 +289,11 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Домейн/Потребителско име"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Използване на сигурна връзка (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Приемане на всички SSL сертификати"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Сертификат за клиентска програма"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Избиране"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Със сертификат за клиентска прогр."</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Премахване"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Нито един"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Идент. № на мобилното у-во"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Настройки на профила"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Опции за профила"</string>
@@ -322,7 +325,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Неправилно потребителско име или парола."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Не може да се осъществи безопасна връзка със сървъра."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Не може да се осъществи безопасна връзка със сървъра."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 7425428621499591492 -->     <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Изисква се потребителски сертификат за връзка със сървъра."</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Изисква се сертификат за клиентска програма. Да се установи ли връзка със сървъра чрез него?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Сертификатът е невалиден или недостъпен."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Сървърът отговори с грешка. Моля, проверете потребителското име и паролата си и опитайте отново."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Не може да се осъществи връзка със сървъра."</string>
@@ -441,12 +444,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Нормален"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Голям"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромен"</string>
-    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
-    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
-    <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
-    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
-    <skip />
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Отговор до всички"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"„Отговор до всички“ да е стандартната опция при отговор на съобщения"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Възстановяване на стандартните настройки за „Показване на снимките“"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Възстановяване на стандартните настройки за всички податели (снимките да не се показват автоматично)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"„Показване на снимките“ е изчистено."</string>

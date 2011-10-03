@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Subidas móviles"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Subidas en itinerancia"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Subir fotos y vídeos en itinerancia en redes de datos"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Subir solo al cargar"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Subir en carga"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Subir fotos y vídeos solo cuando el dispositivo se está cargando"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Subir fotos y vídeos disponibles"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Subir fotos y vídeos disponibles en tu teléfono ahora mismo"</string>

@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Завантаження в мобільних мережах"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Завантаження в роумінгу"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Завантажувати фото та відео в роумінгу в мережі передавання даних"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Завантаження із зарядженим акумулятором"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Завантаж. при зарядж."</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Завантажувати фото та відео лише під час заряджання"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Завантажити існуючі фото"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Завантажити будь-які існуючі фото та відео з телефону зараз"</string>

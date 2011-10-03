@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Augšupielādes, izmantojot mobilos sakarus"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Augšupielādes, izmantojot viesabonēšanu"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Augšupielādēt fotoattēlus un videoklipus datu tīklā viesabonēšanas laikā"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Augšupielādes, veicot akumulatora uzlādi"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Augšupielādes lādējot"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Augšupielādēt fotoattēlus un videoklipus tikai uzlādes laikā"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Augšupielādēt esošos fotoattēlus"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Augšupielādēt visus esošos fotoattēlus un videoklipus no tālruņa tūlīt"</string>

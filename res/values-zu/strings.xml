@@ -199,8 +199,8 @@
     <item quantity="one" msgid="710742672464447084">"Umyalezo ususiwe."</item>
     <item quantity="other" msgid="6574961322865652255">"Imiyalezo isusiwe."</item>
   </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"Umyalezo ulahliwe."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"Umyalezo ulondolozwe njengokungaphelele"</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Umlayezo ulahliwe."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Umlayezo ulondolozwe njengokungaphelele"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Lesi sinamathiseli asikwazi ukuboniswa."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Isinamathiseli \" <xliff:g id="FILENAME">%s</xliff:g> \" asikwazanga ukulayiswa."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Ivula umyalezo..."</string>
@@ -289,8 +289,11 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Isizinda/Igama lomsebenzisi"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sebenzisa uxhumano oluphephile (I-SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Yamukela zonke izitifikethi ze-SSL"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Isitifikethi sekhasimende"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Khetha"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Sebenzisa isitifiketi sekhasimende"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Susa"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Lutho"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"i-ID Yedivaysi Yefoni"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Izilungiselelo ze-akhawunti"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Okukhethwa kukho kwe-akhawunti"</string>
@@ -322,7 +325,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Igama lomsebenzisi noma iphasiwedi ayilungile."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Ayikwazi ukuxhuma ngokuphephile kwiseva."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Ayikwazi ukuxhuma ngokuphephile kwiseva. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 7425428621499591492 -->     <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Isitifiketi somsebenzisi siyadingeka ukuze uxhumane nesiphakeli."</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Kudingeka isitifiketi sekilayenti. Xhuma esiphakelini ngesitifiketi sekilayenti?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Isitifiketi asivumelekile noma asingeneki"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Iseva iphendule ngephutha, sicela uhlole igama lakho lomsebenzisi nephasiwedi bese uzama futhi."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Ayikwazi ukuxhuma kwiseva."</string>
@@ -354,7 +357,7 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"I-password yokuvala isikrini iphelelwe isikhathi"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Idatha ye <xliff:g id="ACCOUNT">%s</xliff:g> iyasulwa kudivayisi yakho. Ungayibuyisa ngokushintsha iphinikhodi yakho yokuvala isikrini noma i-password. Ishintshe manje?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Lahla izinguquko ezingagciniwe?"</string>
-    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"ukungena ngemvume kwehlulekile"</string>
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Ukungena ngemvume kwehlulekile"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Igama lomsebenzisi noma i-password ka <xliff:g id="ACCOUNT">%s</xliff:g> ayilungile. Wabuyekeze manje?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"I-akhawunti ezenzakalelayo"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Thumela i-imeyli kusuka kule akhawunti ngokuzenzakalelayo"</string>
@@ -441,12 +444,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Kuvamile"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Okukhulu"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Khulu"</string>
-    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
-    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
-    <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
-    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
-    <skip />
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Phendula konke"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Yenza okuthi \"Phendula Konke\" kube okumisiwe kokuphenudula imiyalezo"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Buyisela okuzenzakalelayo koku \"Bonisa izithombe\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Buyisela okuzenzakalelayo kwabathumeli bonke (ungabonisi izithombe ngokuzenzakalelayo)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Bonisa izithombe\" ezisusiwe"</string>

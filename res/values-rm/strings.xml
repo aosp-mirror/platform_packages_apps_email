@@ -363,9 +363,15 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domena/num d\'utilisader"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilisar ina connexiun segira (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Acceptar tut ils certificats SSL"</string>
+    <!-- no translation found for account_setup_exchange_certificate_title (8473793588405277962) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_select_certificate (1536103662037268683) -->
+    <skip />
     <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
     <skip />
     <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_no_certificate (1119542961954780872) -->
     <skip />
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID dad apparats mobils"</string>
     <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Opziuns da conto"</string>

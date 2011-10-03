@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"モバイルアップロード"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"ローミング時にアップロード"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"データネットワークでのローミング時に画像と動画をアップロード"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"充電開始後にアップロード"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"充電中にアップロード"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"充電時にのみ画像と動画をアップロード"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"既存の画像をアップロード"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"既存の画像と動画を携帯端末から今すぐアップロード"</string>

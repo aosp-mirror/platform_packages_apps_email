@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"تحميلات الجوال"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"تحميلات التجوال"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"تحميل الصور ومقاطع الفيديو عند التجوال عبر شبكة بيانات"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"التحميلات المتأخرة بسبب البطارية"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"تحميلات عند الشحن"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"تحميل الصور ومقاطع الفيديو عند الشحن فقط"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"تحميل الصور الحالية"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"تحميل أية صور ومقاطع فيديو حالية من الهاتف الآن"</string>
