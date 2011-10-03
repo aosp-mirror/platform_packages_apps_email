@@ -1285,6 +1285,9 @@ public class MessageListFragment extends ListFragment
             }
             MessagesAdapter.MessagesCursor cursor = (MessagesAdapter.MessagesCursor) c;
 
+            // Update the list
+            mListAdapter.swapCursor(cursor);
+
             if (!cursor.mIsFound) {
                 mCallback.onMailboxNotFound();
                 return;
@@ -1314,9 +1317,6 @@ public class MessageListFragment extends ListFragment
                 // Show chips if combined view.
                 mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
             }
-
-            // Update the list
-            mListAdapter.swapCursor(cursor);
 
             // Various post processing...
             updateSearchHeader(cursor);
