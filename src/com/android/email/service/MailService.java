@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -175,9 +174,9 @@ public class MailService extends Service {
                         setWatchdog(accountId, alarmManager);
                     }
 
-                    // Start sync if account is given && bg data enabled && account has sync enabled
+                    // Start sync if account is given && auto-sync is allowed
                     boolean syncStarted = false;
-                    if (accountId != -1 && isBackgroundDataEnabled()) {
+                    if (accountId != -1 && ContentResolver.getMasterSyncAutomatically()) {
                         synchronized(mSyncReports) {
                             for (AccountSyncReport report: mSyncReports.values()) {
                                 if (report.accountId == accountId) {
@@ -654,15 +653,6 @@ public class MailService extends Service {
                 stopSelf(serviceId);
             }
         }
-    }
-
-    /**
-     * @see ConnectivityManager#getBackgroundDataSetting()
-     */
-    private boolean isBackgroundDataEnabled() {
-        ConnectivityManager cm =
-                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getBackgroundDataSetting();
     }
 
     public class EmailSyncStatusObserver implements SyncStatusObserver {
