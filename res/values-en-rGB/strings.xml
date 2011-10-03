@@ -289,8 +289,11 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain\\Username"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Use secure connection (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accept all SSL certificates"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Client certificate"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Select"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Use client certificate"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Remove"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"None"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobile Device ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Account settings"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Account options"</string>

@@ -289,8 +289,11 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"網域\\使用者名稱"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"使用安全連線 (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"接受所有安全資料傳輸層 (SSL) 憑證"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"用戶端憑證"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"選取"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"使用用戶端憑證"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"移除"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"無"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"行動裝置 ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"帳戶設定"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"帳戶選項"</string>
@@ -322,7 +325,7 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"無法安全地連線至伺服器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"無法安全地連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 7425428621499591492 -->     <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"需要使用者憑證才能連線至伺服器。"</string>
+    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"需要用戶端憑證。要透過用戶端憑證連線至伺服器嗎？"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"憑證無效或無法使用。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"伺服器傳回錯誤，請檢查您的使用者名稱和密碼，然後再試一次。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"無法連線至伺服器。"</string>
@@ -441,12 +444,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"適中"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"最大"</string>
-    <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
-    <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
-    <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
-    <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
-    <skip />
+    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"回覆所有人"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"將「回覆所有人」設為預設的回信方式"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"還原「顯示圖片」的預設值"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"還原所有寄件者的預設值 (不要自動顯示圖片)"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"「顯示圖片」已清除。"</string>

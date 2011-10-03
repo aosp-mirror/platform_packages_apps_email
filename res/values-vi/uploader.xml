@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Nội dung tải lên qua di động"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Nội dung tải lên khi chuyển vùng"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Tải lên ảnh &amp; video khi chuyển vùng dữ liệu trên mạng dữ liệu"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Nội dung tải lên khi sạc pin"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Tải lên khi sạc pin"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Chỉ tải ảnh &amp; video lên khi đang sạc"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Tải lên ảnh hiện có"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Tải lên mọi ảnh &amp; video hiện có từ điện thoại của bạn ngay bây giờ"</string>

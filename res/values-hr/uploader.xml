@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobilni prijenosi"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Prijenosi u roamingu"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Pošaljite fotografije i videozapise za vrijeme roaminga na mreži za prijenos podataka"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Šalji tijekom punjenja baterije"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Slanje tijekom punj."</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Prijenos fotografija i videozapisa samo tijekom punjenja"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Prijenos postojećih fotografija"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Prijenos svih postojećih fotografija i videozapisa s telefona sada"</string>

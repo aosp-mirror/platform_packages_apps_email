@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Przesyłanie z komórki"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Przesyłanie w roamingu"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"W roamingu przesyłaj zdjęcia i filmy przez sieć transmisji danych"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Przesyłanie podczas ładowania baterii"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Do naładowania baterii"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Przesyłaj zdjęcia i filmy tylko podczas ładowania"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Prześlij istniejące zdjęcia"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Prześlij teraz wszystkie zdjęcia i filmy z telefonu"</string>

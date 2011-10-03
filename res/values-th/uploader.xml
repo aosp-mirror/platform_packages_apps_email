@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"การอัปโหลดทางมือถือ"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"การอัปโหลดขณะโรมมิ่ง"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"อัปโหลดรูปภาพและวิดีโอเมื่อโรมมิ่งบนเครือข่ายข้อมูล"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"การอัปโหลดขณะชาร์จแบตเตอรี่"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"อัปโหลดขณะชาร์จแบต"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"อัปโหลดรูปภาพและวิดีโอเมื่อชาร์จเท่านั้น"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"อัปโหลดรูปภาพที่มีอยู่"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"อัปโหลดรูปภาพและวิดีโอที่มีอยู่จากโทรศัพท์ของคุณเดี๋ยวนี้"</string>

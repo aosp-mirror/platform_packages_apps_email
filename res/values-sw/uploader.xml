@@ -4,7 +4,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="application_name" msgid="7812006268714926951">"Upakiaji wa Papo Hapo"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Albamu ya Kupakia Moja kwa moja"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Albamu ya Kupakia Papo Hapo"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Inapakia"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Imemaliza"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Imepumzishwa"</string>
@@ -76,13 +76,13 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Sawazisha zote"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Usawazishaji wa Mwisho:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Orodha ya vipengee vilivyokamilika iko tupu."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Kupakia Moja kwa moja"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Upakiaji wa Papo hapo"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Upakiaji umekamilika"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Upakiaji umepumzishwa"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Upakiaji wa papo hapo bado haujawashwa"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"Faili kubwa zitapakia kupitia kwa muunganisho wa Wi-Fi pekee."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Inatafuta faili..."</string>
-    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g>Inaandaa picha na video  za kupakiwa <xliff:g id="VIDEOCOUNT">%2$d</xliff:g>..."</string>
+    <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Inaandaa kupakia picha<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> na video  za kupakiwa <xliff:g id="VIDEOCOUNT">%2$d</xliff:g>..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Hakuna picha/video za ziada zinazphitaji kupakiwa."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Kulikuwa na tatizo la kuwasiliana na seva. Tafadhali jaribu tena baadaye."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"Sawazisha zote zilizoghairiwa"</string>
@@ -94,7 +94,7 @@
     <string name="preference_title_need_power" msgid="9165152026296632685">"Nishati"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Pakia wakati simu yako inapochajiwa tu."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Mtandao-hewa"</string>
-    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Pakia tu wakati Mtandao hewa inapatikana."</string>
+    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Pakia tu wakati Mtandao-hewa unapatikana."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Picha"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Akaunti"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Masharti ya kupakia"</string>
@@ -120,18 +120,18 @@
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Mahiri"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Vipakizi vya simu ya mkononi"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Vipakizi vya urandaji"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Pakiza picha na video za &amp; wakati  wa urandaji katika mtandao wa data"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Pakia picha na video za na; wakati  wa urandaji katika mtandao wa data"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Vipakizi vya betri"</string>
-    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Pakia picha na video &amp; wakati unachaji pekee"</string>
+    <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Pakia picha na video na; viedo pekee unapochaji"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Pakia picha zilizopo"</string>
-    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Pakiza picha zozote zilizopo na video kutoka kwenye simu yako sasa"</string>
+    <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Pakia picha zozote zilizopo na video kutoka kwenye simu yako sasa"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Imelemazwa"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Inapakia (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d kati ya %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Pumzishwa: gusa ili kuendelea na upakiaji"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Pakia picha zilizopo"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Kupakua picha na video ambazo tayari hazijapakizwa kutoka kwenye simu yako kwa albamu faragha ya wavuti kunaweza kuchukua muda, lakini kutafanyika katika usuli. Una hakika unataka kuendelea?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Kupakia picha na video ambazo tayari hazijapakiwa kutoka kwenye simu yako kwa albamu faragha ya wavuti kunaweza kuchukua muda, lakini kutafanyika katika usuli. Una hakika unataka kuendelea?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Ndiyo"</string>
-    <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Hakuna"</string>
+    <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"La"</string>
 </resources>

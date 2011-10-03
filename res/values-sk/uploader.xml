@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Odovzdávanie pomocou mobilného dátového pripojenia"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Odovzdávanie pri roamingu"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Odovzdávať fotografie a videá v roamingu v dátovej sieti"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Odovzdávanie podľa batérie"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Odovzd. podľa batérie"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Odovzdávať fotografie a videá len počas nabíjania"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Odovzdať fotografie"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Odovzdanie všetkých fotografií a videí z telefónu"</string>
