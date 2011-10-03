@@ -339,7 +339,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             // Don't prefetch if background downloading is disallowed
             EmailConnectivityManager ecm = mConnectivityManager;
             if (ecm == null) return;
-            if (!ecm.isBackgroundDataAllowed()) return;
+            if (!ecm.isAutoSyncAllowed()) return;
             // Don't prefetch unless we're on a WiFi network
             if (ecm.getActiveNetworkType() != ConnectivityManager.TYPE_WIFI) {
                 return;

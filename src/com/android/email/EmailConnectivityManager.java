@@ -17,6 +17,7 @@
 package com.android.email;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -75,8 +76,8 @@ public class EmailConnectivityManager extends BroadcastReceiver {
         mContext.registerReceiver(this, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
-    public boolean isBackgroundDataAllowed() {
-        return mConnectivityManager.getBackgroundDataSetting();
+    public boolean isAutoSyncAllowed() {
+        return ContentResolver.getMasterSyncAutomatically();
     }
 
     public void stopWait() {
@@ -101,14 +102,6 @@ public class EmailConnectivityManager extends BroadcastReceiver {
      * @param networkType as defined by ConnectivityManager
      */
     public void onConnectivityLost(int networkType) {
-    }
-
-    /**
-     * Called when the user changes the state of the "Background Data" setting; this method should
-     * be overridden by subclasses as necessary.  NOTE: CALLED ON UI THREAD
-     * @param state the new state of the "Background Data" setting
-     */
-    public void onBackgroundDataChanged(boolean state) {
     }
 
     public void unregister() {
@@ -139,9 +132,6 @@ public class EmailConnectivityManager extends BroadcastReceiver {
                     onConnectivityLost(networkInfo.getType());
                 }
             }
-        } else if (intent.getAction().equals(
-                ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED)) {
-            onBackgroundDataChanged(isBackgroundDataAllowed());
         }
     }
 
