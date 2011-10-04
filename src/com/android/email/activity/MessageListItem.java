@@ -134,7 +134,9 @@ public class MessageListItem extends View {
     private Drawable mWideUnreadSelector;
 
     private CharSequence mFormattedSender;
-    private CharSequence mFormattedDate;
+    // We must initialize this to something, in case the timestamp of the message is zero (which
+    // should be very rare); this is otherwise set in setTimestamp
+    private CharSequence mFormattedDate = "";
 
     private void init(Context context) {
         mContext = context;
