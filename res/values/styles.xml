@@ -78,8 +78,7 @@
 
     <style name="widget_list_item">
         <item name="android:textColor">?android:attr/textColorSecondary</item>
-        <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">8dip</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
 
     <style name="message_details_label">
