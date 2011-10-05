@@ -17,15 +17,15 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- Permissions label for reading attachments -->
-    <string name="permission_read_attachment_label">Read Email attachments</string>
+    <string name="permission_read_attachment_label">Read email attachments</string>
     <!-- Permissions description for reading attachments -->
-    <string name="permission_read_attachment_desc">Allows this application to read your Email
+    <string name="permission_read_attachment_desc">Allows this application to read your email
         attachments.</string>
     <!-- Permissions label for accessing the main provider -->
-    <string name="permission_access_provider_label">Access Email provider data</string>
+    <string name="permission_access_provider_label">Access email provider data</string>
     <!-- Permissions description for accessing the main provider -->
-    <string name="permission_access_provider_desc">Allows this application to access your Email
-        database, including received messages, sent messages, user names and passwords.</string>
+    <string name="permission_access_provider_desc">Allows this application to access your email
+        database, including received messages, sent messages, usernames, and passwords.</string>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
@@ -118,9 +118,9 @@
     <string name="status_loading_messages">Loading messages\u2026</string>
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
-    <string name="status_network_error">Connection error</string>
+    <string name="status_network_error">Connection problem.</string>
     <!-- Dialog text when we are unable to load the message for display -->
-    <string name="error_loading_message_body">Unexpected error while loading message text.  Message
+    <string name="error_loading_message_body">Couldn\'t load the message text. The message
         may be too large to view.</string>
     <!-- Text shown with dragged messages to indicate how many are being dragged [CHAR LIMIT=40]-->
     <plurals name="move_messages">
@@ -129,15 +129,15 @@
     </plurals>
     <!-- Toast shown when a message(s) can't be moved because it's not supported by the POP3
         protocol. [CHAR LIMIT=none]-->
-    <string name="cannot_move_protocol_not_supported_toast">Move is not supported on POP3 accounts.
+    <string name="cannot_move_protocol_not_supported_toast">Move isn\'t supported on POP3 accounts.
         </string>
     <!-- Toast shown when messages can't be moved because the selection contains multiple accounts'
         messages. [CHAR LIMIT=none]-->
-    <string name="cannot_move_multiple_accounts_toast">Cannot move.  Selection contains multiple
+    <string name="cannot_move_multiple_accounts_toast">Can\'t move because selection contains multiple
         accounts.</string>
     <!-- Toast shown when messages can't be moved because they're in a special mailbox.  "Drafts",
         "Outbox" and "Sent". [CHAR LIMIT=none]-->
-    <string name="cannot_move_special_mailboxes_toast">Messages in Drafts, Outbox and Sent cannot be
+    <string name="cannot_move_special_mailboxes_toast">Messages in Drafts, Outbox, and Sent can\'t be
         moved.</string>
 
     <!-- Notification message in notifications window when one account has
@@ -169,7 +169,7 @@
         <xliff:g example="2">%1$d</xliff:g> new messages</string>
 
     <!-- Name given to "all accounts" in the account picker for shortcuts and widget [CHAR LIMIT=20] -->
-    <string name="account_name_display_all">All Accounts</string>
+    <string name="account_name_display_all">All accounts</string>
 
     <!-- The number of accounts configured. [CHAR LIMIT=16] -->
     <plurals name="number_of_accounts">
@@ -224,7 +224,7 @@
         Enable extra debug logging?</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
     <string name="debug_enable_exchange_logging_label" translatable="false">
-        Enable exchange parser logging? (Extremely verbose)</string>
+        Enable exchange parser logging? (extremely verbose)</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
     <string name="debug_enable_exchange_file_logging_label" translatable="false">
         Enable exchange sd card logging?</string>
@@ -357,8 +357,7 @@
     <string name="message_view_status_attachment_saved">Attachment saved
 as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Toast after attachment could not be saved [CHAR LIMIT=30] -->
-    <string name="message_view_status_attachment_not_saved">Unable to
-save attachment.</string>
+    <string name="message_view_status_attachment_not_saved">Couldn\'t save the attachment.</string>
     <!-- Toast upon using "send" when one or more attachments will need to be background loaded
       [CHAR LIMIT=none]-->
     <string name="message_view_attachment_background_load">Note: One or more attachments in your
@@ -390,7 +389,7 @@ save attachment.</string>
     <!-- Calendar invitation, label of the button to open in calendar [CHAR LIMIT=24] -->
     <string name="message_view_invite_view">View in Calendar</string>
     <!-- String shown with a calendar invitation. -->
-    <string name="message_view_invite_title">Calendar Invite</string>
+    <string name="message_view_invite_title">Calendar invite</string>
     <!-- String shown with a calendar invitation. -->
     <string name="message_view_invite_text">Going?</string>
     <!-- Button text: Calendar invitation: Accept. The leading space is used for spacing -->
@@ -400,69 +399,69 @@ save attachment.</string>
     <!-- Button text: Calendar invitation: Decline. The leading space is used for spacing -->
     <string name="message_view_invite_decline">" No"</string>
     <!-- Toast shown following a meeting invite reply, accepted -->
-    <string name="message_view_invite_toast_yes">You have accepted this invitation</string>
+    <string name="message_view_invite_toast_yes">You\'ve accepted this invitation.</string>
     <!-- Toast shown following a meeting invite reply, maybe -->
     <string name="message_view_invite_toast_maybe">
-        You have replied \"maybe\" to this invitation</string>
+        You\'ve replied \"maybe\" to this invitation.</string>
     <!-- Toast shown following a meeting invite reply, declined -->
-    <string name="message_view_invite_toast_no">You have declined this invitation</string>
+    <string name="message_view_invite_toast_no">You\'ve declined this invitation.</string>
     <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
     <!-- Link label to show to/cc/bcc of the curent message [CHAR LIMIT=32] -->
     <string name="message_view_show_details">Show details</string>
     <!-- Title of the dialog box to show to/cc/bcc of the message.  [CHAR LIMIT=32] -->
-    <string name="message_view_message_details_dialog_title">Message Details</string>
+    <string name="message_view_message_details_dialog_title">Message details</string>
 
     <!-- Title for most attachment info dialogs [CHAR LIMIT=32] -->
     <string name="attachment_info_dialog_default_title">Attachment info</string>
     <!-- Title when Wi-Fi settings prevent attachments from downloading [CHAR LIMIT=32] -->
-    <string name="attachment_info_dialog_wifi_title">Wi-Fi connection required</string>
+    <string name="attachment_info_dialog_wifi_title">WiFi connection required</string>
     <!-- Text of button to launch the Wi-Fi settings activity [CHAR LIMIT=24] -->
-    <string name="attachment_info_wifi_settings">Wi-Fi settings</string>
+    <string name="attachment_info_wifi_settings">WiFi settings</string>
     <!-- Text of button to launch the application settings activity [CHAR LIMIT=24] -->
-    <string name="attachment_info_application_settings">Application settings</string>
+    <string name="attachment_info_application_settings">App settings</string>
     <!-- Message body when we don't know exactly why an attachment can't be shown -->
     <string name="attachment_info_unknown">Can\'t open attachment.</string>
     <!-- Message body when the attachment is suspected of being malware -->
     <string name="attachment_info_malware">
-            Because this type of attachment may contain malicious software,
-            you can\'t save or open it.</string>
+            You can\'t save or open this file because this type of attachment
+            might contain malicious software.</string>
     <!-- Message body when the attachment can't be loaded due to security policy restrictions -->
     <string name="attachment_info_policy">
-            This attachment can\'t be saved or opened due to the security policies
-            in force for this account.</string>
+            This attachment can\'t be saved or opened because of
+            this account\'s security policies.</string>
     <!-- Message body when the attachment can only be downloaded over Wi-Fi -->
     <string name="attachment_info_wifi_only">
             This attachment is too large to download over a mobile network.
-            You can download it the next time you connect to a Wi-Fi network.</string>
+            You can download it the next time you connect to a WiFi network.</string>
     <!-- Message body when no activities can open the attachment -->
     <string name="attachment_info_no_intent">
-            There is no installed application that can open this attachment.
-            Try downloading an appropriate application from Android Market.</string>
+            There is no installed app that can open this attachment.
+            Try downloading an appropriate app from Android Market.</string>
     <!-- Message body when the attachment is an application, but, side loading is disabled -->
     <string name="attachment_info_sideload_disabled">
-            This attachment is an application. You must check "Unknown sources"
-            in Settings, under Applications, before you can install it.</string>
+            This attachment is an app. You must check Unknown Sources
+            in Settings &gt; Apps before you can install it.</string>
     <!-- Message body when the attachment is an application, and side loading is enabled -->
     <string name="attachment_info_apk_install_disabled">
-            Applications can\'t be installed directly from Email. First save
-            this application and then install it using the Downloads application.</string>
+            Apps can\'t be installed directly from email. First save
+            this app and then install it using the Downloads app.</string>
     <!-- Error banner when an attachment could not be downloaded due to a problem at the server
             [CHAR LIMIT=100] -->
-    <string name="attachment_not_found">The attachment could not be downloaded.</string>
+    <string name="attachment_not_found">Couldn\'t download the attachment.</string>
 
     <!-- String used in place of a message that could not be properly decoded (e.g. bad base64
          data was received.) [CHAR LIMIT=none] -->
-    <string name="message_decode_error">Error while decoding message.</string>
+    <string name="message_decode_error">There was an error while decoding the message.</string>
 
     <!-- Title of the EML viewer activity. [CHAR LIMIT=32] -->
     <string name="eml_view_title">Viewing
             <xliff:g id="filename" example="test.eml">%s</xliff:g></string>
 
-    <string name="message_delete_dialog_title">Discard message</string>
+    <string name="message_delete_dialog_title"></string>
     <!--Confirmation dialog text shown when user tries to delete messages.  [CHAR LIMIT=32] -->
     <plurals name="message_delete_confirm">
-        <item quantity="one">Discard this message?</item>
-        <item quantity="other">Discard these messages?</item>
+        <item quantity="one">Delete this message?</item>
+        <item quantity="other">Delete these messages?</item>
     </plurals>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
@@ -474,11 +473,11 @@ save attachment.</string>
     <!-- Toast shown briefly while saving a draft -->
     <string name="message_saved_toast">Message saved as draft.</string>
     <!-- String that is displayed when the attachment could not be displayed. -->
-    <string name="message_view_display_attachment_toast">This attachment cannot be
-        displayed.</string>
+    <string name="message_view_display_attachment_toast">Can\'t display
+        the attachment.</string>
     <!-- String that is displayed when the attachment could not be loaded.[CHAR LIMIT=none] -->
-    <string name="message_view_load_attachment_failed_toast">The attachment \"
-        <xliff:g id="filename">%s</xliff:g>\" could not be loaded.</string>
+    <string name="message_view_load_attachment_failed_toast">Couldn\'t load the attachment \"
+        <xliff:g id="filename">%s</xliff:g>\".</string>
     <!-- String that is displayed when a long message is being parsed. [CHAR LIMIT=none] -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
     <!-- Toast shown after moving a message to a different mailbox. [CHAR LIMIT=none]-->
@@ -490,15 +489,15 @@ save attachment.</string>
     </plurals>
 
     <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
-    <string name="forward_download_failed_ticker">Could not forward one or more attachments</string>
+    <string name="forward_download_failed_ticker">Couldn\'t forward one or more attachments.</string>
     <!-- Notification title when a forwarded attachment couldn't be sent [CHAR LIMIT=30]-->
     <string name="forward_download_failed_title">Attachment not forwarded</string>
 
     <!-- Notification ticker when email account authentication fails [CHAR LIMIT=none] -->
     <string name="login_failed_ticker">
-        <xliff:g id="account_name">%s</xliff:g> sign-in failed</string>
+        <xliff:g id="account_name">%s</xliff:g> signin failed.</string>
     <!-- Notification title when email account authentication fails [CHAR LIMIT=30]-->
-    <string name="login_failed_title">Sign-in failed</string>
+    <string name="login_failed_title">Signin failed</string>
 
     <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_bytes">
@@ -542,14 +541,14 @@ save attachment.</string>
         [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
-    <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
+    <string name="accounts_welcome">You can set up email for most accounts in just a few steps.
         </string>
     <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
-    <string name="accounts_welcome_exchange">You can configure an Exchange account in just a few
+    <string name="accounts_welcome_exchange">You can set up an Exchange account in just a few
         steps.</string>
     <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
     <string name="accounts_welcome_exchange_alternate">
-        You can configure an Exchange ActiveSync account in just a few steps.</string>
+        You can set up an Exchange ActiveSync account in just a few steps.</string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_label">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
@@ -563,13 +562,13 @@ save attachment.</string>
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know
         exactly what's wrong. -->
     <string name="account_setup_username_password_toast">
-        Please type a valid email address and password.</string>
+        Type a valid email address and password.</string>
     <!-- Title of dialog shown when a duplicate account is created -->
-    <string name="account_duplicate_dlg_title">Duplicate Account</string>
+    <string name="account_duplicate_dlg_title">Duplicate account</string>
     <!-- Message of dialog shown when a duplicate account is created.  The display name of
          the duplicate account is displayed. -->
     <string name="account_duplicate_dlg_message_fmt">
-        This login is already in use for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
+        You\'re already using this username for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
     </string>
     <!-- String that is displayed as error text for passwords with leading or trailing
          spaces.  [CHAR LIMIT=none] -->
@@ -599,7 +598,7 @@ save attachment.</string>
     <string name="account_setup_names_user_name_label">
         Your name (displayed on outgoing messages)</string>
     <!-- On "Set up email" screen, error pop-up when user_name field is empty [CHAR LIMIT=none] -->
-    <string name="account_setup_names_user_name_empty_error">This field cannot be blank</string>
+    <string name="account_setup_names_user_name_empty_error">This field can\'t be blank.</string>
 
     <!-- Activity Title for the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=45] -->
     <string name="account_setup_account_type_title">Account setup</string>
@@ -653,7 +652,7 @@ save attachment.</string>
         the desire for an encrypted session overlaid on a plain text session using the selected
         port, accepting all SSL certificates -->
     <string name="account_setup_incoming_security_tls_trust_certificates_label">
-        STARTTLS (Accept all certificates)</string>
+        STARTTLS (accept all certificates)</string>
     <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
         the desire for an encrypted session overlaid on a plain text session on the selected
         port, including SSL certificate checks -->
@@ -751,9 +750,9 @@ save attachment.</string>
     <!-- In Account setup options screen, check box to auto-download attachments  [CHAR LIMIT=none]
         -->
     <string name="account_setup_options_background_attachments_label">
-        Automatically download attachments when connected to Wi-Fi</string>
+        Automatically download attachments when connected to WiFi</string>
     <!-- Dialog title when "setup" could not finish -->
-    <string name="account_setup_failed_dlg_title">Setup could not finish</string>
+    <string name="account_setup_failed_dlg_title">Couldn\'t finish</string>
     <!-- In Account setup options screen, label for email lookback selector -->
     <string name="account_setup_options_mail_window_label">Days to sync</string>
     <!-- In account setup options & account settings screens (exchange), sync window length; this
@@ -782,47 +781,47 @@ save attachment.</string>
     <!-- An error message presented to the user when the server's identity
          cannot be established or trusted [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_dlg_certificate_message"
-        >Cannot safely connect to server.</string>
+        >Can\'t safely connect to server.</string>
     <!-- An error message presented to the user when the server's identity
          cannot be established or trusted [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_dlg_certificate_message_fmt"
-        >Cannot safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
+        >Can\'t safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
     <!-- An error message presented to the user when the server requires a
          client certificate to connect [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_certificate_required"
-        >Client certificate required. Connect to server with client certificate?</string>
+        >Client certificate is required. Connect to server with client certificate?</string>
     <!-- An error message presented to the user when the certificate they
          specified for connecting to a server is inaccessible [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_certificate_inaccessible"
-        >Certificate invalid or inaccessible.</string>
+        >Certificate is invalid or inaccessible.</string>
 
     <!-- Dialog text for ambiguous setup failure; server error/bad credentials [CHAR LIMIT=none] -->
     <string name="account_setup_failed_check_credentials_message">
-         The server responded with an error; please check your username and password
-         and try again.</string>
+         The server responded with an error. Check your username and password
+         then try again.</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server -->
-    <string name="account_setup_failed_dlg_server_message">Cannot connect to server.</string>
+    <string name="account_setup_failed_dlg_server_message">Can\'t connect to server.</string>
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server\n(Connection timed out) -->
-    <string name="account_setup_failed_dlg_server_message_fmt">Cannot connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
+    <string name="account_setup_failed_dlg_server_message_fmt">Can\'t connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
     <!-- Additional diagnostic text when TLS was required but the server doesn't support it -->
     <string name="account_setup_failed_tls_required">TLS required but not supported by server.</string>
     <!-- Additional diagnostic text when server does not support any of our authentication methods -->
-    <string name="account_setup_failed_auth_required">Authentication methods are not supported by server.</string>
+    <string name="account_setup_failed_auth_required">Authentication methods aren\'t supported by server.</string>
     <!-- Additional diagnostic text when server connection failed due to security error -->
-    <string name="account_setup_failed_security">Unable to open connection to server due to security error.</string>
+    <string name="account_setup_failed_security">Couldn\'t open connection to server due to security error.</string>
     <!-- Additional diagnostic text when server connection failed due to io error (connection) -->
-    <string name="account_setup_failed_ioerror">Unable to open connection to server.</string>
+    <string name="account_setup_failed_ioerror">Couldn\'t open connection to server.</string>
     <!-- Additional diagnostic text when server connection failed due to our inability to support a
          required EAS protocol version [CHAR LIMIT=none] -->
     <string name="account_setup_failed_protocol_unsupported">
-         You entered an incorrect server address or the server requires a protocol version that
-         Email does not support.</string>
+         You typed an incorrect server address or the server requires a protocol version that
+         Email doesn\'t support.</string>
     <!-- Additional diagnostic text when server access was denied; the user should contact the
          administrator of the server for more information [CHAR LIMIT=none] -->
     <string name="account_setup_failed_access_denied">
-         You do not have permission to sync with this server. Please contact your server\'s
+         You don\'t have permission to sync with this server. Contact your server\'s
          administrator for more information.</string>
 
     <!-- Dialog title when validation requires security provisioning (e.g. support
@@ -838,26 +837,26 @@ save attachment.</string>
     <!-- Additional diagnostic text when validation failed due to required provisioning not
          being supported [CHAR LIMIT=none] -->
     <string name="account_setup_failed_security_policies_unsupported">
-         This server requires security features that your Android device does not support,
+         This server requires security features that your Android device doesn\'t support,
           including: <xliff:g id="error">%s</xliff:g></string>
     <!-- The user name can only be changed during initial account setup. [CHAR LIMIT=none] -->
     <string name="account_setup_username_uneditable_error">You can\'t change an account\'s username.
-         To add an account with a different username, touch Add account.</string>
+         To add an account with a different username, touch Add Account.</string>
     <!-- Warning given to users when they request disabling device administration (i.e. that their
          administered accounts will be deleted) [CHAR LIMIT=none] -->
-    <string name="disable_admin_warning">WARNING: Deactivating the Email application\'s authority
-         to administer your device will delete all Email accounts that require it, along with their
+    <string name="disable_admin_warning">WARNING: Deactivating the Email app\'s authority
+         to administer your device will delete all email accounts that require it, along with their
          email, contacts, calendar events, and other data.</string>
 
     <!-- Dialog shown when the account requires some amount of device security provisioning,
          just before jumping into system settings such as Device Policy grant, PIN/password,
          or encryption setup.  [CHAR_LIMIT=40] -->
-    <string name="account_security_dialog_title">Security update required</string>
+    <string name="account_security_dialog_title">Security update</string>
     <!-- Additional diagnostic text when the account requires some amount of device security
          provisioning, just before jumping into system settings such as Device Policy grant,
          PIN/password, or encryption setup.  [CHAR LIMIT=none] -->
     <string name="account_security_dialog_content_fmt">
-         <xliff:g id="account">%s</xliff:g> requires you to update your security settings.</string>
+         <xliff:g id="account">%s</xliff:g> requires that you update your security settings.</string>
 
     <!-- Notification ticker when device security required (note: unused in Holo XL) -->
     <string name="security_notification_ticker_fmt">
@@ -866,7 +865,7 @@ save attachment.</string>
     <!-- Notification content title when device security required [CHAR_LIMIT=30] -->
     <string name="security_notification_content_title">Security update required</string>
     <!-- Title of the activity that dispatches changes to device security.  Not normally seen. -->
-    <string name="account_security_title">Device Security</string>
+    <string name="account_security_title">Device security</string>
     <!-- Additional diagnostic text when the email app asserts control of the phone.
         [CHAR LIMIT=none] -->
     <string name="account_security_policy_explanation_fmt">
@@ -878,7 +877,7 @@ save attachment.</string>
 
     <!-- Notification ticker when device password is getting ready to expire [CHAR_LIMIT=80] -->
     <string name="password_expire_warning_ticker_fmt">
-            \"<xliff:g id="account">%s</xliff:g>\" requires you to change your lock screen
+            \"<xliff:g id="account">%s</xliff:g>\" requires that you change your lock screen
             PIN or password.</string>
     <!-- Notification content title when device password is getting ready to expire
             [CHAR_LIMIT=30] -->
@@ -909,7 +908,7 @@ save attachment.</string>
 
     <!-- On AccountSettingsXL, dialog title if you were brought here due to a login failure.
         [CHAR_LIMIT=40] -->
-    <string name="account_settings_login_dialog_title">Sign-in failed</string>
+    <string name="account_settings_login_dialog_title">Couldn\'t sign in</string>
     <!-- On AccountSettingsXL, dialog content if you were brought here due to a login failure.
         [CHAR_LIMIT=none] -->
     <string name="account_settings_login_dialog_content_fmt">
@@ -927,7 +926,7 @@ save attachment.</string>
         Auto-download attachments</string>
     <!-- Summary of account preference for downloading attachments in background [CHAR LIMIT=64] -->
     <string name="account_settings_background_attachments_summary">
-        Automatically download attachments when connected to Wi-Fi</string>
+        Automatically download attachments when connected to WiFi</string>
     <string name="account_settings_notify_label">Email notifications</string>
     <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts
         [CHAR LIMIT=50] -->
@@ -971,7 +970,7 @@ save attachment.</string>
     <string name="save_action">Save</string>
 
     <!-- On settings screen, sync contacts check box label [CHAR LIMIT=20]-->
-    <string name="account_settings_sync_contacts_enable">Sync Contacts</string>
+    <string name="account_settings_sync_contacts_enable">Sync contacts</string>
     <!-- On settings screen, sync contacts summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_contacts_summary">Sync contacts for this account</string>
     <!-- On settings screen, sync calendar check box label [CHAR LIMIT=20]-->
@@ -979,7 +978,7 @@ save attachment.</string>
     <!-- On settings screen, sync calendar summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_calendar_summary">Sync calendar for this account</string>
     <!-- On settings screen, sync email check box label [CHAR LIMIT=20]-->
-    <string name="account_settings_sync_email_enable">Sync Email</string>
+    <string name="account_settings_sync_email_enable">Sync email</string>
     <!-- On settings screen, sync email summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_email_summary">Sync email for this account</string>
 
@@ -998,7 +997,7 @@ save attachment.</string>
     <string name="account_settings_vibrate_when_dlg_title">Vibrate</string>
 
     <!-- On Settings screen, setting option name -->
-    <string name="account_settings_ringtone">Select ringtone</string>
+    <string name="account_settings_ringtone">Choose ringtone</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_servers">Server settings</string>
     <!-- Title of Remove account confirmation dialog box -->
@@ -1027,28 +1026,28 @@ save attachment.</string>
     <!-- String displayed in launcher [CHAR_LIMIT=10] -->
     <string name="account_shortcut_picker_name">Email account</string>
     <!-- Title of the account list for the shortcut picker [CHAR_LIMIT=20] -->
-    <string name="account_shortcut_picker_title">Select an account</string>
+    <string name="account_shortcut_picker_title">Choose an account</string>
     <!-- Title of mailbox list for the shortcut picker [CHAR_LIMIT=20] -->
     <string name="mailbox_shortcut_picker_title">Select a folder</string>
 
     <!-- Toast shown when the selected account no longer exists.  This is used when, for example,
          a shotcut or a widget is stale and points at a deleted account.
          [CHAR_LIMIT=none]-->
-    <string name="toast_account_not_found">Account not found. It may have been removed.</string>
+    <string name="toast_account_not_found">Account wasn\'t found. It may have been removed.</string>
 
     <!-- Toast shown when the selected folder no longer exists.  This is used when, for example,
          a shotcut or a widget is stale and points at a deleted folder.
          [CHAR_LIMIT=none]-->
-    <string name="toast_mailbox_not_found">Folder not found. It may have been removed.</string>
+    <string name="toast_mailbox_not_found">Folder wasn\'t found. It may have been removed.</string>
 
     <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
     <string name="provider_note_live">Only some \"Plus\" accounts include POP access
-        allowing this program to connect. If you are not able to sign in with
+        allowing this program to connect. If you\'re not able to sign in with
         your correct email address and password, you may not have a paid
-        \"Plus\" account. Please launch the Web browser to gain access to
-        these mail accounts.</string>
+        \"Plus\" account. Launch the web browser to gain access to
+        these email accounts.</string>
     <!-- Message that appears when adding a T-Online account -->
-    <string name="provider_note_t_online">Before setting up this email account, please visit the T-Online Web site and create a password for POP3 email access.</string>
+    <string name="provider_note_t_online">Before setting up this email account, visit the T-Online website and create a password for POP3 email access.</string>
 
     <!-- Name of Microsoft Exchange account type; used by AccountManager -->
     <string name="exchange_name">Corporate</string>
@@ -1056,7 +1055,7 @@ save attachment.</string>
     <string name="exchange_name_alternate">Microsoft Exchange ActiveSync</string>
 
     <!-- Message that appears if the AccountManager cannot create the system Account -->
-    <string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
+    <string name="system_account_create_failed">Couldn\'t create the account. Try again.</string>
 
     <!-- Strings that support the DeviceAdmin / DevicePolicyManager API -->
     <!-- Name of the DeviceAdmin (seen in settings & in user confirmation screen) -->
@@ -1087,9 +1086,9 @@ save attachment.</string>
 
     <!-- General Preferences Screen -->
     <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
-    <string name="header_label_general_preferences">General Preferences</string>
+    <string name="header_label_general_preferences">General</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
-    <string name="category_general_preferences">Application Preferences</string>
+    <string name="category_general_preferences">Application</string>
 
     <!-- General preference: Label of the setting for the direction to move to
          when deleting the current message.
@@ -1099,7 +1098,7 @@ save attachment.</string>
          when deleting the current message.
          Options contain "newer message","older message", etc. [CHAR LIMIT=64] -->
     <string name="general_preference_auto_advance_summary">
-         Select which screen to show after you delete a message</string>
+         Choose which screen to show after you delete a message</string>
     <!-- General preference: Title of the dialog box containing options for setting for
          the direction to move to when deleting the current message.
          Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->
@@ -1124,11 +1123,11 @@ save attachment.</string>
          general_preference_text_zoom_small, general_preference_text_zoom_normal, etc.
          [CHAR LIMIT=64] -->
     <string-array name="general_preference_text_zoom_summary_array">
-        <item>Display content of messages in tiny sized text</item>
-        <item>Display content of messages in small sized text</item>
-        <item>Display content of messages in normal sized text</item>
-        <item>Display content of messages in large sized text</item>
-        <item>Display content of messages in huge sized text</item>
+        <item>Tiny text</item>
+        <item>Small text</item>
+        <item>Normal-sized text</item>
+        <item>Large text</item>
+        <item>Huge text</item>
     </string-array>
     <!-- General preference: Title of the dialog box with options for text zoom. [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_dialog_title">Message text size</string>
@@ -1158,7 +1157,7 @@ save attachment.</string>
         >Restore default for all senders (don\'t show pictures automatically)</string>
     <!-- Message shown in toast when the user taps to clear the lsit of senders
          to automatically show pictures for [CHAR LIMIT=80] -->
-    <string name="trusted_senders_cleared">\"Show pictures\" cleared.</string>
+    <string name="trusted_senders_cleared">\"Show pictures\" was cleared.</string>
 
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
@@ -1167,11 +1166,11 @@ save attachment.</string>
     <!-- Message shown during the first sync after an account is set up.  [CHAR LIMIT=NONE] -->
     <string name="waitinf_for_sync_message_1">Waiting for sync</string>
     <!-- Message shown during the first sync after an account is set up.  [CHAR LIMIT=NONE] -->
-    <string name="waitinf_for_sync_message_2">Your email will appear shortly.</string>
+    <string name="waitinf_for_sync_message_2">Your email will appear soon.</string>
 
     <!-- Widget -->
     <!-- Instruction for how to move to different widget views [CHAR LIMIT=20] -->
-    <string name="widget_other_views">Tap icon to change</string>
+    <string name="widget_other_views">Touch icon to change.</string>
     <!-- Header for the "Combined Inbox" view (showing mail in all inboxes) [CHAR LIMIT=20] -->
     <string name="widget_all_mail">Combined Inbox</string>
     <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->
@@ -1182,7 +1181,7 @@ save attachment.</string>
     <string name="widget_loading">Loading\u2026</string>
     <!-- Shown when no accounts are configured and the widget supports changing
          on the fly [CHAR LIMIT=35] -->
-    <string name="widget_touch_to_configure">Touch to configure</string>
+    <string name="widget_touch_to_configure">Touch to set up.</string>
     <!-- Shown in a toast when no accounts are configured and the Email widget
          cannot be created in the first place [CHAR LIMIT=none] -->
     <string name="widget_no_accounts">You haven\'t set up an email account yet.</string>
