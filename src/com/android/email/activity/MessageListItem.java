@@ -373,7 +373,7 @@ public class MessageListItem extends View {
                     mColorChipPaint);
         }
 
-        int fontColor = (isActivated() || isPressed()) ? sFontColorActivated : sFontColor;
+        int fontColor = isActivated() ? sFontColorActivated : sFontColor;
 
         // Draw the checkbox
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
