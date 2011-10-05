@@ -192,7 +192,7 @@
         <activity
             android:name=".activity.ShortcutPicker"
             android:enabled="false"
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
+            android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge"
             >
             <intent-filter
                 android:label="@string/account_shortcut_picker_name">
@@ -464,7 +464,7 @@
         <activity
             android:name=".widget.WidgetConfiguration"
             android:enabled="false"
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
+            android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge"
             >
             <intent-filter
                 android:label="@string/account_shortcut_picker_name">
