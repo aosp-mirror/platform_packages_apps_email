@@ -3,8 +3,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="7812006268714926951">"Anında Yükleme"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Albümü Anında Yükleme"</string>
+    <string name="application_name" msgid="7812006268714926951">"Hızlı Yükleme"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Hızlı Yükleme Albümü"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Yükleniyor"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Tamamlandı"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Duraklatıldı"</string>
@@ -76,10 +76,10 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Tümünü senkronize et"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Son Senkronizasyon:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Tamamlanmış öğeler listesi boş."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Anında Yükleme"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Hızlı Yükleme"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Yüklemeler tamamlandı"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Yüklemeler duraklatıldı"</string>
-    <string name="notify_activation_reminder" msgid="1639234651193843030">"Anında Yükleme henüz etkinleştirilmedi"</string>
+    <string name="notify_activation_reminder" msgid="1639234651193843030">"Hızlı Yükleme henüz etkinleştirilmedi"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"Büyük boyutlu dosyalar yalnızca Kablosuz bağlantı kullanılarak yüklenecektir."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Dosyalar taranıyor..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> fotoğraf ve <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video yüklenmek üzere hazırlanıyor..."</string>
@@ -108,13 +108,13 @@
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Fotoğraflar ve videolar mobil ağlar üzerinden"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Fotoğraflar ve videolar yalnızca Kablosuz üzerinden"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Hakkında"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Anında Yüklme Sürümü"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Hızlı Yükleme Sürümü"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Önerilen: 1600 piksel (paylaşım, yazdırma ve ekran koruyucular için)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Orijinal boyut (en yavaş yükleme)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"duraklatıldı - SD kart kullanılamıyor"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD kart kullanılamıyor"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Hızlı Yükleme ayarları"</string>
-    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Anında Yükleme"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Hızlı Yükleme ayrlrı"</string>
+    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Hızlı Yükleme"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Yeni fotoğrafları ve videoları kişisel web albümüne otomatik olarak yükle"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Yükleme durumu"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"İleri Düzey"</string>

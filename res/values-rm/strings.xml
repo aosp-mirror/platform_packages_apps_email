@@ -16,12 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <!-- no translation found for permission_read_attachment_label (9208086010625033590) -->
     <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <!-- no translation found for permission_read_attachment_desc (6592948507403743153) -->
     <skip />
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a las datas dal provider dad e-mail"</string>
-    <!-- outdated translation 1513898266889541617 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"\"Permetta a questa applicaziun dad acceder a Vossa banca da datas dad e-mails, inclus messadis retschavids e tramess, nums d\'utilisader e pleds-clav.\""</string>
+    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Acceder a las datas dal provider dad e-mail"</string>
+    <!-- outdated translation 1513898266889541617 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"\"Permetta a questa applicaziun dad acceder a Vossa banca da datas dad e-mails, inclus messadis retschavids e tramess, nums d\'utilisader e pleds-clav.\""</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Nov messadi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -75,15 +75,15 @@
     <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
     <skip />
     <string name="status_loading_messages" msgid="6552307237621292344">"Ils messadis vegnan chargiads…"</string>
-    <string name="status_network_error" msgid="6045933332005067021">"Errur da connexiun"</string>
-    <string name="error_loading_message_body" msgid="2265140604109272914">"Ina errur nunspetgada è cumparida cun chargiar il text dal messadi. Eventualmain è il text memia lung per vegnir mussà."</string>
+    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Errur da connexiun"</string>
+    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Ina errur nunspetgada è cumparida cun chargiar il text dal messadi. Eventualmain è il text memia lung per vegnir mussà."</string>
     <!-- no translation found for move_messages:one (320885379869442589) -->
     <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (6558083148128616292) -->
     <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <!-- no translation found for cannot_move_multiple_accounts_toast (7922594026384944163) -->
     <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <!-- no translation found for cannot_move_special_mailboxes_toast (7093107954841896970) -->
     <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nunlegì (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -98,7 +98,7 @@
     <skip />
     <!-- no translation found for notification_multiple_new_messages_fmt (2606649762841566104) -->
     <skip />
-    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <!-- no translation found for account_name_display_all (837218861494831989) -->
     <skip />
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
@@ -195,7 +195,7 @@
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Fermar"</string>
     <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
     <skip />
-    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impussibel da memorisar l\'agiunta sin la carta SD."</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Impussibel da memorisar l\'agiunta sin la carta SD."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Remartga: Ina u pliras agiuntas en Voss messadi renvià vegn(an) telechargiada(s) avant la spediziun."</string>
     <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
     <skip />
@@ -211,67 +211,67 @@
     <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
     <skip />
     <string name="message_view_invite_view" msgid="5521032519960111675">"Mussar en il chalender"</string>
-    <string name="message_view_invite_title" msgid="5024473745902772299">"Invitaziun da chalender"</string>
+    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Invitaziun da chalender"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Participar?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Gea"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Forsa"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Na"</string>
-    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Vus avais acceptà questa invitaziun."</string>
-    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Vus avais respundì «Forsa» a questa invitaziun."</string>
-    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Vus avais refusà questa invitaziun."</string>
+    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Vus avais acceptà questa invitaziun."</string>
+    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Vus avais respundì «Forsa» a questa invitaziun."</string>
+    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Vus avais refusà questa invitaziun."</string>
     <!-- no translation found for message_view_show_details (6287415596441037095) -->
     <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <!-- no translation found for message_view_message_details_dialog_title (9042008615386883449) -->
     <skip />
     <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
     <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <!-- no translation found for attachment_info_dialog_wifi_title (3433085933207351929) -->
     <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <!-- no translation found for attachment_info_wifi_settings (3275768005981284687) -->
     <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <!-- no translation found for attachment_info_application_settings (4124655487276125596) -->
     <skip />
     <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
     <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <!-- no translation found for attachment_info_malware (6576029010855055528) -->
     <skip />
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <!-- no translation found for attachment_info_policy (3560422300127587508) -->
     <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <!-- no translation found for attachment_info_wifi_only (1952445279772844815) -->
     <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <!-- no translation found for attachment_info_no_intent (8139209405745777924) -->
     <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <!-- no translation found for attachment_info_sideload_disabled (3270731101769840006) -->
     <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <!-- no translation found for attachment_info_apk_install_disabled (2817790592227462682) -->
     <skip />
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <!-- no translation found for attachment_not_found (7155322700141145123) -->
     <skip />
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
+    <!-- no translation found for message_decode_error (5016042255170947834) -->
     <skip />
     <!-- no translation found for eml_view_title (8827210108543430336) -->
     <skip />
-    <!-- no translation found for message_delete_dialog_title (7189172554183139772) -->
-    <skip />
-    <!-- no translation found for message_delete_confirm:one (8452608582303152000) -->
-    <!-- no translation found for message_delete_confirm:other (5071164417794016228) -->
+    <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
+    <!-- no translation found for message_delete_confirm:one (3799616435056423256) -->
+    <!-- no translation found for message_delete_confirm:other (4437637377522896262) -->
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Messadi stizzà"</item>
     <item quantity="other" msgid="6574961322865652255">"Stizzà ils messadis"</item>
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Stizzà il messadi"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Memorisà il messadi sco sboz."</string>
-    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Impussibel da mussar questa agiunta."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Impussibel da chargiar l\'agiunta <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Impussibel da mussar questa agiunta."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
+    <skip />
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Avrir il messadi..."</string>
     <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
     <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
-    <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Ina agiunta n\'ha betg pudì vegnir renviada"</string>
+    <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Ina agiunta n\'ha betg pudì vegnir renviada"</string>
     <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
     <skip />
-    <!-- no translation found for login_failed_ticker (7452091306512654139) -->
+    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
     <skip />
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
+    <!-- no translation found for login_failed_title (791871543602843876) -->
     <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -300,18 +300,19 @@
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agiuntar in conto Exchange ActiveSync"</string>
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
     <skip />
-    <string name="accounts_welcome" msgid="5901437782383439370">"Vus pudais configurar il sistem dad e-mail da la gronda part dals contos cun paucs pass."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Vus pudais configurar in conto Exchange cun be paucs pass."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Vus pudais configurar in conto Exchange ActiveSync cun be paucs pass."</string>
+    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Vus pudais configurar il sistem dad e-mail da la gronda part dals contos cun paucs pass."</string>
+    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Vus pudais configurar in conto Exchange cun be paucs pass."</string>
+    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Vus pudais configurar in conto Exchange ActiveSync cun be paucs pass."</string>
     <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
     <skip />
     <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
     <skip />
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Trametter ils e-mails tenor standard cun quest conto"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuraziun manuala"</string>
-    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Endatai ina adressa dad e-mail valida ed il pled-clav correct."</string>
-    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Duplitgar il conto"</string>
-    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Questas infurmaziuns da connexiun vegnan gia utilisadas per il conto «<xliff:g id="DUPLICATE">%s</xliff:g>»."</string>
+    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Endatai ina adressa dad e-mail valida ed il pled-clav correct."</string>
+    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplitgar il conto"</string>
+    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
+    <skip />
     <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
     <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperar las infurmaziuns davart il conto…"</string>
@@ -322,7 +323,7 @@
     <skip />
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dar in num al conto (facultativ)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Voss num (vegn mussà en messadis che sortan)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <!-- no translation found for account_setup_names_user_name_empty_error (6791427018325367364) -->
     <skip />
     <!-- outdated translation 6645576356752495504 -->     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Agiuntar in nov conto dad e-mail"</string>
     <!-- no translation found for account_setup_account_type_headline (3574102329184831086) -->
@@ -340,7 +341,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nagin"</string>
     <!-- outdated translation 3581382268191377346 -->     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL (acceptar tut ils certificats)"</string>
     <!-- outdated translation 8886698397743061682 -->     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL"</string>
-    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"TLS (acceptar tut ils certificats)"</string>
+    <!-- outdated translation 1089227022489257055 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"TLS (acceptar tut ils certificats)"</string>
     <!-- outdated translation 8638006172590036487 -->     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Stizzar ils e-mails dal server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Mai"</string>
@@ -390,9 +391,9 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronisar ils contacts da quest conto"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincronisar il chalender da quest conto"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronisar ils e-mails da quest conto."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (6759055024748351429) -->
     <skip />
-    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Impussibel da terminar l\'installaziun"</string>
+    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Impussibel da terminar l\'installaziun"</string>
     <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Quantitad da sincronisar"</string>
     <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
     <skip />
@@ -406,44 +407,46 @@
     <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Num d\'utilisader u pled-clav nuncorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Num d\'utilisader u pled-clav nuncorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impussibel da stabilir ina connexiun segirada cun il server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (6885740669437744865) -->
+    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
+    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
     <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
+    <!-- no translation found for account_setup_failed_certificate_required (1280569002588325367) -->
     <skip />
-    <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
+    <!-- no translation found for account_setup_failed_certificate_inaccessible (7245835883180762722) -->
     <skip />
-    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impussibel da stabilir ina connexiun cun il server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Impussibel da stabilir ina connexiun cun il server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_check_credentials_message (222908719765968691) -->
+    <skip />
+    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Impussibel da stabilir ina connexiun cun il server."</string>
+    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
+    <skip />
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS è obligatoric ma na vegn betg sustegnì dal server."</string>
-    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Las metodas d\'autentificaziun na vegnan betg sustegnidas dal server."</string>
-    <string name="account_setup_failed_security" msgid="6142264248671379943">"Impussibel da stabilir ina connexiun cun il server per motiv dad ina errur da segirezza."</string>
-    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impussibel da stabilir ina connexiun cun il server."</string>
-    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Las metodas d\'autentificaziun na vegnan betg sustegnidas dal server."</string>
+    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Impussibel da stabilir ina connexiun cun il server per motiv dad ina errur da segirezza."</string>
+    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Impussibel da stabilir ina connexiun cun il server."</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (4607759927226943569) -->
     <skip />
-    <!-- no translation found for account_setup_failed_access_denied (2571826611383388336) -->
+    <!-- no translation found for account_setup_failed_access_denied (6835358740050287051) -->
     <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administraziun da la segirezza a distanza"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
     <skip />
-    <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
+    <!-- no translation found for account_setup_username_uneditable_error (1618869759801584109) -->
     <skip />
-    <!-- no translation found for disable_admin_warning (4940147098039352135) -->
+    <!-- no translation found for disable_admin_warning (6196985268695592382) -->
     <skip />
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <!-- no translation found for account_security_dialog_title (430041952584831904) -->
     <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
     <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» basegna ina actualisaziun dals parameters da segirezza."</string>
     <!-- outdated translation 8096231937552848281 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Actualisar ils parameters da segirezza"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Protecziun da l\'apparat"</string>
+    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Protecziun da l\'apparat"</string>
     <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
     <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifitgar ils detagls"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
+    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
     <skip />
     <!-- no translation found for password_expire_warning_content_title (7174669014074849304) -->
     <skip />
@@ -461,7 +464,7 @@
     <skip />
     <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
     <skip />
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <!-- no translation found for account_settings_login_dialog_title (4024422579146302775) -->
     <skip />
     <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
     <skip />
@@ -469,7 +472,7 @@
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Trametter ils e-mails tenor standard cun quest conto"</string>
     <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
+    <!-- no translation found for account_settings_background_attachments_summary (323937814012234081) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Avis ad e-mails"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"\"Frequenza da sincronisaziun, avis, etc.\""</string>
@@ -496,11 +499,11 @@
     <skip />
     <!-- no translation found for save_action (1988862706623227093) -->
     <skip />
-    <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sincronisar ils contacts"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronisar ils contacts"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronisar ils contacts per quest conto"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sincronisar il chalender"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sincronisar il chalender per quest conto"</string>
-    <string name="account_settings_sync_email_enable" msgid="4305222662654506074">"Sincronisaziun dad e-mail"</string>
+    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronisaziun dad e-mail"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronisar ils e-mails per quest conto"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Era vibrar sch\'in e-mail arriva"</string>
@@ -508,7 +511,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Mo sche silenzius"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Mai"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrar"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Tscherner in tun da scalin"</string>
+    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Tscherner in tun da scalin"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Parameters dal server"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Stizzar il conto"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» vegn stizzà da Voss e-mail."</string>
@@ -526,19 +529,19 @@
     <skip />
     <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
     <skip />
-    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <!-- no translation found for account_shortcut_picker_title (1039929224016048015) -->
     <skip />
     <!-- no translation found for mailbox_shortcut_picker_title (4152973927804882131) -->
     <skip />
-    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
+    <!-- no translation found for toast_account_not_found (8144242451730692816) -->
     <skip />
-    <!-- no translation found for toast_mailbox_not_found (4035254695648112767) -->
+    <!-- no translation found for toast_mailbox_not_found (4960014581292378895) -->
     <skip />
-    <string name="provider_note_live" msgid="3584841823811425060">"Mo tscherts contos «plus» includan l\'access POP e permettan uschia a quest program da stabilir ina connexiun. Sche Vus na pudais betg s\'annunziar cun Vossa adressa d\'e-mail ed il pled-clav correct n\'avais Vus eventualmain betg in conto «plus» (che custa). Aviai Voss navigatur da web per acceder quests contos dad e-mail."</string>
-    <string name="provider_note_t_online" msgid="1973701903400232774">"Visitai per plaschair la pagina d\'internet da T-Online e creai in pled-clav per l\'access dad e-mail POP avant che configurar quest conto dad e-mail."</string>
+    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Mo tscherts contos «plus» includan l\'access POP e permettan uschia a quest program da stabilir ina connexiun. Sche Vus na pudais betg s\'annunziar cun Vossa adressa d\'e-mail ed il pled-clav correct n\'avais Vus eventualmain betg in conto «plus» (che custa). Aviai Voss navigatur da web per acceder quests contos dad e-mail."</string>
+    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Visitai per plaschair la pagina d\'internet da T-Online e creai in pled-clav per l\'access dad e-mail POP avant che configurar quest conto dad e-mail."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Da fatschenta"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"Impussibel da crear il conto cun l\'administratur da contos. Empruvai anc ina giada."</string>
+    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"Impussibel da crear il conto cun l\'administratur da contos. Empruvai anc ina giada."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Activescha las directivas da segirezza specificas per il server"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Tschertgar <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -548,11 +551,11 @@
   </plurals>
     <!-- no translation found for settings_activity_title (5185915603716333904) -->
     <skip />
-    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="265431682990288581">"Preferenzas dad e-mail"</string>
-    <string name="category_general_preferences" msgid="6810399722493971651">"Preferenzas dad applicaziun"</string>
+    <!-- outdated translation 7548527595339881066 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Preferenzas dad e-mail"</string>
+    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Preferenzas dad applicaziun"</string>
     <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
     <skip />
-    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <!-- no translation found for general_preference_auto_advance_summary (6483439980032715119) -->
     <skip />
     <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
     <skip />
@@ -564,11 +567,11 @@
     <skip />
     <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
     <skip />
-    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:0 (4693576184223089069) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:1 (4415205108584620118) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:2 (4550219696381691112) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:3 (6227813549949219991) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:4 (1197917420815786571) -->
     <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
@@ -591,15 +594,15 @@
     <skip />
     <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
     <skip />
-    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
+    <!-- no translation found for trusted_senders_cleared (8079053907862270420) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
     <!-- no translation found for waitinf_for_sync_message_1 (1393719303955128036) -->
     <skip />
-    <!-- no translation found for waitinf_for_sync_message_2 (8850585407012152631) -->
+    <!-- no translation found for waitinf_for_sync_message_2 (5656175205790694016) -->
     <skip />
-    <!-- no translation found for widget_other_views (2265335608760083337) -->
+    <!-- no translation found for widget_other_views (4988574907386539499) -->
     <skip />
     <!-- no translation found for widget_all_mail (4352573990283094963) -->
     <skip />
@@ -609,7 +612,7 @@
     <skip />
     <!-- no translation found for widget_loading (2340962056927255554) -->
     <skip />
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <!-- no translation found for widget_touch_to_configure (7062039013915225323) -->
     <skip />
     <!-- no translation found for widget_no_accounts (2412482205591224408) -->
     <skip />
