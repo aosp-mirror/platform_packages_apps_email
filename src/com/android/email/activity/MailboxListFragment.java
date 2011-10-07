@@ -552,7 +552,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         mParentMailboxId = savedInstanceState.getLong(BUNDLE_KEY_PARENT_MAILBOX_ID);
-        mHighlightedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_HIGHLIGHTED_MAILBOX_ID);
+        mNextHighlightedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_HIGHLIGHTED_MAILBOX_ID);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
@@ -784,6 +784,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 MailboxFragmentAdapter.CursorWithExtras c =
                         (MailboxFragmentAdapter.CursorWithExtras) cursor;
                 if ((c.mChildCount == 0) && !isRoot()) {
+                    // Always swap out the cursor so we don't hold a reference to a stale one.
+                    mListAdapter.swapCursor(cursor);
                     navigateUp();
                     return;
                 }
@@ -804,15 +806,20 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 // icon.
                 mListAdapter.swapCursor(null);
                 setListShown(false);
+
             } else {
                 mParentDetermined = true; // Okay now we're sure which mailbox is the parent.
 
                 mListAdapter.swapCursor(cursor);
                 setListShown(true);
 
+                // Restore the list state, so scroll position is restored - this has to happen
+                // prior to setting the checked/highlighted mailbox below.
+                lv.onRestoreInstanceState(listState);
+
                 // Update the highlighted mailbox
                 if (mNextHighlightedMailboxId != Mailbox.NO_MAILBOX) {
-                    mHighlightedMailboxId = mNextHighlightedMailboxId;
+                    setHighlightedMailbox(mNextHighlightedMailboxId);
                     mNextHighlightedMailboxId = Mailbox.NO_MAILBOX;
                 }
 
@@ -828,9 +835,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // List has been reloaded; clear any drop target information
             mDropTargetId = NO_DROP_TARGET;
             mDropTargetView = null;
-
-            // Restore the list state.
-            lv.onRestoreInstanceState(listState);
 
             mIsFirstLoad = false;
         }
