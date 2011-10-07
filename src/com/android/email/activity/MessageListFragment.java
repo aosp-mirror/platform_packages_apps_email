@@ -48,7 +48,6 @@ import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -81,7 +80,7 @@ import java.util.Set;
  * {@link #isViewCreated()}.
  */
 public class MessageListFragment extends ListFragment
-        implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
+        implements OnItemLongClickListener, MessagesAdapter.Callback,
         MoveMessageToDialog.Callback, OnDragListener, OnTouchListener {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
     private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
@@ -405,7 +404,6 @@ public class MessageListFragment extends ListFragment
         super.onActivityCreated(savedInstanceState);
 
         final ListView lv = getListView();
-        lv.setOnItemClickListener(this);
         lv.setOnItemLongClickListener(this);
         lv.setOnTouchListener(this);
         lv.setItemsCanFocus(false);
@@ -594,7 +592,7 @@ public class MessageListFragment extends ListFragment
      * Called when a message is clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onListItemClick(ListView parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
             onMessageOpen(itemView.mMailboxId, id);
@@ -783,7 +781,27 @@ public class MessageListFragment extends ListFragment
      * @param messageId ID of the message to open.
      */
     private void onMessageOpen(final long messageMailboxId, final long messageId) {
+        if ((mMailbox != null) && (mMailbox.mId == messageMailboxId)) {
+            // Normal case - the message belongs in the mailbox list we're viewing.
+            mCallback.onMessageOpen(messageId, messageMailboxId,
+                    getMailboxId(), callbackTypeForMailboxType(mMailbox.mType));
+            return;
+        }
+
+        // Weird case - a virtual mailbox where the messages could come from different mailbox
+        // types - here we have to query the DB for the type.
         new MessageOpenTask(messageMailboxId, messageId).cancelPreviousAndExecuteParallel();
+    }
+
+    private int callbackTypeForMailboxType(int mailboxType) {
+        switch (mailboxType) {
+            case Mailbox.TYPE_DRAFTS:
+                return Callback.TYPE_DRAFT;
+            case Mailbox.TYPE_TRASH:
+                return Callback.TYPE_TRASH;
+            default:
+                return Callback.TYPE_REGULAR;
+        }
     }
 
     /**
@@ -804,14 +822,8 @@ public class MessageListFragment extends ListFragment
             // Restore the mailbox type.  Note we can't use mMailbox.mType here, because
             // we don't have mMailbox for combined mailbox.
             // ("All Starred" can contain any kind of messages.)
-            switch (Mailbox.getMailboxType(mActivity, mMessageMailboxId)) {
-                case Mailbox.TYPE_DRAFTS:
-                    return Callback.TYPE_DRAFT;
-                case Mailbox.TYPE_TRASH:
-                    return Callback.TYPE_TRASH;
-                default:
-                    return Callback.TYPE_REGULAR;
-            }
+            return callbackTypeForMailboxType(
+                    Mailbox.getMailboxType(mActivity, mMessageMailboxId));
         }
 
         @Override
