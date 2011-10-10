@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Nahrávání pomocí mobilního datového připojení"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Nahrávání při roamingu"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Nahrávat fotky a videa při roamingu v datové síti"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Nahr. podle baterie"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Nahrávání dle baterie"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Fotografie a videa nahrávat jen při nabíjení"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Nahrát existující fotky"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Nahrát všechny existující fotky a videa z telefonu"</string>

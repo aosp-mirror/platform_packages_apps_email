@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="618768999416116023">"Read Email attachments"</string>
-    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Allows this application to read your email attachments."</string>
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"Access Email provider data"</string>
-    <string name="permission_access_provider_desc" msgid="2549843731779487336">"Allows this application to access your Email database, including received messages, sent messages, usernames and passwords."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Read email attachments"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Allows this application to read your email attachments."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Access email provider data"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Allows this application to access your email database, including received messages, sent messages, usernames and passwords."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Compose"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choose attachment"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Move to"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Loading messages…"</string>
-    <string name="status_network_error" msgid="6045933332005067021">"Connection error"</string>
-    <string name="error_loading_message_body" msgid="2265140604109272914">"Unexpected error while loading message text. Message may be too large to view."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Connection problem."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Couldn\'t load the message text. The message may be too large to view."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Move message"</item>
     <item quantity="other" msgid="371256717624461324">"Move messages"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Move is not supported on POP3 accounts."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Cannot move. Selection contains multiple accounts."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Messages in Drafts, Outbox and Sent cannot be moved."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Move isn\'t supported on POP3 accounts."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Can\'t move because selection contains multiple accounts."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Messages in Drafts, Outbox and Sent can\'t be moved."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> unread (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> unread (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"to <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> new messages"</string>
-    <string name="account_name_display_all" msgid="4041817500580342035">"All Accounts"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"All accounts"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> accounts"</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Saved"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stop"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Attachment saved as <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Unable to save attachment."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Couldn\'t save the attachment."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Note: One or more attachments in your forwarded message will be downloaded prior to sending."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Message"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Invite"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Always show pictures from this sender"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Pictures from this sender will be shown automatically."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"View in Calendar"</string>
-    <string name="message_view_invite_title" msgid="5024473745902772299">"Calendar Invite"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Calendar invite"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Going?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Yes"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Maybe"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" No"</string>
-    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"You have accepted the invitation"</string>
-    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"You have replied \"maybe\" to this invitation"</string>
-    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"You have declined this invitation"</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"You\'ve accepted this invitation."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"You have replied \"maybe\" to this invitation"</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"You\'ve declined this invitation."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Show details"</string>
-    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Message Details"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Message details"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Attachment info"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi connection required"</string>
-    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi settings"</string>
-    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Application settings"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Wi-Fi connection required"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi settings"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"App settings"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Can\'t open attachment."</string>
-    <string name="attachment_info_malware" msgid="1478505616946912328">"Because this type of attachment may contain malicious software, you can\'t save or open it."</string>
-    <string name="attachment_info_policy" msgid="328224012587376154">"This attachment can\'t be saved or opened due to the security policies in force for this account."</string>
-    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"This attachment is too large to download over a mobile network. You can download it the next time that you connect to a Wi-Fi network."</string>
-    <string name="attachment_info_no_intent" msgid="5277484372596654977">"There is no installed application that can open this attachment. Try downloading an appropriate application from Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"This attachment is an application. You must check Unknown sources in Settings, under Applications, before you can install it."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Applications can\'t be installed directly from Email. First save this application and then install it using the Downloads application."</string>
-    <string name="attachment_not_found" msgid="2593390852574725378">"Sorry, the attachment could not be downloaded."</string>
-    <string name="message_decode_error" msgid="7812862491622388416">"Error while decoding message."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"You can\'t save or open this file because this type of attachment might contain malicious software."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"This attachment can\'t be saved or opened because of this account\'s security policies."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"This attachment is too large to download over a mobile network. You can download it the next time that you connect to a Wi-Fi network."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"There is no installed app that can open this attachment. Try downloading an appropriate app from Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"This attachment is an app. You must tick Unknown Sources in Settings &gt; Apps before you can install it."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps can\'t be installed directly from email. Save this app first and then install it using the Downloads app."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Couldn\'t download the attachment."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"There was an error while decoding the message."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Viewing <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_delete_dialog_title" msgid="7189172554183139772">"Discard message"</string>
+    <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <item quantity="one" msgid="8452608582303152000">"Discard this message?"</item>
-    <item quantity="other" msgid="5071164417794016228">"Discard these messages?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Delete this message"</item>
+    <item quantity="other" msgid="4437637377522896262">"Delete these messages?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Message deleted."</item>
@@ -201,17 +201,17 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Message discarded."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Message saved as draft."</string>
-    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"This attachment cannot be displayed."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"The attachment \" <xliff:g id="FILENAME">%s</xliff:g>\" could not be loaded."</string>
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Can\'t display the attachment."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Couldn\'t load the attachment \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Opening message…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> message moved to <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messages moved to <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="forward_download_failed_ticker" msgid="328380505427633405">"Could not forward one or more attachments"</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Could not forward one or more attachments"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Attachment not forwarded"</string>
-    <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> sign-in failed"</string>
-    <string name="login_failed_title" msgid="6948780582524747622">"Sign-in failed"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> sign-in failed."</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Sign-in failed"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -235,16 +235,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Add an Exchange account"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Add an Exchange ActiveSync account"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Email account"</string>
-    <string name="accounts_welcome" msgid="5901437782383439370">"You can configure Email for most accounts in just a few steps."</string>
-    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"You can configure an Exchange account in just a few steps."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"You can configure an Exchange ActiveSync account in just a few steps."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"You can set up email for most accounts in just a few steps."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"You can set up an Exchange account in just a few steps."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"You can set up an Exchange ActiveSync account in just a few steps."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Email address"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Password"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send email from this account by default."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manual setup"</string>
-    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Please type a valid email address and password."</string>
-    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Duplicate Account"</string>
-    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"This login is already in use for the account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Type a valid email address and password."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicate Account"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"You\'re already using this username for the account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"This password starts or ends with one or more space characters. Many servers don\'t support passwords with spaces."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Retrieving account information…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Checking incoming server settings…"</string>
@@ -253,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Your account is set up and email is on its way!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Give this account a name (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Your name (displayed on outgoing messages)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"This field cannot be blank"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"This field can\'t be blank."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Account setup"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Account type"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"What type of account is this?"</string>
@@ -268,7 +268,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"None"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Accept all certificates)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2033477209532207648">"STARTTLS (Accept all certificates)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (accept all certificates)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Delete email from server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Never"</string>
@@ -310,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sync contacts from this account."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sync calendar from this account."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sync email from this account."</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automatically download attachments when connected to Wi-Fi"</string>
-    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Setup could not finish"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Automatically download attachments when connected to Wi-Fi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Couldn\'t finish"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Days to sync"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatic"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"One day"</string>
@@ -323,32 +323,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Use account\'s default"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Username or password incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Username or password incorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Cannot safely connect to server."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Cannot safely connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="6885740669437744865">"Client certificate required. Connect to server with client certificate?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Certificate invalid or inaccessible."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"The server responded with an error. Please check your username and password and try again."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Cannot connect to server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Cannot connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Can\'t safely connect to server."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Can\'t safely connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Client certificate is required. Connect to server with client certificate?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificate is invalid or inaccessible."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"The server responded with an error. Check your username and password and then try again."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Can\'t connect to server."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Can\'t connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS required but not supported by server."</string>
-    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Authentication methods are not supported by server."</string>
-    <string name="account_setup_failed_security" msgid="6142264248671379943">"Unable to open connection to server due to security error."</string>
-    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Unable to open connection to server."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"You\'ve entered an incorrect server address or the server requires a protocol version that Email does not support."</string>
-    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"You do not have permission to sync with this server. Please contact your server\'s administrator for more information."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Authentication methods aren\'t supported by server."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Couldn\'t open connection to server due to security error."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Couldn\'t open connection to server."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"You\'ve typed an incorrect server address or the server requires a protocol version that Email doesn\'t support."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"You don\'t have permission to sync with this server. Contact your server\'s administrator for more information."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Remote security administration"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"The server <xliff:g id="SERVER">%s</xliff:g> requires that you allow it to remotely control some security features of your Android device. Do you want to finish setting up this account?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"This server requires security features that your Android device does not support, including: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"You can\'t change an account\'s username. To add an account with a different username, touch Add account."</string>
-    <string name="disable_admin_warning" msgid="4940147098039352135">"WARNING: Deactivating the Email application\'s authority to administer your device will delete all Email accounts that require it, along with their emails, contacts, calendar events and other data."</string>
-    <string name="account_security_dialog_title" msgid="1340675800634074043">"Security update required"</string>
-    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> requires you to update your security settings."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"This server requires security features that your Android device doesn\'t support, including: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"You can\'t change an account\'s username. To add an account with a different username, touch Add account."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"WARNING: Deactivating the Email app\'s authority to administer your device will delete all email accounts that require it, along with their email, contacts, calendar events and other data."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Security update"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> requires you to update your security settings."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires security settings update."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Security update required"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Device Security"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Device Security"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"The server <xliff:g id="SERVER">%s</xliff:g> requires that you allow it to remotely control some security features of your Android device."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edit details"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires you to change your lock-screen PIN or password."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires you to change your lock-screen PIN or password."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Lock-screen password expiring"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Your lock-screen PIN or password has expired."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Lock-screen password expired"</string>
@@ -357,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Lock-screen password expired"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"The data for <xliff:g id="ACCOUNT">%s</xliff:g> is being erased from your device. You can restore it by changing your lock-screen PIN or password. Change it now?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Discard unsaved changes?"</string>
-    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Sign-in failed"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Couldn\'t sign in"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"The username or password for <xliff:g id="ACCOUNT">%s</xliff:g> is incorrect. Update them now?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Default account"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send email from this account by default"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Auto-download attachments"</string>
-    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Automatically download attachments when connected to Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Automatically download attachments when connected to Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Email notifications"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sync frequency, notifications, etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notify in System bar when emails arrive"</string>
@@ -381,11 +381,11 @@
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Data usage"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit quick response"</string>
     <string name="save_action" msgid="1988862706623227093">"Save"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sync contacts"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sync contacts"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sync contacts for this account"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sync Calendar"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sync calendar for this account"</string>
-    <string name="account_settings_sync_email_enable" msgid="4305222662654506074">"Sync Email"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sync Email"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sync email for this account"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrate"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Also vibrate when email arrives"</string>
@@ -393,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Only when silent"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Never"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrate"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Select ring tone"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Choose ringtone"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Server settings"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Remove account"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"The account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" will be removed from email."</string>
@@ -405,15 +405,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Check frequency"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Days to sync"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Email account"</string>
-    <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Select an account"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Choose an account"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Select a folder"</string>
-    <string name="toast_account_not_found" msgid="2483831308629565584">"Account not found. It may have been removed."</string>
-    <string name="toast_mailbox_not_found" msgid="4035254695648112767">"Folder not found. It may have been removed."</string>
-    <string name="provider_note_live" msgid="3584841823811425060">"Only some \"Plus\" accounts include POP access allowing this programme to connect. If you are not able to sign in with your correct email address and password, you may not have a paid \"Plus\" account. Please launch the web browser to gain access to these mail accounts."</string>
-    <string name="provider_note_t_online" msgid="1973701903400232774">"Before setting up this email account, please visit the T-Online website and create a password for POP3 email access."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Account wasn\'t found. It may have been removed."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Folder wasn\'t found. It may have been removed."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Only some \"Plus\" accounts include POP access allowing this programme to connect. If you\'re not able to sign in with your correct email address and password, you may not have a paid \"Plus\" account. Launch the web browser to gain access to these email accounts."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Before setting up this email account, please visit the T-Online website and create a password for POP3 email access."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"The Account Manager could not create the Account. Please try again."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Couldn\'t create the account. Try again."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Email"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Enables server-specified security policies"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Searching <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -422,21 +422,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> results from <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Settings"</string>
-    <string name="header_label_general_preferences" msgid="265431682990288581">"General Preferences"</string>
-    <string name="category_general_preferences" msgid="6810399722493971651">"Application Preferences"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"General"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Application"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Auto-advance"</string>
-    <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Select which screen to show after you delete a message"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Select which screen to show after you delete a message"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Advance to"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Newer message"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Older message"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Message list"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Message text size"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="1728778773460367725">"Display content of messages in tiny-sized text"</item>
-    <item msgid="8239633518447359057">"Display content of messages in small-sized text"</item>
-    <item msgid="55959821477704302">"Display content of messages in normal-sized text"</item>
-    <item msgid="446236334663020508">"Display content of messages in large-sized text"</item>
-    <item msgid="235926149071179467">"Display content of messages in huge-sized text"</item>
+    <item msgid="4693576184223089069">"Tiny text"</item>
+    <item msgid="4415205108584620118">"Small text"</item>
+    <item msgid="4550219696381691112">"Normal-sized text"</item>
+    <item msgid="6227813549949219991">"Large text"</item>
+    <item msgid="1197917420815786571">"Huge text"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Message text size"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Tiny"</string>
@@ -448,16 +448,16 @@
     <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Make \'Reply all\' the default for responding to messages"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Restore default for \"Show pictures\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Restore default for all senders (don\'t show pictures automatically)"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Show pictures\" cleared."</string>
+    <string name="trusted_senders_cleared" msgid="8079053907862270420">"\"Show pictures\" was cleared."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> of <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Waiting for sync"</string>
-    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Your email will appear shortly."</string>
-    <string name="widget_other_views" msgid="2265335608760083337">"Tap icon to change"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Your email will appear soon."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Touch icon to change."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Combined Inbox"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Unread"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Starred"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Loading…"</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Touch to configure"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Touch to set up."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"You haven\'t set up an email account yet."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Search emails"</string>

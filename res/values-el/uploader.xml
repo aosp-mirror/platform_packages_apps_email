@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Μεταφορτώσεις για κινητά"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Μεταφορτώσεις περιαγωγής"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Μεταφόρτωση φωτογραφιών και βίντεο κατά την περιαγωγή σε δίκτυο δεδομένων"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Μεταφορτώσεις μπαταρίας"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Μεταφ. με μπαταρία"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Μεταφόρτωση φωτογραφιών και βίντεο μόνο κατά τη φόρτιση"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Μεταφόρτωση υπαρχουσών φωτογραφιών"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Άμεση μεταφόρτωση όλων των υπαρχουσών φωτογραφιών και βίντεο από το τηλέφωνό σας"</string>
