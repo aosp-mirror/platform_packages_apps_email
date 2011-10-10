@@ -74,13 +74,16 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         mNextButton.setOnClickListener(this);
 
         TextWatcher validationTextWatcher = new TextWatcher() {
+            @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
+            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         };
@@ -162,16 +165,18 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
      * Check input fields for legal values and enable/disable next button
      */
     private void validateFields() {
-        boolean newEnabled = true;
+        boolean enableNextButton = true;
         // Validation is based only on the "user name" field, not shown for EAS accounts
         if (!mEasAccount) {
             String userName = mName.getText().toString().trim();
-            newEnabled = !TextUtils.isEmpty(userName);
-            if (!newEnabled) {
+            if (TextUtils.isEmpty(userName)) {
+                enableNextButton = false;
                 mName.setError(getString(R.string.account_setup_names_user_name_empty_error));
+            } else {
+                mName.setError(null);
             }
         }
-        mNextButton.setEnabled(newEnabled);
+        mNextButton.setEnabled(enableNextButton);
     }
 
     /**
