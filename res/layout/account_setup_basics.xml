@@ -45,12 +45,14 @@
         </FrameLayout>
 
         <!-- Buttons below -->
+        <!-- In order to show these buttons above the IME keyboard, we need to special case the to
+        padding to a smaller height. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/common"
             android:orientation="horizontal"
-            android:paddingTop="@dimen/settings_buttons_padding_top"
+            android:paddingTop="16dip"
             android:paddingBottom="@dimen/settings_buttons_padding_bottom"
             >
             <Button
