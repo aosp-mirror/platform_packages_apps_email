@@ -165,7 +165,7 @@ public class MessageListFragment extends ListFragment
         /**
          * Called when the specified mailbox does not exist.
          */
-        public void onMailboxNotFound();
+        public void onMailboxNotFound(boolean firstLoad);
 
         /**
          * Called when the user wants to open a message.
@@ -206,7 +206,7 @@ public class MessageListFragment extends ListFragment
         public static final Callback INSTANCE = new EmptyCallback();
 
         @Override
-        public void onMailboxNotFound() {
+        public void onMailboxNotFound(boolean isFirstLoad) {
         }
 
         @Override
@@ -1301,7 +1301,7 @@ public class MessageListFragment extends ListFragment
             mListAdapter.swapCursor(cursor);
 
             if (!cursor.mIsFound) {
-                mCallback.onMailboxNotFound();
+                mCallback.onMailboxNotFound(mIsFirstLoad);
                 return;
             }
 
