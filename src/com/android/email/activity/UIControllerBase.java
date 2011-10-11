@@ -902,10 +902,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
     // MessageListFragment.Callback
     @Override
-    public void onMailboxNotFound() {
+    public void onMailboxNotFound(boolean isFirstLoad) {
         // Something bad happened - the account or mailbox we were looking for was deleted.
         // Just restart and let the entry flow find a good default view.
-        Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
+        if (isFirstLoad) {
+            // Only show this if it's the first load (e.g. a shortcut) rather an a return to
+            // a mailbox (which might be in a just-deleted account)
+            Utility.showToast(mActivity, R.string.toast_mailbox_not_found);
+        }
         long accountId = getUIAccountId();
         if (accountId != Account.NO_ACCOUNT) {
             mActivity.startActivity(Welcome.createOpenAccountInboxIntent(mActivity, accountId));
