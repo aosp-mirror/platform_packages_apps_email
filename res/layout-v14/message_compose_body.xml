@@ -18,6 +18,7 @@
 
     <EditText android:id="@+id/message_content"
         style="@style/LargeComposeAreaBody"
+        android:hint="@string/message_compose_body_hint"
         />
 
 </LinearLayout>
