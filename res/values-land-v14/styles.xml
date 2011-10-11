@@ -35,7 +35,7 @@
         <item name="android:paddingTop">0dip</item>
     </style>
 
-    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+    <style name="RecipientEditTextViewStyle" parent="@style/RecipientEditTextView">
         <item name="android:minHeight">36dip</item>
         <item name="android:gravity">bottom</item>
     </style>
@@ -46,7 +46,7 @@
         <item name="android:minHeight">38dip</item>
     </style>
 
-    <style name="EmailComposeEditTextView">
+    <style name="ComposeEditTextView">
         <item name="android:minHeight">40dip</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_height">wrap_content</item>

@@ -20,7 +20,8 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 # Include res dir from chips
 chips_dir := ../../../frameworks/ex/chips/res
-res_dir := $(chips_dir) res
+mail_common_dir := ../../../frameworks/opt/mailcommon/res
+res_dir := $(chips_dir) $(mail_common_dir) res
 
 LOCAL_MODULE_TAGS := optional
 
