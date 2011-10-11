@@ -36,7 +36,7 @@ automatically saved by framework.-->
                 android:id="@+id/label"/>
 
             <com.android.email.activity.ChipsAddressTextView
-                style="@style/EmailRecipientEditTextView"
+                style="@style/RecipientEditTextViewStyle"
                 android:id="@+id/to" />
         </LinearLayout>
 
@@ -65,7 +65,7 @@ automatically saved by framework.-->
                     android:id="@+id/label"/>
 
                 <com.android.email.activity.ChipsAddressTextView
-                    style="@style/EmailRecipientEditTextView"
+                    style="@style/RecipientEditTextViewStyle"
                     android:id="@+id/cc" />
             </LinearLayout>
 
@@ -86,7 +86,7 @@ automatically saved by framework.-->
                     android:id="@+id/label"/>
 
                 <com.android.email.activity.ChipsAddressTextView
-                    style="@style/EmailRecipientEditTextView"
+                    style="@style/RecipientEditTextViewStyle"
                     android:id="@+id/bcc" />
             </LinearLayout>
 

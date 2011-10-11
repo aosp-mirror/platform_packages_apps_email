@@ -29,7 +29,7 @@ automatically saved by framework.-->
             android:text="@string/message_compose_to_label"
             />
         <com.android.email.activity.ChipsAddressTextView
-            style="@style/EmailRecipientEditTextView"
+            style="@style/RecipientEditTextViewStyle"
             android:id="@+id/to" />
     </LinearLayout>
 
@@ -52,7 +52,7 @@ automatically saved by framework.-->
                 android:text="@string/message_compose_cc_label"
                 />
             <com.android.email.activity.ChipsAddressTextView
-                style="@style/EmailRecipientEditTextView"
+                style="@style/RecipientEditTextViewStyle"
                 android:id="@+id/cc" />
         </LinearLayout>
 
@@ -67,7 +67,7 @@ automatically saved by framework.-->
                 android:text="@string/message_compose_bcc_label"
                 />
             <com.android.email.activity.ChipsAddressTextView
-                style="@style/EmailRecipientEditTextView"
+                style="@style/RecipientEditTextViewStyle"
                 android:id="@+id/bcc" />
         </LinearLayout>
     </LinearLayout>

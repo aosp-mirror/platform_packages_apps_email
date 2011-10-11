@@ -22,7 +22,7 @@
         />
     <EditText
         android:id="@+id/subject"
-        style="@style/EmailComposeEditTextView"
+        style="@style/ComposeEditTextView"
         android:inputType
             ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
         android:imeOptions="actionNext"

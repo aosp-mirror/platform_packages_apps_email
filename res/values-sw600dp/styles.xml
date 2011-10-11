@@ -195,12 +195,12 @@
     <style name="RecipientComposeFieldLayout" parent="@style/ComposeFieldRelLayout">
     </style>
 
-    <style name="EmailRecipientEditTextView" parent="@style/RecipientEditTextView">
+    <style name="RecipientEditTextViewStyle" parent="@style/RecipientEditTextView">
         <item name="android:minHeight">0dip</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="EmailComposeEditTextView">
+    <style name="ComposeEditTextView">
         <item name="android:minHeight">0dip</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_height">wrap_content</item>
