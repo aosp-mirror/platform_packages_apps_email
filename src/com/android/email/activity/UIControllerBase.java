@@ -984,11 +984,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
         Preconditions.checkNotNull(mListContext);
 
-        final long mailboxId = mListContext.getMailboxId();
-        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
+        if (mOrderManager == null || !mOrderManager.getListContext().equals(mListContext)) {
             stopMessageOrderManager();
-            mOrderManager =
-                new MessageOrderManager(mActivity, mailboxId, mMessageOrderManagerCallback);
+            mOrderManager = new MessageOrderManager(
+                    mActivity, mListContext, mMessageOrderManagerCallback);
         }
         mOrderManager.moveTo(getMessageId());
         updateNavigationArrows();

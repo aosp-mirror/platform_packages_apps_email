@@ -16,16 +16,17 @@
 
 package com.android.email.activity;
 
-import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.utility.DelayedOperations;
-
 import android.content.Context;
 import android.database.AbstractCursor;
 import android.database.Cursor;
 import android.os.Handler;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.email.MessageListContext;
+import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.utility.DelayedOperations;
 
 import junit.framework.Assert;
 
@@ -256,7 +257,8 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
     public void testWithActualClass() {
         // There are not many things we can test synchronously.
         // Just open & close just to make sure it won't crash.
-        MessageOrderManager mom = new MessageOrderManager(getContext(), 1, new MyCallback());
+        MessageOrderManager mom = new MessageOrderManager(
+                getContext(), MessageListContext.forMailbox(1, 1), new MyCallback());
         mom.moveTo(123);
         mom.close();
     }
@@ -307,7 +309,8 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         public boolean mStartQueryCalled;
 
         public MessageOrderManagerForTest(Context context, long mailboxId, Callback callback) {
-            super(context, mailboxId, callback, new NonDelayedOperations());
+            super(context, MessageListContext.forMailbox(1, mailboxId),
+                    callback, new NonDelayedOperations());
         }
 
         @Override void startQuery() {
@@ -345,7 +348,7 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
     }
 
     private static class MyCursor extends AbstractCursor {
-        private long[] mList;
+        private final long[] mList;
 
         public MyCursor(long... idList) {
             mList = (idList == null) ? new long[0] : idList;
