@@ -74,7 +74,11 @@ public class SSLUtils {
         if (keyManager != null) {
             underlying.setKeyManagers(new KeyManager[] { keyManager });
         }
-        return new SSLSocketFactory(underlying);
+        SSLSocketFactory wrapped = new SSLSocketFactory(underlying);
+        if (insecure) {
+            wrapped.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        }
+        return wrapped;
     }
 
     /**
