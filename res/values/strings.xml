@@ -304,7 +304,7 @@
     <!-- Label for Subject field [CHAR LIMIT=12] -->
     <string name="message_compose_subject_label">Subject:</string>
     <!-- Hint text in Message composer body field -->
-    <string name="message_compose_body_hint">Compose Mail</string>
+    <string name="message_compose_body_hint">Compose email</string>
     <!-- Header for forwarded original messages -->
     <string name="message_compose_fwd_header_fmt">\n\n-------- Original Message --------\nSubject: <xliff:g id="subject">%1$s</xliff:g>\nFrom: <xliff:g id="sender">%2$s</xliff:g>\nTo: <xliff:g id="to">%3$s</xliff:g>\nCC: <xliff:g id="cc">%4$s</xliff:g>\n\n</string>
     <!-- Header for replied-to messages -->
