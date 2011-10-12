@@ -17,7 +17,7 @@
     style="@style/ComposeFieldLayout">
     <!-- TODO: consolidate this style with ComposeSubjectStyle -->
     <EditText android:id="@+id/subject"
-        style="@style/EmailComposeEditTextView"
+        style="@style/ComposeEditTextView"
         android:hint="@string/message_compose_subject_hint"
         android:inputType="textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine"
         android:textColorHint="@color/compose_label_text"
