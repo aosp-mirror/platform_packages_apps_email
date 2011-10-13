@@ -312,6 +312,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             views.setViewVisibility(R.id.tap_to_configure, View.GONE);
             // Create click intent for "compose email" target
             intent = MessageCompose.getMessageComposeIntent(mContext, mAccountId);
+            intent.putExtra(MessageCompose.EXTRA_FROM_WIDGET, true);
             setActivityIntent(views, R.id.widget_compose, intent);
             // Create click intent for logo to open inbox
             intent = Welcome.createOpenAccountInboxIntent(mContext, mAccountId);
