@@ -18,8 +18,8 @@
 
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
-    <dimen name="message_list_item_height_wide">70dip</dimen>
-    <dimen name="message_list_item_height_normal">70dip</dimen>
+    <dimen name="message_list_item_height_wide">70sp</dimen>
+    <dimen name="message_list_item_height_normal">70sp</dimen>
     <dimen name="message_list_item_color_tip_width">35dip</dimen>
     <dimen name="message_list_item_color_tip_height">6dip</dimen>
     <dimen name="message_list_badge_margin">4dip</dimen>
