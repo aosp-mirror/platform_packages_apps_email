@@ -474,9 +474,9 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="message_saved_toast">Message saved as draft.</string>
     <!-- String that is displayed when the attachment could not be displayed. -->
     <string name="message_view_display_attachment_toast">Can\'t display
-        the attachment.</string>
+        attachment.</string>
     <!-- String that is displayed when the attachment could not be loaded.[CHAR LIMIT=none] -->
-    <string name="message_view_load_attachment_failed_toast">Couldn\'t load the attachment \"
+    <string name="message_view_load_attachment_failed_toast">Couldn\'t load attachment \"
         <xliff:g id="filename">%s</xliff:g>\".</string>
     <!-- String that is displayed when a long message is being parsed. [CHAR LIMIT=none] -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
@@ -497,7 +497,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="login_failed_ticker">
         <xliff:g id="account_name">%s</xliff:g> signin failed.</string>
     <!-- Notification title when email account authentication fails [CHAR LIMIT=30]-->
-    <string name="login_failed_title">Signin failed</string>
+    <string name="login_failed_title">Couldn\'t sign in</string>
 
     <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_bytes">
@@ -923,10 +923,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On Settings screen, setting option name -->
     <!-- Title of account preference for downloading attachments in background [CHAR LIMIT=32] -->
     <string name="account_settings_background_attachments_label">
-        Auto-download attachments</string>
+        Download attachments</string>
     <!-- Summary of account preference for downloading attachments in background [CHAR LIMIT=64] -->
     <string name="account_settings_background_attachments_summary">
-        Automatically download attachments when connected to WiFi</string>
+        Auto-download attachments to recent messages via WiFi</string>
     <string name="account_settings_notify_label">Email notifications</string>
     <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts
         [CHAR LIMIT=50] -->
@@ -1145,19 +1145,19 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!--  Settings screen, Reply to all default setting title  [CHAR LIMIT=30] -->
     <string msgid="6469564953937885304" name="general_preference_reply_all_label">Reply all</string>
     <!--  Settings screen, Reply to all default setting summary [CHAR LIMIT=70] -->
-    <string msgid="3356918650886350497" name="general_preference_reply_all_summary">Make \'Reply all\' the default for responding to messages</string>
+    <string msgid="3356918650886350497" name="general_preference_reply_all_summary">Make \"Reply all\" the default for message replies</string>
 
     <!-- Settings screen, title used to clear the setting for the list of
          senders to automatically show pictures for [CHAR LIMIT=80] -->
     <string name="general_preferences_clear_trusted_senders_title"
-        >Restore default for \"Show pictures\"</string>
+        >Ask to show pictures</string>
     <!-- Settings screen, summary for clearing the settings for the list of
          senders to automatically show pictures for [CHAR LIMIT=160] -->
     <string name="general_preferences_clear_trusted_senders_summary"
-        >Restore default for all senders (don\'t show pictures automatically)</string>
+        >Pictures in messages won\'t be shown automatically</string>
     <!-- Message shown in toast when the user taps to clear the lsit of senders
          to automatically show pictures for [CHAR LIMIT=80] -->
-    <string name="trusted_senders_cleared">\"Show pictures\" was cleared.</string>
+    <string name="trusted_senders_cleared">\"Show pictures\" cleared.</string>
 
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
