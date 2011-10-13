@@ -287,9 +287,8 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
      */
     @Override
     protected boolean isRefreshEnabled() {
-        // - Don't show for combined inboxes, but
-        // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list
-        return getActualAccountId() != Account.NO_ACCOUNT;
+        return getActualAccountId() != Account.NO_ACCOUNT
+                && (mListContext.getMailboxId() > 0);
     }
 
 

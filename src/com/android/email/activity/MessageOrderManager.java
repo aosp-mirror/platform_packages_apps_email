@@ -16,6 +16,14 @@
 
 package com.android.email.activity;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.os.Handler;
+
+import com.android.email.MessageListContext;
+import com.android.email.activity.MessageOrderManager.Callback;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
@@ -24,12 +32,6 @@ import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.os.Handler;
 
 /**
  * Used by {@link MessageView} to determine the message-id of the previous/next messages.
@@ -55,7 +57,7 @@ public class MessageOrderManager {
     private final Context mContext;
     private final ContentResolver mContentResolver;
 
-    private final long mMailboxId;
+    private final MessageListContext mListContext;
     private final ContentObserver mObserver;
     private final Callback mCallback;
     private final DelayedOperations mDelayedOperations;
@@ -121,18 +123,18 @@ public class MessageOrderManager {
         }
     }
 
-    public MessageOrderManager(Context context, long mailboxId, Callback callback) {
-        this(context, mailboxId, callback, new DelayedOperations(Utility.getMainThreadHandler()));
+    public MessageOrderManager(Context context, MessageListContext listContext, Callback callback) {
+        this(context, listContext, callback, new DelayedOperations(Utility.getMainThreadHandler()));
     }
 
     @VisibleForTesting
-    MessageOrderManager(Context context, long mailboxId, Callback callback,
+    MessageOrderManager(Context context, MessageListContext listContext, Callback callback,
             DelayedOperations delayedOperations) {
-        Preconditions.checkArgument(mailboxId != Mailbox.NO_MAILBOX);
+        Preconditions.checkArgument(listContext.getMailboxId() != Mailbox.NO_MAILBOX);
         mContext = context.getApplicationContext();
         mContentResolver = mContext.getContentResolver();
         mDelayedOperations = delayedOperations;
-        mMailboxId = mailboxId;
+        mListContext = listContext;
         mCallback = new PostingCallback(callback);
         mObserver = new ContentObserver(getHandlerForContentObserver()) {
                 @Override public void onChange(boolean selfChange) {
@@ -145,8 +147,12 @@ public class MessageOrderManager {
         startTask();
     }
 
+    public MessageListContext getListContext() {
+        return mListContext;
+    }
+
     public long getMailboxId() {
-        return mMailboxId;
+        return mListContext.getMailboxId();
     }
 
     /**
@@ -346,7 +352,9 @@ public class MessageOrderManager {
      */
     private Cursor openNewCursor() {
         final Cursor cursor = mContentResolver.query(EmailContent.Message.CONTENT_URI,
-                EmailContent.ID_PROJECTION, Message.buildMessageListSelection(mContext, mMailboxId),
+                EmailContent.ID_PROJECTION,
+                Message.buildMessageListSelection(
+                        mContext, mListContext.mAccountId, mListContext.getMailboxId()),
                 null, EmailContent.MessageColumns.TIMESTAMP + " DESC");
         return cursor;
     }

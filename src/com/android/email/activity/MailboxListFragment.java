@@ -865,12 +865,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // the current loader and make the mListAdapter lose the cursor.
             // Note, don't just use getAccountId().  A mailbox may tied to a different account ID
             // from getAccountId().  (Currently "Starred" does so.)
-            final long accountId = mListAdapter.getAccountId(position);
+            long accountId = mListAdapter.getAccountId(position);
             boolean nestedNavigation = false;
             if (((MailboxListItem) view).isNavigable() && (id != mParentMailboxId)) {
                 // Drill-in.  Selected one will be the next parent, and it'll also be highlighted.
                 startLoading(id, id);
                 nestedNavigation = true;
+            }
+            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // Virtual mailboxes, such as "Starred", will have a "combined view" ID. However,
+                // we really want to relay the current active account, so that
+                // things like per-account starred mailboxes work as expected.
+                accountId = getAccountId();
             }
             mCallback.onMailboxSelected(accountId, id, nestedNavigation);
         }
