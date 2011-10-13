@@ -117,7 +117,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final String EXTRA_ACCOUNT_ID = "account_id";
     private static final String EXTRA_MESSAGE_ID = "message_id";
     /** If the intent is sent from the email app itself, it should have this boolean extra. */
-    private static final String EXTRA_FROM_WITHIN_APP = "from_within_app";
+    public static final String EXTRA_FROM_WITHIN_APP = "from_within_app";
+    /** If the intent is sent from thw widget. */
+    public static final String EXTRA_FROM_WIDGET = "from_widget";
 
     private static final String STATE_KEY_CC_SHOWN =
         "com.android.email.activity.MessageCompose.ccShown";
@@ -226,9 +228,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     };
 
     private static Intent getBaseIntent(Context context) {
-        Intent i = new Intent(context, MessageCompose.class);
-        i.putExtra(EXTRA_FROM_WITHIN_APP, true);
-        return i;
+        return new Intent(context, MessageCompose.class);
     }
 
     /**
@@ -242,14 +242,27 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * Compose a new message using the given account. If account is -1 the default account
-     * will be used.
+     * Creates an {@link Intent} that can start the message compose activity from the main Email
+     * activity. This should not be used for Intents to be fired from outside of the main Email
+     * activity, such as from widgets, as the behavior of the compose screen differs subtly from
+     * those cases.
+     */
+    private static Intent getMainAppIntent(Context context, long accountId) {
+        Intent result = getMessageComposeIntent(context, accountId);
+        result.putExtra(EXTRA_FROM_WITHIN_APP, true);
+        return result;
+    }
+
+    /**
+     * Compose a new message using the given account. If account is {@link Account#NO_ACCOUNT}
+     * the default account will be used.
+     * This should only be called from the main Email application.
      * @param context
      * @param accountId
      */
     public static void actionCompose(Context context, long accountId) {
        try {
-           Intent i = getMessageComposeIntent(context, accountId);
+           Intent i = getMainAppIntent(context, accountId);
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
@@ -261,6 +274,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Compose a new message using a uri (mailto:) and a given account.  If account is -1 the
      * default account will be used.
+     * This should only be called from the main Email application.
      * @param context
      * @param uriString
      * @param accountId
@@ -268,7 +282,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static boolean actionCompose(Context context, String uriString, long accountId) {
         try {
-            Intent i = getMessageComposeIntent(context, accountId);
+            Intent i = getMainAppIntent(context, accountId);
             i.setAction(Intent.ACTION_SEND);
             i.setData(Uri.parse(uriString));
             context.startActivity(i);
@@ -538,6 +552,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putLong(STATE_KEY_LAST_SAVE_TASK_ID, mLastSaveTaskId);
     }
 
+    @Override
+    public void onBackPressed() {
+        onBack(true /* systemKey */);
+    }
+
     /**
      * Whether or not the current message being edited has a source message (i.e. is a reply,
      * or forward) that is loaded.
@@ -552,6 +571,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean isOpenedFromWithinApp() {
         Intent i = getIntent();
         return (i != null && i.getBooleanExtra(EXTRA_FROM_WITHIN_APP, false));
+    }
+
+    private boolean isOpenedFromWidget() {
+        Intent i = getIntent();
+        return (i != null && i.getBooleanExtra(EXTRA_FROM_WIDGET, false));
     }
 
     /**
@@ -1718,7 +1742,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean handleCommand(int viewId) {
         switch (viewId) {
         case android.R.id.home:
-            onActionBarHomePressed();
+            onBack(false /* systemKey */);
             return true;
         case R.id.send:
             onSend();
@@ -1749,11 +1773,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return false;
     }
 
-    private void onActionBarHomePressed() {
+    /**
+     * Handle a tap to the system back key, or the "app up" button in the action bar.
+     * @param systemKey whether or not the system key was pressed
+     */
+    private void onBack(boolean systemKey) {
         finish();
         if (isOpenedFromWithinApp()) {
             // If opened from within the app, we just close it.
-        } else {
+            return;
+        }
+
+        if (isOpenedFromWidget() || !systemKey) {
             // Otherwise, need to open the main screen for the appropriate account.
             // Note that mAccount should always be set by the time the action bar is set up.
             startActivity(Welcome.createOpenAccountInboxIntent(this, mAccount.mId));
