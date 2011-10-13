@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +49,7 @@ public class Preferences {
     private static final String TEXT_ZOOM = "textZoom";
     private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
     private static final String TRUSTED_SENDERS = "trustedSenders";
+    private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -260,6 +262,29 @@ public class Preferences {
 
     String packEmailSet(HashSet<String> set) {
         return new JSONArray(set).toString();
+    }
+
+    /**
+     * Returns the last used account ID as set by {@link #setLastUsedAccountId}.
+     * The system makes no attempt to automatically track what is considered a "use" - clients
+     * are expected to call {@link #setLastUsedAccountId} manually.
+     *
+     * Note that the last used account may have been deleted in the background so there is also
+     * no guarantee that the account exists.
+     */
+    public long getLastUsedAccountId() {
+        return mSharedPreferences.getLong(LAST_ACCOUNT_USED, Account.NO_ACCOUNT);
+    }
+
+    /**
+     * Sets the specified ID of the last account used. Treated as an opaque ID and does not
+     * validate the value. Value is saved asynchronously.
+     */
+    public void setLastUsedAccountId(long accountId) {
+        mSharedPreferences
+                .edit()
+                .putLong(LAST_ACCOUNT_USED, accountId)
+                .apply();
     }
 
     public void clear() {
