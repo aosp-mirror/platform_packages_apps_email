@@ -275,26 +275,28 @@ import java.util.Set;
         }
         return listContext.isSearch()
                 ? new SearchCursorLoader(context, listContext)
-                : new MessagesCursorLoader(context, listContext.getMailboxId());
+                : new MessagesCursorLoader(context, listContext);
     }
 
     private static class MessagesCursorLoader extends ThrottlingCursorLoader {
         protected final Context mContext;
+        private final long mAccountId;
         private final long mMailboxId;
 
-        public MessagesCursorLoader(Context context, long mailboxId) {
+        public MessagesCursorLoader(Context context, MessageListContext listContext) {
             // Initialize with no where clause.  We'll set it later.
             super(context, EmailContent.Message.CONTENT_URI,
                     MESSAGE_PROJECTION, null, null,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
             mContext = context;
-            mMailboxId = mailboxId;
+            mAccountId = listContext.mAccountId;
+            mMailboxId = listContext.getMailboxId();
         }
 
         @Override
         public Cursor loadInBackground() {
             // Build the where cause (which can't be done on the UI thread.)
-            setSelection(Message.buildMessageListSelection(mContext, mMailboxId));
+            setSelection(Message.buildMessageListSelection(mContext, mAccountId, mMailboxId));
             // Then do a query to get the cursor
             return loadExtras(super.loadInBackground());
         }
@@ -376,7 +378,7 @@ import java.util.Set;
         private Mailbox mSearchedMailbox = null;
 
         public SearchCursorLoader(Context context, MessageListContext listContext) {
-            super(context, listContext.getMailboxId());
+            super(context, listContext);
             Preconditions.checkArgument(listContext.isSearch());
             mListContext = listContext;
         }

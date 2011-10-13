@@ -965,7 +965,8 @@ public abstract class EmailContent {
          *
          * Accesses the detabase to determine the mailbox type.  DO NOT CALL FROM UI THREAD.
          */
-        public static String buildMessageListSelection(Context context, long mailboxId) {
+        public static String buildMessageListSelection(
+                Context context, long accountId, long mailboxId) {
 
             if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
                 return Message.ALL_INBOX_SELECTION;
@@ -979,8 +980,18 @@ public abstract class EmailContent {
             if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
                 return Message.ALL_UNREAD_SELECTION;
             }
+            // TODO: we only support per-account starred mailbox right now, but presumably, we
+            // can surface the same thing for unread.
             if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
-                return Message.ALL_FAVORITE_SELECTION;
+                if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                    return Message.ALL_FAVORITE_SELECTION;
+                }
+
+                final StringBuilder selection = new StringBuilder();
+                selection.append(MessageColumns.ACCOUNT_KEY).append('=').append(accountId)
+                        .append(" AND ")
+                        .append(Message.ALL_FAVORITE_SELECTION);
+                return selection.toString();
             }
 
             // Now it's a regular mailbox.

@@ -278,7 +278,7 @@ public class MessageListFragment extends ListFragment
      * @return true if the mailbox is a combined mailbox.  Safe to call even before onCreate.
      */
     public boolean isCombinedMailbox() {
-        return getMailboxId() < 0;
+        return getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW;
     }
 
     public MessageListContext getListContext() {
@@ -1229,7 +1229,7 @@ public class MessageListFragment extends ListFragment
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
-        lm.initLoader(LOADER_ID_MESSAGES_LOADER, null, new MessagesLoaderCallback());
+        lm.initLoader(LOADER_ID_MESSAGES_LOADER, null, LOADER_CALLBACKS);
     }
 
     /** Timeout to show a warning, since some IMAP searches could take a long time. */
@@ -1254,7 +1254,8 @@ public class MessageListFragment extends ListFragment
     /**
      * Loader callbacks for message list.
      */
-    private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+    private final LoaderManager.LoaderCallbacks<Cursor> LOADER_CALLBACKS =
+            new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             final MessageListContext listContext = getListContext();
@@ -1386,7 +1387,7 @@ public class MessageListFragment extends ListFragment
             mSearchedMailbox = null;
             mCountTotalAccounts = 0;
         }
-    }
+    };
 
     /**
      * Show/hide the "selection" action mode, according to the number of selected messages and

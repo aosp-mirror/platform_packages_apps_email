@@ -2298,38 +2298,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(b34, testMailbox);
     }
 
-    public void testBuildMessageListSelection() {
-        final Context c = mMockContext;
-
-        assertEquals(Message.ALL_INBOX_SELECTION, Message.buildMessageListSelection(c,
-                     Mailbox.QUERY_ALL_INBOXES));
-
-        assertEquals(Message.ALL_DRAFT_SELECTION, Message.buildMessageListSelection(c,
-                Mailbox.QUERY_ALL_DRAFTS));
-
-        assertEquals(Message.ALL_OUTBOX_SELECTION, Message.buildMessageListSelection(c,
-                Mailbox.QUERY_ALL_OUTBOX));
-
-        assertEquals(Message.ALL_UNREAD_SELECTION, Message.buildMessageListSelection(c,
-                Mailbox.QUERY_ALL_UNREAD));
-
-        assertEquals(Message.ALL_FAVORITE_SELECTION, Message.buildMessageListSelection(c,
-                Mailbox.QUERY_ALL_FAVORITES));
-
-        final Account account = ProviderTestUtils.setupAccount("1", true, mMockContext);
-        final Mailbox in = ProviderTestUtils.setupMailbox("i", account.mId, true, c,
-                Mailbox.TYPE_INBOX);
-        final Mailbox out = ProviderTestUtils.setupMailbox("o", account.mId, true, c,
-                Mailbox.TYPE_OUTBOX);
-
-        assertEquals(Message.MAILBOX_KEY + "=" + in.mId + " AND " + Message.FLAG_LOADED_SELECTION,
-                Message.buildMessageListSelection(c, in.mId));
-
-        // No LOADED check for outboxes.
-        assertEquals(Message.MAILBOX_KEY + "=" + out.mId,
-                Message.buildMessageListSelection(c, out.mId));
-    }
-
     /**
      * Determine whether a list of AccountManager accounts includes a given EmailProvider account
      * @param amAccountList a list of AccountManager accounts

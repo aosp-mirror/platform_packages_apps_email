@@ -601,7 +601,10 @@ class UIControllerOnePane extends UIControllerBase {
         // Refreshable only when an actual account is selected, and message view isn't shown.
         // (i.e. only available on the mailbox list or the message view, but not on the combined
         // one)
-        return isActualAccountSelected() && !isMessageViewInstalled();
+        if (!isActualAccountSelected() || isMessageViewInstalled()) {
+            return false;
+        }
+        return isMailboxListInstalled() || (mListContext.getMailboxId() > 0);
     }
 
     @Override
