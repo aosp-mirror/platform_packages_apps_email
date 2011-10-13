@@ -206,6 +206,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (mNfcHandler != null) {
             mNfcHandler.onAccountChanged();  // workaround for email not set on initial load
         }
+        Preferences.getPreferences(mActivity).setLastUsedAccountId(getUIAccountId());
     }
 
     /**
@@ -556,6 +557,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (mNfcHandler != null) {
             mNfcHandler.onAccountChanged();
         }
+        Preferences.getPreferences(mActivity).setLastUsedAccountId(accountId);
     }
 
     /**
