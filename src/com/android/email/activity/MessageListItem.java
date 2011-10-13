@@ -184,6 +184,16 @@ public class MessageListItem extends View {
     }
 
     /**
+     * Invalidate all drawing caches associated with drawing message list items.
+     * This is an expensive operation, and should be done rarely, such as when system font size
+     * changes occurs.
+     */
+    public static void resetDrawingCaches() {
+        MessageListItemCoordinates.resetCaches();
+        sInit = false;
+    }
+
+    /**
      * Sets message subject and snippet safely, ensuring the cache is invalidated.
      */
     public void setText(String subject, String snippet, boolean forceUpdate) {

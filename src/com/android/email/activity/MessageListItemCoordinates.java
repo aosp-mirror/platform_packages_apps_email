@@ -225,6 +225,13 @@ public class MessageListItemCoordinates {
     }
 
     /**
+     * Reset the caches associated with the coordinate layouts.
+     */
+    static void resetCaches() {
+        mCache.clear();
+    }
+
+    /**
      * Returns coordinates for elements inside a conversation header view given
      * the view width.
      */
