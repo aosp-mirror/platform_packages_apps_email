@@ -16,19 +16,6 @@
 
 package com.android.email.widget;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.ResourceHelper;
-import com.android.email.activity.MessageCompose;
-import com.android.email.activity.UiUtilities;
-import com.android.email.activity.Welcome;
-import com.android.email.provider.WidgetProvider.WidgetService;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -52,6 +39,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.ResourceHelper;
+import com.android.email.activity.MessageCompose;
+import com.android.email.activity.UiUtilities;
+import com.android.email.activity.Welcome;
+import com.android.email.provider.WidgetProvider.WidgetService;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import java.util.List;
 
@@ -169,6 +169,14 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         }
         mAccountId = accountId;
         mLoader.load(mAccountId, mailboxId);
+    }
+
+    /**
+     * Resets the data in the widget and forces a reload.
+     */
+    public void reset() {
+        mLoader.reset();
+        start();
     }
 
     private boolean isCursorValid() {
