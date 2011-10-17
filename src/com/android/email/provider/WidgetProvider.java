@@ -16,11 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.Email;
-import com.android.email.widget.EmailWidget;
-import com.android.email.widget.WidgetManager;
-import com.android.emailcommon.Logging;
-
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -28,6 +23,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViewsService;
+
+import com.android.email.Email;
+import com.android.email.widget.EmailWidget;
+import com.android.email.widget.WidgetManager;
+import com.android.emailcommon.Logging;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -56,7 +56,7 @@ public class WidgetProvider extends AppWidgetProvider {
             Log.d(EmailWidget.TAG, "onUpdate");
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-        WidgetManager.getInstance().createWidgets(context, appWidgetIds);
+        WidgetManager.getInstance().updateWidgets(context, appWidgetIds);
     }
 
     @Override
