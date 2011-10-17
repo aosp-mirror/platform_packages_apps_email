@@ -21,6 +21,7 @@ import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.ClipData;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -843,8 +844,14 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        final Context context = getActivity();
+        if (context == null) {
+            // Detached from activity. This callback was really delayed or a monkey was involved.
+            return;
+        }
+
         mCallback.onAdvancingOpAccepted(Utility.toLongSet(messageIds));
-        ActivityHelper.moveMessages(getActivity(), newMailboxId, messageIds);
+        ActivityHelper.moveMessages(context, newMailboxId, messageIds);
 
         // Move is async, so we can't refresh now.  Instead, just clear the selection.
         onDeselectAll();
