@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Leer los archivos adjuntos del mensaje"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Permite a esta aplicación leer los archivos adjuntos de tus correos electrónicos."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Acceder a los datos del proveedor de correo electrónico"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Permite a esta aplicación acceder a la base de datos de tu correo electrónico. Ésta incluye tus mensajes recibidos, mensajes enviados, nombres de usuario y contraseñas."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Leer archivos adjuntos de correo electrónico"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Permite a esta aplicación leer los archivos adjuntos de tus correos electrónicos."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Acceder a los datos del proveedor de correo electrónico"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, como mensajes recibidos, mensajes enviados, nombres de usuario y contraseñas."</string>
     <string name="app_name" msgid="5815426892327290362">"Correo electrónico"</string>
     <string name="compose_title" msgid="427986915662706899">"Redactar"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Seleccionar archivo adjunto"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Mover a"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Cargando mensajes..."</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Error de conexión"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Se ha producido un error inesperado al cargar el texto del mensaje. El mensaje puede ser demasiado largo para ver."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Problema de conexión"</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"No se pudo cargar el texto del mensaje. Tal vez sea demasiado grande para ver."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Mover el mensaje"</item>
     <item quantity="other" msgid="371256717624461324">"Mover mensajes"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"No se admite la opción de mover en cuentas POP3."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"No se puede mover. La selección contiene varias cuentas."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Los mensajes en Borrador, Bandeja de salida y Enviados no se pueden mover."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Las cuentas POP3 no permiten mover mensajes."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"No se puede mover porque la selección contiene varias cuentas."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Los mensajes en Borrador, Bandeja de salida y Enviados no se pueden mover."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> no leídos (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> no leídos (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"para <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> mensajes nuevos"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Todas las cuentas"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Todas las cuentas"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"Cuenta <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> cuentas"</item>
@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"CC:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"CCO:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Asunto:"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Redactar mensaje de correo"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Redactar correo electrónico"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensaje original --------"\n"Asunto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escribió:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Texto citado"</string>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Guardado"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Detener"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Archivo adj guardado como <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"No se pudo guardar el arch adj"</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"No se pudo guardar el archivo adjunto."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Nota: Se descargarán uno o más archivos adjuntos de tu mensaje reenviado antes de enviar."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Mensaje"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Invitar"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Mostrar siempre las imágenes de este remitente"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Las imágenes de este remitente se mostrarán automáticamente."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Ver en Calendario"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Invitación de Calendario"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Invitación de calendario"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"¿Vas?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Sí"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Quizás"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" No"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Has aceptado esta invitación."</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Respondiste \"quizás\" a esta invitación."</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Has rechazado esta invitación."</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Has aceptado esta invitación."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Has respondido \"quizás\" a esta invitación."</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Has rechazado esta invitación."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Mostrar detalles"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Detalles del mensaje"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Detalles del mensaje"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Información del archivo adjunto"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Se necesita conexión Wi-Fi"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Configuración Wi-Fi"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Configuración de aplicación"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Se necesita conexión Wi-Fi"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Configuración Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Config. de aplicación"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"No se puede abrir el archivo adjunto"</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"No puedes guardarlo o abrirlo porque este tipo de archivo adjunto puede contener software malicioso."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"No se puede abrir ni guardar este archivo adjunto debido a las políticas de seguridad que rigen el uso de esta cuenta."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Este archivo adjunto es demasiado grande para descargar en la red para celulares. Puedes descargarlo la próxima vez que te conectes a la red Wi-Fi."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"No existe aplicación instalada para abrir este archivo adjunto. Intenta descargar una aplicación apropiada de Tienda Android."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Este archivo adjunto es una aplicación. Debes revisar fuentes no conocidas en Configuraciones, debajo de Aplicaciones, antes de que puedas instalarlo."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"No se pueden instalar las aplicaciones desde el correo electrónico de manera directa. Primero guarda esta aplicación y luego instálala usando la aplicación Descargas."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"No se pudo descargar el archivo adjunto."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Error al decodificar el mensaje."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"No puedes guardar ni abrir este archivo porque el tipo de adjunto podría incluir software malintencionado."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"No se puede guardar ni abrir este archivo adjunto debido a las políticas de seguridad de la cuenta."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Este archivo adjunto es demasiado grande para descargar en la red para celulares. Puedes descargarlo la próxima vez que te conectes a la red Wi-Fi."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Ninguna de las aplicaciones instaladas puede abrir este archivo adjunto. Prueba descargar una aplicación adecuada de Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Este archivo adjunto es una aplicación. Para instalarla, debes activar la opción Orígenes desconocidos en Ajustes &gt; Aplicaciones."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Las aplicaciones no se pueden instalar directamente desde el correo electrónico. Primero debes guardar esta aplicación y luego instalarla con la aplicación Descargas."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"No se pudo descargar el archivo adjunto."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Se produjo un error al decodificar el mensaje."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Consultando <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"¿Quieres descartar este mensaje?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"¿Deseas descartar estos mensajes?"</item>
+    <item quantity="one" msgid="3799616435056423256">"¿Deseas eliminar este mensaje?"</item>
+    <item quantity="other" msgid="4437637377522896262">"¿Deseas eliminar estos mensajes?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Mensaje eliminado"</item>
@@ -201,19 +201,18 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Mensaje descartado."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Mensaje guardado como borrador."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"No se puede mostrar este archivo adjunto."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
+    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"No se puede mostrar el archivo adjunto."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
     <skip />
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Abriendo el mensaje…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mensaje trasladado a <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mensajes trasladados a <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"No se pudieron enviar uno o más adjuntos."</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"No se pudieron enviar uno o más adjuntos."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"No se reenvió el archivo adjunto"</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Falló inicio de sesión"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Error al acceder a <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
+    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Error al acceder"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -237,17 +236,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agregar una cuenta de Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agregar una cuenta de Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cuenta de correo electrónico"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Puedes configurar el correo electrónico de la mayoría de las cuentas en sólo algunos pasos."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Puedes configurar una cuenta de Exchange en sólo unos pasos."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Puedes configurar una cuenta de Exchange ActiveSync en sólo algunos pasos."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Puedes configurar el correo electrónico de la mayoría de las cuentas en pocos pasos."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Puedes configurar una cuenta de Exchange en solo unos pasos."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Puedes configurar una cuenta de Exchange ActiveSync en pocos pasos."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo electrónico"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuración manual"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Escribe una dirección de correo electrónico y contraseña válida."</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Copiar cuenta"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Escribe una dirección de correo y contraseña válidas."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Cuenta duplicada"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ya estás usando este nombre de usuario para la cuenta \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Esta contraseña comienza o finaliza con uno o más caracteres con espacios. Muchos servidores no son compatibles con caracteres con espacios."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando información de la cuenta..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Comprobando configuración entrante de servidor…"</string>
@@ -256,7 +254,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Se ha configurado tu cuenta, ¡y el correo electrónico está en camino!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Asigna un nombre a esta cuenta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (mostrado en mensajes salientes)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Este campo no puede estar en blanco."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Este campo no puede estar vacío."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuración de la cuenta"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo de cuenta"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta es?"</string>
@@ -271,7 +269,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos los certificados)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos los certificados)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos los certificados)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Eliminar correo electrónico del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
@@ -313,8 +311,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronizar contactos desde esta cuenta"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincroniza el calendario desde esta cuenta"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronizar el correo electrónico desde esta cuenta"</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Descargar los archivos adjuntos automáticamente al conectarte a Wi-Fi"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"No se ha podido finalizar la configuración"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descargar los archivos adjuntos automáticamente al conectarte a Wi-Fi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"No se pudo terminar"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Días para la sincronización"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automático"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un día"</string>
@@ -326,37 +324,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Utilizar la configuración predeterminada de la cuenta."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nombre de usuario o contraseña incorrecta."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nombre de usuario o contraseña incorrecta."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No se puede conectar de forma segura al servidor."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Se requiere un certificado de cliente. ¿Deseas conectarte al servidor con un certificado de cliente?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificado no válido o inaccesible"</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"El servidor respondió con un mensaje de error; verifica tu nombre de usuario y contraseña, y haz el intento de nuevo."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"No se puede conectar al servidor."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No se puede conectar de forma segura al servidor."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"No se puede conectar de forma segura al servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Se requiere un certificado de cliente. ¿Deseas conectarte al servidor con un certificado de cliente?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificado no válido o inaccesible."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"El servidor ha devuelto un error. Verifica tu nombre de usuario y contraseña e inténtalo de nuevo."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"No se puede conectar al servidor."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"No se puede conectar al servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Se requiere TLS pero el servidor no la admite."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"El servidor no admite los métodos de autenticación."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"No es posible iniciar la conexión al servidor debido a un error de seguridad."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"No es posible iniciar la conexión a tu servidor."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Ingresaste una dirección de servidor incorrecta o el servidor requiere una versión de protocolo que el correo electrónico no admite."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"No tienes permiso para sincronizar con este servidor. Comunícate con el administrador de tu servidor para obtener más información."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"El servidor no admite los métodos de autenticación."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"No se pudo establecer conexión con el servidor debido a un error de seguridad."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"No se pudo establecer conexión con el servidor."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Ingresaste una dirección de servidor incorrecta o el servidor requiere una versión de protocolo que el correo electrónico no admite."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"No tienes permiso para sincronizar con este servidor. Comunícate con el administrador de tu servidor para obtener más información."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu dispositivo Android. ¿Deseas finalizar la configuración de esta cuenta?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"No puedes modificar el nombre de usuario de una cuenta. Para agregar una cuenta con un nombre de usuario diferente, toca Agregar cuenta."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"Advertencia: La desactivación de la autorización de la aplicación de correo electrónico para administrar el dispositivo eliminará todas las cuentas de correo electrónico que la requieran junto a los correos electrónicos, contactos y eventos de calendario, entre otros datos de éstas."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Se requiere actualización de seguridad"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Este servidor requiere funciones de seguridad que tu dispositivo Android no admite, incluidas: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"No puedes cambiar el nombre de usuario de una cuenta. Para agregar una cuenta con un nombre de usuario distinto, toca Agregar cuenta."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"ADVERTENCIA: si desactivas la autoridad de la aplicación de correo electrónico para administrar tu dispositivo, se eliminarán todas las cuentas de correo que la requieran, así como sus mensajes, contactos, eventos de calendario y otros datos."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Actualización de seguridad"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> requiere que actualices tu configuración de seguridad."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiere que se actualice la configuración de seguridad."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Se requiere actualizar Seguridad"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Seguridad del dispositivo"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Seguridad del dispositivo"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu dispositivo Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiere que cambies tu PIN o contraseña de bloqueo de pantalla."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"La contraseña de bloqueo de pantalla expiró"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Tu PIN o contraseña de bloqueo de pantalla expiró."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"La contraseña de bloqueo de pantalla expiró"</string>
@@ -365,12 +358,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"La contraseña de bloqueo de pantalla expiró"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Los datos de <xliff:g id="ACCOUNT">%s</xliff:g> se eliminarán de su dispositivo. Puedes restaurarlo al cambiar tu PIN o contraseña de bloqueo de pantalla. ¿Deseas cambiarla ahora?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"¿Descartar cambios sin guardar?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Falló inicio de sesión"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"No se pudo acceder"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"El nombre de usuario o la contraseña de <xliff:g id="ACCOUNT">%s</xliff:g>no es correcta. ¿Deseas actualizarlos ahora?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar mensaje de correo electrónico desde esta cuenta de forma predeterminada"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Descargar archivos adj. automat."</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Descargar los archivos adjuntos automáticamente al conectarte a Wi-Fi"</string>
+    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Descargar archivos adj. automat."</string>
+    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Descargar adjuntos automáticamente al conectar a una red Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo electrónico"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frecuencia de sincronización, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar en la barra de estado cuando llegue un correo electrónico"</string>
@@ -393,7 +386,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronizar contactos de esta cuenta"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sincronizar calendario"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sincronizar el calendario de esta cuenta"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronizar correo electrónico"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronizar correo"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronizar el correo electrónico de esta cuenta"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibrar también cuando llegue un correo electrónico"</string>
@@ -401,7 +394,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Solo en modo silencioso"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nunca"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrar"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Seleccionar el tono de timbre"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Seleccionar tono"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>
@@ -413,15 +406,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Verifica la frecuencia"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Días para la sincronización"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Cuenta de correo electrónico"</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Seleccionar una cuenta"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Seleccionar cuenta"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Selecc. una carpeta"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"No se encontró la cuenta. Puede que ésta se haya eliminado."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"No se encontró la carpeta. Puede que esta se haya eliminado."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correcta, es posible que no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de T-Online y crea una contraseña para el acceso de correo electrónico POP3."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"No se encontró la cuenta. Es posible que se haya eliminado."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"No se encontró la carpeta. Es posible que se haya eliminado."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Solo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correctas, tal vez no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Para configurar esta cuenta de correo electrónico, accede al sitio web de T-Online y crea una contraseña para acceder al correo electrónico POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporativo"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"El Administrador de cuenta no pudo crear la Cuenta; vuelve a intentarlo."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"No se pudo crear la cuenta. Inténtalo de nuevo."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Correo electrónico"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Habilita las políticas de seguridad específicas según el servidor."</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Buscando <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -430,21 +423,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultados de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Configuración"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Preferencias generales"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Preferencias de aplicación"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"General"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Aplicación"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avance automático"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecciona qué pantalla mostrar después de eliminar un mensaje"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecciona la pantalla que se mostrará al eliminar un mensaje."</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Avanzar a"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mensaje más nuevo"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje anterior"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensajes"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamaño del texto del mensaje"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Mostrar contenido de mensajes en texto de tamaño muy pequeño"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Mostrar contenido de mensajes en texto de tamaño pequeño"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Mostrar contenido de mensajes en texto de tamaño normal"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Mostrar contenido de mensajes en texto de gran tamaño"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Mostrar contenido de mensajes en texto de gran tamaño"</item>
+    <item msgid="4693576184223089069">"Texto muy pequeño"</item>
+    <item msgid="4415205108584620118">"Texto pequeño"</item>
+    <item msgid="4550219696381691112">"Texto de tamaño normal"</item>
+    <item msgid="6227813549949219991">"Texto grande"</item>
+    <item msgid="1197917420815786571">"Texto enorme"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tamaño del texto del mensaje"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Diminuto"</string>
@@ -453,19 +446,19 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorme"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Responder a todos"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Elige \"Responder a todos\" como opción predeterminada para los mensajes."</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Restablecer predeterminado para \"Mostrar imágenes\""</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Restablecer predeterminado para todos los remitentes (no mostrar imágenes automáticamente)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"Se borró \"Mostrar imágenes\"."</string>
+    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Elige \"Responder a todos\" como opción predeterminada para los mensajes."</string>
+    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Restablecer predeterminado para \"Mostrar imágenes\""</string>
+    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Restablecer predeterminado para todos los remitentes (no mostrar imágenes automáticamente)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"Se borró \"Mostrar imágenes\"."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Esperando para sincronizar"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Tu correo electrónico aparecerá en breve."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Presionar ícono para cambiar"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Tu correo electrónico aparecerá en breve."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Toca el ícono para cambiar."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Combinación de Recibidos"</string>
     <string name="widget_unread" msgid="4404711399009077833">"No leídos"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacados"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Tocar para configurar"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Toca para configurar."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Todavía no has configurado una cuenta de correo electrónico."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Buscar correo electrónico"</string>

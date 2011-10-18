@@ -160,7 +160,7 @@
     <skip />
     <!-- no translation found for message_compose_subject_label (1592314202889683309) -->
     <skip />
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Nov messadi"</string>
+    <!-- outdated translation 7575406246484103697 -->     <string name="message_compose_body_hint" msgid="3864004548670233396">"Nov messadi"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------"\n"Object: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text cità"</string>
@@ -225,9 +225,9 @@
     <skip />
     <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
     <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3433085933207351929) -->
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
     <skip />
-    <!-- no translation found for attachment_info_wifi_settings (3275768005981284687) -->
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
     <skip />
     <!-- no translation found for attachment_info_application_settings (4124655487276125596) -->
     <skip />
@@ -237,7 +237,7 @@
     <skip />
     <!-- no translation found for attachment_info_policy (3560422300127587508) -->
     <skip />
-    <!-- no translation found for attachment_info_wifi_only (1952445279772844815) -->
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
     <skip />
     <!-- no translation found for attachment_info_no_intent (8139209405745777924) -->
     <skip />
@@ -260,8 +260,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Stizzà il messadi"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Memorisà il messadi sco sboz."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Impussibel da mussar questa agiunta."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
+    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Impussibel da mussar questa agiunta."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
     <skip />
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Avrir il messadi..."</string>
     <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
@@ -271,7 +271,7 @@
     <skip />
     <!-- no translation found for login_failed_ticker (5749227022559285302) -->
     <skip />
-    <!-- no translation found for login_failed_title (791871543602843876) -->
+    <!-- no translation found for login_failed_title (7624349996212476176) -->
     <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -391,7 +391,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronisar ils contacts da quest conto"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincronisar il chalender da quest conto"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronisar ils e-mails da quest conto."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (6759055024748351429) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
     <skip />
     <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Impussibel da terminar l\'installaziun"</string>
     <!-- outdated translation 8764417340954006086 -->     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Quantitad da sincronisar"</string>
@@ -470,9 +470,9 @@
     <skip />
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conto predefinì"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Trametter ils e-mails tenor standard cun quest conto"</string>
-    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
+    <!-- no translation found for account_settings_background_attachments_label (2980317599840958688) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (323937814012234081) -->
+    <!-- no translation found for account_settings_background_attachments_summary (5954218549226189376) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Avis ad e-mails"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"\"Frequenza da sincronisaziun, avis, etc.\""</string>
@@ -587,14 +587,14 @@
     <!-- no translation found for general_preference_reply_all_label (7806833609810003510) -->
     <!-- no translation found for general_preference_reply_all_label (6469564953937885304) -->
     <skip />
-    <!-- no translation found for general_preference_reply_all_summary (917669156784760966) -->
+    <!-- no translation found for general_preference_reply_all_summary (9191932552604733245) -->
     <!-- no translation found for general_preference_reply_all_summary (3356918650886350497) -->
     <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_title (8540277615940620308) -->
+    <!-- no translation found for general_preferences_clear_trusted_senders_title (507988226277210305) -->
     <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2018233140620247) -->
+    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2648501128162793879) -->
     <skip />
-    <!-- no translation found for trusted_senders_cleared (8079053907862270420) -->
+    <!-- no translation found for trusted_senders_cleared (4762002183756251723) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
