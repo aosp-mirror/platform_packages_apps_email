@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Lees e-posaanhegsels"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Laat hierdie program toe om jou e-pos-aanhegsels te lees."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Kry toegang tot e-posverskafferdata"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Laat hierdie program toe om jou e-posdatabasis te lees, insluitend ontvangde boodskappe, gestuurde boodskappe, gebruikername en wagwoorde."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Lees e-posaanhegsels"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Laat hierdie program toe om jou e-pos-aanhegsels te lees."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Kry toegang tot e-posverskafferdata"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Gee hierdie program toegang tot jou e-posdatabasis, insluitend ontvangde boodskappe, gestuurde boodskappe, gebruikername en wagwoorde."</string>
     <string name="app_name" msgid="5815426892327290362">"E-pos"</string>
     <string name="compose_title" msgid="427986915662706899">"Skryf"</string>
     <string name="debug_title" msgid="5175710493691536719">"Ontfout"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Kies aanhegsel"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Skuif na"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Laai tans boodskappe…"</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Verbindingsfout"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Onverwagse fout terwyl boodskapteks gelaai is. Boodskap is dalk te groot om te sien."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Verbindingsprobleem."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Kon nie die boodskapteks laai nie. Die boodskap is dalk te groot om te bekyk."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Skuif boodskappe"</item>
     <item quantity="other" msgid="371256717624461324">"Skuif boodskappe"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Skuif word nie op POP3-rekeninge ondersteun nie."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Kan nie skuif nie. Keuse bevat verskeie rekeninge."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Boodskappe in Konsepte, Uitkassie en Gestuur kan nie geskuif word nie."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Skuif word nie op POP3-rekeninge ondersteun nie."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Kan nie skuif nie, omdat keuse verskeie rekeninge bevat."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Boodskappe in Konsepte, Uitkassie en Gestuur kan nie geskuif word nie."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelees (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelees (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"aan <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> nuwe boodskappe"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Alle rekeninge"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Alle rekeninge"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> rekening"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> rekeninge"</item>
@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Onderwerp:"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Skryf e-pos"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Skryf e-pos"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronklike boodskap --------"\n"Onderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Van: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Aan: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> het geskryf:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Aangehaalde teks"</string>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Gestoor"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stop"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Aanhegsel gestoor as <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Kan nie aanhegsel stoor nie."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Kon nie die aanhegsel stoor nie."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Let wel: Een of meer aanhegsels in jou aangestuurde boodskap sal afgelaai word voor dit gestuur word."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Boodskap"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Nooi uit"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Wys altyd prente van hierdie sender"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Prente van hierdie sender sal outomaties gewys word."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Sien in kalender"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Kalenderuitnodiging"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Kalender-uitnodiging"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Gaan jy?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Miskien"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Nee"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Jy het hierdie uitnodiging aanvaar"</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Jy het \"miskien\" geantwoord op hierdie uitnodiging"</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Jy het hierdie uitnodiging van die hand gewys"</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Jy het hierdie uitnodiging aanvaar."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Jy het \"miskien\" geantwoord op hierdie uitnodiging"</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Jy het hierdie uitnodiging van die hand gewys."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Wys details"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Boodskapdetails"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Boodskapbesonderhede"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Aanhegsel-inligting"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Wi-Fi-verbinding vereis"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi-instellings"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Programinstellings"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi-verbinding vereis"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi-instellings"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Program-instellings"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Kan nie aanhegsel oopmaak nie."</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"Omdat hierdie soort aanhegsel kwaadwillige sagteware kan bevat, kan jy dit nie stoor of oopmaak nie."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"Die aanhegsel kan nie gestoor of oopgemaak word nie, weens die sekuriteitsbeleide wat vir die rekening van krag is."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Hierdie aanhegsel is te groot om op \'n mobiele netwerk af te laai. Jy kan dit aflaai wanneer jy weer aan \'n Wi-Fi-netwerk gekoppel is."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Daar is geen program geïnstalleer wat hierdie aanhegsel kan oopmaak nie. Probeer die toepaslike program van Android Market aflaai."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Hierdie aanhegsel is \'n program. Jy moet in Programme, onder Instellings, \"Onbekende bronne\" merk voor jy dit kan installeer."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Programme kan nie direk uit e-pos geïnstalleer word nie. Stoor eers hierdie program en installeer dit dan met gebruik van die aflaaiselprogram."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"Die aanhegsel kon nie afgelaai word nie."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Kon nie van boodskap dekodeer nie."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Jy kan nie hierdie lêer stoor of oopmaak nie, want hierdie tipe aanhegsel kan kwaadwillige sagteware bevat."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Hierdie aanhegsel kan nie gestoor of oopgemaak word nie, weens hierdie rekening se sekuriteitsbeleid."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Hierdie aanhegsel is te groot om op \'n mobiele netwerk af te laai. Jy kan dit aflaai wanneer jy weer aan \'n Wi-Fi-netwerk gekoppel is."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Daar is geen geïnstalleerde program wat hierdie aanhegsel kan oopmaak nie. Probeer om \'n toepaslike program af te laai van Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Hierdie aanhegsel is \'n program. Jy moet \"Onbekende bronne\" in Instellings &gt; Programme kontroleer, voordat jy dit kan installeer."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Programme kan nie direk vanaf e-pos geïnstalleer word nie. Stoor eers hierdie program en installeer dit dan met behulp van die \"Aflaaisels\"-program."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Kon nie die aanhegsel aflaai nie."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Daar was \'n fout tydens die dekodering van die boodskap."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Kyk <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"Raak ontslae van hierdie boodskap?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"Gooi hierdie boodskappe weg?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Vee hierdie boodskap uit?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Vee hierdie boodskappe uit?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Boodskap uitgevee."</item>
@@ -201,19 +201,18 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Boodskap weggegooi."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Boodskap as konsep gestoor."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Hierdie aanhegsel kan nie vertoon word nie."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
+    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Kan nie die aanhegsel vertoon nie."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
     <skip />
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Open tans boodskap..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> boodskap geskuif na <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> boodskappe geskuif na <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Kon een of meer aanhegsels nie aanstuur nie"</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Kon een of meer aanhegsels nie aanstuur nie"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Aanhegsel nie aangestuur nie"</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Kon nie aanmeld nie"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g>-aanmelding het misluk"</string>
+    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Aanmelding het misluk"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -237,17 +236,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Voeg \'n Exchange-rekening by"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Voeg \'n Exchange ActiveSync-rekening by"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-posrekening"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Jy kan e-pos vir die meeste rekeninge in net \'n paar stappe opstel."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Jy kan \'n Exchange-rekening in net \'n paar stappe opstel."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Jy kan \'n Exchange ActiveSync-rekening in net \'n paar stappe opstel."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Jy kan e-pos vir die meeste rekeninge in net \'n paar stappe opstel."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Jy kan \'n Exchange-rekening in net \'n paar stappe opstel."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Jy kan \'n Exchange ActiveSync-rekening in net \'n paar stappe opstel."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-posadres"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Wagwoord"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Stuur e-pos by verstek vanaf hierdie rekening."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Handmatige opstelling"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Voer asseblief \'n geldige e-posadres en wagwoord in."</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplikaatrekening"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Voer asseblief \'n geldige e-posadres en wagwoord in."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplikaatrekening"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Jy gebruik reeds hierdie gebruikernaam vir die rekening \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Die wagwoord begin of eindig met een of meer spasies. Baie bedieners ondersteun nie wagwoorde wat spasies bevat nie."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Haal tans rekeninginligting op…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontroleer tans inkomende bedienerinstellings…"</string>
@@ -256,7 +254,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Jou rekening is nou opgestel en e-pos is op pad!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Gee hierdie rekening \'n naam (opsioneel)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Jou naam (staan op uitgaande boodskappe)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Hierdie veld kan nie leeg wees nie"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Hierdie veld kan nie leeg wees nie."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Rekening-opstelling"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Rekeningtipe"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Watter soort rekening is dit?"</string>
@@ -271,7 +269,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Geen"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Aanvaar alle sertifikate)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Aanvaar alle sertifikate)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aanvaar alle sertifikate)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Vee e-pos uit op bediener"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nooit"</string>
@@ -313,8 +311,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sinkroniseer kontakte uit hierdie rekening."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sinkroniseer kalender vanaf hierdie rekening."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sinkroniseer e-pos vanaf hierdie rekening."</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Laai aanhegsels outomaties af wanneer aan Wi-Fi gekoppel is"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Opstelling kon nie voltooi word nie"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Laai aanhegsels outomaties af wanneer aan Wi-Fi gekoppel is"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Kon nie voltooi word nie"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dae om te sinkroniseer"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Outomaties"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Een dag"</string>
@@ -326,37 +324,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gebruik rekening se verstek"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikernaam of wagwoord verkeerd."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikernaam of wagwoord verkeerd."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan nie veilig aan bediener koppel nie."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Kliëntsertifikaat vereis. Koppel aan bediener met die kliëntsertifikaat?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifikaat ongeldig of ontoeganklik."</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Die bediener het met \'n fout gereageer; kontroleer jou gebruikernaam en wagwoord en probeer weer."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan nie aan bediener koppel nie."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan nie veilig aan bediener koppel nie."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan nie veilig aan bediener koppel nie."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Kliëntsertifikaat word vereis. Koppel aan bediener met kliëntsertifikaat?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifikaat is ongeldig of ontoeganklik."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Die bediener het met \'n fout gereageer; kontroleer jou gebruikernaam en wagwoord en probeer weer."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan nie aan bediener koppel nie."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan nie aan bediener koppel nie."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS vereis, maar nie deur bediener ondersteun nie."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Stawingsmetodes word nie deur bediener ondersteun nie."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Kan nie verbinding met bediener open nie vanweë sekuriteitsfout."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kan nie verbinding met bediener open nie."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Jy het \'n verkeerde bedieneradres ingevoer, of die bediener vereis \'n protokolweergawe wat nie deur e-pos ondersteun word nie."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Jy het nie toestemming om met hierdie bediener te sinkroniseer nie. Kontak asseblief jou bediener se administrateur vir meer inligting."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Stawingsmetodes word nie deur bediener ondersteun nie."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Kon nie verbinding met bediener open nie vanweë sekuriteitsfout."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kon nie verbinding met bediener open nie."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Jy het \'n verkeerde bedieneradres ingevoer, of die bediener vereis \'n protokolweergawe wat nie deur e-pos ondersteun word nie."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Jy het nie toestemming om met hierdie bediener te sinkroniseer nie. Kontak jou bediener se administrateur vir meer inligting."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Afstand-sekuriteitsadministrasie"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Die bediener <xliff:g id="SERVER">%s</xliff:g> vereis dat jy dit toelaat om sekere sekuriteitskenmerke van jou Android-toestel afgeleë te beheer. Wil jy hierdie rekening klaar opstel?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Jy kan nie \'n rekening se gebruikernaam verander nie. Om \'n rekening met \'n ander gebruikernaam by te voeg, raak \"Voeg rekening by\"."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"LET WEL: As jy die e-posprogram se magtiging om jou toestel te administreer, deaktiveer, sal alle e-posrekeninge wat dit benodig, uitgevee word, tesame met hul e-posse, kontakte, kalendergebeure en ander data."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Sekuriteitsopdatering vereis"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Hierdie bediener vereis sekuriteitskenmerke wat jou Android-toestel nie ondersteun nie, insluitende: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Jy kan nie \'n rekening se gebruikernaam verander nie. Om \'n rekening met \'n ander gebruikernaam by te voeg, raak \"Voeg rekening by\"."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"LET WEL: Deaktivering van die e-posprogram se magtiging om jou toestel te administreer, sal alle e-posrekeninge wat dit benodig, uitvee, asook hul e-posse, kontakte, kalendergebeure en ander data."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Sekuriteitsopdatering"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> vereis dat jy jou sekuriteitsinstellings opdateer."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Rekening \"<xliff:g id="ACCOUNT">%s</xliff:g>\" vereis opdatering van sekuriteitsinstellings."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Sekuriteitsopdatering vereis"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Toestelsekuriteit"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Toestelsekuriteit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Die bediener <xliff:g id="SERVER">%s</xliff:g> vereis dat jy dit toelaat om sekere sekuriteitskenmerke van jou Android-toestel afgeleë te beheer."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Redigeer details"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" vereis dat jy jou PIN of wagwoord vir skermslot verander."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Wagwoord vir skermslot verval"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Jou skermslot se PIN of wagwoord het verval."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Wagwoord vir skermslot het verval"</string>
@@ -365,12 +358,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Wagwoord vir skermslot het verval"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Die data vir <xliff:g id="ACCOUNT">%s</xliff:g> word van jou toestel afgevee. Jy kan dit teruglaai deur jou skermslot se PIN of wagwoord te verander. Wil jy dit nou verander?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Raak van ongestoorde veranderinge ontslae?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kon nie aanmeld nie"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kon nie aanmeld nie."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Die gebruikernaam of wagwoord vir <xliff:g id="ACCOUNT">%s</xliff:g> is verkeerd. Dateer hulle nou op?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Verstek rekening"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Stuur e-pos by verstek vanaf hierdie rekening"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Laai aanhegsels outomaties af"</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Laai aanhegsels outomaties af wanneer aan Wi-Fi gekoppel is"</string>
+    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Laai aanhegsels outomaties af"</string>
+    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Laai aanhegsels outomaties af wanneer aan WiFi gekoppel is"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-poskennisgewings"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinkroniseerfrekwensie, kennisgewings, ens."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Wys in statusbalk wanneer e-pos aankom"</string>
@@ -393,7 +386,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sinkroniseer kontakte vir hierdie rekening"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sinkroniseer kalender"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sinkroniseer kalender vir hierdie rekening"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinkroniseer e-pos"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinkroniseer e-pos"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sinkroniseer e-pos vir hierdie rekening"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibreer"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibreer ook wanneer e-pos aankom"</string>
@@ -401,7 +394,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Net wanneer stil"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nooit"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibreer"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Kies \'n luitoon"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Kies \'n luitoon"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Bedienerinstellings"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Verwyder rekening"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Die rekening \"<xliff:g id="ACCOUNT">%s</xliff:g>\" sal uit E-pos verwyder word."</string>
@@ -413,15 +406,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kontroleer gereeldheid"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dae om te sinkroniseer"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-posrekening"</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Kies \'n rekening"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Kies \'n rekening"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Kies \'n vouer"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"Rekening nie gevind nie. Dit is dalk verwyder."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Vouer nie gevind nie. Dit is dalk verwyder."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Slegs sekere \"Plus\"-rekeninge sluit POP-toegang in wat hierdie program in staat stel om te koppel. As jy nie kan aanmeld met jou korrekte e-posadres en wagwoord nie, het jy dalk nie \'n betaalde \"Plus\"-rekening nie. Gebruik asseblief die webblaaier om hierdie e-posrekeninge te sien."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Voor jy hierdie e-posrekening opstel, besoek asseblief die T-Online-webwerf en skep \'n wagwoord vir POP3-e-postoegang."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Rekening is nie gevind nie. Dit is dalk verwyder."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Vouer nie gevind nie. Dit is dalk verwyder."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Slegs sekere \"Plus\"-rekeninge sluit POP-toegang in wat hierdie program in staat stel om te koppel. As jy nie kan aanmeld met jou korrekte e-posadres en wagwoord nie, het jy dalk nie \'n betaalde \"Plus\"-rekening nie. Maak die webblaaier oop om toegang tot hierdie e-posrekeninge te kry."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Voor jy hierdie e-posrekening opstel, besoek asseblief die T-Online-webwerf en skep \'n wagwoord vir POP3-e-postoegang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporatief"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"Die rekeningbestuurder kon nie die rekening skep nie; probeer asseblief weer."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Kon nie die rekening skep nie. Probeer weer."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-pos"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Aktiveer bedienergespesifiseerde veiligheidsbeleide"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Deursoek tans <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -430,21 +423,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultate van <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Instellings"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Algemene voorkeure"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Programvoorkeure"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Algemeen"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Program"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Outovoortgaan"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Kies watter skerm moet wys nadat jy \'n boodskap uitvee"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Kies watter skerm moet wys nadat jy \'n boodskap uitgevee het"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gaan voort na"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nuwer boodskap"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ouer boodskap"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Boodskaplys"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Grootte van boodskapteks"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Wys boodskappe se inhoud in piepklein teks"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Wys boodskappe se inhoud in klein teks"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Wys boodskappe se inhoud in normale grootte"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Wys boodskappe se inhoud in groot teks"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Wys boodskappe se inhoud in reusagtige teks"</item>
+    <item msgid="4693576184223089069">"Piepklein teks"</item>
+    <item msgid="4415205108584620118">"Klein teks"</item>
+    <item msgid="4550219696381691112">"Normale grootte teks"</item>
+    <item msgid="6227813549949219991">"Groot teks"</item>
+    <item msgid="1197917420815786571">"Baie groot teks"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Grootte van boodskapteks"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Piepklein"</string>
@@ -453,19 +446,19 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groot"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Reusagtig"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Antwoord almal"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Maak \"Antwoord almal\" die verstek vir reageer op boodskappe"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Laai verstek vir \"Wys prente\" terug"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Laai verstek terug vir alle senders (moenie prente outomaties wys nie)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"\"Wys prente\" uitgevee."</string>
+    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Maak \"Antwoord almal\" die verstek vir reageer op boodskappe"</string>
+    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Laai verstek vir \"Wys prente\" terug"</string>
+    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Laai verstek terug vir alle senders (moenie prente outomaties wys nie)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Wys prente\" uitgevee."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Wag vir sinkronisasie"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Jou e-pos sal binnekort verskyn."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Tik ikoon om te verander"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Jou e-posadres sal binnekort verskyn."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Raak ikoon om te verander."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Gekombineerde inkassie"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ongelees"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Gester"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Laai tans…"</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Raak om op te stel"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Raak om op te stel"</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Jy het nog nie \'n e-posrekening opgestel nie."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Deursoek e-pos"</string>
