@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Lasīt e-pasta pielikumus"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Ļauj šai lietojumprogrammai lasīt e-pasta ziņojumu pielikumus."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Piekļūt e-pasta sniedzēja datiem"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Ļauj šai lietojumprogrammai piekļūt jūsu e-pasta datu bāzei, tostarp saņemtajiem un nosūtītajiem ziņojumiem, kā arī lietotājvārdiem un parolēm."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Lasīt e-pasta ziņojumu pielikumus"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Nodrošina šai lietojumprogrammai lasīšanas piekļuvi e-pasta ziņojumu pielikumiem."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Piekļūt e-pasta pakalpojumu sniedzēja datiem"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Ļauj lietojumprogrammai piekļūt jūsu e-pasta datu bāzei, tostarp saņemtajiem ziņojumiem, nosūtītajiem ziņojumiem, lietotājvārdiem un parolēm."</string>
     <string name="app_name" msgid="5815426892327290362">"E-pasts"</string>
     <string name="compose_title" msgid="427986915662706899">"E-pasta ziņojuma rakstīšana"</string>
     <string name="debug_title" msgid="5175710493691536719">"Atkļūdot"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pielikuma izvēle"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Pārvietot uz"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Notiek ziņojumu ielāde…"</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Savienojuma kļūda"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Ielādējot ziņojuma tekstu, radās neparedzēta kļūda. Iespējams, ziņojumu nevar skatīt, jo tas ir pārāk garš."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Savienojuma problēma."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Nevarēja ielādēt ziņojuma tekstu. Iespējams, ziņojums ir pārāk garš, un to nevar parādīt."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Pārvietot ziņojumu"</item>
     <item quantity="other" msgid="371256717624461324">"Pārvietot ziņojumus"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Pārvietošana nav atbalstīta POP3 kontos."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Nevar pārvietot. Ir atlasīti ziņojumi no vairākiem kontiem."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Mapēs Melnraksti, Izsūtne un Nosūtītie esošos ziņojumus nevar pārvietot."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"POP3 kontos netiek atbalstīta pārvietošana."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Nevar pārvietot, jo ir atlasīti ziņojumi no vairākiem kontiem."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Ziņojumus, kas atrodas mapēs Melnraksti, Izsūtne un Nosūtītie, nevar pārvietot."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nelasīts(-i) (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nelasīts(-i) (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"kam: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> jauns(-i) ziņojums(-i)"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Visi konti"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Visi konti"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> konts"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> konti"</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Saglabāts"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Apturēt"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Pielikums saglabāts kā <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Nevar saglabāt pielikumu."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Nevarēja saglabāt pielikumu."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Piezīme. Viens vai vairāki pārsūtītā ziņojuma pielikumi pirms sūtīšanas tiks lejupielādēti."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Ziņojums"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Uzaicināt"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Vienmēr rādīt attēlus no šī sūtītāja"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Attēli no šī sūtītāja tiks rādīti automātiski."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Skatīt kalendārā"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Kalendāra ielūgums"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Kalendāra ielūgums"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Vai apmeklēsiet?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Jā"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Varbūt"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Nē"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Jūs esat apstiprinājis ielūgumu."</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Jūs uz šo ielūgumu esat atbildējis \"Varbūt”"</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Jūs esat noraidījis šo ielūgumu."</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Jūs esat pieņēmis šo ielūgumu."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Jūs uz šo ielūgumu esat atbildējis “Varbūt”."</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Jūs esat noraidījis šo ielūgumu."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Rādīt informāciju"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Informācija par ziņojumu"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Informācija par ziņojumu"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Informācija par pielikumu"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Nepieciešams Wi-Fi savienojums"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi iestatījumi"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Lietojumpr. iestatījumi"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Nepieciešams Wi-Fi savienojums"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi iestatījumi"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Lietotnes iestatījumi"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nevar atvērt pielikumu."</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"Tā kā šāda veida pielikums var saturēt ļaunprātīgu programmatūru, to nevar saglabāt vai atvērt."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"Šo pielikumu nevar saglabāt vai atvērt ar šo kontu saistīto spēkā esošo politiku dēļ."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Šis pielikums ir pārāk liels, lai to lejupielādētu mobilajā tīklā. Varat to lejupielādēt nākamreiz, kad pievienosieties Wi-Fi tīklam."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nav instalēta lietojumprogramma, ar kuru var atvērt šo pielikumu. Lejupielādējiet atbilstošu lietojumprogrammu no platformas Android Market."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Šis pielikums ir lietojumprogramma. Pirms tās instalēšanas ir jānoņem atzīme no vienuma Nezināmi avoti, kas atrodas sadaļas Iestatījumi apakšsadaļā Lietojumprogrammas."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Lietojumprogrammas nevar instalēt tieši no e-pasta. Vispirms saglabājiet šo lietojumprogrammu un pēc tam instalējiet to, izmantojot lietojumprogrammu Lejupielādes."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"Pielikumu nevarēja lejupielādēt."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Kļūda, dekodējot ziņojumu."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Šo failu nevar saglabāt vai atvērt, jo šī veida pielikumā var būt ietverta ļaunprātīga programmatūra."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Šo pielikumu nevar saglabāt vai atvērt šī konta drošības politiku dēļ."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Šis pielikums ir pārāk liels, lai to lejupielādētu pa mobilo tīklu. Varat to lejupielādēt nākamreiz, kad izveidosiet savienojumu ar Wi-Fi tīklu."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nav instalēta neviena lietotne, ar kuru var atvērt šo pielikumu. Mēģiniet lejupielādēt piemērotu lietotni no vietnes Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Šis pielikums ir lietotne. Lai to instalētu, sadaļā Iestatījumi &gt; Lietotnes ir jāatzīmē izvēles rūtiņa Nezināmi avoti."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Lietotnes nevar instalēt tieši no e-pasta ziņojuma. Vispirms saglabājiet šo lietotni un pēc tam instalējiet to, izmantojot lietotni Lejupielādes."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Nevarēja lejupielādēt pielikumu."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Atšifrējot ziņojumu, radās kļūda."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Tiek skat.: <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"Vai atmest šo ziņojumu?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"Vai atmest šos ziņojumus?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Vai dzēst šo ziņojumu?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Vai dzēst šos ziņojumus?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Ziņojums ir dzēsts."</item>
@@ -201,19 +201,17 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Ziņojums ir atmests."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Ziņojums ir saglabāts kā melnraksts."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Šo pielikumu nevar attēlot."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Nevar parādīt pielikumu."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Nevarēja ielādēt pielikumu <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Notiek ziņojuma atvēršana…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ziņojums pārvietots uz <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ziņojumi pārvietoti uz <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nevarēja pārsūtīt vienu vai vairākus pielikumus."</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nevarēja pārsūtīt vienu vai vairākus pielikumus."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Pielikums netika nosūtīts."</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Pierakstīšanās kļūda"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Neizdevās pierakstīties kontā <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Neizdevās pierakstīties"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -237,17 +235,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange konta pievienošana"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Pievienot Exchange ActiveSync kontu"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-pasta konts"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Vairumā kontu e-pastu var konfigurēt, veicot tikai dažas darbības."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Varat konfigurēt Exchange kontu, veicot tikai dažas darbības."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Varat konfigurēt Exchange ActiveSync kontu, veicot tikai dažas darbības."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Varat iestatīt e-pastu lielākajā daļā kontu, veicot tikai dažas darbības."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Varat iestatīt Exchange kontu, veicot tikai dažas darbības."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Varat iestatīt Exchange ActiveSync kontu, veicot tikai dažas darbības."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-pasta adrese"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Parole"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Pēc noklusējuma sūtīt e-pastu no šī konta."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuāla iestatīšana"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Lūdzu, ievadiet derīgu e-pasta adresi un paroli."</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dublēts konts"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Ierakstiet derīgu e-pasta adresi un paroli."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dublikāta konts"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Jūs jau izmantojat šo lietotājvārdu kontam <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Paroles sākumā vai beigās ir viena vai vairākas atstarpes. Daudzos serveros netiek nodrošināts atbalsts parolēm, kurās iekļautas atstarpes."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Notiek konta informācijas izgūšana..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Notiek servera ienākošo datu iestatījumu pārbaude..."</string>
@@ -256,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Jūsu konts ir iestatīts, un ir nosūtīts e-pasta ziņojums."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ievadiet konta nosaukumu (neobligāti)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Jūsu vārds (attēlots izejošajos ziņojumos)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Šis lauks nedrīkst būt tukšs."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Šis lauks nedrīkst būt tukšs."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Konta iestatīšana"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Konta veids"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Kāds ir šī konta veids?"</string>
@@ -271,7 +268,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nav"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (pieņemt visus sertifikātus)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (pieņemt visus sertifikātus)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (pieņemt visus sertifikātus)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Dzēst e-pasta ziņojumu no servera"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nekad"</string>
@@ -313,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sinhronizēt kontaktpersonas no šī konta."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sinhronizēt šī konta kalendāru."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Šī konta e-pasta sinhronizācija."</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Automātiski lejupielādēt pielikumus, kad ir izveidots WiFi savienojums"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Iestatīšanu nevarēja pabeigt."</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Automātiski lejupielādēt pielikumus, kad ir izveidots Wi-Fi savienojums"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nevarēja pabeigt"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Sinhronizējamās dienas"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automātiski"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Viena diena"</string>
@@ -326,37 +323,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Izmantot konta noklusēj."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Lietotājvārds vai parole nav pareiza."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Lietotājvārds vai parole nav pareiza."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nevar izveidot drošu savienojumu ar serveri."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Ir nepieciešams klienta sertifikāts. Vai izveidot savienojumu ar serveri, izmantojot klienta sertifikātu?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifikāts nav derīgs vai nav pieejams."</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Serveris reaģēja ar kļūdu; lūdzu, pārbaudiet savu lietotājvārdu un paroli un mēģiniet vēlreiz."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nevar izveidot savienojumu ar serveri."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nevar izveidot drošu savienojumu ar serveri."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Ir nepieciešams klienta sertifikāts. Vai izveidot savienojumu ar serveri, izmantojot klienta sertifikātu?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifikāts nav derīgs vai nav pieejams."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Serveris atgrieza kļūdu. Pārbaudiet lietotājvārdu un paroli un pēc tam mēģiniet vēlreiz."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nevar izveidot savienojumu ar serveri."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nevar izveidot savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Protokols TLS ir obligāts, taču serveris to neatbalsta."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serveris neatbalsta autentifikācijas metodes."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Nevar izveidot savienojumu ar serveri drošības kļūdas dēļ."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Nevar izveidot savienojumu ar serveri."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Ievadījāt nepareizu servera adresi vai serverim ir nepieciešama protokola tāda versija, kuru e-pasts neatbalsta."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Jums nav atļaujas veikt sinhronizāciju ar šo serveri. Lūdzu, sazinieties ar servera administratoru, lai iegūtu plašāku informāciju."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serverī netiek atbalstītas autentifikācijas metodes."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Nevarēja izveidot savienojumu ar serveri drošības kļūdas dēļ."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Nevarēja izveidot savienojumu ar serveri."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Jūs ierakstījāt nepareizu servera adresi, vai arī serverī tiek pieprasīta tāda protokola versija, kas netiek atbalstīta lietotnē E-pasts."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Jums nav atļaujas veikt sinhronizāciju ar šo serveri. Lai iegūtu plašāku informāciju, sazinieties ar servera administratoru."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Attālināta drošības administrācija"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveris <xliff:g id="SERVER">%s</xliff:g> pieprasa, lai jūs tam atļautu attālināti vadīt dažas jūsu Android ierīces drošības funkcijas. Vai vēlaties pabeigt konta iestatīšanu?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Jūs nevarat mainīt konta lietotājvārdu. Lai pievienotu kontu ar citu lietotājvārdu, pieskarieties vienumam Pievienot kontu."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"BRĪDINĀJUMS: deaktivizējot e-pasta lietojumprogrammas tiesības administrēt jūsu ierīci, tiks dzēsti visi e-pasta konti, kuriem šī funkcionalitāte ir nepieciešama, kā arī šo kontu e-pasts, kontaktpersonas, kalendāra notikumi un citi dati."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Nepieciešams drošības atjauninājums"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Šajā serverī tiek pieprasītas drošības funkcijas, kas netiek atbalstītas jūsu Android ierīcē, tostarp: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Nevar mainīt konta lietotājvārdu. Lai pievienotu kontu ar citu lietotājvārdu, pieskarieties vienumam Pievienot kontu."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"BRĪDINĀJUMS: deaktivizējot lietotnes E-pasts tiesības administrēt jūsu ierīci, tiks dzēsti visi e-pasta konti, kuriem šī funkcionalitāte ir nepieciešama, kā arī šo kontu e-pasta ziņojumi, kontaktpersonas, kalendāra pasākumi un citi dati."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Drošības atjauninājums"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Kontam <xliff:g id="ACCOUNT">%s</xliff:g> ir jāatjaunina drošības iestatījumi."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontā “<xliff:g id="ACCOUNT">%s</xliff:g>” nepieciešams atjaunināt drošības iestatījumus."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Nepiecieš. droš. atjauninājums"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Ierīces drošība"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Ierīces drošība"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveris <xliff:g id="SERVER">%s</xliff:g> pieprasa, lai jūs tam atļautu attālināti vadīt dažas jūsu Android ierīces drošības funkcijas."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediģēt datus"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"Lai varētu izmantot kontu <xliff:g id="ACCOUNT">%s</xliff:g>, jāmaina ekrāna bloķēšanas PIN kods vai parole."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Ekr. bloķ. par. term. tuv. b."</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ekrāna bloķēšanas PIN vai paroles derīguma termiņš ir beidzies."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Ekr. bloķ. paroles term. b."</string>
@@ -365,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Ekrāna bloķēš. paroles termiņa beigas"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Konta <xliff:g id="ACCOUNT">%s</xliff:g> dati tiek dzēsti no šīs ierīces. Varat tos atjaunot, nomainot ekrāna bloķēšanas PIN vai paroli. Vai mainīt tūlīt?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vai atmest nesaglabātās izmaiņas?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Pierakstīšanās kļūda"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Nevarēja pierakstīties"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Konta <xliff:g id="ACCOUNT">%s</xliff:g> lietotājvārds un parole nav pareizi. Vai atjaunināt tos tūlīt?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Noklusējuma konts"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Pēc noklusējuma sūtīt e-pasta ziņojumus no šī konta"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Pielikumu automāt. lejupielāde"</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Automātiski lejupielādēt pielikumus, kad ir izveidots WiFi savienojums"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Automātiski ielādēt pielikumus, ja izveidots Wi-Fi savienojums"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-pasta paziņojumi"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinhronizācijas biežums, paziņojumi u.c."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Rādīt paziņojumu statusa joslā, kad tiek saņemts e-pasta ziņojums"</string>
@@ -393,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sinhron. kontaktpersonas šim kontam"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sinhron. kalendāru"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sinhronizēt kalendāru šim kontam"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinhronizēt e-pastu"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinhronizēt e-pastu"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sinhronizēt e-pastu šim kontam"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrozvans"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Izmantot vibrozvanu, kad tiek saņemts e-pasta ziņojums"</string>
@@ -401,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Tikai klusuma režīmā"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nekad"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrozvans"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Atlasīt zvana signālu"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Izvēlēties zvana signālu"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Servera iestatījumi"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Konta noņemšana"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Konts “<xliff:g id="ACCOUNT">%s</xliff:g>” tiks noņemts no e-pasta."</string>
@@ -413,15 +405,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Pārbaudes biežums"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Sinhronizējamās dienas"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pasta k."</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Atlasīt kontu"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Konta izvēle"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Mapes atlase"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"Konts nav atrasts. Iespējams, tas ir noņemts."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mape nav atrasta. Iespējams, tā ir noņemta."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Tikai dažiem “Plus” kontiem ir POP piekļuve, kas ļauj šai programmai izveidot savienojumu. Ja nevarat pierakstīties, izmantojot pareizu e-pasta adresi un paroli, iespējams, jums nav apmaksāta “Plus” konta. Lūdzu, palaidiet tīmekļa pārlūkprogrammu, lai piekļūtu šiem pasta kontiem."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Pirms šī e-pasta konta iestatīšana, lūdzu, apmeklējiet T-Online vietni un izveidojiet POP3 e-pasta piekļuvei paredzētu paroli."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Konts netika atrasts. Iespējams, ka tas ir noņemts."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mape netika atrasta. Iespējams, ka tā ir noņemta."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Tikai dažiem Plus kontiem ir pieejama POP piekļuve, kas nodrošina šīs programmas savienojuma izveidi. Ja nevarat pierakstīties, izmantojot pareizo e-pasta adresi un paroli, iespējams, jums nav apmaksāta Plus konta. Lai piekļūtu šiem e-pasta kontiem, palaidiet tīmekļa pārlūkprogrammu."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Pirms šī e-pasta konta iestatīšanas apmeklējiet T-Online vietni un izveidojiet paroli, lai piekļūtu e-pastam pa protokolu POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporatīvs"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"AccountManager nevarēja izveidot kontu, lūdzu, mēģiniet vēlreiz."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Nevarēja izveidot kontu. Mēģiniet vēlreiz."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-pasts"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Iespējo servera noteiktas drošības politikas"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Notiek domēna <xliff:g id="DOMAIN">%s</xliff:g> meklēšana…"</string>
@@ -430,21 +422,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> rezultāti no domēna <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Iestatījumi"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Vispārīgās preferences"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Lietojumprogrammas preferences"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Vispārīgi"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Lietojumprogramma"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automātiski pāriet"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Pēc ziņojuma dzēšanas parādāmā ekrāna atlase"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Izvēlieties pēc ziņojuma dzēšanas parādāmo ekrānu"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Pāriet uz"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Jauns ziņojums"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Vecāki ziņojumi"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Ziņojumu saraksts"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Ziņojuma teksta izmērs"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Parādīt ziņojumu saturu, izmantojot sīka izmēra tekstu"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Parādīt ziņojumu saturu, izmantojot maza izmēra tekstu"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Parādīt ziņojumu saturu, izmantojot normāla izmēra tekstu"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Parādīt ziņojumu saturu, izmantojot liela izmēra tekstu"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Parādīt ziņojumu saturu, izmantojot milzīga izmēra tekstu"</item>
+    <item msgid="4693576184223089069">"Niecīga izmēra teksts"</item>
+    <item msgid="4415205108584620118">"Maza izmēra teksts"</item>
+    <item msgid="4550219696381691112">"Parasta izmēra teksts"</item>
+    <item msgid="6227813549949219991">"Liela izmēra teksts"</item>
+    <item msgid="1197917420815786571">"Milzīga izmēra teksts"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Ziņojuma teksta izmērs"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Niecīgs"</string>
@@ -456,16 +448,16 @@
     <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Atbildēšanai uz ziņojumiem kā noklusējumu iestatīt Atbildēt visiem"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Atjaunot noklusējuma vērtību iestatījumam Rādīt attēlus"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Atjaunot noklusējuma iestatījumus visiem sūtītājiem (nerādīt attēlus automātiski)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"Iestatījums Rādīt attēlus ir notīrīts."</string>
+    <string name="trusted_senders_cleared" msgid="8079053907862270420">"Tika notīrīts saraksts Rādīt attēlus."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> no <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Gaida sinhronizāciju"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"E-pasta saturs drīz tiks parādīts."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Lai main., piesk. ik."</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Drīz tiks parādīts jūsu e-pasta saturs."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Mainiet pieskaroties"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinētā iesūtne"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Nelasītie"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Atzīm. ar zvaigznīti"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Notiek ielāde..."</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Pieskarieties, lai konfigurētu"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Pieskarieties, lai iestatītu."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Pagaidām neesat iestatījis e-pasta kontu."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Meklējiet e-pastu"</string>

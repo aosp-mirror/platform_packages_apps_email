@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Baca Lampiran E-mel"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Membenarkan aplikasi ini membaca lampiran E-mel anda."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Akses data pembekal E-mel"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Membenarkan aplikasi ini mengakses pangkalan data E-mel anda, termasuk mesej diterima, mesej dihantar, nama pengguna dan kata laluan."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Baca lampiran e-mel"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Membenarkan aplikasi ini membaca lampiran e-mel anda."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Akses data pembekal e-mel"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Membenarkan aplikasi ini mengakses pangkalan data e-mel anda, termasuk mesej diterima, mesej dihantar, nama pengguna dan kata laluan."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mel"</string>
     <string name="compose_title" msgid="427986915662706899">"Karang"</string>
     <string name="debug_title" msgid="5175710493691536719">"Nyahpepijat"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pilih lampiran"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Alih ke"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Memuatkan mesej..."</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Ralat sambungan"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Ralat tidak dijangka berlaku semasa memuatkan mesej teks. Mesej mungkin terlalu besar untuk dipaparkan."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Masalah sambungan."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Tidak dapat memuatkan teks mesej. Mesej mungkin terlalu besar untuk dipaparkan."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Alihkan mesej"</item>
     <item quantity="other" msgid="371256717624461324">"Alihkan mesej"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Pengalihan tidak disokong pada akaun POP3."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Tidak boleh mengalihkan. Pilihan mengandungi berbilang akaun."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Mesej dalam Draf, Peti Keluar dan Dihantar tidak boleh dalihkan."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Pengalihan tidak disokong pada akaun POP3."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Tidak boleh dialihkan kerana pilihan mengandungi berbilang akaun."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Mesej dalam Draf, Peti Keluar dan Dihantar tidak boleh dialihkan."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> belum dibaca (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> belum dibaca (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"kepada <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> mesej baru"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Semua Akaun"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Semua akaun"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> akaun"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> akaun"</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Disimpan"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Berhenti"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Lampiran disimpan sbg <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Tidak boleh simpan lampiran."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Tidak dapat menyimpan lampiran."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Nota: Satu atau lebih lampiran dalam mesej anda yang dikirim semula akan dimuat turun sebelum dihantar."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Mesej"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Jemput"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Sentiasa tunjukkan gambar daripada pengirim ini"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Gambar daripada pengirim ini akan ditunjukkan secara automatik."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Lihat dalam Kalendar"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Jemputan Kalendar"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Jemputan Kalendar"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Akan pergi?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ya"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Mungkin"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Tidak"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Anda telah menerima jemputan ini"</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Anda telah menjawab \"mungkin\" kepada jemputan ini"</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Anda telah menolak jemputan ini"</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Anda telah menerima jemputan ini."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Anda telah menjawab \"mungkin\" kepada jemputan ini."</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Anda telah menolak jemputan ini."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Tunjukkan butiran"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Butiran Mesej"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Butiran mesej"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Maklumat lampiran"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Sambungan Wi-Fi diperlukan"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Tetapan Wi-Fi"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Tetapan aplikasi"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Sambungan WiFi diperlukan"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Tetapan WiFi"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Tetapan aplikasi"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Tidak boleh membuka lampiran."</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"Kerana lampiran jenis ini mungkin mengandungi perisian berniat jahat, anda tidak boleh menyimpan atau membukanya."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"Lampiran ini tidak boleh disimpan atau dibuka disebabkan dasar keselamatan yang dikuatkuasakan untuk akaun ini."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Lampiran ini terlalu besar untuk dimuat turun melalui rangkaian mudah alih. Anda boleh memuat turunnya kali yang berikut anda bersambung ke rangkaian Wi-Fi."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Tiada aplikasi yang telah dipasang yang boleh membuka lampiran ini. Cuba muat turun aplikasi yang sesuai dari Android Market."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah aplikasi. Anda harus menyemak sumber Tidak Diketahui dalam Tetapan, di bawah Aplikasi, sebelum anda boleh memasangnya."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Aplikasi tidak boleh dipasang terus dari E-mel. Mula-mula simpan aplikasi ini dan kemudian pasangnya menggunakan aplikasi Muat turun."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"Lampiran tidak boleh dimuat turun."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Ralat semasa menyahkod mesej."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Anda tidak boleh menyimpan atau membuka fail ini kerana jenis lampiran ini mungkin mengandungi perisian yang berbahaya."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Lampiran ini tidak boleh disimpan atau dibuka disebabkan oleh dasar keselamatan akaun ini."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Lampiran ini terlalu besar untuk dimuat turun melalui rangkaian mudah alih. Anda boleh memuat turunnya kali yang berikut anda bersambung ke rangkaian WiFi."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Tiada aplikasi dipasang yang boleh membuka lampiran ini. Cuba muat turn aplikasi yang sesuai daripada Pasaran Android."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah satu aplikasi. Anda mesti menyemak Sumber Tidak Diketahui dalam Tetapan &gt; Aplikasi sebelum anda boleh memasangnya."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Aplikasi tidak boleh dipasang terus dari e-mel. Mula-mula simpan aplikasi ini dan kemudian pasangkannya menggunakan aplikasi Muat Turun."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Tidak dapat memuat turun lampiran."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Terdapat ralat semasa menyahkodkan mesej."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Melihat <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"Buang mesej ini?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"Buang mesej ini?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Padamkan mesej ini?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Padamkan mesej ini?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Mesej dipadamkan."</item>
@@ -201,19 +201,17 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Mesej dibuang."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Mesej disimpan sebagai draf."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Lampiran ini tidak boleh dipaparkan."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Tidak boleh memaparkan lampiran."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Tidak dapat memuatkan lampiran \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Membuka mesej..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mesej dialih ke <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mesej dialih ke <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Tidak boleh mengirim semula satu atau lebih lampiran"</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Tidak boleh mengirim semula satu atau lebih lampiran."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Lampiran tidak dikirim semula"</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Log masuk gagal"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Log masuk <xliff:g id="ACCOUNT_NAME">%s</xliff:g> gagal."</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Log masuk gagal"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -237,17 +235,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Tambah akaun Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Tambah akaun Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Akaun e-mel"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Anda boleh mengkonfigurasikan E-mel untuk kebanyakan akaun dalam hanya beberapa langkah."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Anda boleh mengkonfigurasikan akaun Exchange dalam hanya beberapa langkah."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Anda boleh mengkonfigurasikan akaun Exchange ActiveSync dalam hanya beberapa langkah."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Anda boleh membuat e-mel untuk kebanyakan akaun dalam hanya beberapa langkah."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Anda boleh membuat akaun Exchange dalam hanya beberapa langkah."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Anda boleh membuat akaun Exchange ActiveSync dalam hanya beberapa langkah."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Alamat e-mel"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Kata laluan"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Hantarkan e-mel dari akaun ini secara lalainya."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Persediaan manual"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Sila taipkan alamat e-mel dan kata laluan yang sah."</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Akaun Pendua"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Taipkan alamat e-mel dan kata laluan yang sah."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Akaun pendua"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Anda telah menggunakan nama pengguna ini untuk akaun \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Kata laluan ini dimulakan atau berakhir dengan satu atau lebih aksara ruang. Banyak pelayan tidak menyokong kata laluan dengan ruang."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Mendapatkan semula maklumat akaun..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Menyemak tetapan pelayan masuk..."</string>
@@ -256,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Akaun anda sudah disediakan dan e-mel akan muncul sebentar lagi!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Namakan akaun ini (pilihan)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Nama anda (dipaparkan pada mesej keluar)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Medan ini tidak boleh kosong"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Medan ini tidak boleh kosong."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Persediaan akaun"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Jenis akaun"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Jenis apakah akaun ini?"</string>
@@ -271,7 +268,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Tiada"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Terima semua perakuan)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Terima semua perakuan)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (terima semua perakuan)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Padamkan e-mel daripada pelayan"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Jangan sekali-kali"</string>
@@ -313,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Segerakkan kenalan daripada akaun ini."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Segerakkan kalendar dari akaun ini."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Segerakkan e-mel dari akaun ini."</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Muat turun lampiran secara automatik apabila disambungkan kepada Wi-Fi"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Persediaan tidak boleh diselesaikan"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Memuat turun lampiran secara automatik apabila disambungkan kepada WiFi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Tidak boleh diselesaikan"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Hari untuk disegerakkan"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatik"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Satu hari"</string>
@@ -326,37 +323,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gunakan lalai akaun"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nama pengguna atau kata laluan salah."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nama pengguna atau kata laluan salah."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Tidak boleh bersambung ke pelayan dengan selamat."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Sijil klien diperlukan. Sambung ke pelayan dengan sijil klien?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sijil tidak sah atau tidak boleh diakses."</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Pelayan memberi respons dengan ralat; sila semak nama pengguna dan kata laluan anda dan cuba lagi."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Tidak dapat bersambung ke pelayan."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Tidak boleh menyambung ke pelayan dengan selamat."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Tidak dapat menyambung ke pelayan dengan selamat."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Sijil klien diperlukan. Sambung ke pelayan dengan sijil klien?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sijil adalah tidak sah atau tidak boleh diakses."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Pelayan memberi maklum balas dengan ralat. Semak nama pengguna dan kata laluan anda, kemudian cuba lagi."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Tidak dapat menyambung ke pelayan."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Tidak dapat menyambung ke pelayan."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS diperlukan tetapi tidak disokong oleh pelayan."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Kaedah pengesahan tidak disokong oleh pelayan."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak boleh membuka sambungan ke pelayan kerana ralat keselamatan."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Tidak boleh membuka sambungan ke pelayan."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Anda telah memasukkan alamat pelayan yang salah atau pelayan memerlukan versi protokol yang tidak disokong oleh E-mel."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Anda tiada kebenaran untuk menyegerakkan dengan pelayan ini. Sila hubungi pentadbir pelayan anda untuk mendapatkan maklumat lanjut."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Kaedah pengesahan tidak disokong oleh pelayan."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka sambungan ke pelayan kerana ralat keselamatan."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Tidak dapat membuka sambungan kepada pelayan."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Anda telah menaip alamat pelayan yang salah atau pelayan memerlukan versi protokol yang tidak disokong oleh E-mel."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Anda tidak mempunyai kebenaran untuk menyegerakkan dengan pelayan ini. Hubungi pentadbir pelayan anda untuk mendapatkan maklumat lanjut."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Pentadbiran keselamatan jauh"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Pelayan <xliff:g id="SERVER">%s</xliff:g> menghendaki anda membenarkannya mengawal beberapa ciri keselamatan peranti Android anda secara jauh. Adakah anda mahu menyelesaikan persediaan akaun ini?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Anda tidak boleh menukar nama pengguna akaun. Untuk menambah akaun dengan nama pengguna yang lain, sentuh Tambah akaun."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"AMARAN: Menyahaktifkan autoriti aplikasi E-mel untuk mentadbir peranti anda akan memadamkan semua akaun E-mel yang memerlukannya, bersama-sama e-mel, kenalan, acara kalendar dan datanya yang lain."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Kemas kini keselamatan diperlukan"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Pelayan ini memerlukan ciri-ciri keselamatan yang tidak disokong oleh peranti Android anda, termasuk: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Anda tidak boleh menukar nama pengguna akaun. Untuk menambah sebuah akaun dengan nama pengguna yang berbeza, sentuh Tambah Akaun."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"AMARAN: Menyahaktifkan autoriti aplikasi E-mel untuk mentadbir peranti anda akan memadamkan semua akaun e-mel yang memerlukannya, bersama-sama dengan e-mel, kenalan, acara kalendar dan datanya yang lain."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Kemas kini keselamatan"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> memerlukan anda untuk mengemas kini tetapan keselamatan anda."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Akaun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" memerlukan kemas kini tetapan keselamatan."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Kemas kini keselamtn diperlukn"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Keselamatan Peranti"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Keselamatan peranti"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Pelayan <xliff:g id="SERVER">%s</xliff:g> menghendaki anda membenarkannya mengawal beberapa ciri keselamatan peranti Android anda secara jauh."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edit butiran"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" memerlukan anda menukar PIN atau kata laluan kunci skrin anda."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"K/lln kunci skrin akn tmt tmph"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"PIN kunci skrin atau kata laluan anda telah tamat tempoh."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"K/lln knci skrn tlh tmt tmph"</string>
@@ -365,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Kata laluan kunci skrin telah tmt tempoh"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Data untuk <xliff:g id="ACCOUNT">%s</xliff:g> sedang dipadamkan dari peranti anda. Anda boleh memulihkannya dengan menukar PIN kunci skrin atau kata laluan anda. Tukar sekarang?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Buang perubahan yang belum disimpan?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Log masuk gagal"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Tidak dapat melog masuk"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Nama pengguna atau kata laluan untuk <xliff:g id="ACCOUNT">%s</xliff:g> tidak betul. Kemas kininya sekarang?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akaun lalai"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Hantar e-mel daripada akaun ini secara lalainya"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Automuat turun lampiran"</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Muat turun lampiran secara automatik apabila disambungkan kepada Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Memuat turun lampiran secara automatik apabila disambungkan kepada WiFi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Pemberitahuan e-mel"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Kekerapan penyegerakan, pemberitahuan, dsb."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Beritahu dalam bar Sistem apabila e-mel diterima"</string>
@@ -393,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Segerakkan kenalan untuk akaun ini"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Segerak Kalendar"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Segerakkan kalendar untuk akaun ini"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Segerakkan E-mel"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Segerakkan e-mel"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Segerakkan e-mel untuk akaun ini"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Getar"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Juga bergetar semasa e-mel diterima"</string>
@@ -401,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Apabila senyap sahaja"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Jangan sekali-kali"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Getar"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Pilih nada dering"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Pilih nada dering"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Tetapan pelayan"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Alih keluar akaun"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Akaun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" akan dialih keluar daripada E-mel."</string>
@@ -413,15 +405,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kekerapan menyemak"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Hari untuk disegerakkan"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akaun e-mel"</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Pilih akaun"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Pilih akaun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih folder"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"Akaun tidak ditemui. Ia mungkin telah dialih keluar."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Folder tidak ditemui. Ia mungkin telah dialihkan keluar."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Hanya sesetengah akaun \"Plus\" sahaja yang menyertakan akses POP, maka membenarkan program ini bersambung. Jika anda tidak boleh melog masuk dengan alamat dan kata laluan e-mel yang betul, anda mungkin tidak mempunyai akaun \"Plus\" berbayar. Sila lancarkan penyemak imbas Web untuk mendapat akses kepada akaun e-mel ini."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Sebelum menyediakan akaun e-mel ini, sila lawati tapak T-Online Web dan wujudkan kata laluan untuk akses e-mel POP3."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Akaun tidak ditemui. Ia mungkin telah dialih keluar."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Folder tidak ditemui. Ia mungkin telah dialihkan keluar."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Hanya sesetengah akaun \"Plus\" sahaja yang menyertakan akses POP, membenarkan program ini untuk menyambung. Jika anda tidak boleh melog masuk dengan alamat dan kata laluan e-mel anda yang betul, anda mungkin tidak mempunyai akaun \"Plus\" berbayar. Sila lancarkan penyemak imbas Web untuk mendapatkan akses kepada akaun e-mel ini."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Sebelum menyediakan akaun e-mel ini, sila lawati tapak Web T-Online dan buat kata laluan untuk akses e-mel POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Syarikat"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"Pengurus akaun tidak boleh membuat Akaun; sila cuba lagi."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Tidak dapat membuat akaun. Sila cuba lagi."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mel"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Mendayakan dasar keselamatan tentuan pelayan"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Mencari <xliff:g id="DOMAIN">%s</xliff:g>..."</string>
@@ -430,21 +422,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> hasil dari <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Tetapan"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Pilihan Umum"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Pilihan Aplikasi"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Umum"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Aplikasi"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Auto mara"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Pilih skrin mana mahu ditunjukkan selepas anda memadamkan mesej"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Pilih skrin mana mahu ditunjukkan selepas anda memadamkan mesej"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Mara ke"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mesej lebih baru"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mesej lebih lama"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Senarai mesej"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Saiz teks mesej"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Paparkan kandungan mesej dalam saiz teks yang sangat kecil"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Paparkan kandungan mesej dalam saiz teks yang kecil"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Paparkan kandungan mesej dalam saiz teks yang biasa"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Paparkan kandungan mesej dalam saiz teks yang besar"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Paparkan kandungan mesej dalam saiz teks yang sangat besar"</item>
+    <item msgid="4693576184223089069">"Teks amat kecil"</item>
+    <item msgid="4415205108584620118">"Teks kecil"</item>
+    <item msgid="4550219696381691112">"Teks bersaiz biasa"</item>
+    <item msgid="6227813549949219991">"Teks besar"</item>
+    <item msgid="1197917420815786571">"Teks amat besar"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Saiz teks mesej"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Sangat kecil"</string>
@@ -456,16 +448,16 @@
     <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Jadikan \'Balas kepada semua\' lalai untuk membalas mesej"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Pulihkan lalai untuk \"Tunjukkan gambar\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Pulihkan lalai untuk semua pengirim (jangan tunjukkan gambar secara automatik)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"\"Tunjukkan gambar\" sudah dipadam bersih."</string>
+    <string name="trusted_senders_cleared" msgid="8079053907862270420">"\"Tunjukkan gambar\" telah dipadam bersih."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> dari <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Menunggu penyegerakan"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"E-mel anda akan muncul tidak lama lagi."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Ketik ikon untuk menukar"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"E-mel anda akan muncul tidak lama lagi."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Sentuh ikon untuk menukar."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Peti Masuk Gabungan"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Belum dibaca"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Berbintang"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Memuatkan..."</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Sentuh untuk mengkonfigurasikan"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Sentuh untuk membuat akaun."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Anda belum membuat akaun e-mel lagi."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Cari e-mel"</string>

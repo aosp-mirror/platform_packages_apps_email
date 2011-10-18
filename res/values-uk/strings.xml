@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Читати вкладені файли пошти"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Дозволяє програмі читати вкладені файли вашої пошти."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ до даних провайд. пошти"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Дозволяє програмі отримувати доступ до бази даних вашої пошти, зокрема отриманих і надісланих повідомлень, імен користувачів і паролів."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Читати вкладені файли пошти"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Дозволяє програмі читати вкладені файли вашої пошти."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ до даних постачальника послуг електронної пошти"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Дозволяє програмі отримувати доступ до бази даних вашої пошти, зокрема отриманих і надісланих повідомлень, імен користувачів та паролів."</string>
     <string name="app_name" msgid="5815426892327290362">"Ел.пошта"</string>
     <string name="compose_title" msgid="427986915662706899">"Написати"</string>
     <string name="debug_title" msgid="5175710493691536719">"Налагодж."</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Виберіть вклад. файл"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Перемістити до"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Завантаження повідомлень…"</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Помилка з\'єднання"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Неочік. помилка під час завант. тексту повід. Воно може бути завелике для перегл."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Проблема зі з’єднанням."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Не вдалося завантажити текст повідомлення. Воно може бути завелике для перегляду."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Переміщення повідомлення"</item>
     <item quantity="other" msgid="371256717624461324">"Переміщення повідомлень"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Переміщення не підтримується в облікових записах POP3."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Неможливо перемістити. Вибрано декілька облікових записів."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Неможливо перемістити повідомлення в папках \"Чернетки\", \"Вихідні\" та \"Надіслані\"."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Переміщення не підтримується в облікових записах POP3."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Неможливо перемістити, оскільки вибрано декілька облікових записів."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Повідомлення в папках \"Чернетки\", \"Вихідні\" та \"Надіслані\" перемістити неможливо."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочит. (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочит. (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"кому: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"Нових повідомлень: <xliff:g id="ID_1">%1$d</xliff:g>"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Усі облікові записи"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Усі облікові записи"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> обл. запис"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> обл. зап."</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Збережено"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Зупинити"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Вклад. файл збереж. як <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Неможл. зберегти вклад. файл."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Вкладений файл не збережено."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Примітка. Перед надсиланням буде завантажено один або кілька вкладених файлів із повідомлення, яке ви пересилаєте."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Повідомлення"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Запрошення"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Завжди показувати зображення від цього відправника"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Зображення від цього відправника відображатимуться автоматично."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Переглянути в Календарі"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Запрош. календаря"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Запрошення календаря"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Підете?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Так"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Можливо"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Ні"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Ви прийняли це запрошення"</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Ваша відповідь на це запрошення: \"Можливо\""</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Ви відхилили це запрошення"</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Ви прийняли це запрошення."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Ви відповіли \"Можливо\" на це запрошення."</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Ви відхилили це запрошення."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Показати деталі"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Деталі повідомлення"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Деталі повідомлення"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Інформація про вкладений файл"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Потрібне з’єднання Wi-Fi"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Налаштування Wi-Fi"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Налаштування програми"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Потрібне з’єднання WiFi"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Налаштування WiFi"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Налаштування програми"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Не вдалося відкрити вкладений файл."</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"Оскільки вкладений файл такого типу може містити шкідливі програми, його неможливо зберегти чи відкрити."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"Цей вкладений файл неможливо зберегти або відкрити через діючі правила безпеки для цього облікового запису."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Цей вкладений файл завеликий для завантаження через мобільну мережу. Його можна завантажити під час наступного з’єднання з мережею Wi-Fi."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Немає встановленої програми, яка може відкрити цей вкладений файл. Спробуйте завантажити відповідну програму з Android Market."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Цей вкладений файл є програмою. Перед її встановленням потрібно поставити прапорець поруч із пунктом \"Невідомі джерела\" в розділі \"Налаштування\" в меню \"Програми\"."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Неможливо встановлювати програми безпосередньо з електронної пошти. Спочатку збережіть цю програму, після чого встановіть її, використовуючи програму \"Завантаження\"."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"Вкладений файл неможливо завантажити."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Помилка розшифрування повідомлення."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Цей файл неможливо зберегти чи відкрити, оскільки вкладений файл такого типу може містити шкідливі програми."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Цей вкладений файл неможливо зберегти або відкрити через правила безпеки цього облікового запису."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Цей вкладений файл завеликий для завантаження через мобільну мережу. Його можна завантажити під час наступного під’єднання до мережі WiFi."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Немає встановленої програми, яка може відкрити цей вкладений файл. Спробуйте завантажити відповідну програму з Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Цей вкладений файл є програмою. Перед її встановленням потрібно поставити прапорець поруч із пунктом \"Невідомі джерела\" в меню Налаштування &gt; Програми."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Програми не можна встановлювати безпосередньо з електронної пошти. Спочатку збережіть цю програму, а потім установіть її, використовуючи програму \"Завантаження\"."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Не вдалося завантажити вкладений файл."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Під час розшифрування повідомлення сталася помилка."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Перегляд <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"Відхилити це повідомлення?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"Відхилити ці повідомлення?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Видалити це повідомлення?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Видалити ці повідомлення?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Повідом. видалено."</item>
@@ -201,19 +201,17 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Повідомл. відхилено."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Лист збереж. як чернетку."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Цей вкладений файл неможливо показати."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Неможливо показати вкладений файл."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Не вдалося завантажити вкладений файл \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Відкривання повідомлення…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"До <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> переміщено <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> повідомлення"</item>
     <item quantity="other" msgid="2286739630865943494">"До <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> переміщено <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> повідомл."</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Неможливо переслати один або кілька вкладених файлів"</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Не вдалося переслати один або кілька вкладених файлів."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Вкладений файл не переслано"</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Помилка входу"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Помилка входу в обліковий запис <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Помилка входу"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
@@ -237,17 +235,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Додати обл. запис Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Додати обл. запис Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Обліковий запис електронної пошти"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"Можна налашт. пошту для більшості обл. зап. через ряд дій."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Можна налашт-ти облік. запис Exchange за допом. ряду дій."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Можна налашт-ти облік. запис Exchange ActiveSync за допом. ряду дій."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Можна налаштувати пошту для більшості облікових записів за допомогою лише кількох дій."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Можна налаштувати обліковий запис Exchange за допомогою лише кількох дій."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Можна налаштувати обліковий запис Exchange ActiveSync за допомогою лише кількох дій."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Електронна адреса"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Пароль"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Надс. ел.листи з цього обл. зап. за умовч."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Налашт-ня вручну"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Введіть дійсну електронну адресу та пароль."</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Копія облік. запису"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Введіть дійсну електронну адресу та пароль."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Копія облікового запису"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ви вже використовуєте це ім’я користувача для облікового запису \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Цей пароль починається чи закінчується одним або кількома символами пробілів. Багато серверів не підтримують паролі з пробілами."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Отримання інфо про облік. запис…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Перевірка налашт-нь вихід. сервера…"</string>
@@ -256,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Ваш обліковий запис налаштовано. Скоро надійдуть листи!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Назвіть цей обл. запис. (додатково)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ваше ім\'я (відображено у вихідних повідомл.)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Це поле не може бути порожнім"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Це поле не може бути порожнім."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Налаштування облікового запису"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Тип облікового запису"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Тип облікового запису?"</string>
@@ -271,7 +268,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Немає"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Прийняти всі сертифікати)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Прийняти всі сертифікати)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Прийняти всі сертифікати)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Видалити ел.лист із сервера"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Ніколи"</string>
@@ -313,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхрон. контакти з цього обл. зап."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхроніз. календ. з обл. запису."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхр. ел. пошту з обл. запису."</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Автоматично завантажувати вкладення, коли є з\'єднання з Wi-Fi"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Налаштування не заверш."</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Автоматично завантажувати вкладені файли, коли є з’єднання з WiFi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Не вдалося закінчити"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Синхронізувати за стільки днів:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Автоматично"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Один день"</string>
@@ -326,37 +323,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Парам. обл.зап. за умовч."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Ім\'я кор. або пароль неправильн."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Ім\'я корист. чи пароль неправильн."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Неможл. безпечно підкл. до сервера."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Потрібен сертифікат клієнта. Під’єднатися до сервера із сертифікатом клієнта?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Сертифікат недійсний або недоступний."</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Сервер повідомив про помилку. Перевірте своє ім\'я користувача та пароль і спробуйте ще."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Неможл. підключ. до сервера."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Неможливо безпечно з’єднатись із сервером."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Неможливо безпечно з’єднатися із сервером."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Потрібен сертифікат клієнта. Під’єднатися до сервера із сертифікатом клієнта?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Сертифікат недійсний або недоступний."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Сервер повідомив про помилку. Перевірте своє ім’я користувача та пароль і повторіть спробу."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Неможливо з’єднатись із сервером."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Неможливо з’єднатись із сервером."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS обов\'язк., але не підтрм. цим сервером."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Методи автентифікації не підтримуються сервером."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Неможл. відкрити підключ. до сервера через помилку безпеки."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Неможл. відкрити підключ. до сервера."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Введено неправильну адресу сервера чи сервер потребує версію протоколу, яка не підтримується електронною поштою."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"У вас немає дозволу на синхронізацію з цим сервером. Зв’яжіться з адміністратором сервера, щоб дізнатися більше."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Методи автентифікації не підтримуються сервером."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Не вдалося відкрити з’єднання із сервером через помилку безпеки."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Не вдалося відкрити з’єднання із сервером."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Ви ввели неправильну адресу сервера чи для сервера потрібна версія протоколу, яка не підтримується електронною поштою."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"У вас немає дозволу на синхронізацію з цим сервером. Зв’яжіться з адміністратором сервера, щоб дізнатися більше."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Віддалене керування безпекою"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сервер <xliff:g id="SERVER">%s</xliff:g> потребує вашого дозволу віддалено контролювати деякі функції безпеки вашого пристрою Android. Завершити налаштування цього облікового запису?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Ви не можете змінити ім’я користувача облікового запису. Щоб додати обліковий запис з іншим іменем користувача, торкніться опції \"Додати обліковий запис\"."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"ЗАСТЕРЕЖЕННЯ. Дезактивація повноважень програми електронної пошти на адміністрування вашого пристрою призведе до видалення всіх облікових записів електронної пошти, що вимагають адміністрування, разом із їхніми електронними листами, контактами, подіями календаря й іншими даними."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Потрібне оновлення системи безпеки"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Для цього сервера потрібні функції безпеки, які не підтримуються вашим пристроєм Android, зокрема: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Ви не можете змінювати ім’я користувача облікового запису. Щоб додати обліковий запис з іншим іменем користувача, торкніться опції \"Додати обліковий запис\"."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"ЗАСТЕРЕЖЕННЯ. Дезактивація повноважень програми електронної пошти на адміністрування вашого пристрою призведе до видалення всіх облікових записів електронної пошти, що потребують адміністрування, разом з їхніми електронними листами, контактами, подіями календаря й іншими даними."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Оновлення системи безпеки"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Потрібно оновити налаштування безпеки для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Облік. запис \"<xliff:g id="ACCOUNT">%s</xliff:g>\" потреб. оновл. налашт-нь безпеки"</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Потрібне оновл. сист. безпеки"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Безпека пристрою"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Безпека пристрою"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сервер <xliff:g id="SERVER">%s</xliff:g> потребує вашого дозволу віддалено контролювати деякі функції безпеки вашого пристрою Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Редаг. деталі"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"Потрібно змінити PIN-код або пароль блокування екрана для \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Терм.дії пар.блок.екр.закінч."</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Термін дії PIN-коду чи пароля блокування екрана закінчився."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Пароль блок. екр. вже не діє"</string>
@@ -365,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Терм. дії пароля блок. екрана закінчився"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Дані для <xliff:g id="ACCOUNT">%s</xliff:g> стираються з вашого пристрою. Їх можна відновити, змінивши PIN-код або пароль блокування екрана. Змінити зараз?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Відхилити незбережені зміни?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Помилка входу"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не вдалося ввійти"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Ім’я користувача чи пароль для <xliff:g id="ACCOUNT">%s</xliff:g> неправильні. Оновити зараз?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Обл. зап. за умовч."</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Надіс. ел.листи з цього обл. зап. за умовч."</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автомат. завантаж. вклад. файли"</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Автоматично завантажувати вкладення, коли є з\'єднання з Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Автомат. завантажувати вкладені файли, коли є з’єднання з WiFi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Сповіщення ел. пошти"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Синхронізуйте частоту, сповіщення тощо"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Сповіщати в системному рядку про надходження листа"</string>
@@ -393,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Синхрон. контакти для облік. запису"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Синхроніз. Календар"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Синхроніз. календар для обл. запису"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхроніз. ел. пошту"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхроніз. ел.пошту"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Синхрон. ел. пошту для обл. запису"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Вібросигнал"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Також вібрув., коли надійде лист"</string>
@@ -401,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Лише в беззвуч. реж."</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Ніколи"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Вібросигнал"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Вибрати мелодію"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Вибрати сигнал дзвінка"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Налашт-ня сервера"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Видал. обл. зап."</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Обліковий запис \"<xliff:g id="ACCOUNT">%s</xliff:g>\" буде видалено з Пошти."</string>
@@ -413,15 +405,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Частота перевірки"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Синхронізувати за стільки днів:"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Обл.зап.пошти"</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Вибрати облік. запис"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Вибрати облік. запис"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Вибір папки"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"Обліковий запис не знайдено. Можливо, його було видалено."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Папку не знайдено. Можливо, її було видалено."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Лише деякі обл. записи класу \"Plus\" уключ. доступ до серв. POP, що дозвол. цій прогр. підключ. Якщо ви не можете ввійти за доп. правильної ел.адр. і пароля, можливо, у вас немає платн. обл. запису \"Plus\". Запуст. переглядач, щоб мати доступ до цих обл. записів пошти."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Перед налашт. цього обл. запису пошти завітайте на сайт T-Online і створіть пароль для доступу до пошт. сервера POP3."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Обліковий запис не знайдено. Можливо, його видалено."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Папку не знайдено. Можливо, її було видалено."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Лише деякі облікові записи класу \"Plus\" надаються з доступом до сервера POP, що дозволяє цій програмі підключатися. Якщо ви не можете ввійти, використовуючи правильну електронну адресу та пароль, можливо, у вас немає платного облікового запису \"Plus\". Запустіть веб-переглядач, щоб мати доступ до цих облікових записів електронної пошти."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Перед налаштуванням цього облікового запису пошти відвідайте веб-сайт T-Online і створіть пароль для доступу до поштового сервера POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Корпоратив"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"AccountManager не вдалося створити обліковий запис. Спробуйте ще."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Не вдалося створити обліковий запис. Повторіть спробу."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Ел.пошта"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Активує правила безпеки, указані сервером"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Пошук на <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -430,21 +422,21 @@
     <item quantity="other" msgid="7816121892960632123">"Результатів з <xliff:g id="DOMAIN">%2$s</xliff:g>: <xliff:g id="RESULTS">%1$d</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Налаштування"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Загальні налаштування"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Налаштування програми"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Загальні"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"Програма"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Автоматичний перехід"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Виберіть, що відображати після видалення повідомлення"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Виберіть, що відображати після видалення повідомлення"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Перейти до"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Новішого повідомлення"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Старішого повідомлення"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Списку повідомлень"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Розмір тексту повідомлення"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Відображати вміст повідомлень текстом дуже малого розміру"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Відображати вміст повідомлень текстом малого розміру"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Відображати вміст повідомлень текстом звичайного розміру"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Відображати вміст повідомлень текстом великого розміру"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Відображати вміст повідомлень текстом дуже великого розміру"</item>
+    <item msgid="4693576184223089069">"Дуже малий текст"</item>
+    <item msgid="4415205108584620118">"Малий текст"</item>
+    <item msgid="4550219696381691112">"Звичайний розмір тексту"</item>
+    <item msgid="6227813549949219991">"Великий текст"</item>
+    <item msgid="1197917420815786571">"Дуже великий текст"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Розмір тексту повідомлення"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Дуже малий"</string>
@@ -456,16 +448,16 @@
     <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Зробити \"Відповісти всім\" відповіддю на повідомлення за умовчанням"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Відновити налаштування за умовчанням \"Показати зображення\""</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Відновити налаштування за умовчанням для всіх відправників (не показувати зображення автоматично)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"Налаштування \"Показати зображення\" очищено."</string>
+    <string name="trusted_senders_cleared" msgid="8079053907862270420">"Налаштування \"Показати зображення\" очищено."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> з <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Очікування на синхронізацію"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ваша електронна пошта з’явиться незабаром."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Торкн.знач.для зміни"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ваша електронна пошта з’явиться незабаром."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Торк.знач.для зміни."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Об\'єднані Вхідні"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Непрочитані"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Із зірочкою"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Завантаження…"</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Натисніть, щоб налаштувати"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Торкніться, щоб налаштувати."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Ви ще не налаштували обліковий запис електронної пошти."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Пошук в електронній пошті"</string>

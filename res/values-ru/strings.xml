@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Читать прикрепленные файлы"</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Открывать прикрепленные файлы"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Приложение получит доступ к прикрепленным файлам в сообщениях эл. почты."</string>
-    <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным провайдера эл. почты"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, включая полученные и отправленные письма, имена пользователей и пароли."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным поставщика услуг эл. почты"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, которая включает входящие и отправленные письма, имена пользователей и пароли."</string>
     <string name="app_name" msgid="5815426892327290362">"Написать письмо"</string>
     <string name="compose_title" msgid="427986915662706899">"Новое сообщение"</string>
     <string name="debug_title" msgid="5175710493691536719">"Выполнить отладку"</string>
@@ -62,7 +62,7 @@
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Переместить в папку"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Загрузка сообщений..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"Ошибка подключения."</string>
-    <string name="error_loading_message_body" msgid="6775234299515596760">"Не удалось загрузить текст сообщения. Возможно, объем сообщения слишком велик."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Не удалось загрузить сообщение. Возможно, оно слишком большое."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Переместить сообщение"</item>
     <item quantity="other" msgid="371256717624461324">"Переместить сообщения"</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Сохранено"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Стоп"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Вложение сохранено как <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Не удалось сохр. прикреп. файл"</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Файл не сохранен."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Примечание. Несколько прикрепленных файлов в переадресованном сообщении будут загружены перед отправкой."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Сообщение"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Пригласить"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Всегда показывать картинки с этого адреса"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Картинки, отправленные с этого адреса, будут всегда показываться."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Посмотреть в Календаре"</string>
-    <string name="message_view_invite_title" msgid="3418949733434713805">"Календарь – приглашение"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Календарь: приглашение"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Примете участие?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Да"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Может быть"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Нет"</string>
-    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Вы приняли это приглашение."</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Приглашение принято."</string>
     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Вы ответили \"может быть\" на это приглашение."</string>
-    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Вы отклонили это приглашение."</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Приглашение отклонено."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Показать сведения"</string>
-    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Сведения о сообщении"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Детали"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"О прикрепленном файле"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Необходимо Wi-Fi-соединение"</string>
-    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Настройки WiFi"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Требуется Wi-Fi-соединение"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Настройки Wi-Fi"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Настройки приложения"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Не удается открыть прикрепленный файл."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Нельзя сохранить или открыть этот файл, так как этот тип прикрепленного файла может содержать вредоносное ПО."</string>
-    <string name="attachment_info_policy" msgid="3560422300127587508">"Этот прикрепленный файл нельзя сохранить или открыть в соответствии с политикой безопасности этого аккаунта."</string>
-    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Слишком большой прикрепленный файл для загрузки через мобильную сеть. Вы можете загрузить его при следующем подключении к сети Wi-Fi."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Не установлено приложение, с помощью которого можно открыть этот прикрепленный файл. Попробуйте загрузить соответствующее приложения из Android Маркета."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Прикрепленный файл является приложением. Прежде можно будет установить его, необходимо установить флажок \"Неизвестные источники\" в разделе   \"Настройки\" &gt; \"Приложения\"."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Приложения нельзя устанавливать непосредственно из электронной почты. Сохраните это приложение и установите его с помощью приложения \"Загрузки\"."</string>
-    <string name="attachment_not_found" msgid="7155322700141145123">"Не удалось загрузить прикрепленный файл."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Через файлы такого типа часто распространяют вредоносное ПО, поэтому мы не даем открывать и сохранять их."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Политика безопасности аккаунта не позволяет сохранять подобные файлы."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Файл слишком большой для загрузки через мобильную сеть. Чтобы сохранить его, нужно подключиться к сети Wi-Fi."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Неподдерживаемый формат. Чтобы открыть файл, установите подходящее приложение из Android Маркета."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Прикрепленный файл является приложением. Чтобы его можно было установить, в разделе \"Настройки &gt; Приложения\" выберите \"Неизвестные источники\"."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Приложения нельзя устанавливать непосредственно из электронной почты. Сохраните файл, перейдите в \"Загрузки\" и выполните установку."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Не удалось загрузить файл."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"При расшифровке сообщения произошла ошибка."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Просмотр файла <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <item quantity="one" msgid="3799616435056423256">"Удалить это сообщение?"</item>
-    <item quantity="other" msgid="4437637377522896262">"Удалить эти сообщения?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Удалить сообщение?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Удалить сообщения?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Сообщение удалено."</item>
@@ -202,7 +202,7 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Черновик удален."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Черновик сообщения сохранен."</string>
     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Невозможно отобразить прикрепленный файл."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Не удалось загрузить прикрепленный файл \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Не удалось загрузить файл \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Сообщение открывается…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"Сообщение (<xliff:g id="NUM_MESSAGE">%1$d</xliff:g>) перемещено в папку <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -211,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Сбой при пересылке прикрепленных файлов."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Не удалось переслать вложение"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"Ошибка авторизации <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
-    <string name="login_failed_title" msgid="791871543602843876">"Не удалось войти"</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Не удалось войти в аккаунт"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
@@ -235,7 +235,7 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Добавить аккаунт Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Добавить аккаунт Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Аккаунт эл. почты"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Программу Email можно легко настроить для большинства популярных почтовых служб."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Email можно легко настроить для большинства популярных почтовых служб."</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Настроить аккаунт Exchange очень просто."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Настроить аккаунт Exchange ActiveSync очень просто."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адрес электронной почты"</string>
@@ -253,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Ваш аккаунт настроен, ждите сообщений!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Присвойте этому аккаунту название (по желанию)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ваше имя (показывается в исходящих сообщениях)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Это поле не может быть пустым."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Это поле должно быть заполнено."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Настройка аккаунта"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Тип аккаунта"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Что это за аккаунт?"</string>
@@ -310,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхронизировать контакты из этого аккаунта."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхронизировать календарь из этого аккаунта."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхронизировать почту из этого аккаунта"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Автоматически загружать прикрепленные файлы при подключении к Wi-Fi"</string>
-    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Не удалось закончить"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Загружать прикрепленные файлы при подключении к Wi-Fi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Настройка не закончена"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Период синхронизации"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Автоматически"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Один день"</string>
@@ -323,24 +323,24 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Параметры по умолчанию"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Неверное имя пользователя или пароль."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Неверное имя пользователя или пароль."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Не удается установить защищенное подключение к серверу."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не удается установить защищенное подключение к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Необходим сертификат клиента. Подключиться к серверу с этим сертификатом?"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Не удалось установить защищенное подключение к серверу."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не удается установить защищенное подключение к серверу."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Необходим сертификат клиента. Подключиться к серверу?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Сертификат недействителен или недоступен."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Ошибка сервера; проверьте имя пользователя и пароль и повторите попытку."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Невозможно подключиться к серверу."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Не удается подключиться к серверу."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Ошибка сервера. Проверьте имя пользователя и пароль и повторите попытку."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Не удалось подключиться к серверу."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Не удалось подключиться к серверу."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS не поддерживается сервером."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Методы аутентификации не поддерживаются сервером."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"Не удается установить подключение к серверу из-за ошибки безопасности."</string>
-    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Не удалось открыть подключение к серверу."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Введен неправильный адрес сервера или сервер запрашивает версию протокола, которую не поддерживает почта."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Не удалось установить подключение к серверу из-за ошибки безопасности."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Не удалось подключиться к серверу."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Введен неправильный адрес сервера или сервер запрашивает версию протокола, которая не поддерживается в Email."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"У вас нет разрешений на синхронизацию с этим сервером. За дополнительной информацией обратитесь к администратору сервера."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаленное управление безопасностью"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Серверу <xliff:g id="SERVER">%s</xliff:g> требуется разрешение на удаленное управление некоторыми функциями безопасности устройства Android. Завершить настройку этого аккаунта?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Ваше устройство Android не поддерживает функции безопасности, которые необходимы для этого сервера: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Невозможно изменить имя пользователя. Можно создать аккаунт с другим именем пользователя, нажав \"Добавить аккаунт\"."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"ВНИМАНИЕ! Отключение прав на администрирование вашего устройства для приложения электронной почты приведет к удалению всех аккаунтов электронной почты, которые используют эти права. Кроме того, будут удалены все письма, контакты, календари и другие данные, связанные с этими аккаунтами."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Ваше Android-устройство не поддерживает необходимые для сервера функции защиты: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Невозможно изменить имя пользователя. Но можно создать аккаунт с другим именем, нажав \"Добавить аккаунт\"."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"ВНИМАНИЕ! Отключение прав на администрирование вашего устройства для приложения Email приведет к удалению всех аккаунтов электронной почты, которые используют эти права. Кроме того, будут удалены все письма, контакты, календари и другие данные, связанные с этими аккаунтами."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Обновления безопасности"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Для аккаунта <xliff:g id="ACCOUNT">%s</xliff:g> требуется обновить настройки безопасности."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" требует обновления настроек безопасности."</string>
@@ -357,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Пароль блокировки экрана устарел"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Данные аккаунта <xliff:g id="ACCOUNT">%s</xliff:g> удаляются с вашего устройства. Вы можете восстановить их, изменив свой PIN-код или пароль блокировки экрана. Изменить его сейчас?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Отменить несохраненные изменения?"</string>
-    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не удалось войти."</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не удалось войти в аккаунт."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Неверное имя пользователя или пароль аккаунта <xliff:g id="ACCOUNT">%s</xliff:g>. Обновить их сейчас?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепл. файлов"</string>
-    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Автоматически загружать прикрепленные файлы, если подкл. к Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Загружать прикрепленные файлы при подключении к Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления электронной почты"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Частота синхронизации, уведомления и другие настройки"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"При получении почты показывать оповещение в строке состояния системы"</string>
@@ -385,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Синхронизировать контакты этого аккаунта"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Синхронизировать календарь"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Синхронизировать календарь этого аккаунта"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхр-ть почту"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхрон-ть почту"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Синхронизировать почту этого аккаунта"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Вибросигнал"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Вибросигнал при получении сообщения"</string>
@@ -393,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Только в режиме без звука"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Никогда"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Вибросигнал"</string>
-    <string name="account_settings_ringtone" msgid="8229878374785575207">"Выбрать мелодию"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Выбрать рингтон"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Настройки сервера"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Удалить аккаунт"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Аккаунт \"<xliff:g id="ACCOUNT">%s</xliff:g>\" будет удален из Email."</string>
@@ -407,13 +407,13 @@
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Аккаунт эл. почты"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Выберите аккаунт"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Выберите папку"</string>
-    <string name="toast_account_not_found" msgid="8144242451730692816">"Аккаунт не найден. Возможно, он был удален."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Аккаунт не найден. Возможно, он удален."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Папка не найдена. Возможно, она удалена."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти со своим адресом электронной почты и паролем, скорее всего, у вас бесплатный аккаунт (не Plus). Доступ к такому аккаунту электронной почты возможен через браузер."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"Прежде чем настраивать аккаунт электронной почты, посетите веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Прежде чем настраивать аккаунт, перейдите на веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Корпоративный"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="system_account_create_failed" msgid="3673792980526246177">"Не удалось создать аккаунт. Повторите попытку позже."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Не удалось создать аккаунт. Повторите попытку."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Электронная почта"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Включение серверных политик безопасности"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Поиск <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
@@ -432,11 +432,11 @@
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Списку сообщений"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Размер шрифта"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="4693576184223089069">"Крошечный текст"</item>
-    <item msgid="4415205108584620118">"Мелкий текст"</item>
-    <item msgid="4550219696381691112">"Нормальный размер текста"</item>
-    <item msgid="6227813549949219991">"Большой текст"</item>
-    <item msgid="1197917420815786571">"Огромный текст"</item>
+    <item msgid="4693576184223089069">"Очень маленький"</item>
+    <item msgid="4415205108584620118">"Маленький"</item>
+    <item msgid="4550219696381691112">"Обычный"</item>
+    <item msgid="6227813549949219991">"Большой"</item>
+    <item msgid="1197917420815786571">"Огромный"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Размер шрифта"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Мелкий"</string>
@@ -452,13 +452,13 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> из <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Ожидание синхронизации"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ваши письма скоро загрузятся."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Нажмите для измен."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Нажмите, чтобы изменить."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Все входящие"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Непрочитанные"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Помеченные"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Загрузка..."</string>
-    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Нажмите для настойки."</string>
-    <string name="widget_no_accounts" msgid="2412482205591224408">"Вы еще не создали аккаунт электронной почты."</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Нажмите для настройки."</string>
+    <string name="widget_no_accounts" msgid="2412482205591224408">"Вы еще не добавили аккаунт электронной почты."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Искать в электронной почте"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Искать в папке \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>

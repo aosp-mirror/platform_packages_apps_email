@@ -16,10 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- outdated translation 618768999416116023 -->     <string name="permission_read_attachment_label" msgid="9208086010625033590">"E-mailbijlagen lezen"</string>
-    <!-- outdated translation 7079397473503113579 -->     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Staat deze app toe uw e-mailbijlagen te lezen."</string>
-    <!-- outdated translation 4274353114641168675 -->     <string name="permission_access_provider_label" msgid="378256653525377586">"Gegevens e-mailprovider openen"</string>
-    <!-- outdated translation 2549843731779487336 -->     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Geeft deze app toegang tot uw e-maildatabase, waaronder ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"E-mailbijlagen lezen"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Staat deze app toe uw e-mailbijlagen te lezen."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Gegevens e-mailprovider openen"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Hiermee geeft u deze app toegang tot uw e-maildatabase, inclusief ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Opstellen"</string>
     <string name="debug_title" msgid="5175710493691536719">"Foutopsporing"</string>
@@ -61,15 +61,15 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Bijlage kiezen"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Verplaatsen naar"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Berichten laden..."</string>
-    <!-- outdated translation 6045933332005067021 -->     <string name="status_network_error" msgid="2611654064403817391">"Verbindingsfout"</string>
-    <!-- outdated translation 2265140604109272914 -->     <string name="error_loading_message_body" msgid="6775234299515596760">"Onverwachte fout bij laden van berichttekst. Bericht is mogelijk te groot om weer te geven."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Verbindingsprobleem."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"Kan de berichttekst niet laden. Het bericht is mogelijk te groot om weer te geven."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Bericht verplaatsen"</item>
     <item quantity="other" msgid="371256717624461324">"Berichten verplaatsen"</item>
   </plurals>
-    <!-- outdated translation 8321714399405096556 -->     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Verplaatsen wordt niet ondersteund op POP3-accounts."</string>
-    <!-- outdated translation 4111097224275445005 -->     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verplaatsen is niet mogelijk. Selectie bevat meerdere accounts."</string>
-    <!-- outdated translation 2533188790446456804 -->     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Berichten in de mappen \'Concepten\', \'Postvak UIT\' en \'Verzonden berichten\' kunnen niet worden verplaatst."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Verplaatsen wordt niet ondersteund in POP3-accounts."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verplaatsen is niet mogelijk. Selectie bevat meerdere accounts."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Berichten in de mappen \'Concepten\', \'Postvak UIT\' en \'Verzonden berichten\' kunnen niet worden verplaatst."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -81,7 +81,7 @@
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"naar <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> nieuwe berichten"</string>
-    <!-- outdated translation 4041817500580342035 -->     <string name="account_name_display_all" msgid="837218861494831989">"Alle accounts"</string>
+    <string name="account_name_display_all" msgid="837218861494831989">"Alle accounts"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> accounts"</item>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Opgeslagen"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stoppen"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Bijlage opgeslagen als <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <!-- outdated translation 2253752149762341579 -->     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Kan bijlage niet opslaan."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Kan de bijlage niet opslaan."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Opmerking: een of meer bijlagen in uw doorgestuurde bericht worden gedownload voordat het bericht wordt verzonden."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Bericht"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Uitnodigen"</string>
@@ -166,34 +166,34 @@
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Foto\'s van deze afzender altijd weergeven"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Foto\'s van deze afzender worden automatisch weergegeven."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Weergeven in Agenda"</string>
-    <!-- outdated translation 5024473745902772299 -->     <string name="message_view_invite_title" msgid="3418949733434713805">"Agenda-uitnodiging"</string>
+    <string name="message_view_invite_title" msgid="3418949733434713805">"Agenda-uitnodiging"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Komt u ook?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" Misschien"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Nee"</string>
-    <!-- outdated translation 1900593767157209498 -->     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"U heeft deze uitnodiging geaccepteerd"</string>
-    <!-- outdated translation 8324044318669610540 -->     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"U heeft \'misschien\' geantwoord op deze uitnodiging"</string>
-    <!-- outdated translation 7511491076936887064 -->     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"U heeft deze uitnodiging afgewezen"</string>
+    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"U heeft deze uitnodiging geaccepteerd."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"U heeft \'misschien\' geantwoord op deze uitnodiging"</string>
+    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"U heeft deze uitnodiging afgewezen."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Details weergeven"</string>
-    <!-- outdated translation 5306529501287351018 -->     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Berichtdetails"</string>
+    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Berichtdetails"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Bijlage-informatie"</string>
-    <!-- outdated translation 3174350153882915382 -->     <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Wi-Fi-verbinding vereist"</string>
-    <!-- outdated translation 96432970927503597 -->     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi-instellingen"</string>
-    <!-- outdated translation 9128108769497191200 -->     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Applicatie-instellingen"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Wifi-verbinding vereist"</string>
+    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wifi-instellingen"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"App-instellingen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Kan bijlage niet openen."</string>
-    <!-- outdated translation 1478505616946912328 -->     <string name="attachment_info_malware" msgid="6576029010855055528">"Aangezien dit type bijlage schadelijke software kan bevatten, kunt u de bijlage niet opslaan of openen."</string>
-    <!-- outdated translation 328224012587376154 -->     <string name="attachment_info_policy" msgid="3560422300127587508">"Deze bijlage kan niet worden opgeslagen of geopend wegens het beveiligingsbeleid voor dit account."</string>
-    <!-- outdated translation 1481120960014563617 -->     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Deze bijlage is te groot om te downloaden via een mobiel netwerk. U kunt de bijlage downloaden wanneer u weer verbinding maakt met een Wi-Fi-netwerk."</string>
-    <!-- outdated translation 5277484372596654977 -->     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Er is geen applicatie geïnstalleerd waarmee deze bijlage kan worden geopend. Probeer een geschikte applicatie te downloaden via Android Market."</string>
-    <!-- outdated translation 1884647432057183615 -->     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Deze bijlage is een applicatie. U moet het selectievakje \'Onbekende bronnen\' in \'Instellingen\', onder \'Applicaties\' aanvinken voordat u de applicatie kunt installeren."</string>
-    <!-- outdated translation 9077383681081393067 -->     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Applicaties kunnen niet rechtstreeks vanuit E-mail worden geïnstalleerd. Sla de applicatie eerst op en installeer deze via de applicatie \'Downloads\'."</string>
-    <!-- outdated translation 2593390852574725378 -->     <string name="attachment_not_found" msgid="7155322700141145123">"De bijlage kan niet worden gedownload."</string>
-    <!-- outdated translation 7812862491622388416 -->     <string name="message_decode_error" msgid="5016042255170947834">"Fout tijdens decoderen van bericht."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"U kunt dit bericht niet opslaan of openen omdat dit type bijlage schadelijke software kan bevatten."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Deze bijlage kan niet worden opgeslagen of geopend als gevolg van het beveiligingsbeleid van dit account."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Deze bijlage is te groot om via een mobiel netwerk te downloaden. U kunt de bijlage downloaden wanneer u de volgende keer verbinding maakt met een wifi-netwerk."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Er is geen geïnstalleerde app beschikbaar die de bijlage kan openen. Download een geschikte app van Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Deze bijlage is een app. U moet \'Onbekende bronnen\' aanvinken in \'Instellingen\' &gt; \'Apps\' voordat u de app kunt installeren."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps kunnen niet rechtstreeks via e-mail worden geïnstalleerd. Sla de app eerst op en installeer deze via de app Downloads."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Kan de bijlage niet downloaden."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Er is een fout opgetreden tijdens het decoderen van het bericht."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> is geopend"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
-    <!-- outdated translation 8452608582303152000 -->     <item quantity="one" msgid="3799616435056423256">"Dit bericht weggooien?"</item>
-    <!-- outdated translation 5071164417794016228 -->     <item quantity="other" msgid="4437637377522896262">"Deze berichten weggooien?"</item>
+    <item quantity="one" msgid="3799616435056423256">"Dit bericht verwijderen?"</item>
+    <item quantity="other" msgid="4437637377522896262">"Deze berichten verwijderen?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Bericht verwijderd."</item>
@@ -201,19 +201,17 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Bericht wordt verwijderd"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Bericht opgeslagen als concept."</string>
-    <!-- outdated translation 6096315816776330821 -->     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Deze bijlage kan niet worden weergegeven."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (3623598332367932461) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Kan bijlage niet weergeven."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Kan de bijlage \'<xliff:g id="FILENAME">%s</xliff:g>\' niet laden."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Bericht openen..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> bericht verplaatst naar <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> berichten verplaatst naar <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- outdated translation 328380505427633405 -->     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Kan een of meer bijlagen niet doorsturen"</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Kan een of meer bijlagen niet doorsturen."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Bijlage niet doorgestuurd"</string>
-    <!-- no translation found for login_failed_ticker (5749227022559285302) -->
-    <skip />
-    <!-- outdated translation 6948780582524747622 -->     <string name="login_failed_title" msgid="791871543602843876">"Aanmelden mislukt"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g>: aanmelden mislukt."</string>
+    <string name="login_failed_title" msgid="791871543602843876">"Aanmelden mislukt"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -237,17 +235,16 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Een Exchange-account toevoegen"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Een Exchange ActiveSync-account toevoegen"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mailaccount"</string>
-    <!-- outdated translation 5901437782383439370 -->     <string name="accounts_welcome" msgid="1491126253077950685">"U kunt E-mail voor de meeste accounts in enkele stappen configureren."</string>
-    <!-- outdated translation 4414121583987233733 -->     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"U kunt een Exchange-account in enkele stappen configureren."</string>
-    <!-- outdated translation 1324339567986452000 -->     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"U kunt een Exchange ActiveSync-account in enkele stappen configureren."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"U kunt e-mail voor de meeste accounts in slechts enkele stappen instellen."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"U kunt een Exchange-account in slechts enkele stappen instellen."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"U kunt een Exchange ActiveSync-account in slechts enkele stappen instellen."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailadres"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Wachtwoord"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Handmatig instellen"</string>
-    <!-- outdated translation 4441448542557889481 -->     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Typ een geldig e-mailadres en wachtwoord"</string>
-    <!-- outdated translation 3176749833792312641 -->     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Kopie van account maken"</string>
-    <!-- no translation found for account_duplicate_dlg_message_fmt (6447629283679935840) -->
-    <skip />
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Typ een geldig e-mailadres en wachtwoord."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dubbel account"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"U gebruikt deze gebruikersnaam al voor het account \'<xliff:g id="DUPLICATE">%s</xliff:g>\'."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Dit wachtwoord begint of eindigt met een of meer spaties. Veel servers bieden geen ondersteuning voor wachtwoorden met spaties."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Accountinformatie ophalen..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Serverinstellingen inkomende e-mail controleren..."</string>
@@ -256,7 +253,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Uw account is ingesteld en er is e-mail onderweg."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Geef dit account een naam (optioneel)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Uw naam (wordt weergegeven in uitgaande berichten)"</string>
-    <!-- outdated translation 1251952000604599298 -->     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dit veld mag niet leeg zijn"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dit veld mag niet leeg zijn."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Accountinstellingen"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Accounttype"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Welk type account is dit?"</string>
@@ -271,7 +268,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Geen"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Alle certificaten accepteren)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <!-- outdated translation 2033477209532207648 -->     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Alle certificaten accepteren)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Alle certificaten accepteren)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"E-mail verwijderen van server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nooit"</string>
@@ -313,8 +310,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Contacten van dit account synchroniseren."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Agenda van dit account synchroniseren."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"E-mail voor dit account synchroniseren."</string>
-    <!-- outdated translation 5247749298276451846 -->     <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Bijlagen automatisch downloaden indien verbonden met Wi-Fi"</string>
-    <!-- outdated translation 7827583313117521383 -->     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Instellen is niet voltooid"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Bijlagen automatisch downloaden indien verbonden met wifi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Is niet voltooid"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dagen om te synchroniseren"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisch"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Eén dag"</string>
@@ -326,37 +323,32 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Accountstandaard gebruiken"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikersnaam of wachtwoord is onjuist."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- outdated translation 961843413600482906 -->     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan geen veilige verbinding met de server tot stand brengen."</string>
-    <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
-    <skip />
-    <!-- outdated translation 6885740669437744865 -->     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Clientcertificaat vereist. Wilt u verbinding met de server maken met een clientcertificaat?"</string>
-    <!-- outdated translation 4343495223208675649 -->     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificaat ongeldig of niet toegankelijk."</string>
-    <!-- outdated translation 1364052504743821082 -->     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"De server heeft een fout geretourneerd. Controleer uw gebruikersnaam en wachtwoord en probeer het opnieuw."</string>
-    <!-- outdated translation 1828270369532779265 -->     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan geen verbinding maken met de server."</string>
-    <!-- no translation found for account_setup_failed_dlg_server_message_fmt (2525425638303883232) -->
-    <skip />
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan geen veilige verbinding met de server tot stand brengen."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan geen veilige verbinding met de server tot stand brengen."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Clientcertificaat is vereist. Met clientcertificaat verbinding maken met de server?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificaat is ongeldig of niet toegankelijk."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"De server heeft een fout geretourneerd. Controleer uw gebruikersnaam en wachtwoord en probeer het opnieuw."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan geen verbinding maken met de server."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan geen verbinding maken met de server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS is vereist maar wordt niet ondersteund door de server."</string>
-    <!-- outdated translation 1676242821459638150 -->     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Verificatiemethoden worden niet ondersteund door de server."</string>
-    <!-- outdated translation 6142264248671379943 -->     <string name="account_setup_failed_security" msgid="925820957665764964">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
-    <!-- outdated translation 7391458717708933095 -->     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kan geen verbinding met de server maken."</string>
-    <!-- outdated translation 5476633232659376833 -->     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"U heeft een onjuist serveradres ingevoerd of de server vereist een protocolversie die niet door E-mail wordt ondersteund."</string>
-    <!-- outdated translation 2571826611383388336 -->     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"U heeft geen toestemming om met deze server te synchroniseren. Neem voor meer informatie contact op met de beheerder van uw server."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Verificatiemethoden worden niet ondersteund door de server."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kan geen verbinding met de server maken."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"U heeft een onjuist serveradres getypt of de server vereist een protocolversie die niet door E-mail wordt ondersteund."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"U heeft geen toestemming om met deze server te synchroniseren. Neem voor meer informatie contact op met de beheerder van uw server."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Extern beveiligingsbeheer"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"De server <xliff:g id="SERVER">%s</xliff:g> vereist dat u de server toestemming geeft bepaalde beveiligingsfuncties van uw Android-apparaat extern te bedienen. Wilt u het instellen van dit account voltooien?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (3210264746877120355) -->
-    <skip />
-    <!-- outdated translation 9057508235700936322 -->     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"U kunt de gebruikersnaam van een account niet wijzigen. Als u een account met een andere gebruikersnaam wilt toevoegen, raakt u \'Account toevoegen\' aan."</string>
-    <!-- outdated translation 4940147098039352135 -->     <string name="disable_admin_warning" msgid="6196985268695592382">"WAARSCHUWING: als u de rechten van de e-mailtoepassing voor het beheren van uw apparaat uitschakelt, worden alle e-mailaccounts verwijderd waarvoor deze rechten vereist zijn, samen met de bijbehorende e-mails, contacten, agenda-afspraken en andere gegevens."</string>
-    <!-- outdated translation 1340675800634074043 -->     <string name="account_security_dialog_title" msgid="430041952584831904">"Beveiligingsupdate vereist"</string>
-    <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Voor deze server zijn beveiligingsfuncties nodig die uw Android-apparaat niet ondersteunt, waaronder: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"U kunt de gebruikersnaam van een account niet wijzigen. Als u een account met een andere gebruikersnaam wilt toevoegen, raakt u \'Account toevoegen\' aan."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"WAARSCHUWING: als u de rechten van de app E-mail voor het beheren van uw apparaat uitschakelt, worden alle e-mailaccounts verwijderd waarvoor deze rechten vereist zijn, samen met de bijbehorende e-mails, contacten, agenda-afspraken en andere gegevens."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Beveiligingsupdate"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Voor <xliff:g id="ACCOUNT">%s</xliff:g> moet u uw beveiligingsinstellingen bijwerken."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Account \'<xliff:g id="ACCOUNT">%s</xliff:g>\' vereist een update van de beveiligingsinstellingen."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"Beveiligingsupdate vereist"</string>
-    <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Apparaatbeveiliging"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Apparaatbeveiliging"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"De server <xliff:g id="SERVER">%s</xliff:g> vereist dat u de server toestemming geeft bepaalde beveiligingsfuncties van uw Android-apparaat extern te bedienen."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bewerken"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (2459977229180023773) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"Voor \'<xliff:g id="ACCOUNT">%s</xliff:g>\' moet u uw pincode of wachtwoord voor schermvergrendeling wijzigen."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Ww. schermvergr. bijna verlopen"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Uw PIN-code of wachtwoord voor schermvergrendeling is verlopen."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Wachtw. schermvergr. verlopen"</string>
@@ -365,12 +357,12 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Wachtwoord schermvergrendeling verlopen"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"De gegevens voor <xliff:g id="ACCOUNT">%s</xliff:g> worden gewist op uw apparaat. U kunt het account herstellen door uw PIN-code of wachtwoord voor schermvergrendeling te wijzigen. Nu wijzigen?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Niet-opgeslagen wijzigingen annuleren?"</string>
-    <!-- outdated translation 3348853165458574221 -->     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Aanmelden mislukt"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kan niet aanmelden"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"De gebruikersnaam of het wachtwoord voor <xliff:g id="ACCOUNT">%s</xliff:g> is onjuist. Nu bijwerken?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standaardaccount"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-mail standaard vanaf dit account verzenden"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Bijlagen automatisch downloaden"</string>
-    <!-- outdated translation 8036004124395110306 -->     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Bijlagen automatisch downloaden indien verbonden met Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Bijlagen automatisch downloaden indien verbonden met wifi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Meldingen via e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synchronisatiefrequentie, meldingen, enzovoort"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Melding in de systeembalk wanneer er e-mail binnenkomt"</string>
@@ -393,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Contacten voor dit account synchroniseren"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Agenda synchroniseren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Agenda voor dit account synchroniseren"</string>
-    <!-- outdated translation 4305222662654506074 -->     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-mail synchroniseren"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-mail synch."</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"E-mail voor dit account synchroniseren"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Trillen"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Ook trillen wanneer er e-mail binnenkomt"</string>
@@ -401,7 +393,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Alleen indien stil"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nooit"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Trillen"</string>
-    <!-- outdated translation 7922187231467500404 -->     <string name="account_settings_ringtone" msgid="8229878374785575207">"Beltoon selecteren"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Beltoon kiezen"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinstellingen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Account verwijderen"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
@@ -413,15 +405,15 @@
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Frequentie controleren"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dagen om te synchroniseren"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mailaccount"</string>
-    <!-- outdated translation 8799411733165525683 -->     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Selecteer een account"</string>
+    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Een account selecteren"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Een map selecteren"</string>
-    <!-- outdated translation 2483831308629565584 -->     <string name="toast_account_not_found" msgid="8144242451730692816">"Account niet gevonden. Misschien is dit account verwijderd."</string>
-    <!-- outdated translation 4035254695648112767 -->     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Map niet gevonden. Misschien is deze map verwijderd."</string>
-    <!-- outdated translation 3584841823811425060 -->     <string name="provider_note_live" msgid="2995297671709325333">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als u zich niet kunt aanmelden met het juiste e-mailadres en wachtwoord, heeft u mogelijk niet betaald voor uw Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
-    <!-- outdated translation 1973701903400232774 -->     <string name="provider_note_t_online" msgid="1630642061431427894">"Voordat u dit e-mailaccount instelt, gaat u naar de website van T-Online en maakt u een wachtwoord voor toegang tot e-mail via POP3."</string>
+    <string name="toast_account_not_found" msgid="8144242451730692816">"Account niet gevonden. Misschien is dit account verwijderd."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Map niet gevonden. Misschien is deze map verwijderd."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als u zich niet kunt aanmelden met het juiste e-mailadres en wachtwoord, heeft u mogelijk niet betaald voor uw Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Voordat u dit e-mailaccount instelt, gaat u naar de website van T-Online en maakt u een wachtwoord voor toegang tot e-mail via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Zakelijk"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3673792980526246177">"De AccountManager kan het account niet maken, probeer het opnieuw."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Kan het account niet maken. Probeer het opnieuw."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Door de server aangegeven beveiligingsbeleid inschakelen"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"<xliff:g id="DOMAIN">%s</xliff:g> zoeken…"</string>
@@ -430,21 +422,21 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultaten van <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Instellingen"</string>
-    <!-- outdated translation 265431682990288581 -->     <string name="header_label_general_preferences" msgid="9204600297009680176">"Algemene voorkeuren"</string>
-    <!-- outdated translation 6810399722493971651 -->     <string name="category_general_preferences" msgid="2742423840964045801">"Toepassingsvoorkeuren"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Algemeen"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatisch doorgaan"</string>
-    <!-- outdated translation 4540091103768602710 -->     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Scherm kiezen dat wordt weergegeven na verwijderen van bericht"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Het scherm selecteren dat wordt getoond na het verw. van bericht"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Doorgaan naar"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nieuwer bericht"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ouder bericht"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Berichtenlijst"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tekstgrootte bericht"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <!-- outdated translation 1728778773460367725 -->     <item msgid="4693576184223089069">"Inhoud van berichten weergeven in tekst van minuscuul formaat"</item>
-    <!-- outdated translation 8239633518447359057 -->     <item msgid="4415205108584620118">"Inhoud van berichten weergeven in tekst van klein formaat"</item>
-    <!-- outdated translation 55959821477704302 -->     <item msgid="4550219696381691112">"Inhoud van berichten weergeven in tekst van normaal formaat"</item>
-    <!-- outdated translation 446236334663020508 -->     <item msgid="6227813549949219991">"Inhoud van berichten weergeven in tekst van groot formaat"</item>
-    <!-- outdated translation 235926149071179467 -->     <item msgid="1197917420815786571">"Inhoud van berichten weergeven in tekst van enorm formaat"</item>
+    <item msgid="4693576184223089069">"Heel kleine tekst"</item>
+    <item msgid="4415205108584620118">"Kleine tekst"</item>
+    <item msgid="4550219696381691112">"Normale tekst"</item>
+    <item msgid="6227813549949219991">"Grote tekst"</item>
+    <item msgid="1197917420815786571">"Heel grote tekst"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tekstgrootte bericht"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Minuscuul"</string>
@@ -456,16 +448,16 @@
     <string name="general_preference_reply_all_summary" msgid="917669156784760966">"\'Allen beantwoorden\' gebruiken als standaard beantwoordingsoptie"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Standaardinstellingen herstellen voor \'Afbeeldingen weergeven\'"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Standaardinstellingen voor alle afzenders herstellen (afbeeldingen niet automatisch weergeven)"</string>
-    <!-- outdated translation 4762002183756251723 -->     <string name="trusted_senders_cleared" msgid="8079053907862270420">"\'Afbeeldingen weergeven\' gewist."</string>
+    <string name="trusted_senders_cleared" msgid="8079053907862270420">"\'Afbeeldingen weergeven\' gewist."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Wachten op synchronisatie"</string>
-    <!-- outdated translation 8850585407012152631 -->     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Uw e-mail wordt over enkele ogenblikken weergegeven."</string>
-    <!-- outdated translation 2265335608760083337 -->     <string name="widget_other_views" msgid="4988574907386539499">"Tik: pict. wijzigen"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Uw e-mail wordt over enkele ogenblikken weergegeven."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Raak pictogram aan voor wijzigen."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Gecombineerde Inbox"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ongelezen"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Met ster"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Laden..."</string>
-    <!-- outdated translation 3272115577715211268 -->     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Aanraken om te configureren"</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Aanraken voor instellen."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"U heeft nog geen e-mailaccount ingesteld."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Zoeken in e-mail"</string>
