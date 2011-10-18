@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Subject:"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Compose Mail"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Compose Email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Quoted text"</string>
@@ -177,13 +177,13 @@
     <string name="message_view_show_details" msgid="6287415596441037095">"Show details"</string>
     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Message details"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Attachment info"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3433085933207351929">"Wi-Fi connection required"</string>
-    <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"Wi-Fi settings"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi connection required"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi settings"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"App settings"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Can\'t open attachment."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"You can\'t save or open this file because this type of attachment might contain malicious software."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"This attachment can\'t be saved or opened because of this account\'s security policies."</string>
-    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"This attachment is too large to download over a mobile network. You can download it the next time that you connect to a Wi-Fi network."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"This attachment is too large to download over a mobile network. You can download it the next time that you connect to a Wi-Fi network."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"There is no installed app that can open this attachment. Try downloading an appropriate app from Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"This attachment is an app. You must tick Unknown Sources in Settings &gt; Apps before you can install it."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps can\'t be installed directly from email. Save this app first and then install it using the Downloads app."</string>
@@ -201,8 +201,9 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Message discarded."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Message saved as draft."</string>
-    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Can\'t display the attachment."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Couldn\'t load the attachment \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
+    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Can\'t display the attachment."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
+    <skip />
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Opening message…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> message moved to <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -211,7 +212,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Could not forward one or more attachments"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Attachment not forwarded"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> sign-in failed."</string>
-    <string name="login_failed_title" msgid="791871543602843876">"Sign-in failed"</string>
+    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Sign-in failed"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -310,7 +311,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sync contacts from this account."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sync calendar from this account."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sync email from this account."</string>
-    <string name="account_setup_options_background_attachments_label" msgid="6759055024748351429">"Automatically download attachments when connected to Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automatically download attachments when connected to Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Couldn\'t finish"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Days to sync"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatic"</string>
@@ -361,8 +362,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"The username or password for <xliff:g id="ACCOUNT">%s</xliff:g> is incorrect. Update them now?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Default account"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send email from this account by default"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Auto-download attachments"</string>
-    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Automatically download attachments when connected to Wi-Fi"</string>
+    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Auto-download attachments"</string>
+    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automatically download attachments when connected to Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Email notifications"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sync frequency, notifications, etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notify in System bar when emails arrive"</string>
@@ -445,10 +446,10 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Large"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Huge"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Reply all"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Make \'Reply all\' the default for responding to messages"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Restore default for \"Show pictures\""</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Restore default for all senders (don\'t show pictures automatically)"</string>
-    <string name="trusted_senders_cleared" msgid="8079053907862270420">"\"Show pictures\" was cleared."</string>
+    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Make \'Reply all\' the default for responding to messages"</string>
+    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Restore default for \"Show pictures\""</string>
+    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Restore default for all senders (don\'t show pictures automatically)"</string>
+    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Show pictures\" cleared."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> of <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Waiting for sync"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Your email will appear soon."</string>
