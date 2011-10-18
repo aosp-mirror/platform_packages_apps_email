@@ -364,6 +364,8 @@ public class MessagingController implements Runnable {
 
             // Select generic sync or store-specific sync
             SyncResults results = synchronizeMailboxGeneric(account, folder);
+            // The account might have been deleted
+            if (results == null) return;
             mListeners.synchronizeMailboxFinished(account.mId, folder.mId,
                                                   results.mTotalMessages,
                                                   results.mAddedMessages.size(),
@@ -771,6 +773,8 @@ public class MessagingController implements Runnable {
         // 2.  Open the remote folder and create the remote folder if necessary
 
         Store remoteStore = Store.getInstance(account, mContext);
+        // The account might have been deleted
+        if (remoteStore == null) return null;
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         /*
