@@ -88,6 +88,8 @@ public abstract class Store {
     public synchronized static Store getInstance(Account account, Context context)
             throws MessagingException {
         HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
+        // An existing account might have been deleted
+        if (hostAuth == null) return null;
         Store store = sStores.get(hostAuth);
         if (store == null) {
             Context appContext = context.getApplicationContext();
