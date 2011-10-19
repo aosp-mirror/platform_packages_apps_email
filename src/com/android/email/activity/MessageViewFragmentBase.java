@@ -685,10 +685,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             final Intent intent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT,
                     mailUri);
 
-            // Pass along full E-mail string for possible create dialog
-            intent.putExtra(ContactsContract.Intents.EXTRA_CREATE_DESCRIPTION,
-                    senderEmail.toString());
-
             // Only provide personal name hint if we have one
             final String senderPersonal = senderEmail.getPersonal();
             if (!TextUtils.isEmpty(senderPersonal)) {
