@@ -856,14 +856,30 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
          provisioning, just before jumping into system settings such as Device Policy grant,
          PIN/password, or encryption setup.  [CHAR LIMIT=none] -->
     <string name="account_security_dialog_content_fmt">
-         <xliff:g id="account">%s</xliff:g> requires that you update your security settings.</string>
+         <xliff:g id="account">%s</xliff:g> requires that you update your security
+         settings.</string>
 
     <!-- Notification ticker when device security required (note: unused in Holo XL) -->
-    <string name="security_notification_ticker_fmt">
+    <string name="security_unsupported_ticker_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" cannot be synced due to security
+    requirements.</string>
+    <!-- Notification ticker when device security required (note: unused in Holo XL) -->
+    <string name="security_needed_ticker_fmt">
             Account \"<xliff:g id="account">%s</xliff:g>\" requires security settings update.
     </string>
+    <!-- Notification ticker when device security required (note: unused in Holo XL) -->
+    <string name="security_changed_ticker_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" changed its security settings; no user
+            action is required.
+    </string>
     <!-- Notification content title when device security required [CHAR_LIMIT=30] -->
-    <string name="security_notification_content_title">Security update required</string>
+    <string name="security_notification_content_update_title">Security update required</string>
+    <!-- Notification content title when device security policies have changed [CHAR_LIMIT=30] -->
+    <string name="security_notification_content_change_title">Security policies have
+         changed</string>
+    <!-- Notification content title when device security policies cannot be met [CHAR_LIMIT=30] -->
+    <string name="security_notification_content_unsupported_title">Security policies cannot be
+         met</string>
     <!-- Title of the activity that dispatches changes to device security.  Not normally seen. -->
     <string name="account_security_title">Device security</string>
     <!-- Additional diagnostic text when the email app asserts control of the phone.
@@ -937,14 +953,26 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="account_settings_mail_check_frequency_label">Inbox check frequency</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_incoming_label">Incoming settings</string>
-   <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
     <string name="account_settings_incoming_summary">
         Username, password, and other incoming server settings</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_outgoing_label">Outgoing settings</string>
-   <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
     <string name="account_settings_outgoing_summary">
         Username, password, and other outgoing server settings</string>
+    <!-- On Settings screen, setting option name -->
+    <string name="account_settings_enforced_label">Policies enforced</string>
+    <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <string name="account_settings_enforced_summary">None</string>
+    <!-- On Settings screen, setting option name -->
+    <string name="account_settings_unsupported_label">Unsupported policies</string>
+    <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <string name="account_settings_unsupported_summary">None</string>
+    <!-- On Settings screen, label for button that attempts to sync the account -->
+    <string name="account_settings_retry_label">Attempt sync</string>
+    <!-- On Settings screen, summmary for button that attempts to sync an account [CHAR LIMIT=64] -->
+    <string name="account_settings_retry_summary">Tap here to attempt to sync this account (i.e. if server settings have changed)</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_description_label">Account name</string>
     <!-- On Settings screen, setting option name -->
@@ -963,6 +991,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="account_settings_notifications">Notification settings</string>
     <!-- On Settings screen, section heading for data usage [CHAR LIMIT=70] -->
     <string name="account_settings_data_usage">Data usage</string>
+    <!-- On Settings screen, section heading -->
+    <string name="account_settings_policies">Security policies</string>
 
     <!-- On settings screen, dialog heading informing user to edit a quick response -->
     <string name="edit_quick_response_dialog">Edit quick response</string>
@@ -1213,4 +1243,17 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- A long placeholder string to be used in template XML files message_list_item_*.xml.
          Used only in layout computation, and never actually exposed to the user. -->
     <string name="long_string" translatable="false">looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong</string>
+
+    <!-- A policy disallowing the user of the device's camera [CHAR LIMIT=40] -->
+    <string name="policy_dont_allow_camera">Disallow use of the device\'s camera</string>
+    <!-- A policy requiring a device lock screen password [CHAR LIMIT=40] -->
+    <string name="policy_require_password">Require device password</string>
+    <!-- A policy disallowing the reuse of recent passwords [CHAR LIMIT=40] -->
+    <string name="policy_password_history">Restrict the reuse of recent passwords</string>
+    <!-- A policy that forces a password to expire after a set period of time [CHAR LIMIT=40] -->
+    <string name="policy_password_expiration">Require passwords to expire</string>
+    <!-- A policy requiring a maximum amount of time the device can sit idle before the lock screen
+        is activated [CHAR LIMIT=40] -->
+    <string name="policy_screen_timeout">Require an idle device to lock its screen</string>
 </resources>
+
