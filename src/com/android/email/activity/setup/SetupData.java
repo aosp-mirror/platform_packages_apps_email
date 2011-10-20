@@ -30,6 +30,7 @@ public class SetupData implements Parcelable {
 
     // NORMAL is the standard entry from the Email app; EAS and POP_IMAP are used when entering via
     // Settings -> Accounts
+    public static final int FLOW_MODE_UNSPECIFIED = -1;
     public static final int FLOW_MODE_NORMAL = 0;
     public static final int FLOW_MODE_ACCOUNT_MANAGER_EAS = 1;
     public static final int FLOW_MODE_ACCOUNT_MANAGER_POP_IMAP = 2;
