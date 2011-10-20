@@ -183,12 +183,12 @@
     <string name="attachment_info_unknown" msgid="8342655396805943320">"پیوست باز نمی شود."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"شما نمی‌توانید این فایل را ذخیره یا باز کنید زیرا این نوع پیوست ممکن است حاوی نرم‌افزار مخرب باشد."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"به دلیل خط‌مشی‌های امنیتی، این حساب را نمی‌توان ذخیره یا باز کرد."</string>
-    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می‌توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می شوید، آنرا دانلود کنید."</string>
+    <string name="attachment_info_wifi_only" msgid="1952445279772844815">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می‌توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می‌شوید، آنرا دانلود کنید."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"هیچ برنامه نصب شده‌ای برای باز کردن این پیوست وجود ندارد. یک برنامه مناسب از Android Market نصب کنید."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"این پیوست یک برنامه است. باید قبل از نصب آن، منبع‌های ناشناس را در تنظیمات &gt; برنامه‌ها بررسی کنید."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"نمی‌توان برنامه‎ها را به طور مستقیم از ایمیل نصب کرد. ابتدا این برنامه را ذخیره کنید و سپس آنرا با استفاده از برنامه \"دانلودها\" نصب کنید."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"نمی‌توان پیوست را دانلود کرد."</string>
-    <string name="message_decode_error" msgid="5016042255170947834">"هنگام رمزگشایی پیام خطایی روی داد."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"هنگام رمزگشایی پیام، خطایی روی داد."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"مشاهده <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
@@ -201,7 +201,7 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"پیام رد شد."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"پیام به عنوان پیش نویس ذخیره شد."</string>
-    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"نمایش پیوست امکانپذیر نیست."</string>
+    <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"نمایش پیوست امکان‌پذیر نیست."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"نمی‌توان پیوست \"<xliff:g id="FILENAME">%s</xliff:g>\" را بارگیری کرد."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"درحال بازکردن پیام..."</string>
   <plurals name="message_moved_toast">
@@ -323,13 +323,13 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"استفاده از پیش فرض حساب"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"نام کاربری یا رمز ورود نادرست است."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"نام کاربری یا رمز ورود نادرست است. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"اتصال امن به سرور امکانپذیر نیست."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"اتصال امن به سرور امکان پذیر نیست."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"اتصال امن به سرور امکان‌پذیر نیست."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"اتصال امن به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"گواهی سرویس‌ گیرنده مورد نیاز است. اتصال به سرور با گواهی سرویس‌ گیرنده؟"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"گواهینامه نامعتبر است و یا غیر قابل‌دسترسی است."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"سرور با یک خطا پاسخ داد. لطفاً نام کاربری و گذرواژه خود را بررسی کرده و دوباره امتحان کنید."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"اتصال به سرور امکانپذیر نیست."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکانپذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"اتصال به سرور امکان‌پذیر نیست."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS لازم است اما توسط سرور پشتیبانی نمی شود."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"روش‌های تأیید اعتبار توسط سرور پشتیبانی نمی‌شوند."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"به دلیل خطای امنیتی، اتصال به سرور باز نمی‌شود."</string>
@@ -342,7 +342,7 @@
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"شما نمی‎توانید نام کاربری یک حساب را تغییر دهید. برای افزودن یک حساب با یک نام کاربری دیگر، \"افزودن حساب\" را لمس کنید."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"اخطار: غیرفعال کردن اختیار برنامه ایمیل برای سرپرستی دستگاه شما، همه حساب‌های ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده‌های آنها را حذف می‌کند."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"به‌روزرسانی امنیتی"</string>
-    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> از شما می خواهد تنظیمات امنیتی خود را به‌روزرسانی کنید."</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> از شما می‌خواهد تنظیمات امنیتی خود را به‌روزرسانی کنید."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به روزرسانی شود."</string>
     <string name="security_notification_content_title" msgid="3352841884304076235">"به روزرسانی امنیتی لازم است"</string>
     <string name="account_security_title" msgid="3511543138560418587">"امنیت دستگاه"</string>
@@ -422,7 +422,7 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه از <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"تنظیمات"</string>
-    <string name="header_label_general_preferences" msgid="9204600297009680176">"کلی"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"عمومی"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"برنامه کاربردی"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"پیشرفته خودکار"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"انتخاب کنید بعد از حذف یک پیام، چه صفحه‌ای نشان داده شود"</string>
@@ -452,7 +452,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> از <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"در انتظار همگام سازی"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"ایمیل شما به زودی ظاهر خواهد شد."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"برای تغییر نماد را لمس کنید."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"برای تغییر، نماد را لمس کنید."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"صندوق ورودی ترکیبی"</string>
     <string name="widget_unread" msgid="4404711399009077833">"خوانده نشده"</string>
     <string name="widget_starred" msgid="8290352707134011791">"ستاره دار"</string>

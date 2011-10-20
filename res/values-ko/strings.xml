@@ -19,7 +19,7 @@
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"이메일 첨부파일 읽기"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"애플리케이션이 이메일 첨부파일을 읽도록 허용합니다."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"이메일 제공업체 데이터 액세스"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"애플리케이션이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 비롯하여 이메일 데이터베이스에 액세스하도록 합니다."</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"애플리케이션이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 포함하는 이메일 데이터베이스에 액세스하도록 합니다."</string>
     <string name="app_name" msgid="5815426892327290362">"이메일"</string>
     <string name="compose_title" msgid="427986915662706899">"메시지작성"</string>
     <string name="debug_title" msgid="5175710493691536719">"디버그"</string>
@@ -235,9 +235,9 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange 계정 추가"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync 계정 추가"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"이메일 계정"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"간단한 몇 단계를 거쳐 대부분의 계정에 대해 이메일을 설정할 수 있습니다."</string>
-    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"간단한 몇 단계를 거쳐 Exchange 계정을 설정할 수 있습니다."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"간단한 몇 단계를 거쳐 Exchange ActiveSync 계정을 설정할 수 있습니다."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"간단한 절차만으로 대부분의 계정에 대해 이메일을 설정할 수 있습니다."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"간단한 절차만으로 Exchange 계정을 설정할 수 있습니다."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"간단한 절차만으로 Exchange ActiveSync 계정을 설정할 수 있습니다."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"이메일 주소"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"비밀번호"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"이 계정에서 이메일 보냄(기본값)"</string>
@@ -334,13 +334,13 @@
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"인증 방법이 서버에서 지원되지 않습니다."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"보안 오류 때문에 서버에 연결하지 못했습니다."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"서버에 연결할 수 없습니다."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"입력한 서버 주소가 잘못되었거나, 서버에 이메일 지원이 되지 않는 프로토콜 버전이 필요합니다."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"입력한 서버 주소가 잘못되었거나, 서버에 이메일에서 지원하지 않는 프로토콜 버전이 필요합니다."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"서버와 동기화할 권한이 없습니다. 자세한 내용은 서버 관리자에게 문의해 주세요."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 서버가 Android 기기의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"이 서버는 <xliff:g id="ERROR">%s</xliff:g> 등 Android 기기가 지원하지 않는 보안 기능을 필요로 합니다."</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"계정 사용자 이름을 변경할 수 없습니다. 다른 사용자 이름으로 계정을 추가하려면 \'계정 추가\'를 터치하세요."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"경고: 이메일 앱의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정의 이메일, 주소록, 캘린더 일정 및 기타 데이터가 모두 삭제됩니다."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"경고: 이메일 앱의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정 및 이메일, 주소록, 캘린더 일정 및 기타 데이터가 모두 삭제됩니다."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"보안 업데이트"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g>의 보안 설정을 업데이트해야 합니다."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정을 사용하려면 보안 설정을 업데이트해야 합니다."</string>
@@ -410,7 +410,7 @@
     <string name="toast_account_not_found" msgid="8144242451730692816">"계정을 찾을 수 없습니다. 삭제되었을 수 있습니다."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"폴더를 찾을 수 없습니다. 삭제되었을 수 있습니다."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"일부 \'Plus\' 계정에만 이 프로그램에 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 유료 \'Plus\' 계정이 없기 때문일 수 있습니다. 이러한 이메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"이메일 계정을 설정하기 전에 T-온라인 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"이메일 계정을 설정하기 전에 T-Online 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
     <string name="exchange_name" msgid="1190783774800310346">"회사"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"계정을 만들지 못했습니다. 다시 시도해 주세요."</string>

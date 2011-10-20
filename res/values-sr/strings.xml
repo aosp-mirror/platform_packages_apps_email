@@ -181,7 +181,7 @@
     <string name="attachment_info_wifi_settings" msgid="3275768005981284687">"WiFi подешавања"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Подешавања апликације"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Није могуће отворити прилог."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Не можете да сачувате или отворите ову датотеку јер овај тип прилога може да садржи злонамерни софтвер."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Не можете да сачувате или отворите ову датотеку јер овај тип прилога можда садржи злонамерни софтвер."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Овај прилог није могуће сачувати или отворити због смерница за безбедност овог налога."</string>
     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Овај прилог је превелик да бисте га преузели преко мобилне мреже. Можете да га преузмете када се следећи пут повежете са WiFi мрежом."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Нема инсталиране апликације која може да отвори овај прилог. Покушајте да преузмете одговарајућу апликацију са Android Market-а."</string>
@@ -452,7 +452,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> од <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Чека се синхронизација"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Адреса е-поште ће се ускоро приказати."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Додирните икону да бисте променили."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Додирните икону за промену."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Комбиноване Примљене"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Непрочитане"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Са звездицом"</string>

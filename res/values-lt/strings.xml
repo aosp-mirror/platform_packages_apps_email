@@ -235,7 +235,7 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Pridėti „Exchange“ paskyrą"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Pridėti „Exchange ActiveSync“ paskyrą"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"El. pašto paskyra"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Daugelyje paskyrų galite nustatyti el. paštą, atlikę vos kelis veiksmus."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Daugelyje paskyrų galite nustatyti el. paštą atlikę vos kelis veiksmus."</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Galite nustatyti „Exchange“ paskyrą atlikę vos kelis veiksmus."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Galite nustatyti „Exchange ActiveSync“ paskyrą atlikę vos kelis veiksmus."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"El. pašto adresas"</string>
@@ -334,7 +334,7 @@
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serveris nepalaiko tapatybės nustatymo metodų."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nepavyko užmegzti ryšio su serveriu dėl saugos klaidos."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Nepavyko užmegzti ryšio su serveriu."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Įvedėte neteisingą serverio adresą arba serveriui reikalinga el. pašto nepalaikoma protokolo versija."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Įvedėte netinkamą serverio adresą arba serveriui reikalinga el. pašto nepalaikoma protokolo versija."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Neturite leidimo sinchronizuoti su šiuo serveriu. Jei reikia daugiau informacijos, susisiekite su serverio administratoriumi."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Nuotolinis saugos administravimas"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveris „<xliff:g id="SERVER">%s</xliff:g>“ reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas. Ar norite užbaigti šios paskyros nustatymą?"</string>
@@ -410,7 +410,7 @@
     <string name="toast_account_not_found" msgid="8144242451730692816">"Paskyra nerasta. Galbūt ji buvo pašalinta."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Aplankas nerastas. Galbūt jis buvo pašalintas."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Tik kai kuriose „Plus“ paskyrose yra POP prieiga, leidžianti prisijungti šiai programai. Jei negalite prisijungti naudodami tinkamą el. pašto adresą ir slaptažodį, galbūt neapmokėjote „Plus“ paskyros. Paleiskite žiniatinklio naršyklę, kad gautumėte prieigą prie šių el. pašto paskyrų."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"Prieš nustatydami šią el. pašto paskyrą, apsilankykite „T-Online“ svetainėje ir sukurkite POP3 el. pašto prieigos slaptažodį."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Prieš nustatydami šią el. pašto paskyrą apsilankykite „T-Online“ svetainėje ir sukurkite POP3 el. pašto prieigos slaptažodį."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Įmonės"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Nepavyko sukurti paskyros. Bandykite dar kartą."</string>

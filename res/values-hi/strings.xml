@@ -362,7 +362,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"डिफ़ॉल्‍ट खाता"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"डिफ़ॉल्‍ट रूप से, इस खाते से ईमेल भेजें"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"अनुलग्नक स्वत: डाउनलोड करें"</string>
-    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"WiFi से कनेक्‍ट होने पर अनुलग्‍नक स्‍वचालित रूप से डाउनलोड करें"</string>
+    <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"WiFi से कनेक्‍ट होने पर अनुलग्‍नकों को स्‍वचालित रूप से डाउनलोड करें"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ईमेल सूचनाएं"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि सिंक करें."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"ईमेल आने पर सिस्‍टम बार में सूचित करें"</string>

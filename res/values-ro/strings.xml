@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Salvat"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Opriţi"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ataşament salvat ca <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Ataşament. nu s-a putut salva."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Nu s-a salvat ataşamentul."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Notă: unul sau mai multe ataşamente din mesajul dvs. redirecţionat vor fi descărcate înainte de a fi trimise."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Mesaj"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Invitaţi"</string>
@@ -182,7 +182,7 @@
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Setări aplicaţii"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nu se poate deschide ataşamentul."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"Nu puteţi salva sau deschide acest fişier, deoarece acest tip de ataşament ar putea conţine programe rău intenţionate."</string>
-    <string name="attachment_info_policy" msgid="3560422300127587508">"Acest ataşament nu pot fi salvat sau deschis din cauza politicilor de securitate ale acestui cont."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Acest ataşament nu poate fi salvat sau deschis din cauza politicilor de securitate ale acestui cont."</string>
     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Acest ataşament este prea mare pentru a fi descărcat prin reţeaua mobilă. Îl puteţi descărca data următoare când vă conectaţi la o reţea Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nu există nicio aplicaţie instalată care să poată deschide acest ataşament. Încercaţi să descărcaţi o aplicaţie corespunzătoare din Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Acest ataşament este o aplicaţie. Înainte de a o putea instala, trebuie să bifaţi Surse necunoscute din Setări &gt; Aplicaţii."</string>

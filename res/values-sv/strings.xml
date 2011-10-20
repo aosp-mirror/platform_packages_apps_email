@@ -409,7 +409,7 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Välj en mapp"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Kontot hittades inte. Det kan ha tagits bort."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mappen hittades inte. Den kan ha tagits bort."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"POP-åtkomst, som gör så att denna app kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst tills dessa e-postkonton."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"POP-åtkomst, som gör att denna app kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst till dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>

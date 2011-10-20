@@ -186,7 +186,7 @@
     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Ovaj je privitak prevelik za preuzimanje putem mobilne mreže. Možete ga preuzeti sljedeći put kad se spojite na WiFi mrežu."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nema instalirane aplikacije koja može otvoriti taj privitak. Pokušajte preuzeti odgovarajuću aplikaciju s Android Marketa."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Ovaj je privitak aplikacija. Morate uključiti potvrdni okvir stavke \"Nepoznati izvori\" na zaslonu Postavke &gt; Aplikacije da biste je mogli instalirati."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Aplikacija se ne može instalirati izravno iz e-pošte. majprije spremite ovu aplikaciju, a zatim je instalirajte pomoću aplikacije Preuzimanja."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Aplikacija se ne može instalirati izravno iz e-pošte. Prvo spremite ovu aplikaciju, a zatim je instalirajte pomoću aplikacije Preuzimanja."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Preuzimanje privitka nije uspjelo."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Došlo je do pogreške prilikom dekodiranja poruke."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Prikaz <xliff:g id="FILENAME">%s</xliff:g>"</string>

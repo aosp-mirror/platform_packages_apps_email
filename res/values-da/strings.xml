@@ -231,7 +231,7 @@
     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Nyere"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Ældre"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"Konfiguration af konto"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Kontoindstillinger"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Tilføj en Exchange-konto"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Tilføj en Exchange ActiveSync-konto"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mailkonto"</string>
@@ -249,15 +249,15 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Henter kontooplysninger ..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerer indstillinger for indgående server ..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerer indstillinger for udgående server ..."</string>
-    <string name="account_setup_names_title" msgid="8483517350241119291">"Konfiguration af konto"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoindstillinger"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Din konto er oprettet, og der er e-mail på vej."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Giv kontoen et navn (valgfrit)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Dit navn (vist på udgående beskeder)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dette felt må ikke være tomt."</string>
-    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Konfiguration af konto"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoindstillinger"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotype"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hvilken slags konto er dette?"</string>
-    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Konfiguration af konto"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kontoindstillinger"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Indstillinger for indgående server"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Brugernavn"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Adgangskode"</string>
@@ -275,7 +275,7 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Når jeg sletter fra Indbakke"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Præfiks for IMAP-sti"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Valgfrit"</string>
-    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Konfiguration af konto"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Kontoindstillinger"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Indstillinger for udgående server"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-server"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
@@ -283,7 +283,7 @@
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Kræver login"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Brugernavn"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Adgangskode"</string>
-    <string name="account_setup_exchange_title" msgid="396004732514751781">"Konfiguration af konto"</string>
+    <string name="account_setup_exchange_title" msgid="396004732514751781">"Kontoindstillinger"</string>
     <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Serverindstillinger"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domæne\\brugernavn"</string>
@@ -411,7 +411,7 @@
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mappen blev ikke fundet. Den kan være blevet fjernet."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Det er kun nogle \"Plus\"-konti med POP-adgang, der tillader, at dette program opretter forbindelse. Hvis du ikke kan logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Åbn webbrowseren igen for at få adgang til disse e-mail-konti."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for e-mail-adgang via POP3."</string>
-    <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Kontoen kunne ikke oprettes. Prøv igen."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>

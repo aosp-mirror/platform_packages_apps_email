@@ -184,7 +184,7 @@
     <string name="attachment_info_malware" msgid="6576029010855055528">"U kunt dit bericht niet opslaan of openen omdat dit type bijlage schadelijke software kan bevatten."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Deze bijlage kan niet worden opgeslagen of geopend als gevolg van het beveiligingsbeleid van dit account."</string>
     <string name="attachment_info_wifi_only" msgid="1952445279772844815">"Deze bijlage is te groot om via een mobiel netwerk te downloaden. U kunt de bijlage downloaden wanneer u de volgende keer verbinding maakt met een wifi-netwerk."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Er is geen geïnstalleerde app beschikbaar die de bijlage kan openen. Download een geschikte app van Android Market."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Er is geen app geïnstalleerd die de bijlage kan openen. Download een geschikte app van Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Deze bijlage is een app. U moet \'Onbekende bronnen\' aanvinken in \'Instellingen\' &gt; \'Apps\' voordat u de app kunt installeren."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps kunnen niet rechtstreeks via e-mail worden geïnstalleerd. Sla de app eerst op en installeer deze via de app Downloads."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Kan de bijlage niet downloaden."</string>
@@ -335,7 +335,7 @@
     <string name="account_setup_failed_security" msgid="925820957665764964">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kan geen verbinding met de server maken."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"U heeft een onjuist serveradres getypt of de server vereist een protocolversie die niet door E-mail wordt ondersteund."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"U heeft geen toestemming om met deze server te synchroniseren. Neem voor meer informatie contact op met de beheerder van uw server."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"U heeft geen toestemming met deze server te synchroniseren. Neem voor meer informatie contact op met de beheerder van uw server."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Extern beveiligingsbeheer"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"De server <xliff:g id="SERVER">%s</xliff:g> vereist dat u de server toestemming geeft bepaalde beveiligingsfuncties van uw Android-apparaat extern te bedienen. Wilt u het instellen van dit account voltooien?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Voor deze server zijn beveiligingsfuncties nodig die uw Android-apparaat niet ondersteunt, waaronder: <xliff:g id="ERROR">%s</xliff:g>"</string>

@@ -436,7 +436,7 @@
     <item msgid="4415205108584620118">"Малък шрифт на текста"</item>
     <item msgid="4550219696381691112">"Нормален шрифт на текста"</item>
     <item msgid="6227813549949219991">"Голям шрифт на текста"</item>
-    <item msgid="1197917420815786571">"Огромен шрифт на текста"</item>
+    <item msgid="1197917420815786571">"Огромен текст"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Размер на текста на съобщенията"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Миниатюрен"</string>
