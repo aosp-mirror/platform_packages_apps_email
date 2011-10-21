@@ -270,16 +270,21 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         });
     }
 
+    private void setTextViewTextAndDesc(RemoteViews views, final int id, String text) {
+        views.setTextViewText(id, text);
+        views.setContentDescription(id, text);
+    }
+
     private void setupTitleAndCount(RemoteViews views) {
         // Set up the title (view type + count of messages)
-        views.setTextViewText(R.id.widget_title, mMailboxName);
+        setTextViewTextAndDesc(views, R.id.widget_title, mMailboxName);
         views.setViewVisibility(R.id.widget_tap, View.VISIBLE);
-        views.setTextViewText(R.id.widget_tap, mAccountName);
+        setTextViewTextAndDesc(views, R.id.widget_tap, mAccountName);
         String count = "";
         if (isCursorValid()) {
             count = UiUtilities.getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
         }
-        views.setTextViewText(R.id.widget_count, count);
+        setTextViewTextAndDesc(views, R.id.widget_count, count);
     }
 
     /**
@@ -409,16 +414,17 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
 
         // Add style to sender
-        String cursorString =
+        String rawSender =
                 mCursor.isNull(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME)
                     ? ""    // an empty string
                     : mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME);
-        SpannableStringBuilder from = new SpannableStringBuilder(cursorString);
+        SpannableStringBuilder from = new SpannableStringBuilder(rawSender);
         from.setSpan(
                 isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
                 from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
         views.setTextViewText(R.id.widget_from, styledFrom);
+        views.setContentDescription(R.id.widget_from, rawSender);
 
         long timestamp = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_TIMESTAMP);
         // Get a nicely formatted date string (relative to today)
@@ -426,12 +432,14 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         // Add style to date
         CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
         views.setTextViewText(R.id.widget_date, styledDate);
+        views.setContentDescription(R.id.widget_date, date);
 
         // Add style to subject/snippet
         String subject = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SUBJECT);
         String snippet = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SNIPPET);
         CharSequence subjectAndSnippet = getStyledSubjectSnippet(subject, snippet, !isUnread);
         views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
+        views.setContentDescription(R.id.widget_subject, subject);
 
         int messageFlags = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAGS);
         boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
