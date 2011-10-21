@@ -39,7 +39,7 @@ import java.io.IOException;
  * complete - no server(s) required.
  *
  * You can run this entire test case with:
- *   runtest -c com.android.email.UtilityMediumTests email
+ *   runtest -c com.android.emailcommon.utility.UtilityMediumTests email
  */
 @MediumTest
 public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
@@ -80,6 +80,16 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         // Try to find account1, excluding account1
         acct = Utility.findExistingAccount(mMockContext, account1.mId, "address-ha1", "login-ha1");
         assertNull(acct);
+
+        // Make sure we properly handle an underscore in the login name
+        Account account3 = ProviderTestUtils.setupAccount("account3", false, mMockContext);
+        account3.mHostAuthRecv = ProviderTestUtils.setupHostAuth("foo_ba", -1, false, mMockContext);
+        account3.mHostAuthSend = ProviderTestUtils.setupHostAuth("foo_ba", -1, false, mMockContext);
+        account3.save(mMockContext);
+        acct = Utility.findExistingAccount(mMockContext, -1, "address-foo_ba", "login-foo.ba");
+        assertNull(acct);
+        acct = Utility.findExistingAccount(mMockContext, -1, "address-foo_ba", "login-foo_ba");
+        assertNotNull(acct);
     }
 
     public void testAttachmentExists() throws IOException {
