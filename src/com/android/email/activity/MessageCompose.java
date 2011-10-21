@@ -1532,9 +1532,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void showCcBccFields() {
-        mCcBccContainer.setVisibility(View.VISIBLE);
-        UiUtilities.setVisibilitySafe(this, R.id.add_cc_bcc, View.INVISIBLE);
-        invalidateOptionsMenu();
+        if (mCcBccContainer.getVisibility() != View.VISIBLE) {
+            mCcBccContainer.setVisibility(View.VISIBLE);
+            mCcView.requestFocus();
+            UiUtilities.setVisibilitySafe(this, R.id.add_cc_bcc, View.INVISIBLE);
+            invalidateOptionsMenu();
+        }
     }
 
     /**
