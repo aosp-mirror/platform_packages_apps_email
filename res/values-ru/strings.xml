@@ -18,9 +18,9 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Открывать прикрепленные файлы"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Приложение получит доступ к прикрепленным файлам в сообщениях эл. почты."</string>
-    <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным поставщика услуг эл. почты"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, которая включает входящие и отправленные письма, имена пользователей и пароли."</string>
-    <string name="app_name" msgid="5815426892327290362">"Написать письмо"</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным сервиса эл. почты"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, которая включает полученные и отправленные письма, имена пользователей и пароли."</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Новое сообщение"</string>
     <string name="debug_title" msgid="5175710493691536719">"Выполнить отладку"</string>
     <string name="next_action" msgid="3931301986364184415">"Далее"</string>
@@ -68,7 +68,7 @@
     <item quantity="other" msgid="371256717624461324">"Переместить сообщения"</item>
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Перемещение не поддерживается в аккаунтах POP3."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Перемещение невозможно, так как выбрано несколько аккаунтов."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Не удалось переместить сообщения, так как они находятся в разных аккаунтах."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Нельзя перемещать сообщения из папок \"Черновики\", \"Исходящие\" и \"Отправленные\"."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -202,7 +202,7 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Черновик удален."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Черновик сообщения сохранен."</string>
     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Невозможно отобразить прикрепленный файл."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Не удалось загрузить файл \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Не удалось загрузить \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Сообщение открывается…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"Сообщение (<xliff:g id="NUM_MESSAGE">%1$d</xliff:g>) перемещено в папку <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -235,7 +235,7 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Добавить аккаунт Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Добавить аккаунт Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Аккаунт эл. почты"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Email можно легко настроить для большинства популярных почтовых служб."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Email поддерживает большинство популярных почтовых служб."</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Настроить аккаунт Exchange очень просто."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Настроить аккаунт Exchange ActiveSync очень просто."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адрес электронной почты"</string>
@@ -244,7 +244,7 @@
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Настройка вручную"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Введите действительный адрес электронной почты и пароль."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Копировать аккаунт"</string>
-    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Это имя пользователя уже используется для аккаунта \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Это имя уже используется в аккаунте \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Пароль начинается или заканчивается пробелом. Некоторые серверы не поддерживают пароли с пробелами."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Получение информации аккаунта..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Проверка настроек сервера входящих сообщений..."</string>
@@ -324,7 +324,7 @@
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Неверное имя пользователя или пароль."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Неверное имя пользователя или пароль."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Не удалось установить защищенное подключение к серверу."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не удается установить защищенное подключение к серверу."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не удалось установить защищенное подключение к серверу."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Необходим сертификат клиента. Подключиться к серверу?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Сертификат недействителен или недоступен."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Ошибка сервера. Проверьте имя пользователя и пароль и повторите попытку."</string>
@@ -338,8 +338,8 @@
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"У вас нет разрешений на синхронизацию с этим сервером. За дополнительной информацией обратитесь к администратору сервера."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаленное управление безопасностью"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Серверу <xliff:g id="SERVER">%s</xliff:g> требуется разрешение на удаленное управление некоторыми функциями безопасности устройства Android. Завершить настройку этого аккаунта?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Ваше Android-устройство не поддерживает необходимые для сервера функции защиты: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Невозможно изменить имя пользователя. Но можно создать аккаунт с другим именем, нажав \"Добавить аккаунт\"."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Ваше Android-устройство не поддерживает обязательные для сервера функции защиты: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Невозможно изменить имя пользователя. Если хотите использовать другое имя, нажмите \"Добавить аккаунт\" и создайте новый аккаунт."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"ВНИМАНИЕ! Отключение прав на администрирование вашего устройства для приложения Email приведет к удалению всех аккаунтов электронной почты, которые используют эти права. Кроме того, будут удалены все письма, контакты, календари и другие данные, связанные с этими аккаунтами."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Обновления безопасности"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Для аккаунта <xliff:g id="ACCOUNT">%s</xliff:g> требуется обновить настройки безопасности."</string>
@@ -385,7 +385,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Синхронизировать контакты этого аккаунта"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Синхронизировать календарь"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Синхронизировать календарь этого аккаунта"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхрон-ть почту"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Синхр. почту"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Синхронизировать почту этого аккаунта"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Вибросигнал"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Вибросигнал при получении сообщения"</string>
@@ -409,7 +409,7 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Выберите папку"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Аккаунт не найден. Возможно, он удален."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Папка не найдена. Возможно, она удалена."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти со своим адресом электронной почты и паролем, скорее всего, у вас бесплатный аккаунт (не Plus). Доступ к такому аккаунту электронной почты возможен через браузер."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти с помощью своего адреса электронной почты и пароля, скорее всего, у вас бесплатный аккаунт (не Plus). Чтобы войти в такой аккаунт, используйте браузер."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Прежде чем настраивать аккаунт, перейдите на веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Корпоративный"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
@@ -432,8 +432,8 @@
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Списку сообщений"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Размер шрифта"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="4693576184223089069">"Очень маленький"</item>
-    <item msgid="4415205108584620118">"Маленький"</item>
+    <item msgid="4693576184223089069">"Мелкий"</item>
+    <item msgid="4415205108584620118">"Небольшой"</item>
     <item msgid="4550219696381691112">"Обычный"</item>
     <item msgid="6227813549949219991">"Большой"</item>
     <item msgid="1197917420815786571">"Огромный"</item>

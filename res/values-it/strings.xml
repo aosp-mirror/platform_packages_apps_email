@@ -60,7 +60,7 @@
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Invia tutti messaggi"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Scegli allegato"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Sposta in"</string>
-    <string name="status_loading_messages" msgid="6552307237621292344">"Caricamento messaggi in corso…"</string>
+    <string name="status_loading_messages" msgid="6552307237621292344">"Caricamento messaggi..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"Problema di connessione."</string>
     <string name="error_loading_message_body" msgid="6775234299515596760">"Impossibile caricare il testo del messaggio. Il messaggio potrebbe essere troppo grande per poter essere visualizzato."</string>
   <plurals name="move_messages">
@@ -203,7 +203,7 @@
     <string name="message_saved_toast" msgid="8443125659172627665">"Messaggio salvato come bozza."</string>
     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"Impossibile visualizzare l\'allegato."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"Impossibile caricare l\'allegato \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
-    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Apertura messaggio in corso…"</string>
+    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Apertura messaggio..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messaggio spostato in <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messaggi spostati in <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -246,7 +246,7 @@
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Account duplicato"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizzi già questo nome utente per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Questa password inizia o termina con uno o più spazi. Molti server non supportano le password contenenti spazi."</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account in corso…"</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica delle impostazioni del server della posta in arrivo in corso…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verifica impostazioni server posta in uscita…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Impostazione account"</string>
@@ -416,7 +416,7 @@
     <string name="system_account_create_failed" msgid="3673792980526246177">"Impossibile creare l\'account. Riprova."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Posta"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Abilita norme di sicurezza specificate dal server"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"Ricerca in <xliff:g id="DOMAIN">%s</xliff:g> in corso..."</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"Ricerca in <xliff:g id="DOMAIN">%s</xliff:g>in corso"</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> risultato da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> risultati da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>

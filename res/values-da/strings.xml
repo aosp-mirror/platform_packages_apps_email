@@ -361,7 +361,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Brugernavn eller adgangskode for <xliff:g id="ACCOUNT">%s</xliff:g> er forkert. Vil du opdatere dem nu?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send e-mail fra denne konto som standard"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Download vedhæftning automatisk"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Automatisk download"</string>
     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Download automatisk vedhæftede filer ved Wi-Fi-forbindelse"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsinterval, meddelelser osv."</string>

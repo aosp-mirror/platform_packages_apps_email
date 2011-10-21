@@ -19,7 +19,7 @@
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Les e-postvedlegg"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Gir appen tilgang til å lese e-postvedleggene dine."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Få tilgang til data om e-postleverandør"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Gir programmet tilgang til e-postdatabasen, inklusivt mottatte og sendte meldinger samt brukernavn og passord."</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Gir appen tilgang til e-postdatabasen, inklusivt mottatte og sendte meldinger samt brukernavn og passord."</string>
     <string name="app_name" msgid="5815426892327290362">"E-post"</string>
     <string name="compose_title" msgid="427986915662706899">"Skriv e-post"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -334,7 +334,7 @@
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Autentiseringsmetoder støttes ikke av tjeneren."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Kunne ikke åpne tilkobling til tjener på grunn av sikkerhetsfeil."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Kan ikke åpne tilkobling til tjener."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Du har angitt feil tjeneradresse, eller tjeneren krever en protokollversjon som ikke håndteres av e-postprogrammet."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Du har angitt feil tjeneradresse, eller tjeneren krever en protokollversjon som ikke håndteres av e-post-appen."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Du har ikke tillatelse til å synkronisere med denne tjeneren. Ta kontakt med tjenerens administrator for mer informasjon."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Fjernadministrasjon av sikkerhet"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Tjeneren <xliff:g id="SERVER">%s</xliff:g> krever at den kan kontrollere noen av sikkerhetsfunksjonene på Android-enheten utenfra. Ønsker du å fullføre oppsettet av kontoen?"</string>
