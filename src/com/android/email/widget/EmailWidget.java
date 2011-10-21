@@ -95,8 +95,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private static final int MAX_MESSAGE_LIST_COUNT = 25;
 
     private static String sSubjectSnippetDivider;
-    @SuppressWarnings("unused")
-    private static String sConfigureText;
     private static int sSenderFontSize;
     private static int sSubjectFontSize;
     private static int sDateFontSize;
@@ -150,7 +148,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             sDefaultTextColor = res.getColor(R.color.widget_default_text_color);
             sDefaultTextColor = res.getColor(R.color.widget_default_text_color);
             sLightTextColor = res.getColor(R.color.widget_light_text_color);
-            sConfigureText =  res.getString(R.string.widget_other_views);
         }
         mResourceHelper = ResourceHelper.getInstance(mContext);
     }
@@ -276,8 +273,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private void setupTitleAndCount(RemoteViews views) {
         // Set up the title (view type + count of messages)
         views.setTextViewText(R.id.widget_title, mMailboxName);
-        // TODO Temporary UX; need to make this visible and create the correct UX
-        //views.setTextViewText(R.id.widget_tap, sConfigureText);
         views.setViewVisibility(R.id.widget_tap, View.VISIBLE);
         views.setTextViewText(R.id.widget_tap, mAccountName);
         String count = "";
