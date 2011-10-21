@@ -279,7 +279,7 @@ public class Utility {
         }
     }
     private final static String HOSTAUTH_WHERE_CREDENTIALS = HostAuthColumns.ADDRESS + " like ?"
-            + " and " + HostAuthColumns.LOGIN + " like ?"
+            + " and " + HostAuthColumns.LOGIN + " like ?  ESCAPE '\\'"
             + " and " + HostAuthColumns.PROTOCOL + " not like \"smtp\"";
     private final static String ACCOUNT_WHERE_HOSTAUTH = AccountColumns.HOST_AUTH_KEY_RECV + "=?";
 
@@ -295,8 +295,9 @@ public class Utility {
     public static Account findExistingAccount(Context context, long allowAccountId,
             String hostName, String userLogin) {
         ContentResolver resolver = context.getContentResolver();
+        String userName = userLogin.replace("_", "\\_");
         Cursor c = resolver.query(HostAuth.CONTENT_URI, HostAuth.ID_PROJECTION,
-                HOSTAUTH_WHERE_CREDENTIALS, new String[] { hostName, userLogin }, null);
+                HOSTAUTH_WHERE_CREDENTIALS, new String[] { hostName, userName }, null);
         if (c == null) throw new ProviderUnavailableException();
         try {
             while (c.moveToNext()) {
