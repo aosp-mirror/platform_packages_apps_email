@@ -166,12 +166,10 @@ public class Email extends Application {
             MailService.actionReschedule(context);
         }
 
-        // Note - the Email widget is always enabled as it will show a warning if no accounts are
-        // configured. In previous releases, this was disabled if no accounts were set, so we
-        // need to unconditionally enable it here.
         pm.setComponentEnabledSetting(
                 new ComponentName(context, WidgetConfiguration.class),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
 
         // Start/stop the various services depending on whether there are any accounts
