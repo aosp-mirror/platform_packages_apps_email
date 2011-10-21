@@ -1481,6 +1481,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void showQuickResponseDialog() {
+        if (mAccount == null) {
+            // Load not finished, bail.
+            return;
+        }
         InsertQuickResponseDialog.newInstance(null, mAccount)
                 .show(getFragmentManager(), null);
     }
