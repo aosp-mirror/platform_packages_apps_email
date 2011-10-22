@@ -396,7 +396,7 @@ public final class ContentCache {
 
         @Override
         public boolean onMove(int oldPosition, int newPosition) {
-            return ((CrossProcessCursor)mCursor).onMove(oldPosition, newPosition);
+            return true;
         }
     }
 
