@@ -247,7 +247,7 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizzi già questo nome utente per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Questa password inizia o termina con uno o più spazi. Molti server non supportano le password contenenti spazi."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account…"</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica delle impostazioni del server della posta in arrivo in corso…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica impostazioni server della posta in arrivo..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verifica impostazioni server posta in uscita…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Impostazione account"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>

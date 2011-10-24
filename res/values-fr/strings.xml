@@ -231,7 +231,7 @@
     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Suivant"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Précédents"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuration du compte"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurer un compte"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Ajouter un compte Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Ajouter un compte Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Compte de messagerie"</string>
@@ -378,7 +378,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Modifier texte fréquemment inséré lors de la rédaction d\'e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Ajouter un texte aux messages envoyés"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paramètres de notification"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"Utilisation des données"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Consommation des données"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Modifier une réponse rapide"</string>
     <string name="save_action" msgid="1988862706623227093">"Enregistrer"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchroniser les contacts"</string>

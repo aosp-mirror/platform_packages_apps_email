@@ -377,7 +377,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Hurtige svar"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediger tekst, du ofte indsætter, når du skriver e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Vedhæft tekst til beskeder, du sender"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for meddelelser"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for underretninger"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataforbrug"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Rediger hurtigt svar"</string>
     <string name="save_action" msgid="1988862706623227093">"Gem"</string>

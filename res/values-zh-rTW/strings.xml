@@ -235,7 +235,7 @@
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"新增 Exchange 帳戶"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"新增 Exchange ActiveSync 帳戶"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"電子郵件帳戶"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"只要幾個步驟，就可以為絕大多數的帳戶設定電子郵件。"</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"只要幾個步驟，就能設妥許多帳戶的電子郵件。"</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"只要幾個步驟，就可以設定 Exchange 帳戶。"</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"只要幾個步驟，就可以設定 Exchange ActiveSync 帳戶。"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"電子郵件地址"</string>
@@ -297,7 +297,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"行動裝置 ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"帳戶設定"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"帳戶選項"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"查看收件匣頻率"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"收件匣檢查頻率"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"不要檢查"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"自動 (預先載入)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"每 5 分鐘檢查一次"</string>
@@ -366,7 +366,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"電子郵件通知"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等其他設定"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"收到電子郵件時，在系統列中顯示通知"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"查看收件匣頻率"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"收件匣檢查頻率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"內收設定"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"使用者名稱、密碼和其他內送伺服器設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外寄設定"</string>
