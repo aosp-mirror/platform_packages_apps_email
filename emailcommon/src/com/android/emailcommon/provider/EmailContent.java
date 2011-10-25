@@ -1437,5 +1437,8 @@ public abstract class EmailContent {
         public static final String MAX_CALENDAR_LOOKBACK = "maxCalendarLookback";
         // Indicates that the server allows password recovery, not that we support it
         public static final String PASSWORD_RECOVERY_ENABLED = "passwordRecoveryEnabled";
+        // Tokenized strings indicating protocol specific policies enforced/unsupported
+        public static final String PROTOCOL_POLICIES_ENFORCED = "protocolPoliciesEnforced";
+        public static final String PROTOCOL_POLICIES_UNSUPPORTED = "protocolPoliciesUnsupported";
     }
 }

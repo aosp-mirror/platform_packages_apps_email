@@ -27,6 +27,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -43,6 +44,7 @@ import android.util.Log;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.mail.Sender;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
@@ -51,7 +53,10 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.Utility;
+
+import java.util.ArrayList;
 
 /**
  * Fragment containing the main logic for account settings.  This also calls out to other
@@ -81,6 +86,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_VIBRATE_WHEN = "account_settings_vibrate_when";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
     private static final String PREFERENCE_CATEGORY_SERVER = "account_servers";
+    private static final String PREFERENCE_CATEGORY_POLICIES = "account_policies";
+    private static final String PREFERENCE_POLICIES_ENFORCED = "policies_enforced";
+    private static final String PREFERENCE_POLICIES_UNSUPPORTED = "policies_unsupported";
+    private static final String PREFERENCE_POLICIES_RETRY_ACCOUNT = "policies_retry_account";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
@@ -352,6 +361,46 @@ public class AccountSettingsFragment extends PreferenceFragment {
     }
 
     /**
+     * From a Policy, create and return an ArrayList of Strings that describe (simply) those
+     * policies that are supported by the OS.  At the moment, the strings are simple (e.g.
+     * "password required"); we should probably add more information (# characters, etc.), though
+     */
+    private ArrayList<String> getSystemPoliciesList(Policy policy) {
+        Resources res = mContext.getResources();
+        ArrayList<String> policies = new ArrayList<String>();
+        if (policy.mPasswordMode != Policy.PASSWORD_MODE_NONE) {
+            policies.add(res.getString(R.string.policy_require_password));
+        }
+        if (policy.mPasswordHistory > 0) {
+            policies.add(res.getString(R.string.policy_password_history));
+        }
+        if (policy.mPasswordExpirationDays > 0) {
+            policies.add(res.getString(R.string.policy_password_expiration));
+        }
+        if (policy.mMaxScreenLockTime > 0) {
+            policies.add(res.getString(R.string.policy_screen_timeout));
+        }
+        if (policy.mDontAllowCamera) {
+            policies.add(res.getString(R.string.policy_dont_allow_camera));
+        }
+        return policies;
+    }
+
+    private void setPolicyListSummary(ArrayList<String> policies, String policiesToAdd,
+            String preferenceName) {
+        Policy.addPolicyStringToList(policiesToAdd, policies);
+        if (policies.size() > 0) {
+            Preference p = findPreference(preferenceName);
+            StringBuilder sb = new StringBuilder();
+            for (String desc: policies) {
+                sb.append(desc);
+                sb.append('\n');
+            }
+            p.setSummary(sb.toString());
+        }
+    }
+
+    /**
      * Load account data into preference UI
      */
     private void loadSettings() {
@@ -397,7 +446,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
         });
 
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
-        String signature = mAccount.getSignature();
         mAccountSignature.setText(mAccount.getSignature());
         mAccountSignature.setOnPreferenceChangeListener(
             new Preference.OnPreferenceChangeListener() {
@@ -520,6 +568,45 @@ public class AccountSettingsFragment extends PreferenceFragment {
             notificationsCategory.removePreference(mAccountVibrateWhen);
         }
 
+        final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
+        final PreferenceCategory policiesCategory = (PreferenceCategory) findPreference(
+                PREFERENCE_CATEGORY_POLICIES);
+        if (mAccount.mPolicyKey > 0) {
+            // Make sure we have most recent data from account
+            mAccount.refresh(mContext);
+            Policy policy = Policy.restorePolicyWithId(mContext, mAccount.mPolicyKey);
+            if (policy == null) {
+                // The account has been deleted?  Crazy, but not impossible
+                return;
+            }
+            if (policy.mProtocolPoliciesEnforced != null) {
+                ArrayList<String> policies = getSystemPoliciesList(policy);
+                setPolicyListSummary(policies, policy.mProtocolPoliciesEnforced,
+                        PREFERENCE_POLICIES_ENFORCED);
+            }
+            if (policy.mProtocolPoliciesUnsupported != null) {
+                ArrayList<String> policies = new ArrayList<String>();
+                setPolicyListSummary(policies, policy.mProtocolPoliciesUnsupported,
+                        PREFERENCE_POLICIES_UNSUPPORTED);
+            } else {
+                // Don't show "retry" unless we have unsupported policies
+                policiesCategory.removePreference(retryAccount);
+            }
+        } else {
+            // Remove the category completely if there are no policies
+            getPreferenceScreen().removePreference(policiesCategory);
+        }
+
+        retryAccount.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        // Release the account
+                        SecurityPolicy.setAccountHoldFlag(mContext, mAccount, false);
+                        // Remove the preference
+                        policiesCategory.removePreference(retryAccount);
+                        return true;
+                    }
+                });
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {

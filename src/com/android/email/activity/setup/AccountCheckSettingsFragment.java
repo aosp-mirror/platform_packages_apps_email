@@ -469,8 +469,10 @@ public class AccountCheckSettingsFragment extends Fragment {
                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
                         return new MessagingException(resultCode, mStoreHost);
                     } else if (resultCode == MessagingException.SECURITY_POLICIES_UNSUPPORTED) {
-                        String[] data = bundle.getStringArray(
-                                EmailServiceProxy.VALIDATE_BUNDLE_UNSUPPORTED_POLICIES);
+                        Policy policy = (Policy)bundle.getParcelable(
+                                EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET);
+                        String unsupported = policy.mProtocolPoliciesUnsupported;
+                        String[] data = unsupported.split("" + Policy.POLICY_STRING_DELIMITER);
                         return new MessagingException(resultCode, mStoreHost, data);
                     } else if (resultCode != MessagingException.NO_ERROR) {
                         String errorMessage =
