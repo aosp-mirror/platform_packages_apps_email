@@ -671,10 +671,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     @Override
     public int update(Context context, ContentValues cv) {
-        if (mPolicy != null && mPolicyKey <= 0) {
-            // If a policy is set and there's no policy, link it to the account
-            Policy.setAccountPolicy(context, this, mPolicy, null);
-        }
         if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
                 cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();

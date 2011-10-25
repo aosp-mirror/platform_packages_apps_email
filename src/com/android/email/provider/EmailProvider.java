@@ -160,8 +160,9 @@ public class EmailProvider extends ContentProvider {
     // Version 26: Update IMAP accounts to add FLAG_SUPPORTS_SEARCH flag
     // Version 27: Add protocolSearchInfo to Message table
     // Version 28: Add notifiedMessageId and notifiedMessageCount to Account
+    // Version 29: Add protocolPoliciesEnforced and protocolPoliciesUnsupported to Policy
 
-    public static final int DATABASE_VERSION = 28;
+    public static final int DATABASE_VERSION = 29;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -651,7 +652,9 @@ public class EmailProvider extends ContentProvider {
             + PolicyColumns.MAX_HTML_TRUNCATION_SIZE + " integer, "
             + PolicyColumns.MAX_EMAIL_LOOKBACK + " integer, "
             + PolicyColumns.MAX_CALENDAR_LOOKBACK + " integer, "
-            + PolicyColumns.PASSWORD_RECOVERY_ENABLED + " integer"
+            + PolicyColumns.PASSWORD_RECOVERY_ENABLED + " integer, "
+            + PolicyColumns.PROTOCOL_POLICIES_ENFORCED + " text, "
+            + PolicyColumns.PROTOCOL_POLICIES_UNSUPPORTED + " text"
             + ");";
         db.execSQL("create table " + Policy.TABLE_NAME + s);
     }
@@ -1341,9 +1344,21 @@ public class EmailProvider extends ContentProvider {
                             + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 27 " + e);
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 28 " + e);
                 }
                 oldVersion = 28;
+            }
+            if (oldVersion == 28) {
+                try {
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + Policy.PROTOCOL_POLICIES_ENFORCED + " text;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + Policy.PROTOCOL_POLICIES_UNSUPPORTED + " text;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 28 to 29 " + e);
+                }
+                oldVersion = 29;
             }
         }
 

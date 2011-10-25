@@ -52,6 +52,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -62,7 +63,6 @@ import java.util.HashSet;
  * Class that manages notifications.
  */
 public class NotificationController {
-    private static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
     /** Reserved for {@link com.android.exchange.CalendarSyncEnabler} */
     @SuppressWarnings("unused")
     private static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
@@ -70,8 +70,11 @@ public class NotificationController {
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
 
+    private static final int NOTIFICATION_ID_BASE_MASK = 0xF0000000;
     private static final int NOTIFICATION_ID_BASE_NEW_MESSAGES = 0x10000000;
     private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
+    private static final int NOTIFICATION_ID_BASE_SECURITY_NEEDED = 0x30000000;
+    private static final int NOTIFICATION_ID_BASE_SECURITY_CHANGED = 0x40000000;
 
     /** Selection to retrieve accounts that should we notify user for changes */
     private final static String NOTIFIED_ACCOUNT_SELECTION =
@@ -144,7 +147,7 @@ public class NotificationController {
     private boolean needsOngoingNotification(int notificationId) {
         // "Security needed" must be ongoing so that the user doesn't close it; otherwise, sync will
         // be prevented until a reboot.  Consider also doing this for password expired.
-        return notificationId == NOTIFICATION_ID_SECURITY_NEEDED;
+        return (notificationId & NOTIFICATION_ID_BASE_MASK) == NOTIFICATION_ID_BASE_SECURITY_NEEDED;
     }
 
     /**
@@ -591,24 +594,67 @@ public class NotificationController {
     }
 
     /**
-     * Show (or update) a security needed notification. The given account is used to update
-     * the display text, but, all accounts share the same notification ID.
+     * Show (or update) a security needed notification. If tapped, the user is taken to a
+     * dialog asking whether he wants to update his settings.
      */
     public void showSecurityNeededNotification(Account account) {
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
         String accountName = account.getDisplayName();
         String ticker =
-            mContext.getString(R.string.security_notification_ticker_fmt, accountName);
-        String title = mContext.getString(R.string.security_notification_content_title);
+            mContext.getString(R.string.security_needed_ticker_fmt, accountName);
+        String title = mContext.getString(R.string.security_notification_content_update_title);
         showAccountNotification(account, ticker, title, accountName, intent,
-                NOTIFICATION_ID_SECURITY_NEEDED);
+                (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
     }
 
     /**
-     * Cancels the security needed notification.
+     * Show (or update) a security changed notification. If tapped, the user is taken to the
+     * account settings screen where he can view the list of enforced policies
+     */
+    public void showSecurityChangedNotification(Account account) {
+        Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
+        String accountName = account.getDisplayName();
+        String ticker =
+            mContext.getString(R.string.security_changed_ticker_fmt, accountName);
+        String title = mContext.getString(R.string.security_notification_content_change_title);
+        showAccountNotification(account, ticker, title, accountName, intent,
+                (int)(NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
+    }
+
+    /**
+     * Show (or update) a security unsupported notification. If tapped, the user is taken to the
+     * account settings screen where he can view the list of unsupported policies
+     */
+    public void showSecurityUnsupportedNotification(Account account) {
+        Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
+        String accountName = account.getDisplayName();
+        String ticker =
+            mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);
+        String title = mContext.getString(R.string.security_notification_content_unsupported_title);
+        showAccountNotification(account, ticker, title, accountName, intent,
+                (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
+   }
+
+    /**
+     * Cancels all security needed notifications.
      */
     public void cancelSecurityNeededNotification() {
-        mNotificationManager.cancel(NOTIFICATION_ID_SECURITY_NEEDED);
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
+            public void run() {
+                Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
+                        Account.ID_PROJECTION, null, null, null);
+                try {
+                    while (c.moveToNext()) {
+                        long id = c.getLong(Account.ID_PROJECTION_COLUMN);
+                        mNotificationManager.cancel(
+                               (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + id));
+                    }
+                }
+                finally {
+                    c.close();
+                }
+            }});
     }
 
     /**

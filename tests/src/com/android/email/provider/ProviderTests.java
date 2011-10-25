@@ -36,6 +36,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.email.SecurityPolicy;
 import com.android.email.provider.EmailProvider.AttachmentService;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
@@ -2529,7 +2530,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Policy p2 = new Policy();
         p2.save(mMockContext);
         Policy p3 = new Policy();
-        Policy.setAccountPolicy(mMockContext, a.mId, p3, "0");
+        SecurityPolicy.setAccountPolicy(mMockContext, a, p3, "0");
 
         // We don't want anything cached or the tests below won't work.  Note that
         // deleteUnlinked is only called by EmailProvider when the caches are empty
