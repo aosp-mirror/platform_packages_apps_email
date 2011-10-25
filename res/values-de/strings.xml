@@ -253,7 +253,7 @@
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoeinrichtung"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Ihr Konto ist nun eingerichtet."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird bei ausgehenden Nachrichten angezeigt)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
@@ -379,7 +379,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Bearbeiten Sie beim Verfassen von E-Mails oft eingefügten Text."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an ausgehende Nachrichten anhängen"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"Datennutzung"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Datenverbrauch"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
@@ -412,7 +412,7 @@
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Ordner wurde nicht gefunden. Er wurde möglicherweise entfernt."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Nur einige \"Plus\"-Konten haben einen POP-Zugang, der diesem Programm ermöglicht, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Passwort anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um auf diese Konten zuzugreifen."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Richten Sie vor der Erstellung des E-Mail-Kontos ein Passwort für den POP3-E-Mail-Zugang auf der T-Online-Website ein."</string>
-    <string name="exchange_name" msgid="1190783774800310346">"Geschäftlich"</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Microsoft Exchange"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Konto konnte nicht erstellt werden. Bitte versuchen Sie es erneut."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-Mail"</string>
