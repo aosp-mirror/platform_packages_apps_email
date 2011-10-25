@@ -12,7 +12,7 @@
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d bilder ??? %2$d videoer"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"lavt batteri"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"bildekvote er overskredet"</string>
-    <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"streifing"</string>
+    <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"venter på Wi-Fi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"forsinket inntil enheten lades"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"venter på tilkobling"</string>
@@ -51,7 +51,7 @@
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"satt på pause – venter på tilkobling"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"satt på pause – PWA-kvote brukt opp"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"satt på pause – venter på Wi-Fi"</string>
-    <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – streifing"</string>
+    <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"venter på å prøve på nytt"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"Ett minutt"</string>
     <string name="retry_in_2min" msgid="5845688527405283031">"To minutter"</string>
@@ -119,8 +119,8 @@
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Opplastingsstatus"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avansert"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Opplastinger fra mobil"</string>
-    <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Opplastinger ved streifing"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Last opp bilder og videoer ved streifing på datanettverk"</string>
+    <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Opplastinger ved roaming"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Last opp bilder og videoer ved roaming på datanettverk"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Batteriopplastinger"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Last opp bilder og videoer bare under lading"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Last opp eksisterende bilder"</string>

@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Baca lampiran email"</string>
-    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Izinkan aplikasi membaca lampiran email Anda."</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Mengizinkan aplikasi membaca lampiran email Anda."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Akses data penyedia email"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Izinkan aplikasi ini mengakses basis data email Anda, termasuk pesan yang diterima, pesan yang dikirim, nama pengguna, dan sandi."</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Mengizinkan aplikasi ini mengakses basis data email Anda, termasuk pesan yang diterima, pesan yang dikirim, nama pengguna, dan sandi."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Tulis"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -61,7 +61,7 @@
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pilih lampiran"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Pindahkan ke"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Memuat pesan…"</string>
-    <string name="status_network_error" msgid="2611654064403817391">"Masalah koneksi."</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Masalah sambungan."</string>
     <string name="error_loading_message_body" msgid="6775234299515596760">"Tidak dapat memuat teks pesan. Pesan mungkin terlalu besar untuk dilihat."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Pindahkan pesan"</item>
@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Subjek:"</string>
-    <!-- outdated translation 7575406246484103697 -->     <string name="message_compose_body_hint" msgid="3864004548670233396">"Tulis Surat"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Tulis email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Pesan Asli --------"\n"Subjek: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Dari: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kepada: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n" <xliff:g id="SENDER">%s</xliff:g> menulis:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Kutipan teks"</string>
@@ -185,8 +185,8 @@
     <string name="attachment_info_policy" msgid="3560422300127587508">"Lampiran ini tidak dapat disimpan atau dibuka karena kebijakan keamanan akun ini."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Lampiran ini terlalu besar untuk diunduh melalui jaringan seluler. Anda dapat mengunduhnya saat tersambung lagi ke jaringan Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Tidak ada apl terpasang yang dapat membuka lampiran ini. Coba unduh apl yang tepat dari Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah sebuah apl. Anda harus memeriksa Sumber Tak Dikenal dalam Setelan &gt; Apl sebelum Anda dapat memasangnya."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apl tidak dapat dipasang dari email secara langsung. Simpan apl ini terlebih dulu, lalu pasang menggunakan apl Unduhan."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah sebuah apl. Anda harus mencentang Sumber Tidak Dikenal dalam Setelan &gt; Apl sebelum Anda dapat memasangnya."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apl tidak dapat dipasang langsung dari email. Simpan apl ini terlebih dahulu, lalu pasang menggunakan apl Unduhan."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Tidak dapat mengunduh lampiran."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Terjadi galat saat mengawasandikan pesan."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Melihat <xliff:g id="FILENAME">%s</xliff:g>"</string>
@@ -201,9 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Pesan dibuang."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Pesan disimpan sebagai draf."</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Tidak dapat menampilkan lampiran."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Tidak dapat menampilkan lampiran."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Tidak dapat memuat lampiran \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Membuka pesan…"</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> pesan dipindahkan ke <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -211,8 +210,8 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Tidak dapat meneruskan satu lampiran atau lebih."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Lampiran tidak diteruskan"</string>
-    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> gagal masuk."</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Gagal masuk"</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Gagal masuk <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Tidak dapat masuk"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -333,15 +332,15 @@
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Tidak dapat menyambung ke server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS diperlukan, tetapi tidak didukung oleh server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Metode autentikasi tidak didukung oleh server."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka koneksi ke server karena galat keamanan."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka sambungan ke server karena galat keamanan."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Tidak dapat membuka koneksi ke server."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Anda mengetikkan alamat server yang salah atau server memerlukan versi protokol yang tidak didukung Email."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Anda tidak berhak menyinkronkan dengan server ini. Hubungi administrator server untuk informasi lebih lanjut."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Anda tidak memiliki izin untuk menyinkronkan dengan server ini. Hubungi administrator server untuk informasi lebih lanjut."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administrasi keamanan jarak jauh"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Server <xliff:g id="SERVER">%s</xliff:g> meminta Anda mengizinkannya mengontrol beberapa fitur keamanan perangkat Android dari jarak jauh. Apakah Anda ingin menyelesaikan penyiapan akun ini?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Server ini memerlukan fitur keamanan yang tidak didukung perangkat Android Anda, termasuk: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Anda tidak dapat mengubah nama pengguna akun. Untuk menambahkan akun dengan nama pengguna lain, sentuh Tambahkan Akun."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"PERINGATAN: Menonaktifkan otoritas apl Email untuk mengatur perangkat Anda akan menghapus semua akun Email yang memerlukannya, beserta email, data kenalan, acara kalender, dan data lainnya."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"PERINGATAN: Menonaktifkan otoritas apl Email untuk mengatur perangkat Anda akan menghapus semua akun email yang memerlukannya, beserta email, data kenalan, acara kalender, dan data lainnya."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Pembaruan keamanan"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> mengharuskan Anda memperbarui setelan keamanan."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" memerlukan pembaruan setelan keamanan."</string>
@@ -349,7 +348,7 @@
     <string name="account_security_title" msgid="3511543138560418587">"Keamanan perangkat"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Server <xliff:g id="SERVER">%s</xliff:g> meminta Anda mengizinkannya mengontrol beberapa fitur keamanan perangkat Android dari jarak jauh."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edit detail"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" mengharuskan Anda mengubah PIN kunci layar atau sandi."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" mengharuskan Anda mengubah PIN atau sandi pengunci layar."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Sandi pengunci layar akan kedaluwarsa"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"PIN atau sandi pengunci layar Anda kedaluwarsa."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Sandi pengunci layar kedaluwarsa"</string>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Nama pengguna atau sandi untuk <xliff:g id="ACCOUNT">%s</xliff:g> salah. Mutakhirkan keduanya sekarang?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akun bawaan"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Kirim email dari akun ini secara bawaan"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Unduh-otomatis lampiran"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Otomatis mengunduh lampiran ketika tersambung ke WiFi"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Unduh lampiran"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Unduh-otomatis lampiran pada pesan terbaru melalui WiFi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Pemberitahuan email"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinkronkan frekuensi, pemberitahuan, dll."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Beri tahukan dalam bilah Sistem ketika email tiba"</string>
@@ -410,7 +409,7 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih map"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Akun tidak ditemukan. Akun mungkin telah dihapus."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Map tidak ditemukan. Map mungkin telah dihapus."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Hanya beberapa akun \"Plus\" termasuk akses POP yang memungkinkan program ini tersambung. Jika tidak dapat masuk dengan sandi dan alamat email yang benar, Anda mungkin tidak memiliki akun \"Plus\" berbayar. Luncurkan peramban web untuk mendapat akses ke akun email ini."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Hanya beberapa akun \"Plus\" termasuk akses POP yang mengizinkan program ini tersambung. Jika tidak dapat masuk dengan sandi dan alamat email yang benar, Anda mungkin tidak memiliki akun \"Plus\" berbayar. Luncurkan peramban web untuk mendapat akses ke akun email ini."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Sebelum menyiapkan akun email ini, kunjungi situs web T-Online dan buat sandi untuk akses email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Perusahaan"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Besar"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sangat besar"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Balas semua"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Jadikan \'Balas semua\' sebagai bawaan untuk menjawab pesan"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Pulihkan bawaan untuk \"Tampilkan gambar\""</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Pulihkan bawaan untuk semua pengirim (jangan tampilkan gambar secara otomatis)"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Jadikan \"Balas semua\" sebagai bawaan untuk membalas pesan"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Tanyakan untuk menampilkan gambar"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Gambar dalam pesan tidak akan ditampilkan secara otomatis"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Tampilkan gambar\" dihapus."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> dari <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Menunggu sinkronisasi"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Email Anda akan segera muncul."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Snth ikon utk mngubah."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kotak Masuk Gabungan"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Belum Dibaca"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Yang berkilau bintangnya"</string>
