@@ -16,10 +16,12 @@
 
 package com.android.email.activity.setup;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -29,6 +31,7 @@ import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.QuickResponse;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.Serializable;
@@ -51,10 +54,26 @@ public class AccountSettingsUtils {
     public static void commitSettings(Context context, Account account) {
         if (!account.isSaved()) {
             account.save(context);
+
+            // Set up default quick responses here...
+            String[] defaultQuickResponses =
+                context.getResources().getStringArray(R.array.default_quick_responses);
+            ContentValues cv = new ContentValues();
+            cv.put(QuickResponse.ACCOUNT_KEY, account.mId);
+            ContentResolver resolver = context.getContentResolver();
+            for (String quickResponse: defaultQuickResponses) {
+                // Allow empty entries (some localizations may not want to have the maximum
+                // number)
+                if (!TextUtils.isEmpty(quickResponse)) {
+                    cv.put(QuickResponse.TEXT, quickResponse);
+                    resolver.insert(QuickResponse.CONTENT_URI, cv);
+                }
+            }
         } else {
             ContentValues cv = getAccountContentValues(account);
             account.update(context, cv);
         }
+
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backup(context);
     }
