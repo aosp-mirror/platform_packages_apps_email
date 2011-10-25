@@ -60,7 +60,7 @@
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Invia tutti messaggi"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Scegli allegato"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Sposta in"</string>
-    <string name="status_loading_messages" msgid="6552307237621292344">"Caricamento messaggi in corso…"</string>
+    <string name="status_loading_messages" msgid="6552307237621292344">"Caricamento messaggi..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"Problema di connessione."</string>
     <string name="error_loading_message_body" msgid="6775234299515596760">"Impossibile caricare il testo del messaggio. Il messaggio potrebbe essere troppo grande per poter essere visualizzato."</string>
   <plurals name="move_messages">
@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Ccn:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Oggetto:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Componi il messaggio"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Scrivi email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messaggio originale --------"\n"Oggetto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scritto:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Testo tra virgolette"</string>
@@ -201,10 +201,9 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Messaggio eliminato."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Messaggio salvato come bozza."</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Impossibile visualizzare l\'allegato."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
-    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Apertura messaggio in corso…"</string>
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Impossibile visualizzare l\'allegato."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Impossibile caricare l\'allegato \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
+    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Apertura messaggio..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messaggio spostato in <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messaggi spostati in <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -212,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Impossibile inoltrare uno o più allegati."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Allegato non inoltrato"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"Accesso a <xliff:g id="ACCOUNT_NAME">%s</xliff:g> non riuscito."</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Accesso non riuscito"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Accesso non riuscito"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -247,8 +246,8 @@
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Account duplicato"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizzi già questo nome utente per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Questa password inizia o termina con uno o più spazi. Molti server non supportano le password contenenti spazi."</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account in corso…"</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica delle impostazioni del server della posta in arrivo in corso…"</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica impostazioni server della posta in arrivo..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verifica impostazioni server posta in uscita…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Impostazione account"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Il nome utente o la password per <xliff:g id="ACCOUNT">%s</xliff:g> non sono corretti. Aggiornarli ora?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Invia email da questo account per impostazione predefinita"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Download automatico allegati"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Scarica automaticamente allegati quando connesso a rete Wi-Fi"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Scarica allegati"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Scarica automaticamente allegati messaggi recenti tramite Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifiche email"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frequenza sincronizzazione, notifiche e altro."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica sulla barra di sistema l\'arrivo di email"</string>
@@ -417,7 +416,7 @@
     <string name="system_account_create_failed" msgid="3673792980526246177">"Impossibile creare l\'account. Riprova."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Posta"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Abilita norme di sicurezza specificate dal server"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"Ricerca in <xliff:g id="DOMAIN">%s</xliff:g> in corso..."</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"Ricerca in <xliff:g id="DOMAIN">%s</xliff:g>in corso"</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> risultato da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> risultati da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grandi"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Molto grandi"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Rispondi a tutti"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Imposta \"Rispondi a tutti\" come opzione predefinita per le risposte"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Ripristina impostazioni predefinite di \"Mostra immagini\""</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Ripristina impostazioni predefinite per tutti i mittenti (non visualizzare automaticamente le immagini)"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Imposta \"Rispondi a tutti\" come opzione predefinita per le risposte"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Chiedi di mostrare le immagini"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Le immagini all\'interno dei messaggi non verranno visualizzate automaticamente"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Impostazioni di \"Mostra immagini\" cancellate."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> di <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"In attesa di sincronizzazione"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Le email verranno visualizzate a breve."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Icona per modificare"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Posta in arr. combinata"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Da leggere"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Speciali"</string>
