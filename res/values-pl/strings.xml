@@ -51,7 +51,7 @@
     <string name="account_settings_action" msgid="4494079183315085171">"Ustawienia konta"</string>
     <string name="settings_action" msgid="6334807007967459412">"Ustawienia"</string>
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Opcje synchronizacji"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Oznacz jako nieprzeczyt."</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Oznacz jako nieprzeczytane"</string>
     <string name="move_action" msgid="3059189775933985898">"Przenieś"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ DW/UDW"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Dodaj DW/UDW"</string>
@@ -130,7 +130,7 @@
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Temat:"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"Utwórz wiadomość"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Wiadomość oryginalna --------"\n"Temat: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Od: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Do: <xliff:g id="TO">%3$s</xliff:g>"\n"DW: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Użytkownik <xliff:g id="SENDER">%s</xliff:g> napisał:"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> napisał(a):"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Cytowany tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Dołącz tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Musisz dodać co najmniej jednego adresata."</string>
@@ -241,7 +241,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adres e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Hasło"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Konfiguracja ręczna"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Konfig. ręczna"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Wpisz prawidłowy adres e-mail i hasło."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Zduplikowane konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Używasz już tej nazwy użytkownika na koncie „<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>
@@ -361,7 +361,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Nazwa użytkownika lub hasło dla konta <xliff:g id="ACCOUNT">%s</xliff:g> są niepoprawne. Zaktualizować je teraz?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Domyślne konto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Automatyczne pobierz załączniki"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Pobieranie załączników"</string>
     <string name="account_settings_background_attachments_summary" msgid="323937814012234081">"Automatycznie pobieraj załączniki, gdy połączono z siecią Wi-Fi."</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Powiadomienia e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Częstotliwość synchronizacji, powiadomienia itd."</string>
@@ -445,9 +445,9 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Duży"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Wielki"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Odpowiedz wszystkim"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Ustaw opcję „Odpowiedz wszystkim” jako domyślną dla wiadomości"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Przywróć wartość domyślną opcji „Pokaż obrazy”"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Przywróć wartość domyślną dla wszystkich nadawców (nie pokazuj obrazów automatycznie)"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"Ustaw opcję „Odpowiedz wszystkim” jako domyślną"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"Resetuj opcję „Pokaż obrazy”"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"Przywróć wartość domyślną dla wszystkich nadawców (nie pokazuj obrazów)"</string>
     <string name="trusted_senders_cleared" msgid="8079053907862270420">"Opcja „Pokaż obrazy” została wyczyszczona."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> z <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Oczekiwanie na synchronizację"</string>

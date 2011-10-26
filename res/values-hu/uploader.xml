@@ -8,8 +8,8 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"Feltöltés"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Befejeződött"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Szüneteltetve"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d fotó ??? %3$d videó"</string>
-    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d fotó ??? %2$d videó"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • %2$d fotó • %3$d videó"</string>
+    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d fotó • %2$d videó"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"alacsony töltöttség"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"túllépte a fotókra vonatkozó kvótát"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"barangolás"</string>

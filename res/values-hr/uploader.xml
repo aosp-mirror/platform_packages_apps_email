@@ -8,8 +8,8 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"Prijenos"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Završeno"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Pauzirano"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? Fotografija: %2$d ??? Videozapisa: %3$d"</string>
-    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"Fotografija: %1$d ??? videozapisa: %2$d"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • Fotografija: %2$d • Videozapisa: %3$d"</string>
+    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"Fotografija: %1$d • videozapisa: %2$d"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"slaba baterija"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"premašena kvota fotografija"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>
