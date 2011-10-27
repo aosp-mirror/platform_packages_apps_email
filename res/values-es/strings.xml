@@ -337,7 +337,7 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Has introducido una dirección de servidor incorrecta o el servidor requiere una versión de protocolo no compatible con la aplicación Correo."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"No tienes permiso para hacer la sincronización con este servidor. Para obtener más información, ponte en contacto con el administrador del servidor."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Es necesario que permitas que el servidor <xliff:g id="SERVER">%s</xliff:g> controle de forma remota algunas funciones de seguridad de tu dispositivo Android. ¿Deseas terminar de configurar esta cuenta?"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Es necesario que permitas que el servidor <xliff:g id="SERVER">%s</xliff:g> controle de forma remota algunas funciones de seguridad de tu dispositivo Android. ¿Quieres terminar de configurar esta cuenta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Este servidor requiere funciones de seguridad que no son compatibles con tu dispositivo Android (por ejemplo: <xliff:g id="ERROR">%s</xliff:g>)."</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"No puedes modificar el nombre de usuario de una cuenta. Para añadir una cuenta con otro nombre de usuario, toca Añadir cuenta."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"ADVERTENCIA: si desactivas el permiso de la aplicación Correo para administrar tu dispositivo, se eliminarán todas las cuentas de esta aplicación que requieran su uso, así como las direcciones de correo electrónico, los contactos, los eventos de calendario y otro tipo de datos."</string>
@@ -376,7 +376,7 @@
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Firma"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Respuestas rápidas"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Edita texto que suelas usar en mensajes de correo electrónico."</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Añadir texto a los mensajes que envíes"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Añadir texto al final de los mensajes enviados"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Ajustes de notificaciones"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de datos"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editar respuesta rápida"</string>

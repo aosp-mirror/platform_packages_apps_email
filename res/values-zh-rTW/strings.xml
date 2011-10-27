@@ -29,7 +29,7 @@
     <string name="previous_action" msgid="5181616311579820981">"上一步"</string>
     <string name="send_action" msgid="1729766205562446418">"傳送"</string>
     <string name="reply_action" msgid="4262472229221507619">"回覆"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"全部回覆"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"回覆所有人"</string>
     <string name="delete_action" msgid="8421026208288857155">"刪除"</string>
     <string name="forward_action" msgid="669174181042344116">"轉寄"</string>
     <string name="favorite_action" msgid="4664259801498253756">"加上星號"</string>
@@ -445,7 +445,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"最大"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"回覆所有人"</string>
-    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"將「回覆所有人」設為預設的回信方式"</string>
+    <string name="general_preference_reply_all_summary" msgid="917669156784760966">"將「回覆所有人」做為預設的回信方式"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="8540277615940620308">"還原「顯示圖片」的預設值"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2018233140620247">"還原所有寄件者的預設值 (不要自動顯示圖片)"</string>
     <string name="trusted_senders_cleared" msgid="8079053907862270420">"「顯示圖片」已清除。"</string>

@@ -31,7 +31,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Responder"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Resp p/ todos"</string>
     <string name="delete_action" msgid="8421026208288857155">"Excluir"</string>
-    <string name="forward_action" msgid="669174181042344116">"Avançar"</string>
+    <string name="forward_action" msgid="669174181042344116">"Encaminhar"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Marcar com uma estrela"</string>
     <string name="done_action" msgid="7497990549515580249">"Concluído"</string>
     <string name="create_action" msgid="3062715563215392251">"Criar nova"</string>

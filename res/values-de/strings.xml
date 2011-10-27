@@ -381,7 +381,7 @@
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Datenverbrauch"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Kontakte dieses Kontos synchronisieren"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Kalender synchronisieren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Kalender dieses Kontos synchronisieren"</string>
@@ -390,7 +390,7 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Immer"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlosmodus"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlos-Modus"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nie"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibration"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Klingelton auswählen"</string>
