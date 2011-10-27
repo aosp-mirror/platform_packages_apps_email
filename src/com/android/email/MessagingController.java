@@ -176,6 +176,7 @@ public class MessagingController implements Runnable {
         return mBusy;
     }
 
+    @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         // TODO: add an end test to this infinite loop
@@ -257,6 +258,7 @@ public class MessagingController implements Runnable {
             // but, mailbox removal occurs here. Instead, each store should be responsible for
             // content synchronization (addition AND removal) since each store will likely need
             // to implement it's own, unique synchronization methodology.
+            @Override
             public void run() {
                 TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
                 Cursor localFolderCursor = null;
@@ -336,6 +338,7 @@ public class MessagingController implements Runnable {
         }
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         put("synchronizeMailbox", listener, new Runnable() {
+            @Override
             public void run() {
                 synchronizeMailboxSynchronous(account, folder);
             }
@@ -470,6 +473,7 @@ public class MessagingController implements Runnable {
         fp.add(FetchProfile.Item.BODY);
         remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
                 new MessageRetrievalListener() {
+                    @Override
                     public void messageRetrieved(Message message) {
                         // Store the updated message locally and mark it fully loaded
                         copyOneMessageToProvider(message, account, toMailbox,
@@ -676,6 +680,7 @@ public class MessagingController implements Runnable {
         fp.add(FetchProfile.Item.BODY_SANE);
         remoteFolder.fetch(messageList.toArray(new Message[0]), fp,
                 new MessageRetrievalListener() {
+            @Override
             public void messageRetrieved(Message message) {
                 try {
                     // Determine if the new message was already known (e.g. partial)
@@ -735,7 +740,9 @@ public class MessagingController implements Runnable {
          */
         final ArrayList<Long> unseenMessages = new ArrayList<Long>();
 
-        Log.d(Logging.LOG_TAG, "*** synchronizeMailboxGeneric ***");
+        if (Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "*** synchronizeMailboxGeneric ***");
+        }
         ContentResolver resolver = mContext.getContentResolver();
 
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
@@ -1048,6 +1055,7 @@ public class MessagingController implements Runnable {
 
     public void processPendingActions(final long accountId) {
         put("processPendingActions", null, new Runnable() {
+            @Override
             public void run() {
                 try {
                     Account account = Account.restoreAccountWithId(mContext, accountId);
@@ -1636,6 +1644,7 @@ public class MessagingController implements Runnable {
 
             remoteFolder.copyMessages(new Message[] { remoteMessage }, remoteTrashFolder,
                     new Folder.MessageUpdateCallbacks() {
+                @Override
                 public void onMessageUidChange(Message message, String newUid) {
                     // update the UID in the local trash folder, because some stores will
                     // have to change it when copying to remoteTrashFolder
@@ -1649,6 +1658,7 @@ public class MessagingController implements Runnable {
                  * deleted (e.g. it was already deleted from the server.)  In this case,
                  * attempt to delete the local copy as well.
                  */
+                @Override
                 public void onMessageNotFound(Message message) {
                     mContext.getContentResolver().delete(newMessage.getUri(), null, null);
                 }
@@ -1845,6 +1855,7 @@ public class MessagingController implements Runnable {
     public void loadMessageForView(final long messageId, MessagingListener listener) {
         mListeners.loadMessageForViewStarted(messageId);
         put("loadMessageForViewRemote", listener, new Runnable() {
+            @Override
             public void run() {
                 try {
                     // 1. Resample the message, in case it disappeared or synced while
@@ -1911,6 +1922,7 @@ public class MessagingController implements Runnable {
         mListeners.loadAttachmentStarted(accountId, messageId, attachmentId, true);
 
         put("loadAttachment", listener, new Runnable() {
+            @Override
             public void run() {
                 try {
                     //1. Check if the attachment is already here and return early in that case
@@ -2008,6 +2020,7 @@ public class MessagingController implements Runnable {
     public void sendPendingMessages(final Account account, final long sentFolderId,
             MessagingListener listener) {
         put("sendPendingMessages", listener, new Runnable() {
+            @Override
             public void run() {
                 sendPendingMessagesSynchronous(account, sentFolderId);
             }
@@ -2127,6 +2140,7 @@ public class MessagingController implements Runnable {
 
         // Put this on the queue as well so it follows listFolders
         put("checkMail", listener, new Runnable() {
+            @Override
             public void run() {
                 // send any pending outbound messages.  note, there is a slight race condition
                 // here if we somehow don't have a sent folder, but this should never happen
