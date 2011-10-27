@@ -16,9 +16,9 @@
 
 package com.android.email;
 
-import com.android.emailcommon.Logging;
-
 import android.util.Log;
+
+import com.android.emailcommon.Logging;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -45,12 +45,8 @@ public abstract class SingleRunningTask<Param> {
             try {
                 runInternal(param);
             } finally {
-                Log.i(Logging.LOG_TAG, mLogTaskName + ": done");
                 mIsRunning.set(false);
             }
-        } else {
-            // Already running -- do nothing.
-            Log.i(Logging.LOG_TAG, mLogTaskName + ": already running");
         }
     }
 
