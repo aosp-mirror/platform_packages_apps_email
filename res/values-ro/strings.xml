@@ -128,7 +128,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Subiect:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Compuneţi un mesaj de e-mail"</string>
+    <string name="message_compose_body_hint" msgid="3864004548670233396">"Scrieţi un e-mail"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mesajul original --------"\n"Subiect: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De la: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Către: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a scris:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Mesaj citat"</string>
@@ -153,7 +153,7 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Salvat"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Opriţi"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ataşament salvat ca <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Ataşament. nu s-a putut salva."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Nu s-a salvat ataşamentul."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Notă: unul sau mai multe ataşamente din mesajul dvs. redirecţionat vor fi descărcate înainte de a fi trimise."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Mesaj"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Invitaţi"</string>
@@ -182,7 +182,7 @@
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"Setări aplicaţii"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nu se poate deschide ataşamentul."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"Nu puteţi salva sau deschide acest fişier, deoarece acest tip de ataşament ar putea conţine programe rău intenţionate."</string>
-    <string name="attachment_info_policy" msgid="3560422300127587508">"Acest ataşament nu pot fi salvat sau deschis din cauza politicilor de securitate ale acestui cont."</string>
+    <string name="attachment_info_policy" msgid="3560422300127587508">"Acest ataşament nu poate fi salvat sau deschis din cauza politicilor de securitate ale acestui cont."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Acest ataşament este prea mare pentru a fi descărcat prin reţeaua mobilă. Îl puteţi descărca cu proxima ocazie când vă conectaţi la o reţea Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nu există nicio aplicaţie instalată care să poată deschide acest ataşament. Încercaţi să descărcaţi o aplicaţie corespunzătoare din Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Acest ataşament este o aplicaţie. Înainte de a o putea instala, trebuie să bifaţi Surse necunoscute din Setări &gt; Aplicaţii."</string>
@@ -201,9 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Mesaj refuzat."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Mesaj salvat ca mesaj nefinalizat."</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Ataşamentul nu se poate afişa."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Ataşamentul nu se poate afişa."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Ataşamentul „<xliff:g id="FILENAME">%s</xliff:g>” nu a putut fi încărcat."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Se deschide mesajul..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mesaj mutat în <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -212,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nu se pot redirecţiona unul sau mai multe ataşamente."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Ataşamentul nu a fost trimis"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"Conectare eşuată la <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Conectare eşuată"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Nu s-a putut conecta"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> O"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> O"</item>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Numele de utilizator sau parola pentru <xliff:g id="ACCOUNT">%s</xliff:g> este incorectă. Le actualizaţi acum?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cont prestabilit"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Trimiteţi e-mailuri de pe acest cont în mod prestabilit"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Descărcaţi automat ataşamentele"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Ataşam. se desc. automat doar când sunteţi conectat(ă) la Wi-Fi."</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Descărcaţi ataşamentele"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Descărcaţi în mod automat prin Wi-Fi ataşam. mesaj. recente"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificările de e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frecvenţa sincronizării, notificări etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Doresc să fiu notificat(ă) în bara de sistem la primirea e-mailurilor"</string>
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Mare"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Foarte mare"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Răspundeţi tuturor"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Setaţi „Răspundeţi tuturor” ca opţiune prestabilită de răspuns la mesaje"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Reveniţi la setarea prestabilită pentru „Afişaţi fotografiile”"</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Reveniţi la setarea prestabilită pentru toţi expeditorii (nu afişaţi fotografiile în mod automat)"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Setaţi „Răspundeţi tuturor” ca opţ. prestabilită de răspuns la mesaje"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Solicitaţi permisiunea de a afişa imagini"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Imaginile din mesaje nu vor fi afişate în mod automat"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Opţiunea „Afişaţi fotografiile” este debifată."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> din <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Se aşteaptă sincronizarea"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"E-mailul dvs. va apărea în curând."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"At. pict. pt. modif."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Toate e-mailurile"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Necitite"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Cu stea"</string>

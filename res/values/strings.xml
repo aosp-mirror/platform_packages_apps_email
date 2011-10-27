@@ -1169,6 +1169,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="waitinf_for_sync_message_2">Your email will appear soon.</string>
 
     <!-- Widget -->
+    <!-- Instruction for how to move to different widget views [CHAR LIMIT=20] -->
+    <string name="widget_other_views">Touch icon to change.</string>
     <!-- Header for the "Combined Inbox" view (showing mail in all inboxes) [CHAR LIMIT=20] -->
     <string name="widget_all_mail">Combined Inbox</string>
     <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->

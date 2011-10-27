@@ -201,9 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Sporočilo zavrženo."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Sporočilo shranjeno kot osnutek."</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Priloge ni mogoče prikazati."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Priloge ni mogoče prikazati."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Priloge »<xliff:g id="FILENAME">%s</xliff:g>« ni bilo mogoče naložiti."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Odpiranje sporočila ..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> sporočil premaknjenih v <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -212,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Ene ali več prilog ni bilo mogoče posredovati."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Priloga ni bila posredovana"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"Prijava v račun <xliff:g id="ACCOUNT_NAME">%s</xliff:g> ni uspela."</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Prijava ni uspela"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Prijava ni uspela"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Uporabniško ime ali geslo za <xliff:g id="ACCOUNT">%s</xliff:g> je napačno. Ali ju želite posodobiti?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Privzeti račun"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Privzeto pošiljaj e-pošto iz tega računa"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Samodejni prenos prilog"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Samodejni prenos prilog, ko je na voljo povezava Wi-Fi"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Prenesi priloge"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Samodejni prenos prilog k nedavnim sporočilom s povezavo Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-poštna obvestila"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Pogostost sinhronizacije, obvestila itd."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Ko pride e-pošta, obvesti v sistemski vrstici"</string>
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Velika"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Velikanska"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Odgovori vsem"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Naj bo »Odgovori vsem« privzeta nastavitev za odgovore na sporočila"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Obnovi privzeto za »Pokaži slike«"</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Obnovi privzeto za vse pošiljatelje (slik ne pokaži samodejno)"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"»Odgovori vsem« naj bo privzeta izbira za odgovore na sporočila"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Vprašaj, ali naj bodo slike prikazane"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Slike v sporočilih ne bodo prikazane samodejno"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Možnost »Pokaži slike« je počiščena."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> od <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Čakanje na sinhronizacijo"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Vaša e-pošta se bo pojavila kmalu."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Tapnite ikono, da spremenite."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombiniran nabiralnik"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Neprebrano"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Z zvezdico"</string>

@@ -201,9 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"መልዕክት ተወግዷል።"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"መልዕክትእንደረቂቅ ተቀምጧል።"</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"ዓባሪውን ማሳየት አይቻልም::"</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"ዓባሪውን ማሳየት አይቻልም::"</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"ዓባሪ \" <xliff:g id="FILENAME">%s</xliff:g>\"ን መስቀል አልተቻለም::"</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"መልዕክት በመክፈት ላይ...."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> መልዕክት ወደ<xliff:g id="MAILBOX_NAME">%2$s</xliff:g> ዞርዋል"</item>
@@ -212,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"አንድ ወይም ከዛ በላይ ዓባሪዎችን ለማስተላለፍ አልተቻለም::"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"አባሪ አልተላለፈም"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> በመለያ መግባት ተሰናክሏል::"</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"በመለያ መግባት ተሰናክሏል"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"በመለያ መግባት አልተቻለም፡፡"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">" የ<xliff:g id="ACCOUNT">%s</xliff:g> ተጠቃሚ ስም ወይም ይለፍቃል የተሳሳተ ነው። አሁን ይዘምኑ?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"ነባሪ መለያ"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"ከዚህ መለያ በነባሪኢሜይል ላክ"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"አባሪዎችን በራስ-አውርድ"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"ወደ Wi-Fi ስትገናኝ አባሪዎችን በራስ ሰር አውርድ"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"አባሪዎችን አውርድ"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"ራስሰር-አውርድ አባሪዎች ወደ በቅርብ ጊዜ በWi-Fi የተላኩ መልዕክቶች"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"የኢሜይል ማሳወቂያ"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"ድግግሞሽ፣ ማሳወቂያዎች፣ ወዘተ አሳምር።"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"ኢሜይል ሲደርስ በሁኔታ አሞሌ ውስጥ አሳውቅ"</string>
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"ትልቅ"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"ግዙፍ"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"ለሁሉም ምላሽ ስጥ"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"ለመልዕክቶች ለመመለስ \'ለሁሉም መልስ\'ን ነባሪ አድርግ"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"ለ\"ምስሎችን አሳይ\" ነባሪ እነበረበት መልስ"</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"ለሁሉም ላኪዎች(ፎቶዎችን በራስ ሰር አታሳይ) ነባሪ እነበረበት መልስ"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"“ለሁሉም መልስ”ን ለመልዕክት መልሶች ነባሪ አድርግ"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"ስዕሎችን ለማሳየት ጠይቅ"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"በመልዕክቶች ውስጥ ስዕሎች በራስሰር  አይታዩም፡፡"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"ፎቶዎች አሳይ\" ጠርቷል።"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> ከ <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"አስምር በመጠበቅ ላይ"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"ያንተ ኢሜይል በቅርቡ ብቅ ይላል::"</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"ለመለወጥ አዶ ንካ::"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"የተቀላቀለ ገቢ መልዕክት"</string>
     <string name="widget_unread" msgid="4404711399009077833">"ያልተነበበ"</string>
     <string name="widget_starred" msgid="8290352707134011791">"ኮከብ የተደረገባቸው"</string>

@@ -201,9 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Nachricht gelöscht"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Nachricht als Entwurf gespeichert"</string>
-    <!-- outdated translation 5557358787789844554 -->     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Anhang kann nicht angezeigt werden."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Anhang kann nicht angezeigt werden."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Anhang \"<xliff:g id="FILENAME">%s</xliff:g>\" kann nicht geladen werden."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Nachricht wird geöffnet..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> Nachricht verschoben in: <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -212,7 +211,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Mindestens ein Anhang wurde nicht weitergeleitet."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Anhang nicht weitergeleitet"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"Fehler beim Anmelden in <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
-    <!-- outdated translation 791871543602843876 -->     <string name="login_failed_title" msgid="7624349996212476176">"Fehler bei Anmeldung"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Anmeldung nicht möglich"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -333,7 +332,7 @@
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Keine Verbindung zum Server möglich."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS erforderlich aber nicht von Server unterstützt"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Authentifizierungsmethoden werden nicht vom Server unterstützt."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht hergestellt werden."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Verbindung zum Server kann nicht geöffnet werden."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Sie haben eine falsche Serveradresse eingegeben oder der Server erfordert eine Protokollversion, die zurzeit nicht unterstützt wird."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Sie haben keine Berechtigung, eine Synchronisierung mit diesem Server durchzuführen. Wenden Sie sich für weitere Informationen an Ihren Server-Administrator."</string>
@@ -362,8 +361,8 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Der Nutzername oder das Passwort für <xliff:g id="ACCOUNT">%s</xliff:g> ist falsch. Jetzt aktualisieren?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-Mails standardmäßig von diesem Konto senden"</string>
-    <!-- outdated translation 6044567979405738536 -->     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Anhänge autom. herunterladen"</string>
-    <!-- outdated translation 323937814012234081 -->     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automatischer Download von Anhängen bei WLAN-Verbindung"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Anhänge herunterladen"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Anhänge neuer Nachrichten automatisch über WLAN herunterladen"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-Mail-Benachrichtigung"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synchronisierungshäufigkeit, Benachrichtigungen usw."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Bei E-Mail-Eingang Benachrichtigung in der Systemleiste"</string>
@@ -373,7 +372,7 @@
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ausgehende Nachrichten"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nutzername, Passwort und andere Einstellungen für Ausgangsserver"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
-    <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Mein Name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Kurzantworten"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Bearbeiten Sie beim Verfassen von E-Mails oft eingefügten Text."</string>
@@ -382,7 +381,7 @@
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Datenverbrauch"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Kontakte dieses Kontos synchronisieren"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Kalender synchronisieren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Kalender dieses Kontos synchronisieren"</string>
@@ -391,13 +390,13 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Immer"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlosmodus"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlos-Modus"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nie"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibration"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Klingelton auswählen"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Servereinstellungen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Konto entfernen"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus E-Mail entfernt."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Konto entfernen"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Konto entfernen"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Synchronisierungsoptionen"</string>
@@ -428,8 +427,8 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatisch fortfahren"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Was soll nach dem Löschen einer Nachricht angezeigt werden?"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Weiter zu"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Neuere Nachricht"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ältere Nachricht"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"neuerer Nachricht"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"älterer Nachricht"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Nachrichtenliste"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Nachrichtentextgröße"</string>
   <string-array name="general_preference_text_zoom_summary_array">
@@ -446,14 +445,13 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groß"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sehr groß"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Allen antworten"</string>
-    <!-- outdated translation 917669156784760966 -->     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"\"Allen antworten\" als Standard für die E-Mail-Beantwortung festlegen"</string>
-    <!-- outdated translation 8540277615940620308 -->     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Auf Standardeinstellung für \"Bilder anzeigen\" zurücksetzen"</string>
-    <!-- outdated translation 2018233140620247 -->     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Auf Standardeinstellung für alle Absender zurücksetzen (Bilder nicht automatisch anzeigen)"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"\"Allen antworten\" als Standard für die E-Mail-Beantwortung festlegen"</string>
+    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Anzeige der Bilder anfordern"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Bilder in E-Mails werden nicht automatisch angezeigt."</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Bilder anzeigen\" gelöscht"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> von <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Warten auf Synchronisierung"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ihre E-Mail wird in Kürze angezeigt."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Symbol zum Wechseln berühren."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinierter Posteingang"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ungelesen"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Markiert"</string>
