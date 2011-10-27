@@ -185,6 +185,14 @@
         <item>@string/mailbox_name_display_junk</item>
     </string-array>
 
+    <!-- A small number of default quick responses -->
+    <string-array name="default_quick_responses">
+        <item>@string/quick_1</item>
+        <item>@string/quick_2</item>
+        <item>@string/quick_3</item>
+        <item>@string/quick_4</item>
+    </string-array>
+
     <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
          of the types of mailboxes defined in EmailContent -->
     <array name="mailbox_display_icons" translatable="false">
