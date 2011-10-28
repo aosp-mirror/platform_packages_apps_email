@@ -201,8 +201,8 @@
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"Nachricht gelöscht"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Nachricht als Entwurf gespeichert"</string>
-    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Der Anhang kann nicht angezeigt werden."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Der Anhang \"<xliff:g id="FILENAME">%s</xliff:g>\" kann nicht geladen werden."</string>
+    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Anhang kann nicht angezeigt werden."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Anhang \"<xliff:g id="FILENAME">%s</xliff:g>\" kann nicht geladen werden."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Nachricht wird geöffnet..."</string>
   <plurals name="message_moved_toast">
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> Nachricht verschoben in: <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
@@ -332,7 +332,7 @@
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Keine Verbindung zum Server möglich."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS erforderlich aber nicht von Server unterstützt"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Authentifizierungsmethoden werden nicht vom Server unterstützt."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht hergestellt werden."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Verbindung zum Server kann nicht geöffnet werden."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Sie haben eine falsche Serveradresse eingegeben oder der Server erfordert eine Protokollversion, die zurzeit nicht unterstützt wird."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Sie haben keine Berechtigung, eine Synchronisierung mit diesem Server durchzuführen. Wenden Sie sich für weitere Informationen an Ihren Server-Administrator."</string>
@@ -343,8 +343,18 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"Warnung: Wenn Sie die Berechtigung der E-Mail-App zur Verwaltung Ihres Geräts deaktivieren, werden alle E-Mail-Konten, die diese Berechtigung benötigen, mit allen zugehörigen E-Mails, Kontakten, Terminen und anderen Daten gelöscht."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Sicherheitsupdate"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> erfordert, dass Sie Ihre Sicherheitseinstellungen aktualisieren."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert eine Aktualisierung der Sicherheitseinstellungen."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Sicherheitsupdate erforderlich"</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <string name="account_security_title" msgid="3511543138560418587">"Gerätesicherheit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
@@ -371,17 +381,31 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nutzername, Passwort und andere Einstellungen für Eingangsserver"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ausgehende Nachrichten"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nutzername, Passwort und andere Einstellungen für Ausgangsserver"</string>
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
-    <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Mein Name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Kurzantworten"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Bearbeiten Sie beim Verfassen von E-Mails oft eingefügten Text."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text an ausgehende Nachrichten anhängen"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Datenverbrauch"</string>
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Kontakte dieses Kontos synchronisieren"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Kalender synchronisieren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Kalender dieses Kontos synchronisieren"</string>
@@ -390,13 +414,13 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Bei E-Mail-Eingang zusätzlich vibrieren"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Immer"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlosmodus"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Nur im Lautlos-Modus"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nie"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibration"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Klingelton auswählen"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Servereinstellungen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Konto entfernen"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus E-Mail entfernt."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Konto entfernen"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Konto entfernen"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Synchronisierungsoptionen"</string>
@@ -427,8 +451,8 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatisch fortfahren"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Was soll nach dem Löschen einer Nachricht angezeigt werden?"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Weiter zu"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Neuere Nachricht"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ältere Nachricht"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"neuerer Nachricht"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"älterer Nachricht"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Nachrichtenliste"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Nachrichtentextgröße"</string>
   <string-array name="general_preference_text_zoom_summary_array">
@@ -452,6 +476,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> von <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Warten auf Synchronisierung"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ihre E-Mail wird in Kürze angezeigt."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Symbol zum Wechseln berühren."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinierter Posteingang"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ungelesen"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Markiert"</string>
@@ -465,4 +490,21 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Warten auf Ergebnisse"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Bei einigen Servern benötigen Sie möglicherweise etwas mehr Geduld."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Ordner"</string>
+    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Kamera nicht zulassen"</string>
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

@@ -343,8 +343,18 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल एप्‍लिकेशन का प्राधिकार निष्क्रिय कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"सुरक्षा अपडेट"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"आपको <xliff:g id="ACCOUNT">%s</xliff:g> के लिए अपनी सुरक्षा सेटिंग अपडेट करने की आवश्यकता है."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"खाते \"<xliff:g id="ACCOUNT">%s</xliff:g>\"  को सुरक्षा सेटिंग अपडेट की आवश्‍यकता है."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"सुरक्षा अपडेट आवश्यक"</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <string name="account_security_title" msgid="3511543138560418587">"उपकरण सुरक्षा"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए यह आवश्‍यक है कि आप उसे अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"विवरण संपादित करें"</string>
@@ -371,6 +381,18 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य इनकमिंग सर्वर सेटिंग"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"आउटगोइंग सेटिंग"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य आउटगोइंग सर्वर सेटिंग"</string>
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"खाता नाम"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"आपका नाम"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"हस्ताक्षर"</string>
@@ -379,6 +401,8 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"आपके भेजे जाने वाले संदेशों में पाठ संशोधित करें"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"सूचना सेटिंग"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"डेटा उपयोग"</string>
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"त्वरित प्रतिसाद संपादित करें"</string>
     <string name="save_action" msgid="1988862706623227093">"सहेजें"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"संपर्कों को सिंक करें"</string>
@@ -445,13 +469,14 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"बड़ा"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"बहुत बड़ा"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"सभी को प्रत्‍युत्तर दें"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"संदेशों के प्रत्‍युत्तर के लिए \"सभी को प्रत्युत्तर दें\" डिफ़ॉल्ट बनाएं"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"संदेशों के प्रत्‍युत्तर के लिए \"सभी को प्रत्युत्तर दें\" को डिफ़ॉल्ट बनाएं"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"चित्र दिखाने के लिए पूछें"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"संदेशों के चित्र स्वचालित रूप से नहीं दिखाए जाएंगे"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"चित्र दिखाएं\" साफ़ किया गया."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_2">%2$s</xliff:g> का <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"समन्वयन की प्रतीक्षा कर रहा है"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"आपका ईमेल जल्‍दी ही दिखाई देगा."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"बदलने हेतु आइकन स्‍पर्श करें."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"संयोजित इनबॉक्‍स"</string>
     <string name="widget_unread" msgid="4404711399009077833">"अपठित"</string>
     <string name="widget_starred" msgid="8290352707134011791">"तारांकित"</string>
@@ -465,4 +490,21 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"परिणामों की प्रतीक्षा कर रहा है"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"कुछ सर्वर को अधिक समय लग सकता है."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"फ़ोल्‍डर"</string>
+    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"कैमरे को अनुमति न दें"</string>
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

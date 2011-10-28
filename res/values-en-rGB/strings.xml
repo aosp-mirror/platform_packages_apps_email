@@ -343,8 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"WARNING: Deactivating the Email app\'s authority to administer your device will delete all email accounts that require it, along with their email, contacts, calendar events and other data."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Security update"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> requires you to update your security settings."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires security settings update."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Security update required"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" cannot be synced due to security requirements."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires a security-settings update."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" has changed its security settings; no user action is required."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Security update required"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Security policies have changed"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Security policies cannot be met"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Device Security"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"The server <xliff:g id="SERVER">%s</xliff:g> requires that you allow it to remotely control some security features of your Android device."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edit details"</string>
@@ -371,6 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Username, password and other incoming server settings"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Outgoing settings"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Username, password and other outgoing server settings"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Policies enforced"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"None"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Unsupported policies"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"None"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Attempt sync"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Tap here to attempt to sync this account (i.e. if server settings have changed)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Account name"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Your name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signature"</string>
@@ -379,6 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Append text to messages that you send"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Notification settings"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Data usage"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Security policies"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit quick response"</string>
     <string name="save_action" msgid="1988862706623227093">"Save"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sync contacts"</string>
@@ -452,6 +463,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> of <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Waiting for sync"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Your email will appear soon."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Touch icon to change."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Combined Inbox"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Unread"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Starred"</string>
@@ -465,4 +477,17 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Waiting for results"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Some servers may take a long time."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folders"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Disallow use of the device\'s camera"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Require device password"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Restrict the reuse of recent passwords"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Require passwords to expire"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Require an idle device to lock its screen"</string>
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

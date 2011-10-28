@@ -343,8 +343,18 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"ЗАСТЕРЕЖЕННЯ. Дезактивація повноважень програми електронної пошти на адміністрування вашого пристрою призведе до видалення всіх облікових записів електронної пошти, що потребують адміністрування, разом з їхніми електронними листами, контактами, подіями календаря й іншими даними."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Оновлення системи безпеки"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Потрібно оновити налаштування безпеки для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Облік. запис \"<xliff:g id="ACCOUNT">%s</xliff:g>\" потреб. оновл. налашт-нь безпеки"</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Потрібне оновл. сист. безпеки"</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <string name="account_security_title" msgid="3511543138560418587">"Безпека пристрою"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сервер <xliff:g id="SERVER">%s</xliff:g> потребує вашого дозволу віддалено контролювати деякі функції безпеки вашого пристрою Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Редаг. деталі"</string>
@@ -362,7 +372,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Обл. зап. за умовч."</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Надіс. ел.листи з цього обл. зап. за умовч."</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Завантажити вкладені файли"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автом. завантажувати вклад.файли з останніх повідомл. через WiFi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автом. завантажувати вклад. файли з останніх повідом. через WiFi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Сповіщення ел. пошти"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Синхронізуйте частоту, сповіщення тощо"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Сповіщати в системному рядку про надходження листа"</string>
@@ -371,6 +381,18 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Ім’я корист., пароль й інші налашт-ня сервера вхідних повідомл."</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Налашт-ня вихідних"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Ім’я корист., пароль й інші налашт-ня сервера вихідних повідомл."</string>
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Назва обл. зап."</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ваше ім\'я"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Підпис"</string>
@@ -379,6 +401,8 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Додав. текст у надісл. повідомл."</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Налаштування сповіщень"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Використання даних"</string>
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Редагувати швидку відповідь"</string>
     <string name="save_action" msgid="1988862706623227093">"Зберегти"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхрон. контакти"</string>
@@ -452,6 +476,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> з <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Очікування на синхронізацію"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ваша електронна пошта з’явиться незабаром."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Торк.знач.для зміни."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Об\'єднані Вхідні"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Непрочитані"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Із зірочкою"</string>
@@ -465,4 +490,21 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Очікування результатів"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Деяким серверам потрібно багато часу."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Папки"</string>
+    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"не дозволяти використання камери"</string>
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

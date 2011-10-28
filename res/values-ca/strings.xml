@@ -343,8 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"ADVERTIMENT: Desactivar l\'autoritat de l\'aplicació de correu electrònic per administrar el dispositiu suprimirà tots els comptes de correu electrònic que ho requereixin, juntament amb els correus electrònics, els contactes, els esdeveniments de calendari i altres dades."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Actualització de seguretat"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> necessita que actualitzis la configuració de seguretat."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Cal actualitzar la configuració de seguretat del compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Cal fer una actualització de seguretat"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" no es pot sincronitzar a causa de requisits de seguretat."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Cal actualitzar la configuració de seguretat del compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ha canviat la configuració de seguretat; no es requereix cap acció de l\'usuari."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Cal actualització de seguretat"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Les polítiques de seguretat han canviat"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"No es poden complir les polítiques de seguretat"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Seguretat del dispositiu"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permetis controlar de manera remota algunes funcions de seguretat del dispositiu Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edita\'n els detalls"</string>
@@ -371,6 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nom d\'usuari, contrasenya i altres opcions de configuració del servidor d\'entrada"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuració de sortida"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nom d\'usuari, contrasenya i altres opcions de configuració del servidor de sortida"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Polítiques aplicades"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Cap"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Polítiques no compatibles"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Cap"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Intenta la sincronització"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Pica aquí per intentar sincronitzar aquest compte (p. ex. si la configuració del servidor ha canviat)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nom del compte"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"El vostre nom"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatura"</string>
@@ -379,6 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Annexa text als missatges que envieu"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configuració de notificacions"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Ús de dades"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Polítiques de seguretat"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edita una resposta ràpida"</string>
     <string name="save_action" msgid="1988862706623227093">"Desa"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronitza els contactes"</string>
@@ -452,6 +463,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"S\'està esperant per sincronitzar"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"El teu correu electrònic apareixerà aviat."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Toca la icona per canviar."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Safata d\'entrada combinada"</string>
     <string name="widget_unread" msgid="4404711399009077833">"No llegits"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacats"</string>
@@ -465,4 +477,17 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"S\'estan esperant els resultats"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Alguns servidors poden trigar molt."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Carpetes"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"No permetis l\'ús de la càmera del dispositiu"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Requereix la contrasenya del dispositiu"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Restringeix la reutilització de contrasenyes recents"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Requereix que les contrasenyes caduquin"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Requereix un dispositiu absent per bloquejar-ne la pantalla"</string>
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>
