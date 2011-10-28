@@ -452,6 +452,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> no <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Gaida sinhronizāciju"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Drīz tiks parādīts jūsu e-pasta saturs."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Mainiet pieskaroties"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinētā iesūtne"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Nelasītie"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Atzīm. ar zvaigznīti"</string>
