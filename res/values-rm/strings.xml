@@ -440,8 +440,18 @@
     <skip />
     <!-- no translation found for account_security_dialog_content_fmt (8843806143923278214) -->
     <skip />
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» basegna ina actualisaziun dals parameters da segirezza."</string>
-    <!-- outdated translation 8096231937552848281 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Actualisar ils parameters da segirezza"</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <!-- outdated translation 4441470647344315196 -->     <string name="account_security_title" msgid="3511543138560418587">"Protecziun da l\'apparat"</string>
     <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
     <skip />
@@ -484,6 +494,18 @@
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Parameters da sortida"</string>
     <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
     <skip />
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Num dal conto"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Voss num"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatura"</string>
@@ -494,6 +516,8 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Agiuntar in text als messadis che sortan"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Parameters dad avis"</string>
     <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
+    <skip />
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
     <skip />
     <!-- no translation found for edit_quick_response_dialog (4322494050816995390) -->
     <skip />
@@ -602,6 +626,8 @@
     <skip />
     <!-- no translation found for waitinf_for_sync_message_2 (5656175205790694016) -->
     <skip />
+    <!-- no translation found for widget_other_views (4988574907386539499) -->
+    <skip />
     <!-- no translation found for widget_all_mail (4352573990283094963) -->
     <skip />
     <!-- no translation found for widget_unread (4404711399009077833) -->
@@ -627,5 +653,23 @@
     <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
     <skip />
     <!-- no translation found for action_bar_mailbox_list_title (7484457755531286333) -->
+    <skip />
+    <!-- no translation found for policy_dont_allow_camera (5744573062306937302) -->
+    <skip />
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
     <skip />
 </resources>

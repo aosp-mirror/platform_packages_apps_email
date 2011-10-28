@@ -343,8 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"VARNING! Om du inaktiverar e-postappens behörighet att administrera enheten raderas alla e-postkonton som behöver behörigheten. Även e-post, kontakter, kalenderhändelser och andra data raderas."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Säkerhetsuppdatering"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Enligt <xliff:g id="ACCOUNT">%s</xliff:g> måste du uppdatera säkerhetsinställningarna."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontot \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kräver att säkerhetsinställningarna uppdateras."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Säkerhetsuppdatering krävs"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"Det går inte att synkronisera kontot <xliff:g id="ACCOUNT">%s</xliff:g> på grund av säkerhetskrav."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Säkerhetsinställningarna måste uppdateras för kontot <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Säkerhetsinställningarna ändrades för kontot <xliff:g id="ACCOUNT">%s</xliff:g>. Inga åtgärder krävs från användaren."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Säkerhetsuppdatering krävs"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Säkerhetspolicyer har ändrats"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Säkerhetspolicy kan ej följas"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Säkerhet för enhet"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Servern <xliff:g id="SERVER">%s</xliff:g> måste kunna fjärrkontrollera vissa säkerhetsfunktioner i din Android-enhet."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Redigera information"</string>
@@ -371,6 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Användarnamn, lösenord och andra inkommande serverinställningar"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Utgående inställningar"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Användarnamn, lösenord och andra utgående serverinställningar"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Verkställda policyer"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Inga"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Policyer som inte stöds"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Inga"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Synkroniseringsförsök"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Knacka lätt för att synka (om serverinställningarna har ändrats)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonamn"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ditt namn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
@@ -379,6 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Lägg till text i meddelanden som du skickar"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Meddelandeinställningar"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataanvändning"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Säkerhetspolicyer"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Redigera snabbsvar"</string>
     <string name="save_action" msgid="1988862706623227093">"Spara"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synkronisera kontakter"</string>
@@ -452,6 +463,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> av <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Väntar på synk"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Din e-post visas snart."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Tryck för att ändra."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinerad inkorg"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Olästa"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Stjärnmärkt"</string>
@@ -465,4 +477,17 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Väntar på resultat"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Vissa servrar kan ta lång tid."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mappar"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Tillåt inte användning av kameran"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Kräv lösenord för enheten"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Begränsa återanvändning av lösenord"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Kräv att lösenord upphör att gälla"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Kräv låst skärm på inaktiva enheter"</string>
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

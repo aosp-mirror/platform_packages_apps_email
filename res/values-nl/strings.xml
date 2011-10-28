@@ -343,8 +343,18 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"WAARSCHUWING: als u de rechten van de app E-mail voor het beheren van uw apparaat uitschakelt, worden alle e-mailaccounts verwijderd waarvoor deze rechten vereist zijn, samen met de bijbehorende e-mails, contacten, agenda-afspraken en andere gegevens."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Beveiligingsupdate"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Voor <xliff:g id="ACCOUNT">%s</xliff:g> moet u uw beveiligingsinstellingen bijwerken."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Account \'<xliff:g id="ACCOUNT">%s</xliff:g>\' vereist een update van de beveiligingsinstellingen."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Beveiligingsupdate vereist"</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <string name="account_security_title" msgid="3511543138560418587">"Apparaatbeveiliging"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"De server <xliff:g id="SERVER">%s</xliff:g> vereist dat u de server toestemming geeft bepaalde beveiligingsfuncties van uw Android-apparaat extern te bedienen."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bewerken"</string>
@@ -371,6 +381,18 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Gebruikersnaam, wachtwoord en andere inst. voor inkomende server"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Instellingen uitgaande e-mail"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Gebruikersnaam, wachtwoord en andere inst. voor uitgaande server"</string>
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Accountnaam"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Uw naam"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Handtekening"</string>
@@ -379,6 +401,8 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Tekst toevoegen aan berichten die u verzendt"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Instellingen voor meldingen"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Gegevensgebruik"</string>
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Snelle reactie bewerken"</string>
     <string name="save_action" msgid="1988862706623227093">"Opslaan"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Contacten synchroniseren"</string>
@@ -452,6 +476,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Wachten op synchronisatie"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Uw e-mail wordt over enkele ogenblikken weergegeven."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Raak pictogram aan voor wijzigen."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Gecombineerde Inbox"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ongelezen"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Met ster"</string>
@@ -465,4 +490,21 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Wachten op resultaten"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Het duurt soms langer voordat servers reageren."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mappen"</string>
+    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"camera niet toestaan"</string>
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

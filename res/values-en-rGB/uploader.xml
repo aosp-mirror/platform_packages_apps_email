@@ -8,8 +8,8 @@
     <string name="summary_title_uploading" msgid="3357617474017589370">"Uploading"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Finished"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Paused"</string>
-    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% ??? %2$d photos ??? %3$d videos"</string>
-    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d photos ??? %2$d videos"</string>
+    <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • %2$d photos • %3$d videos"</string>
+    <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d photos • %2$d videos"</string>
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"low battery"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"exceeded photo quota"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>

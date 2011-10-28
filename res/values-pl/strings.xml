@@ -51,7 +51,7 @@
     <string name="account_settings_action" msgid="4494079183315085171">"Ustawienia konta"</string>
     <string name="settings_action" msgid="6334807007967459412">"Ustawienia"</string>
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Opcje synchronizacji"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Oznacz jako nieprzeczyt."</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Oznacz jako nieprzeczytane"</string>
     <string name="move_action" msgid="3059189775933985898">"Przenieś"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ DW/UDW"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Dodaj DW/UDW"</string>
@@ -130,7 +130,7 @@
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Temat:"</string>
     <string name="message_compose_body_hint" msgid="3864004548670233396">"Napisz e-maila."</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Wiadomość oryginalna --------"\n"Temat: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Od: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Do: <xliff:g id="TO">%3$s</xliff:g>"\n"DW: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Użytkownik <xliff:g id="SENDER">%s</xliff:g> napisał:"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> napisał(a):"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Cytowany tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Dołącz tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Musisz dodać co najmniej jednego adresata."</string>
@@ -241,7 +241,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adres e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Hasło"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Konfiguracja ręczna"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Konfig. ręczna"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Wpisz prawidłowy adres e-mail i hasło."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Zduplikowane konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Używasz już tej nazwy użytkownika na koncie „<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>
@@ -343,8 +343,18 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"OSTRZEŻENIE: cofnięcie Poczcie uprawnień do administrowania urządzeniem spowoduje usunięcie wszystkich kont e-mail, które ich wymagają, wraz z wiadomościami, kontaktami, wydarzeniami w kalendarzu i innymi danymi."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Aktualizacja zabezpieczeń"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Konto <xliff:g id="ACCOUNT">%s</xliff:g> wymaga aktualizacji ustawień zabezpieczeń."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Konto „<xliff:g id="ACCOUNT">%s</xliff:g>” wymaga aktualizacji ustawień zabezpieczeń."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Wymagana aktualizacja zabezp."</string>
+    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
+    <skip />
+    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
+    <skip />
+    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
+    <skip />
+    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
+    <skip />
+    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
+    <skip />
+    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
+    <skip />
     <string name="account_security_title" msgid="3511543138560418587">"Zabezpieczenia urządzenia"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serwer <xliff:g id="SERVER">%s</xliff:g> wymaga udzielenia zezwolenia na zdalną kontrolę niektórych funkcji zabezpieczeń tego urządzenia z systemem Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edytuj szczegóły"</string>
@@ -371,6 +381,18 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Użytkownik, hasło i inne ustawienia serwera poczty przychodzącej"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Poczta wychodząca"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Użytkownik, hasło i inne ustawienia serwera poczty wychodzącej"</string>
+    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
+    <skip />
+    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
+    <skip />
+    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
+    <skip />
+    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nazwa konta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Imię i nazwisko"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
@@ -379,6 +401,8 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Dołącz tekst do wysyłanych wiadomości"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Ustawienia powiadomień"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Wykorzystanie transmisji danych"</string>
+    <!-- no translation found for account_settings_policies (6292833636418641840) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edytuj szybką odpowiedź"</string>
     <string name="save_action" msgid="1988862706623227093">"Zapisz"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchronizuj kontakty"</string>
@@ -445,13 +469,14 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Duży"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Wielki"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Odpowiedz wszystkim"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Ustaw opcję „Odpowiedz wszystkim” jako domyślną dla wiadomości."</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Ustaw opcję „Odpowiedz wszystkim” jako domyślną."</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Pytaj, czy pokazać obrazy"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Obrazy w wiadomościach nie będą pokazywane automatycznie."</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"Opcja „Pokaż obrazy” została wyczyszczona."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> z <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Oczekiwanie na synchronizację"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Twoja poczta e-mail pojawi się za chwilę."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Dotknij, aby zmienić."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Wszystkie skrzynki odbiorcze"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Nieprzeczytane"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Oznaczone gwiazdką"</string>
@@ -465,4 +490,21 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Oczekiwanie na wyniki"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Niektóre serwery mogą zwracać wyniki po dłuższym czasie."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Foldery"</string>
+    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"nie zezwalaj na aparat"</string>
+    <!-- no translation found for policy_require_password (7177274900480984702) -->
+    <skip />
+    <!-- no translation found for policy_password_history (5743544498302303181) -->
+    <skip />
+    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
+    <skip />
+    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
+    <skip />
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>

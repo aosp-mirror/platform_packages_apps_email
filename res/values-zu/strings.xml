@@ -343,8 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"ISEXWAYISO: Yenza kungasebenzi imvume yohlelo lokusebenza lwe-Imeyli ukubhalisa idivaysi yakho kuzosusa wonke ama-akhawunti e-Imeyli ayidingayo, kuhlanganise ne-imeyli yayo, othintana nabo, amakhalenda, izenzakalo, neminye imininingo."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Okwakamuva kwezokuphepha"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> idinga ukuba ubuyekeze izilungiselelo zakho zokuzivikela."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"i-Akhawunti \" <xliff:g id="ACCOUNT">%s</xliff:g> \" idinga ukubuyekeza izilungiselelo zokuphepha."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Ukubuyekeza kwezokuphepha kuyadingeka"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"I-Akhawuni \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ayikwazi ukuvumelanisa ngenxa yezimfuneko sokuphepha."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"I-Akhawunti \"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukubuyekeza izilungiselelo zokuphepha."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"I-Akhawunti \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ishintshe izilungiselelo zayo zokuphepha; asikho isenzo somsebenzisi esidingekayo."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Ukubuyekeza ezokuphepha kuyadingeka"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Izinqubomgomo zokuphepha zishintshiwe"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Izinqubomgomo zokuphepha azikwazi ukuhlangabezwa"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Ukuphepha kweDivaysi"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Iseva <xliff:g id="SERVER">%s</xliff:g> idinga ukuba uyivumele ukuba ilawule kude ezinye izici zokuphepha kwedivayisi ye-Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Hlela imininingwane"</string>
@@ -371,6 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Igama lombebenzisi, i-password, nezinye izilungiselelo zesiphakeli ezingenayo"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Izilungiselelo eziphumayo"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Igama lomsebenzisi, i-password, nezinye izilungiselelo zesiphakeli eziphumayo"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Izinqubomgomo ziphoqiwe"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Lutho"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Izinqubomo ezingasekelwe"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Lutho"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Zama ukuvumelanisa"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Qhofoza lapha ukuzama ukuvumelanisa le-akhawunti (okuwukuthi, uma izilungiselo zeseva zishintshile)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Igama le-akhawunti"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Igama lakho"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Isiginesha"</string>
@@ -379,6 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Jobelela umbhalo emiyalezweni oyithumelayo"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Izilungiselelo zesaziso"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Ukusebenzisa idatha"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Izinqubomgomo zokuphepha"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Hlela izimpendulo ezisheshayo"</string>
     <string name="save_action" msgid="1988862706623227093">"Londoloza"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Vumelanisa othintana nabo"</string>
@@ -452,6 +463,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> ku-<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Ilinde ukuvumelanisa"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"I-imeyli yakho izovela maduze."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Cindezela isithonjana ukuze ushintshe."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Ibhokisi lemiyalezo engenayo elihlanganisiwe"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Akufundiwe"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Okunenkanyezi"</string>
@@ -465,4 +477,17 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Ilinde imiphumela"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Amanye amaseva angathatha isikhathi eside."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Amafolda"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Ungavumeli ukusebenza kwekhamera yedivayisi"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Idinga iphasiwedi yedivayisi"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Khawulela ukusetshenziswa kabusha kwamaphasiwedi wakamuva"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Cela ukuthi amaphasiwedi aphalwe isikhathi"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Dinga idivayisi yokumisa ukukhiya isikrini sayo"</string>
+    <!-- no translation found for quick_1 (3426057697353380951) -->
+    <skip />
+    <!-- no translation found for quick_2 (4188036352885736617) -->
+    <skip />
+    <!-- no translation found for quick_3 (8061819976353395585) -->
+    <skip />
+    <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
 </resources>
