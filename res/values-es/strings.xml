@@ -430,7 +430,7 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mensaje más reciente"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje anterior"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensajes"</string>
-    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamaño del texto del mensaje"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamaño de texto del mensaje"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Texto muy pequeño"</item>
     <item msgid="4415205108584620118">"Texto pequeño"</item>
@@ -438,7 +438,7 @@
     <item msgid="6227813549949219991">"Texto grande"</item>
     <item msgid="1197917420815786571">"Texto enorme"</item>
   </string-array>
-    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tamaño del texto del mensaje"</string>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tamaño de texto del mensaje"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Muy pequeño"</string>
     <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Pequeño"</string>
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
@@ -452,6 +452,7 @@
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Esperando para sincronizar"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Tu correo electrónico aparecerá en breve."</string>
+    <string name="widget_other_views" msgid="4988574907386539499">"Toca para cambiar"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Combinación de recibidos"</string>
     <string name="widget_unread" msgid="4404711399009077833">"No leídos"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacados"</string>
