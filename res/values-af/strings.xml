@@ -362,7 +362,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Verstek rekening"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Stuur e-pos by verstek vanaf hierdie rekening"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Laai aanhegsels af"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Laai aanhegsels outomaties af na onlangse boodskappe via Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Laai outomaties aanhegsels van onlangse boodskappe via Wi-Fi af"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-poskennisgewings"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinkroniseerfrekwensie, kennisgewings, ens."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Wys in statusbalk wanneer e-pos aankom"</string>
