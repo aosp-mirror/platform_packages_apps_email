@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.emailcommon.provider;
 
 import android.content.ContentProviderOperation;
@@ -8,6 +24,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -664,6 +682,35 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         } finally {
             c.close();
         }
+    }
+
+    /**
+     * Given an account id, determine whether the account is currently prohibited from automatic
+     * sync, due to roaming while the account's policy disables this
+     * @param context the caller's context
+     * @param accountId the account id
+     * @return true if the account can't automatically sync due to roaming; false otherwise
+     */
+    public static boolean isAutomaticSyncDisabledByRoaming(Context context, long accountId) {
+        Account account = Account.restoreAccountWithId(context, accountId);
+        // Account being deleted; just return
+        if (account == null) return false;
+        long policyKey = account.mPolicyKey;
+        // If no security policy, we're good
+        if (policyKey <= 0) return false;
+
+        ConnectivityManager cm =
+            (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        // If not on a mobile network, we're good.  Do this check because it's unclear whether
+        // isRoaming() returns valid data while on WiFi
+        if (!ConnectivityManager.isNetworkTypeMobile(info.getType())) return false;
+        // If we're not roaming, we're good
+        if (!info.isRoaming()) return false;
+        Policy policy = Policy.restorePolicyWithId(context, policyKey);
+        // Account being deleted; just return
+        if (policy == null) return false;
+        return policy.mRequireManualSyncWhenRoaming;
     }
 
     /**
