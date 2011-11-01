@@ -1215,4 +1215,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- A long placeholder string to be used in template XML files message_list_item_*.xml.
          Used only in layout computation, and never actually exposed to the user. -->
     <string name="long_string" translatable="false">looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong</string>
+
+    <!-- This is the message warning the user that they must sync manually when roaming. [CHAR LIMIT=none]-->
+    <string name="require_manual_sync_message">Background sync for this account is disabled while\
+     roaming.</string>
 </resources>
