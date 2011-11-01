@@ -874,7 +874,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     </string>
     <!-- Notification content title when device security required [CHAR_LIMIT=30] -->
     <string name="security_notification_content_update_title">Security update required</string>
-    <!-- Notification content title when device security policies have changed [CHAR_LIMIT=30] -->
+    <!-- Notification content title when device security policies have changed [CHAR_LIMIT=36] -->
     <string name="security_notification_content_change_title">Security policies have
          changed</string>
     <!-- Notification content title when device security policies cannot be met [CHAR_LIMIT=30] -->
@@ -1246,16 +1246,16 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
          Used only in layout computation, and never actually exposed to the user. -->
     <string name="long_string" translatable="false">looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong</string>
 
-    <!-- A policy disallowing the user of the device's camera [CHAR LIMIT=40] -->
+    <!-- A policy disallowing the user of the device's camera [CHAR LIMIT=50] -->
     <string name="policy_dont_allow_camera">Disallow use of the device\'s camera</string>
-    <!-- A policy requiring a device lock screen password [CHAR LIMIT=40] -->
+    <!-- A policy requiring a device lock screen password [CHAR LIMIT=50] -->
     <string name="policy_require_password">Require device password</string>
-    <!-- A policy disallowing the reuse of recent passwords [CHAR LIMIT=40] -->
+    <!-- A policy disallowing the reuse of recent passwords [CHAR LIMIT=50] -->
     <string name="policy_password_history">Restrict the reuse of recent passwords</string>
-    <!-- A policy that forces a password to expire after a set period of time [CHAR LIMIT=40] -->
+    <!-- A policy that forces a password to expire after a set period of time [CHAR LIMIT=50] -->
     <string name="policy_password_expiration">Require passwords to expire</string>
     <!-- A policy requiring a maximum amount of time the device can sit idle before the lock screen
-        is activated [CHAR LIMIT=40] -->
+        is activated [CHAR LIMIT=50] -->
     <string name="policy_screen_timeout">Require an idle device to lock its screen</string>
 
     <!-- The four strings below represent "quick responses" which the user can insert into a
