@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"UPOZORNENIE: Ak deaktivujete oprávnenie aplikácie E-mail spravovať toto zariadenie, budú odstránené všetky účty aplikácie E-mail, ktoré toto oprávnenie vyžadujú. Spoločne s týmito účtami budú odstránené aj všetky ich e-maily, kontakty, udalosti kalendára a ďalšie údaje."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Bezpečnostná aktualizácia"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> vyžaduje, aby ste zmenili nastavenia zabezpečenia."</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"Účet „<xliff:g id="ACCOUNT">%s</xliff:g>“ sa nedá synchronizovať z dôvodu požiadaviek zabezpečenia."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Účet „<xliff:g id="ACCOUNT">%s</xliff:g>“ vyžaduje aktualizáciu nastavení zabezpečenia."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Účet „<xliff:g id="ACCOUNT">%s</xliff:g>“ zmenil svoje nastavenia zabezpečenia. Od používateľa sa nevyžaduje žiadna akcia."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Vyžaduje sa bezp. aktualizácia"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Pravidlá zabezp. sa zmenili"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Prav. zabezp. sa nedajú dodržať"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Zabezpečenie zariadenia"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Server <xliff:g id="SERVER">%s</xliff:g> vyžaduje povolenie, aby mohol vzdialene ovládať niektoré funkcie zabezpečenia vášho zariadenia so systémom Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upraviť podrobnosti"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Používateľské meno, heslo a ďalšie nastavenia servera (prich.)"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Nastavenia odchádzajúcej pošty"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Používateľské meno, heslo a ďalšie nastavenia servera (odchádz.)"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Vynútené pravidlá"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Žiadne"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Nepodporované pravidlá"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Žiadne"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Synchronizovať"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Skúsiť synchronizovať účet (po zmene nastavenia servera)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Názov účtu"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Vaše meno"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text pripojiť k odosielaným správam"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavenia upozornení"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Spotreba dát"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"Pravidlá zabezpečenia"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Upraviť rýchlu odpoveď"</string>
     <string name="save_action" msgid="1988862706623227093">"Uložiť"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchronizovať kontakty"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Čakanie na výsledky"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Niektorým serverom môže tento proces trvať dlho."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Priečinky"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"nepovoliť použitie fotoaparátu"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Zakázať použitie fotoaparátu zariadenia"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Vyžadovať heslo zariadenia"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Obmedziť opak. použitie nedávnych hesiel"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Vyžadovať časovo obmedz. platnosť hesiel"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Uzamk. obrazovky nečinného zariadenia"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Ďakujeme!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"To znie dobre!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Prečítam si to neskôr a dám vám vedieť."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Dohodnime si schôdzku a prediskutujme to."</string>
 </resources>

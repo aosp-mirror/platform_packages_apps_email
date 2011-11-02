@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"ЗАСТЕРЕЖЕННЯ. Дезактивація повноважень програми електронної пошти на адміністрування вашого пристрою призведе до видалення всіх облікових записів електронної пошти, що потребують адміністрування, разом з їхніми електронними листами, контактами, подіями календаря й іншими даними."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Оновлення системи безпеки"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"Потрібно оновити налаштування безпеки для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"Обліковий запис \"<xliff:g id="ACCOUNT">%s</xliff:g>\" неможливо синхронізувати через вимоги безпеки."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Для облікового запису \"<xliff:g id="ACCOUNT">%s</xliff:g>\" потрібно оновити налаштування безпеки."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Налаштування безпеки облікового запису \"<xliff:g id="ACCOUNT">%s</xliff:g>\" змінено. Користувачу не потрібно нічого робити."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Потрібно оновити прав. безпеки"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Правила безпеки змінено"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Правила безп. неможл. дотрим."</string>
     <string name="account_security_title" msgid="3511543138560418587">"Безпека пристрою"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сервер <xliff:g id="SERVER">%s</xliff:g> потребує вашого дозволу віддалено контролювати деякі функції безпеки вашого пристрою Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Редаг. деталі"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Ім’я корист., пароль й інші налашт-ня сервера вхідних повідомл."</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Налашт-ня вихідних"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Ім’я корист., пароль й інші налашт-ня сервера вихідних повідомл."</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Правила, які застосовуються"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Немає"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Правила, які не підтримуються"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Немає"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Спробувати синхронізувати"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Торкн. тут, щоб синхр. обл. запис (якщо налашт. сервера змінено)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Назва обл. зап."</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ваше ім\'я"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Підпис"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Додав. текст у надісл. повідомл."</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Налаштування сповіщень"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Використання даних"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"Правила безпеки"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Редагувати швидку відповідь"</string>
     <string name="save_action" msgid="1988862706623227093">"Зберегти"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхрон. контакти"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Очікування результатів"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Деяким серверам потрібно багато часу."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Папки"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"не дозволяти використання камери"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Забороняти використання камери пристрою"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Вимагати пароль пристрою"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Обмежувати повторне викор. остан.паролів"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Вимагати закінчення терміну дії пароля"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Вимаг. блок-ня екрана неактивн. пристрою"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Дякую!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Мені підходить!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Я прочитаю це пізніше, а потім дам знати."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Потрібно зустрітися, щоб це обговорити."</string>
 </resources>

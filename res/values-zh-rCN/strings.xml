@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"警告：撤消“电子邮件”应用程序管理您设备的权限会删除所有需要此权限的电子邮件帐户，以及这些帐户中的电子邮件、联系人、日历活动和其他数据。"</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"安全更新"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> 要求更新您的安全设置。"</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”由于安全要求而无法同步。"</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”需要更新安全设置。"</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”已更改其安全设置，用户无需进行任何操作。"</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"需要进行安全更新"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"安全政策已更改"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"无法满足安全政策"</string>
     <string name="account_security_title" msgid="3511543138560418587">"设备安全性"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"“<xliff:g id="SERVER">%s</xliff:g>”服务器要求您允许其远程控制您 Android 设备的某些安全功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"编辑详情"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"用户名、密码和其他接收服务器设置"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外发设置"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"用户名、密码和其他外发服务器设置"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"政策已执行"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"无"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"不支持的政策"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"无"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"尝试同步"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"点按此处可尝试同步此帐户（即服务器设置已更改的情况下）"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帐户名称"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"签名"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在您发送的邮件中附加文本"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知设置"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"数据使用"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"安全政策"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"编辑快速回复"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"同步联系人"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"正在等待结果"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能会花费较长的时间。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"不允许使用相机"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"不允许使用设备的相机"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"需要设备密码"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"限制重复使用近期所用密码"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"强制密码在一段时间后过期"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"要求闲置设备锁定其屏幕"</string>
+    <string name="quick_1" msgid="3426057697353380951">"非常感谢！"</string>
+    <string name="quick_2" msgid="4188036352885736617">"我觉得不错！"</string>
+    <string name="quick_3" msgid="8061819976353395585">"稍后我会阅读此邮件并给您回复。"</string>
+    <string name="quick_4" msgid="3988974084396883051">"让我们通过会议讨论一下这个问题。"</string>
 </resources>

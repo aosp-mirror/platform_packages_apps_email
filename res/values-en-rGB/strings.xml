@@ -482,12 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Restrict the reuse of recent passwords"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Require passwords to expire"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Require an idle device to lock its screen"</string>
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="quick_1" msgid="3426057697353380951">"Thanks!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Sounds good to me!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"I\'ll read this later and get back to you."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Let\'s set up a meeting to discuss this."</string>
 </resources>
