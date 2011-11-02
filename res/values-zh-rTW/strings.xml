@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中所有的電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"安全性更新"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"您必須更新 <xliff:g id="ACCOUNT">%s</xliff:g> 的安全性設定。"</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"因為不符合安全要求，系統無法同步處理「<xliff:g id="ACCOUNT">%s</xliff:g>」帳戶。"</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"「<xliff:g id="ACCOUNT">%s</xliff:g>」帳戶的安全性設定必須更新。"</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"「<xliff:g id="ACCOUNT">%s</xliff:g>」帳戶已自行變更安全性設定，使用者不需採取任何行動。"</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"安全性必須更新"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"安全性政策已變更"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"未達安全性政策標準"</string>
     <string name="account_security_title" msgid="3511543138560418587">"裝置安全性"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"請編輯資料"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"使用者名稱、密碼和其他內送伺服器設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外寄設定"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"使用者名稱、密碼和其他外寄伺服器設定"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"強制執行的政策"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"無"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"不支援的政策"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"無"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"嘗試同步處理"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"輕觸這裡即可嘗試同步處理這個帳戶 (也就是，當伺服器設定已變更時)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帳戶名稱"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"簽名檔"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在送出的郵件後面附加文字"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"資料用量"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"安全性政策"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"編輯快速回應"</string>
     <string name="save_action" msgid="1988862706623227093">"儲存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"同步處理聯絡人"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"正在等待結果"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"有些伺服器可能需要較長的時間。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"資料夾"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"不允許相機"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"不允許使用裝置相機"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"需要裝置密碼"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"限制重複使用最近用過的密碼"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"強制密碼到期"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"要求裝置在閒置時鎖定螢幕"</string>
+    <string name="quick_1" msgid="3426057697353380951">"感謝您！"</string>
+    <string name="quick_2" msgid="4188036352885736617">"這主意不錯！"</string>
+    <string name="quick_3" msgid="8061819976353395585">"我稍後看過再回覆您。"</string>
+    <string name="quick_4" msgid="3988974084396883051">"開會進行討論吧。"</string>
 </resources>

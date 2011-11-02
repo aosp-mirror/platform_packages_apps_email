@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"УПОЗОРЕЊЕ: Деактивирањем овлашћења апликације Е-пошта за управљање уређајем избрисаћете све налоге е-поште који то·захтевају, заједно са адресом е-поште, контактима, догађајима календара и другим подацима."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Безбедносно ажурирање"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> захтева да ажурирате безбедносна подешавања."</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"Налог „<xliff:g id="ACCOUNT">%s</xliff:g>“ не може да се синхронизује због безбедносних захтева."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Потребно је ажурирати безбедносна подешавања за налог „<xliff:g id="ACCOUNT">%s</xliff:g>“."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Промењена су безбедносна подешавања налога „<xliff:g id="ACCOUNT">%s</xliff:g>“; није потребна ниједна радња корисника."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Потребно је безбедн. ажурирање"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Безбедн. смернице су промењене"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Безб. смернице нису испуњене"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Безбедност уређаја"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сервер <xliff:g id="SERVER">%s</xliff:g> захтева да му омогућите удаљену контролу појединих безбедносних функција Android уређаја."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Измени детаље"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Корисничко име, лозинка и друга подешавања серв. долазне поште"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Подешавања одлазних"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Корисничко име, лозинка и друга подешавања серв. одлазне поште"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Примењене смернице"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Ниједно"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Неподржане смернице"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Ниједно"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Покушај да синхронизујеш"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Додирните овде за покушај синхрон. овог налога (ако су подеш. серв. промењена)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Име налога"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ваше име"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Потпис"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Додајте текст порукама које шаљете"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Подешавања обавештења"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Коришћење података"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"Безбедносне смернице"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Измена брзог одговора"</string>
     <string name="save_action" msgid="1988862706623227093">"Сачувај"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизација контаката"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Чека се на резултате"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Неким серверима је потребно доста времена."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Директоријуми"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"не дозволи камеру"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Онемогући коришћење камере уређаја"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Захтевај лозинку за уређај"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Ограничи пон. коришћење недавних лозинки"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Захтевај да лозинке истекну"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Захтевај неакт. уређај за закљ. екрана"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Хвала!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Добра идеја!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Прочитаћу ово касније и јавити вам."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Хајде да организујемо састанак како бисмо о овоме разговарали."</string>
 </resources>

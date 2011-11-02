@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"AVISO: ao desativar a autoridade do aplicativo de e-mail para administrar seu dispositivo, todas as contas de e-mail vinculadas serão excluídas, assim como e-mails, contatos, eventos da agenda e outros dados."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Atualização de segurança"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> solicita que você atualize suas configurações de segurança."</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" não pode ser sincronizada devido a solicitações de segurança."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" exige a atualização das configurações de segurança."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"As configurações de segurança da conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" foram alteradas. Nenhuma ação do usuário é necessária."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Necessária atualiz. segurança"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Polít. segurança alteradas"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Polít. de seg. não podem ser cumpridas"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Segurança do dispositivo"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"O servidor <xliff:g id="SERVER">%s</xliff:g> requer a permissão de controle remoto de alguns recursos de segurança do seu dispositivo Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalhes"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nome de usuário, senha e outras configurações do servidor de entrada"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configurações enviadas"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nome de usuário, senha e outras configurações do servidor de saída"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Políticas aplicadas"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Nenhuma"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Políticas não suportadas"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Nenhuma"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Tentativa de sincronização"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Toque para tentar sinc. esta conta (ou seja, se as config. do serv. foram alteradas)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nome da conta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Seu nome"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Assinatura"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Acrescentar texto às mensagens que você envia"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configurações de notificação"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de dados"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"Políticas de segurança"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editar resposta rápida"</string>
     <string name="save_action" msgid="1988862706623227093">"Salvar"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contatos"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Aguardando resultados"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Alguns servidores podem levar um longo tempo."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Pastas"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"não permitir câmera"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Desativar o uso da câmera do dispositivo"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Exigir senha para o dispositivo"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Restringir reutiliz. de senhas recentes"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Exigir que as senhas expirem"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Exigir dispositivo inativo p/ bloq. tela"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Obrigado!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Parece uma boa ideia!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Lerei isso mais tarde e darei uma resposta a você."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Podemos marcar uma reunião para discutir isso."</string>
 </resources>

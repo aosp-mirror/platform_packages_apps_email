@@ -482,12 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Begränsa återanvändning av lösenord"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Kräv att lösenord upphör att gälla"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Kräv låst skärm på inaktiva enheter"</string>
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="quick_1" msgid="3426057697353380951">"Tack!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Låter bra!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Jag läser detta senare och återkommer till dig."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Vi kan diskutera detta på ett möte."</string>
 </resources>

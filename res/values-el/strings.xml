@@ -376,7 +376,7 @@
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ρυθμίσεις εξερχομένων"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Όνομα χρήστη, κωδ. πρόσβ. και άλλες ρυθμίσεις διακομιστή εξερχ."</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Εφαρμογή πολιτικών"</string>
-    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Καμία"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Κ"</string>
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Πολιτικές που δεν υποστηρίζονται"</string>
     <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Κανένα"</string>
     <string name="account_settings_retry_label" msgid="1104680719299842829">"Προσπάθεια συγχρονισμού"</string>
@@ -482,12 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Περιορισμός της χρήσης πρόσφατων κωδικών"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Απαιτείται η λήξη των κωδικών πρόσβασης"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Απαιτείται αδρ. συσκ. για κλείδ. οθόνης."</string>
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="quick_1" msgid="3426057697353380951">"Ευχαριστούμε!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Καλή ιδέα!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Θα το διαβάσω αργότερα και θα επικοινωνήσω μαζί σου."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Ας κανονίσουμε μία συνάντηση για να συζητήσουμε αυτό το θέμα."</string>
 </resources>
