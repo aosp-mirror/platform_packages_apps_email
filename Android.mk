@@ -36,7 +36,7 @@ LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
-#LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := current
 
 # The Emma tool analyzes code coverage when running unit tests on the
 # application. This configuration line selects which packages will be analyzed,
