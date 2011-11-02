@@ -312,7 +312,7 @@ public class Address {
         }
         StringBuffer sb = new StringBuffer(addresses[0].toFriendly());
         for (int i = 1; i < addresses.length; i++) {
-            sb.append(',');
+            sb.append(", ");
             sb.append(addresses[i].toFriendly());
         }
         return sb.toString();
