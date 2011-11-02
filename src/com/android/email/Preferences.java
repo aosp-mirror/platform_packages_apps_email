@@ -50,7 +50,6 @@ public class Preferences {
     private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
     private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
-    private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -288,34 +287,6 @@ public class Preferences {
                 .apply();
     }
 
-    /**
-     * Gets whether the require manual sync dialog has been shown for the specified account.
-     * It should only be shown once per account.
-     */
-    public boolean getHasShownRequireManualSync(Context context, Account account) {
-        return getBoolean(context, account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN,
-                false);
-    }
-
-    /**
-     * Sets whether the require manual sync dialog has been shown for the specified account.
-     * It should only be shown once per account.
-     */
-    public void setHasShownRequireManualSync(Context context, Account account, boolean value) {
-        setBoolean(context, account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
-    }
-
-
-    /**
-     * Get whether to show the manual sync dialog. This dialog is shown when the user is roaming,
-     * connected to a mobile network, the administrator has set the RequireManualSyncWhenRoaming
-     * flag to true, and the dialog has not been shown before for the supplied account.
-     */
-    public boolean shouldShowRequireManualSync(Context context, Account account) {
-        return Account.isAutomaticSyncDisabledByRoaming(context, account.mId)
-                && !getHasShownRequireManualSync(context, account);
-    }
-
     public void clear() {
         mSharedPreferences.edit().clear().apply();
     }
@@ -326,26 +297,5 @@ public class Preferences {
                 Log.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }
         }
-    }
-
-    /**
-     * Utility method for setting a boolean value on a per-account preference.
-     */
-    private void setBoolean(Context context, String account, String key, Boolean value) {
-        mSharedPreferences.edit().putBoolean(makeKey(account, key), value).apply();
-    }
-
-    /**
-     * Utility method for getting a boolean value from a per-account preference.
-     */
-    private boolean getBoolean(Context context, String account, String key, boolean def) {
-        return mSharedPreferences.getBoolean(makeKey(account, key), def);
-    }
-
-    /**
-     * Utility method for creating a per account preference key.
-     */
-    private String makeKey(String account, String key) {
-        return account != null ? account + "-" + key : key;
     }
 }
