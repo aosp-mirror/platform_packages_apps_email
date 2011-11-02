@@ -1271,5 +1271,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="quick_3">I\'ll read this later and get back to you.</string>
     <!-- A "quick response", i.e. a quick reply to a received mail [CHAR LIMIT=NONE] -->
     <string name="quick_4">Let\'s set up a meeting to discuss this.</string>
+
+    <!-- This is the message warning the user that they must sync manually when roaming. [CHAR LIMIT=none]-->
+    <string name="require_manual_sync_message">Background sync for this account is disabled while\
+     roaming.</string>
+
 </resources>
 
