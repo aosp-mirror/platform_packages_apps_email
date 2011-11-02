@@ -343,18 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"اخطار: غیرفعال کردن اختیار برنامه ایمیل برای سرپرستی دستگاه شما، همه حساب‌های ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده‌های آنها را حذف می‌کند."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"به‌روزرسانی امنیتی"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> از شما می‌خواهد تنظیمات امنیتی خود را به‌روزرسانی کنید."</string>
-    <!-- no translation found for security_unsupported_ticker_fmt (2941173219740429802) -->
-    <skip />
-    <!-- no translation found for security_needed_ticker_fmt (2120499087897133665) -->
-    <skip />
-    <!-- no translation found for security_changed_ticker_fmt (2609435447352755285) -->
-    <skip />
-    <!-- no translation found for security_notification_content_update_title (2429762903228690154) -->
-    <skip />
-    <!-- no translation found for security_notification_content_change_title (443490921895642130) -->
-    <skip />
-    <!-- no translation found for security_notification_content_unsupported_title (3571452378205991447) -->
-    <skip />
+    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"به دلیل شرایط امنیتی، امکان همگام‌سازی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" وجود ندارد."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به‌روزرسانی شود."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" تنظیمات امنیتی خود را تغییر داده است؛ نیازی به انجام هیچ کاری از طرف کاربر نیست."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"به‌روزرسانی امنیتی لازم است"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"خط‌مشی‌های امنیتی تغییر کرده‌اند"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"از خط‌مشی‌های امنیتی تبعیت نمی‌شود"</string>
     <string name="account_security_title" msgid="3511543138560418587">"امنیت دستگاه"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
@@ -381,18 +375,12 @@
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"نام کاربری، رمز ورود و سایر تنظیمات سرور ورودی"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"تنظیمات خروجی"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"نام کاربری، رمز ورود و سایر تنظیمات سرور خروجی"</string>
-    <!-- no translation found for account_settings_enforced_label (7429582254433588882) -->
-    <skip />
-    <!-- no translation found for account_settings_enforced_summary (8140860420440447771) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_label (1954091071454235577) -->
-    <skip />
-    <!-- no translation found for account_settings_unsupported_summary (2107633813351863608) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_label (1104680719299842829) -->
-    <skip />
-    <!-- no translation found for account_settings_retry_summary (4997885921513077160) -->
-    <skip />
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"خط‌مشی‌های اعمال شده"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"هیچکدام"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"خط مشی‌های پشتیبانی نشده"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"هیچکدام"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"تلاش برای همگام‌سازی"</string>
+    <string name="account_settings_retry_summary" msgid="4997885921513077160">"برای همگام‌سازی این حساب، اینجا را ضربه بزنید (اگر تنظیمات سرور تغییر کرده باشد)"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"نام حساب"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"نام شما"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"امضا"</string>
@@ -401,8 +389,7 @@
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"افزودن متن به پیام هایی که ارسال می کنید"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"تنظیمات اعلان"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"مصرف داده"</string>
-    <!-- no translation found for account_settings_policies (6292833636418641840) -->
-    <skip />
+    <string name="account_settings_policies" msgid="6292833636418641840">"خط‌مشی‌های امنیتی"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"ویرایش پاسخ سریع"</string>
     <string name="save_action" msgid="1988862706623227093">"ذخیره"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"همگام سازی مخاطبین"</string>
@@ -490,21 +477,13 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"در انتظار نتایج"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"در بعضی از سرورها ممکن است زمان طولانی شود."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"پوشه ها"</string>
-    <!-- outdated translation 3117378379458167529 -->     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"دوربین مجاز نباشد"</string>
-    <!-- no translation found for policy_require_password (7177274900480984702) -->
-    <skip />
-    <!-- no translation found for policy_password_history (5743544498302303181) -->
-    <skip />
-    <!-- no translation found for policy_password_expiration (1248123255253649199) -->
-    <skip />
-    <!-- no translation found for policy_screen_timeout (414869965358468080) -->
-    <skip />
-    <!-- no translation found for quick_1 (3426057697353380951) -->
-    <skip />
-    <!-- no translation found for quick_2 (4188036352885736617) -->
-    <skip />
-    <!-- no translation found for quick_3 (8061819976353395585) -->
-    <skip />
-    <!-- no translation found for quick_4 (3988974084396883051) -->
-    <skip />
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"استفاده از دوربین دستگاه مجاز نیست"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"گذرواژه دستگاه لازم است"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"استفاده مجدد از گذرواژه‌های اخیر محدود است"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"گذرواژه‌ها باید منقضی شوند"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"برای قفل کردن صفحه خود یک دستگاه آماده به کار لازم است"</string>
+    <string name="quick_1" msgid="3426057697353380951">"متشکریم!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"به نظرم خوب است!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"بعداً این را میخوانم و به شما اطلاع میدهم."</string>
+    <string name="quick_4" msgid="3988974084396883051">"بیایید یک جلسه تشکیل بدهیم و درباره آن گفتگو کنیم."</string>
 </resources>
