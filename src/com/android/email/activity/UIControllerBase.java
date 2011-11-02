@@ -32,7 +32,6 @@ import com.android.email.MessageListContext;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.RequireManualSyncDialog;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.MailboxSettings;
 import com.android.emailcommon.Logging;
@@ -207,9 +206,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (mNfcHandler != null) {
             mNfcHandler.onAccountChanged();  // workaround for email not set on initial load
         }
-        long accountId = getUIAccountId();
-        Preferences.getPreferences(mActivity).setLastUsedAccountId(accountId);
-        showAccountSpecificWarning(accountId);
+        Preferences.getPreferences(mActivity).setLastUsedAccountId(getUIAccountId());
     }
 
     /**
@@ -561,7 +558,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             mNfcHandler.onAccountChanged();
         }
         Preferences.getPreferences(mActivity).setLastUsedAccountId(accountId);
-        showAccountSpecificWarning(accountId);
     }
 
     /**
@@ -1018,18 +1014,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         @Override
         public void onMessageNotFound() {
             doAutoAdvance();
-        }
-    }
-
-
-    private void showAccountSpecificWarning(long accountId) {
-        if (accountId != Account.NO_ACCOUNT && accountId != Account.NO_ACCOUNT) {
-            Account account = Account.restoreAccountWithId(mActivity, accountId);
-            if (account != null &&
-                    Preferences.getPreferences(mActivity)
-                    .shouldShowRequireManualSync(mActivity, account)) {
-                new RequireManualSyncDialog(mActivity, account).show();
-            }
         }
     }
 
