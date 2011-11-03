@@ -30,4 +30,6 @@
         <item name="android:layout_width">360dip</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
+    <dimen name="compose_scrollview_width">800dip</dimen>
 </resources>

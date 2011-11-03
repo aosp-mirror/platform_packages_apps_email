@@ -24,7 +24,7 @@
     />
     <item
         android:id="@+id/add_attachment"
-        android:title="@string/add_attachment_menu"
+        android:title="@string/add_file_attachment"
     />
     <item
         android:id="@+id/add_cc_bcc"

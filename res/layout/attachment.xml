@@ -13,15 +13,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<!-- non-xlarge -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#ffd5d5d5"
     style="@style/attachment_container">
 
     <ImageView
         android:src="@drawable/ic_attachment_holo_light"
         android:layout_gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!--  Attachment preview -->
+    <ImageView android:id="@+id/attachment_thumbnail"
+        style="@style/attachment_thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -44,8 +47,8 @@
     </LinearLayout>
 
     <!-- Remove button -->
-    <ImageView android:id="@+id/attachment_delete"
-            android:src="@drawable/ic_remove_attachment_holo_light"
+    <ImageView android:id="@+id/remove_attachment"
+            android:src="@drawable/ic_cancel_holo_light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="left"
