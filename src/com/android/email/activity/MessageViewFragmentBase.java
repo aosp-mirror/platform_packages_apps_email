@@ -292,7 +292,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mFromAddressView = (TextView) UiUtilities.getView(view, R.id.from_address);
         mAddressesView = (TextView) UiUtilities.getView(view, R.id.addresses);
         mDateTimeView = (TextView) UiUtilities.getView(view, R.id.datetime);
-        mMessageContentView = (WebView) UiUtilities.getView(view, R.id.body_text);
+        mMessageContentView = (WebView) UiUtilities.getView(view, R.id.message_content);
         mAttachments = (LinearLayout) UiUtilities.getView(view, R.id.attachments);
         mTabSection = UiUtilities.getView(view, R.id.message_tabs_section);
         mFromBadge = (ImageView) UiUtilities.getView(view, R.id.badge);
