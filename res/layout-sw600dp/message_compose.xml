@@ -52,22 +52,10 @@
                     android:layout_weight="1"
                     >
                     <!-- from: -->
-                    <LinearLayout
-                        style="@style/message_compose_header_field_container_no_tray"
-                        >
-                        <TextView
-                            style="@style/message_compose_header_field_label"
-                            android:text="@string/message_compose_from_label"
-                            />
-                        <TextView
-                            android:id="@+id/from"
-                            style="@style/message_compose_header_field_value"
-                            />
-                    </LinearLayout>
+                    <include layout="@layout/compose_from"/>
 
-                <include layout="@layout/recipients_area"/>
+                    <include layout="@layout/compose_area_recipients"/>
 
-                <include layout="@layout/compose_subject"/>
                 </LinearLayout> <!-- end of header -->
 
                 <!-- Buttons: +cc/bcc, add attachment -->
@@ -142,22 +130,13 @@
             </LinearLayout>
 
             <!--  message body -->
-            <EditText
-                android:id="@+id/message_content"
-                android:layout_width="match_parent"
+            <FrameLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dip"
-                android:gravity="top"
-                android:minLines="3"
-                android:hint="@string/message_compose_body_hint"
-                android:inputType="textLongMessage|textMultiLine|textAutoCorrect|textCapSentences"
-                android:imeOptions="actionDone|flagNoEnterAction"
-                style="@style/PlainEditText"
-                android:paddingTop="32dip"
-                android:paddingBottom="32dip"
-                android:paddingLeft="16dip"
-                android:paddingRight="16dip"
-                />
+                android:layout_marginRight="100dip">
+
+                <include layout="@layout/compose_body"/>
+
+            </FrameLayout>
 
             <!--  quoted text bar -->
             <LinearLayout
