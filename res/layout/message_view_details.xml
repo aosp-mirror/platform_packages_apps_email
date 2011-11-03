@@ -19,6 +19,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_toLeftOf="@+id/show_details"
+    android:paddingTop="14dp"
+    android:paddingBottom="7dp"
     android:orientation="vertical"
     android:stretchColumns="2"
     android:shrinkColumns="2"
@@ -52,7 +54,8 @@
             />
         <TextView
             android:id="@+id/to"
-            style="@style/message_details_value"
+            android:autoLink="email"
+            style="@style/message_details_value_selectable"
             />
     </TableRow>
     <TableRow
@@ -65,7 +68,8 @@
             />
         <TextView
             android:id="@+id/cc"
-            style="@style/message_details_value"
+            android:autoLink="email"
+            style="@style/message_details_value_selectable"
             />
     </TableRow>
     <TableRow
@@ -78,7 +82,8 @@
             />
         <TextView
             android:id="@+id/bcc"
-            style="@style/message_details_value"
+            android:autoLink="email"
+            style="@style/message_details_value_selectable"
             />
     </TableRow>
 </TableLayout>

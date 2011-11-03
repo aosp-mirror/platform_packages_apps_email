@@ -548,7 +548,7 @@ public class AddressUnitTests extends AndroidTestCase {
         assertEquals(null, Address.toFriendly(list1));
         assertEquals(null, Address.toFriendly(list2));
         assertEquals("personal1", Address.toFriendly(list3));
-        assertEquals("personal1,address2,address3", Address.toFriendly(list4));
+        assertEquals("personal1, address2, address3", Address.toFriendly(list4));
     }
 
     /**
