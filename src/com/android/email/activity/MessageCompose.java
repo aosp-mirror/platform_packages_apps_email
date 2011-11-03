@@ -751,7 +751,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setFocusShifter(R.id.to_label, R.id.to);
         setFocusShifter(R.id.cc_label, R.id.cc);
         setFocusShifter(R.id.bcc_label, R.id.bcc);
-        setFocusShifter(R.id.tap_trap, R.id.body_text);
+        setFocusShifter(R.id.composearea_tap_trap_bottom, R.id.body_text);
 
         mMessageContentView.setOnFocusChangeListener(this);
 
@@ -1615,10 +1615,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // manually are still removable.
             final boolean allowDelete = (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
 
-            View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
-                    mAttachmentContentView, false);
+            View view = getLayoutInflater().inflate(R.layout.attachment, mAttachmentContentView,
+                    false);
             TextView nameView = UiUtilities.getView(view, R.id.attachment_name);
-            ImageView delete = UiUtilities.getView(view, R.id.attachment_delete);
+            ImageView delete = UiUtilities.getView(view, R.id.remove_attachment);
             TextView sizeView = UiUtilities.getView(view, R.id.attachment_size);
 
             nameView.setText(attachment.mFileName);
@@ -1680,7 +1680,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
         switch (view.getId()) {
-            case R.id.attachment_delete:
+            case R.id.remove_attachment:
                 onDeleteAttachmentIconClicked(view);
                 break;
         }
