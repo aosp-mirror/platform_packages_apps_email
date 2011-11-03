@@ -13,19 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/message_compose_header_field_container"
-    >
-    <TextView
-        android:id="@+id/subject_label"
-        style="@style/message_compose_header_field_label"
-        android:text="@string/message_compose_subject_label"
-        />
-    <EditText
-        android:id="@+id/subject"
-        style="@style/message_compose_header_field_value"
-        android:inputType
-            ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
-        android:imeOptions="actionNext"
-        />
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ComposeFieldLayout">
+
+    <EditText android:id="@+id/body_text"
+        style="@style/ComposeBodyStyle"
+        android:hint="@string/body_hint"/>
+
+</RelativeLayout>

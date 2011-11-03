@@ -687,33 +687,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         ViewGroup toParent = UiUtilities.getViewOrNull(this, R.id.to_content);
         if (toParent != null) {
             mToView = (MultiAutoCompleteTextView) toParent.findViewById(R.id.to);
-            ((TextView) toParent.findViewById(R.id.label))
-                    .setText(R.string.message_compose_to_hint);
             ViewGroup ccParent, bccParent;
             ccParent = (ViewGroup) findViewById(R.id.cc_content);
             mCcView = (MultiAutoCompleteTextView) ccParent.findViewById(R.id.cc);
-            ((TextView) ccParent.findViewById(R.id.label))
-                    .setText(R.string.message_compose_cc_hint);
             bccParent = (ViewGroup) findViewById(R.id.bcc_content);
             mBccView = (MultiAutoCompleteTextView) bccParent.findViewById(R.id.bcc);
-            ((TextView) bccParent.findViewById(R.id.label))
-                    .setText(R.string.message_compose_bcc_hint);
         } else {
             mToView = UiUtilities.getView(this, R.id.to);
             mCcView = UiUtilities.getView(this, R.id.cc);
             mBccView = UiUtilities.getView(this, R.id.bcc);
-            // add hints only when no labels exist
-            if (UiUtilities.getViewOrNull(this, R.id.to_label) == null) {
-                mToView.setHint(R.string.message_compose_to_hint);
-                mCcView.setHint(R.string.message_compose_cc_hint);
-                mBccView.setHint(R.string.message_compose_bcc_hint);
-            }
         }
 
         mFromView = UiUtilities.getView(this, R.id.from);
-        mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
+        mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_wrapper);
         mSubjectView = UiUtilities.getView(this, R.id.subject);
-        mMessageContentView = UiUtilities.getView(this, R.id.message_content);
+        mMessageContentView = UiUtilities.getView(this, R.id.body_text);
         mAttachmentContentView = UiUtilities.getView(this, R.id.attachments);
         mAttachmentContainer = UiUtilities.getView(this, R.id.attachment_container);
         mQuotedTextBar = UiUtilities.getView(this, R.id.quoted_text_bar);
@@ -763,8 +751,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setFocusShifter(R.id.to_label, R.id.to);
         setFocusShifter(R.id.cc_label, R.id.cc);
         setFocusShifter(R.id.bcc_label, R.id.bcc);
-        setFocusShifter(R.id.subject_label, R.id.subject);
-        setFocusShifter(R.id.tap_trap, R.id.message_content);
+        setFocusShifter(R.id.tap_trap, R.id.body_text);
 
         mMessageContentView.setOnFocusChangeListener(this);
 
@@ -1134,7 +1121,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     public void onFocusChange(View view, boolean focused) {
         if (focused) {
             switch (view.getId()) {
-                case R.id.message_content:
+                case R.id.body_text:
                     // When focusing on the message content via tabbing to it, or other means of
                     // auto focusing, move the cursor to the end of the body (before the signature).
                     if (mMessageContentView.getSelectionStart() == 0
