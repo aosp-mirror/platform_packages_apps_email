@@ -41,7 +41,7 @@
     <dimen name="message_list_drag_message_font_size">18sp</dimen>
     <dimen name="message_list_drag_message_right_margin">16dip</dimen>
 
-    <dimen name="message_compose_header_button_area_width">120dip</dimen>
+    <dimen name="compose_scrollview_width">700dip</dimen>
 
     <!-- Account settings fragments -->
     <dimen name="settings_fragment_padding_top">16dip</dimen>
