@@ -34,13 +34,6 @@
         android:src="@drawable/ic_reply_all_holo_dark"
         android:contentDescription="@string/reply_all_action"
         />
-    <View
-        android:id="@+id/more_separator"
-        android:layout_width="1dip"
-        android:layout_height="24dip"
-        android:layout_margin="3dip"
-        android:background="#ddd"
-        />
     <ImageButton
         android:id="@+id/more"
         style="@android:style/Widget.Holo.ActionButton.Overflow"
