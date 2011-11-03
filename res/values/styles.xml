@@ -81,20 +81,22 @@
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
 
-    <style name="message_details_label">
-        <item name="android:textSize">14dip</item>
-        <item name="android:textColor">@color/text_secondary_color</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:padding">8dip</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
     <style name="message_details_value">
         <item name="android:textSize">14dip</item>
         <item name="android:textColor">@color/text_secondary_color</item>
-        <item name="android:padding">8dip</item>
         <item name="android:singleLine">false</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+    </style>
+
+    <style name="message_details_value_selectable" parent="message_details_value">
         <item name="android:textIsSelectable">true</item>
+    </style>
+
+    <style name="message_details_label" parent="message_details_value">
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
     </style>
 
     <style name="message_view_subject">
@@ -230,6 +232,7 @@
 
     <style name="message_header_sender_name">
         <item name="android:textSize">16dip</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary_color_inverse</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
