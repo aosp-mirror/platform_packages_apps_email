@@ -33,9 +33,7 @@
                 <!-- Not actually editable -->
                 <include layout="@layout/compose_from"/>
 
-                <include layout="@layout/recipients_area"/>
-
-                <include layout="@layout/compose_subject"/>
+                <include layout="@layout/compose_area_recipients"/>
 
                 <!--
                     Empty container for storing attachments. We'll stick
@@ -53,7 +51,7 @@
                     android:visibility="gone"
                     />
             </LinearLayout>
-            <include layout="@layout/message_compose_body"/>
+            <include layout="@layout/compose_body"/>
             <!--  quoted text bar -->
             <RelativeLayout
                 android:id="@+id/quoted_text_bar"
