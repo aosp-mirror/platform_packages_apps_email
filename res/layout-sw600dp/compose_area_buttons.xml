@@ -28,7 +28,6 @@
     <Button android:id="@+id/add_cc_bcc"
         android:text="@string/plus_cc_label"
         style="@style/ComposeButton"
-        android:visibility="gone"
         android:layout_marginLeft="16dip" />
 
     <ImageView android:id="@+id/add_attachment"
