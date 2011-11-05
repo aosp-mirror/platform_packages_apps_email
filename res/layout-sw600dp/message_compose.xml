@@ -84,17 +84,16 @@
 
                 </FrameLayout>
 
-                <!--  quoted text bar -->
+                <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="100dip">
+                    <!--  quoted text bar -->
                     <LinearLayout
                         android:id="@+id/quoted_text_bar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         >
-                        <View
-                            android:layout_width="match_parent"
-                            style="@style/message_compose_horizontal_divider"
-                            />
                         <LinearLayout
                             android:orientation="horizontal"
                             android:layout_width="match_parent"
@@ -127,27 +126,17 @@
                                 android:gravity="center"
                                 />
                         </LinearLayout>
-                        <View
-                            android:layout_width="match_parent"
-                            style="@style/message_compose_horizontal_divider"
-                            />
                     </LinearLayout>
-                <!--
-                    Quoted text
-                    TODO: Don't put a webview in a scroll view.
-                -->
-                <WebView android:id="@+id/quoted_text"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="16dip"
-                    />
-                <View
-                    android:id="@+id/tap_trap"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dip"
-                    android:layout_weight="1"
-                    />
-
+                    <!--
+                        Quoted text
+                        TODO: Don't put a webview in a scroll view.
+                    -->
+                    <WebView android:id="@+id/quoted_text"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="16dip"
+                        android:layout_below="@id/quoted_text_bar"/>
+                </RelativeLayout>
                 <FrameLayout
                   android:id="@+id/composearea_tap_trap_bottom"
                   android:layout_weight="1"
