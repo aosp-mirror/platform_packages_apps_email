@@ -26,7 +26,7 @@
     <string name="next_action" msgid="3931301986364184415">"Далее"</string>
     <string name="okay_action" msgid="8365197396795675617">"ОК"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Отмена"</string>
-    <string name="previous_action" msgid="5181616311579820981">"Пред."</string>
+    <string name="previous_action" msgid="5181616311579820981">"Назад"</string>
     <string name="send_action" msgid="1729766205562446418">"Отправить"</string>
     <string name="reply_action" msgid="4262472229221507619">"Ответить"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Ответить всем"</string>
@@ -53,9 +53,11 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Параметры синхронизации"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Отметить как непрочитанное"</string>
     <string name="move_action" msgid="3059189775933985898">"Переместить"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"Добавить копию"</string>
+    <!-- no translation found for plus_cc_label (3365150001259912183) -->
+    <skip />
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Копия/скрытая копия"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Прикрепить файл"</string>
+    <!-- no translation found for add_file_attachment (2203398371671979481) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Закрыть"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Отправить все сообщ."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Выбрать приложение"</string>
@@ -124,11 +126,16 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Скрытая копия"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Тема"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"От:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Кому:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Копия:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Скрытая копия:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Тема:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Текст сообщения"</string>
+    <!-- no translation found for to (4392614766835725698) -->
+    <skip />
+    <!-- no translation found for cc (7017720927911078193) -->
+    <skip />
+    <!-- no translation found for bcc (3098643138241111579) -->
+    <skip />
+    <!-- no translation found for subject_hint (7253964583324677128) -->
+    <skip />
+    <!-- no translation found for body_hint (4279864165439577668) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Исходное сообщение --------"\n"Тема: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"От: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Кому: <xliff:g id="TO">%3$s</xliff:g>"\n"Копия: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Пользователь <xliff:g id="SENDER">%s</xliff:g> писал:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Цитируемый текст"</string>
@@ -234,14 +241,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Настройка аккаунта"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Добавить аккаунт Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Добавить аккаунт Exchange ActiveSync"</string>
-    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Аккаунт эл. почты"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Ярлык Email"</string>
     <string name="accounts_welcome" msgid="1491126253077950685">"Email поддерживает большинство популярных почтовых служб."</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Настроить аккаунт Exchange очень просто."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Настроить аккаунт Exchange ActiveSync очень просто."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адрес электронной почты"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Пароль"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений."</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Настройка вручную"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Вручную"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Введите действительный адрес электронной почты и пароль."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Копировать аккаунт"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Это имя уже используется в аккаунте \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -256,7 +263,7 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Это поле должно быть заполнено."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Настройка аккаунта"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Тип аккаунта"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Что это за аккаунт?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Выберите тип аккаунта"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Настройка аккаунта"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Настройки сервера входящих сообщений"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Имя пользователя"</string>
@@ -404,7 +411,7 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Настройки синхронизации"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Частота проверки"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Период синхронизации"</string>
-    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Аккаунт эл. почты"</string>
+    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Ярлык Email"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Выберите аккаунт"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Выберите папку"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Аккаунт не найден. Возможно, он удален."</string>
@@ -466,4 +473,6 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Ожидание результатов"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Ожидание ответа от сервера может занять много времени."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Папки"</string>
+    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
+    <skip />
 </resources>
