@@ -53,9 +53,11 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Opţiuni de sincronizare"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcaţi drept necitit"</string>
     <string name="move_action" msgid="3059189775933985898">"Mutaţi"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <!-- no translation found for plus_cc_label (3365150001259912183) -->
+    <skip />
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Adăugaţi Cc/Bcc"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Ataşaţi un fişier"</string>
+    <!-- no translation found for add_file_attachment (2203398371671979481) -->
+    <skip />
     <string name="close_action" msgid="533058985745238100">"Închideţi"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Trimiteţi toate mesajele"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Alegeţi fişierul de ataşat"</string>
@@ -124,11 +126,16 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Subiect"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"De la:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Către:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Subiect:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Scrieţi un e-mail"</string>
+    <!-- no translation found for to (4392614766835725698) -->
+    <skip />
+    <!-- no translation found for cc (7017720927911078193) -->
+    <skip />
+    <!-- no translation found for bcc (3098643138241111579) -->
+    <skip />
+    <!-- no translation found for subject_hint (7253964583324677128) -->
+    <skip />
+    <!-- no translation found for body_hint (4279864165439577668) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mesajul original --------"\n"Subiect: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De la: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Către: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a scris:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Mesaj citat"</string>
@@ -466,4 +473,6 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Se aşteaptă rezultatele"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Pentru unele servere poate fi necesar un interval mare de timp."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Dosare"</string>
+    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
+    <skip />
 </resources>
