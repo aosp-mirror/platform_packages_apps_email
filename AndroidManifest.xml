@@ -17,8 +17,8 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="401000"
-    android:versionName="4.0.1"
+    android:versionCode="410000"
+    android:versionName="4.1"
     >
 
     <original-package
