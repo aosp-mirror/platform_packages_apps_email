@@ -256,13 +256,13 @@ public class MessageListItem extends View {
             if (mMode == MODE_WIDE) {
                 if (mWideReadSelector == null) {
                     mWideReadSelector = getContext().getResources()
-                            .getDrawable(R.drawable.message_list_wide_read_selector);
+                            .getDrawable(R.drawable.conversation_wide_read_selector);
                 }
                 newBackground = mWideReadSelector;
             } else {
                 if (mReadSelector == null) {
                     mReadSelector = getContext().getResources()
-                            .getDrawable(R.drawable.message_list_read_selector);
+                            .getDrawable(R.drawable.conversation_read_selector);
                 }
                 newBackground = mReadSelector;
             }
@@ -270,13 +270,13 @@ public class MessageListItem extends View {
             if (mMode == MODE_WIDE) {
                 if (mWideUnreadSelector == null) {
                     mWideUnreadSelector = getContext().getResources()
-                            .getDrawable(R.drawable.message_list_wide_unread_selector);
+                            .getDrawable(R.drawable.conversation_wide_unread_selector);
                 }
                 newBackground = mWideUnreadSelector;
             } else {
                 if (mUnreadSelector == null) {
                     mUnreadSelector = getContext().getResources()
-                            .getDrawable(R.drawable.message_list_unread_selector);
+                            .getDrawable(R.drawable.conversation_unread_selector);
                 }
                 newBackground = mUnreadSelector;
             }
