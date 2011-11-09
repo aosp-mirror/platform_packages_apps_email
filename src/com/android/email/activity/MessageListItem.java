@@ -34,6 +34,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -88,7 +89,6 @@ public class MessageListItem extends View {
     private static final TextPaint sDefaultPaint = new TextPaint();
     private static final TextPaint sBoldPaint = new TextPaint();
     private static final TextPaint sDatePaint = new TextPaint();
-    private static final TextPaint sHighlightPaint = new TextPaint();
     private static Bitmap sAttachmentIcon;
     private static Bitmap sInviteIcon;
     private static int sBadgeMargin;
@@ -102,11 +102,23 @@ public class MessageListItem extends View {
     private static String sSubjectSnippetDivider;
     private static String sSubjectDescription;
     private static String sSubjectEmptyDescription;
-    private static int sFontColorActivated;
-    private static int sFontColor;
+
+    // Static colors.
+    private static int DEFAULT_TEXT_COLOR;
+    private static int ACTIVATED_TEXT_COLOR;
+    private static int LIGHT_TEXT_COLOR;
+    private static int DRAFT_TEXT_COLOR;
+    private static int SUBJECT_TEXT_COLOR_READ;
+    private static int SUBJECT_TEXT_COLOR_UNREAD;
+    private static int SNIPPET_TEXT_COLOR_READ;
+    private static int SNIPPET_TEXT_COLOR_UNREAD;
+    private static int SENDERS_TEXT_COLOR_READ;
+    private static int SENDERS_TEXT_COLOR_UNREAD;
+    private static int DATE_TEXT_COLOR_READ;
+    private static int DATE_TEXT_COLOR_UNREAD;
 
     public String mSender;
-    public CharSequence mText;
+    public SpannableStringBuilder mText;
     public CharSequence mSnippet;
     private String mSubject;
     private StaticLayout mSubjectLayout;
@@ -156,7 +168,7 @@ public class MessageListItem extends View {
             sDatePaint.setAntiAlias(true);
             sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setAntiAlias(true);
-            sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
+
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
             sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite_holo_light);
             sBadgeMargin = r.getDimensionPixelSize(R.dimen.message_list_badge_margin);
@@ -176,8 +188,16 @@ public class MessageListItem extends View {
             sStateRepliedAndForwarded =
                 BitmapFactory.decodeResource(r, R.drawable.ic_badge_reply_forward_holo_light);
 
-            sFontColor = r.getColor(android.R.color.black);
-            sFontColorActivated = r.getColor(android.R.color.white);
+            DEFAULT_TEXT_COLOR = r.getColor(R.color.default_text_color);
+            ACTIVATED_TEXT_COLOR = r.getColor(android.R.color.white);
+            SUBJECT_TEXT_COLOR_READ = r.getColor(R.color.subject_text_color_read);
+            SUBJECT_TEXT_COLOR_UNREAD = r.getColor(R.color.subject_text_color_unread);
+            SNIPPET_TEXT_COLOR_READ = r.getColor(R.color.snippet_text_color_read);
+            SNIPPET_TEXT_COLOR_UNREAD = r.getColor(R.color.snippet_text_color_unread);
+            SENDERS_TEXT_COLOR_READ = r.getColor(R.color.senders_text_color_read);
+            SENDERS_TEXT_COLOR_UNREAD = r.getColor(R.color.senders_text_color_unread);
+            DATE_TEXT_COLOR_READ = r.getColor(R.color.date_text_color_read);
+            DATE_TEXT_COLOR_UNREAD = r.getColor(R.color.date_text_color_unread);
 
             sInit = true;
         }
@@ -269,8 +289,8 @@ public class MessageListItem extends View {
         } else {
             if (mMode == MODE_WIDE) {
                 if (mWideUnreadSelector == null) {
-                    mWideUnreadSelector = getContext().getResources()
-                            .getDrawable(R.drawable.conversation_wide_unread_selector);
+                    mWideUnreadSelector = getContext().getResources().getDrawable(
+                            R.drawable.conversation_wide_unread_selector);
                 }
                 newBackground = mWideUnreadSelector;
             } else {
@@ -288,8 +308,28 @@ public class MessageListItem extends View {
         }
     }
 
+    private void calculateSubjectText() {
+        if (mText == null || mText.length() == 0) {
+            return;
+        }
+        boolean hasSubject = false;
+        if (!TextUtils.isEmpty(mSubject)) {
+            int subjectColor = getFontColor(mRead ? SUBJECT_TEXT_COLOR_READ
+                    : SUBJECT_TEXT_COLOR_UNREAD);
+            mText.setSpan(new ForegroundColorSpan(subjectColor), 0, mSubject.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if (!TextUtils.isEmpty(mSnippet)) {
+            int snippetColor = getFontColor(mRead ? SNIPPET_TEXT_COLOR_READ
+                    : SNIPPET_TEXT_COLOR_UNREAD);
+            mText.setSpan(new ForegroundColorSpan(snippetColor), mSubject.length() + 1, mText
+                    .length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
     private void calculateDrawingData() {
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
+        calculateSubjectText();
         mSubjectLayout = new StaticLayout(mText, sDefaultPaint,
                 mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, false /* includePad */);
         if (mCoordinates.subjectLineCount < mSubjectLayout.getLineCount()) {
@@ -307,11 +347,12 @@ public class MessageListItem extends View {
         } else {
             int senderWidth = mCoordinates.sendersWidth;
             senderPaint.setTextSize(mCoordinates.sendersFontSize);
+            senderPaint.setColor(getFontColor(mRead ? SENDERS_TEXT_COLOR_READ
+                    : SENDERS_TEXT_COLOR_UNREAD));
             mFormattedSender = TextUtils.ellipsize(mSender, senderPaint, senderWidth,
                     TruncateAt.END);
         }
     }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (widthMeasureSpec != 0 || mViewWidth == 0) {
@@ -372,6 +413,10 @@ public class MessageListItem extends View {
         calculateDrawingData();
     }
 
+    private int getFontColor(int defaultColor) {
+        return isActivated() ? ACTIVATED_TEXT_COLOR : defaultColor;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         // Draw the color chip indicating the mailbox this belongs to
@@ -383,15 +428,14 @@ public class MessageListItem extends View {
                     mColorChipPaint);
         }
 
-        int fontColor = isActivated() ? sFontColorActivated : sFontColor;
-
         // Draw the checkbox
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
                 mCoordinates.checkmarkX, mCoordinates.checkmarkY, null);
 
         // Draw the sender name
         Paint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
-        senderPaint.setColor(fontColor);
+        senderPaint.setColor(getFontColor(mRead ? SENDERS_TEXT_COLOR_READ
+                : SENDERS_TEXT_COLOR_UNREAD));
         senderPaint.setTextSize(mCoordinates.sendersFontSize);
         canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
                 mCoordinates.sendersX, mCoordinates.sendersY - mCoordinates.sendersAscent,
@@ -411,7 +455,6 @@ public class MessageListItem extends View {
 
         // Subject and snippet.
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
-        sDefaultPaint.setColor(fontColor);
         canvas.save();
         canvas.translate(
                 mCoordinates.subjectX,
@@ -421,7 +464,7 @@ public class MessageListItem extends View {
 
         // Draw the date
         sDatePaint.setTextSize(mCoordinates.dateFontSize);
-        sDatePaint.setColor(fontColor);
+        sDatePaint.setColor(mRead ? DATE_TEXT_COLOR_READ : DATE_TEXT_COLOR_UNREAD);
         int dateX = mCoordinates.dateXEnd
                 - (int) sDatePaint.measureText(mFormattedDate, 0, mFormattedDate.length());
 
@@ -454,6 +497,7 @@ public class MessageListItem extends View {
      */
     public void bindViewInit(MessagesAdapter adapter) {
         mAdapter = adapter;
+        requestLayout();
     }
 
 
