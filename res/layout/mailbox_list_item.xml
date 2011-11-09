@@ -35,7 +35,7 @@
         android:layout_marginRight="@dimen/mailbox_list_padding_right"
         android:singleLine="true"
         android:textSize="14dip"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textColor="@color/text_color_primary_invertible"
         />
     <RelativeLayout
         android:layout_alignParentLeft="true"
@@ -61,7 +61,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:textSize="18dip"
-            android:textColor="?android:attr/textColorPrimary"
+            android:textColor="@color/text_color_primary_invertible"
             />
     </RelativeLayout>
     <!-- Color chips are shown only for account rows on combined view. -->
