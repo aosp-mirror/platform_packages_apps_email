@@ -192,7 +192,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EditText mMessageContentView;
     private View mAttachmentContainer;
     private ViewGroup mAttachmentContentView;
-    private View mQuotedTextBar;
+    private View mQuotedTextArea;
     private CheckBox mIncludeQuotedTextCheckBox;
     private WebView mQuotedText;
     private ActionSpinnerAdapter mActionSpinnerAdapter;
@@ -438,7 +438,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
             showCcBccFields();
         }
-        mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
+        mQuotedTextArea.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
                 ? View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
                 ? View.VISIBLE : View.GONE);
@@ -544,7 +544,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcBccContainer.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
-                mQuotedTextBar.getVisibility() == View.VISIBLE);
+                mQuotedTextArea.getVisibility() == View.VISIBLE);
         outState.putString(STATE_KEY_ACTION, mAction);
 
         // If there are any outstanding save requests, ensure that it's noted in case it hasn't
@@ -704,7 +704,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mMessageContentView = UiUtilities.getView(this, R.id.body_text);
         mAttachmentContentView = UiUtilities.getView(this, R.id.attachments);
         mAttachmentContainer = UiUtilities.getView(this, R.id.attachment_container);
-        mQuotedTextBar = UiUtilities.getView(this, R.id.quoted_text_bar);
+        mQuotedTextArea = UiUtilities.getView(this, R.id.quoted_text_area);
         mIncludeQuotedTextCheckBox = UiUtilities.getView(this, R.id.include_quoted_text);
         mQuotedText = UiUtilities.getView(this, R.id.quoted_text);
 
@@ -719,7 +719,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * We set this to invisible by default. Other methods will turn it back on if it's
          * needed.
          */
-        mQuotedTextBar.setVisibility(View.GONE);
+        mQuotedTextArea.setVisibility(View.GONE);
         setIncludeQuotedText(false, false);
 
         mIncludeQuotedTextCheckBox.setOnClickListener(this);
@@ -1246,7 +1246,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         message.mFlagAttachment = hasAttachments;
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
-        if (mSource != null && mQuotedTextBar.getVisibility() == View.VISIBLE) {
+        if (mSource != null && mQuotedTextArea.getVisibility() == View.VISIBLE) {
             message.mSourceKey = mSource.mId;
             // If the quote bar is visible; this must either be a reply or forward
             // Get the body of the source message here
@@ -2144,7 +2144,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // TODO: re-enable EmailHtmlUtil.resolveInlineImage() for HTML
             //    EmailHtmlUtil.resolveInlineImage(getContentResolver(), mAccount,
             //                                     text, message, 0);
-            mQuotedTextBar.setVisibility(View.VISIBLE);
+            mQuotedTextArea.setVisibility(View.VISIBLE);
             if (mQuotedText != null) {
                 mQuotedText.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
             }
