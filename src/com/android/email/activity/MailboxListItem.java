@@ -29,10 +29,7 @@ import android.widget.TextView;
 
 public class MailboxListItem extends RelativeLayout {
     // Colors used for drop targets
-    private static Integer sDropUnavailableFgColor;
     private static Integer sDropAvailableBgColor;
-    private static Integer sTextPrimaryColor;
-    private static Integer sTextSecondaryColor;
     private static Integer sDropTrashBgColor;
 
     /**
@@ -83,10 +80,7 @@ public class MailboxListItem extends RelativeLayout {
         if (sDropAvailableBgColor == null) {
             Resources res = getResources();
             sDropAvailableBgColor = res.getColor(R.color.mailbox_drop_available_bg_color);
-            sDropUnavailableFgColor = res.getColor(R.color.mailbox_drop_unavailable_fg_color);
             sDropTrashBgColor = res.getColor(R.color.mailbox_drop_destructive_bg_color);
-            sTextPrimaryColor = res.getColor(R.color.text_primary_color);
-            sTextSecondaryColor = res.getColor(R.color.text_secondary_color);
         }
         mLabelName = (TextView)findViewById(R.id.mailbox_name);
         mLabelCount = (TextView)findViewById(R.id.message_count);
@@ -142,24 +136,22 @@ public class MailboxListItem extends RelativeLayout {
     }
 
     public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
-        int labelNameColor = sTextPrimaryColor;
-        int labelCountColor = sTextSecondaryColor;
-
         boolean isBackgroundSet = false;
         if (dragInProgress) {
             if (isDropTarget(itemMailbox)) {
                 setBackgroundColor(sDropAvailableBgColor);
                 isBackgroundSet = true;
             } else {
-                labelNameColor = sDropUnavailableFgColor;
-                labelCountColor = sDropUnavailableFgColor;
+                mLabelName.setEnabled(false);
+                mLabelCount.setEnabled(false);
             }
+        } else {
+            mLabelName.setEnabled(true);
+            mLabelCount.setEnabled(true);
         }
         if (!isBackgroundSet) {
             // Drag not in progress, or it's not a drop target.
             setBackgroundDrawable(mBackground);
         }
-        mLabelName.setTextColor(labelNameColor);
-        mLabelCount.setTextColor(labelCountColor);
     }
 }
