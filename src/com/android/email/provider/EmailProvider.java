@@ -2496,6 +2496,17 @@ outer:
                                 createAccountManagerAccount(accountManagerContext,
                                         accountCursor.getString(V21_ACCOUNT_EMAIL),
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
+                            // If an EAS account, make Email sync automatically (equivalent of
+                            // checking the "Sync Email" box in settings
+                            } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
+                                android.accounts.Account amAccount =
+                                        new android.accounts.Account(
+                                                accountCursor.getString(V21_ACCOUNT_EMAIL),
+                                                AccountManagerTypes.TYPE_POP_IMAP);
+                                ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
+                                ContentResolver.setSyncAutomatically(amAccount,
+                                        EmailContent.AUTHORITY, true);
+
                             }
                         }
                     } finally {
