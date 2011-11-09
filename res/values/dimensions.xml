@@ -68,4 +68,9 @@
 
     <!-- Username/password entry -->
     <dimen name="setup_credentials_input_width">340dip</dimen>
+
+    <!-- Folder list item -->
+    <dimen name="mailbox_list_padding_left">8dip</dimen>
+    <dimen name="mailbox_list_padding_right">16dip</dimen>
+    <dimen name="mailbox_list_count_margin_left">8dip</dimen>
 </resources>

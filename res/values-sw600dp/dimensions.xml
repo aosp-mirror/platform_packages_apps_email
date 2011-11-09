@@ -53,4 +53,9 @@
     <dimen name="setup_item_inset_left">16dip</dimen>
     <dimen name="setup_item_inset_right">64dip</dimen>
 
+    <!-- Folder list items -->
+    <dimen name="mailbox_list_padding_left">16dip</dimen>
+    <dimen name="mailbox_list_padding_right">24dip</dimen>
+    <dimen name="mailbox_list_count_margin_left">16dip</dimen>
+
 </resources>

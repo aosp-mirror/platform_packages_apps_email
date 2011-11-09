@@ -16,10 +16,6 @@
 
 <!-- non-xlarge, landscape -->
 <resources>
-    <dimen name="mailbox_list_padding_left">16dip</dimen>
-    <dimen name="mailbox_list_padding_right">24dip</dimen>
-    <dimen name="mailbox_list_count_margin_left">16dip</dimen>
-
     <dimen name="mailbox_list_width">160dip</dimen>
     <dimen name="message_list_width">160dip</dimen>
     <dimen name="action_bar_account_name_max_width">100dip</dimen>

@@ -27,7 +27,7 @@
         android:id="@+id/unread_count"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        style="@style/unread_count"
+        style="@style/unreadCount"
         />
     <LinearLayout
         android:layout_height="wrap_content"
