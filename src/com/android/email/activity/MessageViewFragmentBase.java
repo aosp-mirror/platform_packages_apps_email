@@ -959,10 +959,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             return; // Ignore.
         }
         switch (view.getId()) {
-            case R.id.from_name:
-            case R.id.from_address:
             case R.id.badge:
-            case R.id.presence:
                 onClickSender();
                 break;
             case R.id.load:
