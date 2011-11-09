@@ -19,7 +19,7 @@
     android:id="@+id/widget_message"
     android:layout_width="match_parent"
     android:layout_height="64sp"
-    android:background="@drawable/message_list_unread_selector"
+    android:background="@drawable/conversation_unread_selector"
     >
     <ImageView
         android:id="@+id/color_chip"

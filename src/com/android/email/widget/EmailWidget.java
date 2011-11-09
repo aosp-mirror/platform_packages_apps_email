@@ -407,9 +407,9 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         RemoteViews views =
             new RemoteViews(mContext.getPackageName(), R.layout.widget_list_item);
         boolean isUnread = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_READ) != 1;
-        int drawableId = R.drawable.message_list_read_selector;
+        int drawableId = R.drawable.conversation_read_selector;
         if (isUnread) {
-            drawableId = R.drawable.message_list_unread_selector;
+            drawableId = R.drawable.conversation_unread_selector;
         }
         views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
 
