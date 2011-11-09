@@ -87,55 +87,7 @@
                 <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="100dip">
-                    <!--  quoted text bar -->
-                    <LinearLayout
-                        android:id="@+id/quoted_text_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="46dip"
-                            >
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:layout_weight="0"
-                                android:layout_marginLeft="16dip"
-                                android:gravity="left|center_vertical"
-                                android:textSize="18dip"
-                                android:textColor="@color/text_secondary_color"
-                                android:text="@string/message_compose_quoted_text_label"
-                                />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:gravity="right|center_vertical"
-                                android:textSize="18dip"
-                                android:textColor="@color/text_primary_color"
-                                android:text="@string/message_compose_include_quoted_text_checkbox_label"
-                                />
-                            <CheckBox
-                                android:id="@+id/include_quoted_text"
-                                android:layout_width="48dip"
-                                android:layout_height="match_parent"
-                                android:layout_weight="0"
-                                android:gravity="center"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
-                    <!--
-                        Quoted text
-                        TODO: Don't put a webview in a scroll view.
-                    -->
-                    <WebView android:id="@+id/quoted_text"
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="16dip"
-                        android:layout_below="@id/quoted_text_bar"/>
+                    <include layout="@layout/quoted_text"/>
                 </RelativeLayout>
                 <FrameLayout
                   android:id="@+id/composearea_tap_trap_bottom"
