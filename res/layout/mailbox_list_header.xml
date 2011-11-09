@@ -18,4 +18,5 @@
     android:id="@+id/display_name"
     android:layout_width="match_parent"
     android:ellipsize="end"
-    style="?android:attr/listSeparatorTextViewStyle" />
+    style="?android:attr/listSeparatorTextViewStyle"
+    android:layout_marginLeft="@dimen/mailbox_list_padding_left" />
