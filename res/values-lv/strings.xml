@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Sinhronizācijas opcijas"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Atzīmēt kā nelasītu"</string>
     <string name="move_action" msgid="3059189775933985898">"Pārvietot"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ kop./d. kop."</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Kopija/d. kop."</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Piev. kop./d. kop."</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Pievienot failu"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"Pievienot failu"</string>
     <string name="close_action" msgid="533058985745238100">"Aizvērt"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Sūtīt visus ziņoj."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pielikuma izvēle"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Diskrētā kopija"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Temats"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"No:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Kam:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Kopija:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Diskr. kop.:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Tēma:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Rakstiet e-pasta ziņojumu"</string>
+    <string name="to" msgid="4392614766835725698">"Kam:"</string>
+    <string name="cc" msgid="7017720927911078193">"Kopija"</string>
+    <string name="bcc" msgid="3098643138241111579">"D. kopija"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Temats"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Rakstiet e-pasta ziņojumu"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Sākotnējais ziņojums --------"\n"Temats: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"No: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kam: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopija: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> rakstīja:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Citēts teksts"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Citēts teksts"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Iekļaut tekstu"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Jāpievieno vismaz viens adresāts."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Dažas e-pasta adreses nav derīgas."</string>
@@ -486,4 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"Esmu ar mieru!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Vēlāk izlasīšu šo ziņojumu un atbildēšu."</string>
     <string name="quick_4" msgid="3988974084396883051">"Norunāsim tikšanos, lai to pārrunātu."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Viesabonēšanas laikā fona sinhronizācija šajā kontā ir atspējota."</string>
 </resources>

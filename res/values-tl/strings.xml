@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Mga pagpipilian sa pag-sync"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markahan bilang hindi pa nababasa"</string>
     <string name="move_action" msgid="3059189775933985898">"Ilipat"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Magdagdag ng Cc/Bcc"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Mag-attach ng file"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"Mag-attach ng file"</string>
     <string name="close_action" msgid="533058985745238100">"Isara"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Ipadala lahat msg."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pumili ng attachment"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Paksa"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"Mula:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Para Kay:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Paksa:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Bumuo ng email"</string>
+    <string name="to" msgid="4392614766835725698">"Para kay"</string>
+    <string name="cc" msgid="7017720927911078193">"Cc"</string>
+    <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Paksa"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Bumuo ng email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orihinal na Mensahe --------"\n"Paksa: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Mula kay: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para kay: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">"Si "\n\n"<xliff:g id="SENDER">%s</xliff:g> ay sumulat:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Naka-quote na teksto"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Naka-quote na teksto"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Isama ang teksto"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Dapat kang magdagdag ng hindi bababa sa isang recipient."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Di-wasto ang ilang email address."</string>
@@ -486,4 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"Magaling sa akin!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Babasahin ko ito sa ibang pagkakataon at babalik sa iyo."</string>
     <string name="quick_4" msgid="3988974084396883051">"Magtakda tayo ng pulong upang talakayin ito."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Hindi pinapagana ang background na pag-sync para sa account na ito habang nagro-roam."</string>
 </resources>
