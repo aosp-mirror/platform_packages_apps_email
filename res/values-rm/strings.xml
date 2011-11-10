@@ -63,10 +63,11 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar sco nunlegì"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
-    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"Agiuntar «Cc»/«Bcc»"</string>
+    <!-- no translation found for plus_cc_label (3365150001259912183) -->
+    <skip />
     <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
     <skip />
-    <!-- no translation found for add_attachment_menu (6854757034409168845) -->
+    <!-- no translation found for add_file_attachment (2203398371671979481) -->
     <skip />
     <!-- no translation found for close_action (533058985745238100) -->
     <skip />
@@ -152,18 +153,19 @@
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Object"</string>
     <!-- no translation found for message_compose_from_label (4084843296548498041) -->
     <skip />
-    <!-- no translation found for message_compose_to_label (6806045787441348009) -->
+    <!-- no translation found for to (4392614766835725698) -->
     <skip />
-    <!-- no translation found for message_compose_cc_label (5608567337432359209) -->
+    <!-- no translation found for cc (7017720927911078193) -->
     <skip />
-    <!-- no translation found for message_compose_bcc_label (8619598628773345338) -->
+    <!-- no translation found for bcc (3098643138241111579) -->
     <skip />
-    <!-- no translation found for message_compose_subject_label (1592314202889683309) -->
+    <!-- no translation found for subject_hint (7253964583324677128) -->
     <skip />
-    <!-- outdated translation 7575406246484103697 -->     <string name="message_compose_body_hint" msgid="3864004548670233396">"Nov messadi"</string>
+    <!-- no translation found for body_hint (4279864165439577668) -->
+    <skip />
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------"\n"Object: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text cità"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Text cità"</string>
     <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
     <skip />
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Vus stuais agiuntar almain in destinatur."</string>
@@ -671,5 +673,7 @@
     <!-- no translation found for quick_3 (8061819976353395585) -->
     <skip />
     <!-- no translation found for quick_4 (3988974084396883051) -->
+    <skip />
+    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
     <skip />
 </resources>
