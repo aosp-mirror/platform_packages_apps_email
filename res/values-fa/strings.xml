@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"گزینه‌های همگام‌سازی"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"علامت گذاری بعنوان خوانده نشده"</string>
     <string name="move_action" msgid="3059189775933985898">"انتقال"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ گیرنده کپی/گیرنده مخفی"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"افزودن گیرنده کپی/گیرنده کپی مخفی"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"پیوست کردن فایل"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"پیوست کردن فایل"</string>
     <string name="close_action" msgid="533058985745238100">"بستن"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"ارسال تمام پیام ها"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"انتخاب پیوست"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"گیرنده کپی مخفی"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"موضوع"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"از:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"به:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"گیرنده کپی:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"موضوع:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"نوشتن ایمیل"</string>
+    <string name="to" msgid="4392614766835725698">"گیرنده"</string>
+    <string name="cc" msgid="7017720927911078193">"گیرنده کپی"</string>
+    <string name="bcc" msgid="3098643138241111579">"گیرنده کپی مخفی"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"موضوع"</string>
+    <string name="body_hint" msgid="4279864165439577668">"نوشتن ایمیل"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------"\n"موضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"فرستنده: <xliff:g id="SENDER">%2$s</xliff:g>"\n"گیرنده: <xliff:g id="TO">%3$s</xliff:g>"\n"گیرنده کپی: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> نوشت:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"متن نقل قول شده"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"متن نقل قول شده"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"شامل متن"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"باید حداقل یک گیرنده اضافه کنید."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"برخی از آدرس های ایمیل نامعتبر هستند."</string>
@@ -486,4 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"به نظرم خوب است!"</string>
     <string name="quick_3" msgid="8061819976353395585">"بعداً این را میخوانم و به شما اطلاع میدهم."</string>
     <string name="quick_4" msgid="3988974084396883051">"بیایید یک جلسه تشکیل بدهیم و درباره آن گفتگو کنیم."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"هنگام رومینگ، همگام‌سازی پس‌زمینه برای این حساب غیرفعال است."</string>
 </resources>

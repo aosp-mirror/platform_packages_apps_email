@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Opsi sinkronisasi"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Tandai belum dibaca"</string>
     <string name="move_action" msgid="3059189775933985898">"Pindahkan"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Tambahkan Cc/Bcc"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Lampirkan berkas"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"Lampirkan berkas"</string>
     <string name="close_action" msgid="533058985745238100">"Tutup"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Kirim semua pesan"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Pilih lampiran"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Hal"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"Dari:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Kepada:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Subjek:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Tulis email"</string>
+    <string name="to" msgid="4392614766835725698">"Kepada"</string>
+    <string name="cc" msgid="7017720927911078193">"Cc"</string>
+    <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Subjek"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Tulis email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Pesan Asli --------"\n"Subjek: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Dari: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kepada: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n" <xliff:g id="SENDER">%s</xliff:g> menulis:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Kutipan teks"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Kutipan teks"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Sertakan teks"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Anda harus menambahkan setidaknya satu penerima."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Beberapa alamat email tidak valid."</string>
@@ -486,4 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"Menurut saya itu bagus!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Saya akan membaca ini nanti dan mengabari Anda."</string>
     <string name="quick_4" msgid="3988974084396883051">"Mari kita adakan pertemuan untuk membahas masalah ini."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Sinkronisasi latar belakang untuk akun ini dinonaktifkan saat roaming."</string>
 </resources>

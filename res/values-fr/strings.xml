@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Options de synchronisation"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marquer comme non lu"</string>
     <string name="move_action" msgid="3059189775933985898">"Déplacer"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Cci"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Cci"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Ajouter Cc/Cci"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Joindre un fichier"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"Joindre un fichier"</string>
     <string name="close_action" msgid="533058985745238100">"Fermer"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Envoyer tous messages"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Cci"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Objet"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"De :"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"À :"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc :"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Cci :"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Objet :"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Composez un message"</string>
+    <string name="to" msgid="4392614766835725698">"À"</string>
+    <string name="cc" msgid="7017720927911078193">"Cc"</string>
+    <string name="bcc" msgid="3098643138241111579">"Cci"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Objet"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Composez un message"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Message original --------"\n"Objet : <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De : <xliff:g id="SENDER">%2$s</xliff:g>"\n"À : <xliff:g id="TO">%3$s</xliff:g>"\n"Cc : <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a écrit :"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Texte du message précédent"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Texte du message précédent"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Inclure le texte"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Vous devez ajouter au moins un destinataire."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Certaines adresses e-mail sont incorrectes."</string>
@@ -348,7 +348,7 @@
     <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Les paramètres de sécurité du compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ont été modifiés. Aucune action de votre part n\'est requise."</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"Mise à jour de sécurité requise"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"Règles de sécurité modifiées"</string>
-    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Imposs. appliquer règles sécurité"</string>
+    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Impossible d\'appliquer règles de sécurité"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Sécurité de l\'appareil"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
@@ -484,6 +484,7 @@
     <string name="policy_screen_timeout" msgid="414869965358468080">"Exiger verrouillage appareils inactifs"</string>
     <string name="quick_1" msgid="3426057697353380951">"Merci !"</string>
     <string name="quick_2" msgid="4188036352885736617">"Cela me convient."</string>
-    <string name="quick_3" msgid="8061819976353395585">"Je lirai cela plus tard, et je reviendrai vers vous."</string>
+    <string name="quick_3" msgid="8061819976353395585">"Je lirai cela plus tard, et je vous recontacterai."</string>
     <string name="quick_4" msgid="3988974084396883051">"Organisons une réunion pour en discuter."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"La synchronisation en arrière-plan pour ce compte est désactivée en itinérance."</string>
 </resources>

@@ -53,9 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Sinkroniseeropsies"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Merk as ongelees"</string>
     <string name="move_action" msgid="3059189775933985898">"Skuif"</string>
-    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Voeg Cc/Bcc by"</string>
-    <string name="add_attachment_menu" msgid="6854757034409168845">"Heg lêer aan"</string>
+    <string name="add_file_attachment" msgid="2203398371671979481">"Heg lêer aan"</string>
     <string name="close_action" msgid="533058985745238100">"Maak toe"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Stuur alle boodskappe"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Kies aanhegsel"</string>
@@ -124,14 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Onderwerp"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"Van:"</string>
-    <string name="message_compose_to_label" msgid="6806045787441348009">"Aan:"</string>
-    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
-    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
-    <string name="message_compose_subject_label" msgid="1592314202889683309">"Onderwerp:"</string>
-    <string name="message_compose_body_hint" msgid="3864004548670233396">"Skryf e-pos"</string>
+    <string name="to" msgid="4392614766835725698">"Aan"</string>
+    <string name="cc" msgid="7017720927911078193">"Cc"</string>
+    <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Onderwerp"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Skryf e-pos"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronklike boodskap --------"\n"Onderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Van: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Aan: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> het geskryf:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Aangehaalde teks"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Aangehaalde teks"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Sluit teks in"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Jy moet ten minste een ontvanger byvoeg."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Sekere e-posadresse is ongeldig."</string>
@@ -412,7 +412,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Verwyder rekening"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Sinkroniseeropsies"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Sinkroniseeropsies  (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Sinkroniseer instellings"</string>
+    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Sinkroniseer-instellings"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kontroleer gereeldheid"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dae om te sinkroniseer"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-posrekening"</string>
@@ -486,4 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"Klink goed vir my!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Ek sal dit later lees en terugkom ma jou."</string>
     <string name="quick_4" msgid="3988974084396883051">"Kom ons skeduleer \'n vergadering om dit te bespreek."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Agtergrond-sinkronisasie vir hierdie rekening is gedeaktiveer tydens swerwing."</string>
 </resources>
