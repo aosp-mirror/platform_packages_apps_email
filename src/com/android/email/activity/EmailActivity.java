@@ -199,17 +199,20 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         if (savedInstanceState != null) {
             mUIController.onRestoreInstanceState(savedInstanceState);
         } else {
-            initFromIntent();
+            final Intent intent = getIntent();
+            final MessageListContext viewContext = MessageListContext.forIntent(this, intent);
+            if (viewContext == null) {
+                // This might happen if accounts were deleted on another thread, and there aren't
+                // any remaining
+                Welcome.actionStart(this);
+                finish();
+                return;
+            } else {
+                final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
+                mUIController.open(viewContext, messageId);
+            }
         }
         mUIController.onActivityCreated();
-    }
-
-    private void initFromIntent() {
-        final Intent intent = getIntent();
-        final MessageListContext viewContext = MessageListContext.forIntent(this, intent);
-        final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
-
-        mUIController.open(viewContext, messageId);
     }
 
     @Override
