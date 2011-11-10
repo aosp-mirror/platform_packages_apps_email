@@ -294,6 +294,9 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         if (mPaneState == STATE_RIGHT_VISIBLE) {
             return changePaneState(STATE_MIDDLE_EXPANDED, true);
+        } else if (mInitialPaneState == STATE_RIGHT_VISIBLE) {
+            mInitialPaneState = STATE_MIDDLE_EXPANDED;
+            return true;
         }
 
         return false;

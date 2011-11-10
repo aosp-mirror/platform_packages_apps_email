@@ -337,6 +337,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
             mThreePane.showRightPane();
         } else if (mListContext.isSearch()) {
             mThreePane.showRightPane();
+            mThreePane.uncollapsePane();
         } else {
             mThreePane.showLeftPane();
         }
