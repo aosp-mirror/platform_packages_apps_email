@@ -58,4 +58,9 @@
     <dimen name="mailbox_list_padding_right">24dip</dimen>
     <dimen name="mailbox_list_count_margin_left">16dip</dimen>
 
+    <!-- Message list items -->
+    <dimen name="replystate_margin_left">7dip</dimen>
+    <dimen name="replystate_margin_top">10sp</dimen>
+    <dimen name="checkmark_margin_top">4sp</dimen>
+    <dimen name="star_margin_top">30sp</dimen>
 </resources>
