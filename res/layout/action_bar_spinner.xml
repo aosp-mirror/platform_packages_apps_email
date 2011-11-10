@@ -47,7 +47,7 @@
     </RelativeLayout>
     <TextView
         android:id="@+id/spinner_count"
-        style="@style/unread_count"
+        style="@style/unreadCount"
         android:includeFontPadding="false"
         android:textStyle="normal"
         />
