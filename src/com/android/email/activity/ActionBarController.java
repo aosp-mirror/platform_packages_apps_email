@@ -564,7 +564,7 @@ public class ActionBarController {
         @Override
         public void show() {
             setWidth(mContext.getResources().getDimensionPixelSize(
-                    R.dimen.account_spinner_dropdown_width));
+                    R.dimen.account_dropdown_dropdownwidth));
             setInputMethodMode(ListPopupWindow.INPUT_METHOD_NOT_NEEDED);
             super.show();
             // List view is instantiated in super.show(), so we need to do this after...
