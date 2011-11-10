@@ -32,21 +32,22 @@
         android:paddingRight="8dip"
         >
         <ImageView
-            android:id="@+id/checkmark"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/btn_check_on_normal_holo_light"
-            />
-        <ImageView
             android:id="@+id/reply_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/message_list_icon_padding_compensation"
-            android:layout_centerHorizontal="true"
-            android:layout_above="@+id/checkmark"
+            android:layout_marginTop="@dimen/replystate_margin_top"
+            android:layout_marginLeft="@dimen/replystate_margin_left"
+            android:layout_alignParentTop="true"
             android:src="@drawable/ic_badge_reply_holo_light"
+            />
+        <ImageView
+            android:id="@+id/checkmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/btn_check_on_normal_holo_light"
+            android:layout_marginTop="@dimen/checkmark_margin_top"
+            android:layout_below="@id/reply_state"
             />
     </RelativeLayout>
 
@@ -71,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="@dimen/star_margin_top"
             android:src="@drawable/btn_star_off_normal_email_holo_light" />
 
         <LinearLayout
