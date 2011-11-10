@@ -78,6 +78,9 @@ public class MessageListContext implements Parcelable {
         } else {
             if (accountId == Account.NO_ACCOUNT) {
                 accountId = Account.getDefaultAccountId(context);
+                if (accountId == Account.NO_ACCOUNT) {
+                    return null;
+                }
             }
             if (mailboxId == Mailbox.NO_MAILBOX) {
                 mailboxId = (accountId == Account.ACCOUNT_ID_COMBINED_VIEW)
