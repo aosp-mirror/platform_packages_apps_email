@@ -313,17 +313,19 @@ public class MessageListItem extends View {
             return;
         }
         boolean hasSubject = false;
+        int snippetStart = 0;
         if (!TextUtils.isEmpty(mSubject)) {
             int subjectColor = getFontColor(mRead ? SUBJECT_TEXT_COLOR_READ
                     : SUBJECT_TEXT_COLOR_UNREAD);
             mText.setSpan(new ForegroundColorSpan(subjectColor), 0, mSubject.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            snippetStart = mSubject.length() + 1;
         }
         if (!TextUtils.isEmpty(mSnippet)) {
             int snippetColor = getFontColor(mRead ? SNIPPET_TEXT_COLOR_READ
                     : SNIPPET_TEXT_COLOR_UNREAD);
-            mText.setSpan(new ForegroundColorSpan(snippetColor), mSubject.length() + 1, mText
-                    .length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mText.setSpan(new ForegroundColorSpan(snippetColor), snippetStart, mText.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
