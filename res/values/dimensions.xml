@@ -61,8 +61,6 @@
     <dimen name="setup_item_inset_left">0dip</dimen>
     <dimen name="setup_item_inset_right">0dip</dimen>
 
-    <dimen name="account_spinner_dropdown_width">300dip</dimen>
-
     <!-- MessageListItem -->
     <dimen name="minimum_width_wide_mode">720dip</dimen>
 
@@ -79,5 +77,4 @@
     <dimen name="replystate_margin_top">10sp</dimen>
     <dimen name="checkmark_margin_top">3sp</dimen>
     <dimen name="star_margin_top">28sp</dimen>
-
 </resources>

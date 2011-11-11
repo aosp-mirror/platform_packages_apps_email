@@ -16,7 +16,7 @@
 
 <!--
     The list items for the account spinner drop down.
-    Popup width is set at runtime from @dimen/account_spinner_dropdown_width
+    Popup width is set at runtime from @dimen/account_dropdown_dropdownwidth
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:attr/spinnerDropDownItemStyle"
