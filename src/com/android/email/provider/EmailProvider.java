@@ -2517,7 +2517,7 @@ outer:
                                 android.accounts.Account amAccount =
                                         new android.accounts.Account(
                                                 accountCursor.getString(V21_ACCOUNT_EMAIL),
-                                                AccountManagerTypes.TYPE_POP_IMAP);
+                                                AccountManagerTypes.TYPE_EXCHANGE);
                                 ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
                                 ContentResolver.setSyncAutomatically(amAccount,
                                         EmailContent.AUTHORITY, true);
