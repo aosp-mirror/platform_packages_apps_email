@@ -13,42 +13,53 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    style="@style/AccountSwitchSpinnerItem"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    >
-    <RelativeLayout
-        android:id="@+id/account_spinner"
-        style="?android:attr/actionDropDownStyle"
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_centerVertical="true"
-        android:paddingTop="0dip"
-        android:paddingBottom="0dip"
-        android:focusable="true"
-        >
-        <TextView
-            android:id="@+id/spinner_line_1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/action_bar_spinner_primary_text"
-            />
-        <TextView
-            android:id="@+id/spinner_line_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/spinner_line_1"
-            style="@style/action_bar_spinner_secondary_text"
-            />
-    </RelativeLayout>
+    android:paddingLeft="0dip"
+    android:layout_marginLeft="0dip">
+
     <TextView
         android:id="@+id/spinner_count"
-        style="@style/unreadCount"
-        android:includeFontPadding="false"
-        android:textStyle="normal"
-        />
-</LinearLayout>
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="4dp"
+        style="@style/unreadCountActionBar" />
+
+    <!-- This spacer is here just to soak up horizontal space. -->
+    <!-- If this is omitted, the spinner triangle is too far from the text. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/spinner_count">
+
+        <LinearLayout
+            android:id="@+id/account_spinner"
+            style="?android:attr/actionDropDownStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/spinner_line_1"
+                style="@style/action_bar_spinner_primary_text"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/spinner_line_2"
+                style="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:layout_marginRight="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>
