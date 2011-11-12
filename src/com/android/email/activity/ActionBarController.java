@@ -550,7 +550,6 @@ public class ActionBarController {
     private class AccountDropdownPopup extends ListPopupWindow {
         public AccountDropdownPopup(Context context) {
             super(context);
-
             setAnchorView(mAccountSpinner);
             setModal(true);
             setPromptPosition(POSITION_PROMPT_ABOVE);
