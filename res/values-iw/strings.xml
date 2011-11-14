@@ -102,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"גרסה: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"תיבת דואר נכנס"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכבית"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכב"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"טיוטות"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"תיבת דואר יוצא"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"תצוגה משולבת"</string>
@@ -196,10 +196,10 @@
     <item quantity="other" msgid="4437637377522896262">"למחוק את ההודעות?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
-    <item quantity="one" msgid="710742672464447084">"ההודעה נמחקה."</item>
+    <item quantity="one" msgid="710742672464447084">"ההודעה נמחקה"</item>
     <item quantity="other" msgid="6574961322865652255">"ההודעות נמחקו."</item>
   </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"ההודעה נמחקה."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"ההודעה נמחקה"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"ההודעה נשמרה כטיוטה."</string>
     <string name="message_view_display_attachment_toast" msgid="5557358787789844554">"לא ניתן להציג את הקובץ המצורף."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="3623598332367932461">"לא ניתן לטעון את הקובץ המצורף \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
@@ -288,7 +288,7 @@
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"שרת"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"דומיין/שם משתמש"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"השתמש בחיבור מאובטח (SSL)"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"קבל את כל אישורי SSL"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"קבל את כל אישורי ה-SSL"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"אישור לקוח"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"בחר"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"השתמש באישור לקוח"</string>
@@ -455,7 +455,7 @@
     <string name="widget_other_views" msgid="4988574907386539499">"גע בסמל כדי לשנות."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"דואר נכנס משולב"</string>
     <string name="widget_unread" msgid="4404711399009077833">"לא נקרא"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכבית"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכב"</string>
     <string name="widget_loading" msgid="2340962056927255554">"טוען..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"גע כדי להגדיר."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"עוד לא הגדרת חשבון דואר אלקטרוני."</string>

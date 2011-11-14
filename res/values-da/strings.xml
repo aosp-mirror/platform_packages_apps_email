@@ -18,8 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Læs vedhæftede filer i e-mails"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Tillader, at denne applikation læser vedhæftede filer i dine e-mails."</string>
-    <string name="permission_access_provider_label" msgid="378256653525377586">"Få adgang til data om e-mail-udbyder"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Tillader, at denne applikation får adgang til din e-mail-database, f.eks. modtagne beskeder, sendte beskeder, brugernavne og adgangskoder."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Få adgang til data om e-mailudbyder"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Tillader, at denne applikation får adgang til din e-maildatabase, f.eks. modtagne beskeder, sendte beskeder, brugernavne og adgangskoder."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Skriv"</string>
     <string name="debug_title" msgid="5175710493691536719">"Fejlretning"</string>
@@ -134,7 +134,7 @@
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Citeret tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Medtag tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du skal tilføje mindst en modtager."</string>
-    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Nogle e-mail-adresser er ugyldige."</string>
+    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Nogle e-mailadresser er ugyldige."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen er for stor til at vedhæfte."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Indsæt hurtigt svar"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> og <xliff:g id="NUMBER">%2$d</xliff:g> andre"</string>
@@ -242,7 +242,7 @@
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Adgangskode"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send e-mail fra denne konto som standard."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
-    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Indtast en gyldig e-mail-adresse og adgangskode."</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Indtast en gyldig e-mailadresse og adgangskode."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dobbeltforekomst af konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Du bruger allerede dette brugernavn til kontoen \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Denne adgangskode starter eller slutter med ét eller flere mellemrum. Mange servere understøtter ikke adgangskoder med mellemrum."</string>
@@ -409,8 +409,8 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Vælg en mappe"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Kontoen blev ikke fundet. Den er muligvis blevet fjernet."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mappen blev ikke fundet. Den kan være blevet fjernet."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Det er kun nogle \"Plus\"-konti med POP-adgang, der tillader, at dette program opretter forbindelse. Hvis du ikke kan logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Åbn webbrowseren igen for at få adgang til disse e-mail-konti."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for e-mail-adgang via POP3."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Det er kun nogle \"Plus\"-konti med POP-adgang, der tillader, at dette program opretter forbindelse. Hvis du ikke kan logge ind med din rigtige e-mailadresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Åbn webbrowseren igen for at få adgang til disse e-mailkonti."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mailkonto, skal du gå til T-Onlines websted og oprette en adgangskode for e-mailadgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Kontoen kunne ikke oprettes. Prøv igen."</string>
@@ -458,7 +458,7 @@
     <string name="widget_starred" msgid="8290352707134011791">"Stjernemarkeret"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Indlæser..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Tryk for at konfigurere."</string>
-    <string name="widget_no_accounts" msgid="2412482205591224408">"Du har ikke oprettet en e-mail-konto endnu."</string>
+    <string name="widget_no_accounts" msgid="2412482205591224408">"Du har ikke oprettet en e-mailkonto endnu."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Søg i e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søg i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
