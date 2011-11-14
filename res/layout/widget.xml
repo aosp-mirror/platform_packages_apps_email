@@ -59,6 +59,8 @@
                 android:textColor="@color/widget_title_color"
                 />
         </LinearLayout>
+        <!-- Note: We can't set "freezesText" on the widget_unread_count view, as the launcher can
+            restore stale data over updated data. -->
         <TextView
             android:id="@+id/widget_count"
             android:layout_width="wrap_content"
@@ -66,8 +68,7 @@
             android:layout_marginRight="12dip"
             android:textSize="36sp"
             android:textStyle="bold"
-            android:textColor="@color/widget_unread_color"
-            android:freezesText="true" />
+            android:textColor="@color/widget_unread_color" />
         <ImageView
             android:id="@+id/widget_compose"
             android:layout_width="wrap_content"
