@@ -109,6 +109,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private static int PREVIEW_ICON_WIDTH = 62;
     private static int PREVIEW_ICON_HEIGHT = 62;
 
+    // The different levels of zoom: read from the Preferences.
+    private static String[] sZoomSizes = null;
+
     private TextView mSubjectView;
     private TextView mFromNameView;
     private TextView mFromAddressView;
@@ -201,12 +204,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private boolean mRestoredPictureLoaded;
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
-
-    /**
-     * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
-     * {@link Preferences#TEXT_ZOOM_HUGE}.
-     */
-    private static final float[] ZOOM_SCALE_ARRAY = new float[] {0.8f, 0.9f, 1.0f, 1.2f, 1.5f};
 
     public interface Callback {
         /**
@@ -522,7 +519,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private int getWebViewZoom() {
         float density = mContext.getResources().getDisplayMetrics().density;
         int zoom = Preferences.getPreferences(mContext).getTextZoom();
-        return (int) (ZOOM_SCALE_ARRAY[zoom] * density * 100);
+        if (sZoomSizes == null) {
+            sZoomSizes = mContext.getResources()
+                    .getStringArray(R.array.general_preference_text_zoom_size);
+        }
+        return (int)(Float.valueOf(sZoomSizes[zoom]) * density * 100);
     }
 
     private void initContactStatusViews() {
