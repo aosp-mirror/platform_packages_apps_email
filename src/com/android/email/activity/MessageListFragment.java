@@ -1320,6 +1320,13 @@ public class MessageListFragment extends ListFragment
             mIsRefreshable = cursor.mIsRefreshable;
             mCountTotalAccounts = cursor.mCountTotalAccounts;
 
+            // If this is a search result, open the first message.
+            if (UiUtilities.useTwoPane(getActivity()) && mIsFirstLoad && mListContext.isSearch()
+                    && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                onMessageOpen(getMailboxId(), cursor.getLong(MessagesAdapter.COLUMN_ID));
+            }
+
             // Suspend message notifications as long as we're resumed
             adjustMessageNotification(false);
 
