@@ -515,14 +515,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     /**
      * Returns the zoom scale (in percent) which is a combination of the user setting
-     * (tiny, small, normal, large, huge). The intention
+     * (tiny, small, normal, large, huge) and the device density. The intention
      * is for the text to be physically equal in size over different density
-     * screens. We do not need to multiply by the density as webview already takes this
-     * into account when setting the initial scale.
+     * screens.
      */
     private int getWebViewZoom() {
+        float density = mContext.getResources().getDisplayMetrics().density;
         int zoom = Preferences.getPreferences(mContext).getTextZoom();
-        return (int) (ZOOM_SCALE_ARRAY[zoom] * 100);
+        return (int) (ZOOM_SCALE_ARRAY[zoom] * density * 100);
     }
 
     private void initContactStatusViews() {
