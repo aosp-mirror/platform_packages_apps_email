@@ -58,7 +58,7 @@ public class Preferences {
     // "move to older" was the behavior on older versions.
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
 
-    // The following constants are used as offsets into TEXT_ZOOM_ARRAY (below)
+    // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
     public static final int TEXT_ZOOM_TINY = 0;
     public static final int TEXT_ZOOM_SMALL = 1;
     public static final int TEXT_ZOOM_NORMAL = 2;
