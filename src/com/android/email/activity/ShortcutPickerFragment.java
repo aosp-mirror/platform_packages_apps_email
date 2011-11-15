@@ -16,6 +16,13 @@
 
 package com.android.email.activity;
 
+import com.android.email.R;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
@@ -36,13 +43,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-
-import com.android.email.R;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
 
 /**
  * Fragment containing a list of accounts to show during shortcut creation.
@@ -165,6 +165,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
 
     /** Account picker */
     public static class AccountShortcutPickerFragment extends ShortcutPickerFragment {
+        private volatile Boolean mLoadFinished = new Boolean(false);
         private final static String[] ACCOUNT_FROM_COLUMNS = new String[] {
             AccountColumns.DISPLAY_NAME,
         };
@@ -173,6 +174,9 @@ public abstract class ShortcutPickerFragment extends ListFragment
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
             getActivity().setTitle(R.string.account_shortcut_picker_title);
+            if (!mLoadFinished) {
+                getActivity().setVisible(false);
+            }
         }
 
         @Override
@@ -201,6 +205,8 @@ public abstract class ShortcutPickerFragment extends ListFragment
                 return;
             }
             super.onLoadFinished(loader, data);
+            mLoadFinished = true;
+            getActivity().setVisible(true);
         }
 
         @Override
@@ -312,6 +318,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         /** Selection for just the INBOX of an account */
         private final static String INBOX_ONLY_SELECTION = ALL_MAILBOX_SELECTION +
                     " AND " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX;
+        private volatile Boolean mLoadFinished = new Boolean(false);
         /** The currently selected account */
         private Account mAccount;
         /** The filter values; default to allow all mailboxes */
@@ -350,6 +357,9 @@ public abstract class ShortcutPickerFragment extends ListFragment
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
             getActivity().setTitle(R.string.mailbox_shortcut_picker_title);
+            if (!mLoadFinished) {
+                getActivity().setVisible(false);
+            }
         }
 
         @Override
@@ -400,6 +410,8 @@ public abstract class ShortcutPickerFragment extends ListFragment
                 return;
             }
             super.onLoadFinished(loader, data);
+            mLoadFinished = true;
+            getActivity().setVisible(true);
         }
 
         @Override
