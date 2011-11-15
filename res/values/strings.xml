@@ -1159,6 +1159,16 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
         <item>Large text</item>
         <item>Huge text</item>
     </string-array>
+
+    <!-- The message text size values -->
+    <string-array translatable="false" name="general_preference_text_zoom_size">
+        <item>0.8</item>
+        <item>0.9</item>
+        <item>1.0</item>
+        <item>1.2</item>
+        <item>1.5</item>
+    </string-array>
+
     <!-- General preference: Title of the dialog box with options for text zoom. [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_dialog_title">Message text size</string>
     <!-- General preference:  Text zoom.  Value is "tiny" (-2) [CHAR LIMIT=32] -->
