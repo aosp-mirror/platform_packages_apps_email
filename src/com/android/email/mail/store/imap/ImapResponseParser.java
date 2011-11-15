@@ -40,7 +40,7 @@ public class ImapResponseParser {
     /**
      * Literal larger than this will be stored in temp file.
      */
-    private static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 16 * 1024 * 1024;
+    private static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 2 * 1024 * 1024;
 
     /** Input stream */
     private final PeekableInputStream mIn;
