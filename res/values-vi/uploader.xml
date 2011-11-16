@@ -125,7 +125,7 @@
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Chỉ tải ảnh &amp; video lên khi đang sạc"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Tải lên ảnh hiện có"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Tải lên mọi ảnh &amp; video hiện có từ điện thoại của bạn ngay bây giờ"</string>
-    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Bị vô hiệu"</string>
+    <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Bị vô hiệu"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
     <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Đang tải lên (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d trong tổng số %2$d"</string>

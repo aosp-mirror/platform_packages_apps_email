@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"ኢሜይል ፃፍ"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"----------- ዋና መልዕክት---------"\n"ጉዳዩ፡<xliff:g id="SUBJECT">%1$s</xliff:g>"\n" ከ፡<xliff:g id="SENDER">%2$s</xliff:g>"\n"ለ፡<xliff:g id="TO">%3$s</xliff:g>"\n"<xliff:g id="CC_0">%4$s</xliff:g>"\n"  ካርቦን ቅጂ፡"\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>ፃፈ፡"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"ትዕምርተ ጥቅስ ያለበት"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"የተጠቀሰ ጽሁፍ አካትት"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"ፅሁፍ አካት"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"ቢያንስ አንድ ተቀባይ ማከል አለብዎ።"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"አንዳንድ ኢሜይል አድራሻዎች ትክክል አይደሉም።"</string>

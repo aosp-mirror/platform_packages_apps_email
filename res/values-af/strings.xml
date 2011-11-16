@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Skryf e-pos"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronklike boodskap --------"\n"Onderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Van: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Aan: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> het geskryf:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Aangehaalde teks"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Sluit aangehaalde teks in"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Sluit teks in"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Jy moet ten minste een ontvanger byvoeg."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Sekere e-posadresse is ongeldig."</string>
@@ -401,7 +401,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Verwyder rekening"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Sinkroniseeropsies"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Sinkroniseeropsies  (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Sinkroniseer instellings"</string>
+    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Sinkroniseer-instellings"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kontroleer gereeldheid"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dae om te sinkroniseer"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-posrekening"</string>

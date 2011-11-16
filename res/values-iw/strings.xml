@@ -53,11 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"אפשרויות סינכרון"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"סמן כלא נקרא"</string>
     <string name="move_action" msgid="3059189775933985898">"העבר"</string>
-    <!-- no translation found for plus_cc_label (3365150001259912183) -->
-    <skip />
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ עותק/עותק מוסתר"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"הוסף עותק/עותק מוסתר"</string>
-    <!-- no translation found for add_file_attachment (2203398371671979481) -->
-    <skip />
+    <string name="add_file_attachment" msgid="2203398371671979481">"צרף קובץ"</string>
     <string name="close_action" msgid="533058985745238100">"סגור"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"שלח את כל ההודעות"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"בחר קובץ מצורף"</string>
@@ -104,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"גרסה: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"תיבת דואר נכנס"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכבית"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכב"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"טיוטות"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"תיבת דואר יוצא"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"תצוגה משולבת"</string>
@@ -126,19 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"עותק מוסתר"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"נושא"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"מאת:"</string>
-    <!-- no translation found for to (4392614766835725698) -->
-    <skip />
-    <!-- no translation found for cc (7017720927911078193) -->
-    <skip />
-    <!-- no translation found for bcc (3098643138241111579) -->
-    <skip />
-    <!-- no translation found for subject_hint (7253964583324677128) -->
-    <skip />
-    <!-- no translation found for body_hint (4279864165439577668) -->
-    <skip />
+    <string name="to" msgid="4392614766835725698">"אל"</string>
+    <string name="cc" msgid="7017720927911078193">"עותק"</string>
+    <string name="bcc" msgid="3098643138241111579">"עותק מוסתר"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"נושא"</string>
+    <string name="body_hint" msgid="4279864165439577668">"כתוב דוא\"ל"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- הודעה מקורית --------"\n"נושא: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"מאת: <xliff:g id="SENDER">%2$s</xliff:g>"\n"אל: <xliff:g id="TO">%3$s</xliff:g>"\n"עותק: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> כתב:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"טקסט מצוטט"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"כלול טקסט מצוטט"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"כלול טקסט"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"עליך להוסיף נמען אחד לפחות."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"חלק מכתובות הדוא\"ל אינן חוקיות."</string>
@@ -203,10 +196,10 @@
     <item quantity="other" msgid="4437637377522896262">"למחוק את ההודעות?"</item>
   </plurals>
   <plurals name="message_deleted_toast">
-    <item quantity="one" msgid="710742672464447084">"ההודעה נמחקה."</item>
+    <item quantity="one" msgid="710742672464447084">"ההודעה נמחקה"</item>
     <item quantity="other" msgid="6574961322865652255">"ההודעות נמחקו."</item>
   </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"ההודעה נמחקה."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"ההודעה נמחקה"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"ההודעה נשמרה כטיוטה."</string>
     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"לא ניתן להציג את הקובץ המצורף."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"לא ניתן היה לטעון את הקובץ המצורף \"<xliff:g id="FILENAME">%s</xliff:g>\"."</string>
@@ -295,7 +288,7 @@
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"שרת"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"דומיין/שם משתמש"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"השתמש בחיבור מאובטח (SSL)"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"קבל את כל אישורי SSL"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"קבל את כל אישורי ה-SSL"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"אישור לקוח"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"בחר"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"השתמש באישור לקוח"</string>
@@ -462,8 +455,8 @@
     <string name="widget_other_views" msgid="4988574907386539499">"גע בסמל כדי לשנות."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"דואר נכנס משולב"</string>
     <string name="widget_unread" msgid="4404711399009077833">"לא נקרא"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכבית"</string>
-    <string name="widget_loading" msgid="2340962056927255554">"טוען…"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכב"</string>
+    <string name="widget_loading" msgid="2340962056927255554">"טוען..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"גע כדי להגדיר."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"עוד לא הגדרת חשבון דואר אלקטרוני."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
@@ -473,6 +466,5 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"ממתין לתוצאות"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"שרתים מסוימים עשויים לדרוש זמן רב."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"תיקיות"</string>
-    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
-    <skip />
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"סינכרון ברקע של חשבון זה מושבת בזמן נדידה."</string>
 </resources>
