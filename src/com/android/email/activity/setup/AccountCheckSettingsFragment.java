@@ -441,7 +441,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     }
                     int errorCode =
                             result.getInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE);
-                    if (errorCode == MessagingException.AUTHENTICATION_FAILED) {
+                    if (errorCode == MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED) {
                         return new AutoDiscoverResults(true, null);
                     } else if (errorCode != MessagingException.NO_ERROR) {
                         return new AutoDiscoverResults(false, null);
@@ -609,6 +609,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                         : R.string.account_setup_failed_dlg_certificate_message_fmt;
                 break;
             case MessagingException.AUTHENTICATION_FAILED:
+            case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
                 id = TextUtils.isEmpty(message)
                         ? R.string.account_setup_failed_dlg_auth_message
                         : R.string.account_setup_failed_dlg_auth_message_fmt;
