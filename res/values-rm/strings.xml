@@ -165,7 +165,7 @@
     <skip />
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------"\n"Object: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text cità"</string>
+    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Text cità"</string>
     <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
     <skip />
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Vus stuais agiuntar almain in destinatur."</string>

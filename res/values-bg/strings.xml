@@ -53,11 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Опции за синхронизиране"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Непрочетено"</string>
     <string name="move_action" msgid="3059189775933985898">"Местене"</string>
-    <!-- no translation found for plus_cc_label (3365150001259912183) -->
-    <skip />
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ Як/Ск"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Добавяне на Як:/Ск:"</string>
-    <!-- no translation found for add_file_attachment (2203398371671979481) -->
-    <skip />
+    <string name="add_file_attachment" msgid="2203398371671979481">"Прикачване на файл"</string>
     <string name="close_action" msgid="533058985745238100">"Затваряне"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Вс. съобщения: Изпр."</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Избор на прикачен файл"</string>
@@ -126,19 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Ск:"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Тема"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"От:"</string>
-    <!-- no translation found for to (4392614766835725698) -->
-    <skip />
-    <!-- no translation found for cc (7017720927911078193) -->
-    <skip />
-    <!-- no translation found for bcc (3098643138241111579) -->
-    <skip />
-    <!-- no translation found for subject_hint (7253964583324677128) -->
-    <skip />
-    <!-- no translation found for body_hint (4279864165439577668) -->
-    <skip />
+    <string name="to" msgid="4392614766835725698">"До"</string>
+    <string name="cc" msgid="7017720927911078193">"Як"</string>
+    <string name="bcc" msgid="3098643138241111579">"Ск"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"Тема"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Напишете имейл"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Оригинално съобщение --------"\n"Тема: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"От: <xliff:g id="SENDER">%2$s</xliff:g>"\n"До: <xliff:g id="TO">%3$s</xliff:g>"\n"Як: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> написа:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Цитиран текст"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Включване на цитирания текст"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Включване на текста"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Трябва да добавите поне един получател."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Някои имейл адреси са невалидни."</string>
@@ -473,6 +466,5 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Резултатите се изчакват"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Някои сървъри може да отнемат много време."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Папки"</string>
-    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
-    <skip />
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Синхронизирането на заден план за този профил е деактивирано при роуминг."</string>
 </resources>

@@ -53,11 +53,9 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"同步處理選項"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"標示為未讀取"</string>
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
-    <!-- no translation found for plus_cc_label (3365150001259912183) -->
-    <skip />
+    <string name="plus_cc_label" msgid="3365150001259912183">"新增副本/密件副本"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"新增副本/密件副本"</string>
-    <!-- no translation found for add_file_attachment (2203398371671979481) -->
-    <skip />
+    <string name="add_file_attachment" msgid="2203398371671979481">"附加檔案"</string>
     <string name="close_action" msgid="533058985745238100">"關閉"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"傳送所有郵件"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
@@ -126,19 +124,14 @@
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密件副本"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"主旨"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"寄件者："</string>
-    <!-- no translation found for to (4392614766835725698) -->
-    <skip />
-    <!-- no translation found for cc (7017720927911078193) -->
-    <skip />
-    <!-- no translation found for bcc (3098643138241111579) -->
-    <skip />
-    <!-- no translation found for subject_hint (7253964583324677128) -->
-    <skip />
-    <!-- no translation found for body_hint (4279864165439577668) -->
-    <skip />
+    <string name="to" msgid="4392614766835725698">"收件者"</string>
+    <string name="cc" msgid="7017720927911078193">"副本"</string>
+    <string name="bcc" msgid="3098643138241111579">"密件副本"</string>
+    <string name="subject_hint" msgid="7253964583324677128">"主旨"</string>
+    <string name="body_hint" msgid="4279864165439577668">"撰寫電子郵件"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件者：<xliff:g id="TO">%3$s</xliff:g>"\n"副本：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到："\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"引用的文字"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"包含引用文字"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"包含文字"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"部分電子郵件地址無效。"</string>
@@ -473,6 +466,5 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"正在等待結果"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"有些伺服器可能需要較長的時間。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"資料夾"</string>
-    <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
-    <skip />
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"系統會在漫遊時停用這個帳戶的背景同步處理。"</string>
 </resources>
