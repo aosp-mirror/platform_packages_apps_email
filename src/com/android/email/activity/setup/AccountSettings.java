@@ -245,11 +245,6 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return shouldShowNewAccount();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -307,38 +302,9 @@ public class AccountSettings extends PreferenceActivity {
         super.onBackPressed();
     }
 
-    /**
-     * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
-     * so the user is free to edit another account as well.
-     */
-    @Override
-    public Header onGetNewHeader() {
-        Header result = mRequestedAccountHeader;
-        mRequestedAccountHeader = null;
-        return result;
-    }
-
     private void enableDebugMenu() {
         mShowDebugMenu = true;
         invalidateHeaders();
-    }
-
-    /**
-     * Decide if "add account" should be shown
-     */
-    private boolean shouldShowNewAccount() {
-        // If in single pane mode, only add accounts at top level
-        if (!onIsMultiPane()) {
-            return hasHeaders();
-        } else {
-            // If in multi pane mode, only add accounts when showing a top level fragment
-            // Note: null is OK; This is the case when we first launch the activity
-            if ((mCurrentFragment != null)
-                && !(mCurrentFragment instanceof GeneralPreferences)
-                && !(mCurrentFragment instanceof DebugFragment)
-                && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
-        }
-        return true;
     }
 
     private void onAddNewAccount() {
