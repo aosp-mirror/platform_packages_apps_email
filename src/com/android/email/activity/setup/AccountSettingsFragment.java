@@ -66,7 +66,7 @@ import java.util.ArrayList;
  * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
  *       could reduce flicker.
  */
-public class AccountSettingsFragment extends PreferenceFragment {
+public class AccountSettingsFragment extends EmailPreferenceFragment {
 
     // Keys used for arguments bundle
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
