@@ -372,6 +372,12 @@ public class MessageListFragment extends ListFragment
         return root;
     }
 
+    public void setLayout(ThreePaneLayout layout) {
+        if (UiUtilities.useTwoPane(mActivity)) {
+            mListAdapter.setLayout(layout);
+        }
+    }
+
     private void initSearchHeader() {
         if (mSearchHeader == null) {
             ViewGroup root = (ViewGroup) getView();
