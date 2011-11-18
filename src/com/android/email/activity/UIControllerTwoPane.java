@@ -311,6 +311,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         if (isMailboxListInstalled()) {
             getMailboxListFragment().setHighlightedMailbox(fragment.getMailboxId());
         }
+        getMessageListFragment().setLayout(mThreePane);
     }
 
     @Override

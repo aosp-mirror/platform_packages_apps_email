@@ -98,6 +98,8 @@ import java.util.Set;
 
     private final Callback mCallback;
 
+    private ThreePaneLayout mLayout;
+
     /**
      * The actual return type from the loader.
      */
@@ -132,6 +134,10 @@ import java.util.Set;
         super(context.getApplicationContext(), null, 0 /* no auto requery */);
         mResourceHelper = ResourceHelper.getInstance(context);
         mCallback = callback;
+    }
+
+    public void setLayout(ThreePaneLayout layout) {
+        mLayout = layout;
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -182,7 +188,7 @@ import java.util.Set;
     public void bindView(View view, Context context, Cursor cursor) {
         // Reset the view (in case it was recycled) and prepare for binding
         MessageListItem itemView = (MessageListItem) view;
-        itemView.bindViewInit(this);
+        itemView.bindViewInit(this, mLayout);
 
         // TODO: just move thise all to a MessageListItem.bindTo(cursor) so that the fields can
         // be private, and their inter-dependence when they change can be abstracted away.
