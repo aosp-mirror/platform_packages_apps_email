@@ -123,6 +123,10 @@ public class MessageListItemCoordinates {
         return mode;
     }
 
+    public static boolean isMultiPane(Context context) {
+        return UiUtilities.useTwoPane(context);
+    }
+
     /**
      * Returns the layout id to be inflated in this mode.
      */
