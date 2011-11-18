@@ -56,6 +56,7 @@ public class MessageListItem extends View {
     /* package */ long mMailboxId;
     /* package */ long mAccountId;
 
+    private ThreePaneLayout mLayout;
     private MessagesAdapter mAdapter;
     private MessageListItemCoordinates mCoordinates;
     private Context mContext;
@@ -272,8 +273,9 @@ public class MessageListItem extends View {
 
     private void updateBackground() {
         final Drawable newBackground;
+        boolean isMultiPane = MessageListItemCoordinates.isMultiPane(mContext);
         if (mRead) {
-            if (mMode == MODE_WIDE) {
+            if (isMultiPane && mLayout.isLeftPaneVisible()) {
                 if (mWideReadSelector == null) {
                     mWideReadSelector = getContext().getResources()
                             .getDrawable(R.drawable.conversation_wide_read_selector);
@@ -287,7 +289,7 @@ public class MessageListItem extends View {
                 newBackground = mReadSelector;
             }
         } else {
-            if (mMode == MODE_WIDE) {
+            if (isMultiPane && mLayout.isLeftPaneVisible()) {
                 if (mWideUnreadSelector == null) {
                     mWideUnreadSelector = getContext().getResources().getDrawable(
                             R.drawable.conversation_wide_unread_selector);
@@ -496,12 +498,14 @@ public class MessageListItem extends View {
      * Called by the adapter at bindView() time
      *
      * @param adapter the adapter that creates this view
+     * @param layout If this is a three pane implementation, the
+     *            ThreePaneLayout. Otherwise, null.
      */
-    public void bindViewInit(MessagesAdapter adapter) {
+    public void bindViewInit(MessagesAdapter adapter, ThreePaneLayout layout) {
+        mLayout = layout;
         mAdapter = adapter;
         requestLayout();
     }
-
 
     private static final int TOUCH_SLOP = 24;
     private static int sScaledTouchSlop = -1;
