@@ -191,6 +191,13 @@ class MailboxFragmentAdapter extends CursorAdapter {
         return !isHeader(position);
     }
 
+    // The LabelList has headers which are not
+    // enabled.
+    @Override
+    public boolean areAllItemsEnabled() {
+        return false;
+    }
+
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         if (view instanceof MailboxListItem) {
