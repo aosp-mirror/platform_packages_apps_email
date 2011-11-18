@@ -506,15 +506,35 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mAccountVibrateWhen = (ListPreference) findPreference(PREFERENCE_VIBRATE_WHEN);
         Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator.hasVibrator()) {
-            boolean flagsVibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
-            boolean flagsVibrateSilent =
+            // Calculate the value to set based on the choices, and set the value.
+            final boolean vibrateAlways = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
+            final boolean vibrateWhenSilent =
                     0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_WHEN_SILENT);
-            mAccountVibrateWhen.setValue(
-                    flagsVibrate ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
-                    flagsVibrateSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
-                        PREFERENCE_VALUE_VIBRATE_WHEN_NEVER);
-            mAccountVibrateWhen.setOnPreferenceChangeListener(mPreferenceChangeListener);
+            final String vibrateSetting =
+                    vibrateAlways ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
+                        vibrateWhenSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
+                            PREFERENCE_VALUE_VIBRATE_WHEN_NEVER;
+            mAccountVibrateWhen.setValue(vibrateSetting);
+
+            // Update the summary string.
+            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
+            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
+
+            // When the value is changed, update the summary in addition to the setting.
+            mAccountVibrateWhen.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            final String vibrateSetting = newValue.toString();
+                            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
+                            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
+                            mAccountVibrateWhen.setValue(vibrateSetting);
+                            onPreferenceChanged(PREFERENCE_VIBRATE_WHEN, newValue);
+                            return false;
+                        }
+                    });
         } else {
+            // No vibrator present. Remove the preference altogether.
             PreferenceCategory notificationsCategory = (PreferenceCategory)
                     findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
             notificationsCategory.removePreference(mAccountVibrateWhen);
