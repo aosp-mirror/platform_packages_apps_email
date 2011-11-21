@@ -564,7 +564,7 @@ public class SecurityPolicy {
         if (account.mPolicyKey > 0) {
             oldPolicy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
         }
-        boolean policyChanged = !oldPolicy.equals(policy);
+        boolean policyChanged = (oldPolicy == null) || !oldPolicy.equals(policy);
         if (!policyChanged && (TextUtilities.stringOrNullEquals(securityKey,
                 account.mSecuritySyncKey))) {
             Log.d(Logging.LOG_TAG, "setAccountPolicy; policy unchanged");
