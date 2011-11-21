@@ -762,7 +762,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         int index = 0;
         int recvIndex = -1;
         int sendIndex = -1;
-        int policyIndex = -1;
 
         // Create operations for saving the send and recv hostAuths
         // Also, remember which operation in the array they represent
@@ -779,12 +778,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                     .withValues(mHostAuthSend.toContentValues())
                     .build());
         }
-        if (mPolicy != null) {
-            policyIndex = index++;
-            ops.add(ContentProviderOperation.newInsert(mPolicy.mBaseUri)
-                    .withValues(mPolicy.toContentValues())
-                    .build());
-        }
 
         // Create operations for making this the only default account
         // Note, these are always updates because they change existing accounts
@@ -797,16 +790,13 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
         // Now do the Account
         ContentValues cv = null;
-        if (recvIndex >= 0 || sendIndex >= 0 || policyIndex >= 0) {
+        if (recvIndex >= 0 || sendIndex >= 0) {
             cv = new ContentValues();
             if (recvIndex >= 0) {
                 cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
             }
             if (sendIndex >= 0) {
                 cv.put(Account.HOST_AUTH_KEY_SEND, sendIndex);
-            }
-            if (policyIndex >= 0) {
-                cv.put(Account.POLICY_KEY, policyIndex);
             }
         }
 
@@ -830,11 +820,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                 long newId = getId(results[sendIndex].uri);
                 mHostAuthKeySend = newId;
                 mHostAuthSend.mId = newId;
-            }
-            if (policyIndex >= 0) {
-                long newId = getId(results[policyIndex].uri);
-                mPolicyKey = newId;
-                mPolicy.mId = newId;
             }
             Uri u = results[index].uri;
             mId = getId(u);
