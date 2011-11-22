@@ -66,7 +66,8 @@ import java.util.ArrayList;
  * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
  *       could reduce flicker.
  */
-public class AccountSettingsFragment extends EmailPreferenceFragment {
+public class AccountSettingsFragment extends EmailPreferenceFragment
+        implements Preference.OnPreferenceChangeListener {
 
     // Keys used for arguments bundle
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
@@ -284,6 +285,65 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
     }
 
     /**
+     * Listen to all preference changes in this class.
+     * @param preference
+     * @param newValue
+     * @return
+     */
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue){
+        // Can't use a switch here. Falling back to a giant conditional.
+        final String key = preference.getKey();
+        if (key.equals(PREFERENCE_DESCRIPTION)){
+            String summary = newValue.toString().trim();
+            if (TextUtils.isEmpty(summary)) {
+                summary = mAccount.mEmailAddress;
+            }
+            mAccountDescription.setSummary(summary);
+            mAccountDescription.setText(summary);
+            preferenceChanged(PREFERENCE_DESCRIPTION, summary);
+            return false;
+        } else if (key.equals(PREFERENCE_FREQUENCY)) {
+            final String summary = newValue.toString();
+            final int index = mCheckFrequency.findIndexOfValue(summary);
+            mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
+            mCheckFrequency.setValue(summary);
+            preferenceChanged(PREFERENCE_FREQUENCY, newValue);
+            return false;
+        } else if (key.equals(PREFERENCE_SIGNATURE)) {
+            // Clean up signature if it's only whitespace (which is easy to do on a
+            // soft keyboard) but leave whitespace in place otherwise, to give the user
+            // maximum flexibility, e.g. the ability to indent
+            String signature = newValue.toString();
+            if (signature.trim().isEmpty()) {
+                signature = "";
+            }
+            mAccountSignature.setText(signature);
+            preferenceChanged(PREFERENCE_SIGNATURE, signature);
+            return false;
+        } else if (key.equals(PREFERENCE_NAME)) {
+            final String summary = newValue.toString().trim();
+            if (!TextUtils.isEmpty(summary)) {
+                mAccountName.setSummary(summary);
+                mAccountName.setText(summary);
+                preferenceChanged(PREFERENCE_NAME, summary);
+            }
+            return false;
+        } else if (key.equals(PREFERENCE_VIBRATE_WHEN)) {
+            final String vibrateSetting = newValue.toString();
+            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
+            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
+            mAccountVibrateWhen.setValue(vibrateSetting);
+            preferenceChanged(PREFERENCE_VIBRATE_WHEN, newValue);
+            return false;
+        } else {
+            // Default behavior, just indicate that the preferences were written
+            preferenceChanged(key, newValue);
+            return true;
+        }
+    }
+
+    /**
      * Called when the fragment is no longer in use.
      */
     @Override
@@ -412,20 +472,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDisplayName());
         mAccountDescription.setText(mAccount.getDisplayName());
-        mAccountDescription.setOnPreferenceChangeListener(
-            new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    String summary = newValue.toString().trim();
-                    if (TextUtils.isEmpty(summary)) {
-                        summary = mAccount.mEmailAddress;
-                    }
-                    mAccountDescription.setSummary(summary);
-                    mAccountDescription.setText(summary);
-                    onPreferenceChanged(PREFERENCE_DESCRIPTION, summary);
-                    return false;
-                }
-            }
-        );
+        mAccountDescription.setOnPreferenceChangeListener(this);
 
         mAccountName = (EditTextPreference) findPreference(PREFERENCE_NAME);
         String senderName = mAccount.getSenderName();
@@ -433,35 +480,11 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
         if (senderName == null) senderName = "";
         mAccountName.setSummary(senderName);
         mAccountName.setText(senderName);
-        mAccountName.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                final String summary = newValue.toString().trim();
-                if (!TextUtils.isEmpty(summary)) {
-                    mAccountName.setSummary(summary);
-                    mAccountName.setText(summary);
-                    onPreferenceChanged(PREFERENCE_NAME, summary);
-                }
-                return false;
-            }
-        });
+        mAccountName.setOnPreferenceChangeListener(this);
 
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
         mAccountSignature.setText(mAccount.getSignature());
-        mAccountSignature.setOnPreferenceChangeListener(
-            new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    // Clean up signature if it's only whitespace (which is easy to do on a
-                    // soft keyboard) but leave whitespace in place otherwise, to give the user
-                    // maximum flexibility, e.g. the ability to indent
-                    String signature = newValue.toString();
-                    if (signature.trim().isEmpty()) {
-                        signature = "";
-                    }
-                    mAccountSignature.setText(signature);
-                    onPreferenceChanged(PREFERENCE_SIGNATURE, signature);
-                    return false;
-                }
-            });
+        mAccountSignature.setOnPreferenceChangeListener(this);
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
 
@@ -474,16 +497,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
 
         mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
-        mCheckFrequency.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                final String summary = newValue.toString();
-                int index = mCheckFrequency.findIndexOfValue(summary);
-                mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
-                mCheckFrequency.setValue(summary);
-                onPreferenceChanged(PREFERENCE_FREQUENCY, newValue);
-                return false;
-            }
-        });
+        mCheckFrequency.setOnPreferenceChangeListener(this);
 
         findPreference(PREFERENCE_QUICK_RESPONSES).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -511,12 +525,13 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);
             mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String summary = newValue.toString();
                     int index = mSyncWindow.findIndexOfValue(summary);
                     mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
                     mSyncWindow.setValue(summary);
-                    onPreferenceChanged(preference.getKey(), newValue);
+                    preferenceChanged(preference.getKey(), newValue);
                     return false;
                 }
             });
@@ -531,19 +546,19 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
         } else {
             mAccountBackgroundAttachments.setChecked(
                     0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
-            mAccountBackgroundAttachments.setOnPreferenceChangeListener(mPreferenceChangeListener);
+            mAccountBackgroundAttachments.setOnPreferenceChangeListener(this);
         }
 
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
         mAccountDefault.setChecked(mAccount.mId == mDefaultAccountId);
-        mAccountDefault.setOnPreferenceChangeListener(mPreferenceChangeListener);
+        mAccountDefault.setOnPreferenceChangeListener(this);
 
         mAccountNotify = (CheckBoxPreference) findPreference(PREFERENCE_NOTIFY);
         mAccountNotify.setChecked(0 != (mAccount.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL));
-        mAccountNotify.setOnPreferenceChangeListener(mPreferenceChangeListener);
+        mAccountNotify.setOnPreferenceChangeListener(this);
 
         mAccountRingtone = (RingtonePreference) findPreference(PREFERENCE_RINGTONE);
-        mAccountRingtone.setOnPreferenceChangeListener(mPreferenceChangeListener);
+        mAccountRingtone.setOnPreferenceChangeListener(this);
 
         // The following two lines act as a workaround for the RingtonePreference
         // which does not let us set/get the value programmatically
@@ -569,18 +584,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
             mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
 
             // When the value is changed, update the summary in addition to the setting.
-            mAccountVibrateWhen.setOnPreferenceChangeListener(
-                    new Preference.OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            final String vibrateSetting = newValue.toString();
-                            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
-                            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
-                            mAccountVibrateWhen.setValue(vibrateSetting);
-                            onPreferenceChanged(PREFERENCE_VIBRATE_WHEN, newValue);
-                            return false;
-                        }
-                    });
+            mAccountVibrateWhen.setOnPreferenceChangeListener(this);
         } else {
             // No vibrator present. Remove the preference altogether.
             PreferenceCategory notificationsCategory = (PreferenceCategory)
@@ -619,6 +623,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
 
         retryAccount.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
+                    @Override
                     public boolean onPreferenceClick(Preference preference) {
                         // Release the account
                         SecurityPolicy.setAccountHoldFlag(mContext, mAccount, false);
@@ -629,6 +634,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
                 });
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
+                    @Override
                     public boolean onPreferenceClick(Preference preference) {
                         mAccountDirty = true;
                         mCallback.onIncomingSettings(mAccount);
@@ -651,6 +657,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
         if (showOutgoing) {
             prefOutgoing.setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
+                        @Override
                         public boolean onPreferenceClick(Preference preference) {
                             mAccountDirty = true;
                             mCallback.onOutgoingSettings(mAccount);
@@ -671,13 +678,13 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
                     AccountManagerTypes.TYPE_EXCHANGE);
             mSyncContacts.setChecked(ContentResolver
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
-            mSyncContacts.setOnPreferenceChangeListener(mPreferenceChangeListener);
+            mSyncContacts.setOnPreferenceChangeListener(this);
             mSyncCalendar.setChecked(ContentResolver
                     .getSyncAutomatically(acct, CalendarProviderStub.AUTHORITY));
-            mSyncCalendar.setOnPreferenceChangeListener(mPreferenceChangeListener);
+            mSyncCalendar.setOnPreferenceChangeListener(this);
             mSyncEmail.setChecked(ContentResolver
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
-            mSyncEmail.setOnPreferenceChangeListener(mPreferenceChangeListener);
+            mSyncEmail.setOnPreferenceChangeListener(this);
         } else {
             dataUsageCategory.removePreference(mSyncContacts);
             dataUsageCategory.removePreference(mSyncCalendar);
@@ -688,6 +695,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
         Preference prefDeleteAccount = findPreference(PREFERENCE_DELETE_ACCOUNT);
         prefDeleteAccount.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
+                    @Override
                     public boolean onPreferenceClick(Preference preference) {
                         DeleteAccountFragment dialogFragment = DeleteAccountFragment.newInstance(
                                 mAccount, AccountSettingsFragment.this);
@@ -700,21 +708,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
     }
 
     /**
-     * Generic onPreferenceChanged listener for the preferences (above) that just need
-     * to be written, without extra tweaks
-     */
-    private final Preference.OnPreferenceChangeListener mPreferenceChangeListener =
-        new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                onPreferenceChanged(preference.getKey(), newValue);
-                return true;
-            }
-    };
-
-    /**
      * Called any time a preference is changed.
      */
-    private void onPreferenceChanged(String preference, Object value) {
+    private void preferenceChanged(String preference, Object value) {
         mCallback.onSettingsChanged(mAccount, preference, value);
         mSaveOnExit = true;
     }
@@ -808,6 +804,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
                 .setPositiveButton(
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Fragment f = getTargetFragment();
                                 if (f instanceof AccountSettingsFragment) {
@@ -819,6 +816,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment {
                 .setNegativeButton(
                         R.string.cancel_action,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dismiss();
                             }
