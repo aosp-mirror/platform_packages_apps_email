@@ -13,41 +13,44 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/waiting_for_sync_message"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dip"
-    >
+    android:background="@android:color/white"
+    android:id="@+id/waiting_for_sync_message">
+
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|top"
-        >
+        android:gravity="center"
+        android:id="@+id/wait_for_sync_wrapper"
+        android:layout_marginTop="16dip"
+        android:layout_marginLeft="16dip">
+
         <ProgressBar
-            android:id="@+id/progress"
+            android:indeterminate="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="8dip"
-            />
+            android:id="@+id/progress_spinner"/>
+
         <TextView
-          android:id="@+id/title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/progress"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/waitinf_for_sync_message_1"
-            />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/title"
+            android:layout_toRightOf="@id/progress_spinner"
+            android:layout_marginLeft="4dip" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/progress"
-            android:layout_below="@+id/title"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/waitinf_for_sync_message_2"
-            />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_below="@id/title"
+            android:layout_toRightOf="@id/progress_spinner"
+            android:layout_marginLeft="4dip" />
+
     </RelativeLayout>
-</FrameLayout>
+
+</RelativeLayout>
