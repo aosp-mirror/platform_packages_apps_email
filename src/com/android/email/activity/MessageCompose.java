@@ -1778,7 +1778,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
 
-        if (isOpenedFromWidget() || !systemKey) {
+        if ((isOpenedFromWidget() || !systemKey) && (mAccount != null)) {
             // Otherwise, need to open the main screen for the appropriate account.
             // Note that mAccount should always be set by the time the action bar is set up.
             startActivity(Welcome.createOpenAccountInboxIntent(this, mAccount.mId));
