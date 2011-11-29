@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"撰寫電子郵件"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件者：<xliff:g id="TO">%3$s</xliff:g>"\n"副本：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到："\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"引用的文字"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"包含引用文字"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"包含文字"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"部分電子郵件地址無效。"</string>
@@ -486,5 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"這主意不錯！"</string>
     <string name="quick_3" msgid="8061819976353395585">"我稍晚看過後回覆您。"</string>
     <string name="quick_4" msgid="3988974084396883051">"開會討論吧。"</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"這個帳戶的背景同步處理會在漫遊時停用。"</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"系統會在漫遊時停用這個帳戶的背景同步處理。"</string>
 </resources>

@@ -35,7 +35,7 @@
     <string name="uploading_for" msgid="1735961974624867111">" "<b>"%s"</b>" के लिए"</string>
     <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"अपलोड प्रारंभ विफल."</string>
-    <string name="toast_file_error" msgid="1315722681020841350">"फ़ाइल उपलब्ध नहीं है."</string>
+    <string name="toast_file_error" msgid="1315722681020841350">"फ़ाइल उपलब्ध नहीं है."</string>
     <string name="account_error" msgid="1904775271866104941">"खाता जानकारी पुनर्प्राप्त करने में विफल."</string>
     <string name="toast_failed_auth" msgid="2196450105656960566">"आपके खाते में साइन इन करने में समस्या थी."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
@@ -58,7 +58,7 @@
     <string name="retry_in_5min" msgid="3153220715959570358">"5 मिनट"</string>
     <string name="retry_no_data" msgid="630347885498641534">"कोई डेटा कनेक्शन नहीं"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"खाते में डिस्‍क कोटा नहीं है"</string>
-    <string name="completed_no_file" msgid="6719715000947601844">"फ़ाइल नहीं मिली"</string>
+    <string name="completed_no_file" msgid="6719715000947601844">"फ़ाइल नहीं मिली"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"सेवा त्रुटि"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"नेटवर्क त्रुटि"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"प्रमाणीकरण विफल"</string>
@@ -80,10 +80,10 @@
     <string name="notify_resolved" msgid="8111194870485485674">"अपलोड पूर्ण"</string>
     <string name="notify_paused" msgid="3999817913227671338">"अपलोड रोके गए"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"झटपट अपलोड अभी तक सक्रिय नहीं किया गया"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"बड़ी फ़ाइलें केवल WiFi कनेक्शन पर ही अपलोड की जाएंगी."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"बड़ी फ़ाइलें केवल WiFi कनेक्शन पर ही अपलोड की जाएंगी."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"फ़ाइलों के लिए स्कैन कर रहा है..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"अपलोड करने के लिए <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> फ़ोटो और <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> वीडियो तैयार किए जा रहे हैं..."</string>
-    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"कोई अतिरिक्त फ़ोटो/वीडियो अपलोड करने की आवश्यकता नहीं है."</string>
+    <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"कोई अतिरिक्त फ़ोटो/वीडियो अपलोड करने की आवश्यकता नहीं है."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"सर्वर के साथ संचार करने में समस्या थी. कृपया बाद में पुनः प्रयास करें."</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"सभी रद्द किए गए समन्वयित करें"</string>
     <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"सभी को समन्वयित करें"</string>
@@ -92,18 +92,18 @@
     <string name="preference_category_title_general" msgid="330919434495694575">"सामान्य"</string>
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"सभी अपलोड रोकें"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"पावर"</string>
-    <string name="preference_summary_need_power" msgid="1829578224249216151">"केवल तभी अपलोड करें जब फ़ोन चार्ज किया जा रहा हो."</string>
+    <string name="preference_summary_need_power" msgid="1829578224249216151">"केवल तभी अपलोड करें जब फ़ोन चार्ज किया जा रहा हो."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
     <string name="preference_summary_need_wifi" msgid="4627730244549568487">"केवल तभी अपलोड करें जब Wi-Fi उपलब्ध हो."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"फ़ोटो"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"खाता"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"अपलोड परिस्थितियां"</string>
-    <string name="preference_title_photo_size" msgid="2291608017215972660">"फ़ोटो आकार"</string>
+    <string name="preference_title_photo_size" msgid="2291608017215972660">"फ़ोटो आकार"</string>
     <string name="preference_category_title_videos" msgid="8962400910793075570">"वीडियो"</string>
     <string name="preference_title_videos_account" msgid="6675545508568161301">"खाता"</string>
-    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"वीडियो अपलोड करने के लिए फ़ोटो खाता उपयोग किया जाएगा."</string>
+    <string name="preference_title_videos_account_summary" msgid="2925385281151195648">"वीडियो अपलोड करने के लिए फ़ोटो खाता उपयोग किया जाएगा."</string>
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"अपलोड परिस्थितियां"</string>
-    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"अभी फ़ोटो कनेक्टिविटी सेटिंग का उपयोग किया जा रहा है."</string>
+    <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"अभी फ़ोटो कनेक्टिविटी सेटिंग का उपयोग किया जा रहा है."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"मोबाइल नेटवर्क द्वारा केवल फ़ोटो"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"मोबाइल नेटवर्क द्वारा फ़ोटो और वीडियो"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"केवल Wi-Fi द्वारा फ़ोटो और वीडियो"</string>

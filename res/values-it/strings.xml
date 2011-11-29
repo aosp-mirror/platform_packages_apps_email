@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Scrivi email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messaggio originale --------"\n"Oggetto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scritto:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Testo tra virgolette"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Includi testo citato"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Includi testo"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Devi aggiungere almeno un destinatario."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Alcuni indirizzi email non sono validi."</string>
@@ -241,7 +241,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Indirizzo email"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Password"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Invia email da questo account per impostazione predefinita."</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configurazione manuale"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Config. manuale"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Digita un indirizzo email e una password validi."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Account duplicato"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizzi già questo nome utente per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>

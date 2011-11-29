@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Skriv ett e-postmeddelande"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Ursprungligt meddelande --------"\n"Ämne: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Från: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Till: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopia: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Citerad text"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Inkludera citerad text"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Inkludera text"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du måste lägga till minst en mottagare."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Några av e-postadresserna är ogiltiga."</string>
