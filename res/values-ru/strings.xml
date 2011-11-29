@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Текст сообщения"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Исходное сообщение --------"\n"Тема: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"От: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Кому: <xliff:g id="TO">%3$s</xliff:g>"\n"Копия: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Пользователь <xliff:g id="SENDER">%s</xliff:g> писал:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Цитируемый текст"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Включить цитируемый текст"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Включить исходный текст в ответ"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Добавьте хотя бы одного получателя."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Некоторые адреса электронной почты являются недопустимыми."</string>
@@ -486,5 +486,5 @@
     <string name="quick_2" msgid="4188036352885736617">"Отличная идея!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Я отвечу позже."</string>
     <string name="quick_4" msgid="3988974084396883051">"Это нужно обсудить при встрече."</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"В роуминге фоновая синхронизация для этого аккаунта отключена."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Для этого аккаунта отключена фоновая синхронизация в роуминге."</string>
 </resources>

@@ -3,8 +3,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="7812006268714926951">"Øjeblikkelig Upload"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Album for Øjeblikkelig Upload"</string>
+    <string name="application_name" msgid="7812006268714926951">"Øjeblikkelig upload"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Album for Øjeblikkelig upload"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"uploader"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Afsluttet"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Midlertidigt standset"</string>
@@ -76,10 +76,10 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Synkroniser alle"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Sidste synkronisering:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Listen over afsluttede punkter er tom."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Øjeblikkelig Upload"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Øjeblikkelig upload"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Uploads er afsluttet"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Uploads er midlertidigt standset"</string>
-    <string name="notify_activation_reminder" msgid="1639234651193843030">"Øjeblikkelig Upload er ikke aktiveret endnu"</string>
+    <string name="notify_activation_reminder" msgid="1639234651193843030">"Øjeblikkelig upload er ikke aktiveret endnu"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"Store filer vil kun uploades via en Wi-Fi-forbindelse."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Søger efter filer..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Forbereder <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> billeder og <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> videoer til upload..."</string>
@@ -114,7 +114,7 @@
     <string name="pause_state_need_media" msgid="3849758767808306320">"midlertidigt standset – SD-kort ikke tilgængeligt"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD-kortet er ikke tilgængeligt"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Indst. for Øjeb. upload"</string>
-    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Øjeblikkelig Upload"</string>
+    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Øjeblikkelig upload"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Upload automatisk nye billeder og videoer til et privat album på nettet"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Uploadstatus"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Avanceret"</string>

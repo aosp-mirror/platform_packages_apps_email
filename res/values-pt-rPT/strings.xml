@@ -115,8 +115,8 @@
     <string name="message_is_empty_description" msgid="4004644319382041459">"Sem assunto"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
   <plurals name="message_view_selected_message_count">
-    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionada(s)"</item>
-    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionada(s)"</item>
+    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selecionada(s)"</item>
+    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selecionada(s)"</item>
   </plurals>
     <string name="message_list_no_messages" msgid="7846910091922523867">"Não tem mensagens"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Escrever e-mail"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem original --------"\n"Assunto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escreveu:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Texto entre aspas"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Incluir texto citado"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Incluir texto"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Tem de adicionar pelo menos um destinatário."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Alguns endereços de e-mail são inválidos."</string>
