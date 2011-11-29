@@ -144,7 +144,7 @@
     <string name="message_view_date_label" msgid="7033814961837313339">"Tarehe:"</string>
     <string name="message_view_from_label" msgid="6055076379282772675">"Kutoka:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Kichwa:"</string>
-    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Onyesha"</string>
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Tazama"</string>
     <string name="message_view_attachment_install_action" msgid="381211378884166381">"Sakinisha"</string>
     <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Cheza"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Pakia"</string>
@@ -184,9 +184,9 @@
     <string name="attachment_info_malware" msgid="6576029010855055528">"Hauwezi kuhifadhi au kufungua faili hii kwa sababu ya aina hii ya kiambatisho kinaweza kuwa na programu hasidi."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"KIambatisho hiki hakiwezi kuhifadhiwa au kufunguliwa kwa sababu ya sera za usalama za akaunti hii."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Kiambataisho hiki ni kirefu mno kuweza kupakua kupitia kwa mtandao wa simu. Unaweza kuipakua wakati mwingine ukiunganisha kwa mtandao-hewa."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Hakuna programu zilizosakinishwa ambazo zinaweza kufungua kiambatisho hiki. Jaribu kupakua programuramu ifaayo kutoka kwa Android Market."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Hakuna programu zilizosakinishwa ambazo zinaweza kufungua kiambatisho hiki. Jaribu kupakua programu ifaayo kutoka kwa Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Kiambatisho hiki ni programu. Unapaswa kuangalia Vyanzo Visivyojulikana katika Mipangilio &amp;gt, Prog kabla uweze kuisanidi."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Prog haziwezi kusakinishwa moja kwa moja kutoka kwa barua pepe. Kwanza hifadhi programuramu hii na kisha isakinishe kwa kutumia programuramu za Upakuzi."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Prog haziwezi kusakinishwa moja kwa moja kutoka kwa barua pepe. Kwanza hifadhi programu hii na kisha isakinishe kwa kutumia programu za Upakuzi."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Haikuweza kupakia kiambatisho hiki."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Kulikuwa na hitilafu wakati wa usimbuaji wa ujumbe."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Kutazama <xliff:g id="FILENAME">%s</xliff:g>"</string>
