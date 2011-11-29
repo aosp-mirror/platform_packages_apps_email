@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"Напишете имейл"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Оригинално съобщение --------"\n"Тема: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"От: <xliff:g id="SENDER">%2$s</xliff:g>"\n"До: <xliff:g id="TO">%3$s</xliff:g>"\n"Як: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> написа:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Цитиран текст"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Включване на цитирания текст"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Включване на текста"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Трябва да добавите поне един получател."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Някои имейл адреси са невалидни."</string>

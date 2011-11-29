@@ -37,14 +37,14 @@
     <string name="create_action" msgid="3062715563215392251">"नया बनाएं"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"हटाएं"</string>
     <string name="quick_responses_empty_view" msgid="1693308598242828422">"कोई त्वरित प्रतिसाद नहीं"</string>
-    <string name="discard_action" msgid="6532206074859505968">"छोड़ें"</string>
+    <string name="discard_action" msgid="6532206074859505968">"छोड़ें"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"ड्राफ़्ट सहेजें"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"त्वरित प्रतिसाद शामिल करें"</string>
     <string name="read_action" msgid="4701484794504781686">"पढ़ी गई चिह्नित करें"</string>
     <string name="unread_action" msgid="6280399049357552826">"बिना पढ़ी के रूप में चिह्नित करें"</string>
     <string name="set_star_action" msgid="4660317166196258160">"तारा जोड़ें"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"तारा निकालें"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"रीफ़्रेश करें"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"रीफ़्रेश करें"</string>
     <string name="add_account_action" msgid="8835736309476033727">"खाता जोड़ें"</string>
     <string name="compose_action" msgid="4045702519637388045">"लिखें"</string>
     <string name="search_action" msgid="6325101454876682308">"खोज"</string>
@@ -54,7 +54,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"बिना पढ़ी के रूप में चिह्नित करें"</string>
     <string name="move_action" msgid="3059189775933985898">"ले जाएं"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"Cc/Bcc जोड़ें"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc जोड़ें"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc जोड़ें"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"फ़ाइल अनुलग्‍न करें"</string>
     <string name="close_action" msgid="533058985745238100">"बंद करें"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"सभी संदेश भेजें"</string>
@@ -131,7 +131,7 @@
     <string name="body_hint" msgid="4279864165439577668">"ईमेल लिखें"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------मूल संदेश --------"\n"विषय: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"प्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>"\n"प्रति: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ने लिखा:"\n\n</string>
-    <!-- outdated translation 5722467956990009520 -->     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"उद्धरित पाठ"</string>
+    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"उद्धरित पाठ शामिल करें"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"पाठ शामिल करें"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"आपको कम से कम एक प्राप्तकर्ता जोड़ना चाहिए."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"कुछ ईमेल पते अमान्‍य हैं."</string>
@@ -200,7 +200,7 @@
     <item quantity="other" msgid="6574961322865652255">"संदेश हटाए गए."</item>
   </plurals>
     <string name="message_discarded_toast" msgid="3891461729325584026">"संदेश छोड़ दिया गया."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"संदेश ड्राफ़्ट के रूप में सहेजा गया."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"संदेश ड्राफ़्ट के रूप में सहेजा गया."</string>
     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"अनुलग्‍नक प्रदर्शित नहीं हो सकता."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"अनुलग्नक \" <xliff:g id="FILENAME">%s</xliff:g>\" लोड नहीं किया जा सका."</string>
     <string name="message_view_parse_message_toast" msgid="8830378966553031281">"संदेश खोल रहा है…"</string>
@@ -320,7 +320,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"दो सप्‍ताह"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"एक माह"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"सभी"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"खाते के डिफ़ॉल्ट का उपयोग करें"</string>
+    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"खाते के डिफ़ॉल्ट का उपयोग करें"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"उपयोगकर्तानाम या पासवर्ड गलत है."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"उपयोगकर्ता नाम या पासवर्ड गलत है."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
