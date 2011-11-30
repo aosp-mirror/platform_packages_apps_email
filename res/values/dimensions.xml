@@ -77,4 +77,5 @@
     <dimen name="replystate_margin_top">10sp</dimen>
     <dimen name="checkmark_margin_top">3sp</dimen>
     <dimen name="star_margin_top">28sp</dimen>
+    <dimen name="date_margin_top">9sp</dimen>
 </resources>

@@ -80,8 +80,7 @@
             android:layout_width="80dip"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_above="@+id/star"
-            android:layout_marginBottom="@dimen/message_list_icon_padding_compensation"
+            android:layout_marginTop="@dimen/date_margin_top"
             android:orientation="horizontal"
             >
             <!-- reserve enough vertical space for two icons -->
