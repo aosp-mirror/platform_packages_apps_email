@@ -418,7 +418,8 @@ public class MessageListItem extends View {
     }
 
     private int getFontColor(int defaultColor) {
-        return isActivated() ? ACTIVATED_TEXT_COLOR : defaultColor;
+        return isActivated() && MessageListItemCoordinates.isMultiPane(mContext) ?
+                ACTIVATED_TEXT_COLOR : defaultColor;
     }
 
     @Override
