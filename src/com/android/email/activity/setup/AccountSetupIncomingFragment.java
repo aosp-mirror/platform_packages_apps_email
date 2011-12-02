@@ -285,6 +285,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private void configureEditor() {
         if (mConfigured) return;
         Account account = SetupData.getAccount();
+        if (account == null) {
+            return;
+        }
         TextView lastView = mImapPathPrefixView;
         mBaseScheme = account.mHostAuthRecv.mProtocol;
         if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
