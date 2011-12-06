@@ -136,7 +136,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Debes especificar, al menos, un destinatario."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Algunas direcciones de correo electrónico no son válidas."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"El archivo es demasiado grande para adjuntarlo."</string>
-    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Insertar respuesta rápida"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Usar respuesta rápida"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> y <xliff:g id="NUMBER">%2$d</xliff:g> más"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"CC:"</string>
@@ -367,9 +367,9 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"Frecuencia de sincronización, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar en barra del sistema cuando llegue un correo electrónico"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Comprobar si hay mensajes nuevos"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuración entrante"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Ajustes de entrada"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nombre usuario, contraseña y otros ajustes servidor de entrada"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuración saliente"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ajustes de salida"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nombre usuario, contraseña y otros ajustes servidor de salida"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de cuenta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tu nombre"</string>
