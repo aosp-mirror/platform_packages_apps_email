@@ -157,7 +157,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
             + " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5"
             // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
             + " ELSE 10 END"
-            + " ," + MailboxColumns.DISPLAY_NAME;
+            + " ," + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
 
     /** View is of a "normal" row */
     private static final int ITEM_VIEW_TYPE_NORMAL = 0;
