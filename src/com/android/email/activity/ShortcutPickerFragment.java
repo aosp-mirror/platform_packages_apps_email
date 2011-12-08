@@ -380,7 +380,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
             final String selection;
             if (recvAuth.isEasConnection()) {
                 projection = EAS_PROJECTION;
-                orderBy = MailboxColumns.DISPLAY_NAME;
+                orderBy = MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
             } else {
                 projection = IMAP_PROJECTION;
                 orderBy = MailboxColumns.SERVER_ID;
