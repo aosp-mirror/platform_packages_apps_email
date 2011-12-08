@@ -54,7 +54,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
     <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"\"Cc\"/\"Bcc\" hinzuf."</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc hinzufügen"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Datei anhängen"</string>
     <string name="close_action" msgid="533058985745238100">"Schließen"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Alle senden"</string>
