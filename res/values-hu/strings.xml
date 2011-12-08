@@ -395,7 +395,7 @@
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Rezgés"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Válasszon csengőhangot"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Szerverbeállítások"</string>
-    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Fiók eltávolítása"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Fiók törlése"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"A(z) \"<xliff:g id="ACCOUNT">%s</xliff:g>\" fiók el lesz távolítva az e-mail szolgáltatásból."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Fiók törlése"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Fiók törlése"</string>
