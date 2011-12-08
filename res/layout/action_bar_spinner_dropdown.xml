@@ -20,9 +20,8 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:attr/spinnerDropDownItemStyle"
+    android:layout_height="48dip"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="48dip"
     android:gravity="center_vertical">
 
     <RelativeLayout
@@ -35,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:ellipsize="end"
-            style="@style/AccountSpinnerDropdownTextPrimary" />
+            style="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
 
         <TextView
             android:id="@+id/email_address"
@@ -45,7 +44,7 @@
             android:layout_below="@id/display_name"
             android:layout_alignWithParentIfMissing="true"
             android:layout_centerVertical="true"
-            style="@style/AccountSpinnerDropdownTextSecondary" />
+            style="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle"/>
 
     </RelativeLayout>
     <RelativeLayout

@@ -23,6 +23,23 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <style name="action_bar_spinner_primary_text">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_primary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="action_bar_spinner_secondary_text">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_marginTop">-2dip</item>
+    </style>
+
     <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
         <item name="android:layout_width">32dip</item>
         <item name="android:layout_height">24dip</item>
