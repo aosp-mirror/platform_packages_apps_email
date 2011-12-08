@@ -17,4 +17,5 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/display_name"
     android:ellipsize="end"
+    android:textColor="@color/label_list_heading_text_color"
     style="?android:attr/listSeparatorTextViewStyle" />
