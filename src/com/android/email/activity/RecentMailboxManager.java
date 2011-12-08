@@ -42,7 +42,8 @@ public class RecentMailboxManager {
     @VisibleForTesting
     static RecentMailboxManager sInstance;
 
-    public static String RECENT_MAILBOXES_SORT_ORDER = MailboxColumns.DISPLAY_NAME;
+    public static String RECENT_MAILBOXES_SORT_ORDER =
+            MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
 
     /** The maximum number of results to retrieve */
     private static final int LIMIT_RESULTS = 5;
