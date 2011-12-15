@@ -21,25 +21,10 @@ import com.android.ex.chips.RecipientEditTextView;
 
 import android.accounts.Account;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 public class RecipientAdapter extends BaseRecipientAdapter {
     public RecipientAdapter(Context context, RecipientEditTextView list) {
         super(context);
-        Resources r = context.getResources();
-        Bitmap def = BitmapFactory.decodeResource(r, R.drawable.ic_contact_picture);
-        list.setChipDimensions(
-                r.getDrawable(R.drawable.chip_background),
-                r.getDrawable(R.drawable.chip_background_selected),
-                r.getDrawable(R.drawable.chip_background_invalid),
-                r.getDrawable(R.drawable.chip_delete), def, R.layout.more_item,
-                R.layout.chips_alternate_item,
-                        r.getDimension(R.dimen.chip_height),
-                        r.getDimension(R.dimen.chip_padding),
-                        r.getDimension(R.dimen.chip_text_size),
-                        R.layout.copy_chip_dialog_layout);
     }
 
     /**
@@ -52,20 +37,5 @@ public class RecipientAdapter extends BaseRecipientAdapter {
             // type from the email account
             super.setAccount(new android.accounts.Account(account.name, "unknown"));
         }
-    }
-
-    @Override
-    protected int getDefaultPhotoResource() {
-        return R.drawable.ic_contact_picture;
-    }
-
-    @Override
-    protected int getItemLayout() {
-        return R.layout.chips_recipient_dropdown_item;
-    }
-
-    @Override
-    protected int getWaitingForDirectorySearchLayout() {
-        return R.layout.chips_waiting_for_directory_search;
     }
 }
