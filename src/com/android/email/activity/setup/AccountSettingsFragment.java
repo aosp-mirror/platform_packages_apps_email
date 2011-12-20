@@ -692,7 +692,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
      * Dialog fragment to show "remove account?" dialog
      */
     public static class DeleteAccountFragment extends DialogFragment {
-        private final static String TAG = "DeleteAccountFragment";
+        final static String TAG = "DeleteAccountFragment";
 
         // Argument bundle keys
         private final static String BUNDLE_KEY_ACCOUNT_NAME = "DeleteAccountFragment.Name";
