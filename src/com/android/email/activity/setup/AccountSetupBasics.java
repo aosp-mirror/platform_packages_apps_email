@@ -701,7 +701,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Dialog fragment to show "setup note" dialog
      */
     public static class NoteDialogFragment extends DialogFragment {
-        private final static String TAG = "NoteDialogFragment";
+        final static String TAG = "NoteDialogFragment";
 
         // Argument bundle keys
         private final static String BUNDLE_KEY_NOTE = "NoteDialogFragment.Note";
