@@ -455,10 +455,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
         if (HostAuth.SCHEME_EAS.equals(protocol)) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
-            mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
-            mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             mSyncWindow.setSummary(mSyncWindow.getEntry());
+            MailboxSettings.setupLookbackPreferenceOptions(mContext, mSyncWindow, mAccount);
 
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);
