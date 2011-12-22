@@ -44,6 +44,7 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
 
@@ -389,10 +390,24 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         CharSequence[] windowEntries = getResources().getTextArray(
                 R.array.account_settings_mail_window_entries);
 
+        // Find a proper maximum for email lookback, based on policy (if we have one)
+        int maxEntry = windowEntries.length;
+        Policy policy = SetupData.getAccount().mPolicy;
+        if (policy != null) {
+            int maxLookback = policy.mMaxEmailLookback;
+            if (maxLookback != 0) {
+                // Offset/Code   0      1      2      3      4        5
+                // Entries      auto, 1 day, 3 day, 1 week, 2 week, 1 month
+                // Lookback     N/A   1 day, 3 day, 1 week, 2 week, 1 month
+                // Since our test below is i < maxEntry, we must set maxEntry to maxLookback + 1
+                maxEntry = maxLookback + 1;
+            }
+        }
+
         // Now create the array used by the Spinner
-        SpinnerOption[] windowOptions = new SpinnerOption[windowEntries.length];
+        SpinnerOption[] windowOptions = new SpinnerOption[maxEntry];
         int defaultIndex = -1;
-        for (int i = 0; i < windowEntries.length; i++) {
+        for (int i = 0; i < maxEntry; i++) {
             final int value = Integer.valueOf(windowValues[i].toString());
             windowOptions[i] = new SpinnerOption(value, windowEntries[i].toString());
             if (value == SYNC_WINDOW_EAS_DEFAULT) {

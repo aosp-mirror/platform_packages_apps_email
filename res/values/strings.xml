@@ -1262,6 +1262,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- A policy requiring a maximum amount of time the device can sit idle before the lock screen
         is activated [CHAR LIMIT=50] -->
     <string name="policy_screen_timeout">Require an idle device to lock its screen</string>
+    <!-- A policy limiting the number of old calendar events synced [CHAR LIMIT=50] -->
+    <string name="policy_calendar_age">Limit the number of calendar events synced</string>
+    <!-- A policy limiting the number of emails synced [CHAR LIMIT=50] -->
+    <string name="policy_email_age">Limit the number of emails synced</string>
 
     <!-- The four strings below represent "quick responses" which the user can insert into a
         message being composed with just a couple of taps.  These four responses MUST be defined,
