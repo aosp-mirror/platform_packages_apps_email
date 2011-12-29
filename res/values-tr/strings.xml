@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"E-posta eklerini oku"</string>
-    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Bu uygulamaya, e-posta eklerinizi okuma izni verir."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Uygulamaya e-posta eklerinizi okuma izni verir."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"E-posta sağlayıcı verilerine eriş"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Bu uygulamaya, alınan iletiler, gönderilen iletiler, kullanıcı adları ve şifreler de dahil olmak üzere e-posta veritabanınıza erişme izni verir."</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Uygulamaya, alınan iletiler, gönderilen iletiler, kullanıcı adları ve şifreler de dahil olmak üzere e-posta veritabanınıza erişme izni verir."</string>
     <string name="app_name" msgid="5815426892327290362">"E-posta"</string>
     <string name="compose_title" msgid="427986915662706899">"E-Posta Yaz"</string>
     <string name="debug_title" msgid="5175710493691536719">"Hata Ayıklama"</string>
@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Bitti"</string>
     <string name="create_action" msgid="3062715563215392251">"Yeni oluştur"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Sil"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Hızlı yanıt yok"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Hızlı yanıt yok."</string>
     <string name="discard_action" msgid="6532206074859505968">"Sil"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Taslak kaydet"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Hızlı yanıt ekle"</string>
@@ -133,7 +133,7 @@
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> şunu yazdı:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Alıntılanan metni dahil et"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Metni ekle"</string>
-    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"En az bir alıcı eklemelisiniz."</string>
+    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"En az bir alıcı ekleyin."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Bazı e-posta adresleri geçersiz."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Dosya eklenemeyecek kadar büyük."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Hızlı yanıt ekle"</string>
@@ -153,8 +153,8 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Kaydedildi"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Durdur"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ek <xliff:g id="FILENAME">%s</xliff:g> olarak kaydedildi."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Ek kaydedilemedi."</string>
-    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Not: Yönlendirilen iletinizdeki bir veya daha fazla ek, gönderme işleminden önce indirilecek."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Ek kaydedilemedi."</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Yönlendirilen iletinizdeki bir veya daha fazla ek, gönderme işleminden önce indirilecek."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"İleti"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Davet Et"</string>
   <plurals name="message_view_show_attachments_action">
@@ -210,7 +210,7 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Bir veya birden fazla ek yönlendirilemedi."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Ek yönlendirilmedi"</string>
-    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> oturumu açılamadı"</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> oturumu açılamadı."</string>
     <string name="login_failed_title" msgid="7624349996212476176">"Oturum açılamadı"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -240,7 +240,7 @@
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Yalnızca birkaç adımda Exchange ActiveSync hesabı oluşturabilirsiniz."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-posta adresi"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Şifre"</string>
-    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"E-postayı varsayılan olarak bu hesaptan gönder."</string>
+    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel kurulum"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Geçerli bir e-posta adresi ve şifre yazın."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Yinelenen hesap"</string>
@@ -250,7 +250,7 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Gelen sunucu ayarları denetleniyor..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Giden sunucu ayarları denetleniyor..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Hesap kurulumu"</string>
-    <string name="account_setup_names_headline" msgid="2413440250372658881">"Hesabınız ayarlandı ve e-posta gönderildi!"</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Hesabınız ayarlandı ve e-posta gönderildi!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Bu hesaba bir ad ver (isteğe bağlı)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Adınız (giden iletilerde görüntülenir)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Bu alan boş olamaz."</string>
@@ -280,7 +280,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP sunucusu"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Bağlantı Noktası"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Güvenlik türü"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Oturum açılmasını gerektiriyor."</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Oturum açmayı gerektir"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Kullanıcı adı"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Şifre"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Hesap kurulumu"</string>
@@ -305,11 +305,11 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Her 15 dakikada bir"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Her 30 dakikada bir"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Saatte bir"</string>
-    <string name="account_setup_options_default_label" msgid="8869166381331276697">"E-postayı varsayılan olarak bu hesaptan gönder."</string>
-    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"E-posta geldiğinde bana bildir."</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Bu hesaptaki kişileri senkronize et."</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Bu hesaptaki takvimi senkronize et"</string>
-    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"E-postayı bu hesaptan senkronize et."</string>
+    <string name="account_setup_options_default_label" msgid="2617227194283720914">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"E-posta geldiğinde bana bildir"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Bu hesaptaki kişileri senkronize et"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Bu hesaptaki takvimi senkronize et"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"E-postayı bu hesaptan senkronize et"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Kablosuz\'a bağlandığında ekleri otomatik olarak indir"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Tamamlanamadı"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Senkronize edilecek gün sayısı"</string>
@@ -321,13 +321,13 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Bir ay"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tümü"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Varsayılanı kullan"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Kullanıcı adı veya şifre hatalı."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Kullanıcı adı veya şifre hatalı."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Kullanıcı adı veya şifre hatalı."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Kullanıcı adı veya şifre yanlış."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Sunucuya güvenli biçimde bağlanılamıyor."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sunucuya güvenli biçimde bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"İstemci sertifikası gerekli. Sunucuya istemci sertifikasıyla bağlanılsın mı?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifika geçersiz veya erişilemiyor."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Sunucu hata gönderdi. Kullanıcı adınızı ve şifrenizi kontrol ettikten sonra tekrar deneyin."</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"İstemci sertifikası gerekli. Sunucuya bir istemci sertifikası ile bağlanmak ister misiniz?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifika geçersiz veya erişilemez."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Sunucu hata gönderdi. Kullanıcı adınızı ve şifrenizi kontrol ettikten sonra tekrar deneyin."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Sunucuya bağlanılamıyor."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Sunucuya bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS gerekli ancak sunucu tarafından desteklenmiyor."</string>
@@ -343,12 +343,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"UYARI: E-posta uygulamasının cihazınızı yönetme yetkisinin devre dışı bırakılması, bunu gerektiren tüm e-posta hesaplarının yanı sıra bu hesaplar ait e-postaları, kişileri, takvim olaylarını ve diğer verileri siler."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Güvenlik güncellemesi"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> için güvenlik ayarlarınızı güncellemeniz gerekiyor."</string>
-    <string name="security_unsupported_ticker_fmt" msgid="2941173219740429802">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı güvenlik gereksinimleri nedeniyle senkronize edilemez."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı güvenlik gereksinimleri nedeniyle senkronize edilemez."</string>
     <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı, güvenlik ayarları güncellemesi gerektiriyor."</string>
     <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabının güvenlik ayarları değiştirildi; kullanıcının işlem yapmasına gerek yok."</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"Güvenlik güncellemesi gerekli"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"Güvenlik politikaları değişti"</string>
-    <string name="security_notification_content_unsupported_title" msgid="3571452378205991447">"Güvenlik politikaları karşılanamıyor"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Güvenlik politikaları karşılanamıyor"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Cihaz güvenliği"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> sunucusu, Android telefonunuzdaki bazı güvenlik özelliklerini uzaktan kontrol etmesine izin vermenizi gerektiriyor."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Ayrıntıları düzenle"</string>
@@ -357,19 +357,19 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ekran kilidinizin PIN veya şifresinin süresi doldu."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Ekr kilidi şifr süresi doldu"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Ekran kilidi şifresinin süresi doluyor"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Ekran kilidi PIN\'inizi veya şifrenizi yakında değiştirmeniz gerekiyor, aksi takdirde <xliff:g id="ACCOUNT">%s</xliff:g> hesabına ait veriler silinecek. Şimdi değiştirmek ister misiniz?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Ekran kilidi PIN\'inizi veya şifrenizi kısa süre içinde değiştirmeniz gerekiyor, aksi takdirde <xliff:g id="ACCOUNT">%s</xliff:g> hesabına ait veriler silinecek. Bunu şimdi değiştirmek ister misiniz?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Ekran kilidi şifresinin süresi doldu"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"<xliff:g id="ACCOUNT">%s</xliff:g> kullanıcısının verileri cihazınızdan siliniyor. Ekran kilidi PIN\'inizi veya şifrenizi değiştirerek bu verileri geri yükleyebilirsiniz. Şimdi değiştirmek ister misiniz?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"<xliff:g id="ACCOUNT">%s</xliff:g> hesabına ait veriler cihazınızdan siliniyor. Ekran kilidi PIN\'inizi veya şifrenizi değiştirerek bu verileri geri yükleyebilirsiniz. Bunu şimdi değiştirmek ister misiniz?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Kaydedilmeyen değişiklikler silinsin mi?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Oturum açılamadı."</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"<xliff:g id="ACCOUNT">%s</xliff:g> için kullanıcı adı veya şifre yanlış. Şimdi güncellemek ister misiniz?"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> için kullanıcı adı veya şifre yanlış. Bunları şimdi güncellemek ister misiniz?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Varsayılan hesap"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Ekleri indir"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Son iletilerin eklerini Kablosuz üzerinden otomatik indir"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-posta bildirimleri"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sıklığı, bildirimleri vs. senkronize et"</string>
-    <string name="account_settings_notify_summary" msgid="6301122709602752038">"E-posta geldiğinde Sistem çubuğunda bildir"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"E-posta geldiğinde bildirim gönder"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Gelen kutusunu denetleme sıklığı"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarlar"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Kullanıcı adı, şifre ve diğer gelen sunucu ayarları"</string>
@@ -380,12 +380,12 @@
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Desteklenmeyen politikalar"</string>
     <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Hiçbiri"</string>
     <string name="account_settings_retry_label" msgid="1104680719299842829">"Senkronize etmeyi dene"</string>
-    <string name="account_settings_retry_summary" msgid="4997885921513077160">"Hesabı senkronize etmek için buraya hafifçe vurun (ör. sunucu ayarları değiştiyse)"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Bu hesabı senkronize etmek için buraya dokunun"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Hesap adı"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Adınız"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"İmza"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Hızlı yanıtlar"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"E-posta oluştururken sık girdiğiniz metinleri düzenleyin"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"E-posta oluştururken sık girdiğiniz metinleri düzenleyin"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Gönderdiğiniz iletilere metin ekleyin"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Bildirim ayarları"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Veri kullanımı"</string>
@@ -394,8 +394,8 @@
     <string name="save_action" msgid="1988862706623227093">"Kaydet"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kişileri senkronize et"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Bu hesaba ilişkin kişileri senkronize et"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Takvim\'i Senkronize Et"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Bu hesaba ilişkin takvimi senkronize et"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Takvimi senkronize et"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Bu hesabın takvim etkinliğini senkronize et"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-postayı senk. et"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Bu hesaba ilişkin e-postaları senkronize et"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Titreşim"</string>
@@ -482,6 +482,10 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Son şifrelerin tekrar kullanılmasını kısıtla"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Şifrelerde son kullanım tarihi gerektir"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Boştaki cihazın ekranını kilitlemesini gerektir"</string>
+    <!-- no translation found for policy_calendar_age (627405158087482302) -->
+    <skip />
+    <!-- no translation found for policy_email_age (7144148367145424963) -->
+    <skip />
     <string name="quick_1" msgid="3426057697353380951">"Teşekkür ederiz!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Benim için uygun görünüyor!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Bunu daha sonra okuyup size geri döneceğim."</string>
