@@ -22,6 +22,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -37,6 +38,7 @@ import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
@@ -178,6 +180,42 @@ public class MailboxSettings extends PreferenceActivity {
     }
 
     /**
+     * Setup the entries and entry values for the sync lookback preference
+     * @param context the caller's context
+     * @param pref a ListPreference to be set up
+     * @param account the Account (or owner of a Mailbox) whose preference is being set
+     */
+    public static void setupLookbackPreferenceOptions(Context context, ListPreference pref,
+            Account account) {
+        Resources resources = context.getResources();
+        // Load the complete list of entries/values
+        CharSequence[] entries =
+                resources.getTextArray(R.array.account_settings_mail_window_entries);
+        CharSequence[] values =
+                resources.getTextArray(R.array.account_settings_mail_window_values);
+        // If we have a maximum lookback policy, enforce it
+        if (account.mPolicyKey > 0) {
+            Policy policy = Policy.restorePolicyWithId(context, account.mPolicyKey);
+            if (policy != null && (policy.mMaxEmailLookback != 0)) {
+                int maxEntry  = policy.mMaxEmailLookback + 1;
+                // Copy the proper number of values into new entries/values array
+                CharSequence[] policyEntries = new CharSequence[maxEntry];
+                CharSequence[] policyValues = new CharSequence[maxEntry];
+                for (int i = 0; i < maxEntry; i++) {
+                    policyEntries[i] = entries[i];
+                    policyValues[i] = values[i];
+                }
+                // Point entries/values to the new arrays
+                entries = policyEntries;
+                values = policyValues;
+            }
+        }
+        // Set up the preference
+        pref.setEntries(entries);
+        pref.setEntryValues(values);
+    }
+
+    /**
      * Called when {@link #mAccount} and {@link #mMailbox} are loaded (either by the async task
      * or from the saved state).
      */
@@ -195,12 +233,7 @@ public class MailboxSettings extends PreferenceActivity {
             setTitle(getString(R.string.mailbox_settings_activity_title_with_mailbox, mailboxName));
         }
 
-
-        // Special case: If setting inbox, don't show "Use account's default".
-        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-            mSyncLookbackPref.setEntries(R.array.account_settings_mail_window_entries);
-            mSyncLookbackPref.setEntryValues(R.array.account_settings_mail_window_values);
-        }
+        setupLookbackPreferenceOptions(this, mSyncLookbackPref, mAccount);
 
         // Set default value & update summary
         mSyncIntervalPref.setValue(String.valueOf(getSyncInterval()));
@@ -210,7 +243,6 @@ public class MailboxSettings extends PreferenceActivity {
 
         // Make then enabled
         enablePreferences(true);
-
     }
 
     private void updatePreferenceSummary() {
