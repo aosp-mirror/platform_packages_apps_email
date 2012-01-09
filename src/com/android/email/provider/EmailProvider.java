@@ -23,6 +23,7 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
@@ -85,6 +86,14 @@ public class EmailProvider extends ContentProvider {
     public static final String ACTION_ATTACHMENT_UPDATED = "com.android.email.ATTACHMENT_UPDATED";
     public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
         "com.android.email.ATTACHMENT_UPDATED_FLAGS";
+
+    /**
+     * Notifies that changes happened. Certain UI components, e.g., widgets, can register for this
+     * {@link android.content.Intent} and update accordingly. However, this can be very broad and
+     * is NOT the preferred way of getting notification.
+     */
+    public static final String ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED =
+            "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
 
     public static final String EMAIL_MESSAGE_MIME_TYPE =
         "vnd.android.cursor.item/email-message";
@@ -2345,6 +2354,20 @@ outer:
         } else {
             resolver.notifyChange(baseUri, null);
         }
+
+        // We want to send the message list changed notification if baseUri is Message.NOTIFIER_URI.
+        if (baseUri.equals(Message.NOTIFIER_URI)) {
+            sendMessageListDataChangedNotification();
+        }
+    }
+
+    private void sendMessageListDataChangedNotification() {
+        final Context context = getContext();
+        final Intent intent = new Intent(ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED);
+        // Ideally this intent would contain information about which account changed, to limit the
+        // updates to that particular account.  Unfortunately, that information is not available in
+        // sendNotifierChange().
+        context.sendBroadcast(intent);
     }
 
     @Override
