@@ -19,12 +19,14 @@ package com.android.email.provider;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViewsService;
 
 import com.android.email.Email;
+import com.android.email.R;
 import com.android.email.widget.EmailWidget;
 import com.android.email.widget.WidgetManager;
 import com.android.emailcommon.Logging;
@@ -74,6 +76,20 @@ public class WidgetProvider extends AppWidgetProvider {
             Log.d(EmailWidget.TAG, "onReceive");
         }
         super.onReceive(context, intent);
+
+        if (EmailProvider.ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED.equals(intent.getAction())) {
+            // Retrieve the list of current widgets.
+            final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            final ComponentName component = new ComponentName(context, WidgetProvider.class);
+            final int[] widgetIds = appWidgetManager.getAppWidgetIds(component);
+
+            // Ideally, this would only call notify AppWidgetViewDataChanged for the widgets, where
+            // the account had the change, but the current intent doesn't include this information.
+
+            // Calling notifyAppWidgetViewDataChanged will cause onDataSetChanged() to be called
+            // on the RemoteViewsService.RemoteViewsFactory, starting the service if necessary.
+            appWidgetManager.notifyAppWidgetViewDataChanged(widgetIds, R.id.message_list);
+        }
     }
 
     /**
