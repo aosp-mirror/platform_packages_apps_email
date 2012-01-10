@@ -505,6 +505,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     @Override
     public void onDataSetChanged() {
+        // Note: we are not doing anything special in onDataSetChanged().  Since this service has
+        // a reference to a loader that will keep itself updated, if the service is running, it
+        // shouldn't be necessary to for the query to be run again.  If the service hadn't been
+        // running, the act of starting the service will also start the loader.
     }
 
     public void onDeleted() {
