@@ -2749,7 +2749,6 @@ outer:
         .add(UIProvider.MessageColumns.DRAFT_TYPE, "0")
         .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
         .add(UIProvider.MessageColumns.QUOTE_START_POS, "0")
-        .add(UIProvider.MessageColumns.CLIENT_CREATED, "0")
         .add(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS, "0")
         .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
         .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
