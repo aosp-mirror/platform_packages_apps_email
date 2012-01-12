@@ -22,11 +22,18 @@ include $(CLEAR_VARS)
 chips_dir := ../../../frameworks/ex/chips/res
 mail_common_dir := ../../../frameworks/opt/mailcommon/res
 res_dir := $(chips_dir) $(mail_common_dir) res
+unified_email_src_dir := ../UnifiedEmail/src
+
+imported_unified_email_files := \
+        $(unified_email_src_dir)/com/android/mail/providers/UIProviderValidator.java \
+        $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
 
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/email)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
+LOCAL_SRC_FILES += $(imported_unified_email_files)
+
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips

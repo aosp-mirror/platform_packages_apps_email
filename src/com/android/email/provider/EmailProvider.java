@@ -23,8 +23,8 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.ContentObserver;
@@ -35,10 +35,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Debug;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.common.content.ProjectionMap;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.provider.ContentCache.CacheToken;
@@ -65,6 +68,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
+import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -93,7 +97,7 @@ public class EmailProvider extends ContentProvider {
      * is NOT the preferred way of getting notification.
      */
     public static final String ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED =
-            "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
+        "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
 
     public static final String EMAIL_MESSAGE_MIME_TYPE =
         "vnd.android.cursor.item/email-message";
@@ -226,8 +230,13 @@ public class EmailProvider extends ContentProvider {
     private static final int QUICK_RESPONSE_ID = QUICK_RESPONSE_BASE + 1;
     private static final int QUICK_RESPONSE_ACCOUNT_ID = QUICK_RESPONSE_BASE + 2;
 
+    private static final int UI_BASE = 0x9000;
+    private static final int UI_FOLDERS = UI_BASE;
+    private static final int UI_MESSAGES = UI_BASE + 1;
+    private static final int UI_MESSAGE = UI_BASE + 2;
+
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
-    private static final int LAST_EMAIL_PROVIDER_DB_BASE = QUICK_RESPONSE_BASE;
+    private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
 
     // DO NOT CHANGE BODY_BASE!!
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
@@ -248,7 +257,8 @@ public class EmailProvider extends ContentProvider {
         Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,
         QuickResponse.TABLE_NAME,
-        Body.TABLE_NAME
+        Body.TABLE_NAME,
+        null
     };
 
     // CONTENT_CACHES MUST remain in the order of the BASE constants above
@@ -262,7 +272,8 @@ public class EmailProvider extends ContentProvider {
         null, // Deleted message
         mCachePolicy,
         null, // Quick response
-        null  // Body
+        null, // Body
+        null  // UI
     };
 
     // CACHE_PROJECTIONS MUST remain in the order of the BASE constants above
@@ -276,7 +287,8 @@ public class EmailProvider extends ContentProvider {
         null, // Deleted message
         Policy.CONTENT_PROJECTION,
         null,  // Quick response
-        null  // Body
+        null,  // Body
+        null   // UI
     };
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -428,6 +440,10 @@ public class EmailProvider extends ContentProvider {
         // All quick responses associated with a particular account id
         matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
                 QUICK_RESPONSE_ACCOUNT_ID);
+
+        matcher.addURI(EmailContent.AUTHORITY, "uifolders/*", UI_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
+        matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
     }
 
     /**
@@ -1744,7 +1760,6 @@ public class EmailProvider extends ContentProvider {
             bodyFile.delete();
         }
     }
-
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -1798,6 +1813,15 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                // First, dispatch queries from UnfiedEmail
+                case UI_FOLDERS:
+                case UI_MESSAGES:
+                case UI_MESSAGE:
+                    // For now, we don't allow selection criteria within these queries
+                    if (selection != null || selectionArgs != null) {
+                        throw new IllegalArgumentException("UI queries can't have selection/args");
+                    }
+                    return uiQuery(match, uri, projection);
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -2641,7 +2665,7 @@ outer:
         }
     }
 
-        /**
+    /**
      * For testing purposes, check whether a given row is cached
      * @param baseUri the base uri of the EmailContent
      * @param id the row id of the EmailContent
@@ -2679,5 +2703,224 @@ outer:
      */
     public void injectAttachmentService(AttachmentService as) {
         mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
+    }
+
+    /**
+     * Support for UnifiedEmail below
+     */
+
+    /**
+     * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
+     * conversation list in UnifiedEmail)
+     */
+    private static final ProjectionMap sMessageListMap = ProjectionMap.builder()
+        .add(BaseColumns._ID, MessageColumns.ID)
+        .add(UIProvider.ConversationColumns.URI, uriWithId("uimessage"))
+        .add(UIProvider.ConversationColumns.MESSAGE_LIST_URI, uriWithId("uimessage"))
+        .add(UIProvider.ConversationColumns.SUBJECT, MessageColumns.SUBJECT)
+        .add(UIProvider.ConversationColumns.SNIPPET, MessageColumns.SNIPPET)
+        .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
+        .add(UIProvider.ConversationColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
+        .add(UIProvider.ConversationColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
+        .build();
+
+    /**
+     * Mapping of UIProvider columns to EmailProvider columns for a detailed message view in
+     * UnifiedEmail
+     */
+    private static final ProjectionMap sMessageViewMap = ProjectionMap.builder()
+        .add(BaseColumns._ID, Message.TABLE_NAME + "." + EmailContent.MessageColumns.ID)
+        .add(UIProvider.MessageColumns.SERVER_ID, SyncColumns.SERVER_ID)
+        .add(UIProvider.MessageColumns.URI, uriWithFQId("uimessage", Message.TABLE_NAME))
+        .add(UIProvider.MessageColumns.CONVERSATION_ID,
+                uriWithFQId("uimessage", Message.TABLE_NAME))
+        .add(UIProvider.MessageColumns.SUBJECT, EmailContent.MessageColumns.SUBJECT)
+        .add(UIProvider.MessageColumns.SNIPPET, EmailContent.MessageColumns.SNIPPET)
+        .add(UIProvider.MessageColumns.FROM, EmailContent.MessageColumns.FROM_LIST)
+        .add(UIProvider.MessageColumns.TO, EmailContent.MessageColumns.TO_LIST)
+        .add(UIProvider.MessageColumns.CC, EmailContent.MessageColumns.CC_LIST)
+        .add(UIProvider.MessageColumns.BCC, EmailContent.MessageColumns.BCC_LIST)
+        .add(UIProvider.MessageColumns.REPLY_TO, EmailContent.MessageColumns.REPLY_TO_LIST)
+        .add(UIProvider.MessageColumns.DATE_RECEIVED_MS, EmailContent.MessageColumns.TIMESTAMP)
+        .add(UIProvider.MessageColumns.BODY_HTML, Body.HTML_CONTENT)
+        .add(UIProvider.MessageColumns.BODY_TEXT, Body.TEXT_CONTENT)
+        .add(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, "0")
+        .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
+        .add(UIProvider.MessageColumns.DRAFT_TYPE, "0")
+        .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
+        .add(UIProvider.MessageColumns.QUOTE_START_POS, "0")
+        .add(UIProvider.MessageColumns.CLIENT_CREATED, "0")
+        .add(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS, "0")
+        .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
+        .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
+        .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
+                uriWithFQId("uiattachments", Message.TABLE_NAME))
+        .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
+        .build();
+
+    /**
+     * Mapping of UIProvider columns to EmailProvider columns for the folder list in UnifiedEmail
+     */
+    private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
+        .add(BaseColumns._ID, MessageColumns.ID)
+        .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
+        .add(UIProvider.FolderColumns.NAME, "displayName")
+        .add(UIProvider.FolderColumns.HAS_CHILDREN, "0")
+        .add(UIProvider.FolderColumns.CAPABILITIES, "0")
+        .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
+        .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
+        .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
+        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uichildren"))
+        .add(UIProvider.FolderColumns.UNREAD_COUNT, "7")
+        .add(UIProvider.FolderColumns.TOTAL_COUNT, "77")
+        .build();
+
+    /**
+     * The "ORDER BY" clause for top level folders
+     */
+    private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE
+        + " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0"
+        + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1"
+        + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2"
+        + " WHEN " + Mailbox.TYPE_SENT    + " THEN 3"
+        + " WHEN " + Mailbox.TYPE_TRASH   + " THEN 4"
+        + " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5"
+        // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
+        + " ELSE 10 END"
+        + " ," + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+
+    /**
+     * Generate the SELECT clause using a specified mapping and the original UI projection
+     * @param map the ProjectionMap to use for this projection
+     * @param projection the projection as sent by UnifiedEmail
+     * @return a StringBuilder containing the SELECT expression for a SQLite query
+     */
+    private StringBuilder genSelect(ProjectionMap map, String[] projection) {
+        StringBuilder sb = new StringBuilder("SELECT ");
+        boolean first = true;
+        for (String column: projection) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(',');
+            }
+            sb.append(map.get(column));
+        }
+        return sb;
+    }
+
+    /**
+     * Convenience method to create a Uri string given the "type" of query; we append the type
+     * of the query and the id column name (_id)
+     *
+     * @param type the "type" of the query, as defined by our UriMatcher definitions
+     * @return a Uri string
+     */
+    private static String uriWithId(String type) {
+        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || _id";
+    }
+
+    /**
+     * Convenience method to create a Uri string given the "type" of query and the table name to
+     * which it applies; we append the type of the query and the fully qualified (FQ) id column
+     * (i.e. including the table name); we need this for join queries where _id would otherwise
+     * be ambiguous
+     *
+     * @param type the "type" of the query, as defined by our UriMatcher definitions
+     * @param tableName the name of the table whose _id is referred to
+     * @return a Uri string
+     */
+    private static String uriWithFQId(String type, String tableName) {
+        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || " + tableName + "._id";
+    }
+
+    /**
+     * Generate the "view message" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryViewMessage(String[] uiProjection) {
+        StringBuilder sb = genSelect(sMessageViewMap, uiProjection);
+        sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
+                Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
+                Message.TABLE_NAME + "." + Message.RECORD_ID + "=?");
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "message list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryMailboxMessages(String[] uiProjection) {
+        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        // Make constant
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=?");
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "folder list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAccountMailboxes(String[] uiProjection) {
+        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        // Make constant
+        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + Mailbox.ACCOUNT_KEY + "=? ORDER BY ");
+        sb.append(MAILBOX_ORDER_BY);
+        return sb.toString();
+    }
+
+    /**
+     * Given the email address of an account, return its account id (the _id row in the Account
+     * table), or NO_ACCOUNT (-1) if not found
+     *
+     * @param email the email address of the account
+     * @return the account id for this account, or NO_ACCOUNT if not found
+     */
+    private long findAccountIdByName(String email) {
+        Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
+        Collection<Cursor> accounts = accountCache.values();
+        for (Cursor accountCursor: accounts) {
+            if (accountCursor.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN).equals(email)) {
+                return accountCursor.getLong(Account.CONTENT_ID_COLUMN);
+            }
+        }
+        return Account.NO_ACCOUNT;
+    }
+
+    /**
+     * Handle UnifiedEmail queries here (dispatched from query())
+     *
+     * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
+     * @param uri the original uri passed in from UnifiedEmail
+     * @param uiProjection the projection passed in from UnifiedEmail
+     * @return the result Cursor
+     */
+    private Cursor uiQuery(int match, Uri uri, String[] uiProjection) {
+        Context context = getContext();
+        SQLiteDatabase db = getDatabase(context);
+        switch(match) {
+            case UI_FOLDERS:
+                // We are passed the email address (unique account identifier) in the uri; we
+                // need to turn this into the _id of the Account row in the EmailProvider db
+                String accountName = uri.getPathSegments().get(1);
+                long acctId = findAccountIdByName(accountName);
+                if (acctId == Account.NO_ACCOUNT) return null;
+                return db.rawQuery(genQueryAccountMailboxes(uiProjection),
+                        new String[] {Long.toString(acctId)});
+            case UI_MESSAGES:
+                String id = uri.getPathSegments().get(1);
+                return db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+            case UI_MESSAGE:
+                id = uri.getPathSegments().get(1);
+                return db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
+        }
+        // Not sure whether to throw an exception here, but we return null for now
+        return null;
     }
 }
