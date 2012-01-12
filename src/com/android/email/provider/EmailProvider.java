@@ -257,8 +257,8 @@ public class EmailProvider extends ContentProvider {
         Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,
         QuickResponse.TABLE_NAME,
+        null,  // UI
         Body.TABLE_NAME,
-        null
     };
 
     // CONTENT_CACHES MUST remain in the order of the BASE constants above
