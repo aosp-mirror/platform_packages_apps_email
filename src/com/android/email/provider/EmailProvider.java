@@ -68,6 +68,8 @@ import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.providers.UIProvider.ConversationPriority;
+import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -2712,6 +2714,10 @@ outer:
     /**
      * Support for UnifiedEmail below
      */
+
+    private static final String NOT_A_DRAFT_STRING =
+        Integer.toString(UIProvider.DraftType.NOT_A_DRAFT);
+
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
@@ -2725,6 +2731,11 @@ outer:
         .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
         .add(UIProvider.ConversationColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
         .add(UIProvider.ConversationColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
+        .add(UIProvider.ConversationColumns.NUM_MESSAGES, "1")
+        .add(UIProvider.ConversationColumns.NUM_DRAFTS, "0")
+        .add(UIProvider.ConversationColumns.SENDING_STATE,
+                Integer.toString(ConversationSendingState.OTHER))
+        .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
         .build();
 
     /**
@@ -2749,7 +2760,7 @@ outer:
         .add(UIProvider.MessageColumns.BODY_TEXT, Body.TEXT_CONTENT)
         .add(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, "0")
         .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
-        .add(UIProvider.MessageColumns.DRAFT_TYPE, "0")
+        .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
         .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
         .add(UIProvider.MessageColumns.QUOTE_START_POS, "0")
         .add(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS, "0")
@@ -2767,14 +2778,15 @@ outer:
         .add(BaseColumns._ID, MessageColumns.ID)
         .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
         .add(UIProvider.FolderColumns.NAME, "displayName")
-        .add(UIProvider.FolderColumns.HAS_CHILDREN, "0")
+        .add(UIProvider.FolderColumns.HAS_CHILDREN,
+                MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
         .add(UIProvider.FolderColumns.CAPABILITIES, "0")
         .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
         .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uichildren"))
-        .add(UIProvider.FolderColumns.UNREAD_COUNT, "7")
-        .add(UIProvider.FolderColumns.TOTAL_COUNT, "77")
+        .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
+        .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
         .build();
 
     /**
