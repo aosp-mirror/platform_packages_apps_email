@@ -2708,7 +2708,6 @@ outer:
     /**
      * Support for UnifiedEmail below
      */
-
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
@@ -2804,7 +2803,13 @@ outer:
             } else {
                 sb.append(',');
             }
-            sb.append(map.get(column));
+            String val = map.get(column);
+            // If we don't have the column, be permissive, returning "0 AS <column>", and warn
+            if (val == null) {
+                Log.w(TAG, "UIProvider column not found, returning 0: " + column);
+                val = "0 AS " + column;
+            }
+            sb.append(val);
         }
         return sb;
     }
