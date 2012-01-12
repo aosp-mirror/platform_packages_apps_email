@@ -1821,7 +1821,8 @@ public class EmailProvider extends ContentProvider {
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
                     }
-                    return uiQuery(match, uri, projection);
+                    c = uiQuery(match, uri, projection);
+                    return c;
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
