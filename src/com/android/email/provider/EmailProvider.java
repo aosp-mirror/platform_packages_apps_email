@@ -2767,11 +2767,8 @@ outer:
         .add(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, "0")
         .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
         .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
-        .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
-        .add(UIProvider.MessageColumns.QUOTE_START_POS, "0")
-        .add(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS, "0")
+        .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
         .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
-        .add(UIProvider.MessageColumns.INCLUDE_QUOTED_TEXT, "0")
         .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                 uriWithFQId("uiattachments", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
