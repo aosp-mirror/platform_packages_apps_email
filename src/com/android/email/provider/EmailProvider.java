@@ -1612,6 +1612,9 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    private static final Uri UIPROVIDER_NEW_MESSAGE_NOTIFIER =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessages");
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         int match = findMatch(uri, "insert");
@@ -1650,6 +1653,9 @@ public class EmailProvider extends ContentProvider {
                     longId = db.insert(TABLE_NAMES[table], "foo", values);
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     switch(match) {
+                        case MESSAGE:
+                            resolver.notifyChange(UIPROVIDER_NEW_MESSAGE_NOTIFIER, null);
+                            break;
                         case MAILBOX:
                             if (values.containsKey(MailboxColumns.TYPE)) {
                                 // Only cache special mailbox types
@@ -2925,6 +2931,8 @@ outer:
     private Cursor uiQuery(int match, Uri uri, String[] uiProjection) {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
+        // Should we ever return null, or throw an exception??
+        Cursor c = null;
         switch(match) {
             case UI_FOLDERS:
                 // We are passed the email address (unique account identifier) in the uri; we
@@ -2932,17 +2940,23 @@ outer:
                 String accountName = uri.getPathSegments().get(1);
                 long acctId = findAccountIdByName(accountName);
                 if (acctId == Account.NO_ACCOUNT) return null;
-                return db.rawQuery(genQueryAccountMailboxes(uiProjection),
+                c = db.rawQuery(genQueryAccountMailboxes(uiProjection),
                         new String[] {Long.toString(acctId)});
+                break;
             case UI_MESSAGES:
                 String id = uri.getPathSegments().get(1);
-                return db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                break;
             case UI_MESSAGE:
                 id = uri.getPathSegments().get(1);
-                return db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
+                break;
         }
-        // Not sure whether to throw an exception here, but we return null for now
-        return null;
+        if (c != null) {
+            // Notify UIProvider on changes
+            c.setNotificationUri(context.getContentResolver(), uri);
+        }
+        return c;
     }
 
     private int uiSendmail(Uri uri, ContentValues values) {
