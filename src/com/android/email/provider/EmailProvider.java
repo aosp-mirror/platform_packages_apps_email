@@ -2865,7 +2865,8 @@ outer:
     private String genQueryMailboxMessages(String[] uiProjection) {
         StringBuilder sb = genSelect(sMessageListMap, uiProjection);
         // Make constant
-        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=?");
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ORDER BY " +
+                MessageColumns.TIMESTAMP + " DESC");
         return sb.toString();
     }
 
