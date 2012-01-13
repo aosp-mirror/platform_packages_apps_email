@@ -35,7 +35,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.os.Debug;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -234,6 +233,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FOLDERS = UI_BASE;
     private static final int UI_MESSAGES = UI_BASE + 1;
     private static final int UI_MESSAGE = UI_BASE + 2;
+    private static final int UI_SENDMAIL = UI_BASE + 3;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -444,6 +444,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uifolders/*", UI_FOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
+        matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
     }
 
     /**
@@ -2169,6 +2170,8 @@ public class EmailProvider extends ContentProvider {
         try {
 outer:
             switch (match) {
+                case UI_SENDMAIL:
+                    return uiSendmail(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
                 case ACCOUNT_ID_ADD_TO_FIELD:
                     id = uri.getPathSegments().get(1);
@@ -2927,5 +2930,27 @@ outer:
         }
         // Not sure whether to throw an exception here, but we return null for now
         return null;
+    }
+
+    private int uiSendmail(Uri uri, ContentValues values) {
+        Context context = getContext();
+        String accountName = uri.getPathSegments().get(1);
+        long acctId = findAccountIdByName(accountName);
+        if (acctId == Account.NO_ACCOUNT) return 0;
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(context, acctId, Mailbox.TYPE_OUTBOX);
+        if (mailbox == null) return 0;
+        Message msg = new Message();
+        // Fill in the message
+        msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
+        msg.mCc = values.getAsString(UIProvider.MessageColumns.CC);
+        msg.mBcc = values.getAsString(UIProvider.MessageColumns.BCC);
+        msg.mSubject = values.getAsString(UIProvider.MessageColumns.SUBJECT);
+        msg.mText = values.getAsString(UIProvider.MessageColumns.BODY_TEXT);
+        msg.mHtml = values.getAsString(UIProvider.MessageColumns.BODY_HTML);
+        msg.mMailboxKey = mailbox.mId;
+        msg.mAccountKey = mailbox.mAccountKey;
+        // Save it
+        msg.save(context);
+        return 1;
     }
 }
