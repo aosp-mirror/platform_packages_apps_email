@@ -2999,6 +2999,22 @@ outer:
         return c;
     }
 
+    /**
+     * Convert a UIProvider attachment to an EmailProvider attachment (for sending); we only need
+     * a few of the fields
+     * @param uiAtt the UIProvider attachment to convert
+     * @return the EmailProvider attachment
+     */
+    private Attachment convertUiAttachmentToAttachment(
+            com.android.mail.providers.Attachment uiAtt) {
+        Attachment att = new Attachment();
+        att.mContentUri = uiAtt.contentUri;
+        att.mFileName = uiAtt.name;
+        att.mMimeType = uiAtt.mimeType;
+        att.mSize = uiAtt.size;
+        return att;
+    }
+
     private int uiSendmail(Uri uri, ContentValues values) {
         Context context = getContext();
         String accountName = uri.getPathSegments().get(1);
@@ -3016,6 +3032,18 @@ outer:
         msg.mHtml = values.getAsString(UIProvider.MessageColumns.BODY_HTML);
         msg.mMailboxKey = mailbox.mId;
         msg.mAccountKey = mailbox.mAccountKey;
+        // Get attachments from the ContentValues
+        ArrayList<com.android.mail.providers.Attachment> uiAtts =
+                com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
+                        values.getAsString(UIProvider.MessageColumns.JOINED_ATTACHMENT_INFOS));
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
+            // Convert to our attachments and add to the list; everything else should "just work"
+            atts.add(convertUiAttachmentToAttachment(uiAtt));
+        }
+        if (!atts.isEmpty()) {
+            msg.mAttachments = atts;
+        }
         // Save it
         msg.save(context);
         return 1;
