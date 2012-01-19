@@ -1421,7 +1421,15 @@ public class EmailProvider extends ContentProvider {
         int result = -1;
 
         try {
+            if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
+                if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                    Log.d(TAG, "Notify UIProvider of delete");
+                    resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                }
+            }
             switch (match) {
+                case UI_MESSAGE:
+                    return uiDeleteMessage(uri);
                 // These are cases in which one or more Messages might get deleted, either by
                 // cascade or explicitly
                 case MAILBOX_ID:
@@ -1619,8 +1627,8 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private static final Uri UIPROVIDER_NEW_MESSAGE_NOTIFIER =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessages");
+    private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1661,7 +1669,10 @@ public class EmailProvider extends ContentProvider {
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     switch(match) {
                         case MESSAGE:
-                            resolver.notifyChange(UIPROVIDER_NEW_MESSAGE_NOTIFIER, null);
+                            if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                                Log.d(TAG, "Notify UIProvider of insert");
+                                resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                            }
                             break;
                         case MAILBOX:
                             if (values.containsKey(MailboxColumns.TYPE)) {
@@ -2183,10 +2194,18 @@ public class EmailProvider extends ContentProvider {
         String id = "0";
 
         try {
+            if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
+                if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                    Log.d(TAG, "Notify UIProvider of update");
+                    resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                }
+            }
 outer:
             switch (match) {
                 case UI_SENDMAIL:
                     return uiSendmail(uri, values);
+                case UI_MESSAGE:
+                    return uiUpdateMessage(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
                 case ACCOUNT_ID_ADD_TO_FIELD:
                     id = uri.getPathSegments().get(1);
@@ -2785,6 +2804,8 @@ outer:
         .add(UIProvider.ConversationColumns.SENDING_STATE,
                 Integer.toString(ConversationSendingState.OTHER))
         .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
+        .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
+        .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
         .build();
 
     /**
@@ -2994,7 +3015,8 @@ outer:
         }
         if (c != null) {
             // Notify UIProvider on changes
-            c.setNotificationUri(context.getContentResolver(), uri);
+            // Make this more specific to actual query later on...
+            c.setNotificationUri(context.getContentResolver(), UIPROVIDER_MESSAGE_NOTIFIER);
         }
         return c;
     }
@@ -3047,5 +3069,56 @@ outer:
         // Save it
         msg.save(context);
         return 1;
+    }
+
+    private void putIntegerOrBoolean(ContentValues values, String columnName, Object value) {
+        if (value instanceof Integer) {
+            Integer intValue = (Integer)value;
+            values.put(columnName, intValue);
+        } else if (value instanceof Boolean) {
+            Boolean boolValue = (Boolean)value;
+            values.put(columnName, boolValue ? 1 : 0);
+        }
+    }
+
+    private ContentValues convertUiMessageValues(ContentValues values) {
+        ContentValues ourValues = new ContentValues();
+        for (String columnName: values.keySet()) {
+            Object val = values.get(columnName);
+            if (columnName.equals(UIProvider.ConversationColumns.STARRED)) {
+                putIntegerOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
+            } else if (columnName.equals(UIProvider.ConversationColumns.READ)) {
+                putIntegerOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
+            } else {
+                throw new IllegalArgumentException("Can't update " + columnName + " in message");
+            }
+        }
+        return ourValues;
+    }
+
+    private Uri convertToEmailProviderUri(Uri uri) {
+        String idString = uri.getLastPathSegment();
+        try {
+            long id = Long.parseLong(idString);
+            return ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, id)
+                        .buildUpon()
+                        .appendQueryParameter("is_uri_provider", "true")
+                        .build();
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private int uiUpdateMessage(Uri uri, ContentValues values) {
+        Uri ourUri = convertToEmailProviderUri(uri);
+        if (ourUri == null) return 0;
+        ContentValues ourValues = convertUiMessageValues(values);
+        return update(ourUri, ourValues, null, null);
+    }
+
+    private int uiDeleteMessage(Uri uri) {
+        Uri ourUri = convertToEmailProviderUri(uri);
+        if (ourUri == null) return 0;
+        return delete(ourUri, null, null);
     }
 }
