@@ -1653,6 +1653,8 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case UI_SENDMAIL:
+                    return uiSendmail(uri, values);
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
                 // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
@@ -2202,8 +2204,6 @@ public class EmailProvider extends ContentProvider {
             }
 outer:
             switch (match) {
-                case UI_SENDMAIL:
-                    return uiSendmail(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
@@ -3037,13 +3037,13 @@ outer:
         return att;
     }
 
-    private int uiSendmail(Uri uri, ContentValues values) {
+    private Uri uiSendmail(Uri uri, ContentValues values) {
         Context context = getContext();
         String accountName = uri.getPathSegments().get(1);
         long acctId = findAccountIdByName(accountName);
-        if (acctId == Account.NO_ACCOUNT) return 0;
+        if (acctId == Account.NO_ACCOUNT) return null;
         Mailbox mailbox = Mailbox.restoreMailboxOfType(context, acctId, Mailbox.TYPE_OUTBOX);
-        if (mailbox == null) return 0;
+        if (mailbox == null) return null;
         Message msg = new Message();
         // Fill in the message
         msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
@@ -3068,7 +3068,7 @@ outer:
         }
         // Save it
         msg.save(context);
-        return 1;
+        return Uri.parse("'content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
     }
 
     private void putIntegerOrBoolean(ContentValues values, String columnName, Object value) {
