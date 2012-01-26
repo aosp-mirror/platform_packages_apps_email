@@ -405,13 +405,22 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return count;
         }
 
+        private void cancelWatchdogAlarm() {
+            if (mAlarmManager != null && mWatchdogPendingIntent != null) {
+                mAlarmManager.cancel(mWatchdogPendingIntent);
+            }
+        }
+
         /**
          * Watchdog for downloads; we use this in case we are hanging on a download, which might
          * have failed silently (the connection dropped, for example)
          */
         private void onWatchdogAlarm() {
-            // If our service instance is gone, just leave...
-            if (mStop) return;
+            // If our service instance is gone, just leave (but cancel alarm first!)
+            if (mStop) {
+                cancelWatchdogAlarm();
+                return;
+            }
             long now = System.currentTimeMillis();
             for (DownloadRequest req: mDownloadsInProgress.values()) {
                 // Check how long it's been since receiving a callback
@@ -425,9 +434,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }
             // If there are downloads in progress, reset alarm
             if (mDownloadsInProgress.isEmpty()) {
-                if (mAlarmManager != null && mWatchdogPendingIntent != null) {
-                    mAlarmManager.cancel(mWatchdogPendingIntent);
-                }
+                cancelWatchdogAlarm();
             }
             // Check whether we can start new downloads...
             if (mConnectivityManager != null && mConnectivityManager.hasConnectivity()) {
