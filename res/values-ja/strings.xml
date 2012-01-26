@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"最近使用したパスワードの再使用を制限する"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"パスワードの有効期限を設定する"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"画面ロック前のアイドル時間を設定する"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"同期するカレンダーの予定の数を制限する"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"同期するメールの数を制限する"</string>
     <string name="quick_1" msgid="3426057697353380951">"ありがとうございます。"</string>
     <string name="quick_2" msgid="4188036352885736617">"良いと思います。"</string>
     <string name="quick_3" msgid="8061819976353395585">"確認して折り返し連絡します。"</string>

@@ -119,7 +119,7 @@
     <item quantity="other" msgid="7901361399231876038">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
   </plurals>
     <string name="message_list_no_messages" msgid="7846910091922523867">"Žádné zprávy"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Do"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Komu"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopie"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Předmět"</string>
@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Omezit opětovné použití nedávných hesel"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Požadovat omezenou platnost hesel"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Při nečinnosti zamknout obrazovku"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"Omezit počet synchronizovaných událostí kalendáře"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Omezit počet synchronizovaných e-mailů"</string>
     <string name="quick_1" msgid="3426057697353380951">"Díky!"</string>
     <string name="quick_2" msgid="4188036352885736617">"To zní dobře!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Přečtu si to později a ozvu se."</string>
