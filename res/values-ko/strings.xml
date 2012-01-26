@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"최근 사용한 비밀번호 재사용 제한"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"비밀번호 만료 필요"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"유휴 상태인 기기 화면 잠금 필요"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"동기화된 캘린더 일정의 개수 제한"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"동기화된 이메일의 개수 제한"</string>
     <string name="quick_1" msgid="3426057697353380951">"감사합니다."</string>
     <string name="quick_2" msgid="4188036352885736617">"좋습니다."</string>
     <string name="quick_3" msgid="8061819976353395585">"나중에 읽어보고 연락 드리겠습니다."</string>

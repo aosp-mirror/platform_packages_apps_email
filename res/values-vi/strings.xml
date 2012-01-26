@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Hạn chế sử dụng lại các mật khẩu gần đây"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Buộc mật khẩu hết hạn"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Thiết bị cần ở chế độ rảnh để khóa màn hình"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"Giới hạn số lượng sự kiện lịch được đồng bộ hóa"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Giới hạn số lượng email được đồng bộ hóa"</string>
     <string name="quick_1" msgid="3426057697353380951">"Cảm ơn bạn!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Tôi thấy được đấy!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Tôi sẽ đọc thư này sau và sẽ liên hệ lại với bạn."</string>

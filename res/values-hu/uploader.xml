@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Mobil feltöltések"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Feltöltés barangoláskor"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Fotók és videók feltöltése adathálózaton történő barangolás során"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Akkufeltöltések"</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Feltöltés akkumulátornál"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Fotók és videók feltöltése csak töltés közben"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Már meglévő fotók feltöltése"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Bármely meglévő fotó és videó azonnali feltöltése telefonjáról"</string>

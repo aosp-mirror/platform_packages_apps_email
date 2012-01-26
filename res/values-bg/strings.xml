@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Без повторно ползване на скорошни пароли"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Изискване паролите да изтичат"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Неактивно у-во за заключ. на екрана"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"Ограничаване на броя синхрон. събития в календара"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Ограничаване на броя синхронизирани имейли"</string>
     <string name="quick_1" msgid="3426057697353380951">"Благодаря!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Звучи добре!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Ще прочета това по-късно и ще се свържа с Вас."</string>
