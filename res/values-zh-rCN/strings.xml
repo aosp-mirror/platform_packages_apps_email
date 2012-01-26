@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"限制重复使用近期所用密码"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"强制密码在一段时间后过期"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"要求闲置设备锁定其屏幕"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"限制同步的日历活动数"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"限制同步的电子邮件数"</string>
     <string name="quick_1" msgid="3426057697353380951">"非常感谢！"</string>
     <string name="quick_2" msgid="4188036352885736617">"我觉得不错！"</string>
     <string name="quick_3" msgid="8061819976353395585">"稍后我会阅读此邮件并给您回复。"</string>

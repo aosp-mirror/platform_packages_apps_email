@@ -42,7 +42,7 @@
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Вставить быстрый ответ"</string>
     <string name="read_action" msgid="4701484794504781686">"Отметить как прочитанное"</string>
     <string name="unread_action" msgid="6280399049357552826">"Отметить как непрочитанное"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Пометить"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Добавить пометку"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Снять пометку"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Обновление"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Добавить аккаунт"</string>
@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Запрещать использовать прежние пароли"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Ограничивать время действия паролей"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Блокировать экран при простое"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"Ограничить число синхр. событий календаря"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Ограничить число синхр. сообщений эл. почты"</string>
     <string name="quick_1" msgid="3426057697353380951">"Спасибо!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Отличная идея!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Я отвечу позже."</string>

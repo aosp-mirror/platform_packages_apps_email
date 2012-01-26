@@ -482,10 +482,8 @@
     <string name="policy_password_history" msgid="5743544498302303181">"Limitaţi reutilizarea parolelor recente"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Solicitaţi expirarea parolelor"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Disp. inactiv necesar pt. blocare ecran"</string>
-    <!-- no translation found for policy_calendar_age (627405158087482302) -->
-    <skip />
-    <!-- no translation found for policy_email_age (7144148367145424963) -->
-    <skip />
+    <string name="policy_calendar_age" msgid="627405158087482302">"Limitare număr evenimente de calendar sincronizate"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Limitare număr de e-mailuri sincronizate"</string>
     <string name="quick_1" msgid="3426057697353380951">"Vă mulţumim!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Sună bine!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Voi citi mai târziu acest mesaj şi vă voi contacta."</string>
