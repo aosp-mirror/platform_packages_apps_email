@@ -35,7 +35,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.os.Debug;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -239,6 +238,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_MESSAGES = UI_BASE + 1;
     private static final int UI_MESSAGE = UI_BASE + 2;
     private static final int UI_SENDMAIL = UI_BASE + 3;
+    private static final int UI_UNDO = UI_BASE + 4;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -354,6 +354,14 @@ public class EmailProvider extends ContentProvider {
 
     public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
 
+    // For undo handling
+    private int mLastSequence = -1;
+    private ArrayList<ContentProviderOperation> mLastSequenceOps =
+            new ArrayList<ContentProviderOperation>();
+
+    // Query parameter indicating the command came from UIProvider
+    private static final String IS_UIPROVIDER = "is_uiprovider";
+
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
@@ -450,6 +458,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
         matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
+        matcher.addURI(EmailContent.AUTHORITY, "uiundo/*", UI_UNDO);
     }
 
     /**
@@ -855,11 +864,9 @@ public class EmailProvider extends ContentProvider {
 
         DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
         mDatabase = helper.getWritableDatabase();
-        mDatabase.setLockingEnabled(true);
         BodyDatabaseHelper bodyHelper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
         mBodyDatabase = bodyHelper.getWritableDatabase();
         if (mBodyDatabase != null) {
-            mBodyDatabase.setLockingEnabled(true);
             String bodyFileName = mBodyDatabase.getPath();
             mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
         }
@@ -1422,7 +1429,7 @@ public class EmailProvider extends ContentProvider {
 
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-                if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
                     Log.d(TAG, "Notify UIProvider of delete");
                     resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
                 }
@@ -1671,7 +1678,7 @@ public class EmailProvider extends ContentProvider {
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     switch(match) {
                         case MESSAGE:
-                            if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                            if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
                                 Log.d(TAG, "Notify UIProvider of insert");
                                 resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
                             }
@@ -1843,6 +1850,8 @@ public class EmailProvider extends ContentProvider {
         try {
             switch (match) {
                 // First, dispatch queries from UnfiedEmail
+                case UI_UNDO:
+                    return uiUndo(uri, projection);
                 case UI_FOLDERS:
                 case UI_MESSAGES:
                 case UI_MESSAGE:
@@ -2197,7 +2206,7 @@ public class EmailProvider extends ContentProvider {
 
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-                if (!uri.getBooleanQueryParameter("is_uri_provider", false)) {
+                if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
                     Log.d(TAG, "Notify UIProvider of update");
                     resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
                 }
@@ -3071,13 +3080,16 @@ outer:
         return Uri.parse("'content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
     }
 
-    private void putIntegerOrBoolean(ContentValues values, String columnName, Object value) {
+    private void putIntegerLongOrBoolean(ContentValues values, String columnName, Object value) {
         if (value instanceof Integer) {
             Integer intValue = (Integer)value;
             values.put(columnName, intValue);
         } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean)value;
             values.put(columnName, boolValue ? 1 : 0);
+        } else if (value instanceof Long) {
+            Long longValue = (Long)value;
+            values.put(columnName, longValue);
         }
     }
 
@@ -3086,9 +3098,11 @@ outer:
         for (String columnName: values.keySet()) {
             Object val = values.get(columnName);
             if (columnName.equals(UIProvider.ConversationColumns.STARRED)) {
-                putIntegerOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
+                putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.READ)) {
-                putIntegerOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
+                putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
+            } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
+                putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
@@ -3096,29 +3110,78 @@ outer:
         return ourValues;
     }
 
-    private Uri convertToEmailProviderUri(Uri uri) {
+    private Uri convertToEmailProviderUri(Uri uri, boolean asProvider) {
         String idString = uri.getLastPathSegment();
         try {
             long id = Long.parseLong(idString);
-            return ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, id)
-                        .buildUpon()
-                        .appendQueryParameter("is_uri_provider", "true")
-                        .build();
+            Uri ourUri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, id);
+            if (asProvider) {
+                ourUri = ourUri.buildUpon().appendQueryParameter(IS_UIPROVIDER, "true").build();
+            }
+            return ourUri;
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
     private int uiUpdateMessage(Uri uri, ContentValues values) {
-        Uri ourUri = convertToEmailProviderUri(uri);
+        Uri ourUri = convertToEmailProviderUri(uri, true);
         if (ourUri == null) return 0;
         ContentValues ourValues = convertUiMessageValues(values);
         return update(ourUri, ourValues, null, null);
     }
 
     private int uiDeleteMessage(Uri uri) {
-        Uri ourUri = convertToEmailProviderUri(uri);
-        if (ourUri == null) return 0;
-        return delete(ourUri, null, null);
+        Context context = getContext();
+        long messageId = Long.parseLong(uri.getPathSegments().get(1));
+        Message msg = Message.restoreMessageWithId(context, messageId);
+        if (msg == null) return 0;
+        Mailbox mailbox =
+                Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
+        if (mailbox == null) return 0;
+        // See if we're the latest sequence
+        String sequenceString = uri.getQueryParameter(UIProvider.SEQUENCE_QUERY_PARAMETER);
+        if (sequenceString != null) {
+            int sequence = Integer.parseInt(sequenceString);
+            if (sequence > mLastSequence) {
+                // Reset sequence
+                mLastSequenceOps.clear();
+                mLastSequence = sequence;
+            }
+            // Handle errors here...
+            // Add a reversing operation to the list
+            // TODO: Need something to indicate a change isn't ready (undoable)
+            mLastSequenceOps.add(
+                    ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
+                        .withValue(Message.MAILBOX_KEY, msg.mMailboxKey)
+                        .build());
+        }
+        ContentValues values = new ContentValues();
+        values.put(Message.MAILBOX_KEY, mailbox.mId);
+        return uiUpdateMessage(uri, values);
+    }
+
+    private Cursor uiUndo(Uri uri, String[] projection) {
+        // First see if we have any operations saved
+        // TODO: Make sure seq matches
+        if (!mLastSequenceOps.isEmpty()) {
+            try {
+                // TODO Always use this projection?  Or what's passed in?
+                // Not sure if UI wants it, but I'm making a cursor of convo uri's
+                MatrixCursor c = new MatrixCursor(
+                        new String[] {UIProvider.ConversationColumns.MESSAGE_LIST_URI},
+                        mLastSequenceOps.size());
+                for (ContentProviderOperation op: mLastSequenceOps) {
+                    c.addRow(new String[] {op.getUri().toString()});
+                }
+                // Just apply the batch and we're done!
+                applyBatch(mLastSequenceOps);
+                // But clear the operations
+                mLastSequenceOps.clear();
+                return c;
+            } catch (OperationApplicationException e) {
+            }
+        }
+        return new MatrixCursor(projection, 0);
     }
 }
