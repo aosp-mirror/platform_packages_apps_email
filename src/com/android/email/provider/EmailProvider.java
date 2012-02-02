@@ -2856,7 +2856,8 @@ outer:
         .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                 uriWithFQId("uiattachments", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
-        .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI, uriWithId("uimessage"))
+        .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
+                uriWithFQId("uimessage", Message.TABLE_NAME))
         .build();
 
     /**
