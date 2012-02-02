@@ -43,6 +43,7 @@ import android.util.Log;
 import com.android.common.content.ProjectionMap;
 import com.android.email.Email;
 import com.android.email.Preferences;
+import com.android.email.R;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.AccountManagerTypes;
@@ -238,10 +239,10 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_MESSAGES = UI_BASE + 1;
     private static final int UI_MESSAGE = UI_BASE + 2;
     private static final int UI_SENDMAIL = UI_BASE + 3;
-    private static final int UI_SENDMAIL_UPDATE = UI_BASE + 4;
-    private static final int UI_UNDO = UI_BASE + 5;
-    private static final int UI_SAVEDRAFT = UI_BASE + 6;
-    private static final int UI_SAVEDRAFT_UPDATE = UI_BASE + 7;
+    private static final int UI_UNDO = UI_BASE + 4;
+    private static final int UI_SAVEDRAFT = UI_BASE + 5;
+    private static final int UI_UPDATEDRAFT = UI_BASE + 6;
+    private static final int UI_SENDDRAFT = UI_BASE + 7;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -463,7 +464,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
         matcher.addURI(EmailContent.AUTHORITY, "uiundo/*", UI_UNDO);
         matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*", UI_SAVEDRAFT);
-        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*/#", UI_SAVEDRAFT_UPDATE);
+        matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
     }
 
     /**
@@ -2220,10 +2222,10 @@ public class EmailProvider extends ContentProvider {
             }
 outer:
             switch (match) {
-                case UI_SAVEDRAFT_UPDATE:
+                case UI_UPDATEDRAFT:
                     return uiUpdateDraft(uri, values);
-                case UI_SENDMAIL_UPDATE:
-                    return uiUpdateMail(uri, values);
+                case UI_SENDDRAFT:
+                    return uiSendDraft(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
@@ -2857,7 +2859,9 @@ outer:
                 uriWithFQId("uiattachments", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
         .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
-                uriWithFQId("uimessage", Message.TABLE_NAME))
+                uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
+        .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
+                uriWithFQId("uisenddraft", Message.TABLE_NAME))
         .build();
 
     /**
@@ -3060,7 +3064,41 @@ outer:
     }
 
     /**
-     * Given an account name and a mailbox type, return that mailbox
+     * Create a mailbox given the account and mailboxType.
+     */
+    private Mailbox createMailbox(long accountId, int mailboxType) {
+        Context context = getContext();
+        int resId = -1;
+        switch (mailboxType) {
+            case Mailbox.TYPE_INBOX:
+                resId = R.string.mailbox_name_server_inbox;
+                break;
+            case Mailbox.TYPE_OUTBOX:
+                resId = R.string.mailbox_name_server_outbox;
+                break;
+            case Mailbox.TYPE_DRAFTS:
+                resId = R.string.mailbox_name_server_drafts;
+                break;
+            case Mailbox.TYPE_TRASH:
+                resId = R.string.mailbox_name_server_trash;
+                break;
+            case Mailbox.TYPE_SENT:
+                resId = R.string.mailbox_name_server_sent;
+                break;
+            case Mailbox.TYPE_JUNK:
+                resId = R.string.mailbox_name_server_junk;
+                break;
+            default:
+                throw new IllegalArgumentException("Illegal mailbox type");
+        }
+        Log.d(TAG, "Creating mailbox of type " + mailboxType + " for account " + accountId);
+        Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType, context.getString(resId));
+        box.save(context);
+        return box;
+    }
+
+    /**
+     * Given an account name and a mailbox type, return that mailbox, creating it if necessary
      * @param accountName the account name to use
      * @param mailboxType the type of mailbox we're trying to find
      * @return the mailbox of the given type for the account in the uri, or null if not found
@@ -3068,7 +3106,11 @@ outer:
     private Mailbox getMailboxByUriAndType(String accountName, int mailboxType) {
         long accountId = findAccountIdByName(accountName);
         if (accountId == Account.NO_ACCOUNT) return null;
-        return Mailbox.restoreMailboxOfType(getContext(), accountId, mailboxType);
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(getContext(), accountId, mailboxType);
+        if (mailbox == null) {
+            mailbox = createMailbox(accountId, mailboxType);
+        }
+        return mailbox;
     }
 
     private Message getMessageFromPathSegments(List<String> pathSegments) {
@@ -3113,11 +3155,27 @@ outer:
             msg.mAttachments = atts;
         }
         // Save it or update it...
-        if (msg.mId == Message.NO_MESSAGE) {
+        if (!msg.isSaved()) {
             msg.save(context);
         } else {
-            // This is tricky due to how messages/attachments are saved
-            // TODO Implement this...
+            // This is tricky due to how messages/attachments are saved; rather than putz with
+            // what's changed, we'll delete/re-add them
+            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            // Delete all existing attachments
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, msg.mId))
+                    .build());
+            // Delete the body
+            ops.add(ContentProviderOperation.newDelete(Body.CONTENT_URI)
+                    .withSelection(Body.MESSAGE_KEY + "=?", new String[] {Long.toString(msg.mId)})
+                    .build());
+            // Add the ops for the message, atts, and body
+            msg.addSaveOps(ops);
+            // Do it!
+            try {
+                applyBatch(ops);
+            } catch (OperationApplicationException e) {
+            }
         }
         return Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
     }
@@ -3133,7 +3191,12 @@ outer:
         Mailbox mailbox = getMailboxByUriAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
         if (mailbox == null) return null;
         Message msg = getMessageFromPathSegments(pathSegments);
-        return uiSaveMessage(msg, mailbox, values);
+        try {
+            return uiSaveMessage(msg, mailbox, values);
+        } finally {
+            // Kick observers
+            getContext().getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
+        }
     }
 
     /**
@@ -3151,12 +3214,28 @@ outer:
     }
 
     private int uiUpdateDraft(Uri uri, ContentValues values) {
-        uiSaveDraft(uri, values);
+        Context context = getContext();
+        Message msg = Message.restoreMessageWithId(context,
+                Long.parseLong(uri.getPathSegments().get(1)));
+        if (msg == null) return 0;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
+        if (mailbox == null) return 0;
+        uiSaveMessage(msg, mailbox, values);
         return 1;
     }
 
-    private int uiUpdateMail(Uri uri, ContentValues values) {
-        uiSendMail(uri, values);
+    private int uiSendDraft(Uri uri, ContentValues values) {
+        Context context = getContext();
+        Message msg = Message.restoreMessageWithId(context,
+                Long.parseLong(uri.getPathSegments().get(1)));
+        if (msg == null) return 0;
+        long mailboxId = Mailbox.findMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_OUTBOX);
+        if (mailboxId == Mailbox.NO_MAILBOX) return 0;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+        if (mailbox == null) return 0;
+        uiSaveMessage(msg, mailbox, values);
+        // Kick observers
+        context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
         return 1;
     }
 
