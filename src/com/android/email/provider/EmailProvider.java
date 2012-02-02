@@ -238,7 +238,10 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_MESSAGES = UI_BASE + 1;
     private static final int UI_MESSAGE = UI_BASE + 2;
     private static final int UI_SENDMAIL = UI_BASE + 3;
-    private static final int UI_UNDO = UI_BASE + 4;
+    private static final int UI_SENDMAIL_UPDATE = UI_BASE + 4;
+    private static final int UI_UNDO = UI_BASE + 5;
+    private static final int UI_SAVEDRAFT = UI_BASE + 6;
+    private static final int UI_SAVEDRAFT_UPDATE = UI_BASE + 7;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -459,6 +462,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
         matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
         matcher.addURI(EmailContent.AUTHORITY, "uiundo/*", UI_UNDO);
+        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*", UI_SAVEDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*/#", UI_SAVEDRAFT_UPDATE);
     }
 
     /**
@@ -1660,8 +1665,10 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case UI_SAVEDRAFT:
+                    return uiSaveDraft(uri, values);
                 case UI_SENDMAIL:
-                    return uiSendmail(uri, values);
+                    return uiSendMail(uri, values);
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
                 // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
@@ -2213,6 +2220,10 @@ public class EmailProvider extends ContentProvider {
             }
 outer:
             switch (match) {
+                case UI_SAVEDRAFT_UPDATE:
+                    return uiUpdateDraft(uri, values);
+                case UI_SENDMAIL_UPDATE:
+                    return uiUpdateMail(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
@@ -2845,6 +2856,7 @@ outer:
         .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                 uriWithFQId("uiattachments", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
+        .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI, uriWithId("uimessage"))
         .build();
 
     /**
@@ -3046,14 +3058,36 @@ outer:
         return att;
     }
 
-    private Uri uiSendmail(Uri uri, ContentValues values) {
+    /**
+     * Given an account name and a mailbox type, return that mailbox
+     * @param accountName the account name to use
+     * @param mailboxType the type of mailbox we're trying to find
+     * @return the mailbox of the given type for the account in the uri, or null if not found
+     */
+    private Mailbox getMailboxByUriAndType(String accountName, int mailboxType) {
+        long accountId = findAccountIdByName(accountName);
+        if (accountId == Account.NO_ACCOUNT) return null;
+        return Mailbox.restoreMailboxOfType(getContext(), accountId, mailboxType);
+    }
+
+    private Message getMessageFromPathSegments(List<String> pathSegments) {
+        Message msg = null;
+        if (pathSegments.size() > 2) {
+            msg = Message.restoreMessageWithId(getContext(), Long.parseLong(pathSegments.get(2)));
+        }
+        if (msg == null) {
+            msg = new Message();
+        }
+        return msg;
+    }
+    /**
+     * Given a mailbox and the content values for a message, create/save the message in the mailbox
+     * @param mailbox the mailbox to use
+     * @param values the content values that represent message fields
+     * @return the uri of the newly created message
+     */
+    private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values) {
         Context context = getContext();
-        String accountName = uri.getPathSegments().get(1);
-        long acctId = findAccountIdByName(accountName);
-        if (acctId == Account.NO_ACCOUNT) return null;
-        Mailbox mailbox = Mailbox.restoreMailboxOfType(context, acctId, Mailbox.TYPE_OUTBOX);
-        if (mailbox == null) return null;
-        Message msg = new Message();
         // Fill in the message
         msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
         msg.mCc = values.getAsString(UIProvider.MessageColumns.CC);
@@ -3063,6 +3097,8 @@ outer:
         msg.mHtml = values.getAsString(UIProvider.MessageColumns.BODY_HTML);
         msg.mMailboxKey = mailbox.mId;
         msg.mAccountKey = mailbox.mAccountKey;
+        msg.mDisplayName = msg.mTo;
+        msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         // Get attachments from the ContentValues
         ArrayList<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
@@ -3075,9 +3111,52 @@ outer:
         if (!atts.isEmpty()) {
             msg.mAttachments = atts;
         }
-        // Save it
-        msg.save(context);
-        return Uri.parse("'content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
+        // Save it or update it...
+        if (msg.mId == Message.NO_MESSAGE) {
+            msg.save(context);
+        } else {
+            // This is tricky due to how messages/attachments are saved
+            // TODO Implement this...
+        }
+        return Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
+    }
+
+    /**
+     * Create and send the message via the account indicated in the uri
+     * @param uri the incoming uri
+     * @param values the content values that represent message fields
+     * @return the uri of the created message
+     */
+    private Uri uiSendMail(Uri uri, ContentValues values) {
+        List<String> pathSegments = uri.getPathSegments();
+        Mailbox mailbox = getMailboxByUriAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
+        if (mailbox == null) return null;
+        Message msg = getMessageFromPathSegments(pathSegments);
+        return uiSaveMessage(msg, mailbox, values);
+    }
+
+    /**
+     * Create a message and save it to the drafts folder of the account indicated in the uri
+     * @param uri the incoming uri
+     * @param values the content values that represent message fields
+     * @return the uri of the created message
+     */
+    private Uri uiSaveDraft(Uri uri, ContentValues values) {
+        List<String> pathSegments = uri.getPathSegments();
+        Mailbox mailbox = getMailboxByUriAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
+        if (mailbox == null) return null;
+        Message msg = getMessageFromPathSegments(pathSegments);
+        return uiSaveMessage(msg, mailbox, values);
+    }
+
+    private int uiUpdateDraft(Uri uri, ContentValues values) {
+        uiSaveDraft(uri, values);
+        return 1;
+    }
+
+    private int uiUpdateMail(Uri uri, ContentValues values) {
+        uiSendMail(uri, values);
+        return 1;
     }
 
     private void putIntegerLongOrBoolean(ContentValues values, String columnName, Object value) {
@@ -3169,7 +3248,7 @@ outer:
                 // TODO Always use this projection?  Or what's passed in?
                 // Not sure if UI wants it, but I'm making a cursor of convo uri's
                 MatrixCursor c = new MatrixCursor(
-                        new String[] {UIProvider.ConversationColumns.MESSAGE_LIST_URI},
+                        new String[] {UIProvider.ConversationColumns.URI},
                         mLastSequenceOps.size());
                 for (ContentProviderOperation op: mLastSequenceOps) {
                     c.addRow(new String[] {op.getUri().toString()});
