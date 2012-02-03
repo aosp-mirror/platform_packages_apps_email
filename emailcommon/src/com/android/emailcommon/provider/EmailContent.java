@@ -887,9 +887,20 @@ public abstract class EmailContent {
             return null;
         }
 
+        /**
+         * Save or update a message
+         * @param ops an array of CPOs that we'll add to
+         */
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
-            // First, save the message
-            ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
+            boolean isNew = !isSaved();
+            ContentProviderOperation.Builder b;
+            // First, save/update the message
+            if (isNew) {
+                b = ContentProviderOperation.newInsert(mBaseUri);
+            } else {
+                b = ContentProviderOperation.newUpdate(mBaseUri)
+                        .withSelection(Message.RECORD_ID + "=?", new String[] {Long.toString(mId)});
+            }
             // Generate the snippet here, before we create the CPO for Message
             if (mText != null) {
                 mSnippet = TextUtilities.makeSnippetFromPlainText(mText);
@@ -919,19 +930,34 @@ public abstract class EmailContent {
                 cv.put(Body.INTRO_TEXT, mIntroText);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
+            // Put our message id in the Body
+            if (!isNew) {
+                cv.put(Body.MESSAGE_KEY, mId);
+            }
             b.withValues(cv);
-            ContentValues backValues = new ContentValues();
+            // We'll need this if we're new
             int messageBackValue = ops.size() - 1;
-            backValues.put(Body.MESSAGE_KEY, messageBackValue);
-            ops.add(b.withValueBackReferences(backValues).build());
+            // If we're new, create a back value entry
+            if (isNew) {
+                ContentValues backValues = new ContentValues();
+                backValues.put(Body.MESSAGE_KEY, messageBackValue);
+                b.withValueBackReferences(backValues);
+            }
+            // And add the Body operation
+            ops.add(b.build());
 
             // Create the attaachments, if any
             if (mAttachments != null) {
                 for (Attachment att: mAttachments) {
-                    ops.add(ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
-                        .withValues(att.toContentValues())
-                        .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
-                        .build());
+                    if (!isNew) {
+                        att.mMessageKey = mId;
+                    }
+                    b = ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
+                            .withValues(att.toContentValues());
+                    if (isNew) {
+                        b.withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue);
+                    }
+                    ops.add(b.build());
                 }
             }
         }
