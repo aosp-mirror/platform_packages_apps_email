@@ -681,8 +681,7 @@ public class EmailProvider extends ContentProvider {
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
                 if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                    Log.d(TAG, "Notify UIProvider of delete");
-                    resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                    notifyUIProvider("Delete");
                 }
             }
             switch (match) {
@@ -932,8 +931,7 @@ public class EmailProvider extends ContentProvider {
                     switch(match) {
                         case MESSAGE:
                             if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                                Log.d(TAG, "Notify UIProvider of insert");
-                                resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                                notifyUIProvider("Insert");
                             }
                             break;
                         case MAILBOX:
@@ -1460,8 +1458,7 @@ public class EmailProvider extends ContentProvider {
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
                 if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                    Log.d(TAG, "Notify UIProvider of update");
-                    resolver.notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+                    notifyUIProvider("Update");
                 }
             }
 outer:
@@ -2255,22 +2252,18 @@ outer:
         }
     }
 
-    private int uiUpdateMessage(Uri uri, ContentValues values) {
-        Uri ourUri = convertToEmailProviderUri(uri, true);
-        if (ourUri == null) return 0;
-        ContentValues ourValues = convertUiMessageValues(values);
-        return update(ourUri, ourValues, null, null);
+    private Message getMessageFromLastSegment(Uri uri) {
+        long messageId = Long.parseLong(uri.getLastPathSegment());
+        return Message.restoreMessageWithId(getContext(), messageId);
     }
 
-    private int uiDeleteMessage(Uri uri) {
-        Context context = getContext();
-        long messageId = Long.parseLong(uri.getPathSegments().get(1));
-        Message msg = Message.restoreMessageWithId(context, messageId);
-        if (msg == null) return 0;
-        Mailbox mailbox =
-                Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
-        if (mailbox == null) return 0;
-        // See if we're the latest sequence
+    /**
+     * Add an undo operation for the current sequence; if the sequence is newer than what we've had,
+     * clear out the undo list and start over
+     * @param uri the uri we're working on
+     * @param op the ContentProviderOperation to perform upon undo
+     */
+    private void addToSequence(Uri uri, ContentProviderOperation op) {
         String sequenceString = uri.getQueryParameter(UIProvider.SEQUENCE_QUERY_PARAMETER);
         if (sequenceString != null) {
             int sequence = Integer.parseInt(sequenceString);
@@ -2279,14 +2272,47 @@ outer:
                 mLastSequenceOps.clear();
                 mLastSequence = sequence;
             }
-            // Handle errors here...
-            // Add a reversing operation to the list
             // TODO: Need something to indicate a change isn't ready (undoable)
-            mLastSequenceOps.add(
-                    ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
-                        .withValue(Message.MAILBOX_KEY, msg.mMailboxKey)
-                        .build());
+            mLastSequenceOps.add(op);
         }
+    }
+
+    private int uiUpdateMessage(Uri uri, ContentValues values) {
+        Uri ourUri = convertToEmailProviderUri(uri, true);
+        if (ourUri == null) return 0;
+        ContentValues ourValues = convertUiMessageValues(values);
+        Message msg = getMessageFromLastSegment(uri);
+        if (msg == null) return 0;
+        ContentValues undoValues = new ContentValues();
+        for (String columnName: ourValues.keySet()) {
+            if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
+                undoValues.put(MessageColumns.MAILBOX_KEY, msg.mMailboxKey);
+            } else if (columnName.equals(MessageColumns.FLAG_READ)) {
+                undoValues.put(MessageColumns.FLAG_READ, msg.mFlagRead);
+            } else if (columnName.equals(MessageColumns.FLAG_FAVORITE)) {
+                undoValues.put(MessageColumns.FLAG_FAVORITE, msg.mFlagFavorite);
+            }
+        }
+        ContentProviderOperation op =
+                ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
+                        .withValues(undoValues)
+                        .build();
+        addToSequence(uri, op);
+        return update(ourUri, ourValues, null, null);
+    }
+
+    private int uiDeleteMessage(Uri uri) {
+        Context context = getContext();
+        Message msg = getMessageFromLastSegment(uri);
+        if (msg == null) return 0;
+        Mailbox mailbox =
+                Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
+        if (mailbox == null) return 0;
+        ContentProviderOperation op =
+                ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
+                        .withValue(Message.MAILBOX_KEY, msg.mMailboxKey)
+                        .build();
+        addToSequence(uri, op);
         ContentValues values = new ContentValues();
         values.put(Message.MAILBOX_KEY, mailbox.mId);
         return uiUpdateMessage(uri, values);
@@ -2309,10 +2335,18 @@ outer:
                 applyBatch(mLastSequenceOps);
                 // But clear the operations
                 mLastSequenceOps.clear();
+                // Tell the UI there are changes
+                notifyUIProvider("Undo");
                 return c;
             } catch (OperationApplicationException e) {
             }
         }
         return new MatrixCursor(projection, 0);
+    }
+
+    private void notifyUIProvider(String reason) {
+        getContext().getContentResolver().notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+        // Temporary
+        Log.d(TAG, "[Notify UIProvider " + reason + "]");
     }
 }
