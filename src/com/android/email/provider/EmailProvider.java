@@ -2229,6 +2229,11 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
             } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
+            } else if (columnName.equals(UIProvider.ConversationColumns.FOLDER_LIST)) {
+                // Convert from folder list uri to mailbox key
+                Uri uri = Uri.parse((String)val);
+                Long mailboxId = Long.parseLong(uri.getLastPathSegment());
+                putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
