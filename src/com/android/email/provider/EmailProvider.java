@@ -1831,13 +1831,19 @@ outer:
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the folder list in UnifiedEmail
      */
+    private static String getFolderCapabilities() {
+        return "CASE WHEN (" + MailboxColumns.FLAGS + "&" + Mailbox.FLAG_ACCEPTS_MOVED_MAIL +
+                ") !=0 THEN " + UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES +
+                " ELSE 0 END";
+    }
+
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, MessageColumns.ID)
         .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
         .add(UIProvider.FolderColumns.NAME, "displayName")
         .add(UIProvider.FolderColumns.HAS_CHILDREN,
                 MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
-        .add(UIProvider.FolderColumns.CAPABILITIES, "0")
+        .add(UIProvider.FolderColumns.CAPABILITIES, getFolderCapabilities())
         .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
