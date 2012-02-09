@@ -82,7 +82,7 @@
 
         <receiver android:name=".providers.protos.boot.AccountReceiver">
           <intent-filter>
-              <action android:name="com.android.mail.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
+              <action android:name="com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
           </intent-filter>
         </receiver>
 
