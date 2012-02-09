@@ -48,6 +48,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -339,6 +340,7 @@ public class Controller {
     /**
      * Request a remote update of mailboxes for an account.
      */
+    @SuppressWarnings("deprecation")
     public void updateMailboxList(final long accountId) {
         Utility.runAsync(new Runnable() {
             @Override
@@ -367,23 +369,15 @@ public class Controller {
      * Functionally this is quite similar to updateMailbox(), but it's a separate API and
      * separate callback in order to keep UI callbacks from affecting the service loop.
      */
+    @SuppressWarnings("deprecation")
     public void serviceCheckMail(final long accountId, final long mailboxId, final long tag) {
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
-            // Service implementation
-//            try {
-                // TODO this isn't quite going to work, because we're going to get the
-                // generic (UI) callbacks and not the ones we need to restart the ol' service.
-                // service.startSync(mailboxId, tag);
             mLegacyListener.checkMailFinished(mContext, accountId, mailboxId, tag);
-//            } catch (RemoteException e) {
-                // TODO Change exception handling to be consistent with however this method
-                // is implemented for other protocols
-//                Log.d("updateMailbox", "RemoteException" + e);
-//            }
         } else {
             // MessagingController implementation
             Utility.runAsync(new Runnable() {
+                @Override
                 public void run() {
                     mLegacyController.checkMail(accountId, tag, mLegacyListener);
                 }
@@ -398,6 +392,7 @@ public class Controller {
      * a simple message list.  We should also at this point queue up a background task of
      * downloading some/all of the messages in this mailbox, but that should be interruptable.
      */
+    @SuppressWarnings("deprecation")
     public void updateMailbox(final long accountId, final long mailboxId, boolean userRequest) {
 
         IEmailService service = getServiceForAccount(accountId);
@@ -412,6 +407,7 @@ public class Controller {
         } else {
             // MessagingController implementation
             Utility.runAsync(new Runnable() {
+                @Override
                 public void run() {
                     // TODO shouldn't be passing fully-build accounts & mailboxes into APIs
                     Account account =
@@ -438,11 +434,13 @@ public class Controller {
      * @param messageId the message to load
      * @param callback the Controller callback by which results will be reported
      */
+    @SuppressWarnings("deprecation")
     public void loadMessageForView(final long messageId) {
 
         // Split here for target type (Service or MessagingController)
-        IEmailService service = getServiceForMessage(messageId);
-        if (service != null) {
+        EmailServiceProxy service = getServiceForMessage(messageId);
+        if (service != null && service.isRemote()) {
+            // Get rid of this!!
             // There is no service implementation, so we'll just jam the value, log the error,
             // and get out of here.
             Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
@@ -456,9 +454,16 @@ public class Controller {
                     listener.loadMessageForViewCallback(null, accountId, messageId, 100);
                 }
             }
+        } else if (service != null) {
+            // IMAP here for now
+            try {
+                service.loadMore(messageId);
+            } catch (RemoteException e) {
+            }
         } else {
             // MessagingController implementation
             Utility.runAsync(new Runnable() {
+                @Override
                 public void run() {
                     mLegacyController.loadMessageForView(messageId, mLegacyListener);
                 }
@@ -593,6 +598,7 @@ public class Controller {
         sendPendingMessages(accountId);
     }
 
+    @SuppressWarnings("deprecation")
     private void sendPendingMessagesSmtp(long accountId) {
         // for IMAP & POP only, (attempt to) send the message now
         final Account account =
@@ -602,6 +608,7 @@ public class Controller {
         }
         final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
         Utility.runAsync(new Runnable() {
+            @Override
             public void run() {
                 mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
             }
@@ -644,8 +651,10 @@ public class Controller {
      *   look up limit
      *   write limit into all mailboxes for that account
      */
+    @SuppressWarnings("deprecation")
     public void resetVisibleLimits() {
         Utility.runAsync(new Runnable() {
+            @Override
             public void run() {
                 ContentResolver resolver = mProviderContext.getContentResolver();
                 Cursor c = null;
@@ -682,6 +691,7 @@ public class Controller {
      */
     public void loadMoreMessages(final long mailboxId) {
         EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 Mailbox mailbox = Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
                 if (mailbox == null) {
@@ -746,6 +756,7 @@ public class Controller {
      */
     public void deleteMessage(final long messageId) {
         EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 deleteMessageSync(messageId);
             }
@@ -760,6 +771,7 @@ public class Controller {
             throw new IllegalArgumentException();
         }
         EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 for (long messageId: messageIds) {
                     deleteMessageSync(messageId);
@@ -809,10 +821,6 @@ public class Controller {
             cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
             resolver.update(uri, cv, null, null);
         }
-
-        if (isMessagingController(account)) {
-            mLegacyController.processPendingActions(account.mId);
-        }
     }
 
     /**
@@ -834,6 +842,7 @@ public class Controller {
             throw new IllegalArgumentException();
         }
         return EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 Account account = Account.getAccountForMessageId(mProviderContext, messageIds[0]);
                 if (account != null) {
@@ -844,9 +853,6 @@ public class Controller {
                         Uri uri = ContentUris.withAppendedId(
                                 EmailContent.Message.SYNCED_CONTENT_URI, messageId);
                         resolver.update(uri, cv, null, null);
-                    }
-                    if (isMessagingController(account)) {
-                        mLegacyController.processPendingActions(account.mId);
                     }
                 }
             }
@@ -888,13 +894,6 @@ public class Controller {
     private void updateMessageSync(long messageId, ContentValues cv) {
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
         mProviderContext.getContentResolver().update(uri, cv, null, null);
-
-        // Service runs automatically, MessagingController needs a kick
-        long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
-        if (accountId == Account.NO_ACCOUNT) return;
-        if (isMessagingController(accountId)) {
-            mLegacyController.processPendingActions(accountId);
-        }
     }
 
     /**
@@ -906,6 +905,7 @@ public class Controller {
     public void setMessageAnsweredOrForwarded(final long messageId,
             final int flag) {
         EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
             public void run() {
                 Message msg = Message.restoreMessageWithId(mProviderContext, messageId);
                 if (msg == null) {
@@ -1019,7 +1019,9 @@ public class Controller {
             if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Search: " + searchParams.mFilter);
             }
-            return mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
+            // Plumb this
+            return 0;
+            //return mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
         }
     }
 
@@ -1085,7 +1087,7 @@ public class Controller {
      * @param messageId the message of interest
      * @result service proxy, or null if n/a
      */
-    private IEmailService getServiceForMessage(long messageId) {
+    private EmailServiceProxy getServiceForMessage(long messageId) {
         // TODO make this more efficient, caching the account, smaller lookup here, etc.
         Message message = Message.restoreMessageWithId(mProviderContext, messageId);
         if (message == null) {
@@ -1100,13 +1102,20 @@ public class Controller {
      * @param accountId the message of interest
      * @result service proxy, or null if n/a
      */
-    private IEmailService getServiceForAccount(long accountId) {
+    private EmailServiceProxy getServiceForAccount(long accountId) {
         if (isMessagingController(accountId)) return null;
+        if (Account.getProtocol(mContext, accountId).equals(HostAuth.SCHEME_IMAP)) {
+            return getImapEmailService();
+        }
         return getExchangeEmailService();
     }
 
-    private IEmailService getExchangeEmailService() {
+    private EmailServiceProxy getExchangeEmailService() {
         return EmailServiceUtils.getExchangeService(mContext, mServiceCallback);
+    }
+
+    private EmailServiceProxy getImapEmailService() {
+        return EmailServiceUtils.getImapService(mContext, mServiceCallback);
     }
 
     /**
@@ -1121,7 +1130,7 @@ public class Controller {
         Boolean isLegacyController = mLegacyControllerMap.get(accountId);
         if (isLegacyController == null) {
             String protocol = Account.getProtocol(mProviderContext, accountId);
-            isLegacyController = ("pop3".equals(protocol) || "imap".equals(protocol));
+            isLegacyController = (HostAuth.SCHEME_POP3.equals(protocol));
             mLegacyControllerMap.put(accountId, isLegacyController);
         }
         return isLegacyController;
@@ -1581,8 +1590,7 @@ public class Controller {
      */
     private class ServiceCallback extends IEmailServiceCallback.Stub {
 
-        private final static boolean DEBUG_FAIL_DOWNLOADS = false;       // do not check in "true"
-
+        @Override
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
             MessagingException result = mapStatusToException(statusCode);
@@ -1591,10 +1599,6 @@ public class Controller {
                     progress = 100;
                     break;
                 case EmailServiceStatus.IN_PROGRESS:
-                    if (DEBUG_FAIL_DOWNLOADS && progress > 75) {
-                        result = new MessagingException(
-                                String.valueOf(EmailServiceStatus.CONNECTION_ERROR));
-                    }
                     // discard progress reports that look like sentinels
                     if (progress < 0 || progress >= 100) {
                         return;
@@ -1616,6 +1620,7 @@ public class Controller {
          * However, this is sufficient for basic "progress=100" notification that message send
          * has just completed.
          */
+        @Override
         public void sendMessageStatus(long messageId, String subject, int statusCode,
                 int progress) {
             long accountId = -1;        // This should be in the callback
@@ -1638,6 +1643,35 @@ public class Controller {
             }
         }
 
+        /**
+         * Note, this is an incomplete implementation of this callback, because we are
+         * not getting things back from Service in quite the same way as from MessagingController.
+         * However, this is sufficient for basic "progress=100" notification that message send
+         * has just completed.
+         */
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress) {
+            long accountId = -1;        // This should be in the callback
+            MessagingException result = mapStatusToException(statusCode);
+            switch (statusCode) {
+                case EmailServiceStatus.SUCCESS:
+                    progress = 100;
+                    break;
+                case EmailServiceStatus.IN_PROGRESS:
+                    // discard progress reports that look like sentinels
+                    if (progress < 0 || progress >= 100) {
+                        return;
+                    }
+                    break;
+            }
+            synchronized(mListeners) {
+                for (Result listener : mListeners) {
+                    listener.loadMessageForViewCallback(result, accountId, messageId, progress);
+                }
+            }
+        }
+
+        @Override
         public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
             MessagingException result = mapStatusToException(statusCode);
             switch (statusCode) {
@@ -1658,6 +1692,7 @@ public class Controller {
             }
         }
 
+        @Override
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
             MessagingException result = mapStatusToException(statusCode);
             switch (statusCode) {
@@ -1752,6 +1787,7 @@ public class Controller {
             }
         }
 
+        @Override
         public void loadAttachmentStatus(final long messageId, final long attachmentId,
                 final int status, final int progress) {
             broadcastCallback(new ServiceCallbackWrapper() {
@@ -1764,6 +1800,10 @@ public class Controller {
 
         @Override
         public void sendMessageStatus(long messageId, String subject, int statusCode, int progress){
+        }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress){
         }
 
         @Override
@@ -1782,20 +1822,25 @@ public class Controller {
          */
         private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
+            @Override
             public Bundle validate(HostAuth hostAuth) {
                 return null;
             }
 
+            @Override
             public Bundle autoDiscover(String userName, String password) {
                 return null;
             }
 
+            @Override
             public void startSync(long mailboxId, boolean userRequest) {
             }
 
+            @Override
             public void stopSync(long mailboxId) {
             }
 
+            @Override
             public void loadAttachment(long attachmentId, boolean background)
                     throws RemoteException {
                 Attachment att = Attachment.restoreAttachmentWithId(ControllerService.this,
@@ -1835,41 +1880,52 @@ public class Controller {
                 }
             }
 
+            @Override
             public void updateFolderList(long accountId) {
             }
 
+            @Override
             public void hostChanged(long accountId) {
             }
 
+            @Override
             public void setLogging(int flags) {
             }
 
+            @Override
             public void sendMeetingResponse(long messageId, int response) {
             }
 
+            @Override
             public void loadMore(long messageId) {
             }
 
             // The following three methods are not implemented in this version
+            @Override
             public boolean createFolder(long accountId, String name) {
                 return false;
             }
 
+            @Override
             public boolean deleteFolder(long accountId, String name) {
                 return false;
             }
 
+            @Override
             public boolean renameFolder(long accountId, String oldName, String newName) {
                 return false;
             }
 
+            @Override
             public void setCallback(IEmailServiceCallback cb) {
                 sCallbackList.register(cb);
             }
 
+            @Override
             public void deleteAccountPIMData(long accountId) {
             }
 
+            @Override
             public int searchMessages(long accountId, SearchParams searchParams,
                     long destMailboxId) {
                 return 0;
