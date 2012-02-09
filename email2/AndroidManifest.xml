@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.mail"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <original-package android:name="com.android.mail" />
+
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- Allows mail to access the user's contacts, for email address auto-completion -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!-- Allows access to EmailProvider (EAS/IMAP/POP3) -->
+    <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="com.google.android.gm.permission.READ_CONTENT_PROVIDER"/>
+    <uses-permission android:name="com.google.android.gm.permission.READ_GMAIL"/>
+    <uses-permission android:name="com.google.android.gm.permission.WRITE_GMAIL"/>
+
+    <application
+        android:icon="@mipmap/ic_launcher_mail"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:label="@string/app_name"
+            android:name=".UnifiedEmail" >
+        </activity>
+        <activity android:name=".compose.ComposeActivity" />
+        <activity android:name=".browse.ConversationListActivity" android:label="@string/app_name">
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".browse.ConversationViewActivity" />
+        <activity android:name=".browse.FolderItem" />
+        <activity
+           android:name=".ui.ActionbarActivity"
+           android:uiOptions="splitActionBarWhenNarrow" />
+        <activity
+           android:name=".ui.MailActivity"
+           android:uiOptions="splitActionBarWhenNarrow" />
+
+        <provider
+            android:authorities="com.android.email2.conversation.provider"
+            android:label="@string/conversation_content_provider"
+            android:multiprocess="false"
+            android:name=".browse.EmailConversationProvider" >
+            <grant-uri-permission android:pathPattern=".*" />
+        </provider>
+
+        <provider
+            android:authorities="com.android.email2.accountcache"
+            android:label="@string/account_cache_provider"
+            android:multiprocess="false"
+            android:name=".providers.EmailAccountCacheProvider" >
+            <grant-uri-permission android:pathPattern=".*" />
+        </provider>
+
+        <provider
+            android:authorities="com.android.email2.dummymailprovider"
+            android:label="@string/dummy_gmail_provider"
+            android:multiprocess="false"
+            android:name=".providers.protos.boot.DummyMailProvider" >
+            <grant-uri-permission android:pathPattern=".*" />
+        </provider>
+
+        <receiver android:name=".providers.protos.boot.AccountReceiver">
+          <intent-filter>
+              <action android:name="com.android.mail.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
+          </intent-filter>
+        </receiver>
+
+        <service android:name=".providers.protos.boot.EmailAccountService"/>
+        <service android:name=".compose.EmptyService"/>
+    </application>
+
+</manifest>
