@@ -174,9 +174,9 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
      * Prepare to receive a simple message (see setupSimpleMessage)
      */
     private void expectSimpleMessage(MockTransport mockTransport) {
-        mockTransport.expect("MAIL FROM: <Jones@Registry.Org>",
+        mockTransport.expect("MAIL FROM:<Jones@Registry.Org>",
                 "250 2.1.0 <Jones@Registry.Org> sender ok");
-        mockTransport.expect("RCPT TO: <Smith@Registry.Org>",
+        mockTransport.expect("RCPT TO:<Smith@Registry.Org>",
                 "250 2.1.5 <Smith@Registry.Org> recipient ok");
         mockTransport.expect("DATA", "354 enter mail, end with . on a line by itself");
         mockTransport.expect("Date: .*");
