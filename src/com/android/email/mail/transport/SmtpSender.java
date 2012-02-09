@@ -202,15 +202,15 @@ public class SmtpSender extends Sender {
         Address[] bcc = Address.unpack(message.mBcc);
 
         try {
-            executeSimpleCommand("MAIL FROM: " + "<" + from.getAddress() + ">");
+            executeSimpleCommand("MAIL FROM:" + "<" + from.getAddress() + ">");
             for (Address address : to) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress() + ">");
             }
             for (Address address : cc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress() + ">");
             }
             for (Address address : bcc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress() + ">");
             }
             executeSimpleCommand("DATA");
             // TODO byte stuffing
