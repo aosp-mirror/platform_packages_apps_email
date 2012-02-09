@@ -42,7 +42,7 @@
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Вставить быстрый ответ"</string>
     <string name="read_action" msgid="4701484794504781686">"Отметить как прочитанное"</string>
     <string name="unread_action" msgid="6280399049357552826">"Отметить как непрочитанное"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Пометить"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Добавить пометку"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Снять пометку"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Обновление"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Добавить аккаунт"</string>
