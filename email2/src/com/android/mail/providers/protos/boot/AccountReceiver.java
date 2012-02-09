@@ -25,7 +25,7 @@ public class AccountReceiver extends BroadcastReceiver {
      * Intent used to notify interested parties that the Mail provider has been created.
      */
     public static final String ACTION_PROVIDER_CREATED
-            = "com.android.mail.providers.protos.boot.intent.ACTION_PROVIDER_CREATED";
+            = "com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
