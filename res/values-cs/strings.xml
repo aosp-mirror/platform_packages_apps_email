@@ -119,7 +119,7 @@
     <item quantity="other" msgid="7901361399231876038">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
   </plurals>
     <string name="message_list_no_messages" msgid="7846910091922523867">"Žádné zprávy"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Do"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Komu"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopie"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Předmět"</string>
