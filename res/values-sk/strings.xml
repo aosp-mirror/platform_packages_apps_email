@@ -20,7 +20,7 @@
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Umožňuje tejto aplikácii čítať prílohy vašich e-mailov."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Prístup k údajom poskytovateľa e-mailu"</string>
     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Povoľuje tejto aplikácii prístup do databázy e-mailu, vrátane prijatých a odoslaných správ, používateľských mien a hesiel."</string>
-    <string name="app_name" msgid="5815426892327290362">"Poslať e-mail"</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Napísať správu"</string>
     <string name="debug_title" msgid="5175710493691536719">"Ladiť"</string>
     <string name="next_action" msgid="3931301986364184415">"Ďalej"</string>

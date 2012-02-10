@@ -40,8 +40,8 @@
     <string name="discard_action" msgid="6532206074859505968">"Kassér"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Gem kladde"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Indsæt hurtigt svar"</string>
-    <string name="read_action" msgid="4701484794504781686">"Marker som læst"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Marker som ulæst"</string>
+    <string name="read_action" msgid="4701484794504781686">"Markér som læst"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Markér som ulæst"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Tilføj stjerne"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Fjern stjerne"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Opdater"</string>
@@ -51,7 +51,7 @@
     <string name="account_settings_action" msgid="4494079183315085171">"Indstillinger for konto"</string>
     <string name="settings_action" msgid="6334807007967459412">"Indstillinger"</string>
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Indstillinger for synkronisering"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Marker som ulæst"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Markér som ulæst"</string>
     <string name="move_action" msgid="3059189775933985898">"Flyt"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Tilføj Cc/Bcc"</string>

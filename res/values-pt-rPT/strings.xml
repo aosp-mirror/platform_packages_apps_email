@@ -86,14 +86,14 @@
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> conta"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> contas"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Caixa de entrada"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Caixa de Entrada"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Caixa de saída"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Rascunhos"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Lixo"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviada"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Correio electrónico não solicitado"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Não lidas"</string>
-    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Caixa de entrada (não lida(s))"</string>
+    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Caixa de Entrada (não lida(s))"</string>
     <string name="picker_mailbox_name_all_inbox" msgid="2277030979530376085">"Caixa de Entrada (todas)"</string>
     <string name="picker_combined_view_fmt" msgid="6276294768978512737">"Vista combinada (<xliff:g id="COUNT">%s</xliff:g>)"</string>
   <plurals name="picker_combined_view_account_count">
@@ -101,7 +101,7 @@
     <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> contas"</item>
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versão: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Caixa de entrada"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Caixa de Entrada"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado com estrela"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rascunhos"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Caixa de saída"</string>

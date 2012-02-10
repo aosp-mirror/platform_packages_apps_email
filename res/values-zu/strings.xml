@@ -246,7 +246,7 @@
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"I-akhawunti Ephindiwe"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Usuvele usebenzisa leli gama lomsebenzisi kule akhawunti \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Le phasiwedi iqala noma igcina ngezimpawu"</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Ilanda ukwaziswa kwe-akhawunti..."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Ilanda ulwazi le-akhawunti..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Ihlola izilungiselelo zesiphakeli ezingenayo..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Ihlola izilungiselelo zesiphakeli eziphumayo..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Ukumisa i-akhawunti"</string>
@@ -330,7 +330,7 @@
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Iseva iphendule ngephutha, sicela uhlole igama lakho lomsebenzisi nephasiwedi bese uzama futhi."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Ayikwazi ukuxhuma kwiseva."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Ayikwazi ukuxhuma kwiseva. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"I-TLS iyadingeka kodwa ayisekelwa isiphakeli."</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"I-TLS iyadingeka kodwa ayisekelwa iseva."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Izindlela zokuqinisekisa azisekelwa yiseva."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Ayikwazanga ukuvula uxhumano kwisiphakeli ngenxa yephutha lokuphepha."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Ayikwazi ukuvula uxhumano kwiseva."</string>
@@ -348,7 +348,7 @@
     <string name="account_security_title" msgid="3511543138560418587">"Ukuphepha kweDivaysi"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Iseva <xliff:g id="SERVER">%s</xliff:g> idinga ukuba uyivumele ukuba ilawule kude ezinye izici zokuphepha kwedivayisi ye-Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Hlela imininingwane"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukuba ushintshe iphinikhodi yokuvala isikrini noma iphasiwedi"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukuba ushintshe iphinikhodi yokuvala isikrini noma i-password"</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Iphasiwedi yokuvala isikrini iphelelwa isikhathi"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Iphinikhodi noma iphasiwedi yakho yokuvala isikrini iphelelwe isikhathi."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Iphasiwedi yokuvala isikrini iphelelwe isikhathi"</string>
@@ -415,7 +415,7 @@
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Ukuvumelanisa Okusebenzayo Kokushintshanisa kwe-Microsoft"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Ayikwazanga ukwenza i-akhawunti. Zama futhi."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"I-imeyli"</string>
-    <string name="device_admin_description" msgid="426727923791430306">"Ivumela isiphakeli sezinqubomgomo zokuphepha okucacisiwe"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Ivumela izinqubomgomo zokuphepha eziqondene neseva"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Iyasesha <xliff:g id="DOMAIN">%s</xliff:g>..."</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> imiphumela ephuma <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
@@ -436,7 +436,7 @@
     <item msgid="4415205108584620118">"Umbhalo omncane"</item>
     <item msgid="4550219696381691112">"Umbhalo ongubukhulu obujwayelekile"</item>
     <item msgid="6227813549949219991">"Umbhalo omkhulu"</item>
-    <item msgid="1197917420815786571">"Umbhalo omkhulu kakhulu"</item>
+    <item msgid="1197917420815786571">"Umbhalo omkhulu"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Usayizi wombhalo womyalezo"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Ncane kakhulu"</string>

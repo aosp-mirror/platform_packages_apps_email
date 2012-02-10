@@ -4,7 +4,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="application_name" msgid="7812006268714926951">"Tải lên tức thì"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Anbom tải lên tức thì"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Album tải lên tức thì"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Đang tải lên"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Đã hoàn tất"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Đã tạm dừng"</string>
@@ -115,7 +115,7 @@
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Thẻ SD không khả dụng"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"C.đặt Tải lên t.thì"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Tải lên tức thì"</string>
-    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Tự động tải ảnh &amp; video mới lên anbom web riêng tư"</string>
+    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Tự động tải ảnh &amp; video mới lên album web riêng tư"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Trạng thái tải lên"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Nâng cao"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Nội dung tải lên qua di động"</string>
@@ -131,7 +131,7 @@
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d trong tổng số %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Tạm dừng: chạm để tiếp tục tải lên"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Tải lên ảnh hiện có"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Tải lên ảnh và video chưa được tải lên từ điện thoại của bạn lên anbom riêng tư trên web có thể mất một khoảng thời gian, nhưng sẽ được hoàn thành trong nền. Bạn có chắc chắn muốn tiếp tục không?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Tải lên ảnh và video chưa được tải lên từ điện thoại của bạn lên album riêng tư trên web có thể mất một khoảng thời gian, nhưng sẽ được hoàn thành trong nền. Bạn có chắc chắn muốn tiếp tục không?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Có"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Không"</string>
 </resources>
