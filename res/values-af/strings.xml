@@ -451,7 +451,7 @@
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Wys prente\" uitgevee."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Wag vir sinkronisasie"</string>
-    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Jou e-pos sal binnekort verskyn."</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Jou e-posadres sal binnekort verskyn."</string>
     <string name="widget_other_views" msgid="4988574907386539499">"Raak ikoon om te verander."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Gekombineerde inkassie"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ongelees"</string>

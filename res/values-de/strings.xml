@@ -460,7 +460,7 @@
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Zum Einrichten berühren."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Sie haben noch kein E-Mail-Konto eingerichtet."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_hint" msgid="2200412192574686497">"E-Mail durchsuchen"</string>
+    <string name="search_hint" msgid="2200412192574686497">"In E-Mails suchen"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> durchsuchen"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Suchergebnisse für \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Warten auf Ergebnisse"</string>
