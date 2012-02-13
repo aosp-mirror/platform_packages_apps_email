@@ -16,5 +16,5 @@
  */
 -->
 <resources>
-    <string name="app_name">Email2</string>
+    <string name="app_name" translatable="false">Email2</string>
 </resources>
