@@ -16,14 +16,14 @@
 
 package com.android.email;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -107,11 +107,13 @@ public class RefreshManager {
         private long mLastRefreshTime;
 
         public boolean isRefreshing() {
-            return mIsRefreshRequested || mIsRefreshing;
+            // NOTE: For now, we're always allowing refresh (during service refactor)
+            return false; //return mIsRefreshRequested || mIsRefreshing;
         }
 
         public boolean canRefresh() {
-            return !isRefreshing();
+            // NOTE: For now, we're always allowing refresh (during service refactor)
+            return true; //return !isRefreshing();
         }
 
         public void onRefreshRequested() {

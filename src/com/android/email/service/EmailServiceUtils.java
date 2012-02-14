@@ -48,7 +48,7 @@ public class EmailServiceUtils {
      * @param context
      * @param callback Object to get callback, or can be null
      */
-    public static IEmailService getService(Context context, String intentAction,
+    public static EmailServiceProxy getService(Context context, String intentAction,
             IEmailServiceCallback callback) {
         return new EmailServiceProxy(context, intentAction, callback);
     }
@@ -64,9 +64,14 @@ public class EmailServiceUtils {
         startService(context, EmailServiceProxy.EXCHANGE_INTENT);
     }
 
-    public static IEmailService getExchangeService(Context context,
+    public static EmailServiceProxy getExchangeService(Context context,
             IEmailServiceCallback callback) {
         return getService(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
+    }
+
+    public static EmailServiceProxy getImapService(Context context,
+            IEmailServiceCallback callback) {
+        return new EmailServiceProxy(context, ImapService.class, callback);
     }
 
     public static boolean isExchangeAvailable(Context context) {
@@ -85,65 +90,83 @@ public class EmailServiceUtils {
     public static class NullEmailService extends Service implements IEmailService {
         public static final NullEmailService INSTANCE = new NullEmailService();
 
+        @Override
         public int getApiLevel() {
             return Api.LEVEL;
         }
 
+        @Override
         public Bundle autoDiscover(String userName, String password) throws RemoteException {
             return Bundle.EMPTY;
         }
 
+        @Override
         public boolean createFolder(long accountId, String name) throws RemoteException {
             return false;
         }
 
+        @Override
         public boolean deleteFolder(long accountId, String name) throws RemoteException {
             return false;
         }
 
+        @Override
         public void hostChanged(long accountId) throws RemoteException {
         }
 
+        @Override
         public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
         }
 
+        @Override
         public void loadMore(long messageId) throws RemoteException {
         }
 
+        @Override
         public boolean renameFolder(long accountId, String oldName, String newName)
                 throws RemoteException {
             return false;
         }
 
+        @Override
         public void sendMeetingResponse(long messageId, int response) throws RemoteException {
         }
 
+        @Override
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
         }
 
+        @Override
         public void setLogging(int flags) throws RemoteException {
         }
 
+        @Override
         public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
         }
 
+        @Override
         public void stopSync(long mailboxId) throws RemoteException {
         }
 
+        @Override
         public void updateFolderList(long accountId) throws RemoteException {
         }
 
+        @Override
         public Bundle validate(HostAuth hostAuth) throws RemoteException {
             return null;
         }
 
+        @Override
         public void deleteAccountPIMData(long accountId) throws RemoteException {
         }
 
+        @Override
         public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
             return 0;
         }
 
+        @Override
         public IBinder asBinder() {
             return null;
         }

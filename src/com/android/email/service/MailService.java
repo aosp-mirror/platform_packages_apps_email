@@ -69,8 +69,6 @@ public class MailService extends Service {
         "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
     private static final String ACTION_SEND_PENDING_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_SEND_PENDING";
-    private static final String ACTION_DELETE_EXCHANGE_ACCOUNTS =
-        "com.android.email.intent.action.MAIL_SERVICE_DELETE_EXCHANGE_ACCOUNTS";
 
     private static final String EXTRA_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
@@ -114,13 +112,6 @@ public class MailService extends Service {
         context.startService(i);
     }
 
-    public static void actionDeleteExchangeAccounts(Context context)  {
-        Intent i = new Intent();
-        i.setClass(context, MailService.class);
-        i.setAction(MailService.ACTION_DELETE_EXCHANGE_ACCOUNTS);
-        context.startService(i);
-    }
-
     /**
      * Entry point for AttachmentDownloadService to ask that pending mail be sent
      * @param context the caller's context
@@ -157,7 +148,7 @@ public class MailService extends Service {
 
         final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        if (ACTION_CHECK_MAIL.equals(action)) {
+        if ((ACTION_CHECK_MAIL).equals(action)) {
             // DB access required to satisfy this intent, so offload from UI thread
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
@@ -180,7 +171,10 @@ public class MailService extends Service {
                         synchronized(mSyncReports) {
                             for (AccountSyncReport report: mSyncReports.values()) {
                                 if (report.accountId == accountId) {
-                                    if (report.syncEnabled) {
+                                    // Only sync POP3 here (will remove POP3 sync soon)
+                                    if (report.syncEnabled &&
+                                            Account.getProtocol(MailService.this, accountId)
+                                                .equals(HostAuth.SCHEME_POP3)) {
                                         syncStarted = syncOneAccount(mController, accountId,
                                                 startId);
                                     }
@@ -209,31 +203,6 @@ public class MailService extends Service {
                 Log.d(LOG_TAG, "action: cancel");
             }
             cancel();
-            stopSelf(startId);
-        }
-        else if (ACTION_DELETE_EXCHANGE_ACCOUNTS.equals(action)) {
-            if (Email.DEBUG) {
-                Log.d(LOG_TAG, "action: delete exchange accounts");
-            }
-            EmailAsyncTask.runAsyncParallel(new Runnable() {
-                @Override
-                public void run() {
-                    Cursor c = mContentResolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
-                            null, null, null);
-                    try {
-                        while (c.moveToNext()) {
-                            long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                            if ("eas".equals(Account.getProtocol(mContext, accountId))) {
-                                // Always log this
-                                Log.d(LOG_TAG, "Deleting EAS account: " + accountId);
-                                mController.deleteAccountSync(accountId, mContext);
-                            }
-                       }
-                    } finally {
-                        c.close();
-                    }
-                }
-            });
             stopSelf(startId);
         }
         else if (ACTION_SEND_PENDING_MAIL.equals(action)) {
