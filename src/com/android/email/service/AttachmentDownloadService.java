@@ -155,6 +155,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         @Override
         public void onReceive(final Context context, Intent intent) {
             new Thread(new Runnable() {
+                @Override
                 public void run() {
                     watchdogAlarm();
                 }
@@ -652,6 +653,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * single callback that's defined by the EmailServiceCallback interface.
      */
     private class ServiceCallback extends IEmailServiceCallback.Stub {
+        @Override
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
             // Record status and progress
@@ -695,6 +697,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
         @Override
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
+                throws RemoteException {
+        }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
                 throws RemoteException {
         }
     }
@@ -801,6 +808,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
      */
     public static void attachmentChanged(final Context context, final long id, final int flags) {
         Utility.runAsync(new Runnable() {
+            @Override
             public void run() {
                 Attachment attachment = Attachment.restoreAttachmentWithId(context, id);
                 if (attachment != null) {
@@ -867,6 +875,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         // These fields are only used within the service thread
         mContext = this;
