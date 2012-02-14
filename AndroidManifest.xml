@@ -406,6 +406,17 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".service.Pop3Service"
+            android:enabled="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            >
+            <intent-filter>
+                <action
+                    android:name="com.android.email.POP3_INTENT" />
+            </intent-filter>
+        </service>
+
         <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
         <service
             android:name=".service.EasAuthenticatorService"

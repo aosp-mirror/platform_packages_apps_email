@@ -77,7 +77,6 @@ public class MailboxFinderTest extends InstrumentationTestCase {
             // MailboxFinder should unregister its listener when closed.
             checkControllerResultRemoved(mMockController);
         }
-        mMockController.cleanupForTest();
         Controller.injectMockControllerForTest(null);
     }
 

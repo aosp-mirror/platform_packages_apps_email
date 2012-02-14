@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -36,8 +35,7 @@ import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
 import com.android.email.mail.Store;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.Api;
+import com.android.email.provider.Utilities;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
@@ -57,16 +55,10 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.EmailServiceStatus;
-import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.emailcommon.utility.ConversionUtilities;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -80,6 +72,14 @@ public class ImapService extends Service {
     private static final Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
     private static final Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
     private static final Flag[] FLAG_LIST_ANSWERED = new Flag[] { Flag.ANSWERED };
+
+    /**
+     * Simple cache for last search result mailbox by account and serverId, since the most common
+     * case will be repeated use of the same mailbox
+     */
+    private static long mLastSearchAccountKey = Account.NO_ACCOUNT;
+    private static String mLastSearchServerId = null;
+    private static Mailbox mLastSearchRemoteMailbox = null;
 
     /**
      * Cache search results by account; this allows for "load more" support without having to
@@ -203,164 +203,27 @@ public class ImapService extends Service {
     /**
      * Create our EmailService implementation here.
      */
-    private final IEmailService.Stub mBinder = new IEmailService.Stub() {
-
-        @Override
-        public int getApiLevel() {
-            return Api.LEVEL;
-        }
-
-        @Override
-        public Bundle validate(HostAuth hostAuth) throws RemoteException {
-            return null;
-        }
-
-        @Override
-        public Bundle autoDiscover(String userName, String password) throws RemoteException {
-            return null;
-        }
-
-        @Override
-        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
-            Context context = getApplicationContext();
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-            if (mailbox == null) return;
-            Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
-            if (account == null) return;
-            android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
-                    AccountManagerTypes.TYPE_POP_IMAP);
-            Log.d(TAG, "startSync API requesting sync");
-            Bundle extras = new Bundle();
-            extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
-        }
-
-        @Override
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        @Override
-        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
-        }
-
-        @Override
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public void hostChanged(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public void setLogging(int flags) throws RemoteException {
-        }
-
-        @Override
-        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
-        }
-
-        @Override
-        public void loadMore(long messageId) throws RemoteException {
-            // Load a message for view...
-            Context context = getApplicationContext();
-            try {
-                // 1. Resample the message, in case it disappeared or synced while
-                // this command was in queue
-                EmailContent.Message message =
-                    EmailContent.Message.restoreMessageWithId(context, messageId);
-                if (message == null) {
-                    sCallbackProxy.loadMessageStatus(messageId,
-                            EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
-                    return;
-                }
-                if (message.mFlagLoaded == EmailContent.Message.FLAG_LOADED_COMPLETE) {
-                    // We should NEVER get here
-                    sCallbackProxy.loadMessageStatus(messageId, 0, 100);
-                    return;
-                }
-
-                // 2. Open the remote folder.
-                // TODO combine with common code in loadAttachment
-                Account account = Account.restoreAccountWithId(context, message.mAccountKey);
-                Mailbox mailbox = Mailbox.restoreMailboxWithId(context, message.mMailboxKey);
-                if (account == null || mailbox == null) {
-                    //mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
-                    return;
-                }
-                TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-
-                Store remoteStore = Store.getInstance(account, context);
-                String remoteServerId = mailbox.mServerId;
-                // If this is a search result, use the protocolSearchInfo field to get the
-                // correct remote location
-                if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
-                    remoteServerId = message.mProtocolSearchInfo;
-                }
-                Folder remoteFolder = remoteStore.getFolder(remoteServerId);
-                remoteFolder.open(OpenMode.READ_WRITE);
-
-                // 3. Set up to download the entire message
-                Message remoteMessage = remoteFolder.getMessage(message.mServerId);
-                FetchProfile fp = new FetchProfile();
-                fp.add(FetchProfile.Item.BODY);
-                remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
-
-                // 4. Write to provider
-                copyOneMessageToProvider(context, remoteMessage, account, mailbox,
-                        EmailContent.Message.FLAG_LOADED_COMPLETE);
-
-                // 5. Notify UI
-                sCallbackProxy.loadMessageStatus(messageId, 0, 100);
-
-            } catch (MessagingException me) {
-                if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
-                sCallbackProxy.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
-            } catch (RuntimeException rte) {
-                sCallbackProxy.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
-            }
-        }
-
-        // The following three methods are not implemented in this version
-        @Override
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
+    private final EmailServiceStub mBinder = new EmailServiceStub() {
 
         @Override
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
             mCallbackList.register(cb);
         }
 
-        /**
-         * Delete PIM (calendar, contacts) data for the specified account
-         *
-         * @param accountId the account whose data should be deleted
-         * @throws RemoteException
-         */
-        @Override
-        public void deleteAccountPIMData(long accountId) throws RemoteException {
-        }
-
         @Override
         public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
+            try {
+                return searchMailboxImpl(getApplicationContext(), accountId, searchParams,
+                        destMailboxId);
+            } catch (MessagingException e) {
+            }
             return 0;
         }
-
     };
 
     @Override
     public IBinder onBind(Intent intent) {
+        mBinder.init(this, sCallbackProxy);
         return mBinder;
     }
 
@@ -380,11 +243,7 @@ public class ImapService extends Service {
         NotificationController nc = NotificationController.getInstance(context);
         try {
             processPendingActionsSynchronous(context, account);
-
-            // Select generic sync or store-specific sync
-            SyncResults results = synchronizeMailboxGeneric(context, account, folder);
-            // The account might have been deleted
-            if (results == null) return;
+            synchronizeMailboxGeneric(context, account, folder);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
@@ -436,14 +295,6 @@ public class ImapService extends Service {
         }
     }
 
-    private static void saveOrUpdate(EmailContent content, Context context) {
-        if (content.isSaved()) {
-            content.update(context, content.toContentValues());
-        } else {
-            content.save(context);
-        }
-    }
-
     /**
      * Load the structure and body of messages not yet synced
      * @param account the account we're syncing
@@ -488,7 +339,7 @@ public class ImapService extends Service {
                     @Override
                     public void messageRetrieved(Message message) {
                         // Store the updated message locally and mark it fully loaded
-                        copyOneMessageToProvider(context, message, account, toMailbox,
+                        Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
                                 EmailContent.Message.FLAG_LOADED_COMPLETE);
                     }
 
@@ -515,7 +366,7 @@ public class ImapService extends Service {
                 remoteFolder.fetch(new Message[] { message }, fp, null);
 
                 // Store the partially-loaded message and mark it partially loaded
-                copyOneMessageToProvider(context, message, account, toMailbox,
+                Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
                         EmailContent.Message.FLAG_LOADED_PARTIAL);
             } else {
                 // We have a structure to deal with, from which
@@ -534,7 +385,7 @@ public class ImapService extends Service {
                     remoteFolder.fetch(new Message[] { message }, fp, null);
                 }
                 // Store the updated message locally and mark it fully loaded
-                copyOneMessageToProvider(context, message, account, toMailbox,
+                Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
                         EmailContent.Message.FLAG_LOADED_COMPLETE);
             }
         }
@@ -579,7 +430,7 @@ public class ImapService extends Service {
                                     LegacyConversions.updateMessageFields(localMessage,
                                             message, account.mId, mailbox.mId);
                                     // Commit the message to the local store
-                                    saveOrUpdate(localMessage, context);
+                                    Utilities.saveOrUpdate(localMessage, context);
                                     // Track the "new" ness of the downloaded message
                                     if (!message.isSet(Flag.SEEN) && unseenMessages != null) {
                                         unseenMessages.add(localMessage.mId);
@@ -614,7 +465,7 @@ public class ImapService extends Service {
      * @return results of the sync pass
      * @throws MessagingException
      */
-    private static SyncResults synchronizeMailboxGeneric(final Context context,
+    private static void synchronizeMailboxGeneric(final Context context,
             final Account account, final Mailbox mailbox) throws MessagingException {
 
         /*
@@ -630,8 +481,7 @@ public class ImapService extends Service {
 
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
         if (mailbox.mType == Mailbox.TYPE_DRAFTS || mailbox.mType == Mailbox.TYPE_OUTBOX) {
-            int totalMessages = EmailContent.count(context, mailbox.getUri(), null, null);
-            return new SyncResults(totalMessages, unseenMessages);
+            return;
         }
 
         // 1.  Get the message list from the local store and create an index of the uids
@@ -664,7 +514,7 @@ public class ImapService extends Service {
 
         Store remoteStore = Store.getInstance(account, context);
         // The account might have been deleted
-        if (remoteStore == null) return null;
+        if (remoteStore == null) return;
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         /*
@@ -678,7 +528,7 @@ public class ImapService extends Service {
                 || mailbox.mType == Mailbox.TYPE_DRAFTS) {
             if (!remoteFolder.exists()) {
                 if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
-                    return new SyncResults(0, unseenMessages);
+                    return;
                 }
             }
         }
@@ -829,107 +679,6 @@ public class ImapService extends Service {
 
         // 14. Clean up and report results
         remoteFolder.close(false);
-
-        return new SyncResults(remoteMessageCount, unseenMessages);
-    }
-
-    /**
-     * Copy one downloaded message (which may have partially-loaded sections)
-     * into a newly created EmailProvider Message, given the account and mailbox
-     *
-     * @param message the remote message we've just downloaded
-     * @param account the account it will be stored into
-     * @param folder the mailbox it will be stored into
-     * @param loadStatus when complete, the message will be marked with this status (e.g.
-     *        EmailContent.Message.LOADED)
-     */
-    public static void copyOneMessageToProvider(Context context, Message message, Account account,
-            Mailbox folder, int loadStatus) {
-        EmailContent.Message localMessage = null;
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(
-                    EmailContent.Message.CONTENT_URI,
-                    EmailContent.Message.CONTENT_PROJECTION,
-                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                    " AND " + MessageColumns.MAILBOX_KEY + "=?" +
-                    " AND " + SyncColumns.SERVER_ID + "=?",
-                    new String[] {
-                            String.valueOf(account.mId),
-                            String.valueOf(folder.mId),
-                            String.valueOf(message.getUid())
-                    },
-                    null);
-            if (c.moveToNext()) {
-                localMessage = EmailContent.getContent(c, EmailContent.Message.class);
-                localMessage.mMailboxKey = folder.mId;
-                localMessage.mAccountKey = account.mId;
-                copyOneMessageToProvider(context, message, localMessage, loadStatus);
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
-    /**
-     * Copy one downloaded message (which may have partially-loaded sections)
-     * into an already-created EmailProvider Message
-     *
-     * @param message the remote message we've just downloaded
-     * @param localMessage the EmailProvider Message, already created
-     * @param loadStatus when complete, the message will be marked with this status (e.g.
-     *        EmailContent.Message.LOADED)
-     * @param context the context to be used for EmailProvider
-     */
-    public static void copyOneMessageToProvider(Context context, Message message,
-            EmailContent.Message localMessage, int loadStatus) {
-        try {
-
-            EmailContent.Body body = EmailContent.Body.restoreBodyWithMessageId(context,
-                    localMessage.mId);
-            if (body == null) {
-                body = new EmailContent.Body();
-            }
-            try {
-                // Copy the fields that are available into the message object
-                LegacyConversions.updateMessageFields(localMessage, message,
-                        localMessage.mAccountKey, localMessage.mMailboxKey);
-
-                // Now process body parts & attachments
-                ArrayList<Part> viewables = new ArrayList<Part>();
-                ArrayList<Part> attachments = new ArrayList<Part>();
-                MimeUtility.collectParts(message, viewables, attachments);
-
-                ConversionUtilities.updateBodyFields(body, localMessage, viewables);
-
-                // Commit the message & body to the local store immediately
-                saveOrUpdate(localMessage, context);
-                saveOrUpdate(body, context);
-
-                // process (and save) attachments
-                LegacyConversions.updateAttachments(context, localMessage, attachments);
-
-                // One last update of message with two updated flags
-                localMessage.mFlagLoaded = loadStatus;
-
-                ContentValues cv = new ContentValues();
-                cv.put(EmailContent.MessageColumns.FLAG_ATTACHMENT, localMessage.mFlagAttachment);
-                cv.put(EmailContent.MessageColumns.FLAG_LOADED, localMessage.mFlagLoaded);
-                Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI,
-                        localMessage.mId);
-                context.getContentResolver().update(uri, cv, null, null);
-
-            } catch (MessagingException me) {
-                Log.e(Logging.LOG_TAG, "Error while copying downloaded message." + me);
-            }
-
-        } catch (RuntimeException rte) {
-            Log.e(Logging.LOG_TAG, "Error while storing downloaded message." + rte.toString());
-        } catch (IOException ioe) {
-            Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
-        }
     }
 
     /**
@@ -975,10 +724,10 @@ public class ImapService extends Service {
         if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
             long accountKey = message.mAccountKey;
             String protocolSearchInfo = message.mProtocolSearchInfo;
-//            if (accountKey == mLastSearchAccountKey &&
-//                    protocolSearchInfo.equals(mLastSearchServerId)) {
-//                return mLastSearchRemoteMailbox;
-//            }
+            if (accountKey == mLastSearchAccountKey &&
+                    protocolSearchInfo.equals(mLastSearchServerId)) {
+                return mLastSearchRemoteMailbox;
+            }
             Cursor c =  context.getContentResolver().query(Mailbox.CONTENT_URI,
                     Mailbox.CONTENT_PROJECTION, Mailbox.PATH_AND_ACCOUNT_SELECTION,
                     new String[] {protocolSearchInfo, Long.toString(accountKey)},
@@ -987,9 +736,9 @@ public class ImapService extends Service {
                 if (c.moveToNext()) {
                     Mailbox mailbox = new Mailbox();
                     mailbox.restore(c);
-//                    mLastSearchAccountKey = accountKey;
-//                    mLastSearchServerId = protocolSearchInfo;
-//                    mLastSearchRemoteMailbox = mailbox;
+                    mLastSearchAccountKey = accountKey;
+                    mLastSearchServerId = protocolSearchInfo;
+                    mLastSearchRemoteMailbox = mailbox;
                     return mailbox;
                 } else {
                     return null;
@@ -1574,22 +1323,6 @@ public class ImapService extends Service {
         remoteTrashFolder.close(false);
     }
 
-    /** Results of the latest synchronization. */
-    private static class SyncResults {
-        /** The total # of messages in the folder */
-        public final int mTotalMessages;
-        /** A list of new message IDs; must not be {@code null} */
-        public final ArrayList<Long> mAddedMessages;
-
-        public SyncResults(int totalMessages, ArrayList<Long> addedMessages) {
-            if (addedMessages == null) {
-                throw new IllegalArgumentException("addedMessages must not be null");
-            }
-            mTotalMessages = totalMessages;
-            mAddedMessages = addedMessages;
-        }
-    }
-
     /**
      * A message and numeric uid that's easily sortable
      */
@@ -1686,7 +1419,7 @@ public class ImapService extends Service {
                         LegacyConversions.updateMessageFields(localMessage,
                                 message, account.mId, mailbox.mId);
                         // Commit the message to the local store
-                        saveOrUpdate(localMessage, context);
+                        Utilities.saveOrUpdate(localMessage, context);
                         localMessage.mMailboxKey = destMailboxId;
                         // We load 50k or so; maybe it's complete, maybe not...
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
@@ -1697,7 +1430,7 @@ public class ImapService extends Service {
                         if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
                             flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
                         }
-                        copyOneMessageToProvider(context, message, localMessage, flag);
+                        Utilities.copyOneMessageToProvider(context, message, localMessage, flag);
                     } catch (MessagingException me) {
                         Log.e(Logging.LOG_TAG,
                                 "Error while copying downloaded message." + me);

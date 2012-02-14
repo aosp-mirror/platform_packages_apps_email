@@ -62,12 +62,6 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mTarget.registerListener(mListener);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        mController.cleanupForTest();
-    }
-
     public void testRegisterUnregisterListener() {
         // mListener is already registered
         assertEquals(1, mTarget.getListenersForTest().size());

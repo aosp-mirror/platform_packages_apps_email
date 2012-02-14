@@ -16,19 +16,13 @@
 
 package com.android.email.service;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
-import com.android.emailcommon.Api;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
-import com.android.emailcommon.service.SearchParams;
 
 /**
  * Utility functions for EmailService support.
@@ -74,106 +68,32 @@ public class EmailServiceUtils {
         return new EmailServiceProxy(context, ImapService.class, callback);
     }
 
+    public static EmailServiceProxy getPop3Service(Context context,
+            IEmailServiceCallback callback) {
+        return new EmailServiceProxy(context, Pop3Service.class, callback);
+    }
+
     public static boolean isExchangeAvailable(Context context) {
         return isServiceAvailable(context, EmailServiceProxy.EXCHANGE_INTENT);
     }
 
     /**
-     * An empty {@link IEmailService} implementation which is used instead of
-     * {@link com.android.exchange.ExchangeService} on the build with no exchange support.
+     * For a given account id, return a service proxy if applicable, or null.
      *
-     * <p>In theory, the service in question isn't used on the no-exchange-support build,
-     * because we won't have any exchange accounts in that case, so we wouldn't have to have this
-     * class.  However, there are a few places we do use the service even if there's no exchange
-     * accounts (e.g. setLogging), so this class is added for safety and simplicity.
+     * @param accountId the message of interest
+     * @result service proxy, or null if n/a
      */
-    public static class NullEmailService extends Service implements IEmailService {
-        public static final NullEmailService INSTANCE = new NullEmailService();
-
-        @Override
-        public int getApiLevel() {
-            return Api.LEVEL;
-        }
-
-        @Override
-        public Bundle autoDiscover(String userName, String password) throws RemoteException {
-            return Bundle.EMPTY;
-        }
-
-        @Override
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public void hostChanged(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
-        }
-
-        @Override
-        public void loadMore(long messageId) throws RemoteException {
-        }
-
-        @Override
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
-        }
-
-        @Override
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-        }
-
-        @Override
-        public void setLogging(int flags) throws RemoteException {
-        }
-
-        @Override
-        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
-        }
-
-        @Override
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        @Override
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public Bundle validate(HostAuth hostAuth) throws RemoteException {
-            return null;
-        }
-
-        @Override
-        public void deleteAccountPIMData(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
-            return 0;
-        }
-
-        @Override
-        public IBinder asBinder() {
-            return null;
-        }
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            return null;
+    public static EmailServiceProxy getServiceForAccount(Context context,
+            IEmailServiceCallback callback, long accountId) {
+        String protocol = Account.getProtocol(context, accountId);
+        if (protocol.equals(HostAuth.SCHEME_IMAP)) {
+            return getImapService(context, callback);
+        } else if (protocol.equals(HostAuth.SCHEME_POP3)) {
+            return getPop3Service(context, callback);
+        } else if (protocol.equals(HostAuth.SCHEME_EAS)) {
+        return getExchangeService(context, callback);
+        } else {
+            throw new IllegalArgumentException("Account with unknown protocol: " + accountId);
         }
     }
 }
