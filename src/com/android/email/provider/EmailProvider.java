@@ -1947,7 +1947,7 @@ outer:
     }
 
     /**
-     * Generate the "folder list" SQLite query, given a projection from UnifiedEmail
+     * Generate the "top level folder list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
@@ -1955,7 +1955,9 @@ outer:
     private String genQueryAccountMailboxes(String[] uiProjection) {
         StringBuilder sb = genSelect(sFolderListMap, uiProjection);
         // Make constant
-        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + Mailbox.ACCOUNT_KEY + "=? ORDER BY ");
+        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
+                "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
         return sb.toString();
     }
