@@ -1105,6 +1105,7 @@ public class EmailProvider extends ContentProvider {
                 // First, dispatch queries from UnfiedEmail
                 case UI_UNDO:
                     return uiUndo(uri, projection);
+                case UI_SUBFOLDERS:
                 case UI_FOLDERS:
                 case UI_MESSAGES:
                 case UI_MESSAGE:
