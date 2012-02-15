@@ -1851,7 +1851,7 @@ outer:
         .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
-        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("subfolders"))
+        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
         .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
         .build();
