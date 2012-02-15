@@ -183,13 +183,14 @@ public class EmailProvider extends ContentProvider {
 
     private static final int UI_BASE = 0x9000;
     private static final int UI_FOLDERS = UI_BASE;
-    private static final int UI_MESSAGES = UI_BASE + 1;
-    private static final int UI_MESSAGE = UI_BASE + 2;
-    private static final int UI_SENDMAIL = UI_BASE + 3;
-    private static final int UI_UNDO = UI_BASE + 4;
-    private static final int UI_SAVEDRAFT = UI_BASE + 5;
-    private static final int UI_UPDATEDRAFT = UI_BASE + 6;
-    private static final int UI_SENDDRAFT = UI_BASE + 7;
+    private static final int UI_SUBFOLDERS = UI_BASE + 1;
+    private static final int UI_MESSAGES = UI_BASE + 2;
+    private static final int UI_MESSAGE = UI_BASE + 3;
+    private static final int UI_SENDMAIL = UI_BASE + 4;
+    private static final int UI_UNDO = UI_BASE + 5;
+    private static final int UI_SAVEDRAFT = UI_BASE + 6;
+    private static final int UI_UPDATEDRAFT = UI_BASE + 7;
+    private static final int UI_SENDDRAFT = UI_BASE + 8;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -383,6 +384,7 @@ public class EmailProvider extends ContentProvider {
                 QUICK_RESPONSE_ACCOUNT_ID);
 
         matcher.addURI(EmailContent.AUTHORITY, "uifolders/*", UI_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
         matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
@@ -1848,7 +1850,7 @@ outer:
         .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
-        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uichildren"))
+        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("subfolders"))
         .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
         .build();
@@ -1963,6 +1965,21 @@ outer:
     }
 
     /**
+     * Generate the "subfolder list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQuerySubfolders(String[] uiProjection) {
+        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        // Make constant
+        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.PARENT_KEY +
+                " =? ORDER BY ");
+        sb.append(MAILBOX_ORDER_BY);
+        return sb.toString();
+    }
+
+    /**
      * Given the email address of an account, return its account id (the _id row in the Account
      * table), or NO_ACCOUNT (-1) if not found
      *
@@ -1993,22 +2010,24 @@ outer:
         SQLiteDatabase db = getDatabase(context);
         // Should we ever return null, or throw an exception??
         Cursor c = null;
+        String id = uri.getPathSegments().get(1);
         switch(match) {
             case UI_FOLDERS:
                 // We are passed the email address (unique account identifier) in the uri; we
                 // need to turn this into the _id of the Account row in the EmailProvider db
-                String accountName = uri.getPathSegments().get(1);
+                String accountName = id;
                 long acctId = findAccountIdByName(accountName);
                 if (acctId == Account.NO_ACCOUNT) return null;
                 c = db.rawQuery(genQueryAccountMailboxes(uiProjection),
                         new String[] {Long.toString(acctId)});
                 break;
+            case UI_SUBFOLDERS:
+                c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
+                break;
             case UI_MESSAGES:
-                String id = uri.getPathSegments().get(1);
                 c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
                 break;
             case UI_MESSAGE:
-                id = uri.getPathSegments().get(1);
                 c = db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
                 break;
         }
