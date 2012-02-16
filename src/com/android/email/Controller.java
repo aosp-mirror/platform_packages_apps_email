@@ -16,33 +16,26 @@
 
 package com.android.email;
 
-import android.app.Service;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.provider.Utilities;
 import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.MailService;
-import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
-import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -74,12 +67,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * to IMAP, POP3, and EAS by AttachmentDownloadService
  */
 public class Controller {
-    private static final String TAG = "Controller";
     private static Controller sInstance;
     private final Context mContext;
     private Context mProviderContext;
-    private final MessagingController mLegacyController;
-    private final LegacyListener mLegacyListener = new LegacyListener();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final HashSet<Result> mListeners = new HashSet<Result>();
     /*package*/ final ConcurrentHashMap<Long, Boolean> mLegacyControllerMap =
@@ -102,11 +92,6 @@ public class Controller {
     };
     private static final int MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID = 1;
 
-    private static final String[] BODY_SOURCE_KEY_PROJECTION =
-        new String[] {Body.SOURCE_MESSAGE_KEY};
-    private static final int BODY_SOURCE_KEY_COLUMN = 0;
-    private static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
-
     private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
     private static final String MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION =
         MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" +
@@ -122,8 +107,6 @@ public class Controller {
     protected Controller(Context _context) {
         mContext = _context.getApplicationContext();
         mProviderContext = _context;
-        mLegacyController = MessagingController.getInstance(mProviderContext, this);
-        mLegacyController.addListener(mLegacyListener);
     }
 
     /**
@@ -133,16 +116,6 @@ public class Controller {
      */
     public void markForTest(boolean inUnitTests) {
         mInUnitTests = inUnitTests;
-    }
-
-    /**
-     * Cleanup for test.  Mustn't be called for the regular {@link Controller}, as it's a
-     * singleton and lives till the process finishes.
-     *
-     * <p>However, this method MUST be called for mock instances.
-     */
-    public void cleanupForTest() {
-        mLegacyController.removeListener(mLegacyListener);
     }
 
     /**
@@ -309,8 +282,8 @@ public class Controller {
                 // Commit the message to the local store
                 msg.save(mProviderContext);
                 // Setup the rest of the message and mark it completely loaded
-                mLegacyController.copyOneMessageToProvider(pop3Message, msg,
-                        Message.FLAG_LOADED_COMPLETE, mProviderContext);
+                Utilities.copyOneMessageToProvider(mProviderContext, pop3Message, msg,
+                        Message.FLAG_LOADED_COMPLETE);
                 // Restore the complete message and return it
                 return Message.restoreMessageWithId(mProviderContext, msg.mId);
             } catch (MessagingException e) {
@@ -356,33 +329,10 @@ public class Controller {
                         Log.d("updateMailboxList", "RemoteException" + e);
                     }
                 } else {
-                    // MessagingController implementation
-                    mLegacyController.listFolders(accountId, mLegacyListener);
+                    throw new IllegalStateException("No service for updateMailboxList?");
                 }
             }
         });
-    }
-
-    /**
-     * Request a remote update of a mailbox.  For use by the timed service.
-     *
-     * Functionally this is quite similar to updateMailbox(), but it's a separate API and
-     * separate callback in order to keep UI callbacks from affecting the service loop.
-     */
-    @SuppressWarnings("deprecation")
-    public void serviceCheckMail(final long accountId, final long mailboxId, final long tag) {
-        IEmailService service = getServiceForAccount(accountId);
-        if (service != null) {
-            mLegacyListener.checkMailFinished(mContext, accountId, mailboxId, tag);
-        } else {
-            // MessagingController implementation
-            Utility.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    mLegacyController.checkMail(accountId, tag, mLegacyListener);
-                }
-            });
-        }
     }
 
     /**
@@ -392,7 +342,6 @@ public class Controller {
      * a simple message list.  We should also at this point queue up a background task of
      * downloading some/all of the messages in this mailbox, but that should be interruptable.
      */
-    @SuppressWarnings("deprecation")
     public void updateMailbox(final long accountId, final long mailboxId, boolean userRequest) {
 
         IEmailService service = getServiceForAccount(accountId);
@@ -404,24 +353,9 @@ public class Controller {
                 // is implemented for other protocols
                 Log.d("updateMailbox", "RemoteException" + e);
             }
-        } else {
-            // MessagingController implementation
-            Utility.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO shouldn't be passing fully-build accounts & mailboxes into APIs
-                    Account account =
-                        Account.restoreAccountWithId(mProviderContext, accountId);
-                    Mailbox mailbox =
-                        Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
-                    if (account == null || mailbox == null ||
-                            mailbox.mType == Mailbox.TYPE_SEARCH) {
-                        return;
-                    }
-                    mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
-                }
-            });
-        }
+         } else {
+             throw new IllegalStateException("No service for loadMessageForView?");
+         }
     }
 
     /**
@@ -434,40 +368,29 @@ public class Controller {
      * @param messageId the message to load
      * @param callback the Controller callback by which results will be reported
      */
-    @SuppressWarnings("deprecation")
     public void loadMessageForView(final long messageId) {
 
         // Split here for target type (Service or MessagingController)
         EmailServiceProxy service = getServiceForMessage(messageId);
-        if (service != null && service.isRemote()) {
-            // Get rid of this!!
+        if (service.isRemote()) {
             // There is no service implementation, so we'll just jam the value, log the error,
             // and get out of here.
             Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
             ContentValues cv = new ContentValues();
             cv.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
             mProviderContext.getContentResolver().update(uri, cv, null, null);
-            Log.d(Logging.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
+            Log.d(Logging.LOG_TAG, "Unexpected loadMessageForView() for remote service message.");
             final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
                     listener.loadMessageForViewCallback(null, accountId, messageId, 100);
                 }
             }
-        } else if (service != null) {
-            // IMAP here for now
+        } else {
             try {
                 service.loadMore(messageId);
             } catch (RemoteException e) {
             }
-        } else {
-            // MessagingController implementation
-            Utility.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    mLegacyController.loadMessageForView(messageId, mLegacyListener);
-                }
-            });
         }
     }
 
@@ -598,50 +521,12 @@ public class Controller {
         sendPendingMessages(accountId);
     }
 
-    @SuppressWarnings("deprecation")
-    private void sendPendingMessagesSmtp(long accountId) {
-        // for IMAP & POP only, (attempt to) send the message now
-        final Account account =
-                Account.restoreAccountWithId(mProviderContext, accountId);
-        if (account == null) {
-            return;
-        }
-        final long sentboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_SENT);
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                mLegacyController.sendPendingMessages(account, sentboxId, mLegacyListener);
-            }
-        });
-    }
-
-    /**
-     * Try to send all pending messages for a given account
-     *
-     * @param accountId the account for which to send messages
-     */
-    public void sendPendingMessages(long accountId) {
-        // 1. make sure we even have an outbox, exit early if not
-        final long outboxId =
-            Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_OUTBOX);
-        if (outboxId == Mailbox.NO_MAILBOX) {
-            return;
-        }
-
-        // 2. dispatch as necessary
-        IEmailService service = getServiceForAccount(accountId);
-        if (service != null) {
-            // Service implementation
-            try {
-                service.startSync(outboxId, false);
-            } catch (RemoteException e) {
-                // TODO Change exception handling to be consistent with however this method
-                // is implemented for other protocols
-                Log.d("updateMailbox", "RemoteException" + e);
-            }
-        } else {
-            // MessagingController implementation
-            sendPendingMessagesSmtp(accountId);
+    private void sendPendingMessages(long accountId) {
+        EmailServiceProxy service =
+            EmailServiceUtils.getServiceForAccount(mContext, null, accountId);
+        try {
+            service.sendMail(accountId);
+        } catch (RemoteException e) {
         }
     }
 
@@ -718,7 +603,7 @@ public class Controller {
                 mProviderContext.getContentResolver().update(uri, cv, null, null);
                 // Trigger a refresh using the new, longer limit
                 mailbox.mVisibleLimit += Email.VISIBLE_LIMIT_INCREMENT;
-                mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
+                //mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
             }
         });
     }
@@ -1005,24 +890,13 @@ public class Controller {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
                 Log.e("searchMessages", "RemoteException", e);
-                return 0;
             }
-        } else {
-            // This is the actual mailbox we'll be searching
-            Mailbox actualMailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
-            if (actualMailbox == null) {
-                Log.e(Logging.LOG_TAG, "Unable to find mailbox " + searchParams.mMailboxId
-                        + " to search in with " + searchParams);
-                return 0;
-            }
-            // Do the search
-            if (Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Search: " + searchParams.mFilter);
-            }
-            // Plumb this
-            return 0;
-            //return mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
         }
+        return 0;
+    }
+
+    private EmailServiceProxy getServiceForAccount(long accountId) {
+        return EmailServiceUtils.getServiceForAccount(mContext, mCallbackProxy, accountId);
     }
 
     /**
@@ -1097,46 +971,6 @@ public class Controller {
     }
 
     /**
-     * For a given account id, return a service proxy if applicable, or null.
-     *
-     * @param accountId the message of interest
-     * @result service proxy, or null if n/a
-     */
-    private EmailServiceProxy getServiceForAccount(long accountId) {
-        if (isMessagingController(accountId)) return null;
-        if (Account.getProtocol(mContext, accountId).equals(HostAuth.SCHEME_IMAP)) {
-            return getImapEmailService();
-        }
-        return getExchangeEmailService();
-    }
-
-    private EmailServiceProxy getExchangeEmailService() {
-        return EmailServiceUtils.getExchangeService(mContext, mServiceCallback);
-    }
-
-    private EmailServiceProxy getImapEmailService() {
-        return EmailServiceUtils.getImapService(mContext, mServiceCallback);
-    }
-
-    /**
-     * Simple helper to determine if legacy MessagingController should be used
-     */
-    public boolean isMessagingController(Account account) {
-        if (account == null) return false;
-        return isMessagingController(account.mId);
-    }
-
-    public boolean isMessagingController(long accountId) {
-        Boolean isLegacyController = mLegacyControllerMap.get(accountId);
-        if (isLegacyController == null) {
-            String protocol = Account.getProtocol(mProviderContext, accountId);
-            isLegacyController = (HostAuth.SCHEME_POP3.equals(protocol));
-            mLegacyControllerMap.put(accountId, isLegacyController);
-        }
-        return isLegacyController;
-    }
-
-    /**
      * Delete an account.
      */
     public void deleteAccount(final long accountId) {
@@ -1177,7 +1011,6 @@ public class Controller {
             SecurityPolicy.getInstance(context).reducePolicies();
             Email.setServicesEnabledSync(context);
             Email.setNotifyUiAccountsChanged(true);
-            MailService.actionReschedule(context);
         } catch (Exception e) {
             Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
         }
@@ -1340,248 +1173,6 @@ public class Controller {
          */
         public void sendMailCallback(MessagingException result, long accountId,
                 long messageId, int progress) {
-        }
-    }
-
-    /**
-     * Bridge to intercept {@link MessageRetrievalListener#loadAttachmentProgress} and
-     * pass down to {@link Result}.
-     */
-    public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
-        private final long mMessageId;
-        private final long mAttachmentId;
-        private final long mAccountId;
-
-        public MessageRetrievalListenerBridge(long messageId, long attachmentId) {
-            mMessageId = messageId;
-            mAttachmentId = attachmentId;
-            mAccountId = Account.getAccountIdForMessageId(mProviderContext, mMessageId);
-        }
-
-        @Override
-        public void loadAttachmentProgress(int progress) {
-              synchronized (mListeners) {
-                  for (Result listener : mListeners) {
-                      listener.loadAttachmentCallback(null, mAccountId, mMessageId, mAttachmentId,
-                              progress);
-                 }
-              }
-        }
-
-        @Override
-        public void messageRetrieved(com.android.emailcommon.mail.Message message) {
-        }
-    }
-
-    /**
-     * Support for receiving callbacks from MessagingController and dealing with UI going
-     * out of scope.
-     */
-    public class LegacyListener extends MessagingListener {
-        public LegacyListener() {
-        }
-
-        @Override
-        public void listFoldersStarted(long accountId) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxListCallback(null, accountId, 0);
-                }
-            }
-        }
-
-        @Override
-        public void listFoldersFailed(long accountId, String message) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxListCallback(new MessagingException(message), accountId, 0);
-                }
-            }
-        }
-
-        @Override
-        public void listFoldersFinished(long accountId) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxListCallback(null, accountId, 100);
-                }
-            }
-        }
-
-        @Override
-        public void synchronizeMailboxStarted(long accountId, long mailboxId) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, accountId, mailboxId, 0, 0, null);
-                }
-            }
-        }
-
-        @Override
-        public void synchronizeMailboxFinished(long accountId, long mailboxId,
-                int totalMessagesInMailbox, int numNewMessages, ArrayList<Long> addedMessages) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, accountId, mailboxId, 100, numNewMessages,
-                            addedMessages);
-                }
-            }
-        }
-
-        @Override
-        public void synchronizeMailboxFailed(long accountId, long mailboxId, Exception e) {
-            MessagingException me;
-            if (e instanceof MessagingException) {
-                me = (MessagingException) e;
-            } else {
-                me = new MessagingException(e.toString());
-            }
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.updateMailboxCallback(me, accountId, mailboxId, 0, 0, null);
-                }
-            }
-        }
-
-        @Override
-        public void checkMailStarted(Context context, long accountId, long tag) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.serviceCheckMailCallback(null, accountId, -1, 0, tag);
-                }
-            }
-        }
-
-        @Override
-        public void checkMailFinished(Context context, long accountId, long folderId, long tag) {
-            synchronized (mListeners) {
-                for (Result l : mListeners) {
-                    l.serviceCheckMailCallback(null, accountId, folderId, 100, tag);
-                }
-            }
-        }
-
-        @Override
-        public void loadMessageForViewStarted(long messageId) {
-            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(null, accountId, messageId, 0);
-                }
-            }
-        }
-
-        @Override
-        public void loadMessageForViewFinished(long messageId) {
-            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(null, accountId, messageId, 100);
-                }
-            }
-        }
-
-        @Override
-        public void loadMessageForViewFailed(long messageId, String message) {
-            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(new MessagingException(message),
-                            accountId, messageId, 0);
-                }
-            }
-        }
-
-        @Override
-        public void loadAttachmentStarted(long accountId, long messageId, long attachmentId,
-                boolean requiresDownload) {
-            try {
-                mCallbackProxy.loadAttachmentStatus(messageId, attachmentId,
-                        EmailServiceStatus.IN_PROGRESS, 0);
-            } catch (RemoteException e) {
-            }
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 0);
-                }
-            }
-        }
-
-        @Override
-        public void loadAttachmentFinished(long accountId, long messageId, long attachmentId) {
-            try {
-                mCallbackProxy.loadAttachmentStatus(messageId, attachmentId,
-                        EmailServiceStatus.SUCCESS, 100);
-            } catch (RemoteException e) {
-            }
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 100);
-                }
-            }
-        }
-
-        @Override
-        public void loadAttachmentFailed(long accountId, long messageId, long attachmentId,
-                MessagingException me, boolean background) {
-            try {
-                // If the cause of the MessagingException is an IOException, we send a status of
-                // CONNECTION_ERROR; in this case, AttachmentDownloadService will try again to
-                // download the attachment.  Otherwise, the error is considered non-recoverable.
-                int status = EmailServiceStatus.ATTACHMENT_NOT_FOUND;
-                if (me != null && me.getCause() instanceof IOException) {
-                    status = EmailServiceStatus.CONNECTION_ERROR;
-                }
-                mCallbackProxy.loadAttachmentStatus(messageId, attachmentId, status, 0);
-            } catch (RemoteException e) {
-            }
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    // TODO We are overloading the exception here. The UI listens for this
-                    // callback and displays a toast if the exception is not null. Since we
-                    // want to avoid displaying toast for background operations, we force
-                    // the exception to be null. This needs to be re-worked so the UI will
-                    // only receive (or at least pays attention to) responses for requests
-                    // it explicitly cares about. Then we would not need to overload the
-                    // exception parameter.
-                    listener.loadAttachmentCallback(background ? null : me, accountId, messageId,
-                            attachmentId, 0);
-                }
-            }
-        }
-
-        @Override
-        synchronized public void sendPendingMessagesStarted(long accountId, long messageId) {
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.sendMailCallback(null, accountId, messageId, 0);
-                }
-            }
-        }
-
-        @Override
-        synchronized public void sendPendingMessagesCompleted(long accountId) {
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.sendMailCallback(null, accountId, -1, 100);
-                }
-            }
-        }
-
-        @Override
-        synchronized public void sendPendingMessagesFailed(long accountId, long messageId,
-                Exception reason) {
-            MessagingException me;
-            if (reason instanceof MessagingException) {
-                me = (MessagingException) reason;
-            } else {
-                me = new MessagingException(reason.toString());
-            }
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.sendMailCallback(me, accountId, messageId, 0);
-                }
-            }
         }
     }
 
@@ -1764,8 +1355,7 @@ public class Controller {
      * Proxy that can be used to broadcast service callbacks; we currently use this only for
      * loadAttachment callbacks
      */
-    private final IEmailServiceCallback.Stub mCallbackProxy =
-        new IEmailServiceCallback.Stub() {
+    private final IEmailServiceCallback.Stub mCallbackProxy = new IEmailServiceCallback.Stub() {
 
         /**
          * Broadcast a callback to the everyone that's registered
@@ -1799,147 +1389,23 @@ public class Controller {
         }
 
         @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress){
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
+                throws RemoteException {
         }
 
         @Override
-        public void loadMessageStatus(long messageId, int statusCode, int progress){
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
+                throws RemoteException {
         }
 
         @Override
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
+                throws RemoteException {
         }
 
         @Override
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
         }
     };
-
-    public static class ControllerService extends Service {
-        /**
-         * Create our EmailService implementation here.  For now, only loadAttachment is supported;
-         * the intention, however, is to move more functionality to the service interface
-         */
-        private final IEmailService.Stub mBinder = new IEmailService.Stub() {
-
-            @Override
-            public Bundle validate(HostAuth hostAuth) {
-                return null;
-            }
-
-            @Override
-            public Bundle autoDiscover(String userName, String password) {
-                return null;
-            }
-
-            @Override
-            public void startSync(long mailboxId, boolean userRequest) {
-            }
-
-            @Override
-            public void stopSync(long mailboxId) {
-            }
-
-            @Override
-            public void loadAttachment(long attachmentId, boolean background)
-                    throws RemoteException {
-                Attachment att = Attachment.restoreAttachmentWithId(ControllerService.this,
-                        attachmentId);
-                if (att != null) {
-                    if (Email.DEBUG) {
-                        Log.d(TAG, "loadAttachment " + attachmentId + ": " + att.mFileName);
-                    }
-                    Message msg = Message.restoreMessageWithId(ControllerService.this,
-                            att.mMessageKey);
-                    if (msg != null) {
-                        // If the message is a forward and the attachment needs downloading, we need
-                        // to retrieve the message from the source, rather than from the message
-                        // itself
-                        if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
-                            String[] cols = Utility.getRowColumns(ControllerService.this,
-                                    Body.CONTENT_URI, BODY_SOURCE_KEY_PROJECTION, WHERE_MESSAGE_KEY,
-                                    new String[] {Long.toString(msg.mId)});
-                            if (cols != null) {
-                                msg = Message.restoreMessageWithId(ControllerService.this,
-                                        Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
-                                if (msg == null) {
-                                    // TODO: We can try restoring from the deleted table here...
-                                    return;
-                                }
-                            }
-                        }
-                        MessagingController legacyController = sInstance.mLegacyController;
-                        LegacyListener legacyListener = sInstance.mLegacyListener;
-                        legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
-                                attachmentId, legacyListener, background);
-                    } else {
-                        // Send back the specific error status for this case
-                        sInstance.mCallbackProxy.loadAttachmentStatus(att.mMessageKey, attachmentId,
-                                EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
-                    }
-                }
-            }
-
-            @Override
-            public void updateFolderList(long accountId) {
-            }
-
-            @Override
-            public void hostChanged(long accountId) {
-            }
-
-            @Override
-            public void setLogging(int flags) {
-            }
-
-            @Override
-            public void sendMeetingResponse(long messageId, int response) {
-            }
-
-            @Override
-            public void loadMore(long messageId) {
-            }
-
-            // The following three methods are not implemented in this version
-            @Override
-            public boolean createFolder(long accountId, String name) {
-                return false;
-            }
-
-            @Override
-            public boolean deleteFolder(long accountId, String name) {
-                return false;
-            }
-
-            @Override
-            public boolean renameFolder(long accountId, String oldName, String newName) {
-                return false;
-            }
-
-            @Override
-            public void setCallback(IEmailServiceCallback cb) {
-                sCallbackList.register(cb);
-            }
-
-            @Override
-            public void deleteAccountPIMData(long accountId) {
-            }
-
-            @Override
-            public int searchMessages(long accountId, SearchParams searchParams,
-                    long destMailboxId) {
-                return 0;
-            }
-
-            @Override
-            public int getApiLevel() {
-                return Api.LEVEL;
-            }
-        };
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            return mBinder;
-        }
-    }
 }

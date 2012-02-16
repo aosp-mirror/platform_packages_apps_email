@@ -444,6 +444,23 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             return (Integer)mReturn;
         }
     }
+
+    /**
+     * Request the service to send mail in the specified account's Outbox
+     *
+     * @param accountId the account whose outgoing mail should be sent
+     */
+    @Override
+    public void sendMail(final long accountId) throws RemoteException {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                if (mCallback != null) mService.setCallback(mCallback);
+                mService.sendMail(accountId);
+            }
+        }, "sendMail");
+    }
+
     @Override
     public IBinder asBinder() {
         return null;

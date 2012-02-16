@@ -64,12 +64,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         ContentCache.invalidateAllCaches();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        mTestController.cleanupForTest();
-    }
-
     /**
      * Lightweight subclass of the Controller class allows injection of mock context
      */
@@ -486,44 +480,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         HostAuth hostAuth = new HostAuth();
         hostAuth.mProtocol = protocol;
         return hostAuth;
-    }
-
-    public void testIsMessagingController() {
-        Account account1 = ProviderTestUtils.setupAccount("account1", false,
-                mProviderContext);
-        account1.mHostAuthRecv = setupSimpleHostAuth("eas");
-        account1.save(mProviderContext);
-        assertFalse(mTestController.isMessagingController(account1));
-        Account account2 = ProviderTestUtils.setupAccount("account2", false,
-                mProviderContext);
-        account2.mHostAuthRecv = setupSimpleHostAuth("imap");
-        account2.save(mProviderContext);
-        assertTrue(mTestController.isMessagingController(account2));
-        Account account3 = ProviderTestUtils.setupAccount("account3", false,
-                mProviderContext);
-        account3.mHostAuthRecv = setupSimpleHostAuth("pop3");
-        account3.save(mProviderContext);
-        assertTrue(mTestController.isMessagingController(account3));
-        Account account4 = ProviderTestUtils.setupAccount("account4", false,
-                mProviderContext);
-        account4.mHostAuthRecv = setupSimpleHostAuth("smtp");
-        account4.save(mProviderContext);
-        assertFalse(mTestController.isMessagingController(account4));
-        // There should be values for all of these accounts in the legacy map
-        assertNotNull(mTestController.mLegacyControllerMap.get(account1.mId));
-        assertNotNull(mTestController.mLegacyControllerMap.get(account2.mId));
-        assertNotNull(mTestController.mLegacyControllerMap.get(account3.mId));
-        assertNotNull(mTestController.mLegacyControllerMap.get(account4.mId));
-        // The map should have the expected values
-        assertFalse(mTestController.mLegacyControllerMap.get(account1.mId));
-        assertTrue(mTestController.mLegacyControllerMap.get(account2.mId));
-        assertTrue(mTestController.mLegacyControllerMap.get(account3.mId));
-        assertFalse(mTestController.mLegacyControllerMap.get(account4.mId));
-        // This second pass should pull values from the cache
-        assertFalse(mTestController.isMessagingController(account1));
-        assertTrue(mTestController.isMessagingController(account2));
-        assertTrue(mTestController.isMessagingController(account3));
-        assertFalse(mTestController.isMessagingController(account4));
     }
 
     /**
