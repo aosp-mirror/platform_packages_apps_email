@@ -36,25 +36,15 @@
         android:icon="@mipmap/ic_launcher_mail"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light" >
-        <activity
-            android:label="@string/app_name"
-            android:name=".UnifiedEmail" >
-        </activity>
         <activity android:name=".compose.ComposeActivity" />
-        <activity android:name=".browse.ConversationListActivity" android:label="@string/app_name">
+        <activity
+           android:name=".ui.MailActivity"
+           android:uiOptions="splitActionBarWhenNarrow" android:label="@string/app_name">
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".browse.ConversationViewActivity" />
-        <activity android:name=".browse.FolderItem" />
-        <activity
-           android:name=".ui.ActionbarActivity"
-           android:uiOptions="splitActionBarWhenNarrow" />
-        <activity
-           android:name=".ui.MailActivity"
-           android:uiOptions="splitActionBarWhenNarrow" />
 
         <provider
             android:authorities="com.android.email2.conversation.provider"
