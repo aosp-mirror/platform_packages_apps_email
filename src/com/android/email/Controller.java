@@ -521,7 +521,7 @@ public class Controller {
         sendPendingMessages(accountId);
     }
 
-    private void sendPendingMessages(long accountId) {
+    public void sendPendingMessages(long accountId) {
         EmailServiceProxy service =
             EmailServiceUtils.getServiceForAccount(mContext, null, accountId);
         try {
