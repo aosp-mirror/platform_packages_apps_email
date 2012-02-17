@@ -55,8 +55,10 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -203,6 +205,13 @@ public class Pop3Service extends Service {
         return mBinder;
     }
 
+    private static void sendMailboxStatus(Mailbox mailbox, int status) {
+        try {
+            sCallbackProxy.syncMailboxStatus(mailbox.mId, status, 0);
+        } catch (RemoteException e) {
+        }
+    }
+
     /**
      * Start foreground synchronization of the specified folder. This is called by
      * synchronizeMailbox or checkMail.
@@ -213,8 +222,11 @@ public class Pop3Service extends Service {
      */
     public static void synchronizeMailboxSynchronous(Context context, final Account account,
             final Mailbox folder) throws MessagingException {
+        sendMailboxStatus(folder, EmailServiceStatus.IN_PROGRESS);
+
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
+            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         }
         NotificationController nc = NotificationController.getInstance(context);
         try {
@@ -222,6 +234,7 @@ public class Pop3Service extends Service {
             synchronizeMailboxGeneric(context, account, folder);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
+            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
                 Log.v(Logging.LOG_TAG, "synchronizeMailbox", e);
@@ -230,6 +243,7 @@ public class Pop3Service extends Service {
                 // Generate authentication notification
                 nc.showLoginFailedNotification(account.mId);
             }
+            sendMailboxStatus(folder, e.getExceptionType());
             throw e;
         }
     }

@@ -108,12 +108,12 @@ public class RefreshManager {
 
         public boolean isRefreshing() {
             // NOTE: For now, we're always allowing refresh (during service refactor)
-            return false; //return mIsRefreshRequested || mIsRefreshing;
+            return mIsRefreshRequested || mIsRefreshing;
         }
 
         public boolean canRefresh() {
             // NOTE: For now, we're always allowing refresh (during service refactor)
-            return true; //return !isRefreshing();
+            return !isRefreshing();
         }
 
         public void onRefreshRequested() {
