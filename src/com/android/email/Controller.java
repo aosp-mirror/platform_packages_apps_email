@@ -896,7 +896,7 @@ public class Controller {
     }
 
     private EmailServiceProxy getServiceForAccount(long accountId) {
-        return EmailServiceUtils.getServiceForAccount(mContext, mCallbackProxy, accountId);
+        return EmailServiceUtils.getServiceForAccount(mContext, mServiceCallback, accountId);
     }
 
     /**
@@ -1394,8 +1394,8 @@ public class Controller {
         }
 
         @Override
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
+        public void syncMailboxStatus(final long mailboxId, final int statusCode,
+                final int progress) throws RemoteException {
         }
 
         @Override
