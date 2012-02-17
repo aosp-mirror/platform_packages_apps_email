@@ -421,7 +421,7 @@
     <string name="toast_account_not_found" msgid="8144242451730692816">"Kontoen blev ikke fundet. Den er muligvis blevet fjernet."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mappen blev ikke fundet. Den kan være blevet fjernet."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Det er kun nogle \"Plus\"-konti med POP-adgang, der tillader, at dette program opretter forbindelse. Hvis du ikke kan logge ind med din rigtige e-mailadresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Åbn webbrowseren igen for at få adgang til disse e-mailkonti."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mailkonto, skal du gå til T-Onlines websted og oprette en adgangskode for e-mailadgang via POP3."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mailkonto, skal du gå til T-Onlines website og oprette en adgangskode for e-mailadgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Kontoen kunne ikke oprettes. Prøv igen."</string>
