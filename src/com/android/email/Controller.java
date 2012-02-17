@@ -603,7 +603,7 @@ public class Controller {
                 mProviderContext.getContentResolver().update(uri, cv, null, null);
                 // Trigger a refresh using the new, longer limit
                 mailbox.mVisibleLimit += Email.VISIBLE_LIMIT_INCREMENT;
-                //mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
+                updateMailbox(account.mId, mailboxId, true);
             }
         });
     }
