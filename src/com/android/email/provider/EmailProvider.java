@@ -32,6 +32,7 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -42,6 +43,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -59,6 +61,8 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
@@ -101,6 +105,10 @@ public class EmailProvider extends ContentProvider {
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
     public static final Uri ACCOUNT_BACKUP_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
+    public static final Uri FOLDER_STATUS_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
+    public static final Uri FOLDER_REFRESH_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
 
     /** Appended to the notification URI for delete operations */
     public static final String NOTIFICATION_OP_DELETE = "delete";
@@ -191,6 +199,8 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_SAVEDRAFT = UI_BASE + 6;
     private static final int UI_UPDATEDRAFT = UI_BASE + 7;
     private static final int UI_SENDDRAFT = UI_BASE + 8;
+    private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
+    private static final int UI_FOLDER_STATUS = UI_BASE + 10;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -392,6 +402,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*", UI_SAVEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
+        matcher.addURI(EmailContent.AUTHORITY, "uistatus/#", UI_FOLDER_STATUS);
     }
 
     /**
@@ -1115,6 +1127,10 @@ public class EmailProvider extends ContentProvider {
                     }
                     c = uiQuery(match, uri, projection);
                     return c;
+                case UI_FOLDER_STATUS:
+                    return uiFolderStatus(uri);
+                case UI_FOLDER_REFRESH:
+                    return uiFolderRefresh(uri);
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -1854,6 +1870,8 @@ outer:
         .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
         .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
+        .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
+        .add(UIProvider.FolderColumns.STATUS_URI, uriWithId("uistatus"))
         .build();
 
     /**
@@ -2377,5 +2395,61 @@ outer:
         getContext().getContentResolver().notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
         // Temporary
         Log.d(TAG, "[Notify UIProvider " + reason + "]");
+    }
+
+    /**
+     * Support for services and service notifications
+     */
+
+    private final IEmailServiceCallback.Stub mServiceCallback =
+            new IEmailServiceCallback.Stub() {
+
+        @Override
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
+                throws RemoteException {
+        }
+
+        @Override
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
+                throws RemoteException {
+            // We'll get callbacks here from the services, which we'll pass back to the UI
+            Uri uri = ContentUris.withAppendedId(FOLDER_STATUS_URI, mailboxId);
+            EmailProvider.this.getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        @Override
+        public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
+                int progress) throws RemoteException {
+        }
+
+        @Override
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
+                throws RemoteException {
+        }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
+        }
+    };
+
+    private Cursor uiFolderStatus(Uri uri) {
+        // Will implement this when the status states are finalized
+        return null;
+    }
+
+    private Cursor uiFolderRefresh(Uri uri) {
+        Context context = getContext();
+        String idString = uri.getPathSegments().get(1);
+        long id = Long.parseLong(idString);
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, id);
+        if (mailbox == null) return null;
+        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                mServiceCallback, mailbox.mAccountKey);
+        try {
+            service.startSync(id, true);
+        } catch (RemoteException e) {
+        }
+        return uiFolderStatus(uri);
     }
 }
