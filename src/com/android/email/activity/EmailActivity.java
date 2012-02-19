@@ -19,7 +19,6 @@ package com.android.email.activity;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -350,12 +349,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      * A {@link Controller.Result} to detect connection status.
      */
     private class ControllerResult extends Controller.Result {
-        @Override
-        public void sendMailCallback(
-                MessagingException result, long accountId, long messageId, int progress) {
-            handleError(result, accountId, progress);
-        }
-
         @Override
         public void serviceCheckMailCallback(
                 MessagingException result, long accountId, long mailboxId, int progress, long tag) {

@@ -85,17 +85,6 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     }
 
     @Override
-    public void sendMailCallback(final MessagingException result, final long accountId,
-            final long messageId, final int progress) {
-        run(new Runnable() {
-            public void run() {
-                if (!isRegistered()) return;
-                mWrappee.sendMailCallback(result, accountId, messageId, progress);
-            }
-        });
-    }
-
-    @Override
     public void serviceCheckMailCallback(final MessagingException result, final long accountId,
             final long mailboxId, final int progress, final long tag) {
         run(new Runnable() {

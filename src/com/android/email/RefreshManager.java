@@ -355,7 +355,6 @@ public class RefreshManager {
     }
 
     private class ControllerResult extends Controller.Result {
-        private boolean mSendMailExceptionReported = false;
 
         private String exceptionToString(MessagingException exception) {
             if (exception == null) {
@@ -425,34 +424,6 @@ public class RefreshManager {
                         MessagingExceptionStrings.getErrorString(mContext, exception));
             }
             notifyRefreshStatusChanged(accountId, mailboxId);
-        }
-
-
-        /**
-         * Send message progress callback.
-         *
-         * We don't keep track of the status of outboxes, but we monitor this to catch
-         * errors.
-         */
-        @Override
-        public void sendMailCallback(MessagingException exception, long accountId, long messageId,
-                int progress) {
-            if (LOG_ENABLED) {
-                Log.d(Logging.LOG_TAG, "sendMailCallback " + accountId + ", "
-                        + messageId + ", " + progress + ", " + exceptionToString(exception));
-            }
-            if (progress == 0 && messageId == -1) {
-                mSendMailExceptionReported = false;
-            }
-            if (exception != null && !mSendMailExceptionReported) {
-                // Only the first error in a batch will be reported.
-                mSendMailExceptionReported = true;
-                reportError(accountId, messageId,
-                        MessagingExceptionStrings.getErrorString(mContext, exception));
-            }
-            if (progress == 100) {
-                mSendMailExceptionReported = false;
-            }
         }
     }
 }

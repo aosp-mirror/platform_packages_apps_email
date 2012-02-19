@@ -27,10 +27,10 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.email.Controller.Result;
 import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
-import com.android.email.Controller.Result;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
@@ -44,17 +44,17 @@ import com.android.emailcommon.internet.MimeMultipart;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Folder;
-import com.android.emailcommon.mail.Message;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
 import com.android.emailcommon.mail.Folder.OpenMode;
+import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -176,6 +176,15 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         }
     }
 
+    private void doProgressCallback(long messageId, long attachmentId, int progress) {
+        try {
+            mCallback.loadAttachmentStatus(messageId, attachmentId,
+                    EmailServiceStatus.IN_PROGRESS, progress);
+        } catch (RemoteException e) {
+            // No danger if the client is no longer around
+        }
+    }
+
     @Override
     public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
         try {
@@ -183,28 +192,38 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             Attachment attachment =
                 Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (attachment == null) {
-//                mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-//                           new MessagingException("The attachment is null"),
-//                           background);
+                mCallback.loadAttachmentStatus(0, attachmentId,
+                        EmailServiceStatus.ATTACHMENT_NOT_FOUND, 0);
                 return;
             }
-            if (Utility.attachmentExists(mContext, attachment)) {
-//                mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
-                return;
-            }
+            long messageId = attachment.mMessageKey;
+
             EmailContent.Message message =
-                EmailContent.Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+                    EmailContent.Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+            if (message == null) {
+                mCallback.loadAttachmentStatus(messageId, attachmentId,
+                        EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
+            }
+
+            // If the message is loaded, just report that we're finished
+            if (Utility.attachmentExists(mContext, attachment)) {
+                mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS,
+                        0);
+                return;
+            }
+
+            // Say we're starting...
+            doProgressCallback(messageId, attachmentId, 0);
 
             // 2. Open the remote folder.
             // TODO all of these could be narrower projections
             Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
             Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
 
-            if (account == null || mailbox == null || message == null) {
-//                mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-//                        new MessagingException(
-//                                "Account, mailbox, message or attachment are null"),
-//                        background);
+            if (account == null || mailbox == null) {
+                // If the account/mailbox are gone, just report success; the UI handles this
+                mCallback.loadAttachmentStatus(messageId, attachmentId,
+                        EmailServiceStatus.SUCCESS, 0);
                 return;
             }
             TrafficStats.setThreadStatsTag(
@@ -240,7 +259,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             FetchProfile fp = new FetchProfile();
             fp.add(storePart);
             remoteFolder.fetch(new Message[] { storeMessage }, fp,
-                    new MessageRetrievalListenerBridge(message.mId, attachmentId));
+                    new MessageRetrievalListenerBridge(messageId, attachmentId));
 
             // If we failed to load the attachment, throw an Exception here, so that
             // AttachmentDownloadService knows that we failed
@@ -253,16 +272,39 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     message.mAccountKey);
 
             // 6. Report success
-//            mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
+            mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
         }
         catch (MessagingException me) {
             if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
-//            mListeners.loadAttachmentFailed(
-//                    accountId, messageId, attachmentId, me, background);
+            // TODO: Fix this up; consider the best approach
+            mCallback.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
         } catch (IOException ioe) {
             Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
         }
 
+    }
+
+    /**
+     * Bridge to intercept {@link MessageRetrievalListener#loadAttachmentProgress} and
+     * pass down to {@link Result}.
+     */
+    public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
+        private final long mMessageId;
+        private final long mAttachmentId;
+
+        public MessageRetrievalListenerBridge(long messageId, long attachmentId) {
+            mMessageId = messageId;
+            mAttachmentId = attachmentId;
+        }
+
+        @Override
+        public void loadAttachmentProgress(int progress) {
+            doProgressCallback(mMessageId, mAttachmentId, progress);
+        }
+
+        @Override
+        public void messageRetrieved(com.android.emailcommon.mail.Message message) {
+        }
     }
 
     // TODO: Implement callback
@@ -412,9 +454,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (c.getCount() <= 0) {
                 return;
             }
-            // 3. do one-time setup of the Sender & other stuff
-            //mListeners.sendPendingMessagesStarted(account.mId, -1);
-
             Sender sender = Sender.getInstance(mContext, account);
             Store remoteStore = Store.getInstance(account, mContext);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
@@ -426,12 +465,11 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 moveToSentValues.put(MessageColumns.MAILBOX_KEY, sentFolder.mId);
             }
 
-            // 4.  loop through the available messages and send them
+            // 3.  loop through the available messages and send them
             while (c.moveToNext()) {
                 long messageId = -1;
                 try {
                     messageId = c.getLong(0);
-                    //mListeners.sendPendingMessagesStarted(account.mId, messageId);
                     // Don't send messages with unloaded attachments
                     if (Utility.hasUnloadedAttachments(mContext, messageId)) {
                         if (Email.DEBUG) {
@@ -446,10 +484,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     if (me instanceof AuthenticationFailedException) {
                         nc.showLoginFailedNotification(account.mId);
                     }
-                    //mListeners.sendPendingMessagesFailed(account.mId, messageId, me);
                     continue;
                 }
-                // 5. move to sent, or delete
+                // 4. move to sent, or delete
                 Uri syncedUri =
                     ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
                 if (requireMoveMessageToSentFolder) {
@@ -472,46 +509,13 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     resolver.delete(syncedUri, null, null);
                 }
             }
-            // 6. report completion/success
-            //mListeners.sendPendingMessagesCompleted(account.mId);
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException me) {
             if (me instanceof AuthenticationFailedException) {
                 nc.showLoginFailedNotification(account.mId);
             }
-            //mListeners.sendPendingMessagesFailed(account.mId, -1, me);
         } finally {
             c.close();
-        }
-    }
-
-    /**
-     * Bridge to intercept {@link MessageRetrievalListener#loadAttachmentProgress} and
-     * pass down to {@link Result}.
-     */
-    public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
-        private final long mMessageId;
-//        private final long mAttachmentId;
-//        private final long mAccountId;
-
-        public MessageRetrievalListenerBridge(long messageId, long attachmentId) {
-            mMessageId = messageId;
-//            mAttachmentId = attachmentId;
-//            mAccountId = Account.getAccountIdForMessageId(mContext, mMessageId);
-        }
-
-        @Override
-        public void loadAttachmentProgress(int progress) {
-//              synchronized (mListeners) {
-//                  for (Result listener : mListeners) {
-//                      listener.loadAttachmentCallback(null, mAccountId, mMessageId, mAttachmentId,
-//                              progress);
-//                 }
-//              }
-        }
-
-        @Override
-        public void messageRetrieved(com.android.emailcommon.mail.Message message) {
         }
     }
 }

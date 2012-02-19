@@ -1141,39 +1141,6 @@ public class Controller {
         public void serviceCheckMailCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, long tag) {
         }
-
-        /**
-         * Callback for sending pending messages.  This will be called once to start the
-         * group, multiple times for messages, and once to complete the group.
-         *
-         * Unfortunately this callback works differently on SMTP and EAS.
-         *
-         * On SMTP:
-         *
-         * First, we get this.
-         *  result == null, messageId == -1, progress == 0:     start batch send
-         *
-         * Then we get these callbacks per message.
-         * (Exchange backend may skip "start sending one message".)
-         *  result == null, messageId == xx, progress == 0:     start sending one message
-         *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
-         *
-         * Finally we get this.
-         *  result == null, messageId == -1, progres == 100;    finish sending batch
-         *
-         * On EAS: Almost same as above, except:
-         *
-         * - There's no first ("start batch send") callback.
-         * - accountId is always -1.
-         *
-         * @param result If null, the operation completed without error
-         * @param accountId The account being operated on
-         * @param messageId The being sent (may be unknown at start)
-         * @param progress 0 for "starting", 100 for complete
-         */
-        public void sendMailCallback(MessagingException result, long accountId,
-                long messageId, int progress) {
-        }
     }
 
     /**
@@ -1206,32 +1173,11 @@ public class Controller {
         }
 
         /**
-         * Note, this is an incomplete implementation of this callback, because we are
-         * not getting things back from Service in quite the same way as from MessagingController.
-         * However, this is sufficient for basic "progress=100" notification that message send
-         * has just completed.
+         * Unused
          */
         @Override
         public void sendMessageStatus(long messageId, String subject, int statusCode,
                 int progress) {
-            long accountId = -1;        // This should be in the callback
-            MessagingException result = mapStatusToException(statusCode);
-            switch (statusCode) {
-                case EmailServiceStatus.SUCCESS:
-                    progress = 100;
-                    break;
-                case EmailServiceStatus.IN_PROGRESS:
-                    // discard progress reports that look like sentinels
-                    if (progress < 0 || progress >= 100) {
-                        return;
-                    }
-                    break;
-            }
-            synchronized(mListeners) {
-                for (Result listener : mListeners) {
-                    listener.sendMailCallback(result, accountId, messageId, progress);
-                }
-            }
         }
 
         /**
