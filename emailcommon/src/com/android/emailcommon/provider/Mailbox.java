@@ -57,6 +57,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public String mSyncStatus;
     public long mLastSeenMessageKey;
     public long mLastTouchedTime;
+    public int mUiSyncStatus;
+    public int mUiLastSyncResult;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -76,6 +78,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int CONTENT_PARENT_KEY_COLUMN = 15;
     public static final int CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN = 16;
     public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 17;
+    public static final int CONTENT_UI_SYNC_STATUS_COLUMN = 18;
+    public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 19;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -89,6 +93,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
         MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
         MailboxColumns.LAST_SEEN_MESSAGE_KEY, MailboxColumns.LAST_TOUCHED_TIME,
+        MailboxColumns.UI_SYNC_STATUS, MailboxColumns.UI_LAST_SYNC_RESULT
     };
 
     private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -308,6 +313,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
         mLastSeenMessageKey = cursor.getLong(CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN);
         mLastTouchedTime = cursor.getLong(CONTENT_LAST_TOUCHED_TIME_COLUMN);
+        mUiSyncStatus = cursor.getInt(CONTENT_UI_SYNC_STATUS_COLUMN);
+        mUiLastSyncResult = cursor.getInt(CONTENT_UI_LAST_SYNC_RESULT_COLUMN);
     }
 
     @Override
@@ -330,6 +337,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
         values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, mLastSeenMessageKey);
         values.put(MailboxColumns.LAST_TOUCHED_TIME, mLastTouchedTime);
+        values.put(MailboxColumns.UI_SYNC_STATUS, mUiSyncStatus);
+        values.put(MailboxColumns.UI_LAST_SYNC_RESULT, mUiLastSyncResult);
         return values;
     }
 
@@ -573,6 +582,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         dest.writeString(mSyncStatus);
         dest.writeLong(mLastSeenMessageKey);
         dest.writeLong(mLastTouchedTime);
+        dest.writeInt(mUiSyncStatus);
+        dest.writeInt(mUiLastSyncResult);
     }
 
     public Mailbox(Parcel in) {
@@ -595,6 +606,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mSyncStatus = in.readString();
         mLastSeenMessageKey = in.readLong();
         mLastTouchedTime = in.readLong();
+        mUiSyncStatus = in.readInt();
+        mUiLastSyncResult = in.readInt();
     }
 
     public static final Parcelable.Creator<Mailbox> CREATOR = new Parcelable.Creator<Mailbox>() {
