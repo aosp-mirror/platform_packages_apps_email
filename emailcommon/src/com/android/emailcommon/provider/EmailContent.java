@@ -32,6 +32,7 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -91,6 +92,10 @@ public abstract class EmailContent {
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";
     public static final String SET_COLUMN_NAME = "set";
+
+    public static final int SYNC_STATUS_NONE = UIProvider.SyncStatus.NO_SYNC;
+    public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
+    public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
 
     // Newly created objects get this id
     public static final int NOT_SAVED = -1;
@@ -1413,6 +1418,10 @@ public abstract class EmailContent {
         public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
+        // The UIProvider sync status
+        public static final String UI_SYNC_STATUS = "uiSyncStatus";
+        // The UIProvider last sync result
+        public static final String UI_LAST_SYNC_RESULT = "uiLastSyncResult";
     }
 
     public interface HostAuthColumns {

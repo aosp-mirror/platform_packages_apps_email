@@ -33,10 +33,6 @@ import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -49,6 +45,10 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -112,8 +112,9 @@ public final class DBHelper {
     // Version 28: Add notifiedMessageId and notifiedMessageCount to Account
     // Version 29: Add protocolPoliciesEnforced and protocolPoliciesUnsupported to Policy
     // Version 30: Use CSV of RFC822 addresses instead of "packed" values
+    // Version 31: Add columns to mailbox for ui status/last result
 
-    public static final int DATABASE_VERSION = 30;
+    public static final int DATABASE_VERSION = 31;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -389,7 +390,9 @@ public final class DBHelper {
             + MailboxColumns.SYNC_STATUS + " text, "
             + MailboxColumns.MESSAGE_COUNT + " integer not null default 0, "
             + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer, "
-            + MailboxColumns.LAST_TOUCHED_TIME + " integer default 0"
+            + MailboxColumns.LAST_TOUCHED_TIME + " integer default 0, "
+            + MailboxColumns.UI_SYNC_STATUS + " integer default 0, "
+            + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -805,6 +808,18 @@ public final class DBHelper {
             if (oldVersion == 29) {
                 upgradeFromVersion29ToVersion30(db);
                 oldVersion = 30;
+            }
+            if (oldVersion == 30) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.UI_SYNC_STATUS + " integer;");
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.UI_LAST_SYNC_RESULT + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 30 to 31 " + e);
+                }
+                oldVersion = 31;
             }
         }
 

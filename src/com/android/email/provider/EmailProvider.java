@@ -200,7 +200,6 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_UPDATEDRAFT = UI_BASE + 7;
     private static final int UI_SENDDRAFT = UI_BASE + 8;
     private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
-    private static final int UI_FOLDER_STATUS = UI_BASE + 10;
     private static final int UI_FOLDER = UI_BASE + 11;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
@@ -404,7 +403,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
-        matcher.addURI(EmailContent.AUTHORITY, "uistatus/#", UI_FOLDER_STATUS);
         matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
     }
 
@@ -903,9 +901,6 @@ public class EmailProvider extends ContentProvider {
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
 
-    private static final Uri UIPROVIDER_MAILBOX_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
-
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         int match = findMatch(uri, "insert");
@@ -1133,10 +1128,8 @@ public class EmailProvider extends ContentProvider {
                     }
                     c = uiQuery(match, uri, projection);
                     return c;
-                case UI_FOLDER_STATUS:
-                    return uiFolderStatus(uri);
                 case UI_FOLDER_REFRESH:
-                    return uiFolderRefresh(uri);
+                    return uiFolderRefresh(uri, projection);
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -1661,6 +1654,7 @@ outer:
         // Notify all notifier cursors
         sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
 
+        resolver.notifyChange(uri, null);
         resolver.notifyChange(notificationUri, null);
         return result;
     }
@@ -1877,6 +1871,8 @@ outer:
         .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
         .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
+        .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
+        .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .build();
 
     /**
@@ -2457,12 +2453,7 @@ outer:
         }
     };
 
-    private Cursor uiFolderStatus(Uri uri) {
-        // Will implement this when the status states are finalized
-        return null;
-    }
-
-    private Cursor uiFolderRefresh(Uri uri) {
+    private Cursor uiFolderRefresh(Uri uri, String[] projection) {
         Context context = getContext();
         String idString = uri.getPathSegments().get(1);
         long id = Long.parseLong(idString);
@@ -2474,6 +2465,6 @@ outer:
             service.startSync(id, true);
         } catch (RemoteException e) {
         }
-        return uiFolderStatus(uri);
+        return null;
     }
 }

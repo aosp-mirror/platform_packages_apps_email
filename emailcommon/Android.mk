@@ -25,10 +25,11 @@ apache_src_dir := ../../UnifiedEmail/src/org
 
 imported_unified_email_files := \
         $(unified_email_src_dir)/com/android/mail/utils/LogUtils.java \
-        $(unified_email_src_dir)/com/android/mail/utils/LoggingInputStream.java
+        $(unified_email_src_dir)/com/android/mail/utils/LoggingInputStream.java \
+        $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
 
 LOCAL_MODULE := com.android.emailcommon
-LOCAL_STATIC_JAVA_LIBRARIES := guava
+LOCAL_STATIC_JAVA_LIBRARIES := guava android-common
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
 LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IEmailService.aidl \
