@@ -900,6 +900,8 @@ public class EmailProvider extends ContentProvider {
 
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
+    private static final Uri UIPROVIDER_MAILBOX_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1569,6 +1571,10 @@ outer:
                             mAttachmentService.attachmentChanged(getContext(),
                                     Integer.parseInt(id), flags);
                         }
+                    } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
+                        Uri notifyUri =
+                                UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                        resolver.notifyChange(notifyUri, null);
                     }
                     break;
                 case BODY:
@@ -1654,7 +1660,6 @@ outer:
         // Notify all notifier cursors
         sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
 
-        resolver.notifyChange(uri, null);
         resolver.notifyChange(notificationUri, null);
         return result;
     }
@@ -2066,8 +2071,8 @@ outer:
             case UI_FOLDER:
                 c = db.rawQuery(genQueryMailbox(uiProjection), new String[] {id});
                 // We'll notify on changes to the particular mailbox via the EmailProvider Uri
-                c.setNotificationUri(resolver,
-                        ContentUris.withAppendedId(Mailbox.CONTENT_URI, Long.parseLong(id)));
+                Uri notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                c.setNotificationUri(resolver, notifyUri);
                 return c;
         }
         if (c != null) {
