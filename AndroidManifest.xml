@@ -183,6 +183,15 @@
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- TODO(pwestbro): require a permission that will restrict launching this to
+                callers within the process.  (This may require moving this intent filter to a
+                different activity. -->
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <data android:host="email" />
+                 <data android:scheme="setting"/>
+             </intent-filter>
         </activity>
         <activity
             android:name=".activity.setup.AccountSecurity"
