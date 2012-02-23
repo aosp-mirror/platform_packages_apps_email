@@ -1872,7 +1872,6 @@ outer:
         .add(UIProvider.FolderColumns.HAS_CHILDREN,
                 MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
         .add(UIProvider.FolderColumns.CAPABILITIES, getFolderCapabilities())
-        .add(UIProvider.FolderColumns.SYNC_FREQUENCY, "0")
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
         .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
