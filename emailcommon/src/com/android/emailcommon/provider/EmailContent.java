@@ -97,6 +97,15 @@ public abstract class EmailContent {
     public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
     public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
 
+    public static final int LAST_SYNC_RESULT_SUCCESS = UIProvider.LastSyncResult.SUCCESS;
+    public static final int LAST_SYNC_RESULT_AUTH_ERROR = UIProvider.LastSyncResult.AUTH_ERROR;
+    public static final int LAST_SYNC_RESULT_SECURITY_ERROR =
+            UIProvider.LastSyncResult.SECURITY_ERROR;
+    public static final int LAST_SYNC_RESULT_CONNECTION_ERROR =
+            UIProvider.LastSyncResult.CONNECTION_ERROR;
+    public static final int LAST_SYNC_RESULT_INTERNAL_ERROR =
+            UIProvider.LastSyncResult.INTERNAL_ERROR;
+
     // Newly created objects get this id
     public static final int NOT_SAVED = -1;
     // The base Uri that this piece of content came from
