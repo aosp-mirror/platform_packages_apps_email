@@ -1575,6 +1575,9 @@ outer:
                         Uri notifyUri =
                                 UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
                         resolver.notifyChange(notifyUri, null);
+                        // TODO: Remove logging
+                        Log.d(TAG, "Notifying mailbox " + id + " status: " +
+                                values.getAsInteger(Mailbox.UI_SYNC_STATUS));
                     }
                     break;
                 case BODY:

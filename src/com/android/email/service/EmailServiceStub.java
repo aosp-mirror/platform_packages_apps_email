@@ -107,7 +107,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
                 AccountManagerTypes.TYPE_POP_IMAP);
         Bundle extras = new Bundle();
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
     }
 
