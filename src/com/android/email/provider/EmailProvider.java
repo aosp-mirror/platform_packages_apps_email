@@ -64,6 +64,7 @@ import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.google.common.annotations.VisibleForTesting;
@@ -200,7 +201,8 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_UPDATEDRAFT = UI_BASE + 7;
     private static final int UI_SENDDRAFT = UI_BASE + 8;
     private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
-    private static final int UI_FOLDER = UI_BASE + 11;
+    private static final int UI_FOLDER = UI_BASE + 10;
+    private static final int UI_ACCOUNT = UI_BASE + 11;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -393,17 +395,18 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
                 QUICK_RESPONSE_ACCOUNT_ID);
 
-        matcher.addURI(EmailContent.AUTHORITY, "uifolders/*", UI_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
-        matcher.addURI(EmailContent.AUTHORITY, "uisendmail/*", UI_SENDMAIL);
-        matcher.addURI(EmailContent.AUTHORITY, "uiundo/*", UI_UNDO);
-        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/*", UI_SAVEDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
+        matcher.addURI(EmailContent.AUTHORITY, "uiundo/#", UI_UNDO);
+        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
         matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
     }
 
     /**
@@ -902,6 +905,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
     private static final Uri UIPROVIDER_MAILBOX_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
+    private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1124,6 +1129,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_MESSAGES:
                 case UI_MESSAGE:
                 case UI_FOLDER:
+                case UI_ACCOUNT:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -1866,7 +1872,7 @@ outer:
     }
 
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
-        .add(BaseColumns._ID, MessageColumns.ID)
+        .add(BaseColumns._ID, MailboxColumns.ID)
         .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
         .add(UIProvider.FolderColumns.NAME, "displayName")
         .add(UIProvider.FolderColumns.HAS_CHILDREN,
@@ -1880,6 +1886,41 @@ outer:
         .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
         .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
+        .build();
+
+    private static final long BASE_EAS_CAPABILITIES =
+            AccountCapabilities.SYNCABLE_FOLDERS |
+            AccountCapabilities.FOLDER_SERVER_SEARCH |
+            AccountCapabilities.SANITIZED_HTML |
+            AccountCapabilities.SMART_REPLY |
+            AccountCapabilities.SERVER_SEARCH |
+            AccountCapabilities.UNDO;
+
+//    private static final Uri BASE_SETTINGS_URI =
+//            Uri.parse("content://ui.email.android.com/settings");
+//
+//    private static Uri getAccountSettingUri(String account) {
+//        return BASE_SETTINGS_URI.buildUpon().appendQueryParameter("account", account).build();
+//    }
+
+    private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
+        .add(BaseColumns._ID, AccountColumns.ID)
+        .add(UIProvider.AccountColumns.ACCOUNT_FROM_ADDRESSES_URI, "")
+        .add(UIProvider.AccountColumns.CAPABILITIES, Long.toString(BASE_EAS_CAPABILITIES))
+        .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithEmailAddress("uifolders"))
+        .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
+        .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithEmailAddress("uisavedraft"))
+        .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithEmailAddress("uisendmail"))
+        .add(UIProvider.AccountColumns.UNDO_URI, uriWithEmailAddress("uiundo"))
+        .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
+        // TODO: Is this used?
+        .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
+        // TODO: Can't build this properly...
+        .add(UIProvider.AccountColumns.SETTINGS_INTENT_URI, "")
+        // TODO: Not yet implemented
+        .add(UIProvider.AccountColumns.EXPUNGE_MESSAGE_URI, "")
+        .add(UIProvider.AccountColumns.SEARCH_URI, "")
+        .add(UIProvider.AccountColumns.SYNC_STATUS, "")
         .build();
 
     /**
@@ -1931,6 +1972,17 @@ outer:
      */
     private static String uriWithId(String type) {
         return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || _id";
+    }
+
+    /**
+     * Convenience method to create a Uri string given the "type" of query; we append the type
+     * of the query and the emailAddress column (for use with Account queries)
+     *
+     * @param type the "type" of the query, as defined by our UriMatcher definitions
+     * @return a Uri string
+     */
+    private static String uriWithEmailAddress(String type) {
+        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || emailAddress";
     }
 
     /**
@@ -2004,6 +2056,18 @@ outer:
     }
 
     /**
+     * Generate a "single account" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAccount(String[] uiProjection) {
+        StringBuilder sb = genSelect(sAccountListMap, uiProjection);
+        sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
+        return sb.toString();
+    }
+
+    /**
      * Generate the "subfolder list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
@@ -2016,24 +2080,6 @@ outer:
                 " =? ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
         return sb.toString();
-    }
-
-    /**
-     * Given the email address of an account, return its account id (the _id row in the Account
-     * table), or NO_ACCOUNT (-1) if not found
-     *
-     * @param email the email address of the account
-     * @return the account id for this account, or NO_ACCOUNT if not found
-     */
-    private long findAccountIdByName(String email) {
-        Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
-        Collection<Cursor> accounts = accountCache.values();
-        for (Cursor accountCursor: accounts) {
-            if (accountCursor.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN).equals(email)) {
-                return accountCursor.getLong(Account.CONTENT_ID_COLUMN);
-            }
-        }
-        return Account.NO_ACCOUNT;
     }
 
     /**
@@ -2053,13 +2099,7 @@ outer:
         String id = uri.getPathSegments().get(1);
         switch(match) {
             case UI_FOLDERS:
-                // We are passed the email address (unique account identifier) in the uri; we
-                // need to turn this into the _id of the Account row in the EmailProvider db
-                String accountName = id;
-                long acctId = findAccountIdByName(accountName);
-                if (acctId == Account.NO_ACCOUNT) return null;
-                c = db.rawQuery(genQueryAccountMailboxes(uiProjection),
-                        new String[] {Long.toString(acctId)});
+                c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
                 break;
             case UI_SUBFOLDERS:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
@@ -2072,8 +2112,12 @@ outer:
                 break;
             case UI_FOLDER:
                 c = db.rawQuery(genQueryMailbox(uiProjection), new String[] {id});
-                // We'll notify on changes to the particular mailbox via the EmailProvider Uri
                 Uri notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                c.setNotificationUri(resolver, notifyUri);
+                return c;
+            case UI_ACCOUNT:
+                c = db.rawQuery(genQueryAccount(uiProjection), new String[] {id});
+                notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
                 c.setNotificationUri(resolver, notifyUri);
                 return c;
         }
@@ -2141,12 +2185,11 @@ outer:
      * @param mailboxType the type of mailbox we're trying to find
      * @return the mailbox of the given type for the account in the uri, or null if not found
      */
-    private Mailbox getMailboxByUriAndType(String accountName, int mailboxType) {
-        long accountId = findAccountIdByName(accountName);
-        if (accountId == Account.NO_ACCOUNT) return null;
-        Mailbox mailbox = Mailbox.restoreMailboxOfType(getContext(), accountId, mailboxType);
+    private Mailbox getMailboxByAccountIdAndType(String accountId, int mailboxType) {
+        long id = Long.parseLong(accountId);
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(getContext(), id, mailboxType);
         if (mailbox == null) {
-            mailbox = createMailbox(accountId, mailboxType);
+            mailbox = createMailbox(id, mailboxType);
         }
         return mailbox;
     }
@@ -2226,7 +2269,7 @@ outer:
      */
     private Uri uiSendMail(Uri uri, ContentValues values) {
         List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByUriAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
+        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
         if (mailbox == null) return null;
         Message msg = getMessageFromPathSegments(pathSegments);
         try {
@@ -2245,7 +2288,7 @@ outer:
      */
     private Uri uiSaveDraft(Uri uri, ContentValues values) {
         List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByUriAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
+        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
         Message msg = getMessageFromPathSegments(pathSegments);
         return uiSaveMessage(msg, mailbox, values);
