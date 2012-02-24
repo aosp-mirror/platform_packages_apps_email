@@ -157,7 +157,9 @@ public class EmailProvider extends ContentProvider {
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_ID = MAILBOX_BASE + 1;
     private static final int MAILBOX_ID_FROM_ACCOUNT_AND_TYPE = MAILBOX_BASE + 2;
-    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 2;
+    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 3;
+    private static final int MAILBOX_NOTIFICATION = MAILBOX_BASE + 4;
+    private static final int MAILBOX_MOST_RECENT_MESSAGE = MAILBOX_BASE + 5;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -329,6 +331,10 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
         matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
                 MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
+                MAILBOX_MOST_RECENT_MESSAGE);
+
         // All messages
         matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
         // A specific message
@@ -1138,6 +1144,10 @@ public class EmailProvider extends ContentProvider {
                     return c;
                 case UI_FOLDER_REFRESH:
                     return uiFolderRefresh(uri, projection);
+                case MAILBOX_NOTIFICATION:
+                    return notificationQuery(uri);
+                case MAILBOX_MOST_RECENT_MESSAGE:
+                    return mostRecentMessageQuery(uri);
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -1797,6 +1807,54 @@ outer:
     public void injectAttachmentService(AttachmentService as) {
         mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
     }
+
+    public static final String[] NOTIFICATION_PROJECTION =
+        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
+    public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
+    public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
+    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
+
+    public static final Uri MAILBOX_NOTIFICATION_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
+    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
+
+    // SELECT DISTINCT Boxes._id, Boxes.unreadCount from Message, (SELECT _id, unreadCount,
+    //   messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
+    //   FROM Mailbox WHERE accountKey=6 AND syncInterval!=0 AND syncInterval!=-1) AS Boxes
+    // WHERE Boxes.messageCount!=Boxes.lastNotifiedMessageCount
+    //   OR (Boxes._id=Message.mailboxKey AND Message._id>Boxes.lastNotifiedMessageKey)
+    // TODO: This query can be simplified a bit
+    private static final String NOTIFICATION_QUERY =
+        "SELECT DISTINCT Boxes." + MailboxColumns.ID + ", Boxes." + MailboxColumns.UNREAD_COUNT +
+            ", Boxes." + MailboxColumns.MESSAGE_COUNT +
+        " FROM " +
+            Message.TABLE_NAME + "," +
+            "(SELECT " + MailboxColumns.ID + "," + MailboxColumns.UNREAD_COUNT + "," +
+                MailboxColumns.MESSAGE_COUNT + "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
+                "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " FROM " + Mailbox.TABLE_NAME +
+                " WHERE " + MailboxColumns.ACCOUNT_KEY + "=?" +
+                " AND " + MailboxColumns.SYNC_INTERVAL + "!=0 AND " +
+                MailboxColumns.SYNC_INTERVAL + "!=-1) AS Boxes " +
+        "WHERE Boxes." + MailboxColumns.MESSAGE_COUNT + "!=Boxes." +
+                MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
+                " OR (Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
+                MessageColumns.MAILBOX_KEY + " AND " + Message.TABLE_NAME + "." +
+                MessageColumns.ID + ">Boxes." + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY +
+                " AND " + MessageColumns.FLAG_READ + "=0)";
+
+    public Cursor notificationQuery(Uri uri) {
+        SQLiteDatabase db = getDatabase(getContext());
+        String accountId = uri.getLastPathSegment();
+        return db.rawQuery(NOTIFICATION_QUERY, new String[] {accountId});
+   }
+
+    public Cursor mostRecentMessageQuery(Uri uri) {
+        SQLiteDatabase db = getDatabase(getContext());
+        String mailboxId = uri.getLastPathSegment();
+        return db.rawQuery("select max(_id) from Message where mailboxKey=?",
+                new String[] {mailboxId});
+   }
 
     /**
      * Support for UnifiedEmail below

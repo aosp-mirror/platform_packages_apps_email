@@ -16,14 +16,6 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +24,14 @@ import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.email.provider.ContentCache;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.Arrays;
 
@@ -520,7 +520,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         testMailbox.mSyncTime = 6L;
         testMailbox.mType = 7;
         testMailbox.mVisibleLimit = 8;
-        testMailbox.mLastSeenMessageKey = 9L;
         testMailbox.mLastTouchedTime = 10L;
 
         return testMailbox;

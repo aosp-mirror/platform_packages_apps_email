@@ -42,15 +42,14 @@ import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -89,18 +88,15 @@ public class NotificationController {
     private final Bitmap mGenericSenderIcon;
     private final Bitmap mGenericMultipleSenderIcon;
     private final Clock mClock;
-    // TODO We're maintaining all of our structures based upon the account ID. This is fine
-    // for now since the assumption is that we only ever look for changes in an account's
-    // INBOX. We should adjust our logic to use the mailbox ID instead.
-    /** Maps account id to the message data */
+    /** Maps account id to its observer */
     private final HashMap<Long, ContentObserver> mNotificationMap;
     private ContentObserver mAccountObserver;
     /**
-     * Suspend notifications for this account. If {@link Account#NO_ACCOUNT}, no
-     * account notifications are suspended. If {@link Account#ACCOUNT_ID_COMBINED_VIEW},
-     * notifications for all accounts are suspended.
+     * Suspend notifications for this mailbox. If {@link Mailbox.NO_MAILBOX}, no
+     * account notifications are suspended. If {@link Mailbox.COMBINED_INBOX},
+     * notifications for all inboxes are suspended.
      */
-    private long mSuspendAccountId = Account.NO_ACCOUNT;
+    private long mSuspendMailboxId = Mailbox.NO_MAILBOX;
 
     /**
      * Timestamp indicating when the last message notification sound was played.
@@ -167,7 +163,7 @@ public class NotificationController {
      *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
-    private Notification createAccountNotification(Account account, String ticker,
+    private Notification createMailboxNotification(Mailbox mailbox, String ticker,
             CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
             Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
@@ -190,6 +186,7 @@ public class NotificationController {
                 .setOngoing(ongoing);
 
         if (enableAudio) {
+            Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
             setupSoundAndVibration(builder, account);
         }
 
@@ -207,9 +204,9 @@ public class NotificationController {
      * @param intent The intent to start if the user clicks on the notification.
      * @param notificationId The ID of the notification to register with the service.
      */
-    private void showAccountNotification(Account account, String ticker, String title,
+    private void showMailboxNotification(Mailbox mailbox, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
-        Notification notification = createAccountNotification(account, ticker, title, contentText,
+        Notification notification = createMailboxNotification(mailbox, ticker, title, contentText,
                 intent, null, null, true, needsOngoingNotification(notificationId));
         mNotificationManager.notify(notificationId, notification);
     }
@@ -217,9 +214,9 @@ public class NotificationController {
     /**
      * Returns a notification ID for new message notifications for the given account.
      */
-    private int getNewMessageNotificationId(long accountId) {
+    private int getNewMessageNotificationId(long mailboxId) {
         // We assume accountId will always be less than 0x0FFFFFFF; is there a better way?
-        return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + accountId);
+        return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + mailboxId);
     }
 
     /**
@@ -272,36 +269,22 @@ public class NotificationController {
     }
 
     /**
-     * Temporarily suspend a single account from receiving notifications. NOTE: only a single
-     * account may ever be suspended at a time. So, if this method is invoked a second time,
-     * notifications for the previously suspended account will automatically be re-activated.
-     * @param suspend If {@code true}, suspend notifications for the given account. Otherwise,
-     *              re-activate notifications for the previously suspended account.
-     * @param accountId The ID of the account. If this is the special account ID
-     *              {@link Account#ACCOUNT_ID_COMBINED_VIEW},  notifications for all accounts are
-     *              suspended. If {@code suspend} is {@code false}, the account ID is ignored.
+     * Temporarily suspend a single mailbox from receiving notifications. NOTE: only a single
+     * mailbox may ever be suspended at a time. So, if this method is invoked a second time,
+     * notifications for the previously mailbox will automatically be re-activated.
+     * @param suspend If {@code true}, suspend notifications for the given mailbox. Otherwise,
+     *              re-activate notifications for the previously suspended mailbox.
+     * @param mailboxId The ID of the mailbox. If this is the special mailbox ID
+     *              {@link Account#ACCOUNT_ID_COMBINED_VIEW},  notifications for all inboxes are
+     *              suspended. If {@code suspend} is {@code false}, the mailbox ID is ignored.
      */
-    public void suspendMessageNotification(boolean suspend, long accountId) {
-        if (mSuspendAccountId != Account.NO_ACCOUNT) {
-            // we're already suspending an account; un-suspend it
-            mSuspendAccountId = Account.NO_ACCOUNT;
+    public void suspendMessageNotification(boolean suspend, long mailboxId) {
+        if (mSuspendMailboxId != Mailbox.NO_MAILBOX) {
+            // we're already suspending a mailbox; un-suspend it
+            mSuspendMailboxId = Mailbox.NO_MAILBOX;
         }
-        if (suspend && accountId != Account.NO_ACCOUNT && accountId > 0L) {
-            mSuspendAccountId = accountId;
-            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                // Only go onto the notification handler if we really, absolutely need to
-                ensureHandlerExists();
-                sNotificationHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (long accountId : mNotificationMap.keySet()) {
-                            mNotificationManager.cancel(getNewMessageNotificationId(accountId));
-                        }
-                    }
-                });
-            } else {
-                mNotificationManager.cancel(getNewMessageNotificationId(accountId));
-            }
+        if (suspend && mailboxId != Mailbox.NO_MAILBOX) {
+            mSuspendMailboxId = mailboxId;
         }
     }
 
@@ -350,7 +333,7 @@ public class NotificationController {
                 Log.i(Logging.LOG_TAG, "Registering for notifications for account " + accountId);
             }
             ContentObserver observer = new MessageContentObserver(
-                    sNotificationHandler, mContext, mailbox.mId, accountId);
+                    sNotificationHandler, mContext, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
             mNotificationMap.put(accountId, observer);
             // Now, ping the observer for any initial notifications
@@ -412,9 +395,18 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     @VisibleForTesting
-    Notification createNewMessageNotification(long accountId, long mailboxId, long messageId,
+    Notification createNewMessageNotification(long mailboxId, long messageId,
             int unseenMessageCount, int unreadCount) {
-        final Account account = Account.restoreAccountWithId(mContext, accountId);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+        if (mailbox == null) {
+            return null;
+        }
+        // No notification if we're suspended...
+        if (mSuspendMailboxId == mailboxId || (mSuspendMailboxId == Mailbox.QUERY_ALL_INBOXES &&
+                mailbox.mType == Mailbox.TYPE_INBOX)) {
+            return null;
+        }
+        final Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
         if (account == null) {
             return null;
         }
@@ -435,22 +427,24 @@ public class NotificationController {
         final SpannableString title = getNewMessageTitle(senderName, unseenMessageCount);
         // TODO: add in display name on the second line for the text, once framework supports
         // multiline texts.
+        // Show account name if an inbox; otherwise mailbox name
         final String text = multipleUnseen
-                ? account.mDisplayName
+                ? ((mailbox.mType == Mailbox.TYPE_INBOX) ? account.mDisplayName :
+                    mailbox.mDisplayName)
                 : message.mSubject;
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unreadCount > 1 ? unreadCount : null;
         final Intent intent;
         if (unseenMessageCount > 1) {
-            intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
+            intent = Welcome.createOpenAccountInboxIntent(mContext, account.mId);
         } else {
-            intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
+            intent = Welcome.createOpenMessageIntent(mContext, account.mId, mailboxId, messageId);
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         long now = mClock.getTime();
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
-        Notification notification = createAccountNotification(
-                account, title.toString(), title, text,
+        Notification notification = createMailboxNotification(
+                mailbox, title.toString(), title, text,
                 intent, largeIcon, number, enableAudio, false);
         mLastMessageNotifyTime = now;
         return notification;
@@ -505,9 +499,10 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showDownloadForwardFailedNotification(Attachment attachment) {
-        final Account account = Account.restoreAccountWithId(mContext, attachment.mAccountKey);
-        if (account == null) return;
-        showAccountNotification(account,
+        Message message = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+        if (message == null) return;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+        showMailboxNotification(mailbox,
                 mContext.getString(R.string.forward_download_failed_ticker),
                 mContext.getString(R.string.forward_download_failed_title),
                 attachment.mFileName,
@@ -530,7 +525,10 @@ public class NotificationController {
     public void showLoginFailedNotification(long accountId) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        showAccountNotification(account,
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
+        showMailboxNotification(mailbox,
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
@@ -555,6 +553,9 @@ public class NotificationController {
     public void showPasswordExpiringNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
 
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, false);
@@ -562,7 +563,7 @@ public class NotificationController {
         String ticker =
             mContext.getString(R.string.password_expire_warning_ticker_fmt, accountName);
         String title = mContext.getString(R.string.password_expire_warning_content_title);
-        showAccountNotification(account, ticker, title, accountName, intent,
+        showMailboxNotification(mailbox, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRING);
     }
 
@@ -575,13 +576,16 @@ public class NotificationController {
     public void showPasswordExpiredNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
 
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, true);
         String accountName = account.getDisplayName();
         String ticker = mContext.getString(R.string.password_expired_ticker);
         String title = mContext.getString(R.string.password_expired_content_title);
-        showAccountNotification(account, ticker, title, accountName, intent,
+        showMailboxNotification(mailbox, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRED);
     }
 
@@ -598,12 +602,15 @@ public class NotificationController {
      * dialog asking whether he wants to update his settings.
      */
     public void showSecurityNeededNotification(Account account) {
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_needed_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_update_title);
-        showAccountNotification(account, ticker, title, accountName, intent,
+        showMailboxNotification(mailbox, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
     }
 
@@ -612,12 +619,15 @@ public class NotificationController {
      * account settings screen where he can view the list of enforced policies
      */
     public void showSecurityChangedNotification(Account account) {
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
         Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_change_title);
-        showAccountNotification(account, ticker, title, accountName, intent,
+        showMailboxNotification(mailbox, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
     }
 
@@ -626,12 +636,15 @@ public class NotificationController {
      * account settings screen where he can view the list of unsupported policies
      */
     public void showSecurityUnsupportedNotification(Account account) {
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+                Mailbox.TYPE_INBOX);
+        if (mailbox == null) return;
         Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_unsupported_title);
-        showAccountNotification(account, ticker, title, accountName, intent,
+        showMailboxNotification(mailbox, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
    }
 
@@ -661,105 +674,56 @@ public class NotificationController {
      * Observer invoked whenever a message we're notifying the user about changes.
      */
     private static class MessageContentObserver extends ContentObserver {
-        /** A selection to get messages the user hasn't seen before */
-        private final static String MESSAGE_SELECTION =
-                MessageColumns.MAILBOX_KEY + "=? AND "
-                + MessageColumns.ID + ">? AND "
-                + MessageColumns.FLAG_READ + "=0 AND "
-                + Message.FLAG_LOADED_SELECTION;
         private final Context mContext;
-        private final long mMailboxId;
         private final long mAccountId;
 
         public MessageContentObserver(
-                Handler handler, Context context, long mailboxId, long accountId) {
+                Handler handler, Context context, long accountId) {
             super(handler);
             mContext = context;
-            mMailboxId = mailboxId;
             mAccountId = accountId;
         }
 
         @Override
         public void onChange(boolean selfChange) {
-            if (mAccountId == sInstance.mSuspendAccountId
-                    || sInstance.mSuspendAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                return;
-            }
-
             ContentObserver observer = sInstance.mNotificationMap.get(mAccountId);
-            if (observer == null) {
-                // Notification for a mailbox that we aren't observing; account is probably
-                // being deleted.
-                Log.w(Logging.LOG_TAG, "Received notification when observer data was null");
-                return;
-            }
             Account account = Account.restoreAccountWithId(mContext, mAccountId);
-            if (account == null) {
+            if (observer == null || account == null) {
                 Log.w(Logging.LOG_TAG, "Couldn't find account for changed message notification");
                 return;
             }
-            long oldMessageId = account.mNotifiedMessageId;
-            int oldMessageCount = account.mNotifiedMessageCount;
 
             ContentResolver resolver = mContext.getContentResolver();
-            Long lastSeenMessageId = Utility.getFirstRowLong(
-                    mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
-                    new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
-                    null, null, null, 0);
-            if (lastSeenMessageId == null) {
-                // Mailbox got nuked. Could be that the account is in the process of being deleted
-                Log.w(Logging.LOG_TAG, "Couldn't find mailbox for changed message notification");
-                return;
-            }
-
-            Cursor c = resolver.query(
-                    Message.CONTENT_URI, EmailContent.ID_PROJECTION,
-                    MESSAGE_SELECTION,
-                    new String[] { Long.toString(mMailboxId), Long.toString(lastSeenMessageId) },
-                    MessageColumns.ID + " DESC");
-            if (c == null) {
-                // Couldn't find message info - things may be getting deleted in bulk.
-                Log.w(Logging.LOG_TAG, "#onChange(); NULL response for message id query");
-                return;
-            }
+            Cursor c = resolver.query(ContentUris.withAppendedId(
+                    EmailProvider.MAILBOX_NOTIFICATION_URI, mAccountId),
+                    EmailProvider.NOTIFICATION_PROJECTION, null, null, null);
             try {
-                int newMessageCount = c.getCount();
-                long newMessageId = 0L;
-                if (c.moveToNext()) {
-                    newMessageId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                }
-
-                if (newMessageCount == 0) {
-                    // No messages to notify for; clear the notification
-                    int notificationId = sInstance.getNewMessageNotificationId(mAccountId);
-                    sInstance.mNotificationManager.cancel(notificationId);
-                } else if (newMessageCount != oldMessageCount
-                        || (newMessageId != 0 && newMessageId != oldMessageId)) {
-                    // Either the count or last message has changed; update the notification
-                    Integer unreadCount = Utility.getFirstRowInt(
-                            mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
-                            new String[] { MailboxColumns.UNREAD_COUNT },
-                            null, null, null, 0);
-                    if (unreadCount == null) {
-                        Log.w(Logging.LOG_TAG, "Couldn't find unread count for mailbox");
-                        return;
-                    }
-
-                    Notification n = sInstance.createNewMessageNotification(
-                            mAccountId, mMailboxId, newMessageId,
-                            newMessageCount, unreadCount);
+                while (c.moveToNext()) {
+                    long mailboxId = c.getLong(EmailProvider.NOTIFICATION_MAILBOX_ID_COLUMN);
+                    int messageCount =
+                            c.getInt(EmailProvider.NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN);
+                    int unreadCount =
+                            c.getInt(EmailProvider.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
+                    System.err.println("Changes in " + c.getLong(0) + ", unread: " + unreadCount);
+                    long newMessageId = Utility.getFirstRowLong(mContext,
+                            ContentUris.withAppendedId(
+                                    EmailProvider.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
+                            Message.ID_COLUMN_PROJECTION, null, null, null,
+                            Message.ID_MAILBOX_COLUMN_ID, -1L);
+                    Notification n = sInstance.createNewMessageNotification(mailboxId, newMessageId,
+                            messageCount, unreadCount);
                     if (n != null) {
                         // Make the notification visible
                         sInstance.mNotificationManager.notify(
-                                sInstance.getNewMessageNotificationId(mAccountId), n);
+                                sInstance.getNewMessageNotificationId(mailboxId), n);
                     }
+                    // Save away the new values
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, newMessageId);
+                    cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, messageCount);
+                    resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId), cv,
+                            null, null);
                 }
-                // Save away the new values
-                ContentValues cv = new ContentValues();
-                cv.put(AccountColumns.NOTIFIED_MESSAGE_ID, newMessageId);
-                cv.put(AccountColumns.NOTIFIED_MESSAGE_COUNT, newMessageCount);
-                resolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId), cv,
-                        null, null);
             } finally {
                 c.close();
             }
@@ -780,8 +744,7 @@ public class NotificationController {
         @Override
         public void onChange(boolean selfChange) {
             final ContentResolver resolver = mContext.getContentResolver();
-            final Cursor c = resolver.query(
-                Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+            final Cursor c = resolver.query(Account.CONTENT_URI, EmailContent.ID_PROJECTION,
                 NOTIFIED_ACCOUNT_SELECTION, null, null);
             final HashSet<Long> newAccountList = new HashSet<Long>();
             final HashSet<Long> removedAccountList = new HashSet<Long>();

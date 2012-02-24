@@ -1221,14 +1221,13 @@ public class MessageListFragment extends ListFragment
      *                          viewed mailbox will be updated.
      */
     private void adjustMessageNotification(boolean updateLastSeenKey) {
-        final long accountId = getAccountId();
         final long mailboxId = getMailboxId();
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES || mailboxId > 0) {
             if (updateLastSeenKey) {
-                Utility.updateLastSeenMessageKey(mActivity, accountId);
+                Utility.updateLastNotifiedMessageKey(mActivity, mailboxId);
             }
             NotificationController notifier = NotificationController.getInstance(mActivity);
-            notifier.suspendMessageNotification(mResumed, accountId);
+            notifier.suspendMessageNotification(mResumed, mailboxId);
         }
     }
 

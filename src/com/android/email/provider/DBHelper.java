@@ -113,8 +113,10 @@ public final class DBHelper {
     // Version 29: Add protocolPoliciesEnforced and protocolPoliciesUnsupported to Policy
     // Version 30: Use CSV of RFC822 addresses instead of "packed" values
     // Version 31: Add columns to mailbox for ui status/last result
+    // Version 32: Add columns to mailbox for last notified message key/count; insure not null
+    //             for "notified" columns
 
-    public static final int DATABASE_VERSION = 31;
+    public static final int DATABASE_VERSION = 32;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -302,9 +304,7 @@ public final class DBHelper {
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_ID + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_COUNT + " integer"
+            + AccountColumns.POLICY_KEY + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -389,10 +389,11 @@ public final class DBHelper {
             + MailboxColumns.VISIBLE_LIMIT + " integer, "
             + MailboxColumns.SYNC_STATUS + " text, "
             + MailboxColumns.MESSAGE_COUNT + " integer not null default 0, "
-            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer, "
             + MailboxColumns.LAST_TOUCHED_TIME + " integer default 0, "
             + MailboxColumns.UI_SYNC_STATUS + " integer default 0, "
-            + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0"
+            + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0, "
+            + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
+            + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -744,7 +745,6 @@ public final class DBHelper {
                 oldVersion = 20;
             }
             if (oldVersion == 20) {
-                upgradeFromVersion20ToVersion21(db);
                 oldVersion = 21;
             }
             if (oldVersion == 21) {
@@ -782,15 +782,6 @@ public final class DBHelper {
                 oldVersion = 27;
             }
             if (oldVersion == 27) {
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_ID + " integer;");
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 28 " + e);
-                }
                 oldVersion = 28;
             }
             if (oldVersion == 28) {
@@ -820,6 +811,22 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 30 to 31 " + e);
                 }
                 oldVersion = 31;
+            }
+            if (oldVersion == 31) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY + " integer;");
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT + " integer;");
+                    db.execSQL("update Mailbox set " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY +
+                            "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY + " IS NULL");
+                    db.execSQL("update Mailbox set " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT +
+                            "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT + " IS NULL");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32 " + e);
+                }
+                oldVersion = 32;
             }
         }
 
@@ -885,17 +892,6 @@ public final class DBHelper {
             Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
         }
         ContentCache.invalidateAllCaches();
-    }
-
-    /** Upgrades the database from v20 to v21 */
-    private static void upgradeFromVersion20ToVersion21(SQLiteDatabase db) {
-        try {
-            db.execSQL("alter table " + Mailbox.TABLE_NAME
-                    + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
-        }
     }
 
     /**

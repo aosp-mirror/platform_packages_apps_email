@@ -897,28 +897,27 @@ public class Utility {
      * all accounts are updated.
      * @return an {@link EmailAsyncTask} for test only.
      */
-    public static EmailAsyncTask<Void, Void, Void> updateLastSeenMessageKey(final Context context,
-            final long accountId) {
+    public static EmailAsyncTask<Void, Void, Void> updateLastNotifiedMessageKey(
+            final Context context, final long mailboxId) {
         return EmailAsyncTask.runAsyncParallel(new Runnable() {
-            private void updateLastSeenMessageKeyForAccount(long accountId) {
+            private void updateLastSeenMessageKeyForMailbox(long mailboxId) {
                 ContentResolver resolver = context.getContentResolver();
-                if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
                     Cursor c = resolver.query(
-                            Account.CONTENT_URI, EmailContent.ID_PROJECTION, null, null, null);
+                            Mailbox.CONTENT_URI, EmailContent.ID_PROJECTION, Mailbox.TYPE + "=?",
+                            new String[] { Integer.toString(Mailbox.TYPE_INBOX) }, null);
                     if (c == null) throw new ProviderUnavailableException();
                     try {
                         while (c.moveToNext()) {
                             final long id = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                            updateLastSeenMessageKeyForAccount(id);
+                            updateLastSeenMessageKeyForMailbox(id);
                         }
                     } finally {
                         c.close();
                     }
-                } else if (accountId > 0L) {
-                    Mailbox mailbox =
-                        Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
-
-                    // mailbox has been removed
+                } else if (mailboxId > 0L) {
+                    Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+                   // mailbox has been removed
                     if (mailbox == null) {
                         return;
                     }
@@ -937,12 +936,12 @@ public class Utility {
                             EmailContent.ID_PROJECTION_COLUMN, 0L);
                     long oldLastSeenMessageId = Utility.getFirstRowLong(
                             context, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailbox.mId),
-                            new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
+                            new String[] { MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY },
                             null, null, null, 0, 0L);
                     // Only update the db if the value has changed
                     if (messageId != oldLastSeenMessageId) {
                         ContentValues values = mailbox.toContentValues();
-                        values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, messageId);
+                        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, messageId);
                         resolver.update(
                                 Mailbox.CONTENT_URI,
                                 values,
@@ -954,7 +953,7 @@ public class Utility {
 
             @Override
             public void run() {
-                updateLastSeenMessageKeyForAccount(accountId);
+                updateLastSeenMessageKeyForMailbox(mailboxId);
             }
         });
     }

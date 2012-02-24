@@ -1374,10 +1374,6 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
-        // The last notified message id
-        public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
-        // The most recent notified message count
-        public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
     public interface QuickResponseColumns {
@@ -1423,14 +1419,16 @@ public abstract class EmailContent {
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
-        // Message ID of the last 'seen' message
-        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
         // The UIProvider sync status
         public static final String UI_SYNC_STATUS = "uiSyncStatus";
         // The UIProvider last sync result
         public static final String UI_LAST_SYNC_RESULT = "uiLastSyncResult";
+        // The UIProvider sync status
+        public static final String LAST_NOTIFIED_MESSAGE_KEY = "lastNotifiedMessageKey";
+        // The UIProvider last sync result
+        public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
     }
 
     public interface HostAuthColumns {
