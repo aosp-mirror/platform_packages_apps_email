@@ -42,7 +42,6 @@ import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
@@ -285,6 +284,24 @@ public class NotificationController {
         }
         if (suspend && mailboxId != Mailbox.NO_MAILBOX) {
             mSuspendMailboxId = mailboxId;
+        }
+        if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+            // Only go onto the notification handler if we really, absolutely need to
+            ensureHandlerExists();
+            sNotificationHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (long accountId: mNotificationMap.keySet()) {
+                        long mailboxId =
+                                Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+                        if (mailboxId != Mailbox.NO_MAILBOX) {
+                            mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
+                        }
+                    }
+                }
+            });
+        } else {
+            mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
         }
     }
 
@@ -695,21 +712,26 @@ public class NotificationController {
 
             ContentResolver resolver = mContext.getContentResolver();
             Cursor c = resolver.query(ContentUris.withAppendedId(
-                    EmailProvider.MAILBOX_NOTIFICATION_URI, mAccountId),
-                    EmailProvider.NOTIFICATION_PROJECTION, null, null, null);
+                    EmailContent.MAILBOX_NOTIFICATION_URI, mAccountId),
+                    EmailContent.NOTIFICATION_PROJECTION, null, null, null);
             try {
                 while (c.moveToNext()) {
-                    long mailboxId = c.getLong(EmailProvider.NOTIFICATION_MAILBOX_ID_COLUMN);
+                    long mailboxId = c.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
                     int messageCount =
-                            c.getInt(EmailProvider.NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN);
+                            c.getInt(EmailContent.NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN);
                     int unreadCount =
-                            c.getInt(EmailProvider.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
-                    System.err.println("Changes in " + c.getLong(0) + ", unread: " + unreadCount);
+                            c.getInt(EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
+
+                    Mailbox m = Mailbox.restoreMailboxWithId(mContext, mailboxId);
                     long newMessageId = Utility.getFirstRowLong(mContext,
                             ContentUris.withAppendedId(
-                                    EmailProvider.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
+                                    EmailContent.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
                             Message.ID_COLUMN_PROJECTION, null, null, null,
                             Message.ID_MAILBOX_COLUMN_ID, -1L);
+                    // TODO: Remove debug logging
+                    Log.d(Logging.LOG_TAG, "Changes to " + account.mDisplayName + "/" +
+                            m.mDisplayName + ", count: " + messageCount + ", lastNotified: " +
+                            m.mLastNotifiedMessageKey + ", mostRecent: " + newMessageId);
                     Notification n = sInstance.createNewMessageNotification(mailboxId, newMessageId,
                             messageCount, unreadCount);
                     if (n != null) {

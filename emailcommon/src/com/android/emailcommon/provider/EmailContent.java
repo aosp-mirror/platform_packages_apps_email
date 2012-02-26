@@ -71,6 +71,17 @@ public abstract class EmailContent {
 
     public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
+    public static final Uri MAILBOX_NOTIFICATION_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
+    public static final String[] NOTIFICATION_PROJECTION =
+        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
+    public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
+    public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
+    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
+
+    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
+
     public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this

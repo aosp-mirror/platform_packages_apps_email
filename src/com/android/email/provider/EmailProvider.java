@@ -1143,11 +1143,14 @@ public class EmailProvider extends ContentProvider {
                     c = uiQuery(match, uri, projection);
                     return c;
                 case UI_FOLDER_REFRESH:
-                    return uiFolderRefresh(uri, projection);
+                    c = uiFolderRefresh(uri, projection);
+                    return c;
                 case MAILBOX_NOTIFICATION:
-                    return notificationQuery(uri);
+                    c = notificationQuery(uri);
+                    return c;
                 case MAILBOX_MOST_RECENT_MESSAGE:
-                    return mostRecentMessageQuery(uri);
+                    c = mostRecentMessageQuery(uri);
+                    return c;
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -1807,17 +1810,6 @@ outer:
     public void injectAttachmentService(AttachmentService as) {
         mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
     }
-
-    public static final String[] NOTIFICATION_PROJECTION =
-        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
-    public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
-    public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
-    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
-
-    public static final Uri MAILBOX_NOTIFICATION_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
-    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
 
     // SELECT DISTINCT Boxes._id, Boxes.unreadCount from Message, (SELECT _id, unreadCount,
     //   messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
