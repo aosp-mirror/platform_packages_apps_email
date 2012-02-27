@@ -205,6 +205,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
     private static final int UI_FOLDER = UI_BASE + 10;
     private static final int UI_ACCOUNT = UI_BASE + 11;
+    private static final int UI_ACCTS = UI_BASE + 12;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -294,6 +295,7 @@ public class EmailProvider extends ContentProvider {
     private static final String ID_EQUALS = EmailContent.RECORD_ID + "=?";
 
     private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
+    private static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
 
     public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
 
@@ -413,6 +415,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
         matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
     }
 
     /**
@@ -1128,6 +1131,8 @@ public class EmailProvider extends ContentProvider {
         try {
             switch (match) {
                 // First, dispatch queries from UnfiedEmail
+                case UI_ACCTS:
+                    return uiAccounts(projection);
                 case UI_UNDO:
                     return uiUndo(uri, projection);
                 case UI_SUBFOLDERS:
@@ -1938,14 +1943,6 @@ outer:
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .build();
 
-    private static final long BASE_EAS_CAPABILITIES =
-            AccountCapabilities.SYNCABLE_FOLDERS |
-            AccountCapabilities.FOLDER_SERVER_SEARCH |
-            AccountCapabilities.SANITIZED_HTML |
-            AccountCapabilities.SMART_REPLY |
-            AccountCapabilities.SERVER_SEARCH |
-            AccountCapabilities.UNDO;
-
 //    private static final Uri BASE_SETTINGS_URI =
 //            Uri.parse("content://ui.email.android.com/settings");
 //
@@ -1955,22 +1952,15 @@ outer:
 
     private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, AccountColumns.ID)
-        .add(UIProvider.AccountColumns.ACCOUNT_FROM_ADDRESSES_URI, "")
-        .add(UIProvider.AccountColumns.CAPABILITIES, Long.toString(BASE_EAS_CAPABILITIES))
-        .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithEmailAddress("uifolders"))
+        .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
         .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
-        .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithEmailAddress("uisavedraft"))
-        .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithEmailAddress("uisendmail"))
-        .add(UIProvider.AccountColumns.UNDO_URI, uriWithEmailAddress("uiundo"))
+        .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
+        .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
+        .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
-        // TODO: Can't build this properly...
-        .add(UIProvider.AccountColumns.SETTINGS_INTENT_URI, "")
-        // TODO: Not yet implemented
-        .add(UIProvider.AccountColumns.EXPUNGE_MESSAGE_URI, "")
-        .add(UIProvider.AccountColumns.SEARCH_URI, "")
-        .add(UIProvider.AccountColumns.SYNC_STATUS, "")
+        .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
         .build();
 
     /**
@@ -1991,9 +1981,14 @@ outer:
      * Generate the SELECT clause using a specified mapping and the original UI projection
      * @param map the ProjectionMap to use for this projection
      * @param projection the projection as sent by UnifiedEmail
+     * @param values ContentValues to be used if the ProjectionMap entry is null
      * @return a StringBuilder containing the SELECT expression for a SQLite query
      */
     private StringBuilder genSelect(ProjectionMap map, String[] projection) {
+        return genSelect(map, projection, EMPTY_CONTENT_VALUES);
+    }
+
+    private StringBuilder genSelect(ProjectionMap map, String[] projection, ContentValues values) {
         StringBuilder sb = new StringBuilder("SELECT ");
         boolean first = true;
         for (String column: projection) {
@@ -2005,8 +2000,12 @@ outer:
             String val = map.get(column);
             // If we don't have the column, be permissive, returning "0 AS <column>", and warn
             if (val == null) {
-                Log.w(TAG, "UIProvider column not found, returning 0: " + column);
-                val = "0 AS " + column;
+                if (values.containsKey(column)) {
+                    val = "'" + values.getAsString(column) + "' AS " + column;
+                } else {
+                    Log.w(TAG, "UIProvider column not found, returning 0: " + column);
+                    val = "NULL AS " + column;
+                }
             }
             sb.append(val);
         }
@@ -2022,17 +2021,6 @@ outer:
      */
     private static String uriWithId(String type) {
         return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || _id";
-    }
-
-    /**
-     * Convenience method to create a Uri string given the "type" of query; we append the type
-     * of the query and the emailAddress column (for use with Account queries)
-     *
-     * @param type the "type" of the query, as defined by our UriMatcher definitions
-     * @return a Uri string
-     */
-    private static String uriWithEmailAddress(String type) {
-        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || emailAddress";
     }
 
     /**
@@ -2105,16 +2093,88 @@ outer:
         return sb.toString();
     }
 
+    private static final long IMAP_CAPABILITIES =
+            AccountCapabilities.SYNCABLE_FOLDERS |
+            AccountCapabilities.FOLDER_SERVER_SEARCH |
+            AccountCapabilities.UNDO;
+
+    private static final long POP3_CAPABILITIES = 0;
+
+    private static final long EAS_12_CAPABILITIES =
+            AccountCapabilities.SYNCABLE_FOLDERS |
+            AccountCapabilities.FOLDER_SERVER_SEARCH |
+            AccountCapabilities.SANITIZED_HTML |
+            AccountCapabilities.SMART_REPLY |
+            AccountCapabilities.SERVER_SEARCH |
+            AccountCapabilities.UNDO;
+
+    private static final long EAS_2_CAPABILITIES =
+            AccountCapabilities.SYNCABLE_FOLDERS |
+            AccountCapabilities.SANITIZED_HTML |
+            AccountCapabilities.SMART_REPLY |
+            AccountCapabilities.UNDO;
+
     /**
      * Generate a "single account" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAccount(String[] uiProjection) {
-        StringBuilder sb = genSelect(sAccountListMap, uiProjection);
+    // TODO: Get protocol specific stuff out of here (it should be in the account)
+    private String genQueryAccount(String[] uiProjection, String id) {
+        ContentValues values = new ContentValues();
+        long accountId = Long.parseLong(id);
+        String protocol = Account.getProtocol(getContext(), accountId);
+        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
+            values.put(UIProvider.AccountColumns.CAPABILITIES, IMAP_CAPABILITIES);
+        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
+            values.put(UIProvider.AccountColumns.CAPABILITIES, POP3_CAPABILITIES);
+        } else {
+            Account account = Account.restoreAccountWithId(getContext(), accountId);
+            String easVersion = account.mProtocolVersion;
+            Double easVersionDouble = 2.5D;
+            if (easVersion != null) {
+                try {
+                    easVersionDouble = Double.parseDouble(easVersion);
+                } catch (NumberFormatException e) {
+                    // Stick with 2.5
+                }
+            }
+            if (easVersionDouble >= 12.0D) {
+                values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_12_CAPABILITIES);
+            } else {
+                values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_2_CAPABILITIES);
+            }
+        }
+        StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
+    }
+
+    private Cursor uiAccounts(String[] uiProjection) {
+        Context context = getContext();
+        SQLiteDatabase db = getDatabase(context);
+        Cursor accountIdCursor =
+                db.rawQuery("select _id from " + Account.TABLE_NAME, new String[0]);
+        MatrixCursor mc = new MatrixCursor(uiProjection, accountIdCursor.getCount());
+        Object[] values = new Object[uiProjection.length];
+        try {
+            while (accountIdCursor.moveToNext()) {
+                String id = accountIdCursor.getString(0);
+                Cursor accountCursor =
+                        db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
+                if (accountCursor.moveToNext()) {
+                    for (int i = 0; i < uiProjection.length; i++) {
+                        values[i] = accountCursor.getString(i);
+                    }
+                    mc.addRow(values);
+                }
+                accountCursor.close();
+            }
+        } finally {
+            accountIdCursor.close();
+        }
+        return mc;
     }
 
     /**
@@ -2166,7 +2226,7 @@ outer:
                 c.setNotificationUri(resolver, notifyUri);
                 return c;
             case UI_ACCOUNT:
-                c = db.rawQuery(genQueryAccount(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
                 c.setNotificationUri(resolver, notifyUri);
                 return c;

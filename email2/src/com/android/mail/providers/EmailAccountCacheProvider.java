@@ -16,12 +16,11 @@
 
 package com.android.mail.providers;
 
-import java.lang.Override;
+
 
 public class EmailAccountCacheProvider extends AccountCacheProvider {
-    // The authority of our conversation provider (a forwarding provider)
-    // This string must match the declaration in AndroidManifest.xml
-    private static final String sAuthority = "com.android.email2.accountcache";
+    // Content provider for Email
+    private static final String sAuthority = "com.google.android.provider";
 
     @Override
     protected String getAuthority() {
