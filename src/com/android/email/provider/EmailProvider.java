@@ -2148,9 +2148,9 @@ outer:
         }
         values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
                 getExternalUriString("settings", id));
-        StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriString("compose", id));
+        StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
     }
