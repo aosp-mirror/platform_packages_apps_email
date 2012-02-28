@@ -1943,13 +1943,6 @@ outer:
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .build();
 
-//    private static final Uri BASE_SETTINGS_URI =
-//            Uri.parse("content://ui.email.android.com/settings");
-//
-//    private static Uri getAccountSettingUri(String account) {
-//        return BASE_SETTINGS_URI.buildUpon().appendQueryParameter("account", account).build();
-//    }
-
     private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, AccountColumns.ID)
         .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
@@ -2114,6 +2107,13 @@ outer:
             AccountCapabilities.SMART_REPLY |
             AccountCapabilities.UNDO;
 
+    private static final Uri BASE_SETTINGS_URI =
+            Uri.parse("content://ui.email.android.com/settings");
+
+    private static Uri getAccountSettingUri(String account) {
+        return BASE_SETTINGS_URI.buildUpon().appendQueryParameter("account", account).build();
+    }
+
     /**
      * Generate a "single account" SQLite query, given a projection from UnifiedEmail
      *
@@ -2146,6 +2146,8 @@ outer:
                 values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_2_CAPABILITIES);
             }
         }
+        values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
+                getAccountSettingUri(id).toString());
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
