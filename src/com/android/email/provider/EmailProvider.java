@@ -2107,11 +2107,11 @@ outer:
             AccountCapabilities.SMART_REPLY |
             AccountCapabilities.UNDO;
 
-    private static final Uri BASE_SETTINGS_URI =
-            Uri.parse("content://ui.email.android.com/settings");
+    private static final Uri BASE_EXTERNAL_URI = Uri.parse("content://ui.email.android.com");
 
-    private static Uri getAccountSettingUri(String account) {
-        return BASE_SETTINGS_URI.buildUpon().appendQueryParameter("account", account).build();
+    private static String getExternalUriString(String segment, String account) {
+        return BASE_EXTERNAL_URI.buildUpon().appendPath(segment)
+                .appendQueryParameter("account", account).build().toString();
     }
 
     /**
@@ -2147,8 +2147,10 @@ outer:
             }
         }
         values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
-                getAccountSettingUri(id).toString());
+                getExternalUriString("settings", id));
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
+        values.put(UIProvider.AccountColumns.COMPOSE_URI,
+                getExternalUriString("compose", id));
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
     }

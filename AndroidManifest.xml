@@ -264,6 +264,16 @@
                 <action
                     android:name="com.android.email.intent.action.REPLY" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="content"
+                    android:host="ui.email.android.com"
+                    android:pathPrefix="/compose"
+                    />
+            </intent-filter>
         </activity>
 
         <!-- Only used to support pre-HC shortcuts -->
