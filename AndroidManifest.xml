@@ -227,7 +227,6 @@
         <activity
             android:name=".activity.MessageCompose"
             android:label="@string/compose_title"
-            android:enabled="false"
             android:theme="@android:style/Theme.Holo.Light"
             >
             <intent-filter>
@@ -265,7 +264,7 @@
                     android:name="com.android.email.intent.action.REPLY" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.SEND" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
                 <data
