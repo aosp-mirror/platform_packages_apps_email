@@ -1915,6 +1915,8 @@ outer:
                 uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
                 uriWithFQId("uisenddraft", Message.TABLE_NAME))
+        // TODO(pwestbro): make this actually return valid results.
+        .add(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, "0")
         .build();
 
     /**
