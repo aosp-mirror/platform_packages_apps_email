@@ -16,9 +16,12 @@
 
 package com.android.mail.providers.protos.boot;
 
+import com.android.mail.providers.AccountCacheProvider;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 public class AccountReceiver extends BroadcastReceiver {
     /**
@@ -27,9 +30,12 @@ public class AccountReceiver extends BroadcastReceiver {
     public static final String ACTION_PROVIDER_CREATED
             = "com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED";
 
+    private static final Uri ACCOUNTS_URI =
+            Uri.parse("content://com.android.email.provider/uiaccts");
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        intent.setClass(context, EmailAccountService.class);
-        context.startService(intent);
+        AccountCacheProvider.addAccountsForUriAsync(ACCOUNTS_URI);
     }
 }
