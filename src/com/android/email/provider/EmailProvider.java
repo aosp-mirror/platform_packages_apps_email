@@ -2196,7 +2196,7 @@ outer:
         long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
         if (mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
-                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId).toString());
+                    "content://" + EmailContent.AUTHORITY + "/uifolder/" + mailboxId);
         }
         StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
