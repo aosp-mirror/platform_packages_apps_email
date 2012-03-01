@@ -206,6 +206,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FOLDER = UI_BASE + 10;
     private static final int UI_ACCOUNT = UI_BASE + 11;
     private static final int UI_ACCTS = UI_BASE + 12;
+    private static final int UI_SETTINGS = UI_BASE + 13;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -416,6 +417,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+        matcher.addURI(EmailContent.AUTHORITY, "uisettings/#", UI_SETTINGS);
     }
 
     /**
@@ -916,6 +918,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
+    private static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uisettings");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1141,6 +1145,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_MESSAGE:
                 case UI_FOLDER:
                 case UI_ACCOUNT:
+                case UI_SETTINGS:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -1953,6 +1958,7 @@ outer:
         .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
         .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
+        .add(UIProvider.AccountColumns.SETTINGS_QUERY_URI, uriWithId("uisettings"))
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
@@ -1971,6 +1977,27 @@ outer:
         // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
         + " ELSE 10 END"
         + " ," + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+
+
+    /**
+     * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
+     * conversation list in UnifiedEmail)
+     */
+    private static final ProjectionMap sAccountSettingsMap = ProjectionMap.builder()
+        .add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
+        .add(UIProvider.SettingsColumns.AUTO_ADVANCE,
+                Integer.toString(UIProvider.AutoAdvance.NEWER))
+        .add(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE,
+                Integer.toString(UIProvider.MessageTextSize.NORMAL))
+        .add(UIProvider.SettingsColumns.SNAP_HEADERS,
+                Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
+        .add(UIProvider.SettingsColumns.REPLY_BEHAVIOR,
+                Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
+        .add(UIProvider.SettingsColumns.HIDE_CHECKBOXES, "0")
+        .add(UIProvider.SettingsColumns.CONFIRM_DELETE, "0")
+        .add(UIProvider.SettingsColumns.CONFIRM_ARCHIVE, "0")
+        .add(UIProvider.SettingsColumns.CONFIRM_SEND, "0")
+        .build();
 
     /**
      * Generate the SELECT clause using a specified mapping and the original UI projection
@@ -2157,6 +2184,25 @@ outer:
         return sb.toString();
     }
 
+    /**
+     * Generate an "account settings" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQuerySettings(String[] uiProjection, String id) {
+        ContentValues values = new ContentValues();
+        long accountId = Long.parseLong(id);
+        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
+        if (mailboxId != Mailbox.NO_MAILBOX) {
+            values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
+                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId).toString());
+        }
+        StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
+        sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
+        return sb.toString();
+    }
+
     private Cursor uiAccounts(String[] uiProjection) {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
@@ -2234,6 +2280,11 @@ outer:
             case UI_ACCOUNT:
                 c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
+                c.setNotificationUri(resolver, notifyUri);
+                return c;
+            case UI_SETTINGS:
+                c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
+                notifyUri = UIPROVIDER_SETTINGS_NOTIFIER.buildUpon().appendPath(id).build();
                 c.setNotificationUri(resolver, notifyUri);
                 return c;
         }
