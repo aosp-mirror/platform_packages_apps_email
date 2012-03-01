@@ -90,9 +90,19 @@ public class PopImapSyncAdapterService extends Service {
             boolean uiRefresh) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return;
+        Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
+        if (account == null) return;
+        ContentResolver resolver = context.getContentResolver();
+        String protocol = account.getProtocol(context);
+        if (!mailbox.loadsFromServer(protocol)) {
+            // This is an update to a message in a non-syncing mailbox; delete this from the
+            // updates table and return
+            resolver.delete(Message.UPDATED_CONTENT_URI, Message.MAILBOX_KEY + "=?",
+                    new String[] {Long.toString(mailbox.mId)});
+            return;
+        }
         Log.d(TAG, "Mailbox: " + mailbox.mDisplayName);
 
-        ContentResolver resolver = context.getContentResolver();
         Uri mailboxUri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         ContentValues values = new ContentValues();
         // Set mailbox sync state
@@ -100,10 +110,8 @@ public class PopImapSyncAdapterService extends Service {
                 uiRefresh ? EmailContent.SYNC_STATUS_USER : EmailContent.SYNC_STATUS_BACKGROUND);
         resolver.update(mailboxUri, values, null, null);
         try {
-            Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
-            if (account == null) return;
             try {
-                if (account.getProtocol(context).equals(HostAuth.SCHEME_IMAP)) {
+                if (protocol.equals(HostAuth.SCHEME_IMAP)) {
                     ImapService.synchronizeMailboxSynchronous(context, account, mailbox);
                 } else {
                     Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox);
