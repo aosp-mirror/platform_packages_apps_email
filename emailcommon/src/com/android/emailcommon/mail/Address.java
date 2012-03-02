@@ -16,15 +16,15 @@
 
 package com.android.emailcommon.mail;
 
+import android.text.TextUtils;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
+
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.DecoderUtil;
-
-import android.text.TextUtils;
-import android.text.util.Rfc822Token;
-import android.text.util.Rfc822Tokenizer;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -190,6 +190,10 @@ public class Address {
             return getAddress().equals(((Address) o).getAddress());
         }
         return super.equals(o);
+    }
+
+    public int hashCode() {
+        return toString().hashCode();
     }
 
     /**
