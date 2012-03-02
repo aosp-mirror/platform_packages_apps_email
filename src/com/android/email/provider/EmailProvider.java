@@ -207,6 +207,8 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_ACCOUNT = UI_BASE + 11;
     private static final int UI_ACCTS = UI_BASE + 12;
     private static final int UI_SETTINGS = UI_BASE + 13;
+    private static final int UI_ATTACHMENTS = UI_BASE + 14;
+    private static final int UI_ATTACHMENT = UI_BASE + 15;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -418,6 +420,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
         matcher.addURI(EmailContent.AUTHORITY, "uisettings/#", UI_SETTINGS);
+        matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
+        matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
     }
 
     /**
@@ -709,7 +713,7 @@ public class EmailProvider extends ContentProvider {
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
                 if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                    notifyUIProvider("Delete");
+                    notifyUIConversation(uri);
                 }
             }
             switch (match) {
@@ -912,7 +916,7 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
+    private static final Uri UIPROVIDER_CONVERSATION_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
     private static final Uri UIPROVIDER_MAILBOX_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
@@ -920,6 +924,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
     private static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uisettings");
+    private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -965,7 +971,7 @@ public class EmailProvider extends ContentProvider {
                     switch(match) {
                         case MESSAGE:
                             if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                                notifyUIProvider("Insert");
+                                notifyUIConversationMailbox(values.getAsLong(Message.MAILBOX_KEY));
                             }
                             break;
                         case MAILBOX:
@@ -1146,6 +1152,8 @@ public class EmailProvider extends ContentProvider {
                 case UI_FOLDER:
                 case UI_ACCOUNT:
                 case UI_SETTINGS:
+                case UI_ATTACHMENT:
+                case UI_ATTACHMENTS:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -1507,7 +1515,7 @@ public class EmailProvider extends ContentProvider {
         try {
             if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
                 if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                    notifyUIProvider("Update");
+                    notifyUIConversation(uri);
                 }
             }
 outer:
@@ -1601,12 +1609,12 @@ outer:
                                     Integer.parseInt(id), flags);
                         }
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
-                        Uri notifyUri =
-                                UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
-                        resolver.notifyChange(notifyUri, null);
+                        notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, id);
                         // TODO: Remove logging
                         Log.d(TAG, "Notifying mailbox " + id + " status: " +
                                 values.getAsInteger(Mailbox.UI_SYNC_STATUS));
+                    } else if (match == ACCOUNT_ID) {
+                        notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                     }
                     break;
                 case BODY:
@@ -2000,6 +2008,18 @@ outer:
         .build();
 
     /**
+     * Mapping of UIProvider columns to EmailProvider columns for a message's attachments
+     */
+    private static final ProjectionMap sAttachmentMap = ProjectionMap.builder()
+        .add(UIProvider.AttachmentColumns.NAME, AttachmentColumns.FILENAME)
+        .add(UIProvider.AttachmentColumns.SIZE, AttachmentColumns.SIZE)
+        .add(UIProvider.AttachmentColumns.URI, uriWithId("uiattachment"))
+        .add(UIProvider.AttachmentColumns.CONTENT_TYPE, AttachmentColumns.MIME_TYPE)
+        // TODO: What does SYNCED mean?
+        .add(UIProvider.AttachmentColumns.SYNCED, "0")
+        .build();
+
+    /**
      * Generate the SELECT clause using a specified mapping and the original UI projection
      * @param map the ProjectionMap to use for this projection
      * @param projection the projection as sent by UnifiedEmail
@@ -2230,6 +2250,31 @@ outer:
     }
 
     /**
+     * Generate the "attachment list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAttachments(String[] uiProjection) {
+        StringBuilder sb = genSelect(sAttachmentMap, uiProjection);
+        sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
+                " =? ");
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "single attachment" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAttachment(String[] uiProjection) {
+        StringBuilder sb = genSelect(sAttachmentMap, uiProjection);
+        sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.ID + " =? ");
+        return sb.toString();
+    }
+
+    /**
      * Generate the "subfolder list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
@@ -2237,7 +2282,6 @@ outer:
      */
     private String genQuerySubfolders(String[] uiProjection) {
         StringBuilder sb = genSelect(sFolderListMap, uiProjection);
-        // Make constant
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.PARENT_KEY +
                 " =? ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
@@ -2259,6 +2303,7 @@ outer:
         // Should we ever return null, or throw an exception??
         Cursor c = null;
         String id = uri.getPathSegments().get(1);
+        Uri notifyUri = null;
         switch(match) {
             case UI_FOLDERS:
                 c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
@@ -2268,30 +2313,33 @@ outer:
                 break;
             case UI_MESSAGES:
                 c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_MESSAGE:
                 c = db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
                 break;
+            case UI_ATTACHMENTS:
+                c = db.rawQuery(genQueryAttachments(uiProjection), new String[] {id});
+                break;
+            case UI_ATTACHMENT:
+                c = db.rawQuery(genQueryAttachment(uiProjection), new String[] {id});
+                notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
+                break;
             case UI_FOLDER:
                 c = db.rawQuery(genQueryMailbox(uiProjection), new String[] {id});
-                Uri notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
-                c.setNotificationUri(resolver, notifyUri);
-                return c;
+                notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                break;
             case UI_ACCOUNT:
                 c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
-                c.setNotificationUri(resolver, notifyUri);
-                return c;
+                break;
             case UI_SETTINGS:
                 c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_SETTINGS_NOTIFIER.buildUpon().appendPath(id).build();
-                c.setNotificationUri(resolver, notifyUri);
-                return c;
+                break;
         }
-        if (c != null) {
-            // Notify UIProvider on changes
-            // Make this more specific to actual query later on...
-            c.setNotificationUri(resolver, UIPROVIDER_MESSAGE_NOTIFIER);
+        if (notifyUri != null) {
+            c.setNotificationUri(resolver, notifyUri);
         }
         return c;
     }
@@ -2620,7 +2668,9 @@ outer:
                 // But clear the operations
                 mLastSequenceOps.clear();
                 // Tell the UI there are changes
-                notifyUIProvider("Undo");
+                getContext().getContentResolver().notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER,
+                        null);
+                Log.d(TAG, "[Notify UI: Undo]");
                 return c;
             } catch (OperationApplicationException e) {
             }
@@ -2628,10 +2678,23 @@ outer:
         return new MatrixCursor(projection, 0);
     }
 
-    private void notifyUIProvider(String reason) {
-        getContext().getContentResolver().notifyChange(UIPROVIDER_MESSAGE_NOTIFIER, null);
+    private void notifyUIConversation(Uri uri) {
+        String id = uri.getLastPathSegment();
+        Message msg = Message.restoreMessageWithId(getContext(), Long.parseLong(id));
+        if (msg != null) {
+            notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(msg.mMailboxKey));
+        }
+    }
+
+    private void notifyUIConversationMailbox(long id) {
+        notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(id));
+    }
+
+    private void notifyUI(Uri uri, String id) {
+        Uri notifyUri = uri.buildUpon().appendPath(id).build();
+        getContext().getContentResolver().notifyChange(notifyUri, null);
         // Temporary
-        Log.d(TAG, "[Notify UIProvider " + reason + "]");
+        Log.d(TAG, "[Notify UI: " + notifyUri + "]");
     }
 
     /**
