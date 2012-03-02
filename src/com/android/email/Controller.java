@@ -315,6 +315,7 @@ public class Controller {
      */
     @SuppressWarnings("deprecation")
     public void updateMailboxList(final long accountId) {
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) return;
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {

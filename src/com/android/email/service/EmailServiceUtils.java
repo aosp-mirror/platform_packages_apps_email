@@ -18,6 +18,7 @@ package com.android.email.service;
 
 import android.content.Context;
 import android.content.Intent;
+
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
@@ -86,14 +87,14 @@ public class EmailServiceUtils {
     public static EmailServiceProxy getServiceForAccount(Context context,
             IEmailServiceCallback callback, long accountId) {
         String protocol = Account.getProtocol(context, accountId);
-        if (protocol.equals(HostAuth.SCHEME_IMAP)) {
+        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
             return getImapService(context, callback);
-        } else if (protocol.equals(HostAuth.SCHEME_POP3)) {
+        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
             return getPop3Service(context, callback);
-        } else if (protocol.equals(HostAuth.SCHEME_EAS)) {
+        } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
         return getExchangeService(context, callback);
         } else {
-            throw new IllegalArgumentException("Account with unknown protocol: " + accountId);
+            return null;
         }
     }
 }
