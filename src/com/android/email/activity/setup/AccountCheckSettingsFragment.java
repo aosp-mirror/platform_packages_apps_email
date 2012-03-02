@@ -708,7 +708,9 @@ public class AccountCheckSettingsFragment extends Fragment {
         public void updateProgress(int progress) {
             mProgressString = getProgressString(progress);
             AlertDialog dialog = (AlertDialog) getDialog();
-            dialog.setMessage(mProgressString);
+            if (dialog != null && mProgressString != null) {
+                dialog.setMessage(mProgressString);
+            }
         }
 
         @Override
