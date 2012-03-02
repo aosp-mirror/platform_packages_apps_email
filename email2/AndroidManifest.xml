@@ -62,21 +62,12 @@
             <grant-uri-permission android:pathPattern=".*" />
         </provider>
 
-        <provider
-            android:authorities="com.android.email2.dummymailprovider"
-            android:label="@string/dummy_gmail_provider"
-            android:multiprocess="false"
-            android:name=".providers.protos.boot.DummyMailProvider" >
-            <grant-uri-permission android:pathPattern=".*" />
-        </provider>
-
         <receiver android:name=".providers.protos.boot.AccountReceiver">
           <intent-filter>
               <action android:name="com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
           </intent-filter>
         </receiver>
 
-        <service android:name=".providers.protos.boot.EmailAccountService"/>
         <service android:name=".compose.EmptyService"/>
     </application>
 
