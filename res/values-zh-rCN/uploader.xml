@@ -26,7 +26,8 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"隐藏详情"</string>
     <string name="menu_settings" msgid="5088116127086866634">"设置"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"上传时间：%s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <!-- no translation found for format_progress_percent (443040311740790491) -->
+    <skip />
     <string name="account" msgid="5199161365824352613">"帐户"</string>
     <string name="upload" msgid="2615541458361216022">"上传"</string>
     <string name="ok" msgid="2516349681897895312">"确定"</string>
