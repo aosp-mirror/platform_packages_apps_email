@@ -26,7 +26,8 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Ẩn chi tiết"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Cài đặt"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Đã tải lên %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <!-- no translation found for format_progress_percent (443040311740790491) -->
+    <skip />
     <string name="account" msgid="5199161365824352613">"Tài khoản"</string>
     <string name="upload" msgid="2615541458361216022">"Tải lên"</string>
     <string name="ok" msgid="2516349681897895312">"OK"</string>
