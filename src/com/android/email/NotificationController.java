@@ -316,8 +316,7 @@ public class NotificationController {
     }
 
     /**
-     * Registers an observer for changes to the INBOX for the given account. Since accounts
-     * may only have a single INBOX, we will never have more than one observer for an account.
+     * Registers an observer for changes to mailboxes in the given account.
      * NOTE: This must be called on the notification handler thread.
      * @param accountId The ID of the account to register the observer for. May be
      *                  {@link Account#ACCOUNT_ID_COMBINED_VIEW} to register observers for all
@@ -340,12 +339,6 @@ public class NotificationController {
         } else {
             ContentObserver obs = mNotificationMap.get(accountId);
             if (obs != null) return;  // we're already observing; nothing to do
-
-            Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
-            if (mailbox == null) {
-                Log.w(Logging.LOG_TAG, "Could not load INBOX for account id: " + accountId);
-                return;
-            }
             if (Email.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Registering for notifications for account " + accountId);
             }
@@ -717,6 +710,7 @@ public class NotificationController {
             try {
                 while (c.moveToNext()) {
                     long mailboxId = c.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
+                    if (mailboxId == 0) continue;
                     int messageCount =
                             c.getInt(EmailContent.NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN);
                     int unreadCount =

@@ -1829,29 +1829,29 @@ outer:
         mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
     }
 
-    // SELECT DISTINCT Boxes._id, Boxes.unreadCount from Message, (SELECT _id, unreadCount,
-    //   messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
-    //   FROM Mailbox WHERE accountKey=6 AND syncInterval!=0 AND syncInterval!=-1) AS Boxes
+    // SELECT DISTINCT Boxes._id, Boxes.unreadCount count(Message._id) from Message,
+    //   (SELECT _id, unreadCount, messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
+    //   FROM Mailbox WHERE accountKey=6 AND ((type = 0) OR (syncInterval!=0 AND syncInterval!=-1)))
+    //      AS Boxes
     // WHERE Boxes.messageCount!=Boxes.lastNotifiedMessageCount
     //   OR (Boxes._id=Message.mailboxKey AND Message._id>Boxes.lastNotifiedMessageKey)
     // TODO: This query can be simplified a bit
     private static final String NOTIFICATION_QUERY =
         "SELECT DISTINCT Boxes." + MailboxColumns.ID + ", Boxes." + MailboxColumns.UNREAD_COUNT +
-            ", Boxes." + MailboxColumns.MESSAGE_COUNT +
+            ", count(" + Message.TABLE_NAME + "." + MessageColumns.ID + ")" +
         " FROM " +
             Message.TABLE_NAME + "," +
             "(SELECT " + MailboxColumns.ID + "," + MailboxColumns.UNREAD_COUNT + "," +
                 MailboxColumns.MESSAGE_COUNT + "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
                 "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " FROM " + Mailbox.TABLE_NAME +
                 " WHERE " + MailboxColumns.ACCOUNT_KEY + "=?" +
-                " AND " + MailboxColumns.SYNC_INTERVAL + "!=0 AND " +
-                MailboxColumns.SYNC_INTERVAL + "!=-1) AS Boxes " +
-        "WHERE Boxes." + MailboxColumns.MESSAGE_COUNT + "!=Boxes." +
-                MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
-                " OR (Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
+                " AND (" + MailboxColumns.TYPE + "=" + Mailbox.TYPE_INBOX + " OR ("
+                + MailboxColumns.SYNC_INTERVAL + "!=0 AND " +
+                MailboxColumns.SYNC_INTERVAL + "!=-1))) AS Boxes " +
+        "WHERE Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
                 MessageColumns.MAILBOX_KEY + " AND " + Message.TABLE_NAME + "." +
                 MessageColumns.ID + ">Boxes." + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY +
-                " AND " + MessageColumns.FLAG_READ + "=0)";
+                " AND " + MessageColumns.FLAG_READ + "=0";
 
     public Cursor notificationQuery(Uri uri) {
         SQLiteDatabase db = getDatabase(getContext());
