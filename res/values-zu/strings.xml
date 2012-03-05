@@ -352,7 +352,7 @@
     <string name="account_security_title" msgid="3511543138560418587">"Ukuphepha kweDivaysi"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Iseva <xliff:g id="SERVER">%s</xliff:g> idinga ukuba uyivumele ukuba ilawule kude ezinye izici zokuphepha kwedivayisi ye-Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Hlela imininingwane"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukuba ushintshe iphinikhodi yokuvala isikrini noma i-password"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukuba ushintshe iphinikhodi yokuvala isikrini noma iphasiwedi"</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Iphasiwedi yokuvala isikrini iphelelwa isikhathi"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Iphinikhodi noma iphasiwedi yakho yokuvala isikrini iphelelwe isikhathi."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Iphasiwedi yokuvala isikrini iphelelwe isikhathi"</string>
