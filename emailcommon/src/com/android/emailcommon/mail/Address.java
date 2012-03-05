@@ -193,7 +193,7 @@ public class Address {
     }
 
     public int hashCode() {
-        return toString().hashCode();
+        return getAddress().hashCode();
     }
 
     /**
