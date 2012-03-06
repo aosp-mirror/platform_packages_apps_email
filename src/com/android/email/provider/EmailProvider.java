@@ -2159,8 +2159,15 @@ outer:
 
     private static final Uri BASE_EXTERNAL_URI = Uri.parse("content://ui.email.android.com");
 
+    private static final Uri BASE_EXTERAL_URI2 = Uri.parse("content://ui.email2.android.com");
+
     private static String getExternalUriString(String segment, String account) {
         return BASE_EXTERNAL_URI.buildUpon().appendPath(segment)
+                .appendQueryParameter("account", account).build().toString();
+    }
+
+    private static String getExternalUriStringEmail2(String segment, String account) {
+        return BASE_EXTERAL_URI2.buildUpon().appendPath(segment)
                 .appendQueryParameter("account", account).build().toString();
     }
 
@@ -2199,7 +2206,7 @@ outer:
         values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
                 getExternalUriString("settings", id));
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
-                getExternalUriString("compose", id));
+                getExternalUriStringEmail2("compose", id));
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
