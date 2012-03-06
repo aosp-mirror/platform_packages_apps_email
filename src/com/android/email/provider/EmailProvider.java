@@ -2207,6 +2207,7 @@ outer:
                 getExternalUriString("settings", id));
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriStringEmail2("compose", id));
+        values.put(UIProvider.AccountColumns.MIME_TYPE, "application/email-ls");
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
