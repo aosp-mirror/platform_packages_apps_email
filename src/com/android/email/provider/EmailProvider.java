@@ -1142,7 +1142,8 @@ public class EmailProvider extends ContentProvider {
             switch (match) {
                 // First, dispatch queries from UnfiedEmail
                 case UI_ACCTS:
-                    return uiAccounts(projection);
+                    c = uiAccounts(projection);
+                    return c;
                 case UI_UNDO:
                     return uiUndo(uri, projection);
                 case UI_SUBFOLDERS:
