@@ -2,18 +2,18 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 
-# Include res dir from chips
-chips_dir := ../../../../frameworks/ex/chips/res
+chips_dir := ../../../../frameworks/ex/chips
+unified_email_dir := ../../../../packages/apps/UnifiedEmail
 
+# Include res dir from chips
 # Include res dir from UnifiedEmail
-unified_email_dir := ../../UnifiedEmail/res
-res_dirs := res $(chips_dir) $(unified_email_dir)
+res_dirs := res $(chips_dir)/res $(unified_email_dir)/res
 
 LOCAL_MODULE_TAGS := optional
 
 src_dirs := src \
-    ../../UnifiedEmail/src  \
-    ../../UnifiedEmail/email_src
+    $(unified_email_dir)/src  \
+    $(unified_email_dir)/email_src
 
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common-chips
@@ -29,6 +29,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, $(src_dirs)) \
 
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dirs))
 
+# Use assets dir from UnifiedEmail
+# (the default package target doesn't seem to deal with multiple asset dirs)
+LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
+
 LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
     --rename-manifest-package com.android.email2 \
@@ -38,7 +42,7 @@ LOCAL_PACKAGE_NAME := Email2
 
 LOCAL_OVERRIDES_PACKAGES := UnifiedEmail
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
 include $(BUILD_PACKAGE)
 
