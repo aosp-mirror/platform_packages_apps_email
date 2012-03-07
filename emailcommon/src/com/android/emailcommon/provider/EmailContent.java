@@ -1085,6 +1085,12 @@ public abstract class EmailContent {
         public static final String CONTENT_BYTES = "content_bytes";
         // A foreign key into the Account table (for the message owning this attachment)
         public static final String ACCOUNT_KEY = "accountKey";
+        // The UIProvider state of the attachment
+        public static final String UI_STATE = "uiState";
+        // The UIProvider destination of the attachment
+        public static final String UI_DESTINATION = "uiDestination";
+        // The UIProvider downloaded size of the attachment
+        public static final String UI_DOWNLOADED_SIZE = "uiDownloadedSize";
     }
 
     public static final class Attachment extends EmailContent
@@ -1108,6 +1114,9 @@ public abstract class EmailContent {
         public int mFlags;
         public byte[] mContentBytes;
         public long mAccountKey;
+        public int mUiState;
+        public int mUiDestination;
+        public int mUiDownloadedSize;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1122,12 +1131,16 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAGS_COLUMN = 10;
         public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 12;
+        public static final int CONTENT_UI_STATE_COLUMN = 13;
+        public static final int CONTENT_UI_DESTINATION_COLUMN = 14;
+        public static final int CONTENT_UI_DOWNLOADED_SIZE_COLUMN = 15;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
             AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
             AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES,
-            AttachmentColumns.ACCOUNT_KEY
+            AttachmentColumns.ACCOUNT_KEY, AttachmentColumns.UI_STATE,
+            AttachmentColumns.UI_DESTINATION, AttachmentColumns.UI_DOWNLOADED_SIZE
         };
 
         // All attachments with an empty URI, regardless of mailbox
@@ -1252,6 +1265,9 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mUiState = cursor.getInt(CONTENT_UI_STATE_COLUMN);
+            mUiDestination = cursor.getInt(CONTENT_UI_DESTINATION_COLUMN);
+            mUiDownloadedSize = cursor.getInt(CONTENT_UI_DOWNLOADED_SIZE_COLUMN);
         }
 
         @Override
@@ -1269,6 +1285,9 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.FLAGS, mFlags);
             values.put(AttachmentColumns.CONTENT_BYTES, mContentBytes);
             values.put(AttachmentColumns.ACCOUNT_KEY, mAccountKey);
+            values.put(AttachmentColumns.UI_STATE, mUiState);
+            values.put(AttachmentColumns.UI_DESTINATION, mUiDestination);
+            values.put(AttachmentColumns.UI_DOWNLOADED_SIZE, mUiDownloadedSize);
             return values;
         }
 
@@ -1298,6 +1317,9 @@ public abstract class EmailContent {
                 dest.writeInt(mContentBytes.length);
                 dest.writeByteArray(mContentBytes);
             }
+            dest.writeInt(mUiState);
+            dest.writeInt(mUiDestination);
+            dest.writeInt(mUiDownloadedSize);
         }
 
         public Attachment(Parcel in) {
@@ -1321,6 +1343,9 @@ public abstract class EmailContent {
                 mContentBytes = new byte[contentBytesLen];
                 in.readByteArray(mContentBytes);
             }
+            mUiState = in.readInt();
+            mUiDestination = in.readInt();
+            mUiDownloadedSize = in.readInt();
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
@@ -1340,7 +1365,8 @@ public abstract class EmailContent {
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
                     + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mFlags + ", " + mContentBytes + ", " + mAccountKey + "]";
+                    + mFlags + ", " + mContentBytes + ", " + mAccountKey +  "," + mUiState + ","
+                    + mUiDestination + "," + mUiDownloadedSize + "]";
         }
     }
 

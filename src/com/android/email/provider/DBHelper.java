@@ -50,6 +50,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
+import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 public final class DBHelper {
@@ -115,8 +116,9 @@ public final class DBHelper {
     // Version 31: Add columns to mailbox for ui status/last result
     // Version 32: Add columns to mailbox for last notified message key/count; insure not null
     //             for "notified" columns
+    // Version 33: Add columns to attachment for ui provider columns
 
-    public static final int DATABASE_VERSION = 32;
+    public static final int DATABASE_VERSION = 33;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -425,7 +427,10 @@ public final class DBHelper {
             + AttachmentColumns.CONTENT + " text, "
             + AttachmentColumns.FLAGS + " integer, "
             + AttachmentColumns.CONTENT_BYTES + " blob, "
-            + AttachmentColumns.ACCOUNT_KEY + " integer"
+            + AttachmentColumns.ACCOUNT_KEY + " integer, "
+            + AttachmentColumns.UI_STATE + " integer, "
+            + AttachmentColumns.UI_DESTINATION + " integer, "
+            + AttachmentColumns.UI_DOWNLOADED_SIZE + " integer"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
@@ -827,6 +832,25 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32 " + e);
                 }
                 oldVersion = 32;
+            }
+            if (oldVersion == 32) {
+                try {
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + Attachment.UI_STATE + " integer;");
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + Attachment.UI_DESTINATION + " integer;");
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + Attachment.UI_DOWNLOADED_SIZE + " integer;");
+                    // If we have a contentUri then the attachment is saved
+                    // uiDestination of 0 = "cache", so we don't have to set this
+                    db.execSQL("update " + Attachment.TABLE_NAME + " set " + Attachment.UI_STATE +
+                            "=" + UIProvider.AttachmentState.SAVED + " where " +
+                            AttachmentColumns.CONTENT_URI + " is not null;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
+                }
+                oldVersion = 33;
             }
         }
 
