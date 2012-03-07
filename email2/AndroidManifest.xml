@@ -35,7 +35,7 @@
     <application
         android:icon="@mipmap/ic_launcher_mail"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo.Light" >
+        android:theme="@style/UnifiedEmailTheme" >
         <activity
             android:name=".compose.ComposeActivity"
             android:label="@string/app_name"
