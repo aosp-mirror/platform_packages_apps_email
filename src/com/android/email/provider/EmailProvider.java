@@ -2016,8 +2016,6 @@ outer:
         .add(UIProvider.AttachmentColumns.SIZE, AttachmentColumns.SIZE)
         .add(UIProvider.AttachmentColumns.URI, uriWithId("uiattachment"))
         .add(UIProvider.AttachmentColumns.CONTENT_TYPE, AttachmentColumns.MIME_TYPE)
-        // TODO: What does SYNCED mean?
-        .add(UIProvider.AttachmentColumns.SYNCED, "0")
         .build();
 
     /**
