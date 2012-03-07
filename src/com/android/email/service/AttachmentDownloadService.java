@@ -45,6 +45,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider.AttachmentColumns;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -672,6 +673,15 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 req.lastStatusCode = statusCode;
                 req.lastProgress = progress;
                 req.lastCallbackTime = System.currentTimeMillis();
+                Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
+                 if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
+                    ContentValues values = new ContentValues();
+                    values.put(AttachmentColumns.DOWNLOADED_SIZE,
+                            attachment.mSize * 100 / progress);
+                    // Update UIProvider with updated download size
+                    // Individual services will set contentUri and state when finished
+                    attachment.update(mContext, values);
+                }
             }
             switch (statusCode) {
                 case EmailServiceStatus.IN_PROGRESS:

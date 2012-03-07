@@ -1521,6 +1521,8 @@ public class EmailProvider extends ContentProvider {
             }
 outer:
             switch (match) {
+                case UI_ATTACHMENT:
+                    return uiUpdateAttachment(uri, values);
                 case UI_UPDATEDRAFT:
                     return uiUpdateDraft(uri, values);
                 case UI_SENDDRAFT:
@@ -1609,6 +1611,11 @@ outer:
                             mAttachmentService.attachmentChanged(getContext(),
                                     Integer.parseInt(id), flags);
                         }
+                        // Notify UI if necessary; there are only two columns we can change that
+                        // would be worth a notification
+                        if (values.containsKey(AttachmentColumns.UI_STATE) ||
+                                values.containsKey(AttachmentColumns.UI_DOWNLOADED_SIZE))
+                        notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
                         notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, id);
                         // TODO: Remove logging
@@ -2016,6 +2023,10 @@ outer:
         .add(UIProvider.AttachmentColumns.SIZE, AttachmentColumns.SIZE)
         .add(UIProvider.AttachmentColumns.URI, uriWithId("uiattachment"))
         .add(UIProvider.AttachmentColumns.CONTENT_TYPE, AttachmentColumns.MIME_TYPE)
+        .add(UIProvider.AttachmentColumns.STATE, AttachmentColumns.UI_STATE)
+        .add(UIProvider.AttachmentColumns.DESTINATION, AttachmentColumns.UI_DESTINATION)
+        .add(UIProvider.AttachmentColumns.DOWNLOADED_SIZE, AttachmentColumns.UI_DOWNLOADED_SIZE)
+        .add(UIProvider.AttachmentColumns.CONTENT_URI, AttachmentColumns.CONTENT_URI)
         .build();
 
     /**
@@ -2044,7 +2055,7 @@ outer:
                 if (values.containsKey(column)) {
                     val = "'" + values.getAsString(column) + "' AS " + column;
                 } else {
-                    Log.w(TAG, "UIProvider column not found, returning 0: " + column);
+                    Log.w(TAG, "UIProvider column not found, returning NULL: " + column);
                     val = "NULL AS " + column;
                 }
             }
@@ -2553,6 +2564,43 @@ outer:
             Long longValue = (Long)value;
             values.put(columnName, longValue);
         }
+    }
+
+    private int uiUpdateAttachment(Uri uri, ContentValues uiValues) {
+        Integer stateValue = uiValues.getAsInteger(UIProvider.AttachmentColumns.STATE);
+        if (stateValue != null) {
+            // This is a command from UIProvider
+            long attachmentId = Long.parseLong(uri.getLastPathSegment());
+            Context context = getContext();
+            Attachment attachment =
+                    Attachment.restoreAttachmentWithId(context, attachmentId);
+            if (attachment == null) {
+                // Went away; ah, well...
+                return 0;
+            }
+            ContentValues values = new ContentValues();
+            switch (stateValue.intValue()) {
+                case UIProvider.AttachmentState.NOT_SAVED:
+                    // Set state, try to cancel request
+                    values.put(AttachmentColumns.UI_STATE, stateValue);
+                    values.put(AttachmentColumns.FLAGS,
+                            attachment.mFlags &= ~Attachment.FLAG_DOWNLOAD_USER_REQUEST);
+                    attachment.update(context, values);
+                    return 1;
+                case UIProvider.AttachmentState.DOWNLOADING:
+                    // Set state and destination; request download
+                    values.put(AttachmentColumns.UI_STATE, stateValue);
+                    Integer destinationValue =
+                        uiValues.getAsInteger(UIProvider.AttachmentColumns.DESTINATION);
+                    values.put(AttachmentColumns.UI_DESTINATION,
+                            destinationValue == null ? 0 : destinationValue);
+                    values.put(AttachmentColumns.FLAGS,
+                            attachment.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
+                    attachment.update(context, values);
+                    return 1;
+            }
+        }
+        return 0;
     }
 
     private ContentValues convertUiMessageValues(ContentValues values) {
