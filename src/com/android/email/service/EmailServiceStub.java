@@ -419,7 +419,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     @Override
     public void deleteAccountPIMData(long accountId) throws RemoteException {
-        // Not required
+        MailService.reconcilePopImapAccountsSync(mContext);
     }
 
     @Override
