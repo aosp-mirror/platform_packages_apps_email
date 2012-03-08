@@ -209,6 +209,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_SETTINGS = UI_BASE + 13;
     private static final int UI_ATTACHMENTS = UI_BASE + 14;
     private static final int UI_ATTACHMENT = UI_BASE + 15;
+    private static final int UI_SEARCH = UI_BASE + 16;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -422,6 +423,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uisettings/#", UI_SETTINGS);
         matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
         matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
     }
 
     /**
@@ -1141,6 +1143,8 @@ public class EmailProvider extends ContentProvider {
         try {
             switch (match) {
                 // First, dispatch queries from UnfiedEmail
+                case UI_SEARCH:
+                    return uiSearch(uri, projection);
                 case UI_ACCTS:
                     c = uiAccounts(projection);
                     return c;
@@ -1975,6 +1979,7 @@ outer:
         .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
         .add(UIProvider.AccountColumns.SETTINGS_QUERY_URI, uriWithId("uisettings"))
+        .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
@@ -2304,6 +2309,10 @@ outer:
                 " =? ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
         return sb.toString();
+    }
+
+    private Cursor uiSearch(Uri uri, String[] projection) {
+        return new MatrixCursor(projection, 0);
     }
 
     /**
