@@ -188,6 +188,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     // A mailbox that holds Messages that are attachments
     public static final int TYPE_ATTACHMENT = 0x101;
 
+    // Default "touch" time for system mailboxes
+    public static final int DRAFTS_DEFAULT_TOUCH_TIME = 2;
+    public static final int SENT_DEFAULT_TOUCH_TIME = 1;
+
     // Bit field flags; each is defined below
     // Warning: Do not read these flags until POP/IMAP/EAS all populate them
     /** No flags set */

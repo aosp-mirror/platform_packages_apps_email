@@ -63,6 +63,7 @@ import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.ConversationPriority;
@@ -2417,6 +2418,16 @@ outer:
         }
         Log.d(TAG, "Creating mailbox of type " + mailboxType + " for account " + accountId);
         Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType, context.getString(resId));
+        // Make sure drafts and save will show up in recents...
+        // If these already exist (from old Email app), they will have touch times
+        switch (mailboxType) {
+            case Mailbox.TYPE_DRAFTS:
+                box.mLastTouchedTime = Mailbox.DRAFTS_DEFAULT_TOUCH_TIME;
+                break;
+            case Mailbox.TYPE_SENT:
+                box.mLastTouchedTime = Mailbox.SENT_DEFAULT_TOUCH_TIME;
+                break;
+        }
         box.save(context);
         return box;
     }
@@ -2701,16 +2712,19 @@ outer:
         Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
-        Mailbox mailbox =
-                Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
         if (mailbox == null) return 0;
-        ContentProviderOperation op =
-                ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
-                        .withValue(Message.MAILBOX_KEY, msg.mMailboxKey)
-                        .build();
-        addToSequence(uri, op);
+        if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_DRAFTS) {
+            // We actually delete these, including attachments
+            AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
+            return context.getContentResolver().delete(
+                    ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId), null, null);
+        }
+        Mailbox trashMailbox =
+                Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
+        if (trashMailbox == null) return 0;
         ContentValues values = new ContentValues();
-        values.put(Message.MAILBOX_KEY, mailbox.mId);
+        values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
         return uiUpdateMessage(uri, values);
     }
 
