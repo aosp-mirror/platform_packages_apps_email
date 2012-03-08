@@ -63,6 +63,7 @@ import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
@@ -2312,10 +2313,6 @@ outer:
         return sb.toString();
     }
 
-    private Cursor uiSearch(Uri uri, String[] projection) {
-        return new MatrixCursor(projection, 0);
-    }
-
     /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
@@ -2824,5 +2821,80 @@ outer:
         } catch (RemoteException e) {
         }
         return null;
+    }
+
+    private static final String SEARCH_MAILBOX_SERVER_ID = "__search_mailbox__";
+    private SearchParams mSearchParams;
+
+    /**
+     * Returns the search mailbox for the specified account, creating one if necessary
+     * @return the search mailbox for the passed in account
+     */
+    private Mailbox getSearchMailbox(long accountId) {
+        Context context = getContext();
+        Mailbox m = Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_SEARCH);
+        if (m == null) {
+            m = new Mailbox();
+            m.mAccountKey = accountId;
+            m.mServerId = SEARCH_MAILBOX_SERVER_ID;
+            m.mFlagVisible = false;
+            m.mDisplayName = SEARCH_MAILBOX_SERVER_ID;
+            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            m.mType = Mailbox.TYPE_SEARCH;
+            m.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+            m.mParentKey = Mailbox.NO_MAILBOX;
+            m.save(context);
+        }
+        return m;
+    }
+
+    // TODO: Handle searching for more...
+    private Cursor uiSearch(Uri uri, String[] projection) {
+        final long accountId = Long.parseLong(uri.getLastPathSegment());
+
+        String filter = uri.getQueryParameter(UIProvider.SearchQueryParameters.QUERY);
+        if (filter == null) {
+            throw new IllegalArgumentException("No query parameter in search query");
+        }
+
+        // Find/create our search mailbox
+        Mailbox searchMailbox = getSearchMailbox(accountId);
+        final long searchMailboxId = searchMailbox.mId;
+        mSearchParams = new SearchParams(searchMailbox.mId, filter);
+
+        final Context context = getContext();
+        if (mSearchParams.mOffset == 0) {
+            // Delete existing contents of search mailbox
+            ContentResolver resolver = context.getContentResolver();
+            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
+                    null);
+            ContentValues cv = new ContentValues();
+            // For now, use the actual query as the name of the mailbox
+            cv.put(Mailbox.DISPLAY_NAME, mSearchParams.mFilter);
+            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
+                    cv, null, null);
+        }
+
+        // Start the search running in the background
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                 try {
+                    EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                            mServiceCallback, accountId);
+                    if (service != null) {
+                        try {
+                            service.searchMessages(accountId, mSearchParams, searchMailboxId);
+                        } catch (RemoteException e) {
+                            Log.e("searchMessages", "RemoteException", e);
+                        }
+                    }
+                } finally {
+                }
+            }}).start();
+
+        // This will look just like a "normal" folder
+        return uiQuery(UI_FOLDER, ContentUris.withAppendedId(Mailbox.CONTENT_URI,
+                searchMailbox.mId), projection);
     }
 }
