@@ -39,13 +39,13 @@ import com.android.email.NotificationController;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.android.mail.providers.UIProvider.AttachmentColumns;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -676,7 +676,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
                  if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
                     ContentValues values = new ContentValues();
-                    values.put(AttachmentColumns.DOWNLOADED_SIZE,
+                    values.put(AttachmentColumns.UI_DOWNLOADED_SIZE,
                             attachment.mSize * progress / 100);
                     // Update UIProvider with updated download size
                     // Individual services will set contentUri and state when finished
