@@ -28,9 +28,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -582,7 +584,8 @@ public class SecurityPolicy {
             NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
                     account);
             // Erase data
-            Controller.getInstance(mContext).deleteSyncedDataSync(accountId);
+            Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
+            mContext.getContentResolver().delete(uri, null, null);
         } else if (isActive(policy)) {
             if (policyChanged) {
                 Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName + " changed.");
@@ -661,8 +664,9 @@ public class SecurityPolicy {
             Log.w(TAG, "Email administration disabled; deleting " + c.getCount() +
                     " secured account(s)");
             while (c.moveToNext()) {
-                Controller.getInstance(context).deleteAccountSync(
-                        c.getLong(EmailContent.ID_PROJECTION_COLUMN), context);
+                long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
+                cr.delete(uri, null, null);
             }
         } finally {
             c.close();
@@ -754,7 +758,8 @@ public class SecurityPolicy {
                     // Mark the account as "on hold".
                     setAccountHoldFlag(context, account, true);
                     // Erase data
-                    controller.deleteSyncedDataSync(accountId);
+                    Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
+                    context.getContentResolver().delete(uri, null, null);
                     // Report one or more were found
                     result = true;
                 }

@@ -21,9 +21,9 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
-import com.android.email.Controller;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.google.common.annotations.VisibleForTesting;
@@ -119,8 +119,8 @@ public class AccountReconciler {
                     Log.d(Logging.LOG_TAG,
                             "Account deleted in AccountManager; deleting from provider: " +
                             providerAccountName);
-                    Controller.getInstance(context).deleteAccountSync(providerAccount.mId,
-                            providerContext);
+                    Uri uri = EmailProvider.uiUri("uiaccount", providerAccount.mId);
+                    context.getContentResolver().delete(uri, null, null);
                 }
             }
         }

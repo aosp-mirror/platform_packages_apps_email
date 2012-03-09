@@ -637,4 +637,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
             return new Mailbox[size];
         }
     };
+
+    public String toString() {
+        return "[Mailbox " + mId + ": " + mDisplayName + "]";
+    }
 }
