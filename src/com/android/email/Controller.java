@@ -27,7 +27,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.mail.store.Pop3Store.Pop3Message;
-import com.android.email.provider.AccountBackupRestore;
 import com.android.email.provider.Utilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
@@ -91,12 +90,6 @@ public class Controller {
         EmailContent.MessageColumns.ACCOUNT_KEY
     };
     private static final int MESSAGEID_TO_ACCOUNTID_COLUMN_ACCOUNTID = 1;
-
-    private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
-    private static final String MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION =
-        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" +
-        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
-    private static final String MESSAGES_FOR_ACCOUNT_SELECTION = MessageColumns.ACCOUNT_KEY + "=?";
 
     // Service callbacks as set up via setCallback
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
@@ -969,99 +962,6 @@ public class Controller {
             return null;
         }
         return getServiceForAccount(message.mAccountKey);
-    }
-
-    /**
-     * Delete an account.
-     */
-    public void deleteAccount(final long accountId) {
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
-            @Override
-            public void run() {
-                deleteAccountSync(accountId, mProviderContext);
-            }
-        });
-    }
-
-    /**
-     * Delete an account synchronously.
-     */
-    public void deleteAccountSync(long accountId, Context context) {
-        try {
-            mLegacyControllerMap.remove(accountId);
-            // Get the account URI.
-            final Account account = Account.restoreAccountWithId(context, accountId);
-            if (account == null) {
-                return; // Already deleted?
-            }
-
-            // Delete account data, attachments, PIM data, etc.
-            deleteSyncedDataSync(accountId);
-
-            // Now delete the account itself
-            Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
-            context.getContentResolver().delete(uri, null, null);
-
-            // For unit tests, don't run backup, security, and ui pieces.
-            if (mInUnitTests) {
-                return;
-            }
-
-            // Clean up
-            AccountBackupRestore.backup(context);
-            SecurityPolicy.getInstance(context).reducePolicies();
-            Email.setServicesEnabledSync(context);
-            Email.setNotifyUiAccountsChanged(true);
-        } catch (Exception e) {
-            Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
-        }
-    }
-
-    /**
-     * Delete all synced data, but don't delete the actual account.  This is used when security
-     * policy requirements are not met, and we don't want to reveal any synced data, but we do
-     * wish to keep the account configured (e.g. to accept remote wipe commands).
-     *
-     * The only mailbox not deleted is the account mailbox (if any)
-     * Also, clear the sync keys on the remaining account, since the data is gone.
-     *
-     * SYNCHRONOUS - do not call from UI thread.
-     *
-     * @param accountId The account to wipe.
-     */
-    public void deleteSyncedDataSync(long accountId) {
-        try {
-            // Delete synced attachments
-            AttachmentUtilities.deleteAllAccountAttachmentFiles(mProviderContext,
-                    accountId);
-
-            // Delete synced email, leaving only an empty inbox.  We do this in two phases:
-            // 1. Delete all non-inbox mailboxes (which will delete all of their messages)
-            // 2. Delete all remaining messages (which will be the inbox messages)
-            ContentResolver resolver = mProviderContext.getContentResolver();
-            String[] accountIdArgs = new String[] { Long.toString(accountId) };
-            resolver.delete(Mailbox.CONTENT_URI,
-                    MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION,
-                    accountIdArgs);
-            resolver.delete(Message.CONTENT_URI, MESSAGES_FOR_ACCOUNT_SELECTION, accountIdArgs);
-
-            // Delete sync keys on remaining items
-            ContentValues cv = new ContentValues();
-            cv.putNull(Account.SYNC_KEY);
-            resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
-            cv.clear();
-            cv.putNull(Mailbox.SYNC_KEY);
-            resolver.update(Mailbox.CONTENT_URI, cv,
-                    MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
-
-            // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
-            IEmailService service = getServiceForAccount(accountId);
-            if (service != null) {
-                service.deleteAccountPIMData(accountId);
-            }
-        } catch (Exception e) {
-            Log.w(Logging.LOG_TAG, "Exception while deleting account synced data", e);
-        }
     }
 
     /**

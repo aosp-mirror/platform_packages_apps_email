@@ -41,6 +41,7 @@ import com.android.common.content.ProjectionMap;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
@@ -62,6 +63,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
@@ -212,6 +214,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_ATTACHMENTS = UI_BASE + 14;
     private static final int UI_ATTACHMENT = UI_BASE + 15;
     private static final int UI_SEARCH = UI_BASE + 16;
+    private static final int UI_ACCOUNT_DATA = UI_BASE + 17;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -426,6 +429,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
         matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
         matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
     }
 
     /**
@@ -445,6 +449,14 @@ public class EmailProvider extends ContentProvider {
 
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
+
+    public static Uri uiUri(String type, long id) {
+        return Uri.parse(uiUriString(type, id));
+    }
+
+    public static String uiUriString(String type, long id) {
+        return "content://" + EmailContent.AUTHORITY + "/" + type + ((id == -1) ? "" : ("/" + id));
+    }
 
     /**
      * Orphan record deletion utility.  Generates a sqlite statement like:
@@ -723,6 +735,10 @@ public class EmailProvider extends ContentProvider {
             switch (match) {
                 case UI_MESSAGE:
                     return uiDeleteMessage(uri);
+                case UI_ACCOUNT_DATA:
+                    return uiDeleteAccountData(uri);
+                case UI_ACCOUNT:
+                    return uiDeleteAccount(uri);
                 // These are cases in which one or more Messages might get deleted, either by
                 // cascade or explicitly
                 case MAILBOX_ID:
@@ -2241,7 +2257,7 @@ outer:
         long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
         if (mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
-                    "content://" + EmailContent.AUTHORITY + "/uifolder/" + mailboxId);
+                    uiUriString("uifolder", mailboxId));
         }
         StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
@@ -2520,7 +2536,7 @@ outer:
             } catch (RemoteException e) {
             }
         }
-        return Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);
+        return uiUri("uimessage", msg.mId);
     }
 
     /**
@@ -2912,5 +2928,87 @@ outer:
         // This will look just like a "normal" folder
         return uiQuery(UI_FOLDER, ContentUris.withAppendedId(Mailbox.CONTENT_URI,
                 searchMailbox.mId), projection);
+    }
+
+    private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
+    private static final String MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION =
+        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" +
+        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
+    private static final String MESSAGES_FOR_ACCOUNT_SELECTION = MessageColumns.ACCOUNT_KEY + "=?";
+
+    /**
+     * Delete an account and clean it up
+     */
+    private int uiDeleteAccount(Uri uri) {
+        Context context = getContext();
+        long accountId = Long.parseLong(uri.getLastPathSegment());
+        try {
+            // Get the account URI.
+            final Account account = Account.restoreAccountWithId(context, accountId);
+            if (account == null) {
+                return 0; // Already deleted?
+            }
+
+            deleteAccountData(context, accountId);
+
+            // Now delete the account itself
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+            context.getContentResolver().delete(uri, null, null);
+
+            // Clean up
+            AccountBackupRestore.backup(context);
+            SecurityPolicy.getInstance(context).reducePolicies();
+            Email.setServicesEnabledSync(context);
+            return 1;
+        } catch (Exception e) {
+            Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
+        }
+        return 0;
+    }
+
+    private int uiDeleteAccountData(Uri uri) {
+        Context context = getContext();
+        long accountId = Long.parseLong(uri.getLastPathSegment());
+        // Get the account URI.
+        final Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) {
+            return 0; // Already deleted?
+        }
+        deleteAccountData(context, accountId);
+        return 1;
+    }
+
+    private void deleteAccountData(Context context, long accountId) {
+        // Delete synced attachments
+        AttachmentUtilities.deleteAllAccountAttachmentFiles(context, accountId);
+
+        // Delete synced email, leaving only an empty inbox.  We do this in two phases:
+        // 1. Delete all non-inbox mailboxes (which will delete all of their messages)
+        // 2. Delete all remaining messages (which will be the inbox messages)
+        ContentResolver resolver = context.getContentResolver();
+        String[] accountIdArgs = new String[] { Long.toString(accountId) };
+        resolver.delete(Mailbox.CONTENT_URI,
+                MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION,
+                accountIdArgs);
+        resolver.delete(Message.CONTENT_URI, MESSAGES_FOR_ACCOUNT_SELECTION, accountIdArgs);
+
+        // Delete sync keys on remaining items
+        ContentValues cv = new ContentValues();
+        cv.putNull(Account.SYNC_KEY);
+        resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
+        cv.clear();
+        cv.putNull(Mailbox.SYNC_KEY);
+        resolver.update(Mailbox.CONTENT_URI, cv,
+                MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
+
+        // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
+        IEmailService service = EmailServiceUtils.getServiceForAccount(context, null, accountId);
+        if (service != null) {
+            try {
+                service.deleteAccountPIMData(accountId);
+            } catch (RemoteException e) {
+                // Can't do anything about this
+            }
+        }
     }
 }

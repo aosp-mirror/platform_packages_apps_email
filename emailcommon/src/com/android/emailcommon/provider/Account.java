@@ -965,5 +965,4 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         sb.append(']');
         return sb.toString();
     }
-
 }

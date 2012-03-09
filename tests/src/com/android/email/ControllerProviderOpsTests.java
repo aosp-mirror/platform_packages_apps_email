@@ -424,7 +424,8 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long message4Id = message.mId;
 
         // Now wipe account 1's data
-        mTestController.deleteSyncedDataSync(account1Id);
+        Uri uri = EmailProvider.uiUri("uiaccount", account1Id);
+        mProviderContext.getContentResolver().delete(uri, null, null);
 
         // Confirm:  Mailboxes gone (except account box), all messages gone, account survives
         assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box1Id));

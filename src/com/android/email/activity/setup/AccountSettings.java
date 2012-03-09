@@ -37,11 +37,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -678,11 +678,16 @@ public class AccountSettings extends PreferenceActivity {
     /**
      * Delete the selected account
      */
-    public void deleteAccount(Account account) {
+    public void deleteAccount(final Account account) {
         // Kick off the work to actually delete the account
-        // Delete the account (note, this is async.  Would be nice to get a callback.
-        Controller.getInstance(this).deleteAccount(account.mId);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
+                getContentResolver().delete(uri, null, null);
+            }}).start();
 
+        // TODO: Remove ui glue for unified
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
         if (onIsMultiPane()) {
