@@ -2072,12 +2072,15 @@ outer:
             } else {
                 sb.append(',');
             }
-            String val = map.get(column);
-            // If we don't have the column, be permissive, returning "0 AS <column>", and warn
-            if (val == null) {
-                if (values.containsKey(column)) {
-                    val = "'" + values.getAsString(column) + "' AS " + column;
-                } else {
+            String val = null;
+            // First look at values; this is an override of default behavior
+            if (values.containsKey(column)) {
+                val = "'" + values.getAsString(column) + "' AS " + column;
+            } else {
+                // Now, get the standard value for the column from our projection map
+                val = map.get(column);
+                // If we don't have the column, return "NULL AS <column>", and warn
+                if (val == null) {
                     Log.w(TAG, "UIProvider column not found, returning NULL: " + column);
                     val = "NULL AS " + column;
                 }
@@ -2162,8 +2165,15 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryMailbox(String[] uiProjection) {
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+    private String genQueryMailbox(String[] uiProjection, String id) {
+        long mailboxId = Long.parseLong(id);
+        ContentValues values = EMPTY_CONTENT_VALUES;
+        if (mSearchParams != null && mailboxId == mSearchParams.mSearchMailboxId) {
+            // This is the current search mailbox; use the total count
+            values = new ContentValues();
+            values.put(UIProvider.FolderColumns.TOTAL_COUNT, mSearchParams.mTotalCount);
+        }
+        StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
         return sb.toString();
     }
@@ -2367,7 +2377,7 @@ outer:
                 notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
-                c = db.rawQuery(genQueryMailbox(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ACCOUNT:
@@ -2800,6 +2810,10 @@ outer:
         Log.d(TAG, "[Notify UI: " + notifyUri + "]");
     }
 
+    private void notifyUI(Uri uri, long id) {
+        notifyUI(uri, Long.toString(id));
+    }
+
     /**
      * Support for services and service notifications
      */
@@ -2888,11 +2902,12 @@ outer:
         if (filter == null) {
             throw new IllegalArgumentException("No query parameter in search query");
         }
-        mSearchParams = new SearchParams(inbox.mId, filter);
 
         // Find/create our search mailbox
         Mailbox searchMailbox = getSearchMailbox(accountId);
         final long searchMailboxId = searchMailbox.mId;
+
+        mSearchParams = new SearchParams(inbox.mId, filter, searchMailboxId);
 
         final Context context = getContext();
         if (mSearchParams.mOffset == 0) {
@@ -2916,7 +2931,11 @@ outer:
                             mServiceCallback, accountId);
                     if (service != null) {
                         try {
-                            service.searchMessages(accountId, mSearchParams, searchMailboxId);
+                            // Save away the total count
+                            mSearchParams.mTotalCount = service.searchMessages(accountId,
+                                    mSearchParams, searchMailboxId);
+                            Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
+                            notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, searchMailboxId);
                         } catch (RemoteException e) {
                             Log.e("searchMessages", "RemoteException", e);
                         }
