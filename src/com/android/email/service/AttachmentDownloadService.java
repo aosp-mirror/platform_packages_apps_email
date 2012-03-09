@@ -677,7 +677,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                  if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
                     ContentValues values = new ContentValues();
                     values.put(AttachmentColumns.DOWNLOADED_SIZE,
-                            attachment.mSize * 100 / progress);
+                            attachment.mSize * progress / 100);
                     // Update UIProvider with updated download size
                     // Individual services will set contentUri and state when finished
                     attachment.update(mContext, values);
