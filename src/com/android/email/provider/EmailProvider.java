@@ -2852,15 +2852,19 @@ outer:
     private Cursor uiSearch(Uri uri, String[] projection) {
         final long accountId = Long.parseLong(uri.getLastPathSegment());
 
+        // TODO: Check the actual mailbox
+        Mailbox inbox = Mailbox.restoreMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
+        if (inbox == null) return null;
+
         String filter = uri.getQueryParameter(UIProvider.SearchQueryParameters.QUERY);
         if (filter == null) {
             throw new IllegalArgumentException("No query parameter in search query");
         }
+        mSearchParams = new SearchParams(inbox.mId, filter);
 
         // Find/create our search mailbox
         Mailbox searchMailbox = getSearchMailbox(accountId);
         final long searchMailboxId = searchMailbox.mId;
-        mSearchParams = new SearchParams(searchMailbox.mId, filter);
 
         final Context context = getContext();
         if (mSearchParams.mOffset == 0) {
