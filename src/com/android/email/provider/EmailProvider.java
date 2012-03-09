@@ -946,6 +946,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uisettings");
     private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
+    private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1628,16 +1630,23 @@ outer:
                         }
                     }
                     if (match == ATTACHMENT_ID) {
+                        long attId = Integer.parseInt(id);
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
-                            mAttachmentService.attachmentChanged(getContext(),
-                                    Integer.parseInt(id), flags);
+                            mAttachmentService.attachmentChanged(context, attId, flags);
                         }
                         // Notify UI if necessary; there are only two columns we can change that
                         // would be worth a notification
                         if (values.containsKey(AttachmentColumns.UI_STATE) ||
-                                values.containsKey(AttachmentColumns.UI_DOWNLOADED_SIZE))
-                        notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
+                                values.containsKey(AttachmentColumns.UI_DOWNLOADED_SIZE)) {
+                            // Notify on individual attachment
+                            notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
+                            Attachment att = Attachment.restoreAttachmentWithId(context, attId);
+                            if (att != null) {
+                                // And on owning Message
+                                notifyUI(UIPROVIDER_ATTACHMENTS_NOTIFIER, att.mMessageKey);
+                            }
+                        }
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
                         notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, id);
                         // TODO: Remove logging
@@ -2371,6 +2380,7 @@ outer:
                 break;
             case UI_ATTACHMENTS:
                 c = db.rawQuery(genQueryAttachments(uiProjection), new String[] {id});
+                notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ATTACHMENT:
                 c = db.rawQuery(genQueryAttachment(uiProjection), new String[] {id});
