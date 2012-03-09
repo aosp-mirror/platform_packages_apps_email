@@ -27,6 +27,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <!-- Allows access to EmailProvider (EAS/IMAP/POP3) -->
     <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
+	<uses-permission android:name="com.android.email.permission.READ_ATTACHMENT"/>
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="com.google.android.gm.permission.READ_CONTENT_PROVIDER"/>
     <uses-permission android:name="com.google.android.gm.permission.READ_GMAIL"/>
