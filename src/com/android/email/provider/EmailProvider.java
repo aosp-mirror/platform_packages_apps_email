@@ -2463,6 +2463,10 @@ outer:
     private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values) {
         Context context = getContext();
         // Fill in the message
+        Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
+        if (account == null) return null;
+        msg.mFrom = account.mEmailAddress;
+        msg.mTimeStamp = System.currentTimeMillis();
         msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
         msg.mCc = values.getAsString(UIProvider.MessageColumns.CC);
         msg.mBcc = values.getAsString(UIProvider.MessageColumns.BCC);
@@ -2506,6 +2510,14 @@ outer:
             try {
                 applyBatch(ops);
             } catch (OperationApplicationException e) {
+            }
+        }
+        if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                    mServiceCallback, mailbox.mAccountKey);
+            try {
+                service.startSync(mailbox.mId, true);
+            } catch (RemoteException e) {
             }
         }
         return Uri.parse("content://" + EmailContent.AUTHORITY + "/uimessage/" + msg.mId);

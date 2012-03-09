@@ -77,6 +77,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     private static final int MAILBOX_COLUMN_SERVER_ID = 1;
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
+    public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
+
     /** Small projection for just the columns required for a sync. */
     private static final String[] MAILBOX_PROJECTION = new String[] {
         MailboxColumns.ID,
@@ -108,6 +110,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 AccountManagerTypes.TYPE_POP_IMAP);
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
         ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
     }
 
@@ -436,15 +439,19 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     @Override
     public void sendMail(long accountId) throws RemoteException {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
-        TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(mContext, account));
-        NotificationController nc = NotificationController.getInstance(mContext);
+        sendMailImpl(mContext, accountId);
+    }
+
+    public static void sendMailImpl(Context context, long accountId) {
+        Account account = Account.restoreAccountWithId(context, accountId);
+        TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(context, account));
+        NotificationController nc = NotificationController.getInstance(context);
         // 1.  Loop through all messages in the account's outbox
-        long outboxId = Mailbox.findMailboxOfType(mContext, account.mId, Mailbox.TYPE_OUTBOX);
+        long outboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_OUTBOX);
         if (outboxId == Mailbox.NO_MAILBOX) {
             return;
         }
-        ContentResolver resolver = mContext.getContentResolver();
+        ContentResolver resolver = context.getContentResolver();
         Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
                 EmailContent.Message.ID_COLUMN_PROJECTION,
                 EmailContent.Message.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
@@ -454,13 +461,13 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (c.getCount() <= 0) {
                 return;
             }
-            Sender sender = Sender.getInstance(mContext, account);
-            Store remoteStore = Store.getInstance(account, mContext);
+            Sender sender = Sender.getInstance(context, account);
+            Store remoteStore = Store.getInstance(account, context);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
             ContentValues moveToSentValues = null;
             if (requireMoveMessageToSentFolder) {
                 Mailbox sentFolder =
-                    Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_SENT);
+                    Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_SENT);
                 moveToSentValues = new ContentValues();
                 moveToSentValues.put(MessageColumns.MAILBOX_KEY, sentFolder.mId);
             }
@@ -471,7 +478,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 try {
                     messageId = c.getLong(0);
                     // Don't send messages with unloaded attachments
-                    if (Utility.hasUnloadedAttachments(mContext, messageId)) {
+                    if (Utility.hasUnloadedAttachments(context, messageId)) {
                         if (Email.DEBUG) {
                             Log.d(Logging.LOG_TAG, "Can't send #" + messageId +
                                     "; unloaded attachments");
@@ -493,15 +500,15 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     // If this is a forwarded message and it has attachments, delete them, as they
                     // duplicate information found elsewhere (on the server).  This saves storage.
                     EmailContent.Message msg =
-                        EmailContent.Message.restoreMessageWithId(mContext, messageId);
+                        EmailContent.Message.restoreMessageWithId(context, messageId);
                     if (msg != null &&
                             ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0)) {
-                        AttachmentUtilities.deleteAllAttachmentFiles(mContext, account.mId,
+                        AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                                 messageId);
                     }
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
-                    AttachmentUtilities.deleteAllAttachmentFiles(mContext, account.mId,
+                    AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                             messageId);
                     Uri uri =
                         ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
@@ -517,5 +524,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         } finally {
             c.close();
         }
+
     }
 }

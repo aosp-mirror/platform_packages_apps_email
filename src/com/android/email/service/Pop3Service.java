@@ -472,9 +472,6 @@ public class Pop3Service extends Service {
          */
         final ArrayList<Long> unseenMessages = new ArrayList<Long>();
 
-        if (Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "*** synchronizeMailboxGeneric ***");
-        }
         ContentResolver resolver = context.getContentResolver();
 
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)

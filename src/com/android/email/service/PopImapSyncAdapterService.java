@@ -94,7 +94,7 @@ public class PopImapSyncAdapterService extends Service {
         if (account == null) return;
         ContentResolver resolver = context.getContentResolver();
         String protocol = account.getProtocol(context);
-        if (!mailbox.loadsFromServer(protocol)) {
+        if ((mailbox.mType != Mailbox.TYPE_OUTBOX) && !mailbox.loadsFromServer(protocol)) {
             // This is an update to a message in a non-syncing mailbox; delete this from the
             // updates table and return
             resolver.delete(Message.UPDATED_CONTENT_URI, Message.MAILBOX_KEY + "=?",
@@ -111,7 +111,9 @@ public class PopImapSyncAdapterService extends Service {
         resolver.update(mailboxUri, values, null, null);
         try {
             try {
-                if (protocol.equals(HostAuth.SCHEME_IMAP)) {
+                if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+                    EmailServiceStub.sendMailImpl(context, account.mId);
+                } else if (protocol.equals(HostAuth.SCHEME_IMAP)) {
                     ImapService.synchronizeMailboxSynchronous(context, account, mailbox);
                 } else {
                     Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox);
@@ -171,7 +173,8 @@ public class PopImapSyncAdapterService extends Service {
                 } else {
                     Log.d(TAG, "Sync request for " + acct.mDisplayName);
                     Log.d(TAG, extras.toString());
-                    long mailboxId = extras.getLong("MAILBOX_ID", Mailbox.NO_MAILBOX);
+                    long mailboxId = extras.getLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID,
+                            Mailbox.NO_MAILBOX);
                     boolean isInbox = false;
                     if (mailboxId == Mailbox.NO_MAILBOX) {
                         mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
@@ -189,13 +192,19 @@ public class PopImapSyncAdapterService extends Service {
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
                     sync(context, mailboxId, syncResult, uiRefresh);
 
+                    // Outbox is a special case here
+                    Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+                    if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+                        return;
+                    }
+
                     // Convert from minutes to seconds
                     int syncFrequency = acct.mSyncInterval * 60;
                     // Values < 0 are for "never" or "push"; 0 is undefined
                     if (syncFrequency <= 0) return;
                     Bundle ex = new Bundle();
                     if (!isInbox) {
-                        ex.putLong("MAILBOX_ID", mailboxId);
+                        ex.putLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID, mailboxId);
                     }
                     Log.d(TAG, "Setting periodic sync for " + acct.mDisplayName + ": " +
                             syncFrequency + " seconds");
