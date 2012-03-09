@@ -106,11 +106,11 @@
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Konsep"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Kotak Keluar"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Tampilan kombinasi"</string>
-    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Tampilkan semua map"</string>
+    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Tampilkan semua folder"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Akun"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Map terkini (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
-    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Semua map"</string>
-    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Map terkini"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Folder terkini (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Semua folder"</string>
+    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Folder terkini"</string>
     <string name="message_subject_description" msgid="3597047441062021199">"Subjek"</string>
     <string name="message_is_empty_description" msgid="4004644319382041459">"Tanpa subjek"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Muat pesan lainnya"</string>
@@ -417,9 +417,9 @@
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Hari yang disinkronkan"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akun email"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Pilih akun"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih map"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih folder"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Akun tidak ditemukan. Akun mungkin telah dihapus."</string>
-    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Map tidak ditemukan. Map mungkin telah dihapus."</string>
+    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Folder tidak ditemukan. Folder mungkin telah dihapus."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Hanya beberapa akun \"Plus\" termasuk akses POP yang mengizinkan program ini tersambung. Jika tidak dapat masuk dengan sandi dan alamat email yang benar, Anda mungkin tidak memiliki akun \"Plus\" berbayar. Luncurkan browser web untuk mendapat akses ke akun email ini."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Sebelum menyiapkan akun email ini, kunjungi situs web T-Online dan buat sandi untuk akses email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Perusahaan"</string>
@@ -476,7 +476,7 @@
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Hasil penelusuran untuk \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Menunggu hasil"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Beberapa server mungkin membutuhkan waktu yang lama."</string>
-    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Map"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folder"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Tolak penggunaan kamera perangkat"</string>
     <string name="policy_require_password" msgid="7177274900480984702">"Memerlukan sandi perangkat"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Batasi penggunaan ulang sandi terkini"</string>
