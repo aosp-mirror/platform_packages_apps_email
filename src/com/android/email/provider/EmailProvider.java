@@ -215,6 +215,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_ATTACHMENT = UI_BASE + 15;
     private static final int UI_SEARCH = UI_BASE + 16;
     private static final int UI_ACCOUNT_DATA = UI_BASE + 17;
+    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 18;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -430,6 +431,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
         matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
+        matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
     }
 
     /**
@@ -1185,8 +1187,11 @@ public class EmailProvider extends ContentProvider {
                     }
                     c = uiQuery(match, uri, projection);
                     return c;
+                case UI_FOLDER_LOAD_MORE:
+                    c = uiFolderLoadMore(uri);
+                    return c;
                 case UI_FOLDER_REFRESH:
-                    c = uiFolderRefresh(uri, projection);
+                    c = uiFolderRefresh(uri);
                     return c;
                 case MAILBOX_NOTIFICATION:
                     c = notificationQuery(uri);
@@ -2181,6 +2186,18 @@ outer:
             // This is the current search mailbox; use the total count
             values = new ContentValues();
             values.put(UIProvider.FolderColumns.TOTAL_COUNT, mSearchParams.mTotalCount);
+            // "load more" is valid for search results
+            values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
+                    uiUriString("uiloadmore", mailboxId));
+        } else {
+            Context context = getContext();
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+            String protocol = Account.getProtocol(context, mailbox.mAccountKey);
+            // "load more" is valid for IMAP/POP3
+            if (HostAuth.SCHEME_IMAP.equals(protocol) || HostAuth.SCHEME_POP3.equals(protocol)) {
+                values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
+                        uiUriString("uiloadmore", mailboxId));
+            }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
@@ -2860,9 +2877,9 @@ outer:
         }
     };
 
-    private Cursor uiFolderRefresh(Uri uri, String[] projection) {
+    private Cursor uiFolderRefresh(Uri uri) {
         Context context = getContext();
-        String idString = uri.getPathSegments().get(1);
+        String idString = uri.getLastPathSegment();
         long id = Long.parseLong(idString);
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, id);
         if (mailbox == null) return null;
@@ -2872,6 +2889,24 @@ outer:
             service.startSync(id, true);
         } catch (RemoteException e) {
         }
+        return null;
+    }
+
+    //Number of additional messages to load when a user selects "Load more messages..."
+    public static final int VISIBLE_LIMIT_INCREMENT = 10;
+
+    private Cursor uiFolderLoadMore(Uri uri) {
+        Context context = getContext();
+        String idString = uri.getLastPathSegment();
+        long id = Long.parseLong(idString);
+        ContentValues values = new ContentValues();
+        values.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
+        values.put(EmailContent.ADD_COLUMN_NAME, VISIBLE_LIMIT_INCREMENT);
+        Uri mailboxUri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, id);
+        // Increase the limit
+        context.getContentResolver().update(mailboxUri, values, null, null);
+        // And order a refresh
+        uiFolderRefresh(uri);
         return null;
     }
 
