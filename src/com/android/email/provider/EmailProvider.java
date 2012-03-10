@@ -2444,9 +2444,9 @@ outer:
     private Attachment convertUiAttachmentToAttachment(
             com.android.mail.providers.Attachment uiAtt) {
         Attachment att = new Attachment();
-        att.mContentUri = uiAtt.contentUri;
+        att.mContentUri = uiAtt.contentUri.toString();
         att.mFileName = uiAtt.name;
-        att.mMimeType = uiAtt.mimeType;
+        att.mMimeType = uiAtt.contentType;
         att.mSize = uiAtt.size;
         return att;
     }
