@@ -52,6 +52,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
@@ -536,6 +537,9 @@ public class Pop3Service extends Service {
 
         // 5. Get the remote message count.
         int remoteMessageCount = remoteFolder.getMessageCount();
+        ContentValues values = new ContentValues();
+        values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
+        mailbox.update(context, values);
 
         // 6. Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;

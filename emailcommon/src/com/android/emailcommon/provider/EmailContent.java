@@ -1466,6 +1466,8 @@ public abstract class EmailContent {
         public static final String LAST_NOTIFIED_MESSAGE_KEY = "lastNotifiedMessageKey";
         // The UIProvider last sync result
         public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
+        // The total number of messages in the remote mailbox
+        public static final String TOTAL_COUNT = "totalCount";
     }
 
     public interface HostAuthColumns {

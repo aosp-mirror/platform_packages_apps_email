@@ -117,8 +117,9 @@ public final class DBHelper {
     // Version 32: Add columns to mailbox for last notified message key/count; insure not null
     //             for "notified" columns
     // Version 33: Add columns to attachment for ui provider columns
+    // Version 34: Add total count to mailbox
 
-    public static final int DATABASE_VERSION = 33;
+    public static final int DATABASE_VERSION = 34;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -395,7 +396,8 @@ public final class DBHelper {
             + MailboxColumns.UI_SYNC_STATUS + " integer default 0, "
             + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
-            + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0"
+            + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0, "
+            + MailboxColumns.TOTAL_COUNT + " integer"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -851,6 +853,16 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
                 }
                 oldVersion = 33;
+            }
+            if (oldVersion == 33) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + MailboxColumns.TOTAL_COUNT + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 33 to 34 " + e);
+                }
+                oldVersion = 34;
             }
         }
 

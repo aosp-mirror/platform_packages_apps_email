@@ -552,6 +552,9 @@ public class ImapService extends Service {
 
         // 5. Get the remote message count.
         int remoteMessageCount = remoteFolder.getMessageCount();
+        ContentValues values = new ContentValues();
+        values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
+        mailbox.update(context, values);
 
         // 6. Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;
