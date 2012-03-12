@@ -35,12 +35,9 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 
 LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
-    --rename-manifest-package com.android.email2 \
-    --extra-packages com.android.ex.chips
+    --extra-packages com.android.ex.chips:com.android.mail
 
 LOCAL_PACKAGE_NAME := Email2
-
-LOCAL_OVERRIDES_PACKAGES := UnifiedEmail
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
