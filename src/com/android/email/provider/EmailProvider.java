@@ -2136,7 +2136,19 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryViewMessage(String[] uiProjection) {
+    private String genQueryViewMessage(String[] uiProjection, String id) {
+        Context context = getContext();
+        long messageId = Long.parseLong(id);
+        Message msg = Message.restoreMessageWithId(context, messageId);
+        if (msg != null && (msg.mFlagLoaded == Message.FLAG_LOADED_PARTIAL)) {
+            EmailServiceProxy service =
+                    EmailServiceUtils.getServiceForAccount(context, null, msg.mAccountKey);
+            try {
+                service.loadMore(messageId);
+            } catch (RemoteException e) {
+                // Nothing to do
+            }
+        }
         StringBuilder sb = genSelect(sMessageViewMap, uiProjection);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
@@ -2394,7 +2406,7 @@ outer:
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_MESSAGE:
-                c = db.rawQuery(genQueryViewMessage(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryViewMessage(uiProjection, id), new String[] {id});
                 break;
             case UI_ATTACHMENTS:
                 c = db.rawQuery(genQueryAttachments(uiProjection), new String[] {id});
