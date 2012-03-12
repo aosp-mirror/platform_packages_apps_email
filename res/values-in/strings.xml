@@ -48,8 +48,8 @@
     <string name="add_account_action" msgid="8835736309476033727">"Tambahkan akun"</string>
     <string name="compose_action" msgid="4045702519637388045">"Tulis"</string>
     <string name="search_action" msgid="6325101454876682308">"Telusuri"</string>
-    <string name="account_settings_action" msgid="4494079183315085171">"Pengaturan akun"</string>
-    <string name="settings_action" msgid="6334807007967459412">"Pengaturan"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Setelan akun"</string>
+    <string name="settings_action" msgid="6334807007967459412">"Setelan"</string>
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Opsi sinkronisasi"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Tandai belum dibaca"</string>
     <string name="move_action" msgid="3059189775933985898">"Pindahkan"</string>
@@ -178,14 +178,14 @@
     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Detail pesan"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Info lampiran"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Diperlukan koneksi Wi-Fi"</string>
-    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Pengaturan Wi-Fi"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Pengaturan apl"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Setelan Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Setelan apl"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Tidak dapat membuka lampiran."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"Anda tidak dapat menyimpan atau membuka file ini karena jenis lampiran mungkin berisi perangkat lunak berbahaya."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Lampiran ini tidak dapat disimpan atau dibuka karena kebijakan keamanan akun ini."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Lampiran ini terlalu besar untuk diunduh melalui jaringan seluler. Anda dapat mengunduhnya saat tersambung lagi ke jaringan Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Tidak ada apl terpasang yang dapat membuka lampiran ini. Coba unduh apl yang tepat dari Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah sebuah apl. Anda harus mencentang Sumber Tidak Dikenal dalam Pengaturan &gt; Apl sebelum Anda dapat memasangnya."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah sebuah apl. Anda harus mencentang Sumber Tidak Dikenal dalam Setelan &gt; Apl sebelum Anda dapat memasangnya."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apl tidak dapat dipasang langsung dari email. Simpan apl ini terlebih dahulu, lalu pasang menggunakan apl Unduhan."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Tidak dapat mengunduh lampiran."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Terjadi galat saat mengawasandikan pesan."</string>
@@ -247,8 +247,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Anda telah menggunakan nama pengguna ini untuk akun \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Sandi ini diawali atau diakhiri dengan satu karakter spasi atau lebih. Banyak server tidak mendukung sandi dengan spasi."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Mengambil informasi akun..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Memeriksa pengaturan server masuk…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Memeriksa pengaturan server keluar…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Memeriksa setelan server masuk…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Memeriksa setelan server keluar…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Penyiapan akun"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Akun Anda sudah siap dan email akan segera tiba!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Beri nama akun ini (opsional)"</string>
@@ -258,7 +258,7 @@
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Jenis akun"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Jenis akun apakah ini?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Penyiapan akun"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Pengaturan server masuk"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Setelan server masuk"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nama Pengguna"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Sandi"</string>
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP3"</string>
@@ -276,7 +276,7 @@
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Awalan jalur IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opsional"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Penyiapan akun"</string>
-    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Pengaturan server keluar"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Setelan server keluar"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Jenis keamanan"</string>
@@ -284,7 +284,7 @@
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nama Pengguna"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Sandi"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Penyiapan akun"</string>
-    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Pengaturan server"</string>
+    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Setelan server"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain\\Nama Pengguna"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Gunakan sambungan aman (SSL)"</string>
@@ -295,7 +295,7 @@
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Hapus"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Tidak ada"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID Perangkat Seluler"</string>
-    <string name="account_setup_options_title" msgid="9016600767888846051">"Pengaturan akun"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Setelan akun"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opsi akun"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frekuensi pemeriksaan kotak masuk"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Tidak pernah"</string>
@@ -342,10 +342,10 @@
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Anda tidak dapat mengubah nama pengguna akun. Untuk menambahkan akun dengan nama pengguna lain, sentuh Tambahkan Akun."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"PERINGATAN: Menonaktifkan otoritas apl Email untuk mengatur perangkat Anda akan menghapus semua akun email yang memerlukannya, beserta email, data kenalan, acara kalender, dan data lainnya."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Pembaruan keamanan"</string>
-    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> mengharuskan Anda memperbarui pengaturan keamanan."</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> mengharuskan Anda memperbarui setelan keamanan."</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" tidak dapat disinkronkan karena persyaratan keamanan."</string>
-    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" memerlukan pembaruan pengaturan keamanan."</string>
-    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" mengubah pengaturan keamanannya, tidak diperlukan tindakan pengguna."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" memerlukan pembaruan setelan keamanan."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" mengubah setelan keamanannya, tidak diperlukan tindakan pengguna."</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"Diperlukan pembaruan keamanan"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"Kebijakan keamanan tlh diubah"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Kbijakan keamanan tak terpnuhi"</string>
@@ -371,10 +371,10 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinkronkan frekuensi, pemberitahuan, dll."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Mengirimkan pemberitahuan bila email tiba"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frekuensi pemeriksaan kotak masuk"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Pengaturan masuk"</string>
-    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nama pengguna, sandi, dan pengaturan server masuk lainnya"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Pengaturan keluar"</string>
-    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nama pengguna, sandi, dan pengaturan server keluar lainnya"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Setelan masuk"</string>
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nama pengguna, sandi, dan setelan server masuk lainnya"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Setelan keluar"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nama pengguna, sandi, dan setelan server keluar lainnya"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Kebijakan diberlakukan"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Tidak ada"</string>
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Kebijakan tidak didukung"</string>
@@ -387,7 +387,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Tanggapan cepat"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Edit teks yang sering Anda masukkan ketika menulis email"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Menambahkan teks ke pesan yang Anda kirim"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Pengaturan pemberitahuan"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Setelan pemberitahuan"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Penggunaan data"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Kebijakan keamanan"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit tanggapan cepat"</string>
@@ -405,14 +405,14 @@
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Tidak pernah"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Getar"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Pilih nada dering"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"Pengaturan server"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Setelan server"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Hapus akun"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Akun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" akan dihapus dari Email."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Hapus akun"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Hapus akun"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Opsi sinkronisasi"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opsi sinkronisasi (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Pengaturan sinkronisasi"</string>
+    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Setelan sinkronisasi"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Periksa frekuensi"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Hari yang disinkronkan"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akun email"</string>
@@ -432,7 +432,7 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> hasil dari <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> hasil dari <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="settings_activity_title" msgid="5185915603716333904">"Pengaturan"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Setelan"</string>
     <string name="header_label_general_preferences" msgid="9204600297009680176">"Umum"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplikasi"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Maju otomatis"</string>
