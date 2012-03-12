@@ -51,6 +51,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.HostAuth;
@@ -61,6 +62,7 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -280,6 +282,12 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         catch (MessagingException me) {
             if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
             // TODO: Fix this up; consider the best approach
+
+            ContentValues cv = new ContentValues();
+            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
+            Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
+            mContext.getContentResolver().update(uri, cv, null, null);
+
             mCallback.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
         } catch (IOException ioe) {
             Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
