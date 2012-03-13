@@ -1,48 +1,51 @@
-LOCAL_PATH:= $(call my-dir)
+# Copyright 2008, The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+LOCAL_PATH := $(call my-dir)
+
+# Build the Email application itself, along with its tests and tests for the emailcommon
+# static library.  All tests can be run via runtest email
+
 include $(CLEAR_VARS)
 
-
-chips_dir := ../../../../frameworks/ex/chips
-unified_email_dir := ../../../../packages/apps/UnifiedEmail
-
-# Include res dir from chips
-# Include res dir from UnifiedEmail
-res_dirs := res $(chips_dir)/res $(unified_email_dir)/res
+# Include res dir from chips, mailcommon, and unified
+chips_dir := ../../../../frameworks/ex/chips/res
+mail_common_dir := ../../../../frameworks/opt/mailcommon/res
+unified_email_dir := ../../UnifiedEmail
+res_dir := $(chips_dir) $(mail_common_dir) $(unified_email_dir)/email_src/res $(unified_email_dir)/res res
 
 LOCAL_MODULE_TAGS := optional
 
-src_dirs := src \
-    $(unified_email_dir)/src  \
-    $(unified_email_dir)/email_src
+LOCAL_SRC_FILES := $(call all-java-files-under, $(unified_email_dir)/src)
+LOCAL_SRC_FILES += $(call all-java-files-under, src/com/android)
+LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
 
-
-LOCAL_STATIC_JAVA_LIBRARIES := android-common-chips
-LOCAL_STATIC_JAVA_LIBRARIES += guava
-LOCAL_STATIC_JAVA_LIBRARIES += android-common
-LOCAL_STATIC_JAVA_LIBRARIES += com.android.emailcommon
-
-LOCAL_SDK_VERSION := 14
-
-
-LOCAL_SRC_FILES := $(call all-java-files-under, $(src_dirs)) \
-        $(call all-logtags-files-under, $(src_dirs))
-
-LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dirs))
+LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 
 # Use assets dir from UnifiedEmail
 # (the default package target doesn't seem to deal with multiple asset dirs)
 LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 
-LOCAL_AAPT_FLAGS := \
-    --auto-add-overlay \
-    --extra-packages com.android.ex.chips:com.android.mail
+LOCAL_AAPT_FLAGS := --auto-add-overlay
+LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email
+
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava android-common-chips
 
 LOCAL_PACKAGE_NAME := Email2
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+
+LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)
-
-# Use the following include to make our test apk.
-include $(call all-makefiles-under,$(LOCAL_PATH))
-
