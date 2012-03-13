@@ -2905,21 +2905,31 @@ outer:
         return null;
     }
 
-    //Number of additional messages to load when a user selects "Load more messages..."
+    //Number of additional messages to load when a user selects "Load more..." in POP/IMAP boxes
     public static final int VISIBLE_LIMIT_INCREMENT = 10;
+    //Number of additional messages to load when a user selects "Load more..." in a search
+    public static final int SEARCH_MORE_INCREMENT = 10;
 
     private Cursor uiFolderLoadMore(Uri uri) {
         Context context = getContext();
         String idString = uri.getLastPathSegment();
         long id = Long.parseLong(idString);
-        ContentValues values = new ContentValues();
-        values.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
-        values.put(EmailContent.ADD_COLUMN_NAME, VISIBLE_LIMIT_INCREMENT);
-        Uri mailboxUri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, id);
-        // Increase the limit
-        context.getContentResolver().update(mailboxUri, values, null, null);
-        // And order a refresh
-        uiFolderRefresh(uri);
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, id);
+        if (mailbox == null) return null;
+        if (mailbox.mType == Mailbox.TYPE_SEARCH) {
+            // Ask for 10 more messages
+            mSearchParams.mOffset += SEARCH_MORE_INCREMENT;
+            runSearchQuery(context, mailbox.mAccountKey, id);
+        } else {
+            ContentValues values = new ContentValues();
+            values.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
+            values.put(EmailContent.ADD_COLUMN_NAME, VISIBLE_LIMIT_INCREMENT);
+            Uri mailboxUri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, id);
+            // Increase the limit
+            context.getContentResolver().update(mailboxUri, values, null, null);
+            // And order a refresh
+            uiFolderRefresh(uri);
+        }
         return null;
     }
 
@@ -2946,6 +2956,32 @@ outer:
             m.save(context);
         }
         return m;
+    }
+
+    private void runSearchQuery(final Context context, final long accountId,
+            final long searchMailboxId) {
+        // Start the search running in the background
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                 try {
+                    EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                            mServiceCallback, accountId);
+                    if (service != null) {
+                        try {
+                            // Save away the total count
+                            mSearchParams.mTotalCount = service.searchMessages(accountId,
+                                    mSearchParams, searchMailboxId);
+                            Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
+                            notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, searchMailboxId);
+                        } catch (RemoteException e) {
+                            Log.e("searchMessages", "RemoteException", e);
+                        }
+                    }
+                } finally {
+                }
+            }}).start();
+
     }
 
     // TODO: Handle searching for more...
@@ -2981,26 +3017,7 @@ outer:
         }
 
         // Start the search running in the background
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                 try {
-                    EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                            mServiceCallback, accountId);
-                    if (service != null) {
-                        try {
-                            // Save away the total count
-                            mSearchParams.mTotalCount = service.searchMessages(accountId,
-                                    mSearchParams, searchMailboxId);
-                            Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
-                            notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, searchMailboxId);
-                        } catch (RemoteException e) {
-                            Log.e("searchMessages", "RemoteException", e);
-                        }
-                    }
-                } finally {
-                }
-            }}).start();
+        runSearchQuery(context, accountId, searchMailboxId);
 
         // This will look just like a "normal" folder
         return uiQuery(UI_FOLDER, ContentUris.withAppendedId(Mailbox.CONTENT_URI,
