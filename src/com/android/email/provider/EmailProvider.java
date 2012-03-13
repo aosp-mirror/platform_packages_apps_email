@@ -1937,7 +1937,9 @@ outer:
         .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
         .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
         .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
-        .add(UIProvider.ConversationColumns.FOLDER_LIST, MessageColumns.MAILBOX_KEY)
+            .add(UIProvider.ConversationColumns.FOLDER_LIST,
+                    "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
+                            + MessageColumns.MAILBOX_KEY)
         .build();
 
     /**
