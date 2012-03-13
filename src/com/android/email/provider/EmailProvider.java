@@ -1987,6 +1987,7 @@ outer:
 
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, MailboxColumns.ID)
+        .add(UIProvider.FolderColumns.ID, MailboxColumns.ID)
         .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
         .add(UIProvider.FolderColumns.NAME, "displayName")
         .add(UIProvider.FolderColumns.HAS_CHILDREN,
