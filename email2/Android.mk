@@ -44,7 +44,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava andr
 
 LOCAL_PACKAGE_NAME := Email2
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
 LOCAL_SDK_VERSION := current
 
