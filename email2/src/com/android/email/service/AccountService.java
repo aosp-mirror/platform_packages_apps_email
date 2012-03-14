@@ -24,11 +24,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountReconciler;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.provider.Account;
@@ -106,7 +106,7 @@ public class AccountService extends Service {
                         // Make sure the service is properly running (re: lifecycle)
                         EmailServiceUtils.startExchangeService(mContext);
                         // Send current logging flags
-                        Email.updateLoggingFlags(mContext);
+                        MailActivityEmail.updateLoggingFlags(mContext);
                     }});
                 return Device.getDeviceId(mContext);
             } catch (IOException e) {

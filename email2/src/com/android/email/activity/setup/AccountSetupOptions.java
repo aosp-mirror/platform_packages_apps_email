@@ -35,12 +35,12 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -368,7 +368,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
                 AccountSettingsUtils.commitSettings(context, account);
                 // Start up services based on new account(s)
-                Email.setServicesEnabledSync(context);
+                MailActivityEmail.setServicesEnabledSync(context);
                 EmailServiceUtils.startExchangeService(context);
                 // Move to final setup screen
                 AccountSetupNames.actionSetNames(context);

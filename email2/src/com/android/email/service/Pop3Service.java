@@ -31,11 +31,11 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
@@ -544,7 +544,7 @@ public class Pop3Service extends Service {
         // 6. Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;
         if (visibleLimit <= 0) {
-            visibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+            visibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
         }
 
         // 7.  Create a list of messages to download

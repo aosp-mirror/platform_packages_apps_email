@@ -32,9 +32,9 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.R;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Policy;
@@ -292,7 +292,7 @@ public class MailboxSettings extends PreferenceActivity {
                 return false;
             }
             mNeedsSave = true;
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Setting changed");
             }
             // In order to set the current entry to the summary, we need to udpate the value
@@ -310,7 +310,7 @@ public class MailboxSettings extends PreferenceActivity {
     private void updateObjects() {
         final int syncInterval = Integer.valueOf(mSyncIntervalPref.getValue());
         final int syncLookback = Integer.valueOf(mSyncLookbackPref.getValue());
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.i(Logging.LOG_TAG, "Updating object: " + syncInterval + "," + syncLookback);
         }
         if (mMailbox.mType == Mailbox.TYPE_INBOX) {

@@ -16,9 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Account;
@@ -225,7 +225,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreate");
         }
         super.onCreate(savedInstanceState);
@@ -238,7 +238,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreateView");
         }
         int layoutId = R.layout.account_settings_edit_quick_responses_fragment;

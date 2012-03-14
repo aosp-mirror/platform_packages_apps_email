@@ -20,11 +20,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MailTransport;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.AuthenticationFailedException;
@@ -311,7 +311,7 @@ public class Pop3Store extends Store {
                         executeSimpleCommand("STLS");
                         mTransport.reopenTls();
                     } else {
-                        if (Email.DEBUG) {
+                        if (MailActivityEmail.DEBUG) {
                             Log.d(Logging.LOG_TAG, "TLS not supported but required");
                         }
                         throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -322,14 +322,14 @@ public class Pop3Store extends Store {
                     executeSensitiveCommand("USER " + mUsername, "USER /redacted/");
                     executeSensitiveCommand("PASS " + mPassword, "PASS /redacted/");
                 } catch (MessagingException me) {
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.d(Logging.LOG_TAG, me.toString());
                     }
                     throw new AuthenticationFailedException(null, me);
                 }
             } catch (IOException ioe) {
                 mTransport.close();
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -351,7 +351,7 @@ public class Pop3Store extends Store {
             }
             if (statException != null) {
                 mTransport.close();
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(Logging.LOG_TAG, statException.toString());
                 }
                 throw new MessagingException("POP3 STAT", statException);
@@ -422,7 +422,7 @@ public class Pop3Store extends Store {
                     indexMsgNums(1, mMessageCount);
                 } catch (IOException ioe) {
                     mTransport.close();
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.d(Logging.LOG_TAG, "Unable to index during getMessage " + ioe);
                     }
                     throw new MessagingException("getMessages", ioe);
@@ -443,7 +443,7 @@ public class Pop3Store extends Store {
                 indexMsgNums(start, end);
             } catch (IOException ioe) {
                 mTransport.close();
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException("getMessages", ioe);
@@ -687,7 +687,7 @@ public class Pop3Store extends Store {
                 }
             } catch (IOException ioe) {
                 mTransport.close();
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException("fetch", ioe);
@@ -722,7 +722,7 @@ public class Pop3Store extends Store {
                     }
                 } catch (IOException ioe) {
                     mTransport.close();
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.d(Logging.LOG_TAG, ioe.toString());
                     }
                     throw new MessagingException("Unable to fetch message", ioe);
@@ -829,7 +829,7 @@ public class Pop3Store extends Store {
             if (response != null)  {
                 try {
                     InputStream in = mTransport.getInputStream();
-                    if (DEBUG_LOG_RAW_STREAM && Email.DEBUG) {
+                    if (DEBUG_LOG_RAW_STREAM && MailActivityEmail.DEBUG) {
                         in = new LoggingInputStream(in);
                     }
                     message.parse(new Pop3ResponseInputStream(in));
@@ -883,7 +883,7 @@ public class Pop3Store extends Store {
             }
             catch (IOException ioe) {
                 mTransport.close();
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException("setFlags()", ioe);

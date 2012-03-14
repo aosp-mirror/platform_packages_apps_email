@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.android.email.Email;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.mail.Address;
@@ -977,7 +977,7 @@ public final class DBHelper {
                             // If this is a pop3 or imap account, create the account manager account
                             if (HostAuth.SCHEME_IMAP.equals(protocol) ||
                                     HostAuth.SCHEME_POP3.equals(protocol)) {
-                                if (Email.DEBUG) {
+                                if (MailActivityEmail.DEBUG) {
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
                                             "account: " +
                                             accountCursor.getString(V21_ACCOUNT_EMAIL));
