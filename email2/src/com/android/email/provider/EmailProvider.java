@@ -81,6 +81,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author mblank
+ *
+ */
 public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
@@ -2184,8 +2188,21 @@ outer:
      */
     private String genQueryMailboxMessages(String[] uiProjection) {
         StringBuilder sb = genSelect(sMessageListMap, uiProjection);
-        // Make constant
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ORDER BY " +
+                MessageColumns.TIMESTAMP + " DESC");
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "combined message list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    // TODO: This is ALL messages; should be inboxes
+    private String genQueryAllMessages(String[] uiProjection) {
+        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        sb.append(" FROM " + Message.TABLE_NAME + " ORDER BY " +
                 MessageColumns.TIMESTAMP + " DESC");
         return sb.toString();
     }
@@ -2198,7 +2215,6 @@ outer:
      */
     private String genQueryConversation(String[] uiProjection) {
         StringBuilder sb = genSelect(sMessageListMap, uiProjection);
-        // Make constant
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.RECORD_ID + "=?");
         return sb.toString();
     }
@@ -2211,7 +2227,6 @@ outer:
      */
     private String genQueryAccountMailboxes(String[] uiProjection) {
         StringBuilder sb = genSelect(sFolderListMap, uiProjection);
-        // Make constant
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
@@ -2346,14 +2361,94 @@ outer:
         return sb.toString();
     }
 
+    /**
+     * Generate a Uri string for a combined mailbox uri
+     * @param type the uri command type (e.g. "uimessages")
+     * @param id the id of the item (e.g. an account, mailbox, or message id)
+     * @return a Uri string
+     */
+    private static String combinedUriString(String type, String id) {
+        return "content://" + EmailContent.AUTHORITY + "/" + type + "/" + id;
+    }
+
+    /**
+     * Generate an id for a combined mailbox of a given type
+     * @param type the mailbox type for the combined mailbox
+     * @return the id, as a String
+     */
+    private static String combinedMailboxId(int type) {
+        return Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW + type);
+    }
+
+    private void addCombinedAccountRow(MatrixCursor mc) {
+        Object[] values = new Object[UIProvider.ACCOUNTS_PROJECTION.length];
+        values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
+        values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
+            combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
+        values[UIProvider.ACCOUNT_NAME_COLUMN] = "Combined";
+        values[UIProvider.ACCOUNT_SAVE_DRAFT_URI_COLUMN] = null;
+        values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] = null;
+        values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] = null;
+        values[UIProvider.ACCOUNT_SETTINGS_QUERY_URI_COLUMN] =
+            combinedUriString("uisettings", COMBINED_ACCOUNT_ID_STRING);
+        values[UIProvider.ACCOUNT_URI_COLUMN] =
+            combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
+        mc.addRow(values);
+    }
+
+    private void addCombinedSettingsRow(MatrixCursor mc) {
+        // TODO: Get these from default account?
+        Object[] values = new Object[UIProvider.SETTINGS_PROJECTION.length];
+        values[UIProvider.SETTINGS_AUTO_ADVANCE_COLUMN] =
+            Integer.toString(UIProvider.AutoAdvance.NEWER);
+        values[UIProvider.SETTINGS_MESSAGE_TEXT_SIZE_COLUMN] =
+            Integer.toString(UIProvider.MessageTextSize.NORMAL);
+        values[UIProvider.SETTINGS_SNAP_HEADERS_COLUMN] =
+            Integer.toString(UIProvider.SnapHeaderValue.ALWAYS);
+        //.add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
+        values[UIProvider.SETTINGS_REPLY_BEHAVIOR_COLUMN] =
+            Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
+        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
+        values[UIProvider.SETTINGS_CONFIRM_DELETE_COLUMN] = 0;
+        values[UIProvider.SETTINGS_CONFIRM_ARCHIVE_COLUMN] = 0;
+        values[UIProvider.SETTINGS_CONFIRM_SEND_COLUMN] = 0;
+        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
+        values[UIProvider.SETTINGS_DEFAULT_INBOX_COLUMN] = combinedUriString("uifolder",
+                combinedMailboxId(Mailbox.TYPE_INBOX));
+        mc.addRow(values);
+    }
+
+    private void addCombinedInboxRow(MatrixCursor mc) {
+        Object[] values = new Object[UIProvider.FOLDERS_PROJECTION.length];
+        values[UIProvider.FOLDER_ID_COLUMN] = 0;
+        values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder",
+                combinedMailboxId(Mailbox.TYPE_INBOX));
+        values[UIProvider.FOLDER_NAME_COLUMN] = "Inbox";
+        values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
+        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = 0;
+        values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
+                combinedMailboxId(Mailbox.TYPE_INBOX));
+        values[UIProvider.FOLDER_ID_COLUMN] = 0;
+        mc.addRow(values);
+    }
+
     private Cursor uiAccounts(String[] uiProjection) {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
         Cursor accountIdCursor =
                 db.rawQuery("select _id from " + Account.TABLE_NAME, new String[0]);
+        int numAccounts = accountIdCursor.getCount();
+        boolean combinedAccount = false;
+        if (numAccounts > 1) {
+            combinedAccount = true;
+            numAccounts++;
+        }
         MatrixCursor mc = new MatrixCursor(uiProjection, accountIdCursor.getCount());
         Object[] values = new Object[uiProjection.length];
         try {
+            if (combinedAccount) {
+                addCombinedAccountRow(mc);
+            }
             while (accountIdCursor.moveToNext()) {
                 String id = accountIdCursor.getString(0);
                 Cursor accountCursor =
@@ -2411,6 +2506,9 @@ outer:
         return sb.toString();
     }
 
+    private static final String COMBINED_ACCOUNT_ID_STRING =
+            Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW);
+
     /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
@@ -2435,7 +2533,11 @@ outer:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
                 break;
             case UI_MESSAGES:
-                c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+                    c = db.rawQuery(genQueryAllMessages(uiProjection), null);
+                } else {
+                    c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                }
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_MESSAGE:
@@ -2450,15 +2552,33 @@ outer:
                 notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
-                c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
-                notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                if (id.equals(combinedMailboxId(Mailbox.TYPE_INBOX))) {
+                    MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
+                    addCombinedInboxRow(mc);
+                    c = mc;
+                } else {
+                    c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
+                    notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                }
                 break;
             case UI_ACCOUNT:
-                c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
+                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+                    MatrixCursor mc = new MatrixCursor(UIProvider.ACCOUNTS_PROJECTION, 1);
+                    addCombinedAccountRow(mc);
+                    c = mc;
+                } else {
+                    c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
+                }
                 notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_SETTINGS:
-                c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
+                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+                    MatrixCursor mc = new MatrixCursor(UIProvider.SETTINGS_PROJECTION, 1);
+                    addCombinedSettingsRow(mc);
+                    c = mc;
+                } else {
+                    c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
+                }
                 notifyUri = UIPROVIDER_SETTINGS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_CONVERSATION:
@@ -2871,12 +2991,22 @@ outer:
         String id = uri.getLastPathSegment();
         Message msg = Message.restoreMessageWithId(getContext(), Long.parseLong(id));
         if (msg != null) {
-            notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(msg.mMailboxKey));
+            notifyUIConversationMailbox(msg.mMailboxKey);
         }
     }
 
+    /**
+     * Notify about the Mailbox id passed in
+     * @param id the Mailbox id to be notified
+     */
     private void notifyUIConversationMailbox(long id) {
         notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(id));
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(), id);
+        // Notify combined inbox...
+        if (mailbox.mType == Mailbox.TYPE_INBOX) {
+            notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER,
+                    EmailProvider.combinedMailboxId(Mailbox.TYPE_INBOX));
+        }
     }
 
     private void notifyUI(Uri uri, String id) {
