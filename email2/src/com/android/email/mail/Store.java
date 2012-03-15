@@ -20,10 +20,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.mail.store.ExchangeStore;
 import com.android.email.mail.store.ImapStore;
 import com.android.email.mail.store.Pop3Store;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
@@ -204,6 +204,6 @@ public abstract class Store {
         //mailbox.mSyncTime;
         mailbox.mType = type;
         //box.mUnreadCount;
-        mailbox.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+        mailbox.mVisibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
     }
 }

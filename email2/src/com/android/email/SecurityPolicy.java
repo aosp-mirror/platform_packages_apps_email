@@ -34,6 +34,7 @@ import android.util.Log;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -136,7 +137,7 @@ public class SecurityPolicy {
         try {
             while (c.moveToNext()) {
                 policy.restore(c);
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.d(TAG, "Aggregate from: " + policy);
                 }
                 aggregate.mPasswordMinLength =
@@ -181,12 +182,12 @@ public class SecurityPolicy {
                 aggregate.mPasswordExpirationDays = 0;
             if (aggregate.mPasswordComplexChars == Integer.MIN_VALUE)
                 aggregate.mPasswordComplexChars = 0;
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "Calculated Aggregate: " + aggregate);
             }
             return aggregate;
         }
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "Calculated Aggregate: no policy");
         }
         return Policy.NO_POLICY;
@@ -228,7 +229,7 @@ public class SecurityPolicy {
      * rollbacks.
      */
     public void reducePolicies() {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "reducePolicies");
         }
         policiesUpdated();
@@ -243,7 +244,7 @@ public class SecurityPolicy {
      */
     public boolean isActive(Policy policy) {
         int reasons = getInactiveReasons(policy);
-        if (Email.DEBUG && (reasons != 0)) {
+        if (MailActivityEmail.DEBUG && (reasons != 0)) {
             StringBuilder sb = new StringBuilder("isActive for " + policy + ": ");
             if (reasons == 0) {
                 sb.append("true");
@@ -407,12 +408,12 @@ public class SecurityPolicy {
         Policy aggregatePolicy = getAggregatePolicy();
         // if empty set, detach from policy manager
         if (aggregatePolicy == Policy.NO_POLICY) {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "setActivePolicies: none, remove admin");
             }
             dpm.removeActiveAdmin(mAdminName);
         } else if (isActiveAdmin()) {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "setActivePolicies: " + aggregatePolicy);
             }
             // set each policy in the policy manager
@@ -488,7 +489,7 @@ public class SecurityPolicy {
         if (account.mPolicyKey == 0) return;
         Policy policy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
         if (policy == null) return;
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
         }
 

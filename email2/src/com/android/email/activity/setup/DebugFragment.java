@@ -16,11 +16,11 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 
 import android.app.Fragment;
@@ -50,7 +50,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
         }
         View view = inflater.inflate(R.layout.debug, container, false);
@@ -63,7 +63,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
                 context.getString(R.string.build_number)));
 
         mEnableDebugLoggingView = (CheckBox) UiUtilities.getView(view, R.id.debug_logging);
-        mEnableDebugLoggingView.setChecked(Email.DEBUG);
+        mEnableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);
 
         mEnableExchangeLoggingView = (CheckBox) UiUtilities.getView(view, R.id.exchange_logging);
         mEnableExchangeFileLoggingView =
@@ -74,8 +74,8 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
 
         boolean exchangeAvailable = EmailServiceUtils.isExchangeAvailable(context);
         if (exchangeAvailable) {
-            mEnableExchangeLoggingView.setChecked(Email.DEBUG_EXCHANGE_VERBOSE);
-            mEnableExchangeFileLoggingView.setChecked(Email.DEBUG_EXCHANGE_FILE);
+            mEnableExchangeLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_VERBOSE);
+            mEnableExchangeFileLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_FILE);
             mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
             mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
         } else {
@@ -87,7 +87,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
 
         mInhibitGraphicsAccelerationView = (CheckBox)
                 UiUtilities.getView(view, R.id.debug_disable_graphics_acceleration);
-        mInhibitGraphicsAccelerationView.setChecked(Email.sDebugInhibitGraphicsAcceleration);
+        mInhibitGraphicsAccelerationView.setChecked(MailActivityEmail.sDebugInhibitGraphicsAcceleration);
         mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
 
         mEnableStrictModeView = (CheckBox)
@@ -103,28 +103,28 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         switch (buttonView.getId()) {
             case R.id.debug_logging:
                 mPreferences.setEnableDebugLogging(isChecked);
-                Email.DEBUG = isChecked;
-                Email.DEBUG_EXCHANGE = isChecked;
+                MailActivityEmail.DEBUG = isChecked;
+                MailActivityEmail.DEBUG_EXCHANGE = isChecked;
                 break;
              case R.id.exchange_logging:
                 mPreferences.setEnableExchangeLogging(isChecked);
-                Email.DEBUG_EXCHANGE_VERBOSE = isChecked;
+                MailActivityEmail.DEBUG_EXCHANGE_VERBOSE = isChecked;
                 break;
             case R.id.exchange_file_logging:
                 mPreferences.setEnableExchangeFileLogging(isChecked);
-                Email.DEBUG_EXCHANGE_FILE = isChecked;
+                MailActivityEmail.DEBUG_EXCHANGE_FILE = isChecked;
                 break;
            case R.id.debug_disable_graphics_acceleration:
-                Email.sDebugInhibitGraphicsAcceleration = isChecked;
+                MailActivityEmail.sDebugInhibitGraphicsAcceleration = isChecked;
                 mPreferences.setInhibitGraphicsAcceleration(isChecked);
                 break;
             case R.id.debug_enable_strict_mode:
                 mPreferences.setEnableStrictMode(isChecked);
-                Email.enableStrictMode(isChecked);
+                MailActivityEmail.enableStrictMode(isChecked);
                 break;
         }
 
-        Email.updateLoggingFlags(getActivity());
+        MailActivityEmail.updateLoggingFlags(getActivity());
     }
 
     @Override

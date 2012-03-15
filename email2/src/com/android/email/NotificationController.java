@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -41,6 +42,7 @@ import android.util.Log;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.provider.EmailProvider;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
@@ -230,7 +232,7 @@ public class NotificationController {
      *              notifications enabled. Otherwise, all observers are unregistered.
      */
     public void watchForMessages(final boolean watch) {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.i(Logging.LOG_TAG, "Notifications being toggled: " + watch);
         }
         // Don't create the thread if we're only going to stop watching
@@ -259,7 +261,7 @@ public class NotificationController {
                 registerMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                 // If we're already observing account changes, don't do anything else
                 if (mAccountObserver == null) {
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.i(Logging.LOG_TAG, "Observing account changes for notifications");
                     }
                     mAccountObserver = new AccountContentObserver(sNotificationHandler, mContext);
@@ -341,7 +343,7 @@ public class NotificationController {
         } else {
             ContentObserver obs = mNotificationMap.get(accountId);
             if (obs != null) return;  // we're already observing; nothing to do
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Registering for notifications for account " + accountId);
             }
             ContentObserver observer = new MessageContentObserver(
@@ -364,7 +366,7 @@ public class NotificationController {
     private void unregisterMessageNotification(long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Unregistering notifications for all accounts");
             }
             // cancel all existing message observers
@@ -373,7 +375,7 @@ public class NotificationController {
             }
             mNotificationMap.clear();
         } else {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Unregistering notifications for account " + accountId);
             }
             ContentObserver observer = mNotificationMap.remove(accountId);
@@ -407,16 +409,16 @@ public class NotificationController {
     public static final String EXTRA_CONVERSATION = "conversationUri";
     public static final String EXTRA_FOLDER = "folder";
 
-//    private Intent createViewConversationIntent(Conversation conversation, Folder folder,
-//            com.android.mail.providers.Account account) {
-//        final Intent intent = new Intent(Intent.ACTION_VIEW);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//        intent.setDataAndType(conversation.uri, account.mimeType);
-//        intent.putExtra(EXTRA_ACCOUNT, account);
-//        intent.putExtra(EXTRA_FOLDER, folder);
-//        intent.putExtra(EXTRA_CONVERSATION, conversation);
-//        return intent;
-//    }
+    private Intent createViewConversationIntent(Conversation conversation, Folder folder,
+            com.android.mail.providers.Account account) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setDataAndType(conversation.uri, account.mimeType);
+        intent.putExtra(EXTRA_ACCOUNT, account);
+        intent.putExtra(EXTRA_FOLDER, folder);
+        intent.putExtra(EXTRA_CONVERSATION, conversation);
+        return intent;
+    }
     
     private Cursor getUiCursor(Uri uri, String[] projection) {
         Cursor c = mContext.getContentResolver().query(uri, projection, null, null, null);
@@ -440,12 +442,12 @@ public class NotificationController {
         if (c == null) return null;
         Folder folder = new Folder(c);
         c.close();
-        c = getUiCursor(EmailProvider.uiUri("uimessage", message.mId),
-                UIProvider.MESSAGE_PROJECTION);
+        c = getUiCursor(EmailProvider.uiUri("uiconversation", message.mId),
+                UIProvider.CONVERSATION_PROJECTION);
         if (c == null) return null;
         Conversation conv = new Conversation(c);
         c.close();
-        return null; //return createViewConversationIntent(conv, folder, acct);
+        return createViewConversationIntent(conv, folder, acct);
     }
     
     /**
@@ -498,17 +500,16 @@ public class NotificationController {
 //        if (unseenMessageCount > 1) {
 //            intent = createViewConversationIntent(message);
 //        } else {
-//            intent = createViewConversationIntent(message);
+            intent = createViewConversationIntent(message);
 //        }
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         long now = mClock.getTime();
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
-//        Notification notification = createMailboxNotification(
-//                mailbox, title.toString(), title, text,
-//                intent, largeIcon, number, enableAudio, false);
+        Notification notification = createMailboxNotification(
+                mailbox, title.toString(), title, text,
+                intent, largeIcon, number, enableAudio, false);
         mLastMessageNotifyTime = now;
-        return null;
-//        return notification;
+        return notification;
     }
 
     /**

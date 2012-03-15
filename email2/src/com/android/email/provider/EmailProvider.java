@@ -38,13 +38,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
-import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -216,6 +216,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_SEARCH = UI_BASE + 16;
     private static final int UI_ACCOUNT_DATA = UI_BASE + 17;
     private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 18;
+    private static final int UI_CONVERSATION = UI_BASE + 19;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -432,6 +433,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
         matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
+        matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
     }
 
     /**
@@ -503,7 +505,7 @@ public class EmailProvider extends ContentProvider {
         // Restore accounts if the database is corrupted...
         restoreIfNeeded(context, mDatabase);
 
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "Deleting orphans...");
         }
         // Check for any orphaned Messages in the updated/deleted tables
@@ -517,11 +519,11 @@ public class EmailProvider extends ContentProvider {
         deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
                 Account.TABLE_NAME);
 
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "EmailProvider pre-caching...");
         }
         preCacheData();
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "EmailProvider ready.");
         }
         return mDatabase;
@@ -622,7 +624,7 @@ public class EmailProvider extends ContentProvider {
      * Restore user Account and HostAuth data from our backup database
      */
     public static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.w(TAG, "restoreIfNeeded...");
         }
         // Check for legacy backup
@@ -642,7 +644,7 @@ public class EmailProvider extends ContentProvider {
                 null, null, null);
         try {
             if (c.moveToFirst()) {
-                if (Email.DEBUG) {
+                if (MailActivityEmail.DEBUG) {
                     Log.w(TAG, "restoreIfNeeded: Account exists.");
                 }
                 return; // At least one account exists.
@@ -1120,7 +1122,7 @@ public class EmailProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         long time = 0L;
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             time = System.nanoTime();
         }
         Cursor c = null;
@@ -1186,6 +1188,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_SETTINGS:
                 case UI_ATTACHMENT:
                 case UI_ATTACHMENTS:
+                case UI_CONVERSATION:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -1320,7 +1323,7 @@ public class EmailProvider extends ContentProvider {
             e.printStackTrace();
             throw e;
         } finally {
-            if (cache != null && c != null && Email.DEBUG) {
+            if (cache != null && c != null && MailActivityEmail.DEBUG) {
                 cache.recordQueryTime(c, System.nanoTime() - time);
             }
             if (c == null) {
@@ -1471,7 +1474,7 @@ public class EmailProvider extends ContentProvider {
      * Backup account data, returning the number of accounts backed up
      */
     private static int backupAccounts(Context context, SQLiteDatabase mainDatabase) {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "backupAccounts...");
         }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
@@ -1479,7 +1482,7 @@ public class EmailProvider extends ContentProvider {
             int numBackedUp = copyAccountTables(mainDatabase, backupDatabase);
             if (numBackedUp < 0) {
                 Log.e(TAG, "Account backup failed!");
-            } else if (Email.DEBUG) {
+            } else if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "Backed up " + numBackedUp + " accounts...");
             }
             return numBackedUp;
@@ -1494,7 +1497,7 @@ public class EmailProvider extends ContentProvider {
      * Restore account data, returning the number of accounts restored
      */
     private static int restoreAccounts(Context context, SQLiteDatabase mainDatabase) {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(TAG, "restoreAccounts...");
         }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
@@ -1504,7 +1507,7 @@ public class EmailProvider extends ContentProvider {
                 Log.e(TAG, "Recovered " + numRecovered + " accounts!");
             } else if (numRecovered < 0) {
                 Log.e(TAG, "Account recovery failed?");
-            } else if (Email.DEBUG) {
+            } else if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "No accounts to restore...");
             }
             return numRecovered;
@@ -2174,6 +2177,19 @@ outer:
     }
 
     /**
+     * Generate the "message list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryConversation(String[] uiProjection) {
+        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        // Make constant
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.RECORD_ID + "=?");
+        return sb.toString();
+    }
+
+    /**
      * Generate the "top level folder list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
@@ -2430,6 +2446,9 @@ outer:
             case UI_SETTINGS:
                 c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_SETTINGS_NOTIFIER.buildUpon().appendPath(id).build();
+                break;
+            case UI_CONVERSATION:
+                c = db.rawQuery(genQueryConversation(uiProjection), new String[] {id});
                 break;
         }
         if (notifyUri != null) {
@@ -3055,7 +3074,7 @@ outer:
             // Clean up
             AccountBackupRestore.backup(context);
             SecurityPolicy.getInstance(context).reducePolicies();
-            Email.setServicesEnabledSync(context);
+            MailActivityEmail.setServicesEnabledSync(context);
             return 1;
         } catch (Exception e) {
             Log.w(Logging.LOG_TAG, "Exception while deleting account", e);

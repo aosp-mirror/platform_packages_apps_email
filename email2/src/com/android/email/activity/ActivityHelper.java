@@ -23,8 +23,8 @@ import android.net.Uri;
 import android.provider.Browser;
 import android.view.WindowManager;
 
-import com.android.email.Email;
 import com.android.email.activity.setup.AccountSecurity;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 
 /**
@@ -94,7 +94,7 @@ public final class ActivityHelper {
      * NOTE: Currently, this only works if HW accel is *not* enabled via the manifest.
      */
     public static void debugSetWindowFlags(Activity activity) {
-        if (Email.sDebugInhibitGraphicsAcceleration) {
+        if (MailActivityEmail.sDebugInhibitGraphicsAcceleration) {
             // Clear the flag in the activity's window
             activity.getWindow().setFlags(0,
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);

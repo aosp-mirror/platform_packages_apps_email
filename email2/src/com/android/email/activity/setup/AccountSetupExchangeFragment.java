@@ -34,13 +34,13 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -81,7 +81,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onCreate");
         }
         super.onCreate(savedInstanceState);
@@ -96,7 +96,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onCreateView");
         }
         int layoutId = mSettingsMode
@@ -152,7 +152,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
@@ -164,7 +164,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onStart() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onStart");
         }
         super.onStart();
@@ -177,7 +177,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onResume() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onResume");
         }
         super.onResume();
@@ -186,7 +186,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     @Override
     public void onPause() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onPause");
         }
         super.onPause();
@@ -197,7 +197,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onStop() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onStop");
         }
         super.onStop();
@@ -209,7 +209,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onDestroy() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onDestroy");
         }
         super.onDestroy();
@@ -217,7 +217,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);

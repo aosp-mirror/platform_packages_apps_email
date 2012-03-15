@@ -31,11 +31,11 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
@@ -559,7 +559,7 @@ public class ImapService extends Service {
         // 6. Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;
         if (visibleLimit <= 0) {
-            visibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+            visibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
         }
 
         // 7.  Create a list of messages to download
@@ -821,7 +821,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Unable to process pending delete for id="
                             + lastMessageId + ": " + me);
             }
@@ -927,7 +927,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Unable to process pending upsync for id="
                         + lastMessageId + ": " + me);
             }
@@ -1016,7 +1016,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Unable to process pending update for id="
                             + lastMessageId + ": " + me);
             }
@@ -1124,7 +1124,7 @@ public class ImapService extends Service {
         if (remoteMessage == null) {
             return;
         }
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG,
                     "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead
