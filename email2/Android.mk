@@ -23,7 +23,7 @@ include $(CLEAR_VARS)
 chips_dir := ../../../../frameworks/ex/chips/res
 mail_common_dir := ../../../../frameworks/opt/mailcommon/res
 unified_email_dir := ../../UnifiedEmail
-res_dir := $(chips_dir) $(mail_common_dir) $(unified_email_dir)/email_src/res $(unified_email_dir)/res res
+res_dir := $(chips_dir) $(mail_common_dir) $(unified_email_dir)/email_src/res res $(unified_email_dir)/res
 
 LOCAL_MODULE_TAGS := optional
 

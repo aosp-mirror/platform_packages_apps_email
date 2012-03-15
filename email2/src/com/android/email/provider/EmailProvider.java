@@ -1922,6 +1922,19 @@ outer:
     private static final String NOT_A_DRAFT_STRING =
         Integer.toString(UIProvider.DraftType.NOT_A_DRAFT);
 
+    private static String getConversationFlags() {
+        return
+            "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_INCOMING_MEETING_INVITE +
+                ") !=0 THEN " + UIProvider.ConversationFlags.CALENDAR_INVITE +
+                " ELSE 0 END + " +
+            "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_FORWARDED +
+                ") !=0 THEN " + UIProvider.ConversationFlags.FORWARDED +
+                " ELSE 0 END + " +
+             "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_REPLIED_TO +
+                ") !=0 THEN " + UIProvider.ConversationFlags.REPLIED +
+                " ELSE 0 END";
+    }
+
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
@@ -1942,9 +1955,10 @@ outer:
     .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
     .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
     .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
-        .add(UIProvider.ConversationColumns.FOLDER_LIST,
-                "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
-                        + MessageColumns.MAILBOX_KEY)
+    .add(UIProvider.ConversationColumns.FOLDER_LIST,
+            "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
+                    + MessageColumns.MAILBOX_KEY)
+    .add(UIProvider.ConversationColumns.FLAGS, getConversationFlags())
     .build();
 
     /**
