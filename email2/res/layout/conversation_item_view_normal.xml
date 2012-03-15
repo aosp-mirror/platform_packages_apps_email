@@ -52,15 +52,6 @@
             android:layout_height="wrap_content"
             android:layout_width="@dimen/total_conversationbar_width"
             android:layout_alignParentRight="true">
-            <TextView
-                android:id="@+id/folders"
-                android:layout_width="@dimen/max_total_folder_width"
-                android:layout_height="wrap_content"
-                android:text="@string/long_string"
-                android:textSize="@dimen/folders_font_size"
-                android:lines="1"
-                android:paddingTop="1dip"
-                android:layout_marginTop="10sp" />
             <ImageView
                 android:id="@+id/paperclip"
                 android:layout_width="wrap_content"
