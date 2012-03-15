@@ -16,20 +16,6 @@
 
 <!-- tablet, landscape -->
 <resources>
-    <dimen name="message_compose_field_label_width">120dip</dimen>
-
-    <!-- width of mailbox list -->
-    <dimen name="mailbox_list_width">304dip</dimen>
-    <!-- width of the message list, on the message list + message view mode. -->
-    <dimen name="message_list_width">428dip</dimen>
-
-    <dimen name="action_bar_account_name_max_width">256dip</dimen>
-    <dimen name="action_bar_mailbox_name_left_margin">32dip</dimen>
-    <dimen name="action_bar_mailbox_name_max_width">256dip</dimen>
-
-    <dimen name="widget_senders_font_size">14sp</dimen>
-    <dimen name="widget_subject_font_size">14sp</dimen>
-    <dimen name="widget_date_font_size">14sp</dimen>
 
     <!-- Account Setup Activities -->
     <dimen name="setup_padding_top">16dip</dimen>
