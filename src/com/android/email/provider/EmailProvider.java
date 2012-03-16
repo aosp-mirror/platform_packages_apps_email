@@ -2042,7 +2042,7 @@ outer:
     private static final ProjectionMap sAccountSettingsMap = ProjectionMap.builder()
         .add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
         .add(UIProvider.SettingsColumns.AUTO_ADVANCE,
-                Integer.toString(UIProvider.AutoAdvance.LIST))
+                Integer.toString(UIProvider.AutoAdvance.OLDER))
         .add(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE,
                 Integer.toString(UIProvider.MessageTextSize.NORMAL))
         .add(UIProvider.SettingsColumns.SNAP_HEADERS,
