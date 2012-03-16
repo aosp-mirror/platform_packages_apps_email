@@ -1997,13 +1997,24 @@ outer:
         .build();
 
     /**
-     * Mapping of UIProvider columns to EmailProvider columns for the folder list in UnifiedEmail
+     * Generate UIProvider folder capabilities from mailbox flags
      */
-    private static String getFolderCapabilities() {
-        return "CASE WHEN (" + MailboxColumns.FLAGS + "&" + Mailbox.FLAG_ACCEPTS_MOVED_MAIL +
+    private static final String FOLDER_CAPABILITIES =
+        "CASE WHEN (" + MailboxColumns.FLAGS + "&" + Mailbox.FLAG_ACCEPTS_MOVED_MAIL +
             ") !=0 THEN " + UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES +
             " ELSE 0 END";
-    }
+
+    /**
+     * Convert EmailProvider type to UIProvider type
+     */
+    private static final String FOLDER_TYPE = "CASE " + MailboxColumns.TYPE
+        + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + UIProvider.FolderType.INBOX
+        + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + UIProvider.FolderType.DRAFT
+        + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + UIProvider.FolderType.OUTBOX
+        + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + UIProvider.FolderType.SENT
+        + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + UIProvider.FolderType.TRASH
+        + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
+        + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, MailboxColumns.ID)
@@ -2011,7 +2022,7 @@ outer:
         .add(UIProvider.FolderColumns.NAME, "displayName")
         .add(UIProvider.FolderColumns.HAS_CHILDREN,
                 MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
-        .add(UIProvider.FolderColumns.CAPABILITIES, getFolderCapabilities())
+        .add(UIProvider.FolderColumns.CAPABILITIES, FOLDER_CAPABILITIES)
         .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
         .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
         .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
@@ -2021,6 +2032,7 @@ outer:
         .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
+        .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
         .build();
 
 
