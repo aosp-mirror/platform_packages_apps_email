@@ -51,12 +51,18 @@ public class Preferences {
     private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
     private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
+    private static final String CONFIRM_DELETE = "confirm_delete";
+    private static final String CONFIRM_SEND = "confirm_send";
+    private static final String HIDE_CHECKBOXES = "hide_checkboxes";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
     public static final int AUTO_ADVANCE_MESSAGE_LIST = 2;
     // "move to older" was the behavior on older versions.
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
+    private static final boolean CONFIRM_DELETE_DEFAULT = false;
+    private static final boolean CONFIRM_SEND_DEFAULT = false;
+    private static final boolean HIDE_CHECKBOXES_DEFAULT = false;
 
     // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
     public static final int TEXT_ZOOM_TINY = 0;
@@ -190,6 +196,30 @@ public class Preferences {
 
     public void setAutoAdvanceDirection(int direction) {
         mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
+    }
+
+    public boolean getHideCheckboxes() {
+        return mSharedPreferences.getBoolean(HIDE_CHECKBOXES, HIDE_CHECKBOXES_DEFAULT);
+    }
+
+    public void setHideCheckboxes(boolean set) {
+        mSharedPreferences.edit().putBoolean(HIDE_CHECKBOXES, set).apply();
+    }
+
+    public boolean getConfirmDelete() {
+        return mSharedPreferences.getBoolean(CONFIRM_DELETE, CONFIRM_DELETE_DEFAULT);
+    }
+
+    public void setConfirmDelete(boolean set) {
+        mSharedPreferences.edit().putBoolean(CONFIRM_DELETE, set).apply();
+    }
+
+    public boolean getConfirmSend() {
+        return mSharedPreferences.getBoolean(CONFIRM_SEND, CONFIRM_SEND_DEFAULT);
+    }
+
+    public void setConfirmSend(boolean set) {
+        mSharedPreferences.edit().putBoolean(CONFIRM_SEND, set).apply();
     }
 
     public int getTextZoom() {
