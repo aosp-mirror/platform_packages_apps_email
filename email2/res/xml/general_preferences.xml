@@ -21,6 +21,20 @@
             android:key="category_general_preferences"
             android:title="@string/category_general_preferences">
 
+        <CheckBoxPreference
+            android:key="confirm_delete"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:title="@string/general_preference_confirm_delete_label"
+            android:summary="@string/general_preference_confirm_delete_summary" />
+
+        <CheckBoxPreference
+            android:key="confirm_send"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:title="@string/general_preference_confirm_send_label"
+            android:summary="@string/general_preference_confirm_send_summary" />
+
         <ListPreference
             android:key="auto_advance"
             android:title="@string/general_preference_auto_advance_label"
@@ -36,6 +50,13 @@
             android:entries="@array/general_preference_text_zoom_entries"
             android:entryValues="@array/general_preference_text_zoom_values"
             android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
+
+        <CheckBoxPreference
+            android:key="hide_checkboxes"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:title="@string/general_preference_hide_checkboxes_label"
+            android:summary="@string/general_preference_hide_checkboxes_summary" />
 
         <!-- This may be removed in GeneralPreferences.java -->
         <CheckBoxPreference

@@ -955,7 +955,7 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
-    private static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
+    public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uisettings");
     private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
@@ -2084,10 +2084,7 @@ outer:
                 Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
         .add(UIProvider.SettingsColumns.REPLY_BEHAVIOR,
                 Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
-        .add(UIProvider.SettingsColumns.HIDE_CHECKBOXES, "0")
-        .add(UIProvider.SettingsColumns.CONFIRM_DELETE, "0")
         .add(UIProvider.SettingsColumns.CONFIRM_ARCHIVE, "0")
-        .add(UIProvider.SettingsColumns.CONFIRM_SEND, "0")
         .build();
 
     /**
@@ -2368,6 +2365,12 @@ outer:
             values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", mailboxId));
         }
+        Preferences prefs = Preferences.getPreferences(getContext());
+        values.put(UIProvider.SettingsColumns.CONFIRM_DELETE, prefs.getConfirmDelete() ? "1" : "0");
+        values.put(UIProvider.SettingsColumns.CONFIRM_SEND, prefs.getConfirmSend() ? "1" : "0");
+        values.put(UIProvider.SettingsColumns.HIDE_CHECKBOXES,
+                prefs.getHideCheckboxes() ? "1" : "0");
+
         StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
@@ -2410,6 +2413,7 @@ outer:
 
     private void addCombinedSettingsRow(MatrixCursor mc) {
         // TODO: Get these from default account?
+        Preferences prefs = Preferences.getPreferences(getContext());
         Object[] values = new Object[UIProvider.SETTINGS_PROJECTION.length];
         values[UIProvider.SETTINGS_AUTO_ADVANCE_COLUMN] =
             Integer.toString(UIProvider.AutoAdvance.NEWER);
@@ -2421,10 +2425,10 @@ outer:
         values[UIProvider.SETTINGS_REPLY_BEHAVIOR_COLUMN] =
             Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
         values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
-        values[UIProvider.SETTINGS_CONFIRM_DELETE_COLUMN] = 0;
+        values[UIProvider.SETTINGS_CONFIRM_DELETE_COLUMN] = prefs.getConfirmDelete() ? 1 : 0;
         values[UIProvider.SETTINGS_CONFIRM_ARCHIVE_COLUMN] = 0;
-        values[UIProvider.SETTINGS_CONFIRM_SEND_COLUMN] = 0;
-        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
+        values[UIProvider.SETTINGS_CONFIRM_SEND_COLUMN] = prefs.getConfirmSend() ? 1 : 0;
+        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = prefs.getHideCheckboxes() ? 1 : 0;
         values[UIProvider.SETTINGS_DEFAULT_INBOX_COLUMN] = combinedUriString("uifolder",
                 combinedMailboxId(Mailbox.TYPE_INBOX));
         mc.addRow(values);

@@ -1111,7 +1111,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- General Preferences Screen -->
     <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
-    <string name="header_label_general_preferences">General</string>
+    <string name="header_label_general_preferences">General settings</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application</string>
 
@@ -1122,8 +1122,27 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- General preference: Description of the setting for the direction to move to
          when deleting the current message.
          Options contain "newer message","older message", etc. [CHAR LIMIT=64] -->
-    <string name="general_preference_auto_advance_summary">
-         Choose which screen to show after you delete a message</string>
+    <string name="general_preference_auto_advance_summary">Choose which screen to show after you
+         delete a message</string>
+    <!-- General preference: Label of the setting for hiding checkboxes in the
+         message list [CHAR LIMIT=32] -->
+    <string name="general_preference_hide_checkboxes_label">Hide checkboxes</string>
+    <!-- General preference: Description of the setting for hiding checkboxes in the
+         message list [CHAR LIMIT=64] -->
+    <string name="general_preference_hide_checkboxes_summary">In lists of messages, touch and
+         hold to select</string>
+    <!-- General preference: Label of the setting for requiring confirmation before
+         message deletion [CHAR LIMIT=32] -->
+    <string name="general_preference_confirm_delete_label">Confirm before deleting</string>
+    <!-- General preference: Description of the setting for requiring confirmation before
+         message deletion [CHAR LIMIT=64] -->
+    <string name="general_preference_confirm_delete_summary">Messages</string>
+    <!-- General preference: Label of the setting for requiring confirmation before
+         message sending [CHAR LIMIT=32] -->
+    <string name="general_preference_confirm_send_label">Confirm before sending</string>
+    <!-- General preference: Description of the setting for requiring confirmation before
+         message sending [CHAR LIMIT=32] -->
+    <string name="general_preference_confirm_send_summary">Messages</string>
     <!-- General preference: Title of the dialog box containing options for setting for
          the direction to move to when deleting the current message.
          Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->

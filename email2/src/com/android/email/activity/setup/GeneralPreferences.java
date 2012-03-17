@@ -16,7 +16,11 @@
 
 package com.android.email.activity.setup;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -25,20 +29,31 @@ import android.widget.Toast;
 
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.provider.Account;
 
 public class GeneralPreferences extends EmailPreferenceFragment implements
         OnPreferenceChangeListener {
 
-    private static final String PREFERENCE_CATEGORY_KEY = "category_general_preferences";
+//    private static final String PREFERENCE_CATEGORY_KEY = "category_general_preferences";
 
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
-    private static final String PREFERENCE_KEY_REPLY_ALL = Preferences.REPLY_ALL;
+    private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
+    private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
+    private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
+
+//    private static final String PREFERENCE_KEY_REPLY_ALL = Preferences.REPLY_ALL;
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
     private ListPreference mTextZoom;
+    private CheckBoxPreference mConfirmDelete;
+    private CheckBoxPreference mConfirmSend;
+    private CheckBoxPreference mHideCheckboxes;
+
+    private boolean mSettingsChanged = false;
 
     CharSequence[] mSizeSummaries;
 
@@ -62,13 +77,35 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     @Override
     public void onResume() {
         loadSettings();
+        mSettingsChanged = false;
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mSettingsChanged) {
+            // Notify all account settings listeners
+            ContentResolver resolver = getActivity().getContentResolver();
+            Cursor c = resolver.query(Account.CONTENT_URI, Account.ID_PROJECTION, null, null, null);
+            if (c != null) {
+                try {
+                    while (c.moveToNext()) {
+                        resolver.notifyChange(ContentUris.withAppendedId(
+                                EmailProvider.UIPROVIDER_SETTINGS_NOTIFIER, c.getLong(0)), null);
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+        }
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         String key = preference.getKey();
-
+        // Indicate we need to send notifications to UI
+        mSettingsChanged = true;
         if (PREFERENCE_KEY_AUTO_ADVANCE.equals(key)) {
             mPreferences.setAutoAdvanceDirection(mAutoAdvance.findIndexOfValue((String) newValue));
             return true;
@@ -93,9 +130,21 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             Toast.makeText(
                     getActivity(), R.string.trusted_senders_cleared, Toast.LENGTH_SHORT).show();
             return true;
+        } else if (PREFERENCE_KEY_CONFIRM_DELETE.equals(key)) {
+            mPreferences.setConfirmDelete(mConfirmDelete.isChecked());
+            mSettingsChanged = true;
+            return true;
+        } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
+            mPreferences.setConfirmSend(mConfirmSend.isChecked());
+            mSettingsChanged = true;
+           return true;
+        } else if (PREFERENCE_KEY_HIDE_CHECKBOXES.equals(key)) {
+            mPreferences.setHideCheckboxes(mHideCheckboxes.isChecked());
+            mSettingsChanged = true;
+            return true;
         }
-
         return false;
+
     }
 
     private void loadSettings() {
@@ -107,6 +156,10 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mTextZoom = (ListPreference) findPreference(PREFERENCE_KEY_TEXT_ZOOM);
         mTextZoom.setValueIndex(mPreferences.getTextZoom());
         mTextZoom.setOnPreferenceChangeListener(this);
+
+        mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
+        mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
+        mHideCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_HIDE_CHECKBOXES);
 
         reloadDynamicSummaries();
     }
