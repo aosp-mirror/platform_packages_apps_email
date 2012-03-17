@@ -118,8 +118,9 @@ public final class DBHelper {
     //             for "notified" columns
     // Version 33: Add columns to attachment for ui provider columns
     // Version 34: Add total count to mailbox
+    // Version 35: Set up defaults for lastTouchedCount for drafts and sent
 
-    public static final int DATABASE_VERSION = 34;
+    public static final int DATABASE_VERSION = 35;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -863,6 +864,22 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 33 to 34 " + e);
                 }
                 oldVersion = 34;
+            }
+            if (oldVersion == 34) {
+                try {
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                            Mailbox.DRAFTS_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                            " = " + Mailbox.TYPE_DRAFTS);
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                            Mailbox.SENT_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                            " = " + Mailbox.TYPE_SENT);
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
+                }
+                oldVersion = 35;
             }
         }
 

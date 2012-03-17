@@ -221,6 +221,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_ACCOUNT_DATA = UI_BASE + 17;
     private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 18;
     private static final int UI_CONVERSATION = UI_BASE + 19;
+    private static final int UI_RECENT_FOLDERS = UI_BASE + 20;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -438,6 +439,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
         matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
         matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
+        matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
     }
 
     /**
@@ -1193,6 +1195,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_ATTACHMENT:
                 case UI_ATTACHMENTS:
                 case UI_CONVERSATION:
+                case UI_RECENT_FOLDERS:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -1562,6 +1565,10 @@ public class EmailProvider extends ContentProvider {
             }
 outer:
             switch (match) {
+                case UI_FOLDER:
+                    return uiUpdateFolder(uri, values);
+                case UI_RECENT_FOLDERS:
+                    return uiUpdateRecentFolders(uri, values);
                 case UI_ATTACHMENT:
                     return uiUpdateAttachment(uri, values);
                 case UI_UPDATEDRAFT:
@@ -2053,6 +2060,7 @@ outer:
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
+        .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
         .build();
 
     /**
@@ -2068,7 +2076,6 @@ outer:
         // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
         + " ELSE 10 END"
         + " ," + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-
 
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
@@ -2236,6 +2243,22 @@ outer:
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "recent folder list" SQLite query, given a projection from UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryRecentMailboxes(String[] uiProjection) {
+        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
+                "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " AND " + MailboxColumns.PARENT_KEY + " < 0 AND " +
+                MailboxColumns.LAST_TOUCHED_TIME + " > 0 ORDER BY " +
+                MailboxColumns.LAST_TOUCHED_TIME + " DESC");
         return sb.toString();
     }
 
@@ -2575,6 +2598,9 @@ outer:
             case UI_FOLDERS:
                 c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
                 break;
+            case UI_RECENT_FOLDERS:
+                c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
+                break;
             case UI_SUBFOLDERS:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
                 break;
@@ -2863,6 +2889,17 @@ outer:
         }
     }
 
+    private int uiUpdateRecentFolders(Uri uri, ContentValues values) {
+        ContentResolver resolver = getContext().getContentResolver();
+        ContentValues touchValues = new ContentValues();
+        for (String uriString: values.keySet()) {
+            Uri folderUri = Uri.parse(uriString);
+            touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, values.getAsLong(uriString));
+            resolver.update(folderUri, touchValues, null, null);
+        }
+        return 1;
+    }
+
     private int uiUpdateAttachment(Uri uri, ContentValues uiValues) {
         Integer stateValue = uiValues.getAsInteger(UIProvider.AttachmentColumns.STATE);
         if (stateValue != null) {
@@ -2900,6 +2937,19 @@ outer:
         return 0;
     }
 
+    private int uiUpdateFolder(Uri uri, ContentValues uiValues) {
+        Uri ourUri = convertToEmailProviderUri(uri, Mailbox.CONTENT_URI, true);
+        if (ourUri == null) return 0;
+        ContentValues ourValues = new ContentValues();
+        // This should only be called via update to "recent folders"
+        for (String columnName: uiValues.keySet()) {
+            if (columnName.equals(MailboxColumns.LAST_TOUCHED_TIME)) {
+                ourValues.put(MailboxColumns.LAST_TOUCHED_TIME, uiValues.getAsLong(columnName));
+            }
+        }
+        return update(ourUri, ourValues, null, null);
+    }
+
     private ContentValues convertUiMessageValues(ContentValues values) {
         ContentValues ourValues = new ContentValues();
         for (String columnName: values.keySet()) {
@@ -2922,11 +2972,11 @@ outer:
         return ourValues;
     }
 
-    private Uri convertToEmailProviderUri(Uri uri, boolean asProvider) {
+    private Uri convertToEmailProviderUri(Uri uri, Uri newBaseUri, boolean asProvider) {
         String idString = uri.getLastPathSegment();
         try {
             long id = Long.parseLong(idString);
-            Uri ourUri = ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, id);
+            Uri ourUri = ContentUris.withAppendedId(newBaseUri, id);
             if (asProvider) {
                 ourUri = ourUri.buildUpon().appendQueryParameter(IS_UIPROVIDER, "true").build();
             }
@@ -2962,7 +3012,7 @@ outer:
     }
 
     private int uiUpdateMessage(Uri uri, ContentValues values) {
-        Uri ourUri = convertToEmailProviderUri(uri, true);
+        Uri ourUri = convertToEmailProviderUri(uri, Message.SYNCED_CONTENT_URI, true);
         if (ourUri == null) return 0;
         ContentValues ourValues = convertUiMessageValues(values);
         Message msg = getMessageFromLastSegment(uri);
@@ -2978,7 +3028,8 @@ outer:
             }
         }
         ContentProviderOperation op =
-                ContentProviderOperation.newUpdate(convertToEmailProviderUri(uri, false))
+                ContentProviderOperation.newUpdate(convertToEmailProviderUri(
+                        uri,Message.SYNCED_CONTENT_URI, false))
                         .withValues(undoValues)
                         .build();
         addToSequence(uri, op);
