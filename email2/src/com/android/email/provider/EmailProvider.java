@@ -2076,10 +2076,6 @@ outer:
      */
     private static final ProjectionMap sAccountSettingsMap = ProjectionMap.builder()
         .add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        .add(UIProvider.SettingsColumns.AUTO_ADVANCE,
-                Integer.toString(UIProvider.AutoAdvance.NEWER))
-        .add(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE,
-                Integer.toString(UIProvider.MessageTextSize.NORMAL))
         .add(UIProvider.SettingsColumns.SNAP_HEADERS,
                 Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
         .add(UIProvider.SettingsColumns.REPLY_BEHAVIOR,
@@ -2351,6 +2347,35 @@ outer:
         return sb.toString();
     }
 
+    private int autoAdvanceToUiValue(int autoAdvance) {
+        switch(autoAdvance) {
+            case Preferences.AUTO_ADVANCE_OLDER:
+                return UIProvider.AutoAdvance.OLDER;
+            case Preferences.AUTO_ADVANCE_NEWER:
+                return UIProvider.AutoAdvance.NEWER;
+            case Preferences.AUTO_ADVANCE_MESSAGE_LIST:
+            default:
+                return UIProvider.AutoAdvance.LIST;
+        }
+    }
+
+    private int textZoomToUiValue(int textZoom) {
+        switch(textZoom) {
+            case Preferences.TEXT_ZOOM_HUGE:
+                return UIProvider.MessageTextSize.HUGE;
+            case Preferences.TEXT_ZOOM_LARGE:
+                return UIProvider.MessageTextSize.LARGE;
+            case Preferences.TEXT_ZOOM_NORMAL:
+                return UIProvider.MessageTextSize.NORMAL;
+            case Preferences.TEXT_ZOOM_SMALL:
+                return UIProvider.MessageTextSize.SMALL;
+            case Preferences.TEXT_ZOOM_TINY:
+                return UIProvider.MessageTextSize.TINY;
+            default:
+                return UIProvider.MessageTextSize.NORMAL;
+        }
+    }
+
     /**
      * Generate an "account settings" SQLite query, given a projection from UnifiedEmail
      *
@@ -2370,6 +2395,10 @@ outer:
         values.put(UIProvider.SettingsColumns.CONFIRM_SEND, prefs.getConfirmSend() ? "1" : "0");
         values.put(UIProvider.SettingsColumns.HIDE_CHECKBOXES,
                 prefs.getHideCheckboxes() ? "1" : "0");
+        int autoAdvance = prefs.getAutoAdvanceDirection();
+        values.put(UIProvider.SettingsColumns.AUTO_ADVANCE, autoAdvanceToUiValue(autoAdvance));
+        int textZoom = prefs.getTextZoom();
+        values.put(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE, textZoomToUiValue(textZoom));
 
         StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
@@ -2400,7 +2429,8 @@ outer:
         values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
         values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
             combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
-        values[UIProvider.ACCOUNT_NAME_COLUMN] = "Combined";
+        values[UIProvider.ACCOUNT_NAME_COLUMN] = getContext().getString(
+                R.string.mailbox_list_account_selector_combined_view);
         values[UIProvider.ACCOUNT_SAVE_DRAFT_URI_COLUMN] = null;
         values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] = null;
         values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] = null;
@@ -2439,7 +2469,7 @@ outer:
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder",
                 combinedMailboxId(Mailbox.TYPE_INBOX));
-        values[UIProvider.FOLDER_NAME_COLUMN] = "Inbox";
+        values[UIProvider.FOLDER_NAME_COLUMN] = getContext().getString(R.string.widget_all_mail);
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
         values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = 0;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",

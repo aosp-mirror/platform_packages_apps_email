@@ -35,15 +35,11 @@ import com.android.emailcommon.provider.Account;
 public class GeneralPreferences extends EmailPreferenceFragment implements
         OnPreferenceChangeListener {
 
-//    private static final String PREFERENCE_CATEGORY_KEY = "category_general_preferences";
-
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
-
-//    private static final String PREFERENCE_KEY_REPLY_ALL = Preferences.REPLY_ALL;
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private Preferences mPreferences;
@@ -65,13 +61,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
-
-//***
-//        if (UiUtilities.useTwoPane(getActivity())) {
-//            // "Reply All" should only be shown on phones
-//            PreferenceCategory pc = (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_KEY);
-//            pc.removePreference(findPreference(PREFERENCE_KEY_REPLY_ALL));
-//        }
     }
 
     @Override
@@ -123,7 +112,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             // Guard against monkeys.
             return false;
         }
-
+        mSettingsChanged = true;
         String key = preference.getKey();
         if (key.equals(PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS)) {
             mPreferences.clearTrustedSenders();
@@ -132,19 +121,15 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             return true;
         } else if (PREFERENCE_KEY_CONFIRM_DELETE.equals(key)) {
             mPreferences.setConfirmDelete(mConfirmDelete.isChecked());
-            mSettingsChanged = true;
             return true;
         } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
             mPreferences.setConfirmSend(mConfirmSend.isChecked());
-            mSettingsChanged = true;
-           return true;
+            return true;
         } else if (PREFERENCE_KEY_HIDE_CHECKBOXES.equals(key)) {
             mPreferences.setHideCheckboxes(mHideCheckboxes.isChecked());
-            mSettingsChanged = true;
             return true;
         }
         return false;
-
     }
 
     private void loadSettings() {
