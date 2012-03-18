@@ -193,27 +193,6 @@
         <item>@string/quick_4</item>
     </string-array>
 
-    <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
-         of the types of mailboxes defined in EmailContent -->
-    <array name="mailbox_display_icons" translatable="false">
-        <!-- TYPE_INBOX = 0 -->
-        <item>@drawable/ic_folder_inbox_holo_light</item>
-        <!-- TYPE_MAIL = 1 -->
-        <item></item>
-        <!-- TYPE_PARENT = 2 -->
-        <item></item>
-        <!-- TYPE_DRAFTS = 3 -->
-        <item>@drawable/ic_folder_drafts_holo_light</item>
-        <!-- TYPE_OUTBOX = 4 -->
-        <item>@drawable/ic_folder_outbox_holo_light</item>
-        <!-- TYPE_SENT = 5 -->
-        <item>@drawable/ic_folder_sent_holo_light</item>
-        <!-- TYPE_TRASH = 6 -->
-        <item>@drawable/ic_menu_trash_holo_light</item>
-        <!-- TYPE_JUNK = 7 -->
-        <item>@drawable/ic_spam_normal_holo_light</item>
-    </array>
-
     <!-- Account color chips on combined view -->
     <array name="combined_view_account_colors" translatable="false">
         <item>@color/combined_view_account_color_1</item>

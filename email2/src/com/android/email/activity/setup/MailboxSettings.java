@@ -32,15 +32,14 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -224,7 +223,7 @@ public class MailboxSettings extends PreferenceActivity {
 
         // Update the title with the mailbox name.
         ActionBar actionBar = getActionBar();
-        String mailboxName = FolderProperties.getInstance(this).getDisplayName(mMailbox);
+        String mailboxName = "TODO: Get mailbox name";
         if (actionBar != null) {
             actionBar.setTitle(mailboxName);
             actionBar.setSubtitle(getString(R.string.mailbox_settings_activity_title));
