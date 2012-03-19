@@ -317,11 +317,11 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         }
     }
 
-    // TODO: Implement callback
     @Override
     public void updateFolderList(long accountId) throws RemoteException {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
+        Mailbox inbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         Cursor localFolderCursor = null;
         try {
@@ -372,12 +372,18 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         break;
                 }
             }
-            //mListeners.listFoldersFinished(accountId);
-        } catch (Exception e) {
-            //mListeners.listFoldersFailed(accountId, e.toString());
+        } catch (MessagingException e) {
+            // We'll hope this is temporary
         } finally {
             if (localFolderCursor != null) {
                 localFolderCursor.close();
+            }
+            // If this is a first sync, find the inbox and sync it
+            if (inbox == null) {
+                inbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+                if (inbox != null) {
+                    startSync(inbox.mId, true);
+                }
             }
         }
     }
