@@ -831,6 +831,12 @@ public class EmailProvider extends ContentProvider {
                             cache.unlock(id);
                         }
                     }
+                    if (match == ACCOUNT_ID) {
+                        notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
+                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+                    } else if (match == MAILBOX_ID) {
+                        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
+                    }
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
@@ -955,7 +961,7 @@ public class EmailProvider extends ContentProvider {
 
     private static final Uri UIPROVIDER_CONVERSATION_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
-    private static final Uri UIPROVIDER_MAILBOX_NOTIFIER =
+    private static final Uri UIPROVIDER_FOLDER_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
@@ -965,6 +971,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
+    private static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -1045,14 +1053,15 @@ public class EmailProvider extends ContentProvider {
                     // would if this weren't allowed.
                     if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
                         throw new IllegalArgumentException("Unknown URL " + uri);
-                    }
-                    if (match == ATTACHMENT) {
+                    } else if (match == ATTACHMENT) {
                         int flags = 0;
                         if (values.containsKey(Attachment.FLAGS)) {
                             flags = values.getAsInteger(Attachment.FLAGS);
                         }
                         // Report all new attachments to the download service
                         mAttachmentService.attachmentChanged(getContext(), longId, flags);
+                    } else if (match == ACCOUNT) {
+                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
                     }
                     break;
                 case MAILBOX_ID:
@@ -1674,7 +1683,7 @@ outer:
                             }
                         }
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
-                        notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, id);
+                        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
                     } else if (match == ACCOUNT_ID) {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                     }
@@ -2535,6 +2544,7 @@ outer:
         } finally {
             accountIdCursor.close();
         }
+        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ACCOUNTS_NOTIFIER);
         return mc;
     }
 
@@ -2632,7 +2642,7 @@ outer:
                     c = mc;
                 } else {
                     c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
-                    notifyUri = UIPROVIDER_MAILBOX_NOTIFIER.buildUpon().appendPath(id).build();
+                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
                 }
                 break;
             case UI_ACCOUNT:
@@ -3238,7 +3248,7 @@ outer:
                             mSearchParams.mTotalCount = service.searchMessages(accountId,
                                     mSearchParams, searchMailboxId);
                             Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
-                            notifyUI(UIPROVIDER_MAILBOX_NOTIFIER, searchMailboxId);
+                            notifyUI(UIPROVIDER_FOLDER_NOTIFIER, searchMailboxId);
                         } catch (RemoteException e) {
                             Log.e("searchMessages", "RemoteException", e);
                         }
