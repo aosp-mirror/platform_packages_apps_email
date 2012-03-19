@@ -281,14 +281,16 @@
             android:name=".service.EmailBroadcastReceiver"
             android:enabled="true">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.BOOT_COMPLETED" />
-                <action
-                    android:name="android.intent.action.DEVICE_STORAGE_LOW" />
-                <action
-                    android:name="android.intent.action.DEVICE_STORAGE_OK" />
-                <action
-                    android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+                <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+            </intent-filter>
+            <!-- To handle new message notifications -->
+            <intent-filter>
+                <action android:name="com.android.mail.action.update_notification"
+                        android:priority="-10" />
+                <data android:mimeType="application/email-ls" />
             </intent-filter>
             <!-- To handle secret code to activate the debug screen. -->
             <intent-filter>

@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
@@ -62,6 +63,10 @@ public class EmailBroadcastProcessorService extends IntentService {
     // This is a helper used to process DeviceAdminReceiver messages
     private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
     private static final String EXTRA_DEVICE_POLICY_ADMIN = "message_code";
+
+    // Broadcast received to initiate new message notification updates
+    public static final String ACTION_NOTIFY_NEW_MAIL =
+            "com.android.mail.action.update_notification";
 
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
@@ -105,11 +110,13 @@ public class EmailBroadcastProcessorService extends IntentService {
 
             if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
                 onBootCompleted();
-          } else if (ACTION_SECRET_CODE.equals(broadcastAction)
+            } else if (ACTION_SECRET_CODE.equals(broadcastAction)
                     && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
+            } else if (ACTION_NOTIFY_NEW_MAIL.equals(broadcastAction)) {
+                NotificationController.notifyNewMail(this, broadcastIntent);
             }
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);

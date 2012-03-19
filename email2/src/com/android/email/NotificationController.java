@@ -31,7 +31,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -39,9 +38,11 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.provider.EmailProvider;
+import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
@@ -82,6 +83,11 @@ public class NotificationController {
     private final static String NOTIFIED_ACCOUNT_SELECTION =
         Account.FLAGS + "&" + Account.FLAGS_NOTIFY_NEW_MAIL + " != 0";
 
+    private static final String NEW_MAIL_MAILBOX_ID = "com.android.email.new_mail.mailboxId";
+    private static final String NEW_MAIL_MESSAGE_ID = "com.android.email.new_mail.messageId";
+    private static final String NEW_MAIL_MESSAGE_COUNT = "com.android.email.new_mail.messageCount";
+    private static final String NEW_MAIL_UNREAD_COUNT = "com.android.email.new_mail.unreadCount";
+
     private static NotificationThread sNotificationThread;
     private static Handler sNotificationHandler;
     private static NotificationController sInstance;
@@ -94,12 +100,6 @@ public class NotificationController {
     /** Maps account id to its observer */
     private final HashMap<Long, ContentObserver> mNotificationMap;
     private ContentObserver mAccountObserver;
-    /**
-     * Suspend notifications for this mailbox. If {@link Mailbox.NO_MAILBOX}, no
-     * account notifications are suspended. If {@link Mailbox.COMBINED_INBOX},
-     * notifications for all inboxes are suspended.
-     */
-    private long mSuspendMailboxId = Mailbox.NO_MAILBOX;
 
     /**
      * Timestamp indicating when the last message notification sound was played.
@@ -272,44 +272,6 @@ public class NotificationController {
     }
 
     /**
-     * Temporarily suspend a single mailbox from receiving notifications. NOTE: only a single
-     * mailbox may ever be suspended at a time. So, if this method is invoked a second time,
-     * notifications for the previously mailbox will automatically be re-activated.
-     * @param suspend If {@code true}, suspend notifications for the given mailbox. Otherwise,
-     *              re-activate notifications for the previously suspended mailbox.
-     * @param mailboxId The ID of the mailbox. If this is the special mailbox ID
-     *              {@link Account#ACCOUNT_ID_COMBINED_VIEW},  notifications for all inboxes are
-     *              suspended. If {@code suspend} is {@code false}, the mailbox ID is ignored.
-     */
-    public void suspendMessageNotification(boolean suspend, long mailboxId) {
-        if (mSuspendMailboxId != Mailbox.NO_MAILBOX) {
-            // we're already suspending a mailbox; un-suspend it
-            mSuspendMailboxId = Mailbox.NO_MAILBOX;
-        }
-        if (suspend && mailboxId != Mailbox.NO_MAILBOX) {
-            mSuspendMailboxId = mailboxId;
-        }
-        if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
-            // Only go onto the notification handler if we really, absolutely need to
-            ensureHandlerExists();
-            sNotificationHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (long accountId: mNotificationMap.keySet()) {
-                        long mailboxId =
-                                Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
-                        if (mailboxId != Mailbox.NO_MAILBOX) {
-                            mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
-                        }
-                    }
-                }
-            });
-        } else {
-            mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
-        }
-    }
-
-    /**
      * Ensures the notification handler exists and is ready to handle requests.
      */
     private static synchronized void ensureHandlerExists() {
@@ -400,9 +362,7 @@ public class NotificationController {
         if (TextUtils.isEmpty(email)) {
             return null;
         }
-        return null;
-        // ***
-        //return ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
+        return ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
     }
 
     public static final String EXTRA_ACCOUNT = "account";
@@ -460,11 +420,6 @@ public class NotificationController {
             int unseenMessageCount, int unreadCount) {
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         if (mailbox == null) {
-            return null;
-        }
-        // No notification if we're suspended...
-        if (mSuspendMailboxId == mailboxId || (mSuspendMailboxId == Mailbox.QUERY_ALL_INBOXES &&
-                mailbox.mType == Mailbox.TYPE_INBOX)) {
             return null;
         }
         final Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
@@ -774,28 +729,50 @@ public class NotificationController {
                                     EmailContent.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
                             Message.ID_COLUMN_PROJECTION, null, null, null,
                             Message.ID_MAILBOX_COLUMN_ID, -1L);
-                    // TODO: Remove debug logging
                     Log.d(Logging.LOG_TAG, "Changes to " + account.mDisplayName + "/" +
                             m.mDisplayName + ", count: " + messageCount + ", lastNotified: " +
                             m.mLastNotifiedMessageKey + ", mostRecent: " + newMessageId);
-                    Notification n = sInstance.createNewMessageNotification(mailboxId, newMessageId,
-                            messageCount, unreadCount);
-                    if (n != null) {
-                        // Make the notification visible
-                        sInstance.mNotificationManager.notify(
-                                sInstance.getNewMessageNotificationId(mailboxId), n);
-                    }
-                    // Save away the new values
-                    ContentValues cv = new ContentValues();
-                    cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, newMessageId);
-                    cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, messageCount);
-                    resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId), cv,
-                            null, null);
+                    // Broadcast intent here
+                    Intent i = new Intent(EmailBroadcastProcessorService.ACTION_NOTIFY_NEW_MAIL);
+                    // Required by UIProvider
+                    i.setType(EmailProvider.EMAIL_APP_MIME_TYPE);
+                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_FOLDER,
+                            EmailProvider.uiUriString("uifolder", mailboxId));
+                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT,
+                            EmailProvider.uiUriString("uiaccount", m.mAccountKey));
+                    // Required by our notification controller
+                    i.putExtra(NEW_MAIL_MAILBOX_ID, mailboxId);
+                    i.putExtra(NEW_MAIL_MESSAGE_ID, newMessageId);
+                    i.putExtra(NEW_MAIL_MESSAGE_COUNT, messageCount);
+                    i.putExtra(NEW_MAIL_UNREAD_COUNT, unreadCount);
+                    mContext.sendOrderedBroadcast(i, null);
                 }
             } finally {
                 c.close();
             }
         }
+    }
+
+    public static void notifyNewMail(Context context, Intent i) {
+        Log.d(Logging.LOG_TAG, "Sending notification to system...");
+        NotificationController nc = NotificationController.getInstance(context);
+        ContentResolver resolver = context.getContentResolver();
+        long mailboxId = i.getLongExtra(NEW_MAIL_MAILBOX_ID, -1);
+        long newMessageId = i.getLongExtra(NEW_MAIL_MESSAGE_ID, -1);
+        int messageCount = i.getIntExtra(NEW_MAIL_MESSAGE_COUNT, 0);
+        int unreadCount = i.getIntExtra(NEW_MAIL_UNREAD_COUNT, 0);
+        Notification n = nc.createNewMessageNotification(mailboxId, newMessageId,
+                messageCount, unreadCount);
+        if (n != null) {
+            // Make the notification visible
+            nc.mNotificationManager.notify(nc.getNewMessageNotificationId(mailboxId), n);
+        }
+        // Save away the new values
+        ContentValues cv = new ContentValues();
+        cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, newMessageId);
+        cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, messageCount);
+        resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId), cv,
+                null, null);
     }
 
     /**

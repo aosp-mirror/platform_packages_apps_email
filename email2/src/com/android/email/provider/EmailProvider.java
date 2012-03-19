@@ -89,6 +89,8 @@ public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
+    public static final String EMAIL_APP_MIME_TYPE = "application/email-ls";
+
     protected static final String DATABASE_NAME = "EmailProvider.db";
     protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
     protected static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
@@ -2364,7 +2366,7 @@ outer:
                 getExternalUriString("settings", id));
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriStringEmail2("compose", id));
-        values.put(UIProvider.AccountColumns.MIME_TYPE, "application/email-ls");
+        values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
