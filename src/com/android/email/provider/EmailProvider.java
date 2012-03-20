@@ -974,10 +974,6 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
-                case UI_SAVEDRAFT:
-                    return uiSaveDraft(uri, values);
-                case UI_SENDMAIL:
-                    return uiSendMail(uri, values);
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
                 // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
@@ -1552,10 +1548,6 @@ outer:
             switch (match) {
                 case UI_ATTACHMENT:
                     return uiUpdateAttachment(uri, values);
-                case UI_UPDATEDRAFT:
-                    return uiUpdateDraft(uri, values);
-                case UI_SENDDRAFT:
-                    return uiSendDraft(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
                 case MAILBOX_ID_ADD_TO_FIELD:
@@ -2438,22 +2430,6 @@ outer:
     }
 
     /**
-     * Convert a UIProvider attachment to an EmailProvider attachment (for sending); we only need
-     * a few of the fields
-     * @param uiAtt the UIProvider attachment to convert
-     * @return the EmailProvider attachment
-     */
-    private Attachment convertUiAttachmentToAttachment(
-            com.android.mail.providers.Attachment uiAtt) {
-        Attachment att = new Attachment();
-        att.mContentUri = uiAtt.contentUri.toString();
-        att.mFileName = uiAtt.name;
-        att.mMimeType = uiAtt.contentType;
-        att.mSize = uiAtt.size;
-        return att;
-    }
-
-    /**
      * Create a mailbox given the account and mailboxType.
      */
     private Mailbox createMailbox(long accountId, int mailboxType) {
@@ -2521,133 +2497,6 @@ outer:
             msg = new Message();
         }
         return msg;
-    }
-    /**
-     * Given a mailbox and the content values for a message, create/save the message in the mailbox
-     * @param mailbox the mailbox to use
-     * @param values the content values that represent message fields
-     * @return the uri of the newly created message
-     */
-    private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values) {
-        Context context = getContext();
-        // Fill in the message
-        Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
-        if (account == null) return null;
-        msg.mFrom = account.mEmailAddress;
-        msg.mTimeStamp = System.currentTimeMillis();
-        msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
-        msg.mCc = values.getAsString(UIProvider.MessageColumns.CC);
-        msg.mBcc = values.getAsString(UIProvider.MessageColumns.BCC);
-        msg.mSubject = values.getAsString(UIProvider.MessageColumns.SUBJECT);
-        msg.mText = values.getAsString(UIProvider.MessageColumns.BODY_TEXT);
-        msg.mHtml = values.getAsString(UIProvider.MessageColumns.BODY_HTML);
-        msg.mMailboxKey = mailbox.mId;
-        msg.mAccountKey = mailbox.mAccountKey;
-        msg.mDisplayName = msg.mTo;
-        msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
-        // Get attachments from the ContentValues
-        ArrayList<com.android.mail.providers.Attachment> uiAtts =
-                com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
-                        values.getAsString(UIProvider.MessageColumns.JOINED_ATTACHMENT_INFOS));
-        ArrayList<Attachment> atts = new ArrayList<Attachment>();
-        for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
-            // Convert to our attachments and add to the list; everything else should "just work"
-            atts.add(convertUiAttachmentToAttachment(uiAtt));
-        }
-        if (!atts.isEmpty()) {
-            msg.mAttachments = atts;
-        }
-        // Save it or update it...
-        if (!msg.isSaved()) {
-            msg.save(context);
-        } else {
-            // This is tricky due to how messages/attachments are saved; rather than putz with
-            // what's changed, we'll delete/re-add them
-            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            // Delete all existing attachments
-            ops.add(ContentProviderOperation.newDelete(
-                    ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, msg.mId))
-                    .build());
-            // Delete the body
-            ops.add(ContentProviderOperation.newDelete(Body.CONTENT_URI)
-                    .withSelection(Body.MESSAGE_KEY + "=?", new String[] {Long.toString(msg.mId)})
-                    .build());
-            // Add the ops for the message, atts, and body
-            msg.addSaveOps(ops);
-            // Do it!
-            try {
-                applyBatch(ops);
-            } catch (OperationApplicationException e) {
-            }
-        }
-        if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                    mServiceCallback, mailbox.mAccountKey);
-            try {
-                service.startSync(mailbox.mId, true);
-            } catch (RemoteException e) {
-            }
-        }
-        return uiUri("uimessage", msg.mId);
-    }
-
-    /**
-     * Create and send the message via the account indicated in the uri
-     * @param uri the incoming uri
-     * @param values the content values that represent message fields
-     * @return the uri of the created message
-     */
-    private Uri uiSendMail(Uri uri, ContentValues values) {
-        List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
-        if (mailbox == null) return null;
-        Message msg = getMessageFromPathSegments(pathSegments);
-        try {
-            return uiSaveMessage(msg, mailbox, values);
-        } finally {
-            // Kick observers
-            getContext().getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
-        }
-    }
-
-    /**
-     * Create a message and save it to the drafts folder of the account indicated in the uri
-     * @param uri the incoming uri
-     * @param values the content values that represent message fields
-     * @return the uri of the created message
-     */
-    private Uri uiSaveDraft(Uri uri, ContentValues values) {
-        List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
-        if (mailbox == null) return null;
-        Message msg = getMessageFromPathSegments(pathSegments);
-        return uiSaveMessage(msg, mailbox, values);
-    }
-
-    private int uiUpdateDraft(Uri uri, ContentValues values) {
-        Context context = getContext();
-        Message msg = Message.restoreMessageWithId(context,
-                Long.parseLong(uri.getPathSegments().get(1)));
-        if (msg == null) return 0;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
-        if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values);
-        return 1;
-    }
-
-    private int uiSendDraft(Uri uri, ContentValues values) {
-        Context context = getContext();
-        Message msg = Message.restoreMessageWithId(context,
-                Long.parseLong(uri.getPathSegments().get(1)));
-        if (msg == null) return 0;
-        long mailboxId = Mailbox.findMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_OUTBOX);
-        if (mailboxId == Mailbox.NO_MAILBOX) return 0;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-        if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values);
-        // Kick observers
-        context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
-        return 1;
     }
 
     private void putIntegerLongOrBoolean(ContentValues values, String columnName, Object value) {
