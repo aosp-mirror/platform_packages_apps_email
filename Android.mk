@@ -27,8 +27,6 @@ unified_email_src_dir := ../UnifiedEmail/src
 imported_unified_email_files := \
         $(unified_email_src_dir)/com/android/mail/providers/UIProviderValidator.java \
         $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java \
-        $(unified_email_src_dir)/com/android/mail/providers/Attachment.java \
-        $(unified_email_src_dir)/com/android/mail/providers/Message.java
 
 LOCAL_MODULE_TAGS := optional
 
