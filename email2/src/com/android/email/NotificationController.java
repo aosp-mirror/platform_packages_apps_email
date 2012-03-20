@@ -737,9 +737,11 @@ public class NotificationController {
                     // Required by UIProvider
                     i.setType(EmailProvider.EMAIL_APP_MIME_TYPE);
                     i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_FOLDER,
-                            EmailProvider.uiUriString("uifolder", mailboxId));
+                            Uri.parse(EmailProvider.uiUriString("uifolder", mailboxId)));
                     i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT,
-                            EmailProvider.uiUriString("uiaccount", m.mAccountKey));
+                            Uri.parse(EmailProvider.uiUriString("uiaccount", m.mAccountKey)));
+                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNREAD_COUNT,
+                            unreadCount);
                     // Required by our notification controller
                     i.putExtra(NEW_MAIL_MAILBOX_ID, mailboxId);
                     i.putExtra(NEW_MAIL_MESSAGE_ID, newMessageId);
