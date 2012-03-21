@@ -16,12 +16,12 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
+
+import com.android.email.R;
 
 public class UiUtilities {
     private UiUtilities() {
