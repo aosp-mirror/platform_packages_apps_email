@@ -107,6 +107,7 @@ public class AccountSettings extends PreferenceActivity {
     private Header mAppPreferencesHeader;
     /* package */ Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
+    private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
 
     // Async Tasks
@@ -179,6 +180,7 @@ public class AccountSettings extends PreferenceActivity {
                 }
             }
         }
+        mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
         String title = i.getStringExtra(EXTRA_TITLE);
         if (title != null) {
@@ -227,6 +229,7 @@ public class AccountSettings extends PreferenceActivity {
             mSecretKeyCodeIndex++;
             if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
                 mSecretKeyCodeIndex = 0;
+                enableDebugMenu();
             }
         } else {
             mSecretKeyCodeIndex = 0;
@@ -299,6 +302,11 @@ public class AccountSettings extends PreferenceActivity {
         super.onBackPressed();
     }
 
+    private void enableDebugMenu() {
+        mShowDebugMenu = true;
+        invalidateHeaders();
+    }
+
     private void onAddNewAccount() {
         AccountSetupBasics.actionNewAccount(this);
     }
@@ -345,6 +353,18 @@ public class AccountSettings extends PreferenceActivity {
                     }
                 }
             }
+        }
+
+        // finally, if debug header is enabled, show it
+        if (mShowDebugMenu) {
+            // setup lightweight header for debugging
+            Header debugHeader = new Header();
+            debugHeader.title = getText(R.string.debug_title);
+            debugHeader.summary = null;
+            debugHeader.iconRes = 0;
+            debugHeader.fragment = DebugFragment.class.getCanonicalName();
+            debugHeader.fragmentArguments = null;
+            target.add(debugHeader);
         }
 
         // Save for later use (see forceSwitch)
@@ -457,6 +477,9 @@ public class AccountSettings extends PreferenceActivity {
         // Secret keys:  Click 10x to enable debug settings
         if (position == 0) {
             mNumGeneralHeaderClicked++;
+            if (mNumGeneralHeaderClicked == 10) {
+                enableDebugMenu();
+            }
         } else {
             mNumGeneralHeaderClicked = 0;
         }
