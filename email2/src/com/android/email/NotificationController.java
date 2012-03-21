@@ -562,6 +562,13 @@ public class NotificationController {
     }
 
     /**
+     * Cancels the new message notification for a given mailbox
+     */
+    public void cancelNewMessageNotification(long mailboxId) {
+        mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
+    }
+
+    /**
      * Show (or update) a notification that the user's password is expiring. The given account
      * is used to update the display text, but, all accounts share the same notification ID.
      *

@@ -38,6 +38,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
+import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -2902,12 +2903,21 @@ outer:
     }
 
     private int uiUpdateRecentFolders(Uri uri, ContentValues values) {
-        ContentResolver resolver = getContext().getContentResolver();
+        Context context = getContext();
+        ContentResolver resolver = context.getContentResolver();
         ContentValues touchValues = new ContentValues();
         for (String uriString: values.keySet()) {
             Uri folderUri = Uri.parse(uriString);
             touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, values.getAsLong(uriString));
             resolver.update(folderUri, touchValues, null, null);
+            String mailboxIdString = folderUri.getLastPathSegment();
+            long mailboxId;
+            try {
+                mailboxId = Long.parseLong(mailboxIdString);
+                NotificationController.getInstance(context).cancelNewMessageNotification(mailboxId);
+            } catch (NumberFormatException e) {
+                // Keep on going...
+            }
         }
         return 1;
     }
