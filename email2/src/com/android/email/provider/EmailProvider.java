@@ -72,6 +72,7 @@ import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
+import com.android.mail.providers.UIProvider.DraftType;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -2784,6 +2785,29 @@ outer:
         msg.mAccountKey = mailbox.mAccountKey;
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
+        int flags = 0;
+        int type = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
+        switch(type) {
+            case DraftType.FORWARD:
+                flags |= Message.FLAG_TYPE_FORWARD;
+                break;
+            case DraftType.REPLY:
+            case DraftType.REPLY_ALL:
+                flags |= Message.FLAG_TYPE_REPLY;
+                break;
+        }
+        msg.mFlags = flags;
+        String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
+        if (ref != null) {
+            String refId = Uri.parse(ref).getLastPathSegment();
+            try {
+                long sourceKey = Long.parseLong(refId);
+                msg.mSourceKey = sourceKey;
+            } catch (NumberFormatException e) {
+                // This will be zero; the default
+            }
+        }
+
         // Get attachments from the ContentValues
         ArrayList<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
