@@ -18,7 +18,7 @@ package com.android.mail.providers;
 
 
 
-public class EmailAccountCacheProvider extends AccountCacheProvider {
+public class EmailAccountCacheProvider extends MailAppProvider {
     // Content provider for Email
     private static final String sAuthority = "com.android.email2.accountcache";
 

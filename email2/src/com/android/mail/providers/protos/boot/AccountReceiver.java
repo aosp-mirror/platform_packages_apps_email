@@ -16,7 +16,7 @@
 
 package com.android.mail.providers.protos.boot;
 
-import com.android.mail.providers.AccountCacheProvider;
+import com.android.mail.providers.MailAppProvider;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,6 +36,6 @@ public class AccountReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        AccountCacheProvider.addAccountsForUriAsync(ACCOUNTS_URI);
+        MailAppProvider.addAccountsForUriAsync(ACCOUNTS_URI);
     }
 }
