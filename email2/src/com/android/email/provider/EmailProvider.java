@@ -38,6 +38,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
+import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -71,6 +72,7 @@ import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
+import com.android.mail.providers.UIProvider.DraftType;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -2783,6 +2785,29 @@ outer:
         msg.mAccountKey = mailbox.mAccountKey;
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
+        int flags = 0;
+        int type = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
+        switch(type) {
+            case DraftType.FORWARD:
+                flags |= Message.FLAG_TYPE_FORWARD;
+                break;
+            case DraftType.REPLY:
+            case DraftType.REPLY_ALL:
+                flags |= Message.FLAG_TYPE_REPLY;
+                break;
+        }
+        msg.mFlags = flags;
+        String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
+        if (ref != null) {
+            String refId = Uri.parse(ref).getLastPathSegment();
+            try {
+                long sourceKey = Long.parseLong(refId);
+                msg.mSourceKey = sourceKey;
+            } catch (NumberFormatException e) {
+                // This will be zero; the default
+            }
+        }
+
         // Get attachments from the ContentValues
         ArrayList<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
@@ -2902,12 +2927,21 @@ outer:
     }
 
     private int uiUpdateRecentFolders(Uri uri, ContentValues values) {
-        ContentResolver resolver = getContext().getContentResolver();
+        Context context = getContext();
+        ContentResolver resolver = context.getContentResolver();
         ContentValues touchValues = new ContentValues();
         for (String uriString: values.keySet()) {
             Uri folderUri = Uri.parse(uriString);
             touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, values.getAsLong(uriString));
             resolver.update(folderUri, touchValues, null, null);
+            String mailboxIdString = folderUri.getLastPathSegment();
+            long mailboxId;
+            try {
+                mailboxId = Long.parseLong(mailboxIdString);
+                NotificationController.getInstance(context).cancelNewMessageNotification(mailboxId);
+            } catch (NumberFormatException e) {
+                // Keep on going...
+            }
         }
         return 1;
     }
