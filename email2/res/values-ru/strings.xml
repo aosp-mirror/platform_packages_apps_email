@@ -433,23 +433,16 @@
     <item quantity="other" msgid="7816121892960632123">"Кол-во результатов: <xliff:g id="RESULTS">%1$d</xliff:g> с <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Настройки"</string>
-    <!-- no translation found for header_label_general_preferences (8243724566056800991) -->
-    <skip />
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"Общие настройки"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Приложение"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Автопереход"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Выберите экран для отображения после удаления цепочки писем"</string>
-    <!-- no translation found for general_preference_hide_checkboxes_label (2054599123778503930) -->
-    <skip />
-    <!-- no translation found for general_preference_hide_checkboxes_summary (141341137898712712) -->
-    <skip />
-    <!-- no translation found for general_preference_confirm_delete_label (1863245465244241907) -->
-    <skip />
-    <!-- no translation found for general_preference_confirm_delete_summary (6710240861010766643) -->
-    <skip />
-    <!-- no translation found for general_preference_confirm_send_label (4548277349553989930) -->
-    <skip />
-    <!-- no translation found for general_preference_confirm_send_summary (2695471027185506093) -->
-    <skip />
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Скрыть флажки"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Чтобы выбрать сообщение в списке, нажмите и удерживайте его."</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Подтверждать удаление"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Сообщения"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Подтверждать отправку"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Сообщения"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Переходить к"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Предыдущему сообщению"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Следующему сообщению"</string>
