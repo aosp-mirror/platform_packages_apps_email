@@ -2474,6 +2474,7 @@ outer:
             combinedUriString("uisettings", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_URI_COLUMN] =
             combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
+        values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;;
         mc.addRow(values);
     }
 
