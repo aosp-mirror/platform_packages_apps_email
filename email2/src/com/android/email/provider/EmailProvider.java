@@ -2593,6 +2593,13 @@ outer:
     private static final String COMBINED_ACCOUNT_ID_STRING =
             Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW);
 
+
+    private Cursor getCombinedInboxCursor() {
+        MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
+        addCombinedInboxRow(mc);
+        return mc;
+    }
+
     /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
@@ -2611,7 +2618,11 @@ outer:
         Uri notifyUri = null;
         switch(match) {
             case UI_FOLDERS:
-                c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
+                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+                    c = getCombinedInboxCursor();
+                } else {
+                    c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
+                }
                 break;
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
@@ -2640,9 +2651,7 @@ outer:
                 break;
             case UI_FOLDER:
                 if (id.equals(combinedMailboxId(Mailbox.TYPE_INBOX))) {
-                    MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
-                    addCombinedInboxRow(mc);
-                    c = mc;
+                    c = getCombinedInboxCursor();
                 } else {
                     c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
                     notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
