@@ -2032,13 +2032,20 @@ outer:
      * Convert EmailProvider type to UIProvider type
      */
     private static final String FOLDER_TYPE = "CASE " + MailboxColumns.TYPE
-        + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + UIProvider.FolderType.INBOX
-        + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + UIProvider.FolderType.DRAFT
-        + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + UIProvider.FolderType.OUTBOX
-        + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + UIProvider.FolderType.SENT
-        + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + UIProvider.FolderType.TRASH
-        + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
-        + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + UIProvider.FolderType.INBOX
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + UIProvider.FolderType.DRAFT
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + UIProvider.FolderType.OUTBOX
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + UIProvider.FolderType.SENT
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + UIProvider.FolderType.TRASH
+            + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
+            + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
+
+    private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_folder_inbox_holo_light
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts_holo_light
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox_holo_light
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent_holo_light
+            + " ELSE -1 END";
 
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, MailboxColumns.ID)
@@ -2057,6 +2064,7 @@ outer:
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
         .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
+        .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
         .build();
 
 
