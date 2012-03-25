@@ -16,7 +16,8 @@
 
 package com.android.mail.providers;
 
-
+import android.content.Context;
+import android.content.Intent;
 
 public class EmailAccountCacheProvider extends MailAppProvider {
     // Content provider for Email
@@ -25,5 +26,10 @@ public class EmailAccountCacheProvider extends MailAppProvider {
     @Override
     protected String getAuthority() {
         return sAuthority;
+    }
+
+    @Override
+    protected Intent getNoAccountsIntent(Context context) {
+        return null;
     }
 }
