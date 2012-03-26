@@ -438,8 +438,8 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Okuseqophelweni okuzenzakalelayo"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Khetha ukuthi isiphi isikrini esizoboniswa emuva kokuba ususe umyalezo"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Fihla amabhokisi okuhlola"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Kuhlu lwenkulumo, cindezela bese uyabamba ukuze ukhethe"</string>
-    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Qinisekisa ngaphambi kokusula"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Ezinhlwini zemilayezo, thinta bese ubamba ukuze ukhethe"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Qinisekisa ngaphambi kokususa"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Imilayezo"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Qinisekisa ngaphambi kokuthumela"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Imilayezo"</string>

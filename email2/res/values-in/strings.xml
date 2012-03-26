@@ -438,7 +438,7 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Maju otomatis"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Pilih layar mana yang akan ditampilkan stlh Anda menghapus pesan"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Sembunyikan kotak centang"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Pada daftar pesan, sentuh dan tahan untuk memilih"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Pada daftar pesan, sentuh terus untuk memilih"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Konfirmasi sebelum menghapus"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Pesan"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Konfirmasi sebelum mengirim"</string>
