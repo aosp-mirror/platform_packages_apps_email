@@ -3021,6 +3021,8 @@ outer:
                 Uri uri = Uri.parse((String)val);
                 Long mailboxId = Long.parseLong(uri.getLastPathSegment());
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
+            } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
+                // Ignore; this is updated by the FOLDER_LIST update above.
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
@@ -3082,6 +3084,9 @@ outer:
             } else if (columnName.equals(MessageColumns.FLAG_FAVORITE)) {
                 undoValues.put(MessageColumns.FLAG_FAVORITE, msg.mFlagFavorite);
             }
+        }
+        if (undoValues == null || undoValues.size() == 0) {
+            return -1;
         }
         ContentProviderOperation op =
                 ContentProviderOperation.newUpdate(convertToEmailProviderUri(
