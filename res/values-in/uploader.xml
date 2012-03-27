@@ -59,8 +59,8 @@
     <string name="retry_no_data" msgid="630347885498641534">"Tidak ada sambungan data"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"Kuota disk akun habis"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"File tidak ditemukan"</string>
-    <string name="failed_bad_response" msgid="8357723053952213242">"Galat layanan"</string>
-    <string name="failed_network_error" msgid="2531660472217573602">"Galat jaringan"</string>
+    <string name="failed_bad_response" msgid="8357723053952213242">"Kesalahan layanan"</string>
+    <string name="failed_network_error" msgid="2531660472217573602">"Kesalahan jaringan"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"Autentikasi gagal"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"Unggahan yang tertunda [%d]"</string>
     <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"Unggahan yang selesai [%d]"</string>

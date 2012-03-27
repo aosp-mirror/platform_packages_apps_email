@@ -38,7 +38,7 @@
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Hapus"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Tidak ada tanggapan cepat."</string>
     <string name="discard_action" msgid="6532206074859505968">"Buang"</string>
-    <string name="save_draft_action" msgid="6413714270991417223">"Simpan konsep"</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"Simpan draf"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Masukkan tanggapan cepat"</string>
     <string name="read_action" msgid="4701484794504781686">"Tandai sudah dibaca"</string>
     <string name="unread_action" msgid="6280399049357552826">"Tandai belum dibaca"</string>
@@ -69,7 +69,7 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Pemindahan tidak didukung pada akun POP3."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Tidak dapat memindah karena pilihan berisi beberapa akun."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Pesan dalam Konsep, Kotak Keluar, dan Terkirim tidak dapat dipindah."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Pesan dalam Draf, Kotak Keluar, dan Terkirim tidak dapat dipindah."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> yang belum dibaca (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> yang belum dibaca (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -88,7 +88,7 @@
   </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Kotak Masuk"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Kotak Keluar"</string>
-    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Konsep"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Draf"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Sampah"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Terkirim"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Junk"</string>
@@ -103,7 +103,7 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versi: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Kotak Masuk"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Yang berkilau bintangnya"</string>
-    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Konsep"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Draf"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Kotak Keluar"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Tampilan kombinasi"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Tampilkan semua folder"</string>
@@ -188,7 +188,7 @@
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Lampiran ini adalah sebuah apl. Anda harus mencentang Sumber Tidak Dikenal dalam Setelan &gt; Apl sebelum Anda dapat memasangnya."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apl tidak dapat dipasang langsung dari email. Simpan apl ini terlebih dahulu, lalu pasang menggunakan apl Unduhan."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Tidak dapat mengunduh lampiran."</string>
-    <string name="message_decode_error" msgid="5016042255170947834">"Terjadi galat saat mengawasandikan pesan."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Terjadi kesalahan saat mengawasandikan pesan."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Melihat <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
   <plurals name="message_delete_confirm">
@@ -327,12 +327,12 @@
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Tidak dapat tersambung ke server dengan aman."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Diperlukan sertifikat klien. Apakah Anda ingin menyambung ke server dengan sertifikat klien?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifikat tidak valid atau tidak dapat diakses."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Server menanggapi dengan galat. Periksa nama pengguna dan sandi, lalu coba lagi."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Server menanggapi dengan kesalahan. Periksa nama pengguna dan sandi, lalu coba lagi."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Tidak dapat tersambung ke server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Tidak dapat menyambung ke server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS diperlukan, tetapi tidak didukung oleh server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Metode autentikasi tidak didukung oleh server."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka sambungan ke server karena galat keamanan."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka sambungan ke server karena kesalahan keamanan."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Tidak dapat membuka koneksi ke server."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Anda mengetikkan alamat server yang salah atau server memerlukan versi protokol yang tidak didukung Email."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Anda tidak memiliki izin untuk menyinkronkan dengan server ini. Hubungi administrator server untuk informasi lebih lanjut."</string>

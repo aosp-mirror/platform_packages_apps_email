@@ -437,8 +437,8 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Velg hvilken skjerm som skal vises når du sletter en melding"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Skjuling av avmerkingsruter"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Trykk og hold nede for å gjøre valg i e-postlisten"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Skjul avmerkingsruter"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Trykk og hold nede for å merke i e-postlister"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekreft før sletting"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"E-poster"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekreft før sending"</string>
