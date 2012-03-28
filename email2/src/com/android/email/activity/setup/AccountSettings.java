@@ -48,6 +48,9 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider.EditSettingsExtras;
+
 import java.util.List;
 
 /**
@@ -159,7 +162,7 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
-        Intent i = getIntent();
+        final Intent i = getIntent();
         if (savedInstanceState == null) {
             // If we are not restarting from a previous instance, we need to
             // figure out the initial prefs to show.  (Otherwise, we want to
@@ -169,6 +172,9 @@ public class AccountSettings extends PreferenceActivity {
                 mGetAccountIdFromAccountTask =
                         (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
+            } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
+                launchMailboxSettings(i);
+                return;
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
@@ -301,6 +307,23 @@ public class AccountSettings extends PreferenceActivity {
         }
         super.onBackPressed();
     }
+
+    private void launchMailboxSettings(Intent intent) {
+        final Folder folder =
+                (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
+        final com.android.mail.providers.Account account = (com.android.mail.providers.Account)
+                intent.getParcelableExtra(EditSettingsExtras.EXTRA_ACCOUNT);
+
+        // TODO: determine from the account if we should navigate to the mailbox settings.
+        // See bug 6242668
+
+        // Get the mailbox id from the folder
+        final long mailboxId = Long.parseLong(folder.uri.getPathSegments().get(1));
+
+        MailboxSettings.start(this, mailboxId);
+        finish();
+    }
+
 
     private void enableDebugMenu() {
         mShowDebugMenu = true;
