@@ -438,7 +438,7 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avanço automático"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecione qual tela mostrar após a exclusão de uma mensagem"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar caixas de seleção"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Nas listas de conversas, a mantenha pressionada para selecionar"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Nas listas de mensagens, a mantenha pressionada para selecionar"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de excluir"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensagens"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmar antes de enviar"</string>

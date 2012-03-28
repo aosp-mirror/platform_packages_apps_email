@@ -437,8 +437,8 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicación"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avance automático"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecciona la pantalla que se mostrará al eliminar un mensaje."</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar las casillas de verificación"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"En las listas de mensajes, toca un elemento y mantenlo presionado para seleccionarlo."</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar casillas de verificación"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"En las listas de mensajes, mantén presionado para seleccionar."</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de eliminar"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensajes"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmar antes de enviar"</string>
