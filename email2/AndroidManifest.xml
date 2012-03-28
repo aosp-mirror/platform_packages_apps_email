@@ -249,6 +249,13 @@
             <grant-uri-permission android:pathPattern=".*" />
         </provider>
 
+        <!-- The android:name is the name of the Provider class which is stored in
+          UnifiedEmail, and has package name com.android.mail.providers and the class is
+          called SuggestionsProvider. It declares an authority which looks up package name
+          at runtime with getContext().getPackageName() and adds ".SuggestionsProvider" to it. -->
+        <provider android:name="com.android.mail.providers.SuggestionsProvider"
+            android:authorities="com.android.email.SuggestionsProvider" />
+
         <receiver android:name="com.android.mail.providers.protos.boot.AccountReceiver">
           <intent-filter>
               <action android:name="com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
