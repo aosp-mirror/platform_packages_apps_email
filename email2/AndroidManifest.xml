@@ -254,7 +254,7 @@
           called SuggestionsProvider. It declares an authority which looks up package name
           at runtime with getContext().getPackageName() and adds ".SuggestionsProvider" to it. -->
         <provider android:name="com.android.mail.providers.SuggestionsProvider"
-            android:authorities="com.android.email.SuggestionsProvider" />
+            android:authorities="com.google.android.email.SuggestionsProvider" />
 
         <receiver android:name="com.android.mail.providers.protos.boot.AccountReceiver">
           <intent-filter>
