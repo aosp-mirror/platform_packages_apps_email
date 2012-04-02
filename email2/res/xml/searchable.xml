@@ -19,7 +19,7 @@
     android:label="@string/search_title"
     android:hint="@string/search_hint"
     android:icon="@drawable/ic_menu_search_holo_light"
-    android:searchSuggestAuthority="com.google.android.email.SuggestionsProvider"
+    android:searchSuggestAuthority="com.android.email.suggestionsprovider"
     android:searchSuggestSelection="query LIKE ?"
     android:searchSuggestIntentAction="android.intent.action.SEARCH"
     android:imeOptions="actionSearch" />

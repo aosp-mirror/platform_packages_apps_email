@@ -22,6 +22,11 @@ import android.content.Intent;
 public class EmailAccountCacheProvider extends MailAppProvider {
     // Content provider for Email
     private static final String sAuthority = "com.android.email2.accountcache";
+    /**
+     * Authority for the suggestions provider. This is specified in AndroidManifest.xml and
+     * res/xml/searchable.xml.
+     */
+    private static final String sSuggestionsAuthority = "com.android.email.suggestionsprovider";
 
     @Override
     protected String getAuthority() {
@@ -31,5 +36,10 @@ public class EmailAccountCacheProvider extends MailAppProvider {
     @Override
     protected Intent getNoAccountsIntent(Context context) {
         return null;
+    }
+
+    @Override
+    public String getSuggestionAuthority() {
+        return sSuggestionsAuthority;
     }
 }
