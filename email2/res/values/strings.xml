@@ -15,6 +15,11 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Names of packages and authorities that are common to all apps
+    and read from resources -->
+    <!-- Name of the search suggestions authority that looks up recent suggestions. This
+         needs to be modified in AndroidManifest.xml and res/xml/searchable.xml as well.  -->
+    <string name="suggestions_authority" translatable="false">com.android.email.suggestionsprovider</string>
 
     <!-- Permissions label for reading attachments -->
     <string name="permission_read_attachment_label">Read email attachments</string>
