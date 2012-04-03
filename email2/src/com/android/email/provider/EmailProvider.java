@@ -2837,6 +2837,7 @@ outer:
         }
         if (!atts.isEmpty()) {
             msg.mAttachments = atts;
+            msg.mFlagAttachment = true;
         }
         // Save it or update it...
         if (!msg.isSaved()) {
