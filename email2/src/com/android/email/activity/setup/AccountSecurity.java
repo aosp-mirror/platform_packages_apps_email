@@ -78,7 +78,7 @@ public class AccountSecurity extends Activity {
      */
     public static Intent actionUpdateSecurityIntent(Context context, long accountId,
             boolean showDialog) {
-        Intent intent = new Intent(context, AccountSecurity.class);
+        Intent intent = new ForwardingIntent(context, AccountSecurity.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(EXTRA_SHOW_DIALOG, showDialog);
         return intent;
@@ -91,7 +91,7 @@ public class AccountSecurity extends Activity {
      */
     public static Intent actionDevicePasswordExpirationIntent(Context context, long accountId,
             boolean expired) {
-        Intent intent = new Intent(context, AccountSecurity.class);
+        Intent intent = new ForwardingIntent(context, AccountSecurity.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(expired ? EXTRA_PASSWORD_EXPIRED : EXTRA_PASSWORD_EXPIRING, true);
         return intent;

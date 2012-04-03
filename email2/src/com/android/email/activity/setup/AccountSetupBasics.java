@@ -131,6 +131,12 @@ public class AccountSetupBasics extends AccountSetupActivity
         fromActivity.startActivity(i);
     }
 
+    public static void actionNewAccountWithResult(Activity fromActivity) {
+        Intent i = new ForwardingIntent(fromActivity, AccountSetupBasics.class);
+        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_NO_ACCOUNTS);
+        fromActivity.startActivity(i);
+    }
+
     /**
      * This generates setup data that can be used to start a self-contained account creation flow
      * for exchange accounts.
@@ -156,11 +162,23 @@ public class AccountSetupBasics extends AccountSetupActivity
         // is not safe, since it's not guaranteed that an Activity will run with the Intent, and
         // information can get lost.
 
-        Intent i= new Intent(fromActivity, AccountSetupBasics.class);
+        Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "account flow" (from AccountManager), we want to return to the caller
         // (in the settings app)
         SetupData.init(SetupData.FLOW_MODE_RETURN_TO_CALLER);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fromActivity.startActivity(i);
+    }
+
+    public static void actionAccountCreateFinishedWithResult(Activity fromActivity) {
+        // TODO: handle this case - modifying state on SetupData when instantiating an Intent
+        // is not safe, since it's not guaranteed that an Activity will run with the Intent, and
+        // information can get lost.
+
+        Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
+        // If we're in the "no accounts" flow, we want to return to the caller with a result
+        SetupData.init(SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
@@ -202,6 +220,14 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
             // Return to the caller who initiated account creation
+            finish();
+            return;
+        } else if (flowMode == SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT) {
+            if (EmailContent.count(this, Account.CONTENT_URI) > 0) {
+                setResult(RESULT_OK);
+            } else {
+                setResult(RESULT_CANCELED);
+            }
             finish();
             return;
         } else if (flowMode == SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST) {

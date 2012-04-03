@@ -16,19 +16,18 @@
 
 package com.android.email.activity.setup;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-
-import android.app.Activity;
-import android.app.FragmentTransaction;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 /**
  * Provides generic setup for Exchange accounts.  The following fields are supported:
@@ -79,7 +78,7 @@ public class AccountSetupExchange extends AccountSetupActivity
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
         SetupData.setFlowMode(mode);
         SetupData.setAccount(account);
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupExchange.class));
+        fromActivity.startActivity(new ForwardingIntent(fromActivity, AccountSetupExchange.class));
     }
 
     @Override

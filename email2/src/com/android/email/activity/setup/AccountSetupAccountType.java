@@ -39,7 +39,8 @@ import com.android.emailcommon.provider.HostAuth;
 public class AccountSetupAccountType extends AccountSetupActivity implements OnClickListener {
 
     public static void actionSelectAccountType(Activity fromActivity) {
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupAccountType.class));
+        Intent i = new ForwardingIntent(fromActivity, AccountSetupAccountType.class);
+        fromActivity.startActivity(i);
     }
 
     @Override
@@ -129,6 +130,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         finish();
     }
 
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.pop:

@@ -18,6 +18,9 @@ package com.android.mail.providers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+
+import com.android.email.activity.setup.AccountSettings;
 
 public class EmailAccountCacheProvider extends MailAppProvider {
     // Content provider for Email
@@ -35,7 +38,11 @@ public class EmailAccountCacheProvider extends MailAppProvider {
 
     @Override
     protected Intent getNoAccountsIntent(Context context) {
-        return null;
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.setData(Uri.parse("content://ui.email.android.com/settings"));
+        intent.putExtra(AccountSettings.EXTRA_NO_ACCOUNTS, true);
+        return intent;
     }
 
     @Override

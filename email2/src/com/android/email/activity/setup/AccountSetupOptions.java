@@ -72,7 +72,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_AUTO;
 
     public static void actionOptions(Activity fromActivity) {
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupOptions.class));
+        fromActivity.startActivity(new ForwardingIntent(fromActivity, AccountSetupOptions.class));
     }
 
     @Override
@@ -271,11 +271,13 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      * This is called at the completion of MailService.setupAccountManagerAccount()
      */
     AccountManagerCallback<Bundle> mAccountManagerCallback = new AccountManagerCallback<Bundle>() {
+        @Override
         public void run(AccountManagerFuture<Bundle> future) {
             try {
                 Bundle bundle = future.getResult();
                 bundle.keySet();
                 AccountSetupOptions.this.runOnUiThread(new Runnable() {
+                    @Override
                     public void run() {
                         optionsComplete();
                     }
@@ -298,6 +300,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      */
     private void showErrorDialog(final int msgResId, final Object... args) {
         runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 new AlertDialog.Builder(AccountSetupOptions.this)
                         .setIconAttribute(android.R.attr.alertDialogIcon)
@@ -307,6 +310,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                         .setPositiveButton(
                                 getString(R.string.account_setup_failed_dlg_edit_details_action),
                                 new DialogInterface.OnClickListener() {
+                                    @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                        finish();
                                     }

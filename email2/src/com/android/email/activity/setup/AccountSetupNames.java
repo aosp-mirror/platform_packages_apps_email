@@ -58,7 +58,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private boolean mEasAccount = false;
 
     public static void actionSetNames(Activity fromActivity) {
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupNames.class));
+        fromActivity.startActivity(new ForwardingIntent(fromActivity, AccountSetupNames.class));
     }
 
     @Override
@@ -189,7 +189,9 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     private void finishActivity() {
-        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
+        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_NO_ACCOUNTS) {
+            AccountSetupBasics.actionAccountCreateFinishedWithResult(this);
+        } else if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
             AccountSetupBasics.actionAccountCreateFinishedAccountFlow(this);
         } else {
             Account account = SetupData.getAccount();

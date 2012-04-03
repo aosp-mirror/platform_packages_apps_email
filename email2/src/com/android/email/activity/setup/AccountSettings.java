@@ -47,7 +47,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
-
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
 
@@ -79,6 +78,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
     private static final String EXTRA_TITLE = "AccountSettings.title";
+    public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -174,6 +174,10 @@ public class AccountSettings extends PreferenceActivity {
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
             } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
                 launchMailboxSettings(i);
+                return;
+            } else if (i.hasExtra(EXTRA_NO_ACCOUNTS)) {
+                AccountSetupBasics.actionNewAccountWithResult(this);
+                finish();
                 return;
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
@@ -803,6 +807,7 @@ public class AccountSettings extends PreferenceActivity {
                 .setPositiveButton(
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (isBack) {
                                     activity.forceBack();
