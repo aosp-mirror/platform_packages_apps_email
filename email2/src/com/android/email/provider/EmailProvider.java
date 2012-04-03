@@ -1985,6 +1985,21 @@ outer:
     .add(UIProvider.ConversationColumns.FLAGS, getConversationFlags())
     .build();
 
+
+    /**
+     * Generate UIProvider draft type; note the test for "reply all" must come before "reply"
+     */
+    private static final String MESSAGE_DRAFT_TYPE =
+        "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_ORIGINAL +
+            ") !=0 THEN " + UIProvider.DraftType.COMPOSE +
+        " WHEN (" + MessageColumns.FLAGS + "&" + (1<<20) +
+            ") !=0 THEN " + UIProvider.DraftType.REPLY_ALL +
+        " WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_REPLY +
+            ") !=0 THEN " + UIProvider.DraftType.REPLY +
+        " WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_FORWARD +
+            ") !=0 THEN " + UIProvider.DraftType.FORWARD +
+            " ELSE " + UIProvider.DraftType.NOT_A_DRAFT + " END";
+
     /**
      * Mapping of UIProvider columns to EmailProvider columns for a detailed message view in
      * UnifiedEmail
@@ -2010,7 +2025,8 @@ outer:
         .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
         .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
         .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
-        .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI, uriWithFQId("uiattachments", Message.TABLE_NAME))
+        .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
+                uriWithFQId("uiattachments", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
         .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
                 uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
@@ -2018,6 +2034,7 @@ outer:
                 uriWithFQId("uisenddraft", Message.TABLE_NAME))
          // TODO(pwestbro): make this actually return valid results.
         .add(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, "0")
+        .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
         .build();
 
     /**
@@ -2809,9 +2826,14 @@ outer:
             case DraftType.FORWARD:
                 flags |= Message.FLAG_TYPE_FORWARD;
                 break;
-            case DraftType.REPLY:
             case DraftType.REPLY_ALL:
+                flags |= Message.FLAG_TYPE_REPLY_ALL;
+                // Fall through
+            case DraftType.REPLY:
                 flags |= Message.FLAG_TYPE_REPLY;
+                break;
+            case DraftType.COMPOSE:
+                flags |= Message.FLAG_TYPE_ORIGINAL;
                 break;
         }
         msg.mFlags = flags;
