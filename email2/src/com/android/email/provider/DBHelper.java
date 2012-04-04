@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Debug;
 import android.provider.ContactsContract;
 import android.util.Log;
 
@@ -119,8 +120,10 @@ public final class DBHelper {
     // Version 33: Add columns to attachment for ui provider columns
     // Version 34: Add total count to mailbox
     // Version 35: Set up defaults for lastTouchedCount for drafts and sent
+    // Version 36: mblank intentionally left this space
+    // Version 37: Add flag for settings support in folders
 
-    public static final int DATABASE_VERSION = 35;
+    public static final int DATABASE_VERSION = 37;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -880,6 +883,25 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
                 }
                 oldVersion = 35;
+            }
+            if (oldVersion == 35 || oldVersion == 36) {
+                try {
+                    // Set "supports settings" for EAS mailboxes
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.FLAGS + "=" + MailboxColumns.FLAGS + "+" +
+                            Mailbox.FLAG_SUPPORTS_SETTINGS + " where (" +
+                            MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HOLDS_MAIL + ")!=0 and " +
+                            MailboxColumns.ACCOUNT_KEY + " IN (SELECT " + Account.TABLE_NAME +
+                            "." + AccountColumns.ID + " from " + Account.TABLE_NAME + "," +
+                            HostAuth.TABLE_NAME + " where " + Account.TABLE_NAME + "." +
+                            AccountColumns.HOST_AUTH_KEY_RECV + "=" + HostAuth.TABLE_NAME + "." +
+                            HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
+                            HostAuth.SCHEME_EAS + "')");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
+                }
+                oldVersion = 37;
             }
         }
 

@@ -211,6 +211,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int FLAG_ACCEPTS_MOVED_MAIL = 1<<4;
     /** can be used as a target for appending messages */
     public static final int FLAG_ACCEPTS_APPENDED_MAIL = 1<<5;
+    /** has user settings (sync lookback, etc.) */
+    public static final int FLAG_SUPPORTS_SETTINGS = 1<<6;
 
     // Magic mailbox ID's
     // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
