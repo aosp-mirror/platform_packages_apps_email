@@ -39,7 +39,7 @@ public class CreateShortcutActivityEmail extends Activity {
                     Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_FORWARD_RESULT);
             intent.setAction(Intent.ACTION_CREATE_SHORTCUT);
             intent.putExtra(FolderSelectionActivity.EXTRA_ACCOUNT_SHORTCUT,
-                    cachedAccounts[0].toString());
+                    cachedAccounts[0]);
         } else {
             intent.setClass(this, MailboxSelectionActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
