@@ -741,7 +741,6 @@ public abstract class EmailContent {
         // Bits used in mFlags
         // The following three states are mutually exclusive, and indicate whether the message is an
         // original, a reply, or a forward
-        public static final int FLAG_TYPE_ORIGINAL = 0;
         public static final int FLAG_TYPE_REPLY = 1<<0;
         public static final int FLAG_TYPE_FORWARD = 1<<1;
         public static final int FLAG_TYPE_MASK = FLAG_TYPE_REPLY | FLAG_TYPE_FORWARD;
@@ -771,6 +770,12 @@ public abstract class EmailContent {
         public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT = 1 << 17;
         public static final int FLAG_REPLIED_TO = 1 << 18;
         public static final int FLAG_FORWARDED = 1 << 19;
+
+        // Outgoing, original message
+        public static final int FLAG_TYPE_ORIGINAL = 1 << 20;
+        // Outgoing, reply all message; note, FLAG_TYPE_REPLY should also be set for backward
+        // compatibility
+        public static final int FLAG_TYPE_REPLY_ALL = 1 << 21;
 
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
