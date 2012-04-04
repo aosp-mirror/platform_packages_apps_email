@@ -2324,6 +2324,13 @@ outer:
             if (HostAuth.SCHEME_IMAP.equals(protocol) || HostAuth.SCHEME_POP3.equals(protocol)) {
                 values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                         uiUriString("uiloadmore", mailboxId));
+            } else {
+                // For EAS, allow settings
+                int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
+                if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+                    caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+                }
+                values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
             }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
