@@ -40,7 +40,7 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava android-common-chips
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon2 guava android-common-chips
 
 LOCAL_PACKAGE_NAME := Email2
 LOCAL_OVERRIDES_PACKAGES := Email
@@ -50,3 +50,10 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)
+
+# only include rules to build other stuff for the original package, not the derived package.
+ifeq ($(strip $(LOCAL_PACKAGE_OVERRIDES)),)
+# additionally, build unit tests in a separate .apk
+include $(call all-makefiles-under,$(LOCAL_PATH))
+endif
+
