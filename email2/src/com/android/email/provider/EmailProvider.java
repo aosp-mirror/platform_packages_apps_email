@@ -2308,7 +2308,7 @@ outer:
      */
     private String genQueryMailbox(String[] uiProjection, String id) {
         long mailboxId = Long.parseLong(id);
-        ContentValues values = EMPTY_CONTENT_VALUES;
+        ContentValues values = new ContentValues();
         if (mSearchParams != null && mailboxId == mSearchParams.mSearchMailboxId) {
             // This is the current search mailbox; use the total count
             values = new ContentValues();
