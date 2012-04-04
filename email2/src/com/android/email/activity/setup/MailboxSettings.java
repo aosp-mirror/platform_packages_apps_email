@@ -223,7 +223,7 @@ public class MailboxSettings extends PreferenceActivity {
 
         // Update the title with the mailbox name.
         ActionBar actionBar = getActionBar();
-        String mailboxName = "TODO: Get mailbox name";
+        String mailboxName = mMailbox.mDisplayName;
         if (actionBar != null) {
             actionBar.setTitle(mailboxName);
             actionBar.setSubtitle(getString(R.string.mailbox_settings_activity_title));
