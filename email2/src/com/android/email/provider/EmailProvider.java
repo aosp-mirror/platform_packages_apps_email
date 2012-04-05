@@ -1926,7 +1926,7 @@ outer:
         "WHERE Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
                 MessageColumns.MAILBOX_KEY + " AND " + Message.TABLE_NAME + "." +
                 MessageColumns.ID + ">Boxes." + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY +
-                " AND " + MessageColumns.FLAG_READ + "=0";
+                " AND " + MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.TIMESTAMP + "!=0";
 
     public Cursor notificationQuery(Uri uri) {
         SQLiteDatabase db = getDatabase(getContext());
