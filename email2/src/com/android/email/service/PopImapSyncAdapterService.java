@@ -160,12 +160,17 @@ public class PopImapSyncAdapterService extends Service {
                             new String[] {Long.toString(acct.mId)},
                             null);
                     if ((updatesCursor == null) || (updatesCursor.getCount() == 0)) return;
-                    ArrayList<Long> mailboxesToUpdate = new ArrayList<Long>();
-                    while (updatesCursor.moveToNext()) {
-                        Long mailboxId = updatesCursor.getLong(0);
-                        if (!mailboxesToUpdate.contains(mailboxId)) {
-                            mailboxesToUpdate.add(mailboxId);
+                    ArrayList<Long> mailboxesToUpdate;
+                    try {
+                        mailboxesToUpdate = new ArrayList<Long>();
+                        while (updatesCursor.moveToNext()) {
+                            Long mailboxId = updatesCursor.getLong(0);
+                            if (!mailboxesToUpdate.contains(mailboxId)) {
+                                mailboxesToUpdate.add(mailboxId);
+                            }
                         }
+                    } finally {
+                        updatesCursor.close();
                     }
                     for (long mailboxId: mailboxesToUpdate) {
                         sync(context, mailboxId, syncResult, false);
