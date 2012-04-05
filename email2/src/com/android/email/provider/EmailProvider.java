@@ -82,6 +82,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author mblank
@@ -2204,6 +2205,9 @@ outer:
         return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || " + tableName + "._id";
     }
 
+    // Regex that matches start of img tag. '<(?i)img\s+'.
+    private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
+
     /**
      * Generate the "view message" SQLite query, given a projection from UnifiedEmail
      *
@@ -2223,7 +2227,16 @@ outer:
                 // Nothing to do
             }
         }
-        StringBuilder sb = genSelect(sMessageViewMap, uiProjection);
+        Body body = Body.restoreBodyWithMessageId(context, messageId);
+        ContentValues values = new ContentValues();
+        if (body != null) {
+            if (body.mHtmlContent != null) {
+                if (IMG_TAG_START_REGEX.matcher(body.mHtmlContent).find()) {
+                    values.put(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, 1);
+                }
+            }
+        }
+        StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
                 Message.TABLE_NAME + "." + Message.RECORD_ID + "=?");
@@ -3061,6 +3074,8 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
                 // Ignore; this is updated by the FOLDER_LIST update above.
+            } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
+                // TODO: Ignore for now; how can this work??
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
