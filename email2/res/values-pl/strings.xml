@@ -438,7 +438,7 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatyczne przechodzenie"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Wybierz ekran, który ma być pokazywany po usunięciu wiadomości."</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ukryj pola wyboru"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Dotknij i przytrzymaj, by wybrać pozycję na liście wiadomości."</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Dotknij i przytrzymaj, by wybrać pozycję na liście wiadomości"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Potwierdź usuwanie"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Wiadomości"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Potwierdź wysyłanie"</string>

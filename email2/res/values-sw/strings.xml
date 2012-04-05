@@ -438,11 +438,11 @@
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Kioto mahiri"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Chagua skrini gani ya kuonyesha baada ya kufuta ujumbe"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ficha visanduku tiki"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Katika orodha ya ujumbe, gusa na ushikilie ili uchague"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Katika orodha ya jumbe, gusa na ushikilie ili uchague"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Thibitisha kabla ya kufuta"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Ujumbe"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Jumbe"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Thibitisha kabla ya kutuma"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Ujumbe"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Jumbe"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Mahiri katika"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Ujumbe mpya zaidi"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ujumbe mzee zaidi"</string>
