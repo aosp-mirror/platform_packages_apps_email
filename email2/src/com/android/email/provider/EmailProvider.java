@@ -47,6 +47,7 @@ import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -2021,7 +2022,6 @@ outer:
         .add(UIProvider.MessageColumns.DATE_RECEIVED_MS, EmailContent.MessageColumns.TIMESTAMP)
         .add(UIProvider.MessageColumns.BODY_HTML, Body.HTML_CONTENT)
         .add(UIProvider.MessageColumns.BODY_TEXT, Body.TEXT_CONTENT)
-        .add(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, "0")
         .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
         .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
         .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
@@ -2033,8 +2033,6 @@ outer:
                 uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
                 uriWithFQId("uisenddraft", Message.TABLE_NAME))
-         // TODO(pwestbro): make this actually return valid results.
-        .add(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, "0")
         .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
         .build();
 
@@ -2236,6 +2234,18 @@ outer:
                 }
             }
         }
+        Address[] fromList = Address.unpack(msg.mFrom);
+        int autoShowImages = 0;
+        Preferences prefs = Preferences.getPreferences(context);
+        for (Address sender : fromList) {
+            String email = sender.getAddress();
+            if (prefs.shouldShowImagesFor(email)) {
+                autoShowImages = 1;
+                break;
+            }
+        }
+        values.put(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, autoShowImages);
+
         StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
@@ -3057,7 +3067,7 @@ outer:
         return update(ourUri, ourValues, null, null);
     }
 
-    private ContentValues convertUiMessageValues(ContentValues values) {
+    private ContentValues convertUiMessageValues(Message message, ContentValues values) {
         ContentValues ourValues = new ContentValues();
         for (String columnName: values.keySet()) {
             Object val = values.get(columnName);
@@ -3075,7 +3085,12 @@ outer:
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
                 // Ignore; this is updated by the FOLDER_LIST update above.
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
-                // TODO: Ignore for now; how can this work??
+                Address[] fromList = Address.unpack(message.mFrom);
+                Preferences prefs = Preferences.getPreferences(getContext());
+                for (Address sender : fromList) {
+                    String email = sender.getAddress();
+                    prefs.setSenderAsTrusted(email);
+                }
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
@@ -3125,10 +3140,10 @@ outer:
     private int uiUpdateMessage(Uri uri, ContentValues values) {
         Uri ourUri = convertToEmailProviderUri(uri, Message.SYNCED_CONTENT_URI, true);
         if (ourUri == null) return 0;
-        ContentValues ourValues = convertUiMessageValues(values);
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
         ContentValues undoValues = new ContentValues();
+        ContentValues ourValues = convertUiMessageValues(msg, values);
         for (String columnName: ourValues.keySet()) {
             if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 undoValues.put(MessageColumns.MAILBOX_KEY, msg.mMailboxKey);
