@@ -2516,20 +2516,29 @@ outer:
     }
 
     private void addCombinedAccountRow(MatrixCursor mc) {
+        long id = Account.getDefaultAccountId(getContext());
+        if (id == Account.NO_ACCOUNT) return;
+        String idString = Long.toString(id);
         Object[] values = new Object[UIProvider.ACCOUNTS_PROJECTION.length];
         values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
         values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
             combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_NAME_COLUMN] = getContext().getString(
                 R.string.mailbox_list_account_selector_combined_view);
-        values[UIProvider.ACCOUNT_SAVE_DRAFT_URI_COLUMN] = null;
-        values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] = null;
+        values[UIProvider.ACCOUNT_SAVE_DRAFT_URI_COLUMN] =
+                combinedUriString("uisavedraft", idString);
+        values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] =
+                combinedUriString("uisendmail", idString);
         values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] = null;
         values[UIProvider.ACCOUNT_SETTINGS_QUERY_URI_COLUMN] =
             combinedUriString("uisettings", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_URI_COLUMN] =
             combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;;
+        values[UIProvider.ACCOUNT_SETTINGS_INTENT_URI_COLUMN] =
+                getExternalUriString("settings", COMBINED_ACCOUNT_ID_STRING);
+        values[UIProvider.ACCOUNT_COMPOSE_INTENT_URI_COLUMN] =
+                getExternalUriString("compose", idString);
         mc.addRow(values);
     }
 
