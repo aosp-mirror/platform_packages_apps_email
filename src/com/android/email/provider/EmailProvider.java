@@ -2005,7 +2005,6 @@ outer:
         .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
         .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
-        .add(UIProvider.AccountColumns.SETTINGS_QUERY_URI, uriWithId("uisettings"))
         .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
@@ -2032,19 +2031,19 @@ outer:
      * conversation list in UnifiedEmail)
      */
     private static final ProjectionMap sAccountSettingsMap = ProjectionMap.builder()
-        .add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        .add(UIProvider.SettingsColumns.AUTO_ADVANCE,
+        .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
+        .add(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
                 Integer.toString(UIProvider.AutoAdvance.OLDER))
-        .add(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE,
+        .add(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
                 Integer.toString(UIProvider.MessageTextSize.NORMAL))
-        .add(UIProvider.SettingsColumns.SNAP_HEADERS,
+        .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
                 Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
-        .add(UIProvider.SettingsColumns.REPLY_BEHAVIOR,
+        .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
                 Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
-        .add(UIProvider.SettingsColumns.HIDE_CHECKBOXES, "0")
-        .add(UIProvider.SettingsColumns.CONFIRM_DELETE, "0")
-        .add(UIProvider.SettingsColumns.CONFIRM_ARCHIVE, "0")
-        .add(UIProvider.SettingsColumns.CONFIRM_SEND, "0")
+        .add(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES, "0")
+        .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE, "0")
+        .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
+        .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND, "0")
         .build();
 
     /**
@@ -2299,7 +2298,7 @@ outer:
         long accountId = Long.parseLong(id);
         long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
         if (mailboxId != Mailbox.NO_MAILBOX) {
-            values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
+            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", mailboxId));
         }
         StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);

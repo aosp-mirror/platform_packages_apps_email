@@ -223,14 +223,13 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FOLDER = UI_BASE + 10;
     private static final int UI_ACCOUNT = UI_BASE + 11;
     private static final int UI_ACCTS = UI_BASE + 12;
-    private static final int UI_SETTINGS = UI_BASE + 13;
-    private static final int UI_ATTACHMENTS = UI_BASE + 14;
-    private static final int UI_ATTACHMENT = UI_BASE + 15;
-    private static final int UI_SEARCH = UI_BASE + 16;
-    private static final int UI_ACCOUNT_DATA = UI_BASE + 17;
-    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 18;
-    private static final int UI_CONVERSATION = UI_BASE + 19;
-    private static final int UI_RECENT_FOLDERS = UI_BASE + 20;
+    private static final int UI_ATTACHMENTS = UI_BASE + 13;
+    private static final int UI_ATTACHMENT = UI_BASE + 14;
+    private static final int UI_SEARCH = UI_BASE + 15;
+    private static final int UI_ACCOUNT_DATA = UI_BASE + 16;
+    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 17;
+    private static final int UI_CONVERSATION = UI_BASE + 18;
+    private static final int UI_RECENT_FOLDERS = UI_BASE + 19;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -441,7 +440,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
         matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
-        matcher.addURI(EmailContent.AUTHORITY, "uisettings/#", UI_SETTINGS);
         matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
         matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
         matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
@@ -1209,7 +1207,6 @@ public class EmailProvider extends ContentProvider {
                 case UI_MESSAGE:
                 case UI_FOLDER:
                 case UI_ACCOUNT:
-                case UI_SETTINGS:
                 case UI_ATTACHMENT:
                 case UI_ATTACHMENTS:
                 case UI_CONVERSATION:
@@ -2095,12 +2092,18 @@ outer:
         .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
         .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
-        .add(UIProvider.AccountColumns.SETTINGS_QUERY_URI, uriWithId("uisettings"))
         .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
         // TODO: Is this used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
         .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
+        .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
+        .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
+                Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
+        .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
+                Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
+        .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
+
         .build();
 
     /**
@@ -2116,19 +2119,6 @@ outer:
         // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
         + " ELSE 10 END"
         + " ," + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-
-    /**
-     * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
-     * conversation list in UnifiedEmail)
-     */
-    private static final ProjectionMap sAccountSettingsMap = ProjectionMap.builder()
-        .add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        .add(UIProvider.SettingsColumns.SNAP_HEADERS,
-                Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
-        .add(UIProvider.SettingsColumns.REPLY_BEHAVIOR,
-                Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
-        .add(UIProvider.SettingsColumns.CONFIRM_ARCHIVE, "0")
-        .build();
 
     /**
      * Mapping of UIProvider columns to EmailProvider columns for a message's attachments
@@ -2436,6 +2426,28 @@ outer:
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriStringEmail2("compose", id));
         values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
+
+
+        // Put the settings columns values
+        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
+        if (mailboxId != Mailbox.NO_MAILBOX) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
+                    uiUriString("uifolder", mailboxId));
+        }
+        Preferences prefs = Preferences.getPreferences(getContext());
+        values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
+                prefs.getConfirmDelete() ? "1" : "0");
+        values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
+                prefs.getConfirmSend() ? "1" : "0");
+        values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
+                prefs.getHideCheckboxes() ? "1" : "0");
+        int autoAdvance = prefs.getAutoAdvanceDirection();
+        values.put(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
+                autoAdvanceToUiValue(autoAdvance));
+        int textZoom = prefs.getTextZoom();
+        values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
+                textZoomToUiValue(textZoom));
+
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
@@ -2468,35 +2480,6 @@ outer:
             default:
                 return UIProvider.MessageTextSize.NORMAL;
         }
-    }
-
-    /**
-     * Generate an "account settings" SQLite query, given a projection from UnifiedEmail
-     *
-     * @param uiProjection as passed from UnifiedEmail
-     * @return the SQLite query to be executed on the EmailProvider database
-     */
-    private String genQuerySettings(String[] uiProjection, String id) {
-        ContentValues values = new ContentValues();
-        long accountId = Long.parseLong(id);
-        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
-        if (mailboxId != Mailbox.NO_MAILBOX) {
-            values.put(UIProvider.SettingsColumns.DEFAULT_INBOX,
-                    uiUriString("uifolder", mailboxId));
-        }
-        Preferences prefs = Preferences.getPreferences(getContext());
-        values.put(UIProvider.SettingsColumns.CONFIRM_DELETE, prefs.getConfirmDelete() ? "1" : "0");
-        values.put(UIProvider.SettingsColumns.CONFIRM_SEND, prefs.getConfirmSend() ? "1" : "0");
-        values.put(UIProvider.SettingsColumns.HIDE_CHECKBOXES,
-                prefs.getHideCheckboxes() ? "1" : "0");
-        int autoAdvance = prefs.getAutoAdvanceDirection();
-        values.put(UIProvider.SettingsColumns.AUTO_ADVANCE, autoAdvanceToUiValue(autoAdvance));
-        int textZoom = prefs.getTextZoom();
-        values.put(UIProvider.SettingsColumns.MESSAGE_TEXT_SIZE, textZoomToUiValue(textZoom));
-
-        StringBuilder sb = genSelect(sAccountSettingsMap, uiProjection, values);
-        sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
-        return sb.toString();
     }
 
     /**
@@ -2533,38 +2516,35 @@ outer:
         values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] =
                 combinedUriString("uisendmail", idString);
         values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] = null;
-        values[UIProvider.ACCOUNT_SETTINGS_QUERY_URI_COLUMN] =
-            combinedUriString("uisettings", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_URI_COLUMN] =
             combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
-        values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;;
+        values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;
         values[UIProvider.ACCOUNT_SETTINGS_INTENT_URI_COLUMN] =
                 getExternalUriString("settings", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_COMPOSE_INTENT_URI_COLUMN] =
                 getExternalUriString("compose", idString);
-        mc.addRow(values);
-    }
 
-    private void addCombinedSettingsRow(MatrixCursor mc) {
         // TODO: Get these from default account?
         Preferences prefs = Preferences.getPreferences(getContext());
-        Object[] values = new Object[UIProvider.SETTINGS_PROJECTION.length];
-        values[UIProvider.SETTINGS_AUTO_ADVANCE_COLUMN] =
+        values[UIProvider.ACCOUNT_SETTINGS_AUTO_ADVANCE_COLUMN] =
             Integer.toString(UIProvider.AutoAdvance.NEWER);
-        values[UIProvider.SETTINGS_MESSAGE_TEXT_SIZE_COLUMN] =
+        values[UIProvider.ACCOUNT_SETTINGS_MESSAGE_TEXT_SIZE_COLUMN] =
             Integer.toString(UIProvider.MessageTextSize.NORMAL);
-        values[UIProvider.SETTINGS_SNAP_HEADERS_COLUMN] =
+        values[UIProvider.ACCOUNT_SETTINGS_SNAP_HEADERS_COLUMN] =
             Integer.toString(UIProvider.SnapHeaderValue.ALWAYS);
         //.add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        values[UIProvider.SETTINGS_REPLY_BEHAVIOR_COLUMN] =
+        values[UIProvider.ACCOUNT_SETTINGS_REPLY_BEHAVIOR_COLUMN] =
             Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
-        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
-        values[UIProvider.SETTINGS_CONFIRM_DELETE_COLUMN] = prefs.getConfirmDelete() ? 1 : 0;
-        values[UIProvider.SETTINGS_CONFIRM_ARCHIVE_COLUMN] = 0;
-        values[UIProvider.SETTINGS_CONFIRM_SEND_COLUMN] = prefs.getConfirmSend() ? 1 : 0;
-        values[UIProvider.SETTINGS_HIDE_CHECKBOXES_COLUMN] = prefs.getHideCheckboxes() ? 1 : 0;
-        values[UIProvider.SETTINGS_DEFAULT_INBOX_COLUMN] = combinedUriString("uifolder",
+        values[UIProvider.ACCOUNT_SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
+        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_DELETE_COLUMN] =
+                prefs.getConfirmDelete() ? 1 : 0;
+        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_ARCHIVE_COLUMN] = 0;
+        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_SEND_COLUMN] = prefs.getConfirmSend() ? 1 : 0;
+        values[UIProvider.ACCOUNT_SETTINGS_HIDE_CHECKBOXES_COLUMN] =
+                prefs.getHideCheckboxes() ? 1 : 0;
+        values[UIProvider.ACCOUNT_SETTINGS_DEFAULT_INBOX_COLUMN] = combinedUriString("uifolder",
                 combinedMailboxId(Mailbox.TYPE_INBOX));
+
         mc.addRow(values);
     }
 
@@ -2737,16 +2717,6 @@ outer:
                     c = db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
                 }
                 notifyUri = UIPROVIDER_ACCOUNT_NOTIFIER.buildUpon().appendPath(id).build();
-                break;
-            case UI_SETTINGS:
-                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-                    MatrixCursor mc = new MatrixCursor(UIProvider.SETTINGS_PROJECTION, 1);
-                    addCombinedSettingsRow(mc);
-                    c = mc;
-                } else {
-                    c = db.rawQuery(genQuerySettings(uiProjection, id), new String[] {id});
-                }
-                notifyUri = UIPROVIDER_SETTINGS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_CONVERSATION:
                 c = db.rawQuery(genQueryConversation(uiProjection), new String[] {id});
