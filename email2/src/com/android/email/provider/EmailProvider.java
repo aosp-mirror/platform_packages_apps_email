@@ -2034,6 +2034,8 @@ outer:
         .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
                 uriWithFQId("uisenddraft", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
+        .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
+                uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
         .build();
 
     /**
@@ -2179,7 +2181,19 @@ outer:
      * @return a Uri string
      */
     private static String uriWithId(String type) {
-        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || _id";
+        return uriWithColumn(type, EmailContent.RECORD_ID);
+    }
+
+    /**
+     * Convenience method to create a Uri string given the "type" of query; we append the type
+     * of the query and the passed in column nam
+     *
+     * @param type the "type" of the query, as defined by our UriMatcher definitions
+     * @param columnName the column in the table being queried
+     * @return a Uri string
+     */
+    private static String uriWithColumn(String type, String columnName) {
+        return "'content://" + EmailContent.AUTHORITY + "/" + type + "/' || " + columnName;
     }
 
     /**
