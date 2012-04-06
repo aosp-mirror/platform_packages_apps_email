@@ -517,6 +517,8 @@ public abstract class EmailContent {
         // and the sync adapter might, for example, need more information about the original source
         // of the message)
         public static final String PROTOCOL_SEARCH_INFO = "protocolSearchInfo";
+        // Simple thread topic
+        public static final String THREAD_TOPIC = "threadTopic";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -562,6 +564,7 @@ public abstract class EmailContent {
         public static final int CONTENT_MEETING_INFO_COLUMN = 20;
         public static final int CONTENT_SNIPPET_COLUMN = 21;
         public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
+        public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -575,7 +578,8 @@ public abstract class EmailContent {
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
-            MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO
+            MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
+            MessageColumns.THREAD_TOPIC
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -710,6 +714,8 @@ public abstract class EmailContent {
 
         public String mProtocolSearchInfo;
 
+        public String mThreadTopic;
+
         /**
          * Base64-encoded representation of the byte array provided by servers for identifying
          * messages belonging to the same conversation thread. Currently unsupported and not
@@ -817,6 +823,8 @@ public abstract class EmailContent {
             values.put(MessageColumns.SNIPPET, mSnippet);
 
             values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
+
+            values.put(MessageColumns.THREAD_TOPIC, mThreadTopic);
             return values;
         }
 
@@ -851,6 +859,7 @@ public abstract class EmailContent {
             mMeetingInfo = cursor.getString(CONTENT_MEETING_INFO_COLUMN);
             mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
             mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
+            mThreadTopic = cursor.getString(CONTENT_THREAD_TOPIC_COLUMN);
         }
 
         public boolean update() {
