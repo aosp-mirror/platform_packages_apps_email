@@ -32,6 +32,7 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -71,9 +72,11 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
+import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
+import com.android.mail.utils.MatrixCursorWithExtra;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -2590,7 +2593,11 @@ outer:
             combinedAccount = true;
             numAccounts++;
         }
-        MatrixCursor mc = new MatrixCursor(uiProjection, accountIdCursor.getCount());
+        final Bundle extras = new Bundle();
+        // Email always returns the accurate number of accounts
+        extras.putInt(AccountCursorExtraKeys.ACCOUNTS_LOADED, 1);
+        final MatrixCursor mc =
+                new MatrixCursorWithExtra(uiProjection, accountIdCursor.getCount(), extras);
         Object[] values = new Object[uiProjection.length];
         try {
             if (combinedAccount) {
