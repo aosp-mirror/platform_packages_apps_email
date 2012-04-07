@@ -517,10 +517,6 @@ public class EmailProvider extends ContentProvider {
 
         // Restore accounts if the database is corrupted...
         restoreIfNeeded(context, mDatabase);
-
-        if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "Deleting orphans...");
-        }
         // Check for any orphaned Messages in the updated/deleted tables
         deleteMessageOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
         deleteMessageOrphans(mDatabase, Message.DELETED_TABLE_NAME);
@@ -532,13 +528,7 @@ public class EmailProvider extends ContentProvider {
         deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
                 Account.TABLE_NAME);
 
-        if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "EmailProvider pre-caching...");
-        }
         preCacheData();
-        if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "EmailProvider ready.");
-        }
         return mDatabase;
     }
 
@@ -2786,7 +2776,6 @@ outer:
             default:
                 throw new IllegalArgumentException("Illegal mailbox type");
         }
-        Log.d(TAG, "Creating mailbox of type " + mailboxType + " for account " + accountId);
         Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType, context.getString(resId));
         // Make sure drafts and save will show up in recents...
         // If these already exist (from old Email app), they will have touch times
@@ -3205,7 +3194,6 @@ outer:
                 // Tell the UI there are changes
                 getContext().getContentResolver().notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER,
                         null);
-                Log.d(TAG, "[Notify UI: Undo]");
                 return c;
             } catch (OperationApplicationException e) {
             }
@@ -3238,8 +3226,6 @@ outer:
     private void notifyUI(Uri uri, String id) {
         Uri notifyUri = uri.buildUpon().appendPath(id).build();
         getContext().getContentResolver().notifyChange(notifyUri, null);
-        // Temporary
-        Log.d(TAG, "[Notify UI: " + notifyUri + "]");
     }
 
     private void notifyUI(Uri uri, long id) {
@@ -3364,7 +3350,7 @@ outer:
                             // Save away the total count
                             mSearchParams.mTotalCount = service.searchMessages(accountId,
                                     mSearchParams, searchMailboxId);
-                            Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
+                            //Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
                             notifyUI(UIPROVIDER_FOLDER_NOTIFIER, searchMailboxId);
                         } catch (RemoteException e) {
                             Log.e("searchMessages", "RemoteException", e);
