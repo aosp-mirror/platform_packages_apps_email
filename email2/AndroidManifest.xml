@@ -293,6 +293,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.android.mail.ACTION_NOTIFY_DATASET_CHANGED" />
+                <data android:mimeType="application/email-ls" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_info" />
