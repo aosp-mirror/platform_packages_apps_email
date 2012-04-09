@@ -178,6 +178,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int TYPE_JUNK = 7;
     /** Search results */
     public static final int TYPE_SEARCH = 8;
+    /** Starred (virtual */
+    public static final int TYPE_STARRED = 9;
 
     // Types after this are used for non-mail mailboxes (as in EAS)
     public static final int TYPE_NOT_EMAIL = 0x40;
@@ -649,6 +651,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         }
     };
 
+    @Override
     public String toString() {
         return "[Mailbox " + mId + ": " + mDisplayName + "]";
     }

@@ -29,6 +29,7 @@ import android.content.UriMatcher;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
@@ -1192,7 +1193,6 @@ public class EmailProvider extends ContentProvider {
                 case UI_UNDO:
                     return uiUndo(uri, projection);
                 case UI_SUBFOLDERS:
-                case UI_FOLDERS:
                 case UI_MESSAGES:
                 case UI_MESSAGE:
                 case UI_FOLDER:
@@ -1206,6 +1206,9 @@ public class EmailProvider extends ContentProvider {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
                     }
                     c = uiQuery(match, uri, projection);
+                    return c;
+                case UI_FOLDERS:
+                    c = uiFolders(uri, projection);
                     return c;
                 case UI_FOLDER_LOAD_MORE:
                     c = uiFolderLoadMore(uri);
@@ -2053,6 +2056,7 @@ outer:
             + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts_holo_light
             + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox_holo_light
             + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent_holo_light
+            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_menu_star_holo_light
             + " ELSE -1 END";
 
     private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
@@ -2281,17 +2285,47 @@ outer:
     }
 
     /**
-     * Generate the "combined message list" SQLite query, given a projection from UnifiedEmail
+     * Generate various virtual mailbox SQLite queries, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
+     * @param id the id of the virtual mailbox
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    // TODO: This is ALL messages; should be inboxes
-    private String genQueryAllMessages(String[] uiProjection) {
+    private Cursor getVirtualMailboxMessagesCursor(SQLiteDatabase db, String[] uiProjection,
+            long mailboxId) {
         StringBuilder sb = genSelect(sMessageListMap, uiProjection);
-        sb.append(" FROM " + Message.TABLE_NAME + " ORDER BY " +
-                MessageColumns.TIMESTAMP + " DESC");
-        return sb.toString();
+        if (isCombinedMailbox(mailboxId)) {
+            switch (getVirtualMailboxType(mailboxId)) {
+                case Mailbox.TYPE_INBOX:
+                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
+                            MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
+                            " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
+                            "=" + Mailbox.TYPE_INBOX + ") ORDER BY " + MessageColumns.TIMESTAMP +
+                            " DESC");
+                    break;
+                case Mailbox.TYPE_STARRED:
+                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
+                            MessageColumns.FLAG_FAVORITE + "=1 ORDER BY " +
+                            MessageColumns.TIMESTAMP + " DESC");
+                    break;
+                default:
+                    throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
+            }
+            return db.rawQuery(sb.toString(), null);
+        } else {
+            switch (getVirtualMailboxType(mailboxId)) {
+                case Mailbox.TYPE_STARRED:
+                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
+                            MessageColumns.ACCOUNT_KEY + "=? AND " +
+                            MessageColumns.FLAG_FAVORITE + "=1 ORDER BY " +
+                            MessageColumns.TIMESTAMP + " DESC");
+                    break;
+                default:
+                    throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
+            }
+            return db.rawQuery(sb.toString(),
+                    new String[] {getVirtualMailboxAccountIdString(mailboxId)});
+        }
     }
 
     /**
@@ -2356,7 +2390,11 @@ outer:
         } else {
             Context context = getContext();
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-            String protocol = Account.getProtocol(context, mailbox.mAccountKey);
+            // Make sure we can't get NPE if mailbox has disappeared (the result will end up moot)
+            String protocol = "eas";
+            if (mailbox != null) {
+                protocol = Account.getProtocol(context, mailbox.mAccountKey);
+            }
             // "load more" is valid for IMAP/POP3
             if (HostAuth.SCHEME_IMAP.equals(protocol) || HostAuth.SCHEME_POP3.equals(protocol)) {
                 values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
@@ -2513,6 +2551,8 @@ outer:
         return "content://" + EmailContent.AUTHORITY + "/" + type + "/" + id;
     }
 
+    private static final long COMBINED_ACCOUNT_ID = 0x10000000;
+
     /**
      * Generate an id for a combined mailbox of a given type
      * @param type the mailbox type for the combined mailbox
@@ -2520,6 +2560,34 @@ outer:
      */
     private static String combinedMailboxId(int type) {
         return Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW + type);
+    }
+
+    private static String getVirtualMailboxIdString(long accountId, int type) {
+        return Long.toString(getVirtualMailboxId(accountId, type));
+    }
+
+    private static long getVirtualMailboxId(long accountId, int type) {
+        return (accountId << 32) + type;
+    }
+
+    private static boolean isVirtualMailbox(long mailboxId) {
+        return mailboxId >= 0x100000000L;
+    }
+
+    private static boolean isCombinedMailbox(long mailboxId) {
+        return (mailboxId >> 32) == COMBINED_ACCOUNT_ID;
+    }
+
+    private static long getVirtualMailboxAccountId(long mailboxId) {
+        return mailboxId >> 32;
+    }
+
+    private static String getVirtualMailboxAccountIdString(long mailboxId) {
+        return Long.toString(mailboxId >> 32);
+    }
+
+    private static int getVirtualMailboxType(long mailboxId) {
+        return (int)(mailboxId & 0xF);
     }
 
     private void addCombinedAccountRow(MatrixCursor mc) {
@@ -2569,18 +2637,25 @@ outer:
         mc.addRow(values);
     }
 
-    private void addCombinedInboxRow(MatrixCursor mc) {
+    private Cursor getVirtualMailboxCursor(long mailboxId) {
+        MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
+        mc.addRow(getVirtualMailboxRow(getVirtualMailboxAccountId(mailboxId),
+                getVirtualMailboxType(mailboxId)));
+        return mc;
+    }
+
+    private Object[] getVirtualMailboxRow(long accountId, int mailboxType) {
+        String idString = getVirtualMailboxIdString(accountId, mailboxType);
         Object[] values = new Object[UIProvider.FOLDERS_PROJECTION.length];
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
-        values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder",
-                combinedMailboxId(Mailbox.TYPE_INBOX));
-        values[UIProvider.FOLDER_NAME_COLUMN] = getContext().getString(R.string.widget_all_mail);
+        values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
+        values[UIProvider.FOLDER_NAME_COLUMN] = getMailboxNameForType(mailboxType);
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
         values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = 0;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
-                combinedMailboxId(Mailbox.TYPE_INBOX));
+                idString);
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
-        mc.addRow(values);
+        return values;
     }
 
     private Cursor uiAccounts(String[] uiProjection) {
@@ -2662,14 +2737,48 @@ outer:
         return sb.toString();
     }
 
-    private static final String COMBINED_ACCOUNT_ID_STRING =
-            Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW);
+    private static final String COMBINED_ACCOUNT_ID_STRING = Long.toString(COMBINED_ACCOUNT_ID);
 
-
-    private Cursor getCombinedInboxCursor() {
-        MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
-        addCombinedInboxRow(mc);
-        return mc;
+    private Cursor uiFolders(Uri uri, String[] uiProjection) {
+        Context context = getContext();
+        SQLiteDatabase db = getDatabase(context);
+        String id = uri.getPathSegments().get(1);
+        if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+            MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 2);
+            Object[] row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
+            int numUnread = EmailContent.count(context, Message.CONTENT_URI,
+                     MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
+                    " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
+                    "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
+            mc.addRow(row);
+            int numStarred = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.FLAG_FAVORITE + "=1", null);
+            if (numStarred > 0) {
+                row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
+                row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
+                mc.addRow(row);
+            }
+            return mc;
+        } else {
+            Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
+            int numStarred = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.FLAG_FAVORITE + "=1",
+                    new String[] {id});
+            if (numStarred == 0) {
+                return c;
+            } else {
+                // Add starred virtual folder to the cursor
+                // Show number of messages as unread count (for backward compatibility)
+                MatrixCursor starCursor = new MatrixCursor(uiProjection, 1);
+                Object[] row = getVirtualMailboxRow(Long.parseLong(id), Mailbox.TYPE_STARRED);
+                row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
+                row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
+                starCursor.addRow(row);
+                Cursor[] cursors = new Cursor[] {starCursor, c};
+                return new MergeCursor(cursors);
+            }
+        }
     }
 
     /**
@@ -2689,13 +2798,6 @@ outer:
         String id = uri.getPathSegments().get(1);
         Uri notifyUri = null;
         switch(match) {
-            case UI_FOLDERS:
-                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-                    c = getCombinedInboxCursor();
-                } else {
-                    c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
-                }
-                break;
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
                 break;
@@ -2703,8 +2805,9 @@ outer:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
                 break;
             case UI_MESSAGES:
-                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-                    c = db.rawQuery(genQueryAllMessages(uiProjection), null);
+                long mailboxId = Long.parseLong(id);
+                if (isVirtualMailbox(mailboxId)) {
+                    c = getVirtualMailboxMessagesCursor(db, uiProjection, mailboxId);
                 } else {
                     c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
                 }
@@ -2722,8 +2825,9 @@ outer:
                 notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
-                if (id.equals(combinedMailboxId(Mailbox.TYPE_INBOX))) {
-                    c = getCombinedInboxCursor();
+                mailboxId = Long.parseLong(id);
+                if (isVirtualMailbox(mailboxId)) {
+                    c = getVirtualMailboxCursor(mailboxId);
                 } else {
                     c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
                     notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
@@ -2765,12 +2869,9 @@ outer:
         return att;
     }
 
-    /**
-     * Create a mailbox given the account and mailboxType.
-     */
-    private Mailbox createMailbox(long accountId, int mailboxType) {
+    private String getMailboxNameForType(int mailboxType) {
         Context context = getContext();
-        int resId = -1;
+        int resId;
         switch (mailboxType) {
             case Mailbox.TYPE_INBOX:
                 resId = R.string.mailbox_name_server_inbox;
@@ -2790,10 +2891,22 @@ outer:
             case Mailbox.TYPE_JUNK:
                 resId = R.string.mailbox_name_server_junk;
                 break;
+            case Mailbox.TYPE_STARRED:
+                resId = R.string.widget_starred;
+                break;
             default:
                 throw new IllegalArgumentException("Illegal mailbox type");
         }
-        Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType, context.getString(resId));
+        return context.getString(resId);
+    }
+
+    /**
+     * Create a mailbox given the account and mailboxType.
+     */
+    private Mailbox createMailbox(long accountId, int mailboxType) {
+        Context context = getContext();
+        Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType,
+                getMailboxNameForType(mailboxType));
         // Make sure drafts and save will show up in recents...
         // If these already exist (from old Email app), they will have touch times
         switch (mailboxType) {
