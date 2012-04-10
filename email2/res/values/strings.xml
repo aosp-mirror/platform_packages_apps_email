@@ -99,8 +99,8 @@
     <string name="account_settings_action">Account settings</string>
     <!-- Menu item for settings [CHAR LIMIT=40]-->
     <string name="settings_action">Settings</string>
-    <!-- Menu item [CHAR LIMIT=32] -->
-    <string name="mailbox_settings_action">Sync options</string>
+    <!-- Menu item: options for this mailbox. [CHAR LIMIT = 32] -->
+    <string name="menu_folder_options">Sync options</string>
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
