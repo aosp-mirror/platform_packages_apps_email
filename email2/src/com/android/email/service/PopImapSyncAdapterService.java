@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -88,6 +89,7 @@ public class PopImapSyncAdapterService extends Service {
 
     private static void sync(Context context, long mailboxId, SyncResult syncResult,
             boolean uiRefresh) {
+        TempDirectory.setTempDirectory(context);
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return;
         Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
