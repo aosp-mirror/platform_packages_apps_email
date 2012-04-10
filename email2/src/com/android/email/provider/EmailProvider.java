@@ -2054,6 +2054,7 @@ outer:
             + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + UIProvider.FolderType.SENT
             + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + UIProvider.FolderType.TRASH
             + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
+            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + UIProvider.FolderType.STARRED
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
