@@ -60,7 +60,7 @@
         android:name="com.android.email.permission.ACCESS_PROVIDER"/>
 
     <application
-        android:icon="@mipmap/ic_launcher_mail"
+        android:icon="@mipmap/ic_launcher_email"
         android:label="@string/app_name"
         android:theme="@style/UnifiedEmailTheme" >
         <!-- Enable search in all activities -->
