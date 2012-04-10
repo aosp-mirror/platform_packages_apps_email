@@ -1946,8 +1946,7 @@ outer:
     private static final String NOT_A_DRAFT_STRING =
         Integer.toString(UIProvider.DraftType.NOT_A_DRAFT);
 
-    private static String getConversationFlags() {
-        return
+    private static final String CONVERSATION_FLAGS =
             "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_INCOMING_MEETING_INVITE +
                 ") !=0 THEN " + UIProvider.ConversationFlags.CALENDAR_INVITE +
                 " ELSE 0 END + " +
@@ -1957,7 +1956,6 @@ outer:
              "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_REPLIED_TO +
                 ") !=0 THEN " + UIProvider.ConversationFlags.REPLIED +
                 " ELSE 0 END";
-    }
 
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
@@ -1982,7 +1980,7 @@ outer:
     .add(UIProvider.ConversationColumns.FOLDER_LIST,
             "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
                     + MessageColumns.MAILBOX_KEY)
-    .add(UIProvider.ConversationColumns.FLAGS, getConversationFlags())
+    .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
     .build();
 
 
@@ -2034,6 +2032,8 @@ outer:
         .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
         .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
                 uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
+        .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
+        .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
         .build();
 
     /**
@@ -2977,8 +2977,8 @@ outer:
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         int flags = 0;
-        int type = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
-        switch(type) {
+        int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
+        switch(draftType) {
             case DraftType.FORWARD:
                 flags |= Message.FLAG_TYPE_FORWARD;
                 break;
@@ -3046,6 +3046,27 @@ outer:
             try {
                 service.startSync(mailbox.mId, true);
             } catch (RemoteException e) {
+            }
+            long originalMsgId = msg.mSourceKey;
+            if (originalMsgId != 0) {
+                Message originalMsg = Message.restoreMessageWithId(context, originalMsgId);
+                // If the original message exists, set its forwarded/replied to flags
+                if (originalMsg != null) {
+                    ContentValues cv = new ContentValues();
+                    flags = originalMsg.mFlags;
+                    switch(draftType) {
+                        case DraftType.FORWARD:
+                            flags |= Message.FLAG_FORWARDED;
+                            break;
+                        case DraftType.REPLY_ALL:
+                        case DraftType.REPLY:
+                            flags |= Message.FLAG_REPLIED_TO;
+                            break;
+                    }
+                    cv.put(Message.FLAGS, flags);
+                    context.getContentResolver().update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, originalMsgId), cv, null, null);
+                }
             }
         }
         return uiUri("uimessage", msg.mId);
