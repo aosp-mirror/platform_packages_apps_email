@@ -1027,6 +1027,11 @@ public class EmailProvider extends ContentProvider {
                                     break;
                                 }
                             }
+                            // Notify the account when a new mailbox is added
+                            Long accountId = values.getAsLong(MailboxColumns.ACCOUNT_KEY);
+                            if (accountId != null && accountId.longValue() > 0) {
+                                notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
+                            }
                             //$FALL-THROUGH$
                         case ACCOUNT:
                         case HOSTAUTH:
@@ -2486,13 +2491,6 @@ outer:
                 getExternalUriStringEmail2("compose", id));
         values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
 
-
-        // Put the settings columns values
-        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
-        if (mailboxId != Mailbox.NO_MAILBOX) {
-            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
-                    uiUriString("uifolder", mailboxId));
-        }
         Preferences prefs = Preferences.getPreferences(getContext());
         values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
                 prefs.getConfirmDelete() ? "1" : "0");
@@ -2506,6 +2504,15 @@ outer:
         int textZoom = prefs.getTextZoom();
         values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
                 textZoomToUiValue(textZoom));
+        // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
+        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
+        if (mailboxId != Mailbox.NO_MAILBOX) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
+                    uiUriString("uifolder", mailboxId));
+        } else {
+            values.put(UIProvider.AccountColumns.SYNC_STATUS,
+                    UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
+        }
 
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
