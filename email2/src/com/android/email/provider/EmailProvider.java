@@ -2243,6 +2243,24 @@ outer:
         }
         values.put(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, autoShowImages);
 
+        // Add attachments...
+        Attachment[] atts = Attachment.restoreAttachmentsWithMessageId(context, messageId);
+        if (atts.length > 0) {
+            ArrayList<com.android.mail.providers.Attachment> uiAtts =
+                    new ArrayList<com.android.mail.providers.Attachment>();
+            for (Attachment att: atts) {
+                com.android.mail.providers.Attachment uiAtt =
+                        new com.android.mail.providers.Attachment();
+                uiAtt.name = att.mFileName;
+                uiAtt.contentType = att.mMimeType;
+                uiAtt.size = (int)att.mSize;
+                uiAtt.uri = uiUri("uiattachment", att.mId);
+                uiAtts.add(uiAtt);
+            }
+            values.put(UIProvider.MessageColumns.ATTACHMENTS,
+                    com.android.mail.providers.Attachment.toJSONArray(uiAtts));
+        }
+
         StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
