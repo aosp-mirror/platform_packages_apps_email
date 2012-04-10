@@ -2070,7 +2070,6 @@ outer:
         .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
         .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
-        .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
         .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
         .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
         .build();
