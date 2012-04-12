@@ -34,6 +34,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -71,6 +72,7 @@ import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
@@ -3010,13 +3012,43 @@ outer:
                 com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
                         values.getAsString(UIProvider.MessageColumns.JOINED_ATTACHMENT_INFOS));
         ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        boolean hasUnloadedAttachments = false;
         for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
-            // Convert to our attachments and add to the list; everything else should "just work"
-            atts.add(convertUiAttachmentToAttachment(uiAtt));
+            Uri attUri = uiAtt.contentUri;
+            if (attUri.getAuthority().equals(EmailContent.AUTHORITY)) {
+                // If it's one of ours, retrieve the attachment and add it to the list
+                long attId = Long.parseLong(attUri.getLastPathSegment());
+                Attachment att = Attachment.restoreAttachmentWithId(context, attId);
+                if (att != null) {
+                    // We must clone the attachment into a new one for this message; easiest to
+                    // use a parcel here
+                    Parcel p = Parcel.obtain();
+                    att.writeToParcel(p, 0);
+                    p.setDataPosition(0);
+                    Attachment attClone = new Attachment(p);
+                    p.recycle();
+                    // Clear the messageKey (this is going to be a new attachment)
+                    attClone.mMessageKey = 0;
+                    // If we're sending this, it's not loaded, and we're not smart forwarding
+                    // add the download flag, so that ADS will start up
+                    if (mailbox.mType == Mailbox.TYPE_OUTBOX && att.mContentUri == null &&
+                            ((account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) == 0)) {
+                        attClone.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
+                        hasUnloadedAttachments = true;
+                    }
+                    atts.add(attClone);
+                }
+            } else {
+                // Convert external attachment to one of ours and add to the list
+                atts.add(convertUiAttachmentToAttachment(uiAtt));
+            }
         }
         if (!atts.isEmpty()) {
             msg.mAttachments = atts;
             msg.mFlagAttachment = true;
+            if (hasUnloadedAttachments) {
+                Utility.showToast(context, R.string.message_view_attachment_background_load);
+            }
         }
         // Save it or update it...
         if (!msg.isSaved()) {

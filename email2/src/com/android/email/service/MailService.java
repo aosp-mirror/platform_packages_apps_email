@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+
 import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.AccountManagerTypes;
@@ -39,25 +40,6 @@ import java.util.List;
  * Legacy service, now used mainly for account reconciliation
  */
 public class MailService extends Service {
-    private static final String LOG_TAG = "Email-MailService";
-
-    private static final String ACTION_SEND_PENDING_MAIL =
-        "com.android.email.intent.action.MAIL_SERVICE_SEND_PENDING";
-
-    private static final String EXTRA_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
-
-    /**
-     * Entry point for AttachmentDownloadService to ask that pending mail be sent
-     * @param context the caller's context
-     * @param accountId the account whose pending mail should be sent
-     */
-    public static void actionSendPendingMail(Context context, long accountId)  {
-        Intent i = new Intent();
-        i.setClass(context, MailService.class);
-        i.setAction(MailService.ACTION_SEND_PENDING_MAIL);
-        i.putExtra(MailService.EXTRA_ACCOUNT, accountId);
-        context.startService(i);
-    }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {

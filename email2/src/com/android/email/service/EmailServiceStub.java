@@ -51,6 +51,8 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.HostAuth;
@@ -220,9 +222,21 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             doProgressCallback(messageId, attachmentId, 0);
 
             // 2. Open the remote folder.
-            // TODO all of these could be narrower projections
             Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
             Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+
+            if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+                long sourceId = Utility.getFirstRowLong(mContext, Body.CONTENT_URI,
+                        new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
+                        BodyColumns.MESSAGE_KEY + "=?",
+                        new String[] {Long.toString(messageId)}, null, 0, -1L);
+                if (sourceId != -1L) {
+                    EmailContent.Message sourceMsg =
+                            EmailContent.Message.restoreMessageWithId(mContext, sourceId);
+                    mailbox = Mailbox.restoreMailboxWithId(mContext, sourceMsg.mMailboxKey);
+                    message.mServerId = sourceMsg.mServerId;
+                }
+            }
 
             if (account == null || mailbox == null) {
                 // If the account/mailbox are gone, just report success; the UI handles this

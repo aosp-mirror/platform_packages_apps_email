@@ -591,7 +591,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         if (MailActivityEmail.DEBUG) {
                             Log.d(TAG, "== Downloads finished for outgoing msg #" + req.messageId);
                         }
-                        MailService.actionSendPendingMail(mContext, req.accountId);
+                        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
+                                mContext, null, accountId);
+                        try {
+                            service.sendMail(accountId);
+                        } catch (RemoteException e) {
+                            // We tried
+                        }
                     }
                 }
                 if (statusCode == EmailServiceStatus.MESSAGE_NOT_FOUND) {
