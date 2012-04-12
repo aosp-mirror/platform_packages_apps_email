@@ -27,7 +27,6 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -65,7 +64,6 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
 
-import java.io.IOException;
 import java.util.HashSet;
 
 /**
@@ -285,9 +283,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 throw new MessagingException("Attachment not loaded.");
             }
 
-            // 5. Save the downloaded file and update the attachment as necessary
-            LegacyConversions.saveAttachmentBody(mContext, storePart, attachment,
-                    message.mAccountKey);
+            // Save the attachment to wherever it's going
+            AttachmentUtilities.saveAttachment(mContext, storePart.getBody().getInputStream(),
+                    attachment);
 
             // 6. Report success
             mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
@@ -302,8 +300,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             mContext.getContentResolver().update(uri, cv, null, null);
 
             mCallback.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
-        } catch (IOException ioe) {
-            Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
         }
 
     }

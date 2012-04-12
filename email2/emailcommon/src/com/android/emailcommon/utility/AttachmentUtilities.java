@@ -16,21 +16,32 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.mail.providers.UIProvider;
+
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class AttachmentUtilities {
     public static final String AUTHORITY = "com.android.email.attachmentprovider";
@@ -348,5 +359,73 @@ public class AttachmentUtilities {
                 Log.e(Logging.LOG_TAG, "Failed to delete attachment file " + file.getName());
             }
         }
+    }
+
+    private static long copyFile(InputStream in, File file) throws IOException {
+        FileOutputStream out = new FileOutputStream(file);
+        long size = IOUtils.copy(in, out);
+        in.close();
+        out.flush();
+        out.close();
+        return size;
+    }
+
+    /**
+     * Save the attachment to its final resting place (cache or sd card)
+     */
+    public static void saveAttachment(Context context, InputStream in, Attachment attachment) {
+        Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachment.mId);
+        ContentValues cv = new ContentValues();
+        long attachmentId = attachment.mId;
+        long accountId = attachment.mAccountKey;
+        String contentUri;
+        long size;
+        try {
+            if (attachment.mUiDestination == UIProvider.AttachmentDestination.CACHE) {
+                File saveIn = getAttachmentDirectory(context, accountId);
+                if (!saveIn.exists()) {
+                    saveIn.mkdirs();
+                }
+                File file = getAttachmentFilename(context, accountId, attachmentId);
+                file.createNewFile();
+                size = copyFile(in, file);
+                contentUri = getAttachmentUri(accountId, attachmentId).toString();
+            } else if (Utility.isExternalStorageMounted()) {
+                File downloads = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS);
+                downloads.mkdirs();
+                File file = Utility.createUniqueFile(downloads, attachment.mFileName);
+                size = copyFile(in, file);
+                String absolutePath = file.getAbsolutePath();
+
+                // Although the download manager can scan media files, scanning only happens
+                // after the user clicks on the item in the Downloads app. So, we run the
+                // attachment through the media scanner ourselves so it gets added to
+                // gallery / music immediately.
+                MediaScannerConnection.scanFile(context, new String[] {absolutePath},
+                        null, null);
+
+                DownloadManager dm =
+                        (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                long id = dm.addCompletedDownload(attachment.mFileName, attachment.mFileName,
+                        false /* do not use media scanner */,
+                        attachment.mMimeType, absolutePath, size,
+                        true /* show notification */);
+                contentUri = dm.getUriForDownloadedFile(id).toString();
+
+            } else {
+                throw new IOException();
+            }
+
+            // Update the attachment
+            cv.put(AttachmentColumns.SIZE, size);
+            cv.put(AttachmentColumns.CONTENT_URI, contentUri);
+            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
+        } catch (IOException e) {
+            // Handle failures here...
+            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
+        }
+        context.getContentResolver().update(uri, cv, null, null);
+
     }
 }
