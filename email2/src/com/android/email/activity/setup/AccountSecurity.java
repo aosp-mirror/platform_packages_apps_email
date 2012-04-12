@@ -78,7 +78,7 @@ public class AccountSecurity extends Activity {
      */
     public static Intent actionUpdateSecurityIntent(Context context, long accountId,
             boolean showDialog) {
-        Intent intent = new ForwardingIntent(context, AccountSecurity.class);
+        Intent intent = new Intent(context, AccountSecurity.class);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(EXTRA_SHOW_DIALOG, showDialog);
         return intent;
