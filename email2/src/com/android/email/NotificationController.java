@@ -154,7 +154,7 @@ public class NotificationController {
      * specific rules on ring tone usage and these will be used to modify the notification
      * behaviour.
      *
-     * @param account The account this notification is being built for.
+     * @param accountId The id of the account this notification is being built for.
      * @param ticker Text displayed when the notification is first shown. May be {@code null}.
      * @param title The first line of text. May NOT be {@code null}.
      * @param contentText The second line of text. May NOT be {@code null}.
@@ -166,7 +166,7 @@ public class NotificationController {
      *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
-    private Notification createMailboxNotification(Mailbox mailbox, String ticker,
+    private Notification createNotification(long accountId, String ticker,
             CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
             Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
@@ -189,7 +189,7 @@ public class NotificationController {
                 .setOngoing(ongoing);
 
         if (enableAudio) {
-            Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+            Account account = Account.restoreAccountWithId(mContext, accountId);
             setupSoundAndVibration(builder, account);
         }
 
@@ -200,17 +200,17 @@ public class NotificationController {
     /**
      * Generic notifier for any account.  Uses notification rules from account.
      *
-     * @param account The account this notification is being built for.
+     * @param accountId The account id this notification is being built for.
      * @param ticker Text displayed when the notification is first shown. May be {@code null}.
      * @param title The first line of text. May NOT be {@code null}.
      * @param contentText The second line of text. May NOT be {@code null}.
      * @param intent The intent to start if the user clicks on the notification.
      * @param notificationId The ID of the notification to register with the service.
      */
-    private void showMailboxNotification(Mailbox mailbox, String ticker, String title,
+    private void showNotification(long accountId, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
-        Notification notification = createMailboxNotification(mailbox, ticker, title, contentText,
-                intent, null, null, true, needsOngoingNotification(notificationId));
+        Notification notification = createNotification(accountId, ticker, title,
+                contentText, intent, null, null, true, needsOngoingNotification(notificationId));
         mNotificationManager.notify(notificationId, notification);
     }
 
@@ -460,8 +460,8 @@ public class NotificationController {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         long now = mClock.getTime();
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
-        Notification notification = createMailboxNotification(
-                mailbox, title.toString(), title, text,
+        Notification notification = createNotification(
+                mailbox.mAccountKey, title.toString(), title, text,
                 intent, largeIcon, number, enableAudio, false);
         mLastMessageNotifyTime = now;
         return notification;
@@ -519,7 +519,7 @@ public class NotificationController {
         Message message = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
         if (message == null) return;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
-        showMailboxNotification(mailbox,
+        showNotification(mailbox.mAccountKey,
                 mContext.getString(R.string.forward_download_failed_ticker),
                 mContext.getString(R.string.forward_download_failed_title),
                 attachment.mFileName,
@@ -545,7 +545,7 @@ public class NotificationController {
         final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
                 Mailbox.TYPE_INBOX);
         if (mailbox == null) return;
-        showMailboxNotification(mailbox,
+        showNotification(mailbox.mAccountKey,
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
@@ -577,9 +577,6 @@ public class NotificationController {
     public void showPasswordExpiringNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
-                Mailbox.TYPE_INBOX);
-        if (mailbox == null) return;
 
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, false);
@@ -587,7 +584,7 @@ public class NotificationController {
         String ticker =
             mContext.getString(R.string.password_expire_warning_ticker_fmt, accountName);
         String title = mContext.getString(R.string.password_expire_warning_content_title);
-        showMailboxNotification(mailbox, ticker, title, accountName, intent,
+        showNotification(accountId, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRING);
     }
 
@@ -600,16 +597,13 @@ public class NotificationController {
     public void showPasswordExpiredNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
-                Mailbox.TYPE_INBOX);
-        if (mailbox == null) return;
 
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, true);
         String accountName = account.getDisplayName();
         String ticker = mContext.getString(R.string.password_expired_ticker);
         String title = mContext.getString(R.string.password_expired_content_title);
-        showMailboxNotification(mailbox, ticker, title, accountName, intent,
+        showNotification(accountId, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRED);
     }
 
@@ -626,15 +620,12 @@ public class NotificationController {
      * dialog asking whether he wants to update his settings.
      */
     public void showSecurityNeededNotification(Account account) {
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
-                Mailbox.TYPE_INBOX);
-        if (mailbox == null) return;
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_needed_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_update_title);
-        showMailboxNotification(mailbox, ticker, title, accountName, intent,
+        showNotification(account.mId, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
     }
 
@@ -643,15 +634,12 @@ public class NotificationController {
      * account settings screen where he can view the list of enforced policies
      */
     public void showSecurityChangedNotification(Account account) {
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
-                Mailbox.TYPE_INBOX);
-        if (mailbox == null) return;
         Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_change_title);
-        showMailboxNotification(mailbox, ticker, title, accountName, intent,
+        showNotification(account.mId, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
     }
 
@@ -660,15 +648,12 @@ public class NotificationController {
      * account settings screen where he can view the list of unsupported policies
      */
     public void showSecurityUnsupportedNotification(Account account) {
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
-                Mailbox.TYPE_INBOX);
-        if (mailbox == null) return;
         Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);
         String title = mContext.getString(R.string.security_notification_content_unsupported_title);
-        showMailboxNotification(mailbox, ticker, title, accountName, intent,
+        showNotification(account.mId, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
    }
 
