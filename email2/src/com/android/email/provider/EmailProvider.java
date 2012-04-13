@@ -2512,6 +2512,7 @@ outer:
         if (mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", mailboxId));
+            values.put(UIProvider.AccountColumns.SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
         } else {
             values.put(UIProvider.AccountColumns.SYNC_STATUS,
                     UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
