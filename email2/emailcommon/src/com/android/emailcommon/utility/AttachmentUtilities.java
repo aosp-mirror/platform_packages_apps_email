@@ -414,6 +414,7 @@ public class AttachmentUtilities {
                 contentUri = dm.getUriForDownloadedFile(id).toString();
 
             } else {
+                Log.w(Logging.LOG_TAG, "Trying to save an attachment without external storage?");
                 throw new IOException();
             }
 
