@@ -518,6 +518,14 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         return false;
     }
 
+    public boolean uploadsToServer(Context context) {
+        if (mType == TYPE_DRAFTS || mType == TYPE_OUTBOX || mType == TYPE_SEARCH) {
+            return false;
+        }
+        String protocol = Account.getProtocol(context, mAccountKey);
+        return (!protocol.equals(HostAuth.SCHEME_POP3));
+    }
+
     /**
      * @return true if messages in a mailbox of a type can be replied/forwarded.
      */

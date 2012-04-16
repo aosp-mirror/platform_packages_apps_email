@@ -3332,10 +3332,15 @@ outer:
     }
 
     private int uiUpdateMessage(Uri uri, ContentValues values) {
-        Uri ourUri = convertToEmailProviderUri(uri, Message.SYNCED_CONTENT_URI, true);
-        if (ourUri == null) return 0;
+        Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
+        if (mailbox == null) return 0;
+        Uri ourBaseUri =
+                mailbox.uploadsToServer(context) ? Message.SYNCED_CONTENT_URI : Message.CONTENT_URI;
+        Uri ourUri = convertToEmailProviderUri(uri, ourBaseUri, true);
+        if (ourUri == null) return 0;
         ContentValues undoValues = new ContentValues();
         ContentValues ourValues = convertUiMessageValues(msg, values);
         for (String columnName: ourValues.keySet()) {
@@ -3352,7 +3357,7 @@ outer:
         }
         ContentProviderOperation op =
                 ContentProviderOperation.newUpdate(convertToEmailProviderUri(
-                        uri,Message.SYNCED_CONTENT_URI, false))
+                        uri, ourBaseUri, false))
                         .withValues(undoValues)
                         .build();
         addToSequence(uri, op);
