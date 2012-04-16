@@ -435,7 +435,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
         matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
-        matcher.addURI(EmailContent.AUTHORITY, "uiundo/#", UI_UNDO);
+        matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
         matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
         matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
@@ -1198,7 +1198,7 @@ public class EmailProvider extends ContentProvider {
                     c = uiAccounts(projection);
                     return c;
                 case UI_UNDO:
-                    return uiUndo(uri, projection);
+                    return uiUndo(projection);
                 case UI_SUBFOLDERS:
                 case UI_MESSAGES:
                 case UI_MESSAGE:
@@ -2093,7 +2093,8 @@ outer:
         .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
         .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
         .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
-        .add(UIProvider.AccountColumns.UNDO_URI, uriWithId("uiundo"))
+        .add(UIProvider.AccountColumns.UNDO_URI,
+                ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
         .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
         // TODO: Is this used?
@@ -2426,7 +2427,8 @@ outer:
             AccountCapabilities.FOLDER_SERVER_SEARCH |
             AccountCapabilities.UNDO;
 
-    private static final long POP3_CAPABILITIES = 0;
+    private static final long POP3_CAPABILITIES =
+            AccountCapabilities.UNDO;
 
     private static final long EAS_12_CAPABILITIES =
             AccountCapabilities.SYNCABLE_FOLDERS |
@@ -2607,6 +2609,7 @@ outer:
         String idString = Long.toString(id);
         Object[] values = new Object[UIProvider.ACCOUNTS_PROJECTION.length];
         values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
+        values[UIProvider.ACCOUNT_CAPABILITIES_COLUMN] = AccountCapabilities.UNDO;
         values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
             combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_NAME_COLUMN] = getContext().getString(
@@ -2615,7 +2618,8 @@ outer:
                 combinedUriString("uisavedraft", idString);
         values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] =
                 combinedUriString("uisendmail", idString);
-        values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] = null;
+        values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] =
+                "'content://" + UIProvider.AUTHORITY + "/uiundo'";
         values[UIProvider.ACCOUNT_URI_COLUMN] =
             combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;
@@ -3366,7 +3370,7 @@ outer:
         return uiUpdateMessage(uri, values);
     }
 
-    private Cursor uiUndo(Uri uri, String[] projection) {
+    private Cursor uiUndo(String[] projection) {
         // First see if we have any operations saved
         // TODO: Make sure seq matches
         if (!mLastSequenceOps.isEmpty()) {
