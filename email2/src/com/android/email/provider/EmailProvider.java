@@ -530,9 +530,18 @@ public class EmailProvider extends ContentProvider {
                 Account.TABLE_NAME);
         deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
                 Account.TABLE_NAME);
-
+        initUiProvider();
         preCacheData();
         return mDatabase;
+    }
+
+    /**
+     * Perform startup actions related to UI
+     */
+    private void initUiProvider() {
+        // Clear mailbox sync status
+        mDatabase.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UI_SYNC_STATUS +
+                "=" + UIProvider.SyncStatus.NO_SYNC);
     }
 
     /**
