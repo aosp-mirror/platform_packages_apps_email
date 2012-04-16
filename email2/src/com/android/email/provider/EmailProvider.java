@@ -2622,7 +2622,7 @@ outer:
         values[UIProvider.ACCOUNT_SETTINGS_INTENT_URI_COLUMN] =
                 getExternalUriString("settings", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_COMPOSE_INTENT_URI_COLUMN] =
-                getExternalUriString("compose", idString);
+                getExternalUriStringEmail2("compose", Long.toString(id));
 
         // TODO: Get these from default account?
         Preferences prefs = Preferences.getPreferences(getContext());
