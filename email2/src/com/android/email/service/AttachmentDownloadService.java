@@ -330,8 +330,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
                                 req.accountId);
                     }
                     continue;
+                } else if (Attachment.restoreAttachmentWithId(mContext, req.attachmentId) == null) {
+                    continue;
                 }
-
                 if (!req.inProgress) {
                     mDownloadSet.tryStartDownload(req);
                 }

@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -36,7 +35,6 @@ import com.android.email.NotificationController;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
@@ -178,21 +176,6 @@ public class Pop3Service extends Service {
      * Create our EmailService implementation here.
      */
     private final EmailServiceStub mBinder = new EmailServiceStub() {
-
-        @Override
-        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
-            Context context = getApplicationContext();
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-            if (mailbox == null) return;
-            Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
-            if (account == null) return;
-            android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
-                    AccountManagerTypes.TYPE_POP_IMAP);
-            Log.d(TAG, "startSync API requesting sync");
-            Bundle extras = new Bundle();
-            extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-            ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
-        }
 
         @Override
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
