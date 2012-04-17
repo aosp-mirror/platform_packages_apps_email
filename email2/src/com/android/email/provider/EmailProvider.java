@@ -3022,14 +3022,14 @@ outer:
         }
 
         // Get attachments from the ContentValues
-        ArrayList<com.android.mail.providers.Attachment> uiAtts =
-                com.android.mail.providers.Attachment.getAttachmentsFromJoinedAttachmentInfo(
+        List<com.android.mail.providers.Attachment> uiAtts =
+                com.android.mail.providers.Attachment.fromJSONArray(
                         values.getAsString(UIProvider.MessageColumns.JOINED_ATTACHMENT_INFOS));
         ArrayList<Attachment> atts = new ArrayList<Attachment>();
         boolean hasUnloadedAttachments = false;
         for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
-            Uri attUri = uiAtt.contentUri;
-            if (attUri.getAuthority().equals(EmailContent.AUTHORITY)) {
+            Uri attUri = uiAtt.uri;
+            if (attUri != null && attUri.getAuthority().equals(EmailContent.AUTHORITY)) {
                 // If it's one of ours, retrieve the attachment and add it to the list
                 long attId = Long.parseLong(attUri.getLastPathSegment());
                 Attachment att = Attachment.restoreAttachmentWithId(context, attId);

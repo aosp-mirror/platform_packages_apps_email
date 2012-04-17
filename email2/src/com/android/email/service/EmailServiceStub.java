@@ -228,11 +228,13 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
                         BodyColumns.MESSAGE_KEY + "=?",
                         new String[] {Long.toString(messageId)}, null, 0, -1L);
-                if (sourceId != -1L) {
+                if (sourceId != -1 ) {
                     EmailContent.Message sourceMsg =
                             EmailContent.Message.restoreMessageWithId(mContext, sourceId);
-                    mailbox = Mailbox.restoreMailboxWithId(mContext, sourceMsg.mMailboxKey);
-                    message.mServerId = sourceMsg.mServerId;
+                    if (sourceMsg != null) {
+                        mailbox = Mailbox.restoreMailboxWithId(mContext, sourceMsg.mMailboxKey);
+                        message.mServerId = sourceMsg.mServerId;
+                    }
                 }
             }
 
