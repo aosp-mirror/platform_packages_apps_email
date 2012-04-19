@@ -66,6 +66,8 @@ import java.util.HashSet;
  * Class that manages notifications.
  */
 public class NotificationController {
+    private static final String TAG = "NotificationController";
+
     /** Reserved for {@link com.android.exchange.CalendarSyncEnabler} */
     @SuppressWarnings("unused")
     private static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
@@ -394,17 +396,27 @@ public class NotificationController {
     private Intent createViewConversationIntent(Message message) {
         Cursor c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
                 UIProvider.ACCOUNTS_PROJECTION);
-        if (c == null) return null;
+        if (c == null) {
+            Log.w(TAG, "Can't find account for message " + message.mId);
+            return null;
+        }
         com.android.mail.providers.Account acct = new com.android.mail.providers.Account(c);
         c.close();
         c = getUiCursor(EmailProvider.uiUri("uifolder", message.mMailboxKey),
                 UIProvider.FOLDERS_PROJECTION);
-        if (c == null) return null;
+        if (c == null) {
+            Log.w(TAG, "Can't find folder for message " + message.mId + ", folder " +
+                    message.mMailboxKey);
+            return null;
+        }
         Folder folder = new Folder(c);
         c.close();
         c = getUiCursor(EmailProvider.uiUri("uiconversation", message.mId),
                 UIProvider.CONVERSATION_PROJECTION);
-        if (c == null) return null;
+        if (c == null) {
+            Log.w(TAG, "Can't find conversation for message " + message.mId);
+            return null;
+        }
         Conversation conv = new Conversation(c);
         c.close();
         return createViewConversationIntent(conv, folder, acct);
@@ -457,7 +469,10 @@ public class NotificationController {
 //        } else {
             intent = createViewConversationIntent(message);
 //        }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        if (intent == null) {
+            return null;
+        }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         long now = mClock.getTime();
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
         Notification notification = createNotification(
