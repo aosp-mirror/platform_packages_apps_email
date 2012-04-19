@@ -500,6 +500,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // 3.  loop through the available messages and send them
             while (c.moveToNext()) {
                 long messageId = -1;
+                moveToSentValues.remove(EmailContent.MessageColumns.FLAGS);
                 try {
                     messageId = c.getLong(0);
                     // Don't send messages with unloaded attachments
@@ -531,6 +532,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                                 messageId);
                     }
+                    int flags = msg.mFlags & ~(EmailContent.Message.FLAG_TYPE_REPLY |
+                            EmailContent.Message.FLAG_TYPE_FORWARD);
+                    moveToSentValues.put(EmailContent.MessageColumns.FLAGS, flags);
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
                     AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
