@@ -179,7 +179,7 @@
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"የአባሪ መረጃ"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"የWi-Fi  ተያያዥ ይጠበቃል"</string>
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"የWi-Fi ቅንብሮች"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"መተግበሪያ ቅንጅቶች"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"መተግበሪያ ቅንብሮች"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"አባሪ መክፈት አልተቻለም።"</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"እንዲህ ዓይነቱ ዓባሪ ተንኮል አዘል ሶፍትዌር ሊይዝ ስለሚችል ይህን ፋይል ማስቀመጥ ሆነ መክፈት አትችልም::"</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"በዚህ መለያ የደህንነት ቋሚ መመሪያዎች የተነሳ ይህ ዓባሪ ሊቀመጥ ሆነ ሊከፈት አይችልም::"</string>
@@ -433,7 +433,7 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g>ውጤቶች ከ<xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"ቅንብሮች"</string>
-    <string name="header_label_general_preferences" msgid="8243724566056800991">"ጠቅላላ ቅንጅቶች"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"ጠቅላላ ቅንብሮች"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"መተግበሪያ"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"ራስ- ላቅ"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"መልዕክት ከሰረዝክ በኋላ በየትኛው ማያ ለማሳየት እንደምትፈልግ ምረጥ።"</string>

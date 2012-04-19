@@ -179,7 +179,7 @@
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"የአባሪ መረጃ"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"የWi-Fi  ተያያዥ ይጠበቃል"</string>
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"የWi-Fi ቅንብሮች"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"መተግበሪያ ቅንጅቶች"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"መተግበሪያ ቅንብሮች"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"አባሪ መክፈት አልተቻለም።"</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"እንዲህ ዓይነቱ ዓባሪ ተንኮል አዘል ሶፍትዌር ሊይዝ ስለሚችል ይህን ፋይል ማስቀመጥ ሆነ መክፈት አትችልም::"</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"በዚህ መለያ የደህንነት ቋሚ መመሪያዎች የተነሳ ይህ ዓባሪ ሊቀመጥ ሆነ ሊከፈት አይችልም::"</string>
