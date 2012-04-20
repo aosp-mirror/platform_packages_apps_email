@@ -643,14 +643,12 @@ class ImapFolder extends Folder {
                         // Previously used "BODY[..." but this can be confused with "BODY[HEADER..."
                         // TODO Should we accept "RFC822" as well??
                         ImapString body = fetchList.getKeyedStringOrEmpty("BODY[]", true);
-                        String bodyText = body.getString();
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }
                     if (fetchPart != null && fetchPart.getSize() > 0) {
                         InputStream bodyStream =
                                 fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
-                        String contentType = fetchPart.getContentType();
                         String contentTransferEncoding = fetchPart.getHeader(
                                 MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
 

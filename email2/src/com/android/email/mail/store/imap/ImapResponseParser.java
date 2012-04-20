@@ -16,6 +16,9 @@
 
 package com.android.email.mail.store.imap;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.android.email.FixedLengthInputStream;
 import com.android.email.PeekableInputStream;
 import com.android.email.mail.transport.DiscourseLogger;
@@ -23,9 +26,6 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.LoggingInputStream;
-
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ public class ImapResponseParser {
     /**
      * Literal larger than this will be stored in temp file.
      */
-    private static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 2 * 1024 * 1024;
+    public static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 2 * 1024 * 1024;
 
     /** Input stream */
     private final PeekableInputStream mIn;
