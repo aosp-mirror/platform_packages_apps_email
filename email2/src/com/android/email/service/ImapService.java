@@ -213,6 +213,11 @@ public class ImapService extends Service {
         }
 
         @Override
+        public void loadMore(long messageId) throws RemoteException {
+            // We don't do "loadMore" for IMAP messages; the sync should handle this
+        }
+
+        @Override
         public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
             try {
                 return searchMailboxImpl(getApplicationContext(), accountId, searchParams,
@@ -318,92 +323,28 @@ public class ImapService extends Service {
      * @throws MessagingException
      */
     static void loadUnsyncedMessages(final Context context, final Account account,
-            Folder remoteFolder, ArrayList<Message> unsyncedMessages, final Mailbox toMailbox)
+            Folder remoteFolder, ArrayList<Message> messages, final Mailbox toMailbox)
             throws MessagingException {
 
-        // 1. Divide the unsynced messages into small & large (by size)
-
-        // TODO doing this work here (synchronously) is problematic because it prevents the UI
-        // from affecting the order (e.g. download a message because the user requested it.)  Much
-        // of this logic should move out to a different sync loop that attempts to update small
-        // groups of messages at a time, as a background task.  However, we can't just return
-        // (yet) because POP messages don't have an envelope yet....
-
-        ArrayList<Message> largeMessages = new ArrayList<Message>();
-        ArrayList<Message> smallMessages = new ArrayList<Message>();
-        for (Message message : unsyncedMessages) {
-            if (message.getSize() > (MAX_SMALL_MESSAGE_SIZE)) {
-                largeMessages.add(message);
-            } else {
-                smallMessages.add(message);
-            }
-        }
-
-        // 2. Download small messages
-
-        // TODO Problems with this implementation.  1. For IMAP, where we get a real envelope,
-        // this is going to be inefficient and duplicate work we've already done.  2.  It's going
-        // back to the DB for a local message that we already had (and discarded).
-
-        // For small messages, we specify "body", which returns everything (incl. attachments)
         FetchProfile fp = new FetchProfile();
-        fp.add(FetchProfile.Item.BODY);
-        remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
-                new MessageRetrievalListener() {
-                    @Override
-                    public void messageRetrieved(Message message) {
-                        // Store the updated message locally and mark it fully loaded
-                        Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
-                                EmailContent.Message.FLAG_LOADED_COMPLETE);
-                    }
-
-                    @Override
-                    public void loadAttachmentProgress(int progress) {
-                    }
-        });
-
-        // 3. Download large messages.  We ask the server to give us the message structure,
-        // but not all of the attachments.
-        fp.clear();
         fp.add(FetchProfile.Item.STRUCTURE);
-        remoteFolder.fetch(largeMessages.toArray(new Message[largeMessages.size()]), fp, null);
-        for (Message message : largeMessages) {
-            if (message.getBody() == null) {
-                // POP doesn't support STRUCTURE mode, so we'll just do a partial download
-                // (hopefully enough to see some/all of the body) and mark the message for
-                // further download.
+        remoteFolder.fetch(messages.toArray(new Message[messages.size()]), fp, null);
+        for (Message message : messages) {
+            // Build a list of parts we are interested in. Text parts will be downloaded
+            // right now, attachments will be left for later.
+            ArrayList<Part> viewables = new ArrayList<Part>();
+            ArrayList<Part> attachments = new ArrayList<Part>();
+            MimeUtility.collectParts(message, viewables, attachments);
+            // Download the viewables immediately
+            for (Part part : viewables) {
                 fp.clear();
-                fp.add(FetchProfile.Item.BODY_SANE);
-                //  TODO a good optimization here would be to make sure that all Stores set
-                //  the proper size after this fetch and compare the before and after size. If
-                //  they equal we can mark this SYNCHRONIZED instead of PARTIALLY_SYNCHRONIZED
+                fp.add(part);
                 remoteFolder.fetch(new Message[] { message }, fp, null);
-
-                // Store the partially-loaded message and mark it partially loaded
-                Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
-                        EmailContent.Message.FLAG_LOADED_PARTIAL);
-            } else {
-                // We have a structure to deal with, from which
-                // we can pull down the parts we want to actually store.
-                // Build a list of parts we are interested in. Text parts will be downloaded
-                // right now, attachments will be left for later.
-                ArrayList<Part> viewables = new ArrayList<Part>();
-                ArrayList<Part> attachments = new ArrayList<Part>();
-                MimeUtility.collectParts(message, viewables, attachments);
-                // Download the viewables immediately
-                for (Part part : viewables) {
-                    fp.clear();
-                    fp.add(part);
-                    // TODO what happens if the network connection dies? We've got partial
-                    // messages with incorrect status stored.
-                    remoteFolder.fetch(new Message[] { message }, fp, null);
-                }
-                // Store the updated message locally and mark it fully loaded
-                Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
-                        EmailContent.Message.FLAG_LOADED_COMPLETE);
             }
+            // Store the updated message locally and mark it fully loaded
+            Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
+                    EmailContent.Message.FLAG_LOADED_COMPLETE);
         }
-
     }
 
     public static void downloadFlagAndEnvelope(final Context context, final Account account,
@@ -596,7 +537,8 @@ public class ImapService extends Service {
                 // mFlagLoaded = DELETED -> message has been deleted
                 // Only the first two of these are "unsynced", so let's retrieve them
                 if (localMessage == null ||
-                        (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED)) {
+                        (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED) ||
+                        (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_PARTIAL)) {
                     unsyncedMessages.add(message);
                 }
             }

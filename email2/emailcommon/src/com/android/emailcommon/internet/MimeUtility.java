@@ -16,6 +16,11 @@
 
 package com.android.emailcommon.internet;
 
+import android.util.Base64;
+import android.util.Base64DataException;
+import android.util.Base64InputStream;
+import android.util.Log;
+
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Body;
 import com.android.emailcommon.mail.BodyPart;
@@ -29,11 +34,6 @@ import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.DecoderUtil;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
-
-import android.util.Base64;
-import android.util.Base64DataException;
-import android.util.Base64InputStream;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -438,9 +438,24 @@ public class MimeUtility {
             // If the part is Multipart but not alternative it's either mixed or
             // something we don't know about, which means we treat it as mixed
             // per the spec. We just process its pieces recursively.
-            Multipart mp = (Multipart)part.getBody();
+            MimeMultipart mp = (MimeMultipart)part.getBody();
+            boolean foundHtml = false;
+            if (mp.getSubTypeForTest().equals("alternative")) {
+                for (int i = 0; i < mp.getCount(); i++) {
+                    if (mp.getBodyPart(i).isMimeType("text/html")) {
+                        foundHtml = true;
+                        break;
+                    }
+                }
+            }
             for (int i = 0; i < mp.getCount(); i++) {
-                collectParts(mp.getBodyPart(i), viewables, attachments);
+                // See if we have text and html
+                BodyPart bp = mp.getBodyPart(i);
+                // If there's html, don't bother loading text
+                if (foundHtml && bp.isMimeType("text/plain")) {
+                    continue;
+                }
+                collectParts(bp, viewables, attachments);
             }
         } else if (part.getBody() instanceof Message) {
             // If the part is an embedded message we just continue to process
