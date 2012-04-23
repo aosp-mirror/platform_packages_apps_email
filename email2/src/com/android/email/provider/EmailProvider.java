@@ -2412,18 +2412,19 @@ outer:
             String protocol = "eas";
             if (mailbox != null) {
                 protocol = Account.getProtocol(context, mailbox.mAccountKey);
-            }
-            // "load more" is valid for IMAP/POP3
-            if (HostAuth.SCHEME_IMAP.equals(protocol) || HostAuth.SCHEME_POP3.equals(protocol)) {
-                values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
-                        uiUriString("uiloadmore", mailboxId));
-            } else {
-                // For EAS, allow settings
-                int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
-                if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
-                    caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+                // "load more" is valid for IMAP/POP3
+                if (HostAuth.SCHEME_IMAP.equals(protocol) ||
+                        HostAuth.SCHEME_POP3.equals(protocol)) {
+                    values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
+                            uiUriString("uiloadmore", mailboxId));
+                } else {
+                    // For EAS, allow settings
+                    int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
+                    if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+                        caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+                    }
+                    values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 }
-                values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
             }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
@@ -2484,19 +2485,21 @@ outer:
             values.put(UIProvider.AccountColumns.CAPABILITIES, POP3_CAPABILITIES);
         } else {
             Account account = Account.restoreAccountWithId(getContext(), accountId);
-            String easVersion = account.mProtocolVersion;
-            Double easVersionDouble = 2.5D;
-            if (easVersion != null) {
-                try {
-                    easVersionDouble = Double.parseDouble(easVersion);
-                } catch (NumberFormatException e) {
-                    // Stick with 2.5
+            if (account != null) {
+                String easVersion = account.mProtocolVersion;
+                Double easVersionDouble = 2.5D;
+                if (easVersion != null) {
+                    try {
+                        easVersionDouble = Double.parseDouble(easVersion);
+                    } catch (NumberFormatException e) {
+                        // Stick with 2.5
+                    }
                 }
-            }
-            if (easVersionDouble >= 12.0D) {
-                values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_12_CAPABILITIES);
-            } else {
-                values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_2_CAPABILITIES);
+                if (easVersionDouble >= 12.0D) {
+                    values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_12_CAPABILITIES);
+                } else {
+                    values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_2_CAPABILITIES);
+                }
             }
         }
         values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
