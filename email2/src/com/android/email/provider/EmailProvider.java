@@ -1041,7 +1041,7 @@ public class EmailProvider extends ContentProvider {
                             // Notify the account when a new mailbox is added
                             Long accountId = values.getAsLong(MailboxColumns.ACCOUNT_KEY);
                             if (accountId != null && accountId.longValue() > 0) {
-                                notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
+                                notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, accountId);
                             }
                             //$FALL-THROUGH$
                         case ACCOUNT:
