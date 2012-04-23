@@ -582,10 +582,6 @@ public class AccountSettings extends PreferenceActivity {
         public void abandonEdit() {
             finish();
         }
-        @Override
-        public void deleteAccount(Account account) {
-            AccountSettings.this.deleteAccount(account);
-        }
     }
 
     /**

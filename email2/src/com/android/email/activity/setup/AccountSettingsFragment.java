@@ -17,15 +17,9 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -36,7 +30,6 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -96,7 +89,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
     private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
-    private static final String PREFERENCE_DELETE_ACCOUNT = "delete_account";
 
     // These strings must match account_settings_vibrate_when_* strings in strings.xml
     private static final String PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS = "always";
@@ -141,7 +133,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         public void onIncomingSettings(Account account);
         public void onOutgoingSettings(Account account);
         public void abandonEdit();
-        public void deleteAccount(Account account);
     }
 
     private static class EmptyCallback implements Callback {
@@ -151,7 +142,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         @Override public void onIncomingSettings(Account account) {}
         @Override public void onOutgoingSettings(Account account) {}
         @Override public void abandonEdit() {}
-        @Override public void deleteAccount(Account account) {}
     }
 
     /**
@@ -695,21 +685,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             dataUsageCategory.removePreference(mSyncCalendar);
             dataUsageCategory.removePreference(mSyncEmail);
         }
-
-        // Temporary home for delete account
-        Preference prefDeleteAccount = findPreference(PREFERENCE_DELETE_ACCOUNT);
-        prefDeleteAccount.setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        DeleteAccountFragment dialogFragment = DeleteAccountFragment.newInstance(
-                                mAccount, AccountSettingsFragment.this);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.addToBackStack(null);
-                        dialogFragment.show(ft, DeleteAccountFragment.TAG);
-                        return true;
-                    }
-                });
     }
 
     /**
@@ -774,68 +749,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         // Run the remaining changes off-thread
         MailActivityEmail.setServicesEnabledAsync(mContext);
-    }
-
-    /**
-     * Dialog fragment to show "remove account?" dialog
-     */
-    public static class DeleteAccountFragment extends DialogFragment {
-        final static String TAG = "DeleteAccountFragment";
-
-        // Argument bundle keys
-        private final static String BUNDLE_KEY_ACCOUNT_NAME = "DeleteAccountFragment.Name";
-
-        /**
-         * Create the dialog with parameters
-         */
-        public static DeleteAccountFragment newInstance(Account account, Fragment parentFragment) {
-            DeleteAccountFragment f = new DeleteAccountFragment();
-            Bundle b = new Bundle();
-            b.putString(BUNDLE_KEY_ACCOUNT_NAME, account.getDisplayName());
-            f.setArguments(b);
-            f.setTargetFragment(parentFragment, 0);
-            return f;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            Context context = getActivity();
-            final String name = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
-
-            return new AlertDialog.Builder(context)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle(R.string.account_delete_dlg_title)
-                .setMessage(context.getString(R.string.account_delete_dlg_instructions_fmt, name))
-                .setPositiveButton(
-                        R.string.okay_action,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Fragment f = getTargetFragment();
-                                if (f instanceof AccountSettingsFragment) {
-                                    ((AccountSettingsFragment)f).finishDeleteAccount();
-                                }
-                                dismiss();
-                            }
-                        })
-                .setNegativeButton(
-                        R.string.cancel_action,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                dismiss();
-                            }
-                        })
-                .create();
-        }
-    }
-
-    /**
-     * Callback from delete account dialog - passes the delete command up to the activity
-     */
-    private void finishDeleteAccount() {
-        mSaveOnExit = false;
-        mCallback.deleteAccount(mAccount);
     }
 
     public String getAccountEmail() {
