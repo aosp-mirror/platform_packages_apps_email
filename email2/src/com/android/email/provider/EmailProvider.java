@@ -2234,54 +2234,54 @@ outer:
         Context context = getContext();
         long messageId = Long.parseLong(id);
         Message msg = Message.restoreMessageWithId(context, messageId);
-        if (msg != null && (msg.mFlagLoaded == Message.FLAG_LOADED_PARTIAL)) {
-            EmailServiceProxy service =
-                    EmailServiceUtils.getServiceForAccount(context, null, msg.mAccountKey);
-            try {
-                service.loadMore(messageId);
-            } catch (RemoteException e) {
-                // Nothing to do
-            }
-        }
-        Body body = Body.restoreBodyWithMessageId(context, messageId);
         ContentValues values = new ContentValues();
-        if (body != null) {
-            if (body.mHtmlContent != null) {
-                if (IMG_TAG_START_REGEX.matcher(body.mHtmlContent).find()) {
-                    values.put(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, 1);
+        if (msg != null) {
+            if (msg.mFlagLoaded == Message.FLAG_LOADED_PARTIAL) {
+                EmailServiceProxy service =
+                        EmailServiceUtils.getServiceForAccount(context, null, msg.mAccountKey);
+                try {
+                    service.loadMore(messageId);
+                } catch (RemoteException e) {
+                    // Nothing to do
                 }
             }
-        }
-        Address[] fromList = Address.unpack(msg.mFrom);
-        int autoShowImages = 0;
-        Preferences prefs = Preferences.getPreferences(context);
-        for (Address sender : fromList) {
-            String email = sender.getAddress();
-            if (prefs.shouldShowImagesFor(email)) {
-                autoShowImages = 1;
-                break;
+            Body body = Body.restoreBodyWithMessageId(context, messageId);
+            if (body != null) {
+                if (body.mHtmlContent != null) {
+                    if (IMG_TAG_START_REGEX.matcher(body.mHtmlContent).find()) {
+                        values.put(UIProvider.MessageColumns.EMBEDS_EXTERNAL_RESOURCES, 1);
+                    }
+                }
+            }
+            Address[] fromList = Address.unpack(msg.mFrom);
+            int autoShowImages = 0;
+            Preferences prefs = Preferences.getPreferences(context);
+            for (Address sender : fromList) {
+                String email = sender.getAddress();
+                if (prefs.shouldShowImagesFor(email)) {
+                    autoShowImages = 1;
+                    break;
+                }
+            }
+            values.put(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, autoShowImages);
+            // Add attachments...
+            Attachment[] atts = Attachment.restoreAttachmentsWithMessageId(context, messageId);
+            if (atts.length > 0) {
+                ArrayList<com.android.mail.providers.Attachment> uiAtts =
+                        new ArrayList<com.android.mail.providers.Attachment>();
+                for (Attachment att : atts) {
+                    com.android.mail.providers.Attachment uiAtt =
+                            new com.android.mail.providers.Attachment();
+                    uiAtt.name = att.mFileName;
+                    uiAtt.contentType = att.mMimeType;
+                    uiAtt.size = (int) att.mSize;
+                    uiAtt.uri = uiUri("uiattachment", att.mId);
+                    uiAtts.add(uiAtt);
+                }
+                values.put(UIProvider.MessageColumns.ATTACHMENTS,
+                        com.android.mail.providers.Attachment.toJSONArray(uiAtts));
             }
         }
-        values.put(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES, autoShowImages);
-
-        // Add attachments...
-        Attachment[] atts = Attachment.restoreAttachmentsWithMessageId(context, messageId);
-        if (atts.length > 0) {
-            ArrayList<com.android.mail.providers.Attachment> uiAtts =
-                    new ArrayList<com.android.mail.providers.Attachment>();
-            for (Attachment att: atts) {
-                com.android.mail.providers.Attachment uiAtt =
-                        new com.android.mail.providers.Attachment();
-                uiAtt.name = att.mFileName;
-                uiAtt.contentType = att.mMimeType;
-                uiAtt.size = (int)att.mSize;
-                uiAtt.uri = uiUri("uiattachment", att.mId);
-                uiAtts.add(uiAtt);
-            }
-            values.put(UIProvider.MessageColumns.ATTACHMENTS,
-                    com.android.mail.providers.Attachment.toJSONArray(uiAtts));
-        }
-
         StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
