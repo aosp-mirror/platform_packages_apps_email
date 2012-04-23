@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
@@ -93,6 +94,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         super(_context, _intent);
         try {
             Device.getDeviceId(_context);
+            TempDirectory.setTempDirectory(_context);
         } catch (IOException e) {
         }
         mCallback = _callback;
@@ -103,6 +105,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         super(_context, new Intent(_action));
         try {
             Device.getDeviceId(_context);
+            TempDirectory.setTempDirectory(_context);
         } catch (IOException e) {
         }
         mCallback = _callback;
