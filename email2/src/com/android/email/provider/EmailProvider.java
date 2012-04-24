@@ -2627,7 +2627,8 @@ outer:
         String idString = Long.toString(id);
         Object[] values = new Object[UIProvider.ACCOUNTS_PROJECTION.length];
         values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
-        values[UIProvider.ACCOUNT_CAPABILITIES_COLUMN] = AccountCapabilities.UNDO;
+        values[UIProvider.ACCOUNT_CAPABILITIES_COLUMN] =
+                AccountCapabilities.UNDO | AccountCapabilities.SENDING_UNAVAILABLE;
         values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
             combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
         values[UIProvider.ACCOUNT_NAME_COLUMN] = getContext().getString(
