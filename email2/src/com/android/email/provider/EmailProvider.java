@@ -2009,6 +2009,11 @@ outer:
             ") !=0 THEN " + UIProvider.DraftType.FORWARD +
             " ELSE " + UIProvider.DraftType.NOT_A_DRAFT + " END";
 
+    private static final String MESSAGE_FLAGS =
+            "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_INCOMING_MEETING_INVITE +
+            ") !=0 THEN " + UIProvider.MessageFlags.CALENDAR_INVITE +
+            " ELSE 0 END";
+
     /**
      * Mapping of UIProvider columns to EmailProvider columns for a detailed message view in
      * UnifiedEmail
@@ -2035,7 +2040,7 @@ outer:
         .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
         .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                 uriWithFQId("uiattachments", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.MESSAGE_FLAGS, "0")
+        .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
         .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
                 uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
         .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
@@ -3344,6 +3349,19 @@ outer:
                 mailbox.uploadsToServer(context) ? Message.SYNCED_CONTENT_URI : Message.CONTENT_URI;
         Uri ourUri = convertToEmailProviderUri(uri, ourBaseUri, true);
         if (ourUri == null) return 0;
+
+        // Special case - meeting response
+        if (values.containsKey(UIProvider.MessageOperations.RESPOND_COLUMN)) {
+            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                    mServiceCallback, mailbox.mAccountKey);
+            try {
+                service.sendMeetingResponse(msg.mId,
+                        values.getAsInteger(UIProvider.MessageOperations.RESPOND_COLUMN));
+            } catch (RemoteException e) {
+            }
+            return 1;
+        }
+
         ContentValues undoValues = new ContentValues();
         ContentValues ourValues = convertUiMessageValues(msg, values);
         for (String columnName: ourValues.keySet()) {
