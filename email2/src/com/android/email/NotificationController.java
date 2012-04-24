@@ -235,7 +235,7 @@ public class NotificationController {
      */
     public void watchForMessages(final boolean watch) {
         if (MailActivityEmail.DEBUG) {
-            Log.i(Logging.LOG_TAG, "Notifications being toggled: " + watch);
+            Log.d(Logging.LOG_TAG, "Notifications being toggled: " + watch);
         }
         // Don't create the thread if we're only going to stop watching
         if (!watch && sNotificationThread == null) return;

@@ -1116,6 +1116,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        MailActivityEmail.setServicesEnabledAsync(getContext());
         checkDatabases();
         return false;
     }

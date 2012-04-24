@@ -27,6 +27,7 @@ import android.os.IBinder;
 
 import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountReconciler;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -51,6 +52,9 @@ public class MailService extends Service {
                 reconcilePopImapAccountsSync(MailService.this);
             }
         });
+
+        // Make sure our services are running, if necessary
+        MailActivityEmail.setServicesEnabledAsync(this);
 
         // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
         // pressure, there will be no explicit restart.  This is OK;  Note that we set a watchdog

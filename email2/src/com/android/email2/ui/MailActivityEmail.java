@@ -28,7 +28,6 @@ import android.util.Log;
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.R.string;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;

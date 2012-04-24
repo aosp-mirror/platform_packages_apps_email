@@ -353,12 +353,6 @@
 
         <service
             android:name=".service.MailService"
-            android:enabled="false"
-            >
-        </service>
-
-        <service
-            android:name=".Controller$ControllerService"
             android:enabled="true"
             >
         </service>
