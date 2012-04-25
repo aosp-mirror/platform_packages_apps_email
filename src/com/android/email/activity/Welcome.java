@@ -41,7 +41,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -415,19 +414,7 @@ public class Welcome extends Activity {
         @Override
         public void onAccountSecurityHold(long accountId) {
             cleanUp();
-            // If we can't find the account, we know what to do
-            Account account = Account.restoreAccountWithId(Welcome.this, accountId);
-            if (account == null) {
-                onAccountNotFound();
-                return;
-            }
-            // If there's no policy or it's "unsupported", act like the account doesn't exist
-            Policy policy = Policy.restorePolicyWithId(Welcome.this, account.mPolicyKey);
-            if (policy == null || (policy.mProtocolPoliciesUnsupported != null)) {
-                onAccountNotFound();
-                return;
-            }
-            // Otherwise, try advancing security
+
             ActivityHelper.showSecurityHoldDialog(Welcome.this, accountId);
             finish();
         }

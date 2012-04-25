@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
@@ -105,7 +106,15 @@ public class EmailBroadcastProcessorService extends IntentService {
 
             if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
                 onBootCompleted();
-          } else if (ACTION_SECRET_CODE.equals(broadcastAction)
+
+            // TODO: Do a better job when we get ACTION_DEVICE_STORAGE_LOW.
+            //       The code below came from very old code....
+            } else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(broadcastAction)) {
+                // Stop IMAP/POP3 poll.
+                MailService.actionCancel(this);
+            } else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(broadcastAction)) {
+                enableComponentsIfNecessary();
+            } else if (ACTION_SECRET_CODE.equals(broadcastAction)
                     && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
@@ -117,11 +126,21 @@ public class EmailBroadcastProcessorService extends IntentService {
         }
     }
 
+    private void enableComponentsIfNecessary() {
+        if (Email.setServicesEnabledSync(this)) {
+            // At least one account exists.
+            // TODO probably we should check if it's a POP/IMAP account.
+            MailService.actionReschedule(this);
+        }
+    }
+
     /**
      * Handles {@link Intent#ACTION_BOOT_COMPLETED}.  Called on a worker thread.
      */
     private void onBootCompleted() {
         performOneTimeInitialization();
+
+        enableComponentsIfNecessary();
 
         // Starts the service for Exchange, if supported.
         EmailServiceUtils.startExchangeService(this);

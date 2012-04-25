@@ -16,20 +16,8 @@
 
 package com.android.emailcommon.utility;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.CursorWrapper;
-import android.database.MatrixCursor;
-import android.net.Uri;
-import android.os.Environment;
-import android.test.AndroidTestCase;
-import android.test.MoreAsserts;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.widget.TextView;
-
 import com.android.email.DBTestHelper;
+import com.android.email.R;
 import com.android.email.TestUtils;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Account;
@@ -38,6 +26,20 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility.NewFileCreator;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWrapper;
+import android.database.MatrixCursor;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Environment;
+import android.test.AndroidTestCase;
+import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -308,7 +310,7 @@ public class UtilityUnitTests extends AndroidTestCase {
 
     private long getLastUpdateKey(Context mockContext, long mailboxId) {
         return Utility.getFirstRowLong(mockContext, Mailbox.CONTENT_URI,
-                new String[] { MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY }, MailboxColumns.ID + "=?",
+                new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY }, MailboxColumns.ID + "=?",
                 new String[] { Long.toString(mailboxId) }, null, 0, -1L);
     }
 
@@ -379,7 +381,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox4_1.mId));
 
         // Test account; only INBOX is modified
-        Utility.updateLastNotifiedMessageKey(mockContext, account1.mId).get();
+        Utility.updateLastSeenMessageKey(mockContext, account1.mId).get();
         assertEquals(message1_1_3.mId, getLastUpdateKey(mockContext, mailbox1_1.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_2.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_3.mId));
@@ -391,7 +393,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox4_1.mId));
 
         // Missing INBOX
-        Utility.updateLastNotifiedMessageKey(mockContext, account2.mId).get();
+        Utility.updateLastSeenMessageKey(mockContext, account2.mId).get();
         assertEquals(message1_1_3.mId, getLastUpdateKey(mockContext, mailbox1_1.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_2.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_3.mId));
@@ -403,7 +405,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox4_1.mId));
 
         // No messages in mailbox
-        Utility.updateLastNotifiedMessageKey(mockContext, account3.mId).get();
+        Utility.updateLastSeenMessageKey(mockContext, account3.mId).get();
         assertEquals(message1_1_3.mId, getLastUpdateKey(mockContext, mailbox1_1.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_2.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_3.mId));
@@ -415,7 +417,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox4_1.mId));
 
         // Test combined accounts
-        Utility.updateLastNotifiedMessageKey(mockContext, 0x1000000000000000L).get();
+        Utility.updateLastSeenMessageKey(mockContext, 0x1000000000000000L).get();
         assertEquals(message1_1_3.mId, getLastUpdateKey(mockContext, mailbox1_1.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_2.mId));
         assertEquals(0L, getLastUpdateKey(mockContext, mailbox1_3.mId));

@@ -16,11 +16,11 @@
 
 package com.android.email;
 
-import com.android.ex.chips.BaseRecipientAdapter;
-import com.android.ex.chips.RecipientEditTextView;
-
 import android.accounts.Account;
 import android.content.Context;
+
+import com.android.ex.chips.BaseRecipientAdapter;
+import com.android.ex.chips.RecipientEditTextView;
 
 public class RecipientAdapter extends BaseRecipientAdapter {
     public RecipientAdapter(Context context, RecipientEditTextView list) {
@@ -31,11 +31,27 @@ public class RecipientAdapter extends BaseRecipientAdapter {
      * Set the account when known. Causes the search to prioritize contacts from
      * that account.
      */
+    @Override
     public void setAccount(Account account) {
         if (account != null) {
             // TODO: figure out how to infer the contacts account
             // type from the email account
             super.setAccount(new android.accounts.Account(account.name, "unknown"));
         }
+    }
+
+    @Override
+    protected int getDefaultPhotoResource() {
+        return R.drawable.ic_contact_picture;
+    }
+
+    @Override
+    protected int getItemLayout() {
+        return R.layout.chips_recipient_dropdown_item;
+    }
+
+    @Override
+    protected int getWaitingForDirectorySearchLayout() {
+        return R.layout.chips_waiting_for_directory_search;
     }
 }

@@ -41,7 +41,6 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.mail.providers.UIProvider;
 
 import org.apache.commons.io.IOUtils;
 
@@ -317,7 +316,6 @@ public class LegacyConversions {
             ContentValues cv = new ContentValues();
             cv.put(AttachmentColumns.SIZE, copySize);
             cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
-            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
             Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             context.getContentResolver().update(uri, cv, null, null);
         }

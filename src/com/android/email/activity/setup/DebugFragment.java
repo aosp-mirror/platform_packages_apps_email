@@ -21,6 +21,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 
 import android.app.Fragment;
@@ -43,6 +44,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     private CheckBox mEnableExchangeLoggingView;
     private CheckBox mEnableExchangeFileLoggingView;
     private CheckBox mInhibitGraphicsAccelerationView;
+    private CheckBox mForceOneMinuteRefreshView;
     private CheckBox mEnableStrictModeView;
 
     private Preferences mPreferences;
@@ -90,6 +92,11 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mInhibitGraphicsAccelerationView.setChecked(Email.sDebugInhibitGraphicsAcceleration);
         mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
 
+        mForceOneMinuteRefreshView = (CheckBox)
+                UiUtilities.getView(view, R.id.debug_force_one_minute_refresh);
+        mForceOneMinuteRefreshView.setChecked(mPreferences.getForceOneMinuteRefresh());
+        mForceOneMinuteRefreshView.setOnCheckedChangeListener(this);
+
         mEnableStrictModeView = (CheckBox)
                 UiUtilities.getView(view, R.id.debug_enable_strict_mode);
         mEnableStrictModeView.setChecked(mPreferences.getEnableStrictMode());
@@ -117,6 +124,10 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
            case R.id.debug_disable_graphics_acceleration:
                 Email.sDebugInhibitGraphicsAcceleration = isChecked;
                 mPreferences.setInhibitGraphicsAcceleration(isChecked);
+                break;
+            case R.id.debug_force_one_minute_refresh:
+                mPreferences.setForceOneMinuteRefresh(isChecked);
+                MailService.actionReschedule(getActivity());
                 break;
             case R.id.debug_enable_strict_mode:
                 mPreferences.setEnableStrictMode(isChecked);

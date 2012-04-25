@@ -36,7 +36,6 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.email.SecurityPolicy;
 import com.android.email.provider.EmailProvider.AttachmentService;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
@@ -1691,7 +1690,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testCreateIndex() {
         String oldStr = "create index message_" + MessageColumns.TIMESTAMP
             + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");";
-        String newStr = DBHelper.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
+        String newStr = EmailProvider.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
         assertEquals(newStr, oldStr);
     }
 
@@ -2139,7 +2138,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // Batch update.
         SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        DBHelper.recalculateMessageCount(db);
+        EmailProvider.recalculateMessageCount(db);
 
         // Check message counts are valid again
         assertEquals(1, getMessageCount(b1.mId));
@@ -2267,7 +2266,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(b34, testMailbox);
 
         SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        DBHelper.upgradeFromVersion17ToVersion18(db);
+        EmailProvider.upgradeFromVersion17ToVersion18(db);
 
         // Verify that only IMAP/POP3 mailboxes w/ a parent key of '0' are changed
         // Exchange mailboxes; none should be changed
@@ -2489,7 +2488,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         try {
             // Upgrade the database
             SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-            DBHelper.upgradeFromVersion21ToVersion22(db, getContext());
+            EmailProvider.upgradeFromVersion21ToVersion22(db, getContext());
 
             // The pop3 and imap account should now be in account manager
             amAccountList = accountManager.getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
@@ -2530,7 +2529,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Policy p2 = new Policy();
         p2.save(mMockContext);
         Policy p3 = new Policy();
-        SecurityPolicy.setAccountPolicy(mMockContext, a, p3, "0");
+        Policy.setAccountPolicy(mMockContext, a.mId, p3, "0");
 
         // We don't want anything cached or the tests below won't work.  Note that
         // deleteUnlinked is only called by EmailProvider when the caches are empty

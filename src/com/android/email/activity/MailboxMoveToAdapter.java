@@ -83,12 +83,12 @@ class MailboxMoveToAdapter extends CursorAdapter {
     private static final String MOVE_TO_ORDER_BY_SERVER_ID =
         MOVE_TO_ORDER_BY_STATIC
         // All other mailboxes are shown in alphabetical order.
-        + ", " + MailboxColumns.SERVER_ID + " COLLATE LOCALIZED ASC";
+        + ", " + MailboxColumns.SERVER_ID;
     /** Display name sort order */
     private static final String MOVE_TO_ORDER_BY_DISPLAY_NAME =
         MOVE_TO_ORDER_BY_STATIC
         // All other mailboxes are shown in alphabetical order.
-        + ", " + MailboxColumns.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+        + ", " + MailboxColumns.DISPLAY_NAME;
 
     // Column 0 is only for ListView; we don't use it in our code.
     private static final int COLUMN_ID = 1;

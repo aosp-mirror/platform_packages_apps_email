@@ -21,6 +21,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.widget.Toast;
 
@@ -28,8 +29,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 
-public class GeneralPreferences extends EmailPreferenceFragment implements
-        OnPreferenceChangeListener {
+public class GeneralPreferences extends PreferenceFragment implements OnPreferenceChangeListener  {
 
     private static final String PREFERENCE_CATEGORY_KEY = "category_general_preferences";
 

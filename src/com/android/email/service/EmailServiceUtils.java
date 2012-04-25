@@ -16,14 +16,19 @@
 
 package com.android.email.service;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
-import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.Api;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 
 /**
  * Utility functions for EmailService support.
@@ -43,7 +48,7 @@ public class EmailServiceUtils {
      * @param context
      * @param callback Object to get callback, or can be null
      */
-    public static EmailServiceProxy getService(Context context, String intentAction,
+    public static IEmailService getService(Context context, String intentAction,
             IEmailServiceCallback callback) {
         return new EmailServiceProxy(context, intentAction, callback);
     }
@@ -59,19 +64,9 @@ public class EmailServiceUtils {
         startService(context, EmailServiceProxy.EXCHANGE_INTENT);
     }
 
-    public static EmailServiceProxy getExchangeService(Context context,
+    public static IEmailService getExchangeService(Context context,
             IEmailServiceCallback callback) {
         return getService(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
-    }
-
-    public static EmailServiceProxy getImapService(Context context,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, ImapService.class, callback);
-    }
-
-    public static EmailServiceProxy getPop3Service(Context context,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, Pop3Service.class, callback);
     }
 
     public static boolean isExchangeAvailable(Context context) {
@@ -79,21 +74,82 @@ public class EmailServiceUtils {
     }
 
     /**
-     * For a given account id, return a service proxy if applicable, or null.
+     * An empty {@link IEmailService} implementation which is used instead of
+     * {@link com.android.exchange.ExchangeService} on the build with no exchange support.
      *
-     * @param accountId the message of interest
-     * @result service proxy, or null if n/a
+     * <p>In theory, the service in question isn't used on the no-exchange-support build,
+     * because we won't have any exchange accounts in that case, so we wouldn't have to have this
+     * class.  However, there are a few places we do use the service even if there's no exchange
+     * accounts (e.g. setLogging), so this class is added for safety and simplicity.
      */
-    public static EmailServiceProxy getServiceForAccount(Context context,
-            IEmailServiceCallback callback, long accountId) {
-        String protocol = Account.getProtocol(context, accountId);
-        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-            return getImapService(context, callback);
-        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
-            return getPop3Service(context, callback);
-        } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
-        return getExchangeService(context, callback);
-        } else {
+    public static class NullEmailService extends Service implements IEmailService {
+        public static final NullEmailService INSTANCE = new NullEmailService();
+
+        public int getApiLevel() {
+            return Api.LEVEL;
+        }
+
+        public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            return Bundle.EMPTY;
+        }
+
+        public boolean createFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        public void hostChanged(long accountId) throws RemoteException {
+        }
+
+        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+        }
+
+        public void loadMore(long messageId) throws RemoteException {
+        }
+
+        public boolean renameFolder(long accountId, String oldName, String newName)
+                throws RemoteException {
+            return false;
+        }
+
+        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+        }
+
+        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+        }
+
+        public void setLogging(int flags) throws RemoteException {
+        }
+
+        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+        }
+
+        public void stopSync(long mailboxId) throws RemoteException {
+        }
+
+        public void updateFolderList(long accountId) throws RemoteException {
+        }
+
+        public Bundle validate(HostAuth hostAuth) throws RemoteException {
+            return null;
+        }
+
+        public void deleteAccountPIMData(long accountId) throws RemoteException {
+        }
+
+        public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
+            return 0;
+        }
+
+        public IBinder asBinder() {
+            return null;
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
             return null;
         }
     }

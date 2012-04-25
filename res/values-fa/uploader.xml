@@ -30,7 +30,7 @@
     <!-- String.format failed for translation -->
     <!-- no translation found for format_date_uploaded (803752037646090928) -->
     <skip />
-    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"حساب"</string>
     <string name="upload" msgid="2615541458361216022">"آپلود"</string>
     <string name="ok" msgid="2516349681897895312">"تأیید"</string>

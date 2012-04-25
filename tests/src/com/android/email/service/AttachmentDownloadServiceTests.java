@@ -24,6 +24,7 @@ import com.android.email.EmailConnectivityManager;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.AttachmentDownloadService.DownloadRequest;
 import com.android.email.service.AttachmentDownloadService.DownloadSet;
+import com.android.email.service.EmailServiceUtils.NullEmailService;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -70,7 +71,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         mService = new AttachmentDownloadService();
         mService.mContext = mMockContext;
         mService.addServiceIntentForTest(mAccountId, new Intent(mContext,
-                EmailServiceStub.class));
+                NullEmailService.class));
         mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
         mService.mAccountManagerStub = mAccountManagerStub;
         mService.mConnectivityManager = new MockConnectivityManager(mContext, "mock");
@@ -182,12 +183,10 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             mUsableSpace = usable;
         }
 
-        @Override
         public long getTotalSpace() {
             return mTotalSpace;
         }
 
-        @Override
         public long getUsableSpace() {
             return mUsableSpace;
         }
@@ -196,7 +195,6 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             mMockFile.mLength = length;
         }
 
-        @Override
         public File[] listFiles() {
             return mFiles;
         }
@@ -213,7 +211,6 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             super("_mock");
         }
 
-        @Override
         public long length() {
             return mLength;
         }

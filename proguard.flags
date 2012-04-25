@@ -1,4 +1,5 @@
-# keep names that are used by reflection.
+#Email-specific proguard flags that are not covered by UnifiedEmail go here
+
 -keep class com.android.emailcommon.provider.Account
 
 -keepclasseswithmembers class * {

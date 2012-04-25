@@ -167,7 +167,7 @@ public final class ContentCache {
         /**
          * For Debugging Only - not efficient
          */
-        synchronized Set<Map.Entry<T, Integer>> entrySet() {
+        synchronized Set<HashMap.Entry<T, Integer>> entrySet() {
             return mMap.entrySet();
         }
     }
