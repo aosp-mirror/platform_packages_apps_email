@@ -57,6 +57,4 @@ interface IEmailService {
 
     // API level 2
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
-
-    void sendMail(long accountId);
 }

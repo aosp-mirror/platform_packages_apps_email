@@ -16,14 +16,14 @@
 
 package com.android.email;
 
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.utility.Utility;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
-
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -107,12 +107,10 @@ public class RefreshManager {
         private long mLastRefreshTime;
 
         public boolean isRefreshing() {
-            // NOTE: For now, we're always allowing refresh (during service refactor)
             return mIsRefreshRequested || mIsRefreshing;
         }
 
         public boolean canRefresh() {
-            // NOTE: For now, we're always allowing refresh (during service refactor)
             return !isRefreshing();
         }
 
@@ -355,6 +353,7 @@ public class RefreshManager {
     }
 
     private class ControllerResult extends Controller.Result {
+        private boolean mSendMailExceptionReported = false;
 
         private String exceptionToString(MessagingException exception) {
             if (exception == null) {
@@ -424,6 +423,34 @@ public class RefreshManager {
                         MessagingExceptionStrings.getErrorString(mContext, exception));
             }
             notifyRefreshStatusChanged(accountId, mailboxId);
+        }
+
+
+        /**
+         * Send message progress callback.
+         *
+         * We don't keep track of the status of outboxes, but we monitor this to catch
+         * errors.
+         */
+        @Override
+        public void sendMailCallback(MessagingException exception, long accountId, long messageId,
+                int progress) {
+            if (LOG_ENABLED) {
+                Log.d(Logging.LOG_TAG, "sendMailCallback " + accountId + ", "
+                        + messageId + ", " + progress + ", " + exceptionToString(exception));
+            }
+            if (progress == 0 && messageId == -1) {
+                mSendMailExceptionReported = false;
+            }
+            if (exception != null && !mSendMailExceptionReported) {
+                // Only the first error in a batch will be reported.
+                mSendMailExceptionReported = true;
+                reportError(accountId, messageId,
+                        MessagingExceptionStrings.getErrorString(mContext, exception));
+            }
+            if (progress == 100) {
+                mSendMailExceptionReported = false;
+            }
         }
     }
 }

@@ -16,13 +16,15 @@
 
 package com.android.email;
 
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
-
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
 
 import junit.framework.Assert;
 
@@ -58,6 +60,12 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(mContext);
         mTarget = new RefreshManager(mProviderContext, mController, mClock, null);
         mTarget.registerListener(mListener);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        mController.cleanupForTest();
     }
 
     public void testRegisterUnregisterListener() {
@@ -309,6 +317,95 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertFalse(mTarget.isRefreshingAnyMessageListForTest());
     }
 
+    public void testSendPendingMessages() {
+        // request sending for account 1
+        assertTrue(mTarget.sendPendingMessages(ACCOUNT_1));
+
+        assertTrue(mListener.mCalledOnRefreshStatusChanged);
+        assertFalse(mListener.mCalledOnConnectionError);
+        assertEquals(ACCOUNT_1, mListener.mAccountId);
+        assertEquals(-1, mListener.mMailboxId);
+        mListener.reset();
+        assertTrue(mController.mCalledSendPendingMessages);
+        assertEquals(ACCOUNT_1, mController.mAccountId);
+        assertEquals(-1, mController.mMailboxId);
+        mController.reset();
+
+        // request sending for account 2
+        assertTrue(mTarget.sendPendingMessages(ACCOUNT_2));
+
+        assertFalse(mListener.mCalledOnConnectionError);
+        assertEquals(ACCOUNT_2, mListener.mAccountId);
+        assertEquals(-1, mListener.mMailboxId);
+        mListener.reset();
+        assertTrue(mController.mCalledSendPendingMessages);
+        assertEquals(ACCOUNT_2, mController.mAccountId);
+        assertEquals(-1, mController.mMailboxId);
+        mController.reset();
+
+        // Sending start for account 1...
+        // batch send start.  (message id == -1, progress == 0)
+        mController.mListener.sendMailCallback(null, ACCOUNT_1, -1, 0);
+
+        assertFalse(mListener.mCalledOnConnectionError);
+        mListener.reset();
+
+        // Per message callback
+        mController.mListener.sendMailCallback(null, ACCOUNT_1, 100, 0);
+        mController.mListener.sendMailCallback(null, ACCOUNT_1, 101, 0);
+
+        assertFalse(mListener.mCalledOnConnectionError);
+        mListener.reset();
+
+        // Exception -- first error will be reported.
+        mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_1, 102, 0);
+
+        assertTrue(mListener.mCalledOnConnectionError);
+        assertEquals(MessagingExceptionStrings.getErrorString(mContext, EXCEPTION),
+                mListener.mMessage);
+        mListener.reset();
+
+        // Exception again -- no more error callbacks
+        mController.mListener.sendMailCallback(null, ACCOUNT_1, 103, 0);
+        mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_1, 104, 0);
+
+        assertFalse(mListener.mCalledOnConnectionError);
+        mListener.reset();
+
+        // Done.
+        Log.w(Logging.LOG_TAG, "" + mController.mListener.getClass());
+        mController.mListener.sendMailCallback(null, ACCOUNT_1, -1, 100);
+
+        assertFalse(mListener.mCalledOnConnectionError);
+        mListener.reset();
+    }
+
+    public void testSendPendingMessagesForAllAccounts() throws Throwable {
+        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, mProviderContext);
+        Account acct2 = ProviderTestUtils.setupAccount("acct2", true, mProviderContext);
+
+        // AsyncTask needs to be created on the UI thread.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTarget.sendPendingMessagesForAllAccounts();
+            }
+        });
+
+        // sendPendingMessagesForAllAccounts uses Utility.ForEachAccount, which has it's own test,
+        // so we don't really have to check everything.
+        // Here, we just check if sendPendingMessages() has been called at least for once,
+        // which is a enough check.
+        TestUtils.waitUntil(new TestUtils.Condition() {
+            @Override
+            public boolean isMet() {
+                // The write to this is done on the UI thread, but we're checking it here
+                // on the test thread, so mCalledSendPendingMessages needs to be volatile.
+                return mController.mCalledSendPendingMessages;
+            }
+        }, WAIT_UNTIL_TIMEOUT_SECONDS);
+    }
+
     public void testLoadMoreMessages() {
         final long ACCOUNT_ID = 123;
         final long MAILBOX_ID = 456;
@@ -325,6 +422,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
     private static class MockController extends Controller {
         public volatile long mAccountId = -1;
         public volatile long mMailboxId = -1;
+        public volatile boolean mCalledSendPendingMessages;
         public volatile boolean mCalledUpdateMailbox;
         public volatile boolean mCalledUpdateMailboxList;
         public volatile boolean mCalledLoadMoreMessages;
@@ -337,12 +435,14 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         public void reset() {
             mAccountId = -1;
             mMailboxId = -1;
+            mCalledSendPendingMessages = false;
             mCalledUpdateMailbox = false;
             mCalledUpdateMailboxList = false;
         }
 
         @Override
         public void sendPendingMessages(long accountId) {
+            mCalledSendPendingMessages = true;
             mAccountId = accountId;
         }
 

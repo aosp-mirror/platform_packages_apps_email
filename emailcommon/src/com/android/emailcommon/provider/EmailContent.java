@@ -32,7 +32,6 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -71,17 +70,6 @@ public abstract class EmailContent {
 
     public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
-    public static final Uri MAILBOX_NOTIFICATION_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
-    public static final String[] NOTIFICATION_PROJECTION =
-        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
-    public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
-    public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
-    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
-
-    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
-
     public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
@@ -103,19 +91,6 @@ public abstract class EmailContent {
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";
     public static final String SET_COLUMN_NAME = "set";
-
-    public static final int SYNC_STATUS_NONE = UIProvider.SyncStatus.NO_SYNC;
-    public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
-    public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
-
-    public static final int LAST_SYNC_RESULT_SUCCESS = UIProvider.LastSyncResult.SUCCESS;
-    public static final int LAST_SYNC_RESULT_AUTH_ERROR = UIProvider.LastSyncResult.AUTH_ERROR;
-    public static final int LAST_SYNC_RESULT_SECURITY_ERROR =
-            UIProvider.LastSyncResult.SECURITY_ERROR;
-    public static final int LAST_SYNC_RESULT_CONNECTION_ERROR =
-            UIProvider.LastSyncResult.CONNECTION_ERROR;
-    public static final int LAST_SYNC_RESULT_INTERNAL_ERROR =
-            UIProvider.LastSyncResult.INTERNAL_ERROR;
 
     // Newly created objects get this id
     public static final int NOT_SAVED = -1;
@@ -912,20 +887,9 @@ public abstract class EmailContent {
             return null;
         }
 
-        /**
-         * Save or update a message
-         * @param ops an array of CPOs that we'll add to
-         */
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
-            boolean isNew = !isSaved();
-            ContentProviderOperation.Builder b;
-            // First, save/update the message
-            if (isNew) {
-                b = ContentProviderOperation.newInsert(mBaseUri);
-            } else {
-                b = ContentProviderOperation.newUpdate(mBaseUri)
-                        .withSelection(Message.RECORD_ID + "=?", new String[] {Long.toString(mId)});
-            }
+            // First, save the message
+            ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
             // Generate the snippet here, before we create the CPO for Message
             if (mText != null) {
                 mSnippet = TextUtilities.makeSnippetFromPlainText(mText);
@@ -955,34 +919,19 @@ public abstract class EmailContent {
                 cv.put(Body.INTRO_TEXT, mIntroText);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
-            // Put our message id in the Body
-            if (!isNew) {
-                cv.put(Body.MESSAGE_KEY, mId);
-            }
             b.withValues(cv);
-            // We'll need this if we're new
+            ContentValues backValues = new ContentValues();
             int messageBackValue = ops.size() - 1;
-            // If we're new, create a back value entry
-            if (isNew) {
-                ContentValues backValues = new ContentValues();
-                backValues.put(Body.MESSAGE_KEY, messageBackValue);
-                b.withValueBackReferences(backValues);
-            }
-            // And add the Body operation
-            ops.add(b.build());
+            backValues.put(Body.MESSAGE_KEY, messageBackValue);
+            ops.add(b.withValueBackReferences(backValues).build());
 
             // Create the attaachments, if any
             if (mAttachments != null) {
                 for (Attachment att: mAttachments) {
-                    if (!isNew) {
-                        att.mMessageKey = mId;
-                    }
-                    b = ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
-                            .withValues(att.toContentValues());
-                    if (isNew) {
-                        b.withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue);
-                    }
-                    ops.add(b.build());
+                    ops.add(ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
+                        .withValues(att.toContentValues())
+                        .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
+                        .build());
                 }
             }
         }
@@ -1085,12 +1034,6 @@ public abstract class EmailContent {
         public static final String CONTENT_BYTES = "content_bytes";
         // A foreign key into the Account table (for the message owning this attachment)
         public static final String ACCOUNT_KEY = "accountKey";
-        // The UIProvider state of the attachment
-        public static final String UI_STATE = "uiState";
-        // The UIProvider destination of the attachment
-        public static final String UI_DESTINATION = "uiDestination";
-        // The UIProvider downloaded size of the attachment
-        public static final String UI_DOWNLOADED_SIZE = "uiDownloadedSize";
     }
 
     public static final class Attachment extends EmailContent
@@ -1114,9 +1057,6 @@ public abstract class EmailContent {
         public int mFlags;
         public byte[] mContentBytes;
         public long mAccountKey;
-        public int mUiState;
-        public int mUiDestination;
-        public int mUiDownloadedSize;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1131,16 +1071,12 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAGS_COLUMN = 10;
         public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 12;
-        public static final int CONTENT_UI_STATE_COLUMN = 13;
-        public static final int CONTENT_UI_DESTINATION_COLUMN = 14;
-        public static final int CONTENT_UI_DOWNLOADED_SIZE_COLUMN = 15;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
             AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
             AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES,
-            AttachmentColumns.ACCOUNT_KEY, AttachmentColumns.UI_STATE,
-            AttachmentColumns.UI_DESTINATION, AttachmentColumns.UI_DOWNLOADED_SIZE
+            AttachmentColumns.ACCOUNT_KEY
         };
 
         // All attachments with an empty URI, regardless of mailbox
@@ -1265,9 +1201,6 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            mUiState = cursor.getInt(CONTENT_UI_STATE_COLUMN);
-            mUiDestination = cursor.getInt(CONTENT_UI_DESTINATION_COLUMN);
-            mUiDownloadedSize = cursor.getInt(CONTENT_UI_DOWNLOADED_SIZE_COLUMN);
         }
 
         @Override
@@ -1285,9 +1218,6 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.FLAGS, mFlags);
             values.put(AttachmentColumns.CONTENT_BYTES, mContentBytes);
             values.put(AttachmentColumns.ACCOUNT_KEY, mAccountKey);
-            values.put(AttachmentColumns.UI_STATE, mUiState);
-            values.put(AttachmentColumns.UI_DESTINATION, mUiDestination);
-            values.put(AttachmentColumns.UI_DOWNLOADED_SIZE, mUiDownloadedSize);
             return values;
         }
 
@@ -1317,9 +1247,6 @@ public abstract class EmailContent {
                 dest.writeInt(mContentBytes.length);
                 dest.writeByteArray(mContentBytes);
             }
-            dest.writeInt(mUiState);
-            dest.writeInt(mUiDestination);
-            dest.writeInt(mUiDownloadedSize);
         }
 
         public Attachment(Parcel in) {
@@ -1343,9 +1270,6 @@ public abstract class EmailContent {
                 mContentBytes = new byte[contentBytesLen];
                 in.readByteArray(mContentBytes);
             }
-            mUiState = in.readInt();
-            mUiDestination = in.readInt();
-            mUiDownloadedSize = in.readInt();
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
@@ -1365,8 +1289,7 @@ public abstract class EmailContent {
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
                     + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mFlags + ", " + mContentBytes + ", " + mAccountKey +  "," + mUiState + ","
-                    + mUiDestination + "," + mUiDownloadedSize + "]";
+                    + mFlags + ", " + mContentBytes + ", " + mAccountKey + "]";
         }
     }
 
@@ -1411,6 +1334,10 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
+        // The last notified message id
+        public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
+        // The most recent notified message count
+        public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
     public interface QuickResponseColumns {
@@ -1456,18 +1383,10 @@ public abstract class EmailContent {
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
+        // Message ID of the last 'seen' message
+        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
-        // The UIProvider sync status
-        public static final String UI_SYNC_STATUS = "uiSyncStatus";
-        // The UIProvider last sync result
-        public static final String UI_LAST_SYNC_RESULT = "uiLastSyncResult";
-        // The UIProvider sync status
-        public static final String LAST_NOTIFIED_MESSAGE_KEY = "lastNotifiedMessageKey";
-        // The UIProvider last sync result
-        public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
-        // The total number of messages in the remote mailbox
-        public static final String TOTAL_COUNT = "totalCount";
     }
 
     public interface HostAuthColumns {
@@ -1518,8 +1437,5 @@ public abstract class EmailContent {
         public static final String MAX_CALENDAR_LOOKBACK = "maxCalendarLookback";
         // Indicates that the server allows password recovery, not that we support it
         public static final String PASSWORD_RECOVERY_ENABLED = "passwordRecoveryEnabled";
-        // Tokenized strings indicating protocol specific policies enforced/unsupported
-        public static final String PROTOCOL_POLICIES_ENFORCED = "protocolPoliciesEnforced";
-        public static final String PROTOCOL_POLICIES_UNSUPPORTED = "protocolPoliciesUnsupported";
     }
 }

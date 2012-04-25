@@ -75,10 +75,9 @@
         android:name="android.permission.USE_CREDENTIALS"/>
 
     <!-- Grant permission to system apps to access provider (see provider below) -->
-    <!-- STOPSHIP: Temporarily set protection level to "dangerous" (from "signature") -->
     <permission
         android:name="com.android.email.permission.ACCESS_PROVIDER"
-        android:protectionLevel="dangerous"
+        android:protectionLevel="signature"
         android:label="@string/permission_access_provider_label"
         android:description="@string/permission_access_provider_desc"/>
     <uses-permission
@@ -176,7 +175,7 @@
                 <data
                     android:scheme="content"
                     android:host="ui.email.android.com"
-                    android:pathPrefix="/settings"
+                    android:path="/settings"
                     />
             </intent-filter>
             <intent-filter>
@@ -227,6 +226,7 @@
         <activity
             android:name=".activity.MessageCompose"
             android:label="@string/compose_title"
+            android:enabled="false"
             android:theme="@android:style/Theme.Holo.Light"
             >
             <intent-filter>
@@ -262,16 +262,6 @@
             <intent-filter>
                 <action
                     android:name="com.android.email.intent.action.REPLY" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:scheme="content"
-                    android:host="ui.email.android.com"
-                    android:pathPrefix="/compose"
-                    />
             </intent-filter>
         </activity>
 
@@ -404,28 +394,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name=".service.ImapService"
-            android:enabled="true"
-            android:permission="com.android.email.permission.ACCESS_PROVIDER"
-            >
-            <intent-filter>
-                <action
-                    android:name="com.android.email.IMAP_INTENT" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".service.Pop3Service"
-            android:enabled="true"
-            android:permission="com.android.email.permission.ACCESS_PROVIDER"
-            >
-            <intent-filter>
-                <action
-                    android:name="com.android.email.POP3_INTENT" />
-            </intent-filter>
-        </service>
-
         <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
         <service
             android:name=".service.EasAuthenticatorService"
@@ -496,7 +464,7 @@
         <!-- Email AppWidget definitions -->
         <activity
             android:name=".widget.WidgetConfiguration"
-            android:enabled="true"
+            android:enabled="false"
             android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge"
             >
             <intent-filter
@@ -515,7 +483,8 @@
         <receiver
             android:name=".provider.WidgetProvider" >
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action
+                    android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.android.email.MESSAGE_LIST_DATASET_CHANGED" />

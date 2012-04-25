@@ -37,11 +37,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -245,6 +245,11 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return shouldShowNewAccount();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -302,9 +307,38 @@ public class AccountSettings extends PreferenceActivity {
         super.onBackPressed();
     }
 
+    /**
+     * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
+     * so the user is free to edit another account as well.
+     */
+    @Override
+    public Header onGetNewHeader() {
+        Header result = mRequestedAccountHeader;
+        mRequestedAccountHeader = null;
+        return result;
+    }
+
     private void enableDebugMenu() {
         mShowDebugMenu = true;
         invalidateHeaders();
+    }
+
+    /**
+     * Decide if "add account" should be shown
+     */
+    private boolean shouldShowNewAccount() {
+        // If in single pane mode, only add accounts at top level
+        if (!onIsMultiPane()) {
+            return hasHeaders();
+        } else {
+            // If in multi pane mode, only add accounts when showing a top level fragment
+            // Note: null is OK; This is the case when we first launch the activity
+            if ((mCurrentFragment != null)
+                && !(mCurrentFragment instanceof GeneralPreferences)
+                && !(mCurrentFragment instanceof DebugFragment)
+                && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
+        }
+        return true;
     }
 
     private void onAddNewAccount() {
@@ -678,16 +712,11 @@ public class AccountSettings extends PreferenceActivity {
     /**
      * Delete the selected account
      */
-    public void deleteAccount(final Account account) {
+    public void deleteAccount(Account account) {
         // Kick off the work to actually delete the account
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
-                getContentResolver().delete(uri, null, null);
-            }}).start();
+        // Delete the account (note, this is async.  Would be nice to get a callback.
+        Controller.getInstance(this).deleteAccount(account.mId);
 
-        // TODO: Remove ui glue for unified
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
         if (onIsMultiPane()) {
@@ -732,7 +761,7 @@ public class AccountSettings extends PreferenceActivity {
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
     /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
-        final static String TAG = "UnsavedChangesDialogFragment";
+        private final static String TAG = "UnsavedChangesDialogFragment";
 
         // Argument bundle keys
         private final static String BUNDLE_KEY_HEADER = "UnsavedChangesDialogFragment.Header";

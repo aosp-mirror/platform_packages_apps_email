@@ -52,6 +52,7 @@ import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.ProviderUnavailableException;
@@ -896,27 +897,28 @@ public class Utility {
      * all accounts are updated.
      * @return an {@link EmailAsyncTask} for test only.
      */
-    public static EmailAsyncTask<Void, Void, Void> updateLastNotifiedMessageKey(
-            final Context context, final long mailboxId) {
+    public static EmailAsyncTask<Void, Void, Void> updateLastSeenMessageKey(final Context context,
+            final long accountId) {
         return EmailAsyncTask.runAsyncParallel(new Runnable() {
-            private void updateLastSeenMessageKeyForMailbox(long mailboxId) {
+            private void updateLastSeenMessageKeyForAccount(long accountId) {
                 ContentResolver resolver = context.getContentResolver();
-                if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                     Cursor c = resolver.query(
-                            Mailbox.CONTENT_URI, EmailContent.ID_PROJECTION, Mailbox.TYPE + "=?",
-                            new String[] { Integer.toString(Mailbox.TYPE_INBOX) }, null);
+                            Account.CONTENT_URI, EmailContent.ID_PROJECTION, null, null, null);
                     if (c == null) throw new ProviderUnavailableException();
                     try {
                         while (c.moveToNext()) {
                             final long id = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                            updateLastSeenMessageKeyForMailbox(id);
+                            updateLastSeenMessageKeyForAccount(id);
                         }
                     } finally {
                         c.close();
                     }
-                } else if (mailboxId > 0L) {
-                    Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-                   // mailbox has been removed
+                } else if (accountId > 0L) {
+                    Mailbox mailbox =
+                        Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
+
+                    // mailbox has been removed
                     if (mailbox == null) {
                         return;
                     }
@@ -925,33 +927,34 @@ public class Utility {
                     // need a point at which we can compare against in the future. By setting this
                     // value, we are claiming that every message before this has potentially been
                     // seen by the user.
-                    long mostRecentMessageId = Utility.getFirstRowLong(context,
-                            ContentUris.withAppendedId(
-                                    EmailContent.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
-                            Message.ID_COLUMN_PROJECTION, null, null, null,
-                            Message.ID_MAILBOX_COLUMN_ID, -1L);
-                    long lastNotifiedMessageId = mailbox.mLastNotifiedMessageKey;
+                    long messageId = Utility.getFirstRowLong(
+                            context,
+                            Message.CONTENT_URI,
+                            EmailContent.ID_PROJECTION,
+                            MessageColumns.MAILBOX_KEY + "=?",
+                            new String[] { Long.toString(mailbox.mId) },
+                            MessageColumns.ID + " DESC",
+                            EmailContent.ID_PROJECTION_COLUMN, 0L);
+                    long oldLastSeenMessageId = Utility.getFirstRowLong(
+                            context, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailbox.mId),
+                            new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
+                            null, null, null, 0, 0L);
                     // Only update the db if the value has changed
-                    if (mostRecentMessageId != lastNotifiedMessageId) {
-                        Log.d(Logging.LOG_TAG, "Most recent = " + mostRecentMessageId +
-                                ", last notified: " + lastNotifiedMessageId +
-                                "; updating last notified");
+                    if (messageId != oldLastSeenMessageId) {
                         ContentValues values = mailbox.toContentValues();
-                        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, mostRecentMessageId);
+                        values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, messageId);
                         resolver.update(
                                 Mailbox.CONTENT_URI,
                                 values,
                                 EmailContent.ID_SELECTION,
                                 new String[] { Long.toString(mailbox.mId) });
-                    } else {
-                        Log.d(Logging.LOG_TAG, "Most recent = last notified; no change");
                     }
                 }
             }
 
             @Override
             public void run() {
-                updateLastSeenMessageKeyForMailbox(mailboxId);
+                updateLastSeenMessageKeyForAccount(accountId);
             }
         });
     }

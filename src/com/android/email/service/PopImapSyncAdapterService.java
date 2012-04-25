@@ -16,32 +16,24 @@
 
 package com.android.email.service;
 
+import android.accounts.Account;
 import android.accounts.OperationCanceledException;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
+import com.android.email.Controller;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.EmailServiceProxy;
-
-import java.util.ArrayList;
 
 public class PopImapSyncAdapterService extends Service {
     private static final String TAG = "PopImapSyncAdapterService";
@@ -61,7 +53,7 @@ public class PopImapSyncAdapterService extends Service {
         }
 
         @Override
-        public void onPerformSync(android.accounts.Account account, Bundle extras,
+        public void onPerformSync(Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
             try {
                 PopImapSyncAdapterService.performSync(mContext, account, extras,
@@ -86,136 +78,28 @@ public class PopImapSyncAdapterService extends Service {
         return sSyncAdapter.getSyncAdapterBinder();
     }
 
-    private static void sync(Context context, long mailboxId, SyncResult syncResult,
-            boolean uiRefresh) {
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-        if (mailbox == null) return;
-        Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
-        if (account == null) return;
-        ContentResolver resolver = context.getContentResolver();
-        String protocol = account.getProtocol(context);
-        if ((mailbox.mType != Mailbox.TYPE_OUTBOX) && !mailbox.loadsFromServer(protocol)) {
-            // This is an update to a message in a non-syncing mailbox; delete this from the
-            // updates table and return
-            resolver.delete(Message.UPDATED_CONTENT_URI, Message.MAILBOX_KEY + "=?",
-                    new String[] {Long.toString(mailbox.mId)});
-            return;
-        }
-        Log.d(TAG, "Mailbox: " + mailbox.mDisplayName);
-
-        Uri mailboxUri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
-        ContentValues values = new ContentValues();
-        // Set mailbox sync state
-        values.put(Mailbox.UI_SYNC_STATUS,
-                uiRefresh ? EmailContent.SYNC_STATUS_USER : EmailContent.SYNC_STATUS_BACKGROUND);
-        resolver.update(mailboxUri, values, null, null);
-        try {
-            try {
-                if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-                    EmailServiceStub.sendMailImpl(context, account.mId);
-                } else if (protocol.equals(HostAuth.SCHEME_IMAP)) {
-                    ImapService.synchronizeMailboxSynchronous(context, account, mailbox);
-                } else {
-                    Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox);
-                }
-            } catch (MessagingException e) {
-                int cause = e.getExceptionType();
-                switch(cause) {
-                    case MessagingException.IOERROR:
-                        syncResult.stats.numIoExceptions++;
-                        break;
-                    case MessagingException.AUTHENTICATION_FAILED:
-                        syncResult.stats.numAuthExceptions++;
-                        break;
-                }
-            }
-        } finally {
-            // Always clear our sync state
-            values.put(Mailbox.UI_SYNC_STATUS, EmailContent.SYNC_STATUS_NONE);
-            resolver.update(mailboxUri, values, null, null);
-        }
-    }
-
     /**
      * Partial integration with system SyncManager; we initiate manual syncs upon request
      */
-    private static void performSync(Context context, android.accounts.Account account,
-            Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult)
-                    throws OperationCanceledException {
-        // Find an EmailProvider account with the Account's email address
-        Cursor c = null;
-        try {
-            c = provider.query(com.android.emailcommon.provider.Account.CONTENT_URI,
-                    Account.CONTENT_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
-                    new String[] {account.name}, null);
-            if (c != null && c.moveToNext()) {
-                Account acct = new Account();
-                acct.restore(c);
-                if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
-                    Log.d(TAG, "Upload sync request for " + acct.mDisplayName);
-                    // See if any boxes have mail...
-                    Cursor updatesCursor = provider.query(Message.UPDATED_CONTENT_URI,
-                            new String[] {Message.MAILBOX_KEY},
-                            Message.ACCOUNT_KEY + "=?",
-                            new String[] {Long.toString(acct.mId)},
-                            null);
-                    if ((updatesCursor == null) || (updatesCursor.getCount() == 0)) return;
-                    ArrayList<Long> mailboxesToUpdate = new ArrayList<Long>();
-                    while (updatesCursor.moveToNext()) {
-                        Long mailboxId = updatesCursor.getLong(0);
-                        if (!mailboxesToUpdate.contains(mailboxId)) {
-                            mailboxesToUpdate.add(mailboxId);
-                        }
-                    }
-                    for (long mailboxId: mailboxesToUpdate) {
-                        sync(context, mailboxId, syncResult, false);
-                    }
-                } else {
-                    Log.d(TAG, "Sync request for " + acct.mDisplayName);
-                    Log.d(TAG, extras.toString());
-                    long mailboxId = extras.getLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID,
-                            Mailbox.NO_MAILBOX);
-                    boolean isInbox = false;
-                    if (mailboxId == Mailbox.NO_MAILBOX) {
-                        mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
-                                Mailbox.TYPE_INBOX);
-                        if (mailboxId == Mailbox.NO_MAILBOX) {
-                            // Update folders?
-                            EmailServiceProxy service =
-                                EmailServiceUtils.getServiceForAccount(context, null, acct.mId);
-                            service.updateFolderList(acct.mId);
-                        }
-                        isInbox = true;
-                    }
-                    if (mailboxId == Mailbox.NO_MAILBOX) return;
-                    boolean uiRefresh =
-                            extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
-                    sync(context, mailboxId, syncResult, uiRefresh);
-
-                    // Outbox is a special case here
-                    Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-                    if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-                        return;
-                    }
-
-                    // Convert from minutes to seconds
-                    int syncFrequency = acct.mSyncInterval * 60;
-                    // Values < 0 are for "never" or "push"; 0 is undefined
-                    if (syncFrequency <= 0) return;
-                    Bundle ex = new Bundle();
-                    if (!isInbox) {
-                        ex.putLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID, mailboxId);
-                    }
-                    Log.d(TAG, "Setting periodic sync for " + acct.mDisplayName + ": " +
-                            syncFrequency + " seconds");
-                    ContentResolver.addPeriodicSync(account, authority, ex, syncFrequency);
+    private static void performSync(Context context, Account account, Bundle extras,
+            String authority, ContentProviderClient provider, SyncResult syncResult)
+            throws OperationCanceledException {
+        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false)) {
+            String emailAddress = account.name;
+            // Find an EmailProvider account with the Account's email address
+            Cursor c = context.getContentResolver().query(
+                    com.android.emailcommon.provider.Account.CONTENT_URI,
+                    EmailContent.ID_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
+                    new String[] {emailAddress}, null);
+            if (c.moveToNext()) {
+                // If we have one, find the inbox and start it syncing
+                long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                long mailboxId = Mailbox.findMailboxOfType(context, accountId,
+                        Mailbox.TYPE_INBOX);
+                if (mailboxId > 0) {
+                    Log.d(TAG, "Starting manual sync for account " + emailAddress);
+                    Controller.getInstance(context).updateMailbox(accountId, mailboxId, false);
                 }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null) {
-                c.close();
             }
         }
     }

@@ -119,7 +119,6 @@ public class AccountSecurity extends Activity {
             finish();
             return;
         }
-
         // Special handling for password expiration events
         if (passwordExpiring || passwordExpired) {
             FragmentManager fm = getFragmentManager();

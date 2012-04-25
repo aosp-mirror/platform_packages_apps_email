@@ -28,6 +28,7 @@ import com.android.email.activity.MessageCompose;
 import com.android.email.activity.ShortcutPicker;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
+import com.android.email.widget.WidgetConfiguration;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
@@ -126,6 +127,15 @@ public class Email extends Application {
 
     private static void setServicesEnabled(Context context, boolean enabled) {
         PackageManager pm = context.getPackageManager();
+        if (!enabled && pm.getComponentEnabledSetting(
+                new ComponentName(context, MailService.class)) ==
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+            /*
+             * If no accounts now exist but the service is still enabled we're about to disable it
+             * so we'll reschedule to kill off any existing alarms.
+             */
+            MailService.actionReschedule(context);
+        }
         pm.setComponentEnabledSetting(
                 new ComponentName(context, MessageCompose.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
@@ -143,6 +153,21 @@ public class Email extends Application {
                 PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(
                 new ComponentName(context, AttachmentDownloadService.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+        if (enabled && pm.getComponentEnabledSetting(
+                new ComponentName(context, MailService.class)) ==
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+            /*
+             * And now if accounts do exist then we've just enabled the service and we want to
+             * schedule alarms for the new accounts.
+             */
+            MailService.actionReschedule(context);
+        }
+
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, WidgetConfiguration.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);

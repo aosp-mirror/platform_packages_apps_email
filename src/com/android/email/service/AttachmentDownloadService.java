@@ -33,13 +33,13 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.android.email.AttachmentInfo;
+import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.NotificationController;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
@@ -155,7 +155,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
         @Override
         public void onReceive(final Context context, Intent intent) {
             new Thread(new Runnable() {
-                @Override
                 public void run() {
                     watchdogAlarm();
                 }
@@ -450,8 +449,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @return whether or not the download was started
          */
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                    AttachmentDownloadService.this, mServiceCallback, req.accountId);
+            Intent intent = getServiceIntentForAccount(req.accountId);
+            if (intent == null) return false;
 
             // Do not download the same attachment multiple times
             boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
@@ -461,7 +460,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 if (Email.DEBUG) {
                     Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
                 }
-                startDownload(service, req);
+                startDownload(intent, req);
             } catch (RemoteException e) {
                 // TODO: Consider whether we need to do more in this case...
                 // For now, fix up our data to reflect the failure
@@ -478,16 +477,18 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * Do the work of starting an attachment download using the EmailService interface, and
          * set our watchdog alarm
          *
-         * @param serviceClass the service handling the download
+         * @param serviceClass the class that will attempt the download
          * @param req the DownloadRequest
          * @throws RemoteException
          */
-        private void startDownload(EmailServiceProxy service, DownloadRequest req)
+        private void startDownload(Intent intent, DownloadRequest req)
                 throws RemoteException {
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
-            service.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
+            EmailServiceProxy proxy =
+                new EmailServiceProxy(mContext, intent, mServiceCallback);
+            proxy.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
             // Lazily initialize our (reusable) pending intent
             if (mWatchdogPendingIntent == null) {
                 createWatchdogPendingIntent(mContext);
@@ -651,7 +652,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * single callback that's defined by the EmailServiceCallback interface.
      */
     private class ServiceCallback extends IEmailServiceCallback.Stub {
-        @Override
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
             // Record status and progress
@@ -673,15 +673,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 req.lastStatusCode = statusCode;
                 req.lastProgress = progress;
                 req.lastCallbackTime = System.currentTimeMillis();
-                Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
-                 if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
-                    ContentValues values = new ContentValues();
-                    values.put(AttachmentColumns.UI_DOWNLOADED_SIZE,
-                            attachment.mSize * progress / 100);
-                    // Update UIProvider with updated download size
-                    // Individual services will set contentUri and state when finished
-                    attachment.update(mContext, values);
-                }
             }
             switch (statusCode) {
                 case EmailServiceStatus.IN_PROGRESS:
@@ -693,6 +684,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         @Override
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
+                throws RemoteException {
+        }
+
+        @Override
         public void syncMailboxListStatus(long accountId, int statusCode, int progress)
                 throws RemoteException {
         }
@@ -701,16 +697,27 @@ public class AttachmentDownloadService extends Service implements Runnable {
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
                 throws RemoteException {
         }
+    }
 
-        @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
+    /**
+     * Return an Intent to be used used based on the account type of the provided account id.  We
+     * cache the results to avoid repeated database access
+     * @param accountId the id of the account
+     * @return the Intent to be used for the account or null (if the account no longer exists)
+     */
+    private synchronized Intent getServiceIntentForAccount(long accountId) {
+        // TODO: We should have some more data-driven way of determining the service intent.
+        Intent serviceIntent = mAccountServiceMap.get(accountId);
+        if (serviceIntent == null) {
+            String protocol = Account.getProtocol(mContext, accountId);
+            if (protocol == null) return null;
+            serviceIntent = new Intent(mContext, ControllerService.class);
+            if (protocol.equals("eas")) {
+                serviceIntent = new Intent(EmailServiceProxy.EXCHANGE_INTENT);
+            }
+            mAccountServiceMap.put(accountId, serviceIntent);
         }
-
-        @Override
-        public void loadMessageStatus(long messageId, int statusCode, int progress)
-                throws RemoteException {
-        }
+        return serviceIntent;
     }
 
     /*package*/ void addServiceIntentForTest(long accountId, Intent intent) {
@@ -794,7 +801,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
      */
     public static void attachmentChanged(final Context context, final long id, final int flags) {
         Utility.runAsync(new Runnable() {
-            @Override
             public void run() {
                 Attachment attachment = Attachment.restoreAttachmentWithId(context, id);
                 if (attachment != null) {
@@ -861,7 +867,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
     }
 
-    @Override
     public void run() {
         // These fields are only used within the service thread
         mContext = this;

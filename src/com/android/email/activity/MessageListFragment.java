@@ -69,6 +69,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -979,7 +980,7 @@ public class MessageListFragment extends ListFragment
             return;
         }
 
-        final HashMap<Long, Boolean> setValues = new HashMap<Long, Boolean>();
+        final HashMap<Long, Boolean> setValues = Maps.newHashMap();
         boolean allWereSet = true;
 
         c.moveToPosition(-1);
@@ -1220,13 +1221,14 @@ public class MessageListFragment extends ListFragment
      *                          viewed mailbox will be updated.
      */
     private void adjustMessageNotification(boolean updateLastSeenKey) {
+        final long accountId = getAccountId();
         final long mailboxId = getMailboxId();
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES || mailboxId > 0) {
             if (updateLastSeenKey) {
-                Utility.updateLastNotifiedMessageKey(mActivity, mailboxId);
+                Utility.updateLastSeenMessageKey(mActivity, accountId);
             }
             NotificationController notifier = NotificationController.getInstance(mActivity);
-            notifier.suspendMessageNotification(mResumed, mailboxId);
+            notifier.suspendMessageNotification(mResumed, accountId);
         }
     }
 
