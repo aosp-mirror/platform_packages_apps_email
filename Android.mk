@@ -29,6 +29,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/email)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 LOCAL_AAPT_FLAGS := --auto-add-overlay
+LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava android-common-chips
 
