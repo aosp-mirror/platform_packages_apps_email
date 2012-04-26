@@ -28,6 +28,7 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -2816,6 +2817,39 @@ outer:
     }
 
     /**
+     * Wrapper that handles the visibility feature (i.e. the conversation list is visible, so
+     * any pending notifications for the corresponding mailbox should be canceled)
+     */
+    static class VisibilityCursor extends CursorWrapper {
+        private final long mMailboxId;
+        private final Context mContext;
+
+        public VisibilityCursor(Context context, Cursor cursor, long mailboxId) {
+            super(cursor);
+            mMailboxId = mailboxId;
+            mContext = context;
+        }
+
+        @Override
+        public Bundle respond(Bundle params) {
+            final String setVisibilityKey =
+                    UIProvider.ConversationCursorCommand.COMMAND_KEY_SET_VISIBILITY;
+            if (params.containsKey(setVisibilityKey)) {
+                final boolean visible = params.getBoolean(setVisibilityKey);
+                if (visible) {
+                    NotificationController.getInstance(mContext).cancelNewMessageNotification(
+                            mMailboxId);
+                }
+            }
+            // Return success
+            Bundle response = new Bundle();
+            response.putString(setVisibilityKey,
+                    UIProvider.ConversationCursorCommand.COMMAND_RESPONSE_OK);
+            return response;
+        }
+    }
+
+    /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
      * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
@@ -2846,6 +2880,7 @@ outer:
                     c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
                 }
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
+                c = new VisibilityCursor(context, c, mailboxId);
                 break;
             case UI_MESSAGE:
                 c = db.rawQuery(genQueryViewMessage(uiProjection, id), new String[] {id});
