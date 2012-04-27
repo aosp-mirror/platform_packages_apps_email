@@ -1537,6 +1537,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void onAddAttachment() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         i.setType(AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES[0]);
         mPickingAttachment = true;
         startActivityForResult(
