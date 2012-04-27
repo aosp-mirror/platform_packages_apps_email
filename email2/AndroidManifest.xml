@@ -117,6 +117,23 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.EventViewer"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Light"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="content"
+                    android:host="ui.email2.android.com"
+                    android:pathPrefix="/event"
+                    />
+            </intent-filter>
+        </activity>
+            
         <!-- TODO: this activity doesn't exist.  Determine what to do here -->
         <activity android:name=".ui.CreateShortcutActivity"
             android:label="@string/activity_folder_selection" />
