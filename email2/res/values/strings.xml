@@ -1308,5 +1308,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- This is the message warning the user that they must sync manually when roaming. [CHAR LIMIT=none]-->
     <string name="require_manual_sync_message">Background sync for this account is disabled while\
      roaming.</string>
+
+    <!-- This is shown when a user responds to a meeting invitation [CHAR LIMIT=none]-->
+    <string name="confirm_response">Sending response...</string>
 </resources>
 
