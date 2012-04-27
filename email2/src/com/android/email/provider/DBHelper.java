@@ -131,7 +131,8 @@ public final class DBHelper {
     // Version 4: Database wipe required; changing AccountManager interface w/Exchange
     // Version 5: Database wipe required; changing AccountManager interface w/Exchange
     // Version 6: Adding Body.mIntroText column
-    public static final int BODY_DATABASE_VERSION = 6;
+    // Version 7: Adding quoted text start pos
+    public static final int BODY_DATABASE_VERSION = 8;
 
     /*
      * Internal helper method for index creation.
@@ -467,7 +468,8 @@ public final class DBHelper {
             + BodyColumns.HTML_REPLY + " text, "
             + BodyColumns.TEXT_REPLY + " text, "
             + BodyColumns.SOURCE_MESSAGE_KEY + " text, "
-            + BodyColumns.INTRO_TEXT + " text"
+            + BodyColumns.INTRO_TEXT + " text, "
+            + BodyColumns.QUOTED_TEXT_START_POS + " integer"
             + ");";
         db.execSQL("create table " + Body.TABLE_NAME + s);
         db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
@@ -478,9 +480,11 @@ public final class DBHelper {
             try {
                 db.execSQL("drop table " + Body.TABLE_NAME);
                 createBodyTable(db);
+                oldVersion = 5;
             } catch (SQLException e) {
             }
-        } else if (oldVersion == 5) {
+        }
+        if (oldVersion == 5) {
             try {
                 db.execSQL("alter table " + Body.TABLE_NAME
                         + " add " + BodyColumns.INTRO_TEXT + " text");
@@ -489,6 +493,16 @@ public final class DBHelper {
                 Log.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
             }
             oldVersion = 6;
+        }
+        if (oldVersion == 6 || oldVersion ==7) {
+            try {
+                db.execSQL("alter table " + Body.TABLE_NAME
+                        + " add " + BodyColumns.QUOTED_TEXT_START_POS + " integer");
+            } catch (SQLException e) {
+                // Shouldn't be needed unless we're debugging and interrupt the process
+                Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
+            }
+            oldVersion = 8;
         }
     }
 

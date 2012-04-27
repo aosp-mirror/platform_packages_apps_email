@@ -269,6 +269,8 @@ public abstract class EmailContent {
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
         // The text to be placed between a reply/forward response and the original message
         public static final String INTRO_TEXT = "introText";
+        // The start of quoted text within our text content
+        public static final String QUOTED_TEXT_START_POS = "quotedTextStartPos";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
@@ -285,10 +287,12 @@ public abstract class EmailContent {
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
         public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
+        public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
+
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT,
             BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY, BodyColumns.SOURCE_MESSAGE_KEY,
-            BodyColumns.INTRO_TEXT
+            BodyColumns.INTRO_TEXT, BodyColumns.QUOTED_TEXT_START_POS
         };
 
         public static final String[] COMMON_PROJECTION_TEXT = new String[] {
@@ -319,6 +323,7 @@ public abstract class EmailContent {
         public String mTextContent;
         public String mHtmlReply;
         public String mTextReply;
+        public int mQuotedTextStartPos;
 
         /**
          * Points to the ID of the message being replied to or forwarded. Will always be set,
@@ -462,6 +467,7 @@ public abstract class EmailContent {
             mTextReply = cursor.getString(CONTENT_TEXT_REPLY_COLUMN);
             mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);
             mIntroText = cursor.getString(CONTENT_INTRO_TEXT_COLUMN);
+            mQuotedTextStartPos = cursor.getInt(CONTENT_QUOTED_TEXT_START_POS_COLUMN);
         }
 
         public boolean update() {
@@ -732,6 +738,7 @@ public abstract class EmailContent {
         transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
         transient public String mIntroText;
+        transient public int mQuotedTextStartPos;
 
 
         // Values used in mFlagRead
@@ -967,6 +974,9 @@ public abstract class EmailContent {
             }
             if (mIntroText != null) {
                 cv.put(Body.INTRO_TEXT, mIntroText);
+            }
+            if (mQuotedTextStartPos != 0) {
+                cv.put(Body.QUOTED_TEXT_START_POS, mQuotedTextStartPos);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
             // Put our message id in the Body
