@@ -30,6 +30,6 @@ LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IPolicyService.aidl \
     src/com/android/emailcommon/service/IAccountService.aidl
 
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 14
 
 include $(BUILD_STATIC_JAVA_LIBRARY)

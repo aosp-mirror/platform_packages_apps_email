@@ -39,6 +39,6 @@ LOCAL_SRC_FILES += \
 LOCAL_SRC_FILES += $(call all-java-files-under, $(apache_src_dir))
 LOCAL_SRC_FILES += $(imported_unified_email_files)
 
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 14
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
