@@ -495,4 +495,6 @@
     <string name="quick_3" msgid="8061819976353395585">"Trenutno nimam časa. Odgovorim pozneje."</string>
     <string name="quick_4" msgid="3988974084396883051">"Skličimo sestanek in se pogovorimo."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sinhronizacija v ozadju je za ta račun med gostovanjem onemogočena."</string>
+    <!-- no translation found for confirm_response (5747902757569543165) -->
+    <skip />
 </resources>
