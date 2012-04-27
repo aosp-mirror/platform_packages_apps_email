@@ -3043,6 +3043,7 @@ outer:
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
+        msg.mQuotedTextStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
         int flags = 0;
         int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
