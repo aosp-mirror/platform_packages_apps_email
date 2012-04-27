@@ -495,4 +495,6 @@
     <string name="quick_3" msgid="8061819976353395585">"確認して折り返し連絡します。"</string>
     <string name="quick_4" msgid="3988974084396883051">"この件についてミーティングを行いませんか。"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"このアカウントのバックグラウンドでの同期は、ローミング中は無効です。"</string>
+    <!-- no translation found for confirm_response (5747902757569543165) -->
+    <skip />
 </resources>

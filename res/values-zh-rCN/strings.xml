@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"读取电子邮件附件"</string>
-    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"允许此应用程序读取您的电子邮件附件。"</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"允许此应用读取您的电子邮件附件。"</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"访问电子邮件服务提供商数据"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"允许此应用程序访问您的电子邮件数据库，包括已收邮件、已发邮件、用户名和密码。"</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"允许此应用访问您的电子邮件数据库，包括已收邮件、已发邮件、用户名和密码。"</string>
     <string name="app_name" msgid="5815426892327290362">"电子邮件"</string>
     <string name="compose_title" msgid="427986915662706899">"写邮件"</string>
     <string name="debug_title" msgid="5175710493691536719">"调试"</string>
@@ -179,14 +179,14 @@
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"附件信息"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"需要使用 Wi-Fi 连接"</string>
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi 设置"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"应用程序设置"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"应用设置"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"无法打开附件。"</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"该类型的附件中可能包含恶意软件，因此您无法保存或打开此文件。"</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"由于此帐户安全政策的限制，因此无法保存或打开此附件。"</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"附件过大，无法通过移动网络下载。您可以在下次连接到 Wi-Fi 网络时下载。"</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"已安装的应用程序都无法打开此附件。请尝试从 Android 电子市场下载一个合适的应用程序。"</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"此附件是应用程序。要想安装该应用程序，您需要在“设置”&gt;“应用程序”中选中“未知来源”。"</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"无法直接从电子邮件中安装应用程序。请先保存此应用程序，然后使用“下载内容”应用程序进行安装。"</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"已安装的应用都无法打开此附件。请尝试从 Android 电子市场下载一个合适的应用。"</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"此附件是应用。要想安装该应用，您需要在“设置”&gt;“应用”中选中“未知来源”。"</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"无法直接从电子邮件中安装应用。请先保存此应用，然后使用“下载内容”应用进行安装。"</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"无法下载该附件。"</string>
     <string name="message_decode_error" msgid="5016042255170947834">"解码邮件时出错。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"查看 <xliff:g id="FILENAME">%s</xliff:g>"</string>
@@ -340,7 +340,7 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"“<xliff:g id="SERVER">%s</xliff:g>”服务器要求您允许其远程控制您 Android 设备的某些安全功能。您想要完成此帐户设置吗？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"您的 Android 设备不支持此服务器要求使用的安全功能，其中包括：<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"您无法更改帐户的用户名。要添加使用其他用户名的帐户，请触摸“添加帐户”。"</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"警告：撤消“电子邮件”应用程序管理您设备的权限会删除所有需要此权限的电子邮件帐户，以及这些帐户中的电子邮件、联系人、日历活动和其他数据。"</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"警告：撤消“电子邮件”应用管理您设备的权限会删除所有需要此权限的电子邮件帐户，以及这些帐户中的电子邮件、联系人、日历活动和其他数据。"</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"安全更新"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> 要求更新您的安全设置。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”要求更新安全设置。"</string>
@@ -423,7 +423,7 @@
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"设置"</string>
     <string name="header_label_general_preferences" msgid="9204600297009680176">"常规"</string>
-    <string name="category_general_preferences" msgid="2742423840964045801">"应用程序"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"应用"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"自动跳转"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"选择要在删除邮件后显示的屏幕"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"跳转至"</string>

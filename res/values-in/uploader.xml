@@ -19,23 +19,23 @@
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"mencoba ulang dalam %s"</string>
     <string name="summary_menu_show_pending" msgid="658361192495996">"Tampilkan Unggahan yang Tertunda"</string>
     <string name="summary_menu_show_finished" msgid="8544099132633066086">"Tampilkan Unggahan yang Sudah Selesai"</string>
-    <string name="menu_view_online" msgid="6546633605818509942">"Lihat Secara Daring"</string>
+    <string name="menu_view_online" msgid="6546633605818509942">"Lihat Secara Online"</string>
     <string name="menu_show_pending_items" msgid="8798191388238604213">"Tampilkan Unggahan yang Tertunda"</string>
     <string name="menu_hide_pending_items" msgid="9216079748638469160">"Sembunyikan Unggahan yang Tertunda"</string>
     <string name="menu_show_completed_items" msgid="4380487776635859783">"Tampilkan Detail"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Sembunyikan Detail"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Setelan"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Diunggah %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Akun"</string>
     <string name="upload" msgid="2615541458361216022">"Unggah"</string>
-    <string name="ok" msgid="2516349681897895312">"OK"</string>
+    <string name="ok" msgid="2516349681897895312">"Oke"</string>
     <string name="cancel" msgid="1207103189404543868">"Batal"</string>
     <string name="uploading_to" msgid="3986362895940069510">"Mengunggah ke "<b>"%s"</b></string>
     <string name="uploading_for" msgid="1735961974624867111">" untuk "<b>"%s"</b></string>
     <string name="destination_format" msgid="7472552212462849956">"%1$s \"%2$s\""</string>
     <string name="toast_intent_error" msgid="6164928822619692280">"Inisiasi unggahan gagal."</string>
-    <string name="toast_file_error" msgid="1315722681020841350">"Berkas tidak tersedia."</string>
+    <string name="toast_file_error" msgid="1315722681020841350">"File tidak tersedia."</string>
     <string name="account_error" msgid="1904775271866104941">"Gagal mengambil informasi akun."</string>
     <string name="toast_failed_auth" msgid="2196450105656960566">"Terjadi masalah saat masuk ke akun Anda."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
@@ -57,10 +57,10 @@
     <string name="retry_in_2min" msgid="5845688527405283031">"2 menit"</string>
     <string name="retry_in_5min" msgid="3153220715959570358">"5 menit"</string>
     <string name="retry_no_data" msgid="630347885498641534">"Tidak ada sambungan data"</string>
-    <string name="account_out_of_quota" msgid="1849612079678906607">"Kuota diska akun habis"</string>
-    <string name="completed_no_file" msgid="6719715000947601844">"Berkas tidak ditemukan"</string>
-    <string name="failed_bad_response" msgid="8357723053952213242">"Galat layanan"</string>
-    <string name="failed_network_error" msgid="2531660472217573602">"Galat jaringan"</string>
+    <string name="account_out_of_quota" msgid="1849612079678906607">"Kuota disk akun habis"</string>
+    <string name="completed_no_file" msgid="6719715000947601844">"File tidak ditemukan"</string>
+    <string name="failed_bad_response" msgid="8357723053952213242">"Kesalahan layanan"</string>
+    <string name="failed_network_error" msgid="2531660472217573602">"Kesalahan jaringan"</string>
     <string name="failed_server_auth" msgid="2428208784689362254">"Autentikasi gagal"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"Unggahan yang tertunda [%d]"</string>
     <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"Unggahan yang selesai [%d]"</string>
@@ -80,8 +80,8 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Unggahan selesai"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Unggahan dijeda"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Unggah Sekejap belum diaktifkan"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Berkas berukuran besar akan diunggah melalui sambungan WiFi saja."</string>
-    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Memindai berkas..."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"File berukuran besar akan diunggah melalui sambungan WiFi saja."</string>
+    <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Memindai file..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Menyiapkan <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto dan <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video untuk diunggah..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Tidak ada foto/video tambahan yang perlu diunggah."</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"Terjadi masalah saat berkomunikasi dengan server. Coba lagi nanti."</string>
