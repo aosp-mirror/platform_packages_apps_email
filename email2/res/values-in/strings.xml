@@ -495,4 +495,6 @@
     <string name="quick_3" msgid="8061819976353395585">"Saya akan membaca ini nanti dan mengabari Anda."</string>
     <string name="quick_4" msgid="3988974084396883051">"Mari kita adakan pertemuan untuk membahas masalah ini."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sinkronisasi latar belakang untuk akun ini dinonaktifkan saat roaming."</string>
+    <!-- no translation found for confirm_response (5747902757569543165) -->
+    <skip />
 </resources>
