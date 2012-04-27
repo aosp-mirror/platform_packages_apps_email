@@ -3038,6 +3038,7 @@ outer:
         msg.mAccountKey = mailbox.mAccountKey;
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
+        msg.mFlagRead = true;
         int flags = 0;
         int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
