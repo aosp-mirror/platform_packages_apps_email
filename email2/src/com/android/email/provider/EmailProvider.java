@@ -3394,6 +3394,11 @@ outer:
             try {
                 service.sendMeetingResponse(msg.mId,
                         values.getAsInteger(UIProvider.MessageOperations.RESPOND_COLUMN));
+                // Delete the message immediately
+                uiDeleteMessage(uri);
+                Utility.showToast(context, R.string.confirm_response);
+                // Notify box has changed so the deletion is reflected in the UI
+                notifyUIConversationMailbox(mailbox.mId);
             } catch (RemoteException e) {
             }
             return 1;
@@ -3431,6 +3436,7 @@ outer:
         if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_DRAFTS) {
             // We actually delete these, including attachments
             AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
+            notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
             return context.getContentResolver().delete(
                     ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId), null, null);
         }
@@ -3439,6 +3445,7 @@ outer:
         if (trashMailbox == null) return 0;
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
+        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
         return uiUpdateMessage(uri, values);
     }
 
@@ -3460,8 +3467,9 @@ outer:
                 // But clear the operations
                 mLastSequenceOps.clear();
                 // Tell the UI there are changes
-                getContext().getContentResolver().notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER,
-                        null);
+                ContentResolver resolver = getContext().getContentResolver();
+                resolver.notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER, null);
+                resolver.notifyChange(UIPROVIDER_FOLDER_NOTIFIER, null);
                 return c;
             } catch (OperationApplicationException e) {
             }
