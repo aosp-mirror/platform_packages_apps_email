@@ -495,4 +495,6 @@
     <string name="quick_3" msgid="8061819976353395585">"Přečtu si to později a ozvu se."</string>
     <string name="quick_4" msgid="3988974084396883051">"Můžeme si dohodnout schůzku, abychom to prodiskutovali."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Synchronizace na pozadí je v tomto účtu při roamingu zakázána."</string>
+    <!-- no translation found for confirm_response (5747902757569543165) -->
+    <skip />
 </resources>
