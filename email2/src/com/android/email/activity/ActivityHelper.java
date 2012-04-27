@@ -76,18 +76,6 @@ public final class ActivityHelper {
     }
 
     /**
-     * Open Calendar app with specific time
-     */
-    public static void openCalendar(Activity activity, long epochEventStartTime) {
-        Uri uri = Uri.parse("content://com.android.calendar/time/" + epochEventStartTime);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        intent.putExtra("VIEW", "DAY");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        activity.startActivity(intent);
-    }
-
-    /**
      * If configured via debug flags, inhibit hardware graphics acceleration.  Must be called
      * early in onCreate().
      *
