@@ -44,6 +44,11 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
+    /**
+     * TODO: remove this when we've decided for certain that an app setting is unnecessary
+     * (b/5287963)
+     */
+    @Deprecated
     private ListPreference mTextZoom;
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
@@ -61,6 +66,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
+
+        // Merely hide app pref for font size until we're sure it's unnecessary (b/5287963)
+        getPreferenceScreen().removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
     }
 
     @Override
@@ -139,8 +147,10 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mAutoAdvance.setOnPreferenceChangeListener(this);
 
         mTextZoom = (ListPreference) findPreference(PREFERENCE_KEY_TEXT_ZOOM);
-        mTextZoom.setValueIndex(mPreferences.getTextZoom());
-        mTextZoom.setOnPreferenceChangeListener(this);
+        if (mTextZoom != null) {
+            mTextZoom.setValueIndex(mPreferences.getTextZoom());
+            mTextZoom.setOnPreferenceChangeListener(this);
+        }
 
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
@@ -153,16 +163,18 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
      * Reload any preference summaries that are updated dynamically
      */
     private void reloadDynamicSummaries() {
-        int textZoomIndex = mPreferences.getTextZoom();
-        // Update summary - but only load the array once
-        if (mSizeSummaries == null) {
-            mSizeSummaries = getActivity().getResources()
-                    .getTextArray(R.array.general_preference_text_zoom_summary_array);
+        if (mTextZoom != null) {
+            int textZoomIndex = mPreferences.getTextZoom();
+            // Update summary - but only load the array once
+            if (mSizeSummaries == null) {
+                mSizeSummaries = getActivity().getResources()
+                        .getTextArray(R.array.general_preference_text_zoom_summary_array);
+            }
+            CharSequence summary = null;
+            if (textZoomIndex >= 0 && textZoomIndex < mSizeSummaries.length) {
+                summary = mSizeSummaries[textZoomIndex];
+            }
+            mTextZoom.setSummary(summary);
         }
-        CharSequence summary = null;
-        if (textZoomIndex >= 0 && textZoomIndex < mSizeSummaries.length) {
-            summary = mSizeSummaries[textZoomIndex];
-        }
-        mTextZoom.setSummary(summary);
     }
 }
