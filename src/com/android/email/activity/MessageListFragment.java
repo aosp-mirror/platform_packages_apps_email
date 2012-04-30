@@ -528,13 +528,11 @@ public class MessageListFragment extends ListFragment
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.message_list_fragment_option, menu);
-    }
-
-    @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.send).setVisible(mShowSendCommand);
+        MenuItem send = menu.findItem(R.id.send);
+        if (send != null) {
+            send.setVisible(mShowSendCommand);
+        }
     }
 
     @Override

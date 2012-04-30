@@ -54,20 +54,20 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private static final int STATE_UNINITIALIZED = -1;
 
     /** Mailbox list + message list both visible. */
-    private static final int STATE_LEFT_VISIBLE = 0;
+    public static final int STATE_LEFT_VISIBLE = 0;
 
     /**
      * A view where the MessageView is visible. The MessageList is visible if
      * {@link #isPaneCollapsible} is false, but is otherwise collapsed and hidden.
      */
-    private static final int STATE_RIGHT_VISIBLE = 1;
+    public static final int STATE_RIGHT_VISIBLE = 1;
 
     /**
      * A view where the MessageView is partially visible and a collapsible MessageList on the left
      * has been expanded to be in view. {@link #isPaneCollapsible} must return true for this
      * state to be active.
      */
-    private static final int STATE_MIDDLE_EXPANDED = 2;
+    public static final int STATE_MIDDLE_EXPANDED = 2;
 
     // Flags for getVisiblePanes()
     public static final int PANE_LEFT = 1 << 2;
@@ -513,6 +513,9 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         animator.start();
     }
 
+    public int getPaneState() {
+        return mPaneState;
+    }
     /**
      * Animation listener.
      *

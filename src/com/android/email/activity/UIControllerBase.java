@@ -140,7 +140,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
     };
 
-    private final RefreshListener mRefreshListener = new RefreshListener();
+    protected final RefreshListener mRefreshListener = new RefreshListener();
 
     public UIControllerBase(EmailActivity activity) {
         mActivity = activity;
@@ -779,12 +779,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
         // Update the refresh button.
         MenuItem item = menu.findItem(R.id.refresh);
-        if (isRefreshEnabled()) {
-            item.setVisible(true);
-            mRefreshListener.setRefreshIcon(item);
-        } else {
-            item.setVisible(false);
-            mRefreshListener.setRefreshIcon(null);
+        if (item != null) {
+            if (isRefreshEnabled()) {
+                item.setVisible(true);
+                mRefreshListener.setRefreshIcon(item);
+            } else {
+                item.setVisible(false);
+                mRefreshListener.setRefreshIcon(null);
+            }
         }
 
         // Deal with protocol-specific menu options.
@@ -810,8 +812,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         boolean showSearchIcon = !mActionBarController.isInSearchMode()
                 && accountSearchable && mailboxHasServerCounterpart;
 
-        menu.findItem(R.id.search).setVisible(showSearchIcon);
-        menu.findItem(R.id.mailbox_settings).setVisible(isEas && mailboxHasServerCounterpart);
+        MenuItem search = menu.findItem(R.id.search);
+        if (search != null) {
+            search.setVisible(showSearchIcon);
+        }
+        MenuItem settings = menu.findItem(R.id.mailbox_settings);
+        if (settings != null) {
+            settings.setVisible(isEas && mailboxHasServerCounterpart);
+        }
         return true;
     }
 

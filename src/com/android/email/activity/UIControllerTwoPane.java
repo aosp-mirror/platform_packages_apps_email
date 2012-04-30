@@ -21,6 +21,8 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.android.email.Clock;
 import com.android.email.Email;
@@ -90,6 +92,27 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         if (getMessageListMailboxId() != mListContext.getMailboxId()) {
             updateMessageList(true);
         }
+    }
+
+    /**
+     * Handles the {@link android.app.Activity#onCreateOptionsMenu} callback.
+     */
+    public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
+        int state = mThreePane.getPaneState();
+        boolean handled;
+
+        switch (state) {
+            case ThreePaneLayout.STATE_LEFT_VISIBLE:
+                inflater.inflate(R.menu.message_list_fragment_option, menu);
+                handled=  true;
+                break;
+            case ThreePaneLayout.STATE_MIDDLE_EXPANDED:
+            case ThreePaneLayout.STATE_RIGHT_VISIBLE:
+                inflater.inflate(R.menu.message_view_fragment_option, menu);
+                handled=  true;
+                break;
+        }
+        return handled;
     }
 
     // MailboxListFragment$Callback
