@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:paddingLeft="100dip">
+                android:paddingLeft="@dimen/compose_area_left_padding">
 
                 <LinearLayout android:id="@+id/content"
                     android:orientation="horizontal"
@@ -50,9 +50,9 @@
                         <include layout="@layout/compose_area_recipients"/>
 
                     </LinearLayout>
-            
+
                     <include layout="@layout/compose_area_buttons"/>
-            
+
                 </LinearLayout>
 
                 <!--  Attachments -->
@@ -62,7 +62,7 @@
                     android:layout_marginTop="8dip"
                     android:orientation="vertical"
                     android:visibility="gone"
-                    android:layout_marginRight="100dip"
+                    android:layout_marginRight="@dimen/compose_area_right_padding"
                 >
                     <!--
                         Empty container for storing attachments. We'll stick
@@ -78,7 +78,7 @@
                 <!-- Compose Area -->
                 <FrameLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="100dip">
+                    android:layout_marginRight="@dimen/compose_area_right_padding">
 
                     <include layout="@layout/compose_body"/>
 
@@ -86,7 +86,7 @@
 
                 <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="100dip">
+                    android:layout_marginRight="@dimen/compose_area_right_padding">
                     <include layout="@layout/quoted_text"/>
                 </RelativeLayout>
                 <FrameLayout
