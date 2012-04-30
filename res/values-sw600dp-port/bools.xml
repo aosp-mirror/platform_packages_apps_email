@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010 The Android Open Source Project
+<!-- Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
      limitations under the License.
 -->
 
-<!-- tablet, landscape -->
 <resources>
-    <!-- Account Setup Activities -->
-    <dimen name="setup_padding_top">16dip</dimen>
-    <dimen name="setup_padding_left">128dip</dimen>
-    <dimen name="setup_padding_right">128dip</dimen>
+    <!-- Expand the middle view when showing the right hand pane -->
+    <bool name="expand_middle_view">false</bool>
 </resources>
-

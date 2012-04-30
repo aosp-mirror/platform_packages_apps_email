@@ -19,4 +19,7 @@
 
     <!-- Reply/Reply All/Forward switcher in action bar -->
     <bool name="message_compose_action_tabs">false</bool>
+
+    <!-- Expand the middle view when showing the right hand pane -->
+    <bool name="expand_middle_view">true</bool>
 </resources>
