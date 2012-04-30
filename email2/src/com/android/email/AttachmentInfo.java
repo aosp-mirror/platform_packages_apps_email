@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  * Encapsulates commonly used attachment information related to suitability for viewing and saving,
- * based on the attachment's filename and mime type.
+ * based on the attachment's filename and mimetype.
  */
 public class AttachmentInfo {
     // Projection which can be used with the constructor taking a Cursor argument

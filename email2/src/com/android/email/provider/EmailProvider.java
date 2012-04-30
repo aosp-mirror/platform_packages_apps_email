@@ -3043,7 +3043,8 @@ outer:
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
-        msg.mQuotedTextStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        Integer quoteStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
         int flags = 0;
         int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
@@ -3062,7 +3063,7 @@ outer:
         }
         msg.mFlags = flags;
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
-        if (ref != null) {
+        if (ref != null && msg.mQuotedTextStartPos > 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
                 long sourceKey = Long.parseLong(refId);
