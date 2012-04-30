@@ -60,6 +60,7 @@ public class MessageListItem extends View {
     private MessagesAdapter mAdapter;
     private MessageListItemCoordinates mCoordinates;
     private Context mContext;
+    private boolean mIsSearchResult = false;
 
     private boolean mDownEvent;
 
@@ -252,6 +253,7 @@ public class MessageListItem extends View {
     }
 
     long mTimeFormatted = 0;
+
     public void setTimestamp(long timestamp) {
         if (mTimeFormatted != timestamp) {
             mFormattedDate = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
@@ -266,7 +268,7 @@ public class MessageListItem extends View {
      * @return The mode of the view
      */
     private int getViewMode(int width) {
-        return MessageListItemCoordinates.getMode(mContext, width);
+        return MessageListItemCoordinates.getMode(mContext, width, mIsSearchResult);
     }
 
     private Drawable mCurentBackground = null; // Only used by updateBackground()
@@ -413,7 +415,7 @@ public class MessageListItem extends View {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        mCoordinates = MessageListItemCoordinates.forWidth(mContext, mViewWidth);
+        mCoordinates = MessageListItemCoordinates.forWidth(mContext, mViewWidth, mIsSearchResult);
         calculateDrawingData();
     }
 
@@ -502,9 +504,11 @@ public class MessageListItem extends View {
      * @param layout If this is a three pane implementation, the
      *            ThreePaneLayout. Otherwise, null.
      */
-    public void bindViewInit(MessagesAdapter adapter, ThreePaneLayout layout) {
+    public void bindViewInit(MessagesAdapter adapter, ThreePaneLayout layout,
+            boolean isSearchResult) {
         mLayout = layout;
         mAdapter = adapter;
+        mIsSearchResult = isSearchResult;
         requestLayout();
     }
 

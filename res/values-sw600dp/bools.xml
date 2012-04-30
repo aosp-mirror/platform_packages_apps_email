@@ -19,4 +19,7 @@
 
     <!-- Reply/Reply All/Forward switcher in action bar -->
     <bool name="message_compose_action_tabs">true</bool>
+
+    <!-- Boolean value indicating whether to automatically select and show the first search result -->
+    <bool name="show_two_pane_search_result">true</bool>
 </resources>

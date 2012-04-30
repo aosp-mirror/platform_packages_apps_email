@@ -20,5 +20,8 @@
     <dimen name="mailbox_list_width">200dip</dimen>
     <!-- width of the message list, on the message list + message view mode. -->
     <dimen name="message_list_width">0dip</dimen>
+
+    <!-- Integer value indicating whether to show the message list in wide or normal mode when viewing search results -->
+    <integer name="message_search_list_header_mode">0</integer>
 </resources>
 
