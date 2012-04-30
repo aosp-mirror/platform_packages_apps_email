@@ -44,7 +44,7 @@ import com.android.emailcommon.Logging;
  *
  * TODO onVisiblePanesChanged() should be called *AFTER* the animation, not before.
  */
-public class ThreePaneLayout extends LinearLayout implements View.OnClickListener {
+public class ThreePaneLayout extends LinearLayout {
     private static final boolean ANIMATION_DEBUG = false; // DON'T SUBMIT WITH true
 
     private static final int ANIMATION_DURATION = ANIMATION_DEBUG ? 1000 : 150;
@@ -84,9 +84,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private View mMiddlePane;
     private View mRightPane;
     private MessageCommandButtonView mMessageCommandButtons;
-
-    // Views used only when the left pane is collapsible.
-    private View mFoggedGlass;
+    private boolean mConvViewExpandList;
 
     private boolean mFirstSizeChangedDone;
 
@@ -158,60 +156,50 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         mLeftPane = findViewById(R.id.left_pane);
         mMiddlePane = findViewById(R.id.middle_pane);
-        mMessageCommandButtons =
-                (MessageCommandButtonView) findViewById(R.id.message_command_buttons);
+        mMessageCommandButtons = (MessageCommandButtonView) findViewById(R.id.message_command_buttons);
 
-        mFoggedGlass = findViewById(R.id.fogged_glass);
-        if (mFoggedGlass != null) {
-            mRightPane = findViewById(R.id.right_pane_with_fog);
-            mFoggedGlass.setOnClickListener(this);
-        } else {
-            mRightPane = findViewById(R.id.right_pane);
-        }
-
-        if (!isPaneCollapsible()) {
-            mShowHideViews = new View[][][] {
-                    // STATE_LEFT_VISIBLE
-                    {
-                        {mLeftPane, mMiddlePane}, // Visible
-                        {mRightPane}, // Invisible
-                        {mMessageCommandButtons}, // Gone
-                    },
-                    // STATE_RIGHT_VISIBLE
-                    {
-                        {mMiddlePane, mMessageCommandButtons, mRightPane}, // Visible
-                        {mLeftPane}, // Invisible
-                        {}, // Gone
-                    },
-                    // STATE_MIDDLE_EXPANDED
-                    {
+        mRightPane = findViewById(R.id.right_pane);
+        mConvViewExpandList = getContext().getResources().getBoolean(R.bool.expand_middle_view);
+        View[][] stateRightVisible = new View[][] {
+                {
+                        mMiddlePane, mMessageCommandButtons, mRightPane
+                }, // Visible
+                {
+                    mLeftPane
+                }, // Invisible
+                {}, // Gone;
+        };
+        View[][] stateRightVisibleHideConvList = new View[][] {
+                {
+                        mRightPane
+                }, // Visible
+                {
+                        mMiddlePane, mMessageCommandButtons, mLeftPane
+                }, // Invisible
+                {}, // Gone;
+        };
+        mShowHideViews = new View[][][] {
+                // STATE_LEFT_VISIBLE
+                {
+                        {
+                                mLeftPane, mMiddlePane
+                        }, // Visible
+                        {
+                            mRightPane
+                        }, // Invisible
+                        {
+                            mMessageCommandButtons
+                        }, // Gone
+                },
+                // STATE_RIGHT_VISIBLE
+                mConvViewExpandList ? stateRightVisible : stateRightVisibleHideConvList,
+                // STATE_MIDDLE_EXPANDED
+                {
                         {}, // Visible
                         {}, // Invisible
                         {}, // Gone
-                    },
-            };
-        } else {
-            mShowHideViews = new View[][][] {
-                    // STATE_LEFT_VISIBLE
-                    {
-                        {mLeftPane, mMiddlePane}, // Visible
-                        {mRightPane, mFoggedGlass}, // Invisible
-                        {mMessageCommandButtons}, // Gone
-                    },
-                    // STATE_RIGHT_VISIBLE
-                    {
-                        {mRightPane, mMessageCommandButtons}, // Visible
-                        {mLeftPane, mMiddlePane, mFoggedGlass}, // Invisible
-                        {}, // Gone
-                    },
-                    // STATE_MIDDLE_EXPANDED
-                    {
-                        {mMiddlePane, mRightPane, mMessageCommandButtons, mFoggedGlass}, // Visible
-                        {mLeftPane}, // Invisible
-                        {}, // Gone
-                    },
-            };
-        }
+                },
+        };
 
         mInitialPaneState = STATE_LEFT_VISIBLE;
 
@@ -230,7 +218,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
      * Return whether or not the left pane should be collapsible.
      */
     public boolean isPaneCollapsible() {
-        return mFoggedGlass != null;
+        return false;
     }
 
     public MessageCommandButtonView getMessageCommandButtons() {
@@ -281,25 +269,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     }
     public boolean isRightPaneVisible() {
         return mRightPane.getVisibility() == View.VISIBLE;
-    }
-
-    /**
-     * Handles the back event.
-     *
-     */
-    public boolean uncollapsePane() {
-        if (!isPaneCollapsible()) {
-            return false;
-        }
-
-        if (mPaneState == STATE_RIGHT_VISIBLE) {
-            return changePaneState(STATE_MIDDLE_EXPANDED, true);
-        } else if (mInitialPaneState == STATE_RIGHT_VISIBLE) {
-            mInitialPaneState = STATE_MIDDLE_EXPANDED;
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -360,53 +329,24 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         final String animatorLabel; // for debug purpose
 
-        if (!isPaneCollapsible()) {
-            setViewWidth(mLeftPane, mMailboxListWidth);
-            setViewWidth(mRightPane, totalWidth - mMessageListWidth);
+        setViewWidth(mLeftPane, mMailboxListWidth);
+        setViewWidth(mRightPane, totalWidth - getMessageListWidth());
 
-            switch (mPaneState) {
-                case STATE_LEFT_VISIBLE:
-                    // mailbox + message list
-                    animatorLabel = "moving to [mailbox list + message list]";
-                    expectedMailboxLeft = 0;
-                    expectedMessageListWidth = totalWidth - mMailboxListWidth;
-                    break;
-                case STATE_RIGHT_VISIBLE:
-                    // message list + message view
-                    animatorLabel = "moving to [message list + message view]";
-                    expectedMailboxLeft = -mMailboxListWidth;
-                    expectedMessageListWidth = mMessageListWidth;
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
-
-        } else {
-            setViewWidth(mLeftPane, mMailboxListWidth);
-            setViewWidth(mRightPane, totalWidth);
-
-            switch (mPaneState) {
-                case STATE_LEFT_VISIBLE:
-                    // message list + Message view -> mailbox + message list
-                    animatorLabel = "moving to [mailbox list + message list]";
-                    expectedMailboxLeft = 0;
-                    expectedMessageListWidth = totalWidth - mMailboxListWidth;
-                    break;
-                case STATE_MIDDLE_EXPANDED:
-                    // mailbox + message list -> message list + message view
-                    animatorLabel = "moving to [message list + message view]";
-                    expectedMailboxLeft = -mMailboxListWidth;
-                    expectedMessageListWidth = mMessageListWidth;
-                    break;
-                case STATE_RIGHT_VISIBLE:
-                    // message view only
-                    animatorLabel = "moving to [message view]";
-                    expectedMailboxLeft = -(mMailboxListWidth + mMessageListWidth);
-                    expectedMessageListWidth = mMessageListWidth;
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
+        switch (mPaneState) {
+            case STATE_LEFT_VISIBLE:
+                // mailbox + message list
+                animatorLabel = "moving to [mailbox list + message list]";
+                expectedMailboxLeft = 0;
+                expectedMessageListWidth = totalWidth - mMailboxListWidth;
+                break;
+            case STATE_RIGHT_VISIBLE:
+                // message list + message view
+                animatorLabel = "moving to [message list + message view]";
+                expectedMailboxLeft = -mMailboxListWidth;
+                expectedMessageListWidth = getMessageListWidth();
+                break;
+            default:
+                throw new IllegalStateException();
         }
 
         final View[][] showHideViews = mShowHideViews[mPaneState];
@@ -426,6 +366,12 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         return true;
     }
 
+    private int getMessageListWidth() {
+        if (!mConvViewExpandList && mPaneState == STATE_RIGHT_VISIBLE) {
+            return 0;
+        }
+        return mMessageListWidth;
+    }
     /**
      * @return The ID of the view for the left pane fragment.  (i.e. mailbox list)
      */
@@ -445,18 +391,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
      */
     public int getRightPaneId() {
         return R.id.right_pane;
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fogged_glass:
-                if (!isPaneCollapsible()) {
-                    return; // Shouldn't happen
-                }
-                changePaneState(STATE_RIGHT_VISIBLE, true);
-                break;
-        }
     }
 
     private void setViewWidth(View v, int value) {
@@ -513,6 +447,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         animator.start();
     }
 
+    /**
+     * Get the state of the view. Returns ones of: STATE_UNINITIALIZED,
+     * STATE_LEFT_VISIBLE, STATE_MIDDLE_EXPANDED, STATE_RIGHT_VISIBLE
+     */
     public int getPaneState() {
         return mPaneState;
     }

@@ -19,7 +19,10 @@
 <!-- Implementation of a three pane layout where two panes are always visible at
      any given time. -->
 <!-- Note the width of each pane is set by code at runtime.  -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<com.android.email.activity.ThreePaneLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:splitMotionEvents="true"
+    >
 
     <FrameLayout
         android:id="@+id/left_pane"
@@ -47,4 +50,4 @@
         android:layout_width="0dip"
         android:layout_height="match_parent"
         />
-</merge>
+</com.android.email.activity.ThreePaneLayout>

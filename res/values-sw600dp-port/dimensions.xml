@@ -18,12 +18,12 @@
     <dimen name="message_compose_field_label_width">120dip</dimen>
 
     <!-- width of mailbox list -->
-    <dimen name="mailbox_list_width">206dip</dimen>
+    <dimen name="mailbox_list_width">200dip</dimen>
     <!--
         width of the message list, on the message list + message view mode.
         (i.e. on portrait, it's the "expanded" message list.)
     -->
-    <dimen name="message_list_width">440dip</dimen>
+    <dimen name="message_list_width">0dip</dimen>
 
     <dimen name="action_bar_account_name_max_width">128dip</dimen>
     <dimen name="action_bar_mailbox_name_left_margin">16dip</dimen>
