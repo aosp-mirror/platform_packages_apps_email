@@ -239,13 +239,11 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.message_view_fragment_option, menu);
-    }
-
-    @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.move).setVisible(mSupportsMove);
+        MenuItem move = menu.findItem(R.id.move);
+        if (move != null) {
+            menu.findItem(R.id.move).setVisible(mSupportsMove);
+        }
     }
 
     private void enableReplyForwardButtons(boolean enabled) {

@@ -553,20 +553,25 @@ class UIControllerOnePane extends UIControllerBase {
                 : Mailbox.NO_MAILBOX;
     }
 
+    /**
+     * Handles the {@link android.app.Activity#onCreateOptionsMenu} callback.
+     */
+    public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
+        if (isMessageListInstalled()) {
+            inflater.inflate(R.menu.message_list_fragment_option, menu);
+            return true;
+        }
+        if (isMessageViewInstalled()) {
+            inflater.inflate(R.menu.message_view_fragment_option, menu);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
         // First, let the base class do what it has to do.
         super.onPrepareOptionsMenu(inflater, menu);
-
-        // Then override
-        final boolean messageListVisible = isMessageListInstalled();
-        if (!messageListVisible) {
-            menu.findItem(R.id.search).setVisible(false);
-            menu.findItem(R.id.compose).setVisible(false);
-            menu.findItem(R.id.refresh).setVisible(false);
-            menu.findItem(R.id.show_all_mailboxes).setVisible(false);
-            menu.findItem(R.id.mailbox_settings).setVisible(false);
-        }
 
         final boolean messageViewVisible = isMessageViewInstalled();
         if (messageViewVisible) {

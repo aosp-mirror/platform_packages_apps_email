@@ -14,36 +14,23 @@
      limitations under the License.
 -->
 
-<!-- Message view menu options for the tablet -->
-
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/compose"
-        android:alphabeticShortcut="c"
-        android:title="@string/compose_action"
-        android:icon="@drawable/ic_menu_compose_normal_holo_light"
-        android:showAsAction="ifRoom"
-    />
-    <item
-        android:id="@+id/search"
-        android:alphabeticShortcut="s"
-        android:title="@string/search_action"
-        android:icon="@drawable/ic_menu_search_holo_light"
-        android:showAsAction="ifRoom"
-    />
-
     <item android:id="@+id/delete" android:title="@string/delete_action"
         android:icon="@drawable/ic_menu_trash_holo_light"
         android:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/mailbox_settings"
-        android:title="@string/mailbox_settings_action"
-        android:icon="@android:drawable/ic_menu_preferences"
-    />
-    <item
-        android:id="@+id/account_settings"
-        android:title="@string/settings_action"
-        android:icon="@android:drawable/ic_menu_preferences"
-    />
+    <item android:id="@+id/move" android:title="@string/move_action"
+        android:icon="@drawable/ic_menu_move_to_holo_light"
+        android:showAsAction="ifRoom" />
+    <item android:id="@+id/mark_read" android:title="@string/read_action"
+        android:icon="@drawable/ic_menu_mark_read_holo_light"
+        android:showAsAction="ifRoom" />
+    <item android:id="@+id/mark_unread" android:title="@string/unread_action"
+        android:icon="@drawable/ic_menu_mark_unread_holo_light"
+        android:showAsAction="ifRoom" />
+    <item android:id="@+id/add_star" android:title="@string/set_star_action"
+        android:icon="@drawable/ic_menu_star_holo_light"
+        android:showAsAction="never" />
+    <item android:id="@+id/remove_star" android:title="@string/remove_star_action"
+        android:icon="@drawable/ic_menu_star_off_holo_light"
+        android:showAsAction="never" />
 </menu>
