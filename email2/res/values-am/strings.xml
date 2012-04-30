@@ -345,7 +345,7 @@
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> የደህንነት ቅንጅቶችህን ማዘመን ይጠይቅሃል።"</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"በደህንነት ጥያቄዎች ምክንያት መለያ «<xliff:g id="ACCOUNT">%s</xliff:g>» ሊመሳሰል አልቻለም።"</string>
     <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"መለያ \"<xliff:g id="ACCOUNT">%s</xliff:g>\" የደህንነት ቅንብሮችን ማዘመን ይጠይቃል።"</string>
-    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"መለያ<xliff:g id="ACCOUNT">%s</xliff:g> የደህንነት ቅንጅቶቹን ለውጧል፤ምንም የተጠቃሚ እርምጃ አይጠበቅም፡፡"</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"መለያ<xliff:g id="ACCOUNT">%s</xliff:g> የደህንነት ቅንብሮቹን ለውጧል፤ምንም የተጠቃሚ እርምጃ አይጠበቅም፡፡"</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"የደህንነት አዘምን ይጠበቃል"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"የደህንነት ቋሚ መመሪያዎች ተለውጠዎል"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"የደህንነት ቋሚ መመሪያዎች ሊሟሉ አይችሉም"</string>
@@ -495,6 +495,5 @@
     <string name="quick_3" msgid="8061819976353395585">"በኋላ ይሄንን አነባለው እና ወደ አንተ እመለሳለሁ፡፡"</string>
     <string name="quick_4" msgid="3988974084396883051">"ስብሰባ እናዘጋጅ እስቲ ይሄንን ለመወያየት፡፡"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለዚህ መለያ ቦዝኗል፡፡"</string>
-    <!-- no translation found for confirm_response (5747902757569543165) -->
-    <skip />
+    <string name="confirm_response" msgid="5747902757569543165">"ምላሽ በመላክ ላይ..."</string>
 </resources>
