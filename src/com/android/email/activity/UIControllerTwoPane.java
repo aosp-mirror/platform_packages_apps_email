@@ -99,7 +99,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
      */
     public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
         int state = mThreePane.getPaneState();
-        boolean handled;
+        boolean handled = false;
 
         switch (state) {
             case ThreePaneLayout.STATE_LEFT_VISIBLE:
