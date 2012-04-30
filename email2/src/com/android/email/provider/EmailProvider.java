@@ -1971,6 +1971,26 @@ outer:
                 " ELSE 0 END";
 
     /**
+     * Array of pre-defined account colors (legacy colors from old email app)
+     */
+    private static final int[] ACCOUNT_COLORS = new int[] {
+        0xff71aea7, 0xff621919, 0xff18462f, 0xffbf8e52, 0xff001f79,
+        0xffa8afc2, 0xff6b64c4, 0xff738359, 0xff9d50a4
+    };
+
+    private static final String CONVERSATION_COLOR =
+            "@CASE (" + MessageColumns.ACCOUNT_KEY + " - 1) % " + ACCOUNT_COLORS.length +
+                    " WHEN 0 THEN " + ACCOUNT_COLORS[0] +
+                    " WHEN 1 THEN " + ACCOUNT_COLORS[1] +
+                    " WHEN 2 THEN " + ACCOUNT_COLORS[2] +
+                    " WHEN 3 THEN " + ACCOUNT_COLORS[3] +
+                    " WHEN 4 THEN " + ACCOUNT_COLORS[4] +
+                    " WHEN 5 THEN " + ACCOUNT_COLORS[5] +
+                    " WHEN 6 THEN " + ACCOUNT_COLORS[6] +
+                    " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
+                    " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
+            " END";
+    /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
      */
@@ -1995,7 +2015,6 @@ outer:
                     + MessageColumns.MAILBOX_KEY)
     .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
     .build();
-
 
     /**
      * Generate UIProvider draft type; note the test for "reply all" must come before "reply"
@@ -2177,7 +2196,12 @@ outer:
             String val = null;
             // First look at values; this is an override of default behavior
             if (values.containsKey(column)) {
-                val = "'" + values.getAsString(column) + "' AS " + column;
+                String value = values.getAsString(column);
+                if (value.startsWith("@")) {
+                    val = value.substring(1) + " AS " + column;
+                } else {
+                    val = "'" + values.getAsString(column) + "' AS " + column;
+                }
             } else {
                 // Now, get the standard value for the column from our projection map
                 val = map.get(column);
@@ -2322,7 +2346,9 @@ outer:
      */
     private Cursor getVirtualMailboxMessagesCursor(SQLiteDatabase db, String[] uiProjection,
             long mailboxId) {
-        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        ContentValues values = new ContentValues();
+        values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
+        StringBuilder sb = genSelect(sMessageListMap, uiProjection, values);
         if (isCombinedMailbox(mailboxId)) {
             switch (getVirtualMailboxType(mailboxId)) {
                 case Mailbox.TYPE_INBOX:
