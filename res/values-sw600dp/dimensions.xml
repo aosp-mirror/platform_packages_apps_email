@@ -63,4 +63,7 @@
     <dimen name="replystate_margin_top">10sp</dimen>
     <dimen name="checkmark_margin_top">4sp</dimen>
     <dimen name="star_margin_top">30sp</dimen>
+
+
+    <dimen name="compose_scrollview_width">600dip</dimen>
 </resources>

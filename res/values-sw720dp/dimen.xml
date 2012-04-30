@@ -24,5 +24,6 @@
     <dimen name="mailbox_list_width">320dip</dimen>
     <!-- width of the message list, on the message list + message view mode. -->
     <dimen name="message_list_width">426dip</dimen>
+    <dimen name="compose_scrollview_width">700dip</dimen>
 </resources>
 
