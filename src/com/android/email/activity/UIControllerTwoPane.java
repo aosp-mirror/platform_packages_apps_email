@@ -58,6 +58,8 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
 
     private MessageCommandButtonView mMessageCommandButtons;
 
+    private MessageCommandButtonView mInMessageCommandButtons;
+
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
     }
@@ -271,6 +273,8 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
 
         mMessageCommandButtons = mThreePane.getMessageCommandButtons();
         mMessageCommandButtons.setCallback(new CommandButtonCallback());
+        mInMessageCommandButtons = mThreePane.getInMessageCommandButtons();
+        mInMessageCommandButtons.setCallback(new CommandButtonCallback());
     }
 
     @Override
@@ -496,8 +500,12 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         if (orderManager == null) {
             // shouldn't happen, but just in case
             mMessageCommandButtons.enableNavigationButtons(false, false, 0, 0);
+            mInMessageCommandButtons.enableNavigationButtons(false, false, 0, 0);
         } else {
             mMessageCommandButtons.enableNavigationButtons(
+                    orderManager.canMoveToNewer(), orderManager.canMoveToOlder(),
+                    orderManager.getCurrentPosition(), orderManager.getTotalMessageCount());
+            mInMessageCommandButtons.enableNavigationButtons(
                     orderManager.canMoveToNewer(), orderManager.canMoveToOlder(),
                     orderManager.getCurrentPosition(), orderManager.getTotalMessageCount());
         }
