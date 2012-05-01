@@ -685,6 +685,9 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
             if (mThreePane.isLeftPaneVisible()) {
                 // Mailbox list visible
                 return TITLE_MODE_ACCOUNT_NAME_ONLY;
+            } else if (mThreePane.isRightPaneVisible()
+                    && !mThreePane.isMiddlePaneVisible()) {
+                return TITLE_MODE_MESSAGE_SUBJECT;
             } else {
                 // Mailbox list hidden
                 return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
