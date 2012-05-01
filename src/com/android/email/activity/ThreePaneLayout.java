@@ -154,6 +154,21 @@ public class ThreePaneLayout extends LinearLayout {
     }
 
     @Override
+    protected Parcelable onSaveInstanceState() {
+        SavedState ss = new SavedState(super.onSaveInstanceState());
+        ss.mPaneState = mPaneState;
+        return ss;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        // Called after onFinishInflate()
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        mInitialPaneState = ss.mPaneState;
+    }
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
