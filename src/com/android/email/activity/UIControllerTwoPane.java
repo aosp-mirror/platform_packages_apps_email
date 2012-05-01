@@ -54,7 +54,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
     static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
     // Other UI elements
-    private ThreePaneLayout mThreePane;
+    protected ThreePaneLayout mThreePane;
 
     private MessageCommandButtonView mMessageCommandButtons;
 
@@ -359,7 +359,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         if (messageId != Message.NO_MESSAGE) {
             updateMessageView(ft, messageId);
             mThreePane.showRightPane();
-        } else if (mListContext.isSearch()) {
+        } else if (mListContext.isSearch() && UiUtilities.showTwoPaneSearchResults(mActivity)) {
             mThreePane.showRightPane();
         } else {
             mThreePane.showLeftPane();

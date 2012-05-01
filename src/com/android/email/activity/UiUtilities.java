@@ -173,4 +173,11 @@ public class UiUtilities {
         }
         return context.getResources().getBoolean(R.bool.use_two_pane);
     }
+
+    /**
+     * Return whether to show search results in a split pane.
+     */
+    public static boolean showTwoPaneSearchResults(Context context) {
+        return context.getResources().getBoolean(R.bool.show_two_pane_search_result);
+    }
 }

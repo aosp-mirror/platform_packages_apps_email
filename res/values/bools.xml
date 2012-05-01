@@ -22,4 +22,7 @@
 
     <!-- Expand the middle view when showing the right hand pane -->
     <bool name="expand_middle_view">true</bool>
+
+    <!-- Boolean value indicating whether to automatically select and show the first search result -->
+    <bool name="show_two_pane_search_result">false</bool>
 </resources>

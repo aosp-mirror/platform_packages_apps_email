@@ -355,7 +355,7 @@ public class MessageListFragment extends ListFragment
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
 
-        mListAdapter = new MessagesAdapter(mActivity, this);
+        mListAdapter = new MessagesAdapter(mActivity, this, getListContext().isSearch());
         mIsFirstLoad = true;
     }
 
@@ -1326,7 +1326,8 @@ public class MessageListFragment extends ListFragment
 
             // If this is a search result, open the first message.
             if (UiUtilities.useTwoPane(getActivity()) && mIsFirstLoad && mListContext.isSearch()
-                    && cursor.getCount() > 0) {
+                    && cursor.getCount() > 0
+                    && UiUtilities.showTwoPaneSearchResults(getActivity())) {
                 cursor.moveToFirst();
                 onMessageOpen(getMailboxId(), cursor.getLong(MessagesAdapter.COLUMN_ID));
             }

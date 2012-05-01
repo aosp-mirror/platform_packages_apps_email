@@ -156,8 +156,17 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      * Initialize {@link #mUIController}.
      */
     private void initUIController() {
-        mUIController = UiUtilities.useTwoPane(this)
-                ? new UIControllerTwoPane(this) : new UIControllerOnePane(this);
+        if (UiUtilities.useTwoPane(this)) {
+            if (getIntent().getAction() != null
+                    && Intent.ACTION_SEARCH.equals(getIntent().getAction())
+                    && !UiUtilities.showTwoPaneSearchResults(this)) {
+                mUIController = new UIControllerSearchTwoPane(this);
+            } else {
+                mUIController = new UIControllerTwoPane(this);
+            }
+        } else {
+            mUIController = new UIControllerOnePane(this);
+        }
     }
 
     @Override
