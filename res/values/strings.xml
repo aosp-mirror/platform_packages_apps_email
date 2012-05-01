@@ -1209,7 +1209,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- The title above the messages list when showing search results. [CHAR LIMIT=50] -->
     <string name="search_header_text_fmt"
-          >Search results for \"<xliff:g example="search query">%1$s</xliff:g>\"</string>
+          >Results</string>
 
     <!-- A warning title to show to the user when search results are taking a long
          time. [CHAR LIMIT=NONE] -->

@@ -185,7 +185,7 @@
     </style>
 
     <style name="search_header">
-        <item name="android:layout_height">32dip</item>
+        <item name="android:layout_height">36dip</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:paddingLeft">6dip</item>
         <item name="android:paddingRight">6dip</item>

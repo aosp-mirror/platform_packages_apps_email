@@ -81,4 +81,8 @@
 
     <!-- Integer value indicating whether to show the message list in wide or normal mode when viewing search results -->
     <integer name="message_search_list_header_mode">1</integer>
+
+    <dimen name="checkmark_left_margin_wide">16dip</dimen>
+    <dimen name="date_region_width_wide">144dip</dimen>
+    <dimen name="star_right_margin_wide">16dip</dimen>
 </resources>
