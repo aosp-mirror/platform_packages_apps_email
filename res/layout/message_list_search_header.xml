@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:textColor="@android:color/white"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         />
     <TextView
         android:id="@+id/search_header_text"
@@ -35,5 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:textColor="@android:color/white"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         />
 </RelativeLayout>

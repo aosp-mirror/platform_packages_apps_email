@@ -1087,9 +1087,7 @@ public class MessageListFragment extends ListFragment
         SearchResultsCursor searchCursor = (SearchResultsCursor) cursor;
         initSearchHeader();
         mSearchHeader.setVisibility(View.VISIBLE);
-        String header = String.format(
-                mActivity.getString(R.string.search_header_text_fmt),
-                listContext.getSearchParams().mFilter);
+        String header = mActivity.getString(R.string.search_header_text_fmt);
         mSearchHeaderText.setText(header);
         int resultCount = searchCursor.getResultsCount();
         // Don't show a negative value here; this means that the server request failed

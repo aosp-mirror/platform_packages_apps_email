@@ -30,7 +30,7 @@
         android:id="@+id/checkmark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dip"
+        android:layout_marginLeft="@dimen/checkmark_left_margin_wide"
         android:layout_marginRight="16dip"
         android:layout_gravity="center_vertical"
         android:src="@drawable/btn_check_on_normal_holo_light" />
@@ -63,7 +63,7 @@
         android:textSize="@dimen/wide_subject_font_size"
         android:lines="2" />
     <RelativeLayout
-        android:layout_width="144dip"
+        android:layout_width="@dimen/date_region_width_wide"
         android:layout_height="match_parent">
         <View
             android:id="@+id/color_chip"
@@ -96,7 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
+        android:layout_marginRight="@dimen/star_right_margin_wide"
         android:layout_gravity="center_vertical"
         android:src="@drawable/btn_star_off_normal_email_holo_light" />
 </LinearLayout>
