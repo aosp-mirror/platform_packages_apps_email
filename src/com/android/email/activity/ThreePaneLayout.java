@@ -84,6 +84,7 @@ public class ThreePaneLayout extends LinearLayout {
     private View mMiddlePane;
     private View mRightPane;
     private MessageCommandButtonView mMessageCommandButtons;
+    private MessageCommandButtonView mInMessageCommandButtons;
     private boolean mConvViewExpandList;
 
     private boolean mFirstSizeChangedDone;
@@ -158,7 +159,10 @@ public class ThreePaneLayout extends LinearLayout {
 
         mLeftPane = findViewById(R.id.left_pane);
         mMiddlePane = findViewById(R.id.middle_pane);
-        mMessageCommandButtons = (MessageCommandButtonView) findViewById(R.id.message_command_buttons);
+        mMessageCommandButtons = (MessageCommandButtonView)
+                findViewById(R.id.message_command_buttons);
+        mInMessageCommandButtons = (MessageCommandButtonView)
+                findViewById(R.id.inmessage_command_buttons);
 
         mRightPane = findViewById(R.id.right_pane);
         mConvViewExpandList = getContext().getResources().getBoolean(R.bool.expand_middle_view);
@@ -169,11 +173,13 @@ public class ThreePaneLayout extends LinearLayout {
                 {
                     mLeftPane
                 }, // Invisible
-                {}, // Gone;
+                {
+                    mInMessageCommandButtons
+                }, // Gone;
         };
         View[][] stateRightVisibleHideConvList = new View[][] {
                 {
-                        mRightPane
+                        mRightPane, mInMessageCommandButtons
                 }, // Visible
                 {
                         mMiddlePane, mMessageCommandButtons, mLeftPane
@@ -190,7 +196,7 @@ public class ThreePaneLayout extends LinearLayout {
                             mRightPane
                         }, // Invisible
                         {
-                            mMessageCommandButtons
+                            mMessageCommandButtons, mInMessageCommandButtons
                         }, // Gone
                 },
                 // STATE_RIGHT_VISIBLE
@@ -232,6 +238,10 @@ public class ThreePaneLayout extends LinearLayout {
 
     public MessageCommandButtonView getMessageCommandButtons() {
         return mMessageCommandButtons;
+    }
+
+    public MessageCommandButtonView getInMessageCommandButtons() {
+        return mInMessageCommandButtons;
     }
 
     @Override
