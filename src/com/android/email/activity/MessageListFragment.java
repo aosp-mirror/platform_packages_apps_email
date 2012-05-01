@@ -1322,10 +1322,13 @@ public class MessageListFragment extends ListFragment
             mIsRefreshable = cursor.mIsRefreshable;
             mCountTotalAccounts = cursor.mCountTotalAccounts;
 
-            // If this is a search result, open the first message.
+            // If this is a search result, open the first message unless we are
+            // restoring the message position from saved state, in which case,
+            // mSelectedMessageId was already set and should be respected.
             if (UiUtilities.useTwoPane(getActivity()) && mIsFirstLoad && mListContext.isSearch()
                     && cursor.getCount() > 0
-                    && UiUtilities.showTwoPaneSearchResults(getActivity())) {
+                    && UiUtilities.showTwoPaneSearchResults(getActivity())
+                    && mSelectedMessageId == -1) {
                 cursor.moveToFirst();
                 onMessageOpen(getMailboxId(), cursor.getLong(MessagesAdapter.COLUMN_ID));
             }
