@@ -46,8 +46,22 @@
             />
     </LinearLayout>
     <FrameLayout
-        android:id="@+id/right_pane"
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        />
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/right_pane"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+
+            <include layout="@layout/message_command_button_view"
+            android:id="@+id/inmessage_command_buttons"
+            />
+
+        </FrameLayout>
+    </FrameLayout>
 </com.android.email.activity.ThreePaneLayout>
