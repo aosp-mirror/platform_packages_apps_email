@@ -70,6 +70,17 @@ public abstract class EmailContent {
 
     public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
+    public static final Uri MAILBOX_NOTIFICATION_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
+    public static final String[] NOTIFICATION_PROJECTION =
+        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
+    public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
+    public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
+    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
+
+    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
+
     public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
@@ -235,15 +246,20 @@ public abstract class EmailContent {
         // The plain text content itself
         public static final String TEXT_CONTENT = "textContent";
         // Replied-to or forwarded body (in html form)
+        @Deprecated
         public static final String HTML_REPLY = "htmlReply";
         // Replied-to or forwarded body (in text form)
+        @Deprecated
         public static final String TEXT_REPLY = "textReply";
         // A reference to a message's unique id used in reply/forward.
         // Protocol code can be expected to use this column in determining whether a message can be
         // deleted safely (i.e. isn't referenced by other messages)
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
         // The text to be placed between a reply/forward response and the original message
+        @Deprecated
         public static final String INTRO_TEXT = "introText";
+        // The start of quoted text within our text content
+        public static final String QUOTED_TEXT_START_POS = "quotedTextStartPos";
     }
 
     public static final class Body extends EmailContent implements BodyColumns {
@@ -256,14 +272,19 @@ public abstract class EmailContent {
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
+        @Deprecated
         public static final int CONTENT_HTML_REPLY_COLUMN = 4;
+        @Deprecated
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
+        @Deprecated
         public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
+        public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
+
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, BodyColumns.MESSAGE_KEY, BodyColumns.HTML_CONTENT, BodyColumns.TEXT_CONTENT,
             BodyColumns.HTML_REPLY, BodyColumns.TEXT_REPLY, BodyColumns.SOURCE_MESSAGE_KEY,
-            BodyColumns.INTRO_TEXT
+            BodyColumns.INTRO_TEXT, BodyColumns.QUOTED_TEXT_START_POS
         };
 
         public static final String[] COMMON_PROJECTION_TEXT = new String[] {
@@ -272,12 +293,15 @@ public abstract class EmailContent {
         public static final String[] COMMON_PROJECTION_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_TEXT = new String[] {
             RECORD_ID, BodyColumns.TEXT_REPLY
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_REPLY
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_INTRO = new String[] {
             RECORD_ID, BodyColumns.INTRO_TEXT
         };
@@ -292,8 +316,11 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
+        @Deprecated
         public String mHtmlReply;
+        @Deprecated
         public String mTextReply;
+        public int mQuotedTextStartPos;
 
         /**
          * Points to the ID of the message being replied to or forwarded. Will always be set,
@@ -301,6 +328,7 @@ public abstract class EmailContent {
          * want to include quoted text.
          */
         public long mSourceKey;
+        @Deprecated
         public String mIntroText;
 
         public Body() {
@@ -415,14 +443,17 @@ public abstract class EmailContent {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
         }
 
+        @Deprecated
         public static String restoreReplyTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_TEXT);
         }
 
+        @Deprecated
         public static String restoreReplyHtmlWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_HTML);
         }
 
+        @Deprecated
         public static String restoreIntroTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
         }
@@ -437,6 +468,7 @@ public abstract class EmailContent {
             mTextReply = cursor.getString(CONTENT_TEXT_REPLY_COLUMN);
             mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);
             mIntroText = cursor.getString(CONTENT_INTRO_TEXT_COLUMN);
+            mQuotedTextStartPos = cursor.getInt(CONTENT_QUOTED_TEXT_START_POS_COLUMN);
         }
 
         public boolean update() {
@@ -492,6 +524,8 @@ public abstract class EmailContent {
         // and the sync adapter might, for example, need more information about the original source
         // of the message)
         public static final String PROTOCOL_SEARCH_INFO = "protocolSearchInfo";
+        // Simple thread topic
+        public static final String THREAD_TOPIC = "threadTopic";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -537,6 +571,7 @@ public abstract class EmailContent {
         public static final int CONTENT_MEETING_INFO_COLUMN = 20;
         public static final int CONTENT_SNIPPET_COLUMN = 21;
         public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
+        public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -550,7 +585,8 @@ public abstract class EmailContent {
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
-            MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO
+            MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
+            MessageColumns.THREAD_TOPIC
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -685,6 +721,8 @@ public abstract class EmailContent {
 
         public String mProtocolSearchInfo;
 
+        public String mThreadTopic;
+
         /**
          * Base64-encoded representation of the byte array provided by servers for identifying
          * messages belonging to the same conversation thread. Currently unsupported and not
@@ -701,6 +739,7 @@ public abstract class EmailContent {
         transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
         transient public String mIntroText;
+        transient public int mQuotedTextStartPos;
 
 
         // Values used in mFlagRead
@@ -716,7 +755,6 @@ public abstract class EmailContent {
         // Bits used in mFlags
         // The following three states are mutually exclusive, and indicate whether the message is an
         // original, a reply, or a forward
-        public static final int FLAG_TYPE_ORIGINAL = 0;
         public static final int FLAG_TYPE_REPLY = 1<<0;
         public static final int FLAG_TYPE_FORWARD = 1<<1;
         public static final int FLAG_TYPE_MASK = FLAG_TYPE_REPLY | FLAG_TYPE_FORWARD;
@@ -746,6 +784,12 @@ public abstract class EmailContent {
         public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT = 1 << 17;
         public static final int FLAG_REPLIED_TO = 1 << 18;
         public static final int FLAG_FORWARDED = 1 << 19;
+
+        // Outgoing, original message
+        public static final int FLAG_TYPE_ORIGINAL = 1 << 20;
+        // Outgoing, reply all message; note, FLAG_TYPE_REPLY should also be set for backward
+        // compatibility
+        public static final int FLAG_TYPE_REPLY_ALL = 1 << 21;
 
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
@@ -787,6 +831,8 @@ public abstract class EmailContent {
             values.put(MessageColumns.SNIPPET, mSnippet);
 
             values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
+
+            values.put(MessageColumns.THREAD_TOPIC, mThreadTopic);
             return values;
         }
 
@@ -821,6 +867,7 @@ public abstract class EmailContent {
             mMeetingInfo = cursor.getString(CONTENT_MEETING_INFO_COLUMN);
             mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
             mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
+            mThreadTopic = cursor.getString(CONTENT_THREAD_TOPIC_COLUMN);
         }
 
         public boolean update() {
@@ -887,9 +934,20 @@ public abstract class EmailContent {
             return null;
         }
 
+        /**
+         * Save or update a message
+         * @param ops an array of CPOs that we'll add to
+         */
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
-            // First, save the message
-            ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
+            boolean isNew = !isSaved();
+            ContentProviderOperation.Builder b;
+            // First, save/update the message
+            if (isNew) {
+                b = ContentProviderOperation.newInsert(mBaseUri);
+            } else {
+                b = ContentProviderOperation.newUpdate(mBaseUri)
+                        .withSelection(Message.RECORD_ID + "=?", new String[] {Long.toString(mId)});
+            }
             // Generate the snippet here, before we create the CPO for Message
             if (mText != null) {
                 mSnippet = TextUtilities.makeSnippetFromPlainText(mText);
@@ -906,32 +964,41 @@ public abstract class EmailContent {
             if (mHtml != null) {
                 cv.put(Body.HTML_CONTENT, mHtml);
             }
-            if (mTextReply != null) {
-                cv.put(Body.TEXT_REPLY, mTextReply);
-            }
-            if (mHtmlReply != null) {
-                cv.put(Body.HTML_REPLY, mHtmlReply);
-            }
             if (mSourceKey != 0) {
                 cv.put(Body.SOURCE_MESSAGE_KEY, mSourceKey);
             }
-            if (mIntroText != null) {
-                cv.put(Body.INTRO_TEXT, mIntroText);
+            if (mQuotedTextStartPos != 0) {
+                cv.put(Body.QUOTED_TEXT_START_POS, mQuotedTextStartPos);
             }
             b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
+            // Put our message id in the Body
+            if (!isNew) {
+                cv.put(Body.MESSAGE_KEY, mId);
+            }
             b.withValues(cv);
-            ContentValues backValues = new ContentValues();
+            // We'll need this if we're new
             int messageBackValue = ops.size() - 1;
-            backValues.put(Body.MESSAGE_KEY, messageBackValue);
-            ops.add(b.withValueBackReferences(backValues).build());
+            // If we're new, create a back value entry
+            if (isNew) {
+                ContentValues backValues = new ContentValues();
+                backValues.put(Body.MESSAGE_KEY, messageBackValue);
+                b.withValueBackReferences(backValues);
+            }
+            // And add the Body operation
+            ops.add(b.build());
 
             // Create the attaachments, if any
             if (mAttachments != null) {
                 for (Attachment att: mAttachments) {
-                    ops.add(ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
-                        .withValues(att.toContentValues())
-                        .withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue)
-                        .build());
+                    if (!isNew) {
+                        att.mMessageKey = mId;
+                    }
+                    b = ContentProviderOperation.newInsert(Attachment.CONTENT_URI)
+                            .withValues(att.toContentValues());
+                    if (isNew) {
+                        b.withValueBackReference(Attachment.MESSAGE_KEY, messageBackValue);
+                    }
+                    ops.add(b.build());
                 }
             }
         }
@@ -1034,6 +1101,12 @@ public abstract class EmailContent {
         public static final String CONTENT_BYTES = "content_bytes";
         // A foreign key into the Account table (for the message owning this attachment)
         public static final String ACCOUNT_KEY = "accountKey";
+        // The UIProvider state of the attachment
+        public static final String UI_STATE = "uiState";
+        // The UIProvider destination of the attachment
+        public static final String UI_DESTINATION = "uiDestination";
+        // The UIProvider downloaded size of the attachment
+        public static final String UI_DOWNLOADED_SIZE = "uiDownloadedSize";
     }
 
     public static final class Attachment extends EmailContent
@@ -1057,6 +1130,9 @@ public abstract class EmailContent {
         public int mFlags;
         public byte[] mContentBytes;
         public long mAccountKey;
+        public int mUiState;
+        public int mUiDestination;
+        public int mUiDownloadedSize;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1071,12 +1147,16 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAGS_COLUMN = 10;
         public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 12;
+        public static final int CONTENT_UI_STATE_COLUMN = 13;
+        public static final int CONTENT_UI_DESTINATION_COLUMN = 14;
+        public static final int CONTENT_UI_DOWNLOADED_SIZE_COLUMN = 15;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
             AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
             AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES,
-            AttachmentColumns.ACCOUNT_KEY
+            AttachmentColumns.ACCOUNT_KEY, AttachmentColumns.UI_STATE,
+            AttachmentColumns.UI_DESTINATION, AttachmentColumns.UI_DOWNLOADED_SIZE
         };
 
         // All attachments with an empty URI, regardless of mailbox
@@ -1201,6 +1281,9 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mUiState = cursor.getInt(CONTENT_UI_STATE_COLUMN);
+            mUiDestination = cursor.getInt(CONTENT_UI_DESTINATION_COLUMN);
+            mUiDownloadedSize = cursor.getInt(CONTENT_UI_DOWNLOADED_SIZE_COLUMN);
         }
 
         @Override
@@ -1218,6 +1301,9 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.FLAGS, mFlags);
             values.put(AttachmentColumns.CONTENT_BYTES, mContentBytes);
             values.put(AttachmentColumns.ACCOUNT_KEY, mAccountKey);
+            values.put(AttachmentColumns.UI_STATE, mUiState);
+            values.put(AttachmentColumns.UI_DESTINATION, mUiDestination);
+            values.put(AttachmentColumns.UI_DOWNLOADED_SIZE, mUiDownloadedSize);
             return values;
         }
 
@@ -1247,6 +1333,9 @@ public abstract class EmailContent {
                 dest.writeInt(mContentBytes.length);
                 dest.writeByteArray(mContentBytes);
             }
+            dest.writeInt(mUiState);
+            dest.writeInt(mUiDestination);
+            dest.writeInt(mUiDownloadedSize);
         }
 
         public Attachment(Parcel in) {
@@ -1270,6 +1359,9 @@ public abstract class EmailContent {
                 mContentBytes = new byte[contentBytesLen];
                 in.readByteArray(mContentBytes);
             }
+            mUiState = in.readInt();
+            mUiDestination = in.readInt();
+            mUiDownloadedSize = in.readInt();
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
@@ -1289,7 +1381,8 @@ public abstract class EmailContent {
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
                     + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mFlags + ", " + mContentBytes + ", " + mAccountKey + "]";
+                    + mFlags + ", " + mContentBytes + ", " + mAccountKey +  "," + mUiState + ","
+                    + mUiDestination + "," + mUiDownloadedSize + "]";
         }
     }
 
@@ -1334,9 +1427,9 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
-        // The last notified message id
+
+        // For compatibility with Email1 (Deprecated in Email2)
         public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
-        // The most recent notified message count
         public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
@@ -1383,10 +1476,21 @@ public abstract class EmailContent {
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
-        // Message ID of the last 'seen' message
-        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
+        // The UIProvider sync status
+        public static final String UI_SYNC_STATUS = "uiSyncStatus";
+        // The UIProvider last sync result
+        public static final String UI_LAST_SYNC_RESULT = "uiLastSyncResult";
+        // The UIProvider sync status
+        public static final String LAST_NOTIFIED_MESSAGE_KEY = "lastNotifiedMessageKey";
+        // The UIProvider last sync result
+        public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
+        // The total number of messages in the remote mailbox
+        public static final String TOTAL_COUNT = "totalCount";
+
+        // For compatibility with Email1 (Deprecated in Email2)
+        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
     }
 
     public interface HostAuthColumns {
@@ -1437,5 +1541,8 @@ public abstract class EmailContent {
         public static final String MAX_CALENDAR_LOOKBACK = "maxCalendarLookback";
         // Indicates that the server allows password recovery, not that we support it
         public static final String PASSWORD_RECOVERY_ENABLED = "passwordRecoveryEnabled";
+        // Tokenized strings indicating protocol specific policies enforced/unsupported
+        public static final String PROTOCOL_POLICIES_ENFORCED = "protocolPoliciesEnforced";
+        public static final String PROTOCOL_POLICIES_UNSUPPORTED = "protocolPoliciesUnsupported";
     }
 }

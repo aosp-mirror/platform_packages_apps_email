@@ -16,26 +16,22 @@
 
 package com.android.email.provider;
 
-import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -43,8 +39,6 @@ import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -53,18 +47,14 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
-import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
-import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.service.LegacyPolicySet;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -75,9 +65,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author mblank
+ *
+ */
 public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
+
+    public static final String EMAIL_APP_MIME_TYPE = "application/email-ls";
 
     protected static final String DATABASE_NAME = "EmailProvider.db";
     protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
@@ -93,7 +89,7 @@ public class EmailProvider extends ContentProvider {
      * is NOT the preferred way of getting notification.
      */
     public static final String ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED =
-            "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
+        "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
 
     public static final String EMAIL_MESSAGE_MIME_TYPE =
         "vnd.android.cursor.item/email-message";
@@ -104,6 +100,10 @@ public class EmailProvider extends ContentProvider {
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
     public static final Uri ACCOUNT_BACKUP_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
+    public static final Uri FOLDER_STATUS_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
+    public static final Uri FOLDER_REFRESH_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
 
     /** Appended to the notification URI for delete operations */
     public static final String NOTIFICATION_OP_DELETE = "delete";
@@ -139,47 +139,6 @@ public class EmailProvider extends ContentProvider {
     private final ContentCache mCachePolicy =
         new ContentCache("Policy", Policy.CONTENT_PROJECTION, MAX_CACHED_ACCOUNTS);
 
-    // Any changes to the database format *must* include update-in-place code.
-    // Original version: 3
-    // Version 4: Database wipe required; changing AccountManager interface w/Exchange
-    // Version 5: Database wipe required; changing AccountManager interface w/Exchange
-    // Version 6: Adding Message.mServerTimeStamp column
-    // Version 7: Replace the mailbox_delete trigger with a version that removes orphaned messages
-    //            from the Message_Deletes and Message_Updates tables
-    // Version 8: Add security flags column to accounts table
-    // Version 9: Add security sync key and signature to accounts table
-    // Version 10: Add meeting info to message table
-    // Version 11: Add content and flags to attachment table
-    // Version 12: Add content_bytes to attachment table. content is deprecated.
-    // Version 13: Add messageCount to Mailbox table.
-    // Version 14: Add snippet to Message table
-    // Version 15: Fix upgrade problem in version 14.
-    // Version 16: Add accountKey to Attachment table
-    // Version 17: Add parentKey to Mailbox table
-    // Version 18: Copy Mailbox.displayName to Mailbox.serverId for all IMAP & POP3 mailboxes.
-    //             Column Mailbox.serverId is used for the server-side pathname of a mailbox.
-    // Version 19: Add Policy table; add policyKey to Account table and trigger to delete an
-    //             Account's policy when the Account is deleted
-    // Version 20: Add new policies to Policy table
-    // Version 21: Add lastSeenMessageKey column to Mailbox table
-    // Version 22: Upgrade path for IMAP/POP accounts to integrate with AccountManager
-    // Version 23: Add column to mailbox table for time of last access
-    // Version 24: Add column to hostauth table for client cert alias
-    // Version 25: Added QuickResponse table
-    // Version 26: Update IMAP accounts to add FLAG_SUPPORTS_SEARCH flag
-    // Version 27: Add protocolSearchInfo to Message table
-    // Version 28: Add notifiedMessageId and notifiedMessageCount to Account
-
-    public static final int DATABASE_VERSION = 28;
-
-    // Any changes to the database format *must* include update-in-place code.
-    // Original version: 2
-    // Version 3: Add "sourceKey" column
-    // Version 4: Database wipe required; changing AccountManager interface w/Exchange
-    // Version 5: Database wipe required; changing AccountManager interface w/Exchange
-    // Version 6: Adding Body.mIntroText column
-    public static final int BODY_DATABASE_VERSION = 6;
-
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
@@ -192,7 +151,9 @@ public class EmailProvider extends ContentProvider {
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_ID = MAILBOX_BASE + 1;
     private static final int MAILBOX_ID_FROM_ACCOUNT_AND_TYPE = MAILBOX_BASE + 2;
-    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 2;
+    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 3;
+    private static final int MAILBOX_NOTIFICATION = MAILBOX_BASE + 4;
+    private static final int MAILBOX_MOST_RECENT_MESSAGE = MAILBOX_BASE + 5;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -225,8 +186,30 @@ public class EmailProvider extends ContentProvider {
     private static final int QUICK_RESPONSE_ID = QUICK_RESPONSE_BASE + 1;
     private static final int QUICK_RESPONSE_ACCOUNT_ID = QUICK_RESPONSE_BASE + 2;
 
+    private static final int UI_BASE = 0x9000;
+    private static final int UI_FOLDERS = UI_BASE;
+    private static final int UI_SUBFOLDERS = UI_BASE + 1;
+    private static final int UI_MESSAGES = UI_BASE + 2;
+    private static final int UI_MESSAGE = UI_BASE + 3;
+    private static final int UI_SENDMAIL = UI_BASE + 4;
+    private static final int UI_UNDO = UI_BASE + 5;
+    private static final int UI_SAVEDRAFT = UI_BASE + 6;
+    private static final int UI_UPDATEDRAFT = UI_BASE + 7;
+    private static final int UI_SENDDRAFT = UI_BASE + 8;
+    private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
+    private static final int UI_FOLDER = UI_BASE + 10;
+    private static final int UI_ACCOUNT = UI_BASE + 11;
+    private static final int UI_ACCTS = UI_BASE + 12;
+    private static final int UI_ATTACHMENTS = UI_BASE + 13;
+    private static final int UI_ATTACHMENT = UI_BASE + 14;
+    private static final int UI_SEARCH = UI_BASE + 15;
+    private static final int UI_ACCOUNT_DATA = UI_BASE + 16;
+    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 17;
+    private static final int UI_CONVERSATION = UI_BASE + 18;
+    private static final int UI_RECENT_FOLDERS = UI_BASE + 19;
+
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
-    private static final int LAST_EMAIL_PROVIDER_DB_BASE = QUICK_RESPONSE_BASE;
+    private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
 
     // DO NOT CHANGE BODY_BASE!!
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
@@ -247,7 +230,8 @@ public class EmailProvider extends ContentProvider {
         Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,
         QuickResponse.TABLE_NAME,
-        Body.TABLE_NAME
+        null,  // UI
+        Body.TABLE_NAME,
     };
 
     // CONTENT_CACHES MUST remain in the order of the BASE constants above
@@ -261,7 +245,8 @@ public class EmailProvider extends ContentProvider {
         null, // Deleted message
         mCachePolicy,
         null, // Quick response
-        null  // Body
+        null, // Body
+        null  // UI
     };
 
     // CACHE_PROJECTIONS MUST remain in the order of the BASE constants above
@@ -275,7 +260,8 @@ public class EmailProvider extends ContentProvider {
         null, // Deleted message
         Policy.CONTENT_PROJECTION,
         null,  // Quick response
-        null  // Body
+        null,  // Body
+        null   // UI
     };
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -309,29 +295,6 @@ public class EmailProvider extends ContentProvider {
 
     private static final String ID_EQUALS = EmailContent.RECORD_ID + "=?";
 
-    private static final String TRIGGER_MAILBOX_DELETE =
-        "create trigger mailbox_delete before delete on " + Mailbox.TABLE_NAME +
-        " begin" +
-        " delete from " + Message.TABLE_NAME +
-        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
-        "; delete from " + Message.UPDATED_TABLE_NAME +
-        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
-        "; delete from " + Message.DELETED_TABLE_NAME +
-        "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
-        "; end";
-
-    private static final String TRIGGER_ACCOUNT_DELETE =
-        "create trigger account_delete before delete on " + Account.TABLE_NAME +
-        " begin delete from " + Mailbox.TABLE_NAME +
-        " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
-        "; delete from " + HostAuth.TABLE_NAME +
-        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_RECV +
-        "; delete from " + HostAuth.TABLE_NAME +
-        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_SEND +
-        "; delete from " + Policy.TABLE_NAME +
-        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.POLICY_KEY +
-        "; end";
-
     private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
 
     public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
@@ -362,6 +325,10 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
         matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
                 MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
+                MAILBOX_MOST_RECENT_MESSAGE);
+
         // All messages
         matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
         // A specific message
@@ -427,6 +394,27 @@ public class EmailProvider extends ContentProvider {
         // All quick responses associated with a particular account id
         matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
                 QUICK_RESPONSE_ACCOUNT_ID);
+
+        matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
+        matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
+        matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
+        matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
+        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
+        matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
+        matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+        matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
+        matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+        matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
+        matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
+        matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
+        matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
+        matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
     }
 
     /**
@@ -444,359 +432,16 @@ public class EmailProvider extends ContentProvider {
         return match;
     }
 
-    /*
-     * Internal helper method for index creation.
-     * Example:
-     * "create index message_" + MessageColumns.FLAG_READ
-     * + " on " + Message.TABLE_NAME + " (" + MessageColumns.FLAG_READ + ");"
-     */
-    /* package */
-    static String createIndex(String tableName, String columnName) {
-        return "create index " + tableName.toLowerCase() + '_' + columnName
-            + " on " + tableName + " (" + columnName + ");";
-    }
-
-    static void createMessageTable(SQLiteDatabase db) {
-        String messageColumns = MessageColumns.DISPLAY_NAME + " text, "
-            + MessageColumns.TIMESTAMP + " integer, "
-            + MessageColumns.SUBJECT + " text, "
-            + MessageColumns.FLAG_READ + " integer, "
-            + MessageColumns.FLAG_LOADED + " integer, "
-            + MessageColumns.FLAG_FAVORITE + " integer, "
-            + MessageColumns.FLAG_ATTACHMENT + " integer, "
-            + MessageColumns.FLAGS + " integer, "
-            + MessageColumns.CLIENT_ID + " integer, "
-            + MessageColumns.MESSAGE_ID + " text, "
-            + MessageColumns.MAILBOX_KEY + " integer, "
-            + MessageColumns.ACCOUNT_KEY + " integer, "
-            + MessageColumns.FROM_LIST + " text, "
-            + MessageColumns.TO_LIST + " text, "
-            + MessageColumns.CC_LIST + " text, "
-            + MessageColumns.BCC_LIST + " text, "
-            + MessageColumns.REPLY_TO_LIST + " text, "
-            + MessageColumns.MEETING_INFO + " text, "
-            + MessageColumns.SNIPPET + " text, "
-            + MessageColumns.PROTOCOL_SEARCH_INFO + " text"
-            + ");";
-
-        // This String and the following String MUST have the same columns, except for the type
-        // of those columns!
-        String createString = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + SyncColumns.SERVER_ID + " text, "
-            + SyncColumns.SERVER_TIMESTAMP + " integer, "
-            + messageColumns;
-
-        // For the updated and deleted tables, the id is assigned, but we do want to keep track
-        // of the ORDER of updates using an autoincrement primary key.  We use the DATA column
-        // at this point; it has no other function
-        String altCreateString = " (" + EmailContent.RECORD_ID + " integer unique, "
-            + SyncColumns.SERVER_ID + " text, "
-            + SyncColumns.SERVER_TIMESTAMP + " integer, "
-            + messageColumns;
-
-        // The three tables have the same schema
-        db.execSQL("create table " + Message.TABLE_NAME + createString);
-        db.execSQL("create table " + Message.UPDATED_TABLE_NAME + altCreateString);
-        db.execSQL("create table " + Message.DELETED_TABLE_NAME + altCreateString);
-
-        String indexColumns[] = {
-            MessageColumns.TIMESTAMP,
-            MessageColumns.FLAG_READ,
-            MessageColumns.FLAG_LOADED,
-            MessageColumns.MAILBOX_KEY,
-            SyncColumns.SERVER_ID
-        };
-
-        for (String columnName : indexColumns) {
-            db.execSQL(createIndex(Message.TABLE_NAME, columnName));
-        }
-
-        // Deleting a Message deletes all associated Attachments
-        // Deleting the associated Body cannot be done in a trigger, because the Body is stored
-        // in a separate database, and trigger cannot operate on attached databases.
-        db.execSQL("create trigger message_delete before delete on " + Message.TABLE_NAME +
-                " begin delete from " + Attachment.TABLE_NAME +
-                "  where " + AttachmentColumns.MESSAGE_KEY + "=old." + EmailContent.RECORD_ID +
-                "; end");
-
-        // Add triggers to keep unread count accurate per mailbox
-
-        // NOTE: SQLite's before triggers are not safe when recursive triggers are involved.
-        // Use caution when changing them.
-
-        // Insert a message; if flagRead is zero, add to the unread count of the message's mailbox
-        db.execSQL("create trigger unread_message_insert before insert on " + Message.TABLE_NAME +
-                " when NEW." + MessageColumns.FLAG_READ + "=0" +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
-                '=' + MailboxColumns.UNREAD_COUNT + "+1" +
-                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Delete a message; if flagRead is zero, decrement the unread count of the msg's mailbox
-        db.execSQL("create trigger unread_message_delete before delete on " + Message.TABLE_NAME +
-                " when OLD." + MessageColumns.FLAG_READ + "=0" +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
-                '=' + MailboxColumns.UNREAD_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Change a message's mailbox
-        db.execSQL("create trigger unread_message_move before update of " +
-                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
-                " when OLD." + MessageColumns.FLAG_READ + "=0" +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
-                '=' + MailboxColumns.UNREAD_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
-                '=' + MailboxColumns.UNREAD_COUNT + "+1" +
-                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Change a message's read state
-        db.execSQL("create trigger unread_message_read before update of " +
-                MessageColumns.FLAG_READ + " on " + Message.TABLE_NAME +
-                " when OLD." + MessageColumns.FLAG_READ + "!=NEW." + MessageColumns.FLAG_READ +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.UNREAD_COUNT +
-                '=' + MailboxColumns.UNREAD_COUNT + "+ case OLD." + MessageColumns.FLAG_READ +
-                " when 0 then -1 else 1 end" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Add triggers to update message count per mailbox
-
-        // Insert a message.
-        db.execSQL("create trigger message_count_message_insert after insert on " +
-                Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
-                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Delete a message; if flagRead is zero, decrement the unread count of the msg's mailbox
-        db.execSQL("create trigger message_count_message_delete after delete on " +
-                Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Change a message's mailbox
-        db.execSQL("create trigger message_count_message_move after update of " +
-                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
-                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
-                "; end");
-    }
-
-    static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " + Message.TABLE_NAME);
-            db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
-            db.execSQL("drop table " + Message.DELETED_TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createMessageTable(db);
-    }
-
-    @SuppressWarnings("deprecation")
-    static void createAccountTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + AccountColumns.DISPLAY_NAME + " text, "
-            + AccountColumns.EMAIL_ADDRESS + " text, "
-            + AccountColumns.SYNC_KEY + " text, "
-            + AccountColumns.SYNC_LOOKBACK + " integer, "
-            + AccountColumns.SYNC_INTERVAL + " text, "
-            + AccountColumns.HOST_AUTH_KEY_RECV + " integer, "
-            + AccountColumns.HOST_AUTH_KEY_SEND + " integer, "
-            + AccountColumns.FLAGS + " integer, "
-            + AccountColumns.IS_DEFAULT + " integer, "
-            + AccountColumns.COMPATIBILITY_UUID + " text, "
-            + AccountColumns.SENDER_NAME + " text, "
-            + AccountColumns.RINGTONE_URI + " text, "
-            + AccountColumns.PROTOCOL_VERSION + " text, "
-            + AccountColumns.NEW_MESSAGE_COUNT + " integer, "
-            + AccountColumns.SECURITY_FLAGS + " integer, "
-            + AccountColumns.SECURITY_SYNC_KEY + " text, "
-            + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_ID + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_COUNT + " integer"
-            + ");";
-        db.execSQL("create table " + Account.TABLE_NAME + s);
-        // Deleting an account deletes associated Mailboxes and HostAuth's
-        db.execSQL(TRIGGER_ACCOUNT_DELETE);
-    }
-
-    static void resetAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " +  Account.TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createAccountTable(db);
-    }
-
-    static void createPolicyTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + PolicyColumns.PASSWORD_MODE + " integer, "
-            + PolicyColumns.PASSWORD_MIN_LENGTH + " integer, "
-            + PolicyColumns.PASSWORD_EXPIRATION_DAYS + " integer, "
-            + PolicyColumns.PASSWORD_HISTORY + " integer, "
-            + PolicyColumns.PASSWORD_COMPLEX_CHARS + " integer, "
-            + PolicyColumns.PASSWORD_MAX_FAILS + " integer, "
-            + PolicyColumns.MAX_SCREEN_LOCK_TIME + " integer, "
-            + PolicyColumns.REQUIRE_REMOTE_WIPE + " integer, "
-            + PolicyColumns.REQUIRE_ENCRYPTION + " integer, "
-            + PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL + " integer, "
-            + PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING + " integer, "
-            + PolicyColumns.DONT_ALLOW_CAMERA + " integer, "
-            + PolicyColumns.DONT_ALLOW_ATTACHMENTS + " integer, "
-            + PolicyColumns.DONT_ALLOW_HTML + " integer, "
-            + PolicyColumns.MAX_ATTACHMENT_SIZE + " integer, "
-            + PolicyColumns.MAX_TEXT_TRUNCATION_SIZE + " integer, "
-            + PolicyColumns.MAX_HTML_TRUNCATION_SIZE + " integer, "
-            + PolicyColumns.MAX_EMAIL_LOOKBACK + " integer, "
-            + PolicyColumns.MAX_CALENDAR_LOOKBACK + " integer, "
-            + PolicyColumns.PASSWORD_RECOVERY_ENABLED + " integer"
-            + ");";
-        db.execSQL("create table " + Policy.TABLE_NAME + s);
-    }
-
-    static void createHostAuthTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + HostAuthColumns.PROTOCOL + " text, "
-            + HostAuthColumns.ADDRESS + " text, "
-            + HostAuthColumns.PORT + " integer, "
-            + HostAuthColumns.FLAGS + " integer, "
-            + HostAuthColumns.LOGIN + " text, "
-            + HostAuthColumns.PASSWORD + " text, "
-            + HostAuthColumns.DOMAIN + " text, "
-            + HostAuthColumns.ACCOUNT_KEY + " integer,"
-            + HostAuthColumns.CLIENT_CERT_ALIAS + " text"
-            + ");";
-        db.execSQL("create table " + HostAuth.TABLE_NAME + s);
-    }
-
-    static void resetHostAuthTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " + HostAuth.TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createHostAuthTable(db);
-    }
-
-    static void createMailboxTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + MailboxColumns.DISPLAY_NAME + " text, "
-            + MailboxColumns.SERVER_ID + " text, "
-            + MailboxColumns.PARENT_SERVER_ID + " text, "
-            + MailboxColumns.PARENT_KEY + " integer, "
-            + MailboxColumns.ACCOUNT_KEY + " integer, "
-            + MailboxColumns.TYPE + " integer, "
-            + MailboxColumns.DELIMITER + " integer, "
-            + MailboxColumns.SYNC_KEY + " text, "
-            + MailboxColumns.SYNC_LOOKBACK + " integer, "
-            + MailboxColumns.SYNC_INTERVAL + " integer, "
-            + MailboxColumns.SYNC_TIME + " integer, "
-            + MailboxColumns.UNREAD_COUNT + " integer, "
-            + MailboxColumns.FLAG_VISIBLE + " integer, "
-            + MailboxColumns.FLAGS + " integer, "
-            + MailboxColumns.VISIBLE_LIMIT + " integer, "
-            + MailboxColumns.SYNC_STATUS + " text, "
-            + MailboxColumns.MESSAGE_COUNT + " integer not null default 0, "
-            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer, "
-            + MailboxColumns.LAST_TOUCHED_TIME + " integer default 0"
-            + ");";
-        db.execSQL("create table " + Mailbox.TABLE_NAME + s);
-        db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
-                + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.SERVER_ID + ")");
-        db.execSQL("create index mailbox_" + MailboxColumns.ACCOUNT_KEY
-                + " on " + Mailbox.TABLE_NAME + " (" + MailboxColumns.ACCOUNT_KEY + ")");
-        // Deleting a Mailbox deletes associated Messages in all three tables
-        db.execSQL(TRIGGER_MAILBOX_DELETE);
-    }
-
-    static void resetMailboxTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " + Mailbox.TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createMailboxTable(db);
-    }
-
-    static void createAttachmentTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + AttachmentColumns.FILENAME + " text, "
-            + AttachmentColumns.MIME_TYPE + " text, "
-            + AttachmentColumns.SIZE + " integer, "
-            + AttachmentColumns.CONTENT_ID + " text, "
-            + AttachmentColumns.CONTENT_URI + " text, "
-            + AttachmentColumns.MESSAGE_KEY + " integer, "
-            + AttachmentColumns.LOCATION + " text, "
-            + AttachmentColumns.ENCODING + " text, "
-            + AttachmentColumns.CONTENT + " text, "
-            + AttachmentColumns.FLAGS + " integer, "
-            + AttachmentColumns.CONTENT_BYTES + " blob, "
-            + AttachmentColumns.ACCOUNT_KEY + " integer"
-            + ");";
-        db.execSQL("create table " + Attachment.TABLE_NAME + s);
-        db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
-    }
-
-    static void resetAttachmentTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        try {
-            db.execSQL("drop table " + Attachment.TABLE_NAME);
-        } catch (SQLException e) {
-        }
-        createAttachmentTable(db);
-    }
-
-    static void createQuickResponseTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-                + QuickResponseColumns.TEXT + " text, "
-                + QuickResponseColumns.ACCOUNT_KEY + " integer"
-                + ");";
-        db.execSQL("create table " + QuickResponse.TABLE_NAME + s);
-    }
-
-    static void createBodyTable(SQLiteDatabase db) {
-        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
-            + BodyColumns.MESSAGE_KEY + " integer, "
-            + BodyColumns.HTML_CONTENT + " text, "
-            + BodyColumns.TEXT_CONTENT + " text, "
-            + BodyColumns.HTML_REPLY + " text, "
-            + BodyColumns.TEXT_REPLY + " text, "
-            + BodyColumns.SOURCE_MESSAGE_KEY + " text, "
-            + BodyColumns.INTRO_TEXT + " text"
-            + ");";
-        db.execSQL("create table " + Body.TABLE_NAME + s);
-        db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
-    }
-
-    static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 5) {
-            try {
-                db.execSQL("drop table " + Body.TABLE_NAME);
-                createBodyTable(db);
-            } catch (SQLException e) {
-            }
-        } else if (oldVersion == 5) {
-            try {
-                db.execSQL("alter table " + Body.TABLE_NAME
-                        + " add " + BodyColumns.INTRO_TEXT + " text");
-            } catch (SQLException e) {
-                // Shouldn't be needed unless we're debugging and interrupt the process
-                Log.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
-            }
-            oldVersion = 6;
-        }
-    }
-
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
+
+    public static Uri uiUri(String type, long id) {
+        return Uri.parse(uiUriString(type, id));
+    }
+
+    public static String uiUriString(String type, long id) {
+        return "content://" + EmailContent.AUTHORITY + "/" + type + ((id == -1) ? "" : ("/" + id));
+    }
 
     /**
      * Orphan record deletion utility.  Generates a sqlite statement like:
@@ -828,23 +473,18 @@ public class EmailProvider extends ContentProvider {
         // to corruption
         checkDatabases();
 
-        DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
+        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
         mDatabase = helper.getWritableDatabase();
-        mDatabase.setLockingEnabled(true);
-        BodyDatabaseHelper bodyHelper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
+        DBHelper.BodyDatabaseHelper bodyHelper =
+                new DBHelper.BodyDatabaseHelper(context, BODY_DATABASE_NAME);
         mBodyDatabase = bodyHelper.getWritableDatabase();
         if (mBodyDatabase != null) {
-            mBodyDatabase.setLockingEnabled(true);
             String bodyFileName = mBodyDatabase.getPath();
             mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
         }
 
         // Restore accounts if the database is corrupted...
         restoreIfNeeded(context, mDatabase);
-
-        if (Email.DEBUG) {
-            Log.d(TAG, "Deleting orphans...");
-        }
         // Check for any orphaned Messages in the updated/deleted tables
         deleteMessageOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
         deleteMessageOrphans(mDatabase, Message.DELETED_TABLE_NAME);
@@ -855,14 +495,7 @@ public class EmailProvider extends ContentProvider {
                 Account.TABLE_NAME);
         deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
                 Account.TABLE_NAME);
-
-        if (Email.DEBUG) {
-            Log.d(TAG, "EmailProvider pre-caching...");
-        }
         preCacheData();
-        if (Email.DEBUG) {
-            Log.d(TAG, "EmailProvider ready.");
-        }
         return mDatabase;
     }
 
@@ -953,7 +586,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     /*package*/ static SQLiteDatabase getReadableDatabase(Context context) {
-        DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
+        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
         return helper.getReadableDatabase();
     }
 
@@ -979,12 +612,17 @@ public class EmailProvider extends ContentProvider {
         // If we have accounts, we're done
         Cursor c = mainDatabase.query(Account.TABLE_NAME, EmailContent.ID_PROJECTION, null, null,
                 null, null, null);
-        if (c.moveToFirst()) {
-            if (Email.DEBUG) {
-                Log.w(TAG, "restoreIfNeeded: Account exists.");
+        try {
+            if (c.moveToFirst()) {
+                if (Email.DEBUG) {
+                    Log.w(TAG, "restoreIfNeeded: Account exists.");
+                }
+                return; // At least one account exists.
             }
-            return; // At least one account exists.
+        } finally {
+            c.close();
         }
+
         restoreAccounts(context, mainDatabase);
     }
 
@@ -1049,318 +687,6 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private class BodyDatabaseHelper extends SQLiteOpenHelper {
-        BodyDatabaseHelper(Context context, String name) {
-            super(context, name, null, BODY_DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            Log.d(TAG, "Creating EmailProviderBody database");
-            createBodyTable(db);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            upgradeBodyTable(db, oldVersion, newVersion);
-        }
-
-        @Override
-        public void onOpen(SQLiteDatabase db) {
-        }
-    }
-
-    private static class DatabaseHelper extends SQLiteOpenHelper {
-        Context mContext;
-
-        DatabaseHelper(Context context, String name) {
-            super(context, name, null, DATABASE_VERSION);
-            mContext = context;
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            Log.d(TAG, "Creating EmailProvider database");
-            // Create all tables here; each class has its own method
-            createMessageTable(db);
-            createAttachmentTable(db);
-            createMailboxTable(db);
-            createHostAuthTable(db);
-            createAccountTable(db);
-            createPolicyTable(db);
-            createQuickResponseTable(db);
-        }
-
-        @Override
-        @SuppressWarnings("deprecation")
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // For versions prior to 5, delete all data
-            // Versions >= 5 require that data be preserved!
-            if (oldVersion < 5) {
-                android.accounts.Account[] accounts = AccountManager.get(mContext)
-                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
-                for (android.accounts.Account account: accounts) {
-                    AccountManager.get(mContext).removeAccount(account, null, null);
-                }
-                resetMessageTable(db, oldVersion, newVersion);
-                resetAttachmentTable(db, oldVersion, newVersion);
-                resetMailboxTable(db, oldVersion, newVersion);
-                resetHostAuthTable(db, oldVersion, newVersion);
-                resetAccountTable(db, oldVersion, newVersion);
-                return;
-            }
-            if (oldVersion == 5) {
-                // Message Tables: Add SyncColumns.SERVER_TIMESTAMP
-                try {
-                    db.execSQL("alter table " + Message.TABLE_NAME
-                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
-                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
-                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
-                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
-                            + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
-                }
-                oldVersion = 6;
-            }
-            if (oldVersion == 6) {
-                // Use the newer mailbox_delete trigger
-                db.execSQL("drop trigger mailbox_delete;");
-                db.execSQL(TRIGGER_MAILBOX_DELETE);
-                oldVersion = 7;
-            }
-            if (oldVersion == 7) {
-                // add the security (provisioning) column
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + AccountColumns.SECURITY_FLAGS + " integer" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
-                }
-                oldVersion = 8;
-            }
-            if (oldVersion == 8) {
-                // accounts: add security sync key & user signature columns
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + AccountColumns.SECURITY_SYNC_KEY + " text" + ";");
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + AccountColumns.SIGNATURE + " text" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
-                }
-                oldVersion = 9;
-            }
-            if (oldVersion == 9) {
-                // Message: add meeting info column into Message tables
-                try {
-                    db.execSQL("alter table " + Message.TABLE_NAME
-                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
-                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
-                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
-                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
-                            + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
-                }
-                oldVersion = 10;
-            }
-            if (oldVersion == 10) {
-                // Attachment: add content and flags columns
-                try {
-                    db.execSQL("alter table " + Attachment.TABLE_NAME
-                            + " add column " + AttachmentColumns.CONTENT + " text" + ";");
-                    db.execSQL("alter table " + Attachment.TABLE_NAME
-                            + " add column " + AttachmentColumns.FLAGS + " integer" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
-                }
-                oldVersion = 11;
-            }
-            if (oldVersion == 11) {
-                // Attachment: add content_bytes
-                try {
-                    db.execSQL("alter table " + Attachment.TABLE_NAME
-                            + " add column " + AttachmentColumns.CONTENT_BYTES + " blob" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
-                }
-                oldVersion = 12;
-            }
-            if (oldVersion == 12) {
-                try {
-                    db.execSQL("alter table " + Mailbox.TABLE_NAME
-                            + " add column " + Mailbox.MESSAGE_COUNT
-                                    +" integer not null default 0" + ";");
-                    recalculateMessageCount(db);
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
-                }
-                oldVersion = 13;
-            }
-            if (oldVersion == 13) {
-                try {
-                    db.execSQL("alter table " + Message.TABLE_NAME
-                            + " add column " + Message.SNIPPET
-                                    +" text" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 13 to 14 " + e);
-                }
-                oldVersion = 14;
-            }
-            if (oldVersion == 14) {
-                try {
-                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
-                            + " add column " + Message.SNIPPET +" text" + ";");
-                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
-                            + " add column " + Message.SNIPPET +" text" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 14 to 15 " + e);
-                }
-                oldVersion = 15;
-            }
-            if (oldVersion == 15) {
-                try {
-                    db.execSQL("alter table " + Attachment.TABLE_NAME
-                            + " add column " + Attachment.ACCOUNT_KEY +" integer" + ";");
-                    // Update all existing attachments to add the accountKey data
-                    db.execSQL("update " + Attachment.TABLE_NAME + " set " +
-                            Attachment.ACCOUNT_KEY + "= (SELECT " + Message.TABLE_NAME + "." +
-                            Message.ACCOUNT_KEY + " from " + Message.TABLE_NAME + " where " +
-                            Message.TABLE_NAME + "." + Message.RECORD_ID + " = " +
-                            Attachment.TABLE_NAME + "." + Attachment.MESSAGE_KEY + ")");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
-                }
-                oldVersion = 16;
-            }
-            if (oldVersion == 16) {
-                try {
-                    db.execSQL("alter table " + Mailbox.TABLE_NAME
-                            + " add column " + Mailbox.PARENT_KEY + " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 16 to 17 " + e);
-                }
-                oldVersion = 17;
-            }
-            if (oldVersion == 17) {
-                upgradeFromVersion17ToVersion18(db);
-                oldVersion = 18;
-            }
-            if (oldVersion == 18) {
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.POLICY_KEY + " integer;");
-                    db.execSQL("drop trigger account_delete;");
-                    db.execSQL(TRIGGER_ACCOUNT_DELETE);
-                    createPolicyTable(db);
-                    convertPolicyFlagsToPolicyTable(db);
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
-                }
-                oldVersion = 19;
-            }
-            if (oldVersion == 19) {
-                try {
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING +
-                            " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.DONT_ALLOW_CAMERA + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.DONT_ALLOW_ATTACHMENTS + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.DONT_ALLOW_HTML + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.MAX_ATTACHMENT_SIZE + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.MAX_TEXT_TRUNCATION_SIZE +
-                            " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.MAX_HTML_TRUNCATION_SIZE +
-                            " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.MAX_EMAIL_LOOKBACK + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.MAX_CALENDAR_LOOKBACK + " integer;");
-                    db.execSQL("alter table " + Policy.TABLE_NAME
-                            + " add column " + PolicyColumns.PASSWORD_RECOVERY_ENABLED +
-                            " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 19 to 20 " + e);
-                }
-                oldVersion = 20;
-            }
-            if (oldVersion == 20) {
-                upgradeFromVersion20ToVersion21(db);
-                oldVersion = 21;
-            }
-            if (oldVersion == 21) {
-                upgradeFromVersion21ToVersion22(db, mContext);
-                oldVersion = 22;
-            }
-            if (oldVersion == 22) {
-                upgradeFromVersion22ToVersion23(db);
-                oldVersion = 23;
-            }
-            if (oldVersion == 23) {
-                upgradeFromVersion23ToVersion24(db);
-                oldVersion = 24;
-            }
-            if (oldVersion == 24) {
-                upgradeFromVersion24ToVersion25(db);
-                oldVersion = 25;
-            }
-            if (oldVersion == 25) {
-                upgradeFromVersion25ToVersion26(db);
-                oldVersion = 26;
-            }
-            if (oldVersion == 26) {
-                try {
-                    db.execSQL("alter table " + Message.TABLE_NAME
-                            + " add column " + Message.PROTOCOL_SEARCH_INFO + " text;");
-                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
-                            + " add column " + Message.PROTOCOL_SEARCH_INFO +" text" + ";");
-                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
-                            + " add column " + Message.PROTOCOL_SEARCH_INFO +" text" + ";");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
-                }
-                oldVersion = 27;
-            }
-            if (oldVersion == 27) {
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_ID + " integer;");
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 27 " + e);
-                }
-                oldVersion = 28;
-            }
-        }
-
-        @Override
-        public void onOpen(SQLiteDatabase db) {
-        }
-    }
-
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final int match = findMatch(uri, "delete");
@@ -1381,6 +707,7 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case UI_MESSAGE:
                 // These are cases in which one or more Messages might get deleted, either by
                 // cascade or explicitly
                 case MAILBOX_ID:
@@ -1648,8 +975,7 @@ public class EmailProvider extends ContentProvider {
                     // would if this weren't allowed.
                     if (match == UPDATED_MESSAGE || match == DELETED_MESSAGE) {
                         throw new IllegalArgumentException("Unknown URL " + uri);
-                    }
-                    if (match == ATTACHMENT) {
+                    } else if (match == ATTACHMENT) {
                         int flags = 0;
                         if (values.containsKey(Attachment.FLAGS)) {
                             flags = values.getAsInteger(Attachment.FLAGS);
@@ -1698,6 +1024,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        Email.setServicesEnabledAsync(getContext());
         checkDatabases();
         return false;
     }
@@ -1729,7 +1056,6 @@ public class EmailProvider extends ContentProvider {
             bodyFile.delete();
         }
     }
-
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -1783,6 +1109,12 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case MAILBOX_NOTIFICATION:
+                    c = notificationQuery(uri);
+                    return c;
+                case MAILBOX_MOST_RECENT_MESSAGE:
+                    c = mostRecentMessageQuery(uri);
+                    return c;
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
                     Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
@@ -2042,7 +1374,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     private static SQLiteDatabase getBackupDatabase(Context context) {
-        DatabaseHelper helper = new DatabaseHelper(context, BACKUP_DATABASE_NAME);
+        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, BACKUP_DATABASE_NAME);
         return helper.getWritableDatabase();
     }
 
@@ -2206,10 +1538,10 @@ outer:
                         }
                     }
                     if (match == ATTACHMENT_ID) {
+                        long attId = Integer.parseInt(id);
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
-                            mAttachmentService.attachmentChanged(getContext(),
-                                    Integer.parseInt(id), flags);
+                            mAttachmentService.attachmentChanged(context, attId, flags);
                         }
                     }
                     break;
@@ -2385,248 +1717,7 @@ outer:
         }
     }
 
-    /** Counts the number of messages in each mailbox, and updates the message count column. */
-    @VisibleForTesting
-    static void recalculateMessageCount(SQLiteDatabase db) {
-        db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                "= (select count(*) from " + Message.TABLE_NAME +
-                " where " + Message.MAILBOX_KEY + " = " +
-                    Mailbox.TABLE_NAME + "." + EmailContent.RECORD_ID + ")");
-    }
-
-    @VisibleForTesting
-    @SuppressWarnings("deprecation")
-    static void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
-        Cursor c = db.query(Account.TABLE_NAME,
-                new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
-                AccountColumns.SECURITY_FLAGS + ">0", null, null, null, null);
-        ContentValues cv = new ContentValues();
-        String[] args = new String[1];
-        while (c.moveToNext()) {
-            long securityFlags = c.getLong(1 /*SECURITY_FLAGS*/);
-            Policy policy = LegacyPolicySet.flagsToPolicy(securityFlags);
-            long policyId = db.insert(Policy.TABLE_NAME, null, policy.toContentValues());
-            cv.put(AccountColumns.POLICY_KEY, policyId);
-            cv.putNull(AccountColumns.SECURITY_FLAGS);
-            args[0] = Long.toString(c.getLong(0 /*RECORD_ID*/));
-            db.update(Account.TABLE_NAME, cv, EmailContent.RECORD_ID + "=?", args);
-        }
-    }
-
-    /** Upgrades the database from v17 to v18 */
-    @VisibleForTesting
-    static void upgradeFromVersion17ToVersion18(SQLiteDatabase db) {
-        // Copy the displayName column to the serverId column. In v18 of the database,
-        // we use the serverId for IMAP/POP3 mailboxes instead of overloading the
-        // display name.
-        //
-        // For posterity; this is the command we're executing:
-        //sqlite> UPDATE mailbox SET serverid=displayname WHERE mailbox._id in (
-        //        ...> SELECT mailbox._id FROM mailbox,account,hostauth WHERE
-        //        ...> (mailbox.parentkey isnull OR mailbox.parentkey=0) AND
-        //        ...> mailbox.accountkey=account._id AND
-        //        ...> account.hostauthkeyrecv=hostauth._id AND
-        //        ...> (hostauth.protocol='imap' OR hostauth.protocol='pop3'));
-        try {
-            db.execSQL(
-                    "UPDATE " + Mailbox.TABLE_NAME + " SET "
-                    + MailboxColumns.SERVER_ID + "=" + MailboxColumns.DISPLAY_NAME
-                    + " WHERE "
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ID + " IN ( SELECT "
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ID + " FROM "
-                    + Mailbox.TABLE_NAME + "," + Account.TABLE_NAME + ","
-                    + HostAuth.TABLE_NAME + " WHERE "
-                    + "("
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + " isnull OR "
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + "=0 "
-                    + ") AND "
-                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ACCOUNT_KEY + "="
-                    + Account.TABLE_NAME + "." + AccountColumns.ID + " AND "
-                    + Account.TABLE_NAME + "." + AccountColumns.HOST_AUTH_KEY_RECV + "="
-                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.ID + " AND ( "
-                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='imap' OR "
-                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='pop3' ) )");
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
-        }
-        ContentCache.invalidateAllCaches();
-    }
-
-    /** Upgrades the database from v20 to v21 */
-    private static void upgradeFromVersion20ToVersion21(SQLiteDatabase db) {
-        try {
-            db.execSQL("alter table " + Mailbox.TABLE_NAME
-                    + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
-        }
-    }
-
     /**
-     * Upgrade the database from v21 to v22
-     * This entails creating AccountManager accounts for all pop3 and imap accounts
-     */
-
-    private static final String[] V21_ACCOUNT_PROJECTION =
-        new String[] {AccountColumns.HOST_AUTH_KEY_RECV, AccountColumns.EMAIL_ADDRESS};
-    private static final int V21_ACCOUNT_RECV = 0;
-    private static final int V21_ACCOUNT_EMAIL = 1;
-
-    private static final String[] V21_HOSTAUTH_PROJECTION =
-        new String[] {HostAuthColumns.PROTOCOL, HostAuthColumns.PASSWORD};
-    private static final int V21_HOSTAUTH_PROTOCOL = 0;
-    private static final int V21_HOSTAUTH_PASSWORD = 1;
-
-    static private void createAccountManagerAccount(Context context, String login,
-            String password) {
-        AccountManager accountManager = AccountManager.get(context);
-        android.accounts.Account amAccount =
-            new android.accounts.Account(login, AccountManagerTypes.TYPE_POP_IMAP);
-        accountManager.addAccountExplicitly(amAccount, password, null);
-        ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
-        ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
-        ContentResolver.setIsSyncable(amAccount, ContactsContract.AUTHORITY, 0);
-        ContentResolver.setIsSyncable(amAccount, CalendarProviderStub.AUTHORITY, 0);
-    }
-
-    @VisibleForTesting
-    static void upgradeFromVersion21ToVersion22(SQLiteDatabase db, Context accountManagerContext) {
-        try {
-            // Loop through accounts, looking for pop/imap accounts
-            Cursor accountCursor = db.query(Account.TABLE_NAME, V21_ACCOUNT_PROJECTION, null,
-                    null, null, null, null);
-            try {
-                String[] hostAuthArgs = new String[1];
-                while (accountCursor.moveToNext()) {
-                    hostAuthArgs[0] = accountCursor.getString(V21_ACCOUNT_RECV);
-                    // Get the "receive" HostAuth for this account
-                    Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
-                            V21_HOSTAUTH_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
-                            null, null, null);
-                    try {
-                        if (hostAuthCursor.moveToFirst()) {
-                            String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
-                            // If this is a pop3 or imap account, create the account manager account
-                            if (HostAuth.SCHEME_IMAP.equals(protocol) ||
-                                    HostAuth.SCHEME_POP3.equals(protocol)) {
-                                if (Email.DEBUG) {
-                                    Log.d(TAG, "Create AccountManager account for " + protocol +
-                                            "account: " +
-                                            accountCursor.getString(V21_ACCOUNT_EMAIL));
-                                }
-                                createAccountManagerAccount(accountManagerContext,
-                                        accountCursor.getString(V21_ACCOUNT_EMAIL),
-                                        hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
-                            // If an EAS account, make Email sync automatically (equivalent of
-                            // checking the "Sync Email" box in settings
-                            } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
-                                android.accounts.Account amAccount =
-                                        new android.accounts.Account(
-                                                accountCursor.getString(V21_ACCOUNT_EMAIL),
-                                                AccountManagerTypes.TYPE_EXCHANGE);
-                                ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
-                                ContentResolver.setSyncAutomatically(amAccount,
-                                        EmailContent.AUTHORITY, true);
-
-                            }
-                        }
-                    } finally {
-                        hostAuthCursor.close();
-                    }
-                }
-            } finally {
-                accountCursor.close();
-            }
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
-        }
-    }
-
-    /** Upgrades the database from v22 to v23 */
-    private static void upgradeFromVersion22ToVersion23(SQLiteDatabase db) {
-        try {
-            db.execSQL("alter table " + Mailbox.TABLE_NAME
-                    + " add column " + Mailbox.LAST_TOUCHED_TIME + " integer default 0;");
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 22 to 23 " + e);
-        }
-    }
-
-    /** Adds in a column for information about a client certificate to use. */
-    private static void upgradeFromVersion23ToVersion24(SQLiteDatabase db) {
-        try {
-            db.execSQL("alter table " + HostAuth.TABLE_NAME
-                    + " add column " + HostAuth.CLIENT_CERT_ALIAS + " text;");
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 23 to 24 " + e);
-        }
-    }
-
-    /** Upgrades the database from v24 to v25 by creating table for quick responses */
-    private static void upgradeFromVersion24ToVersion25(SQLiteDatabase db) {
-        try {
-            createQuickResponseTable(db);
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
-        }
-    }
-
-    private static final String[] V25_ACCOUNT_PROJECTION =
-        new String[] {AccountColumns.ID, AccountColumns.FLAGS, AccountColumns.HOST_AUTH_KEY_RECV};
-    private static final int V25_ACCOUNT_ID = 0;
-    private static final int V25_ACCOUNT_FLAGS = 1;
-    private static final int V25_ACCOUNT_RECV = 2;
-
-    private static final String[] V25_HOSTAUTH_PROJECTION = new String[] {HostAuthColumns.PROTOCOL};
-    private static final int V25_HOSTAUTH_PROTOCOL = 0;
-
-    /** Upgrades the database from v25 to v26 by adding FLAG_SUPPORTS_SEARCH to IMAP accounts */
-    private static void upgradeFromVersion25ToVersion26(SQLiteDatabase db) {
-        try {
-            // Loop through accounts, looking for imap accounts
-            Cursor accountCursor = db.query(Account.TABLE_NAME, V25_ACCOUNT_PROJECTION, null,
-                    null, null, null, null);
-            ContentValues cv = new ContentValues();
-            try {
-                String[] hostAuthArgs = new String[1];
-                while (accountCursor.moveToNext()) {
-                    hostAuthArgs[0] = accountCursor.getString(V25_ACCOUNT_RECV);
-                    // Get the "receive" HostAuth for this account
-                    Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
-                            V25_HOSTAUTH_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
-                            null, null, null);
-                    try {
-                        if (hostAuthCursor.moveToFirst()) {
-                            String protocol = hostAuthCursor.getString(V25_HOSTAUTH_PROTOCOL);
-                            // If this is an imap account, add the search flag
-                            if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-                                String id = accountCursor.getString(V25_ACCOUNT_ID);
-                                int flags = accountCursor.getInt(V25_ACCOUNT_FLAGS);
-                                cv.put(AccountColumns.FLAGS, flags | Account.FLAGS_SUPPORTS_SEARCH);
-                                db.update(Account.TABLE_NAME, cv, Account.RECORD_ID + "=?",
-                                        new String[] {id});
-                            }
-                        }
-                    } finally {
-                        hostAuthCursor.close();
-                    }
-                }
-            } finally {
-                accountCursor.close();
-            }
-        } catch (SQLException e) {
-            // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 25 to 26 " + e);
-        }
-    }
-
-        /**
      * For testing purposes, check whether a given row is cached
      * @param baseUri the base uri of the EmailContent
      * @param id the row id of the EmailContent
@@ -2665,4 +1756,42 @@ outer:
     public void injectAttachmentService(AttachmentService as) {
         mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
     }
+
+    // SELECT DISTINCT Boxes._id, Boxes.unreadCount count(Message._id) from Message,
+    //   (SELECT _id, unreadCount, messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
+    //   FROM Mailbox WHERE accountKey=6 AND ((type = 0) OR (syncInterval!=0 AND syncInterval!=-1)))
+    //      AS Boxes
+    // WHERE Boxes.messageCount!=Boxes.lastNotifiedMessageCount
+    //   OR (Boxes._id=Message.mailboxKey AND Message._id>Boxes.lastNotifiedMessageKey)
+    //   AND flagRead = 0 AND timeStamp != 0
+    // TODO: This query can be simplified a bit
+    private static final String NOTIFICATION_QUERY =
+        "SELECT DISTINCT Boxes." + MailboxColumns.ID + ", Boxes." + MailboxColumns.UNREAD_COUNT +
+            ", count(" + Message.TABLE_NAME + "." + MessageColumns.ID + ")" +
+        " FROM " +
+            Message.TABLE_NAME + "," +
+            "(SELECT " + MailboxColumns.ID + "," + MailboxColumns.UNREAD_COUNT + "," +
+                MailboxColumns.MESSAGE_COUNT + "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
+                "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " FROM " + Mailbox.TABLE_NAME +
+                " WHERE " + MailboxColumns.ACCOUNT_KEY + "=?" +
+                " AND (" + MailboxColumns.TYPE + "=" + Mailbox.TYPE_INBOX + " OR ("
+                + MailboxColumns.SYNC_INTERVAL + "!=0 AND " +
+                MailboxColumns.SYNC_INTERVAL + "!=-1))) AS Boxes " +
+        "WHERE Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
+                MessageColumns.MAILBOX_KEY + " AND " + Message.TABLE_NAME + "." +
+                MessageColumns.ID + ">Boxes." + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY +
+                " AND " + MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.TIMESTAMP + "!=0";
+
+    public Cursor notificationQuery(Uri uri) {
+        SQLiteDatabase db = getDatabase(getContext());
+        String accountId = uri.getLastPathSegment();
+        return db.rawQuery(NOTIFICATION_QUERY, new String[] {accountId});
+   }
+
+    public Cursor mostRecentMessageQuery(Uri uri) {
+        SQLiteDatabase db = getDatabase(getContext());
+        String mailboxId = uri.getLastPathSegment();
+        return db.rawQuery("select max(_id) from Message where mailboxKey=?",
+                new String[] {mailboxId});
+   }
 }
