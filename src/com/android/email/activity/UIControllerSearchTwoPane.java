@@ -36,12 +36,6 @@ public class UIControllerSearchTwoPane extends UIControllerTwoPane {
     }
 
     @Override
-    public void onActivityViewReady() {
-        super.onActivityViewReady();
-        mThreePane.setIsSearch(true);
-    }
-
-    @Override
     public void onVisiblePanesChanged(int previousVisiblePanes) {
         super.onVisiblePanesChanged(previousVisiblePanes);
         mThreePane.requestLayout();

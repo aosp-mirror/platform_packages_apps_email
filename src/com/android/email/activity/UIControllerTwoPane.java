@@ -102,17 +102,24 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
     public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
         int state = mThreePane.getPaneState();
         boolean handled = false;
-
+        int menuId = -1;
         switch (state) {
             case ThreePaneLayout.STATE_LEFT_VISIBLE:
-                inflater.inflate(R.menu.message_list_fragment_option, menu);
+                if (this.getMessageListFragment().getListContext().isSearch()) {
+                    menuId = R.menu.message_search_list_fragment_option;
+                } else {
+                    menuId = R.menu.message_list_fragment_option;
+                }
                 handled=  true;
                 break;
             case ThreePaneLayout.STATE_MIDDLE_EXPANDED:
             case ThreePaneLayout.STATE_RIGHT_VISIBLE:
-                inflater.inflate(R.menu.message_view_fragment_option, menu);
+                menuId = R.menu.message_view_fragment_option;
                 handled=  true;
                 break;
+        }
+        if (menuId != -1) {
+            inflater.inflate(menuId, menu);
         }
         return handled;
     }
@@ -339,6 +346,7 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
             getMailboxListFragment().setHighlightedMailbox(fragment.getMailboxId());
         }
         getMessageListFragment().setLayout(mThreePane);
+        mThreePane.setIsSearch(getMessageListFragment().getListContext().isSearch());
     }
 
     @Override

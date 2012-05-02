@@ -165,7 +165,11 @@ public class ThreePaneLayout extends LinearLayout {
         // Called after onFinishInflate()
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
-        mInitialPaneState = ss.mPaneState;
+        if (mIsSearchResult && UiUtilities.showTwoPaneSearchResults(getContext())) {
+            mInitialPaneState = STATE_RIGHT_VISIBLE;
+        } else {
+            mInitialPaneState = ss.mPaneState;
+        }
     }
 
     @Override
@@ -234,6 +238,12 @@ public class ThreePaneLayout extends LinearLayout {
 
     public void setIsSearch(boolean isSearch) {
         mIsSearchResult = isSearch;
+        if (mIsSearchResult && UiUtilities.showTwoPaneSearchResults(getContext())) {
+            mInitialPaneState = STATE_RIGHT_VISIBLE;
+            if (mPaneState != STATE_RIGHT_VISIBLE) {
+                changePaneState(STATE_RIGHT_VISIBLE, false);
+            }
+        }
     }
 
     private boolean shouldShowMailboxList() {
