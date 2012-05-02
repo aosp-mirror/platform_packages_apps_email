@@ -495,6 +495,5 @@
     <string name="quick_3" msgid="8061819976353395585">"Luen tämän myöhemmin ja palaan asiaan."</string>
     <string name="quick_4" msgid="3988974084396883051">"Järjestetään tapaaminen ja keskustellaan asiasta."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Tämän tilin taustasynkronointi on pois käytöstä roaming-tilassa."</string>
-    <!-- no translation found for confirm_response (5747902757569543165) -->
-    <skip />
+    <string name="confirm_response" msgid="5747902757569543165">"Lähetetään vastaus..."</string>
 </resources>
