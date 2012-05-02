@@ -25,5 +25,7 @@
     <!-- width of the message list, on the message list + message view mode. -->
     <dimen name="message_list_width">426dip</dimen>
     <dimen name="compose_scrollview_width">700dip</dimen>
+
+    <integer name="message_use_wide_header_mode">1</integer>
 </resources>
 

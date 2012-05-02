@@ -45,6 +45,7 @@ public class MessageListItemCoordinates {
 
     // Static threshold.
     private static int MINIMUM_WIDTH_WIDE_MODE = -1;
+    private static int MSG_USE_WIDE_MODE = -1;
     private static int[] SUBJECT_LENGTHS;
 
     // Checkmark.
@@ -117,10 +118,12 @@ public class MessageListItemCoordinates {
         if (MINIMUM_WIDTH_WIDE_MODE <= 0) {
             MINIMUM_WIDTH_WIDE_MODE = res.getDimensionPixelSize(R.dimen.minimum_width_wide_mode);
         }
-
+        if (MSG_USE_WIDE_MODE < 0) {
+            MSG_USE_WIDE_MODE = res.getInteger(R.integer.message_use_wide_header_mode);
+        }
         // Choose the correct mode based on view width.
         int mode = NORMAL_MODE;
-        if (width > MINIMUM_WIDTH_WIDE_MODE) {
+        if (MSG_USE_WIDE_MODE != 0 && width > MINIMUM_WIDTH_WIDE_MODE) {
             mode = WIDE_MODE;
         }
         return mode;

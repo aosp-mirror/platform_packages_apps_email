@@ -37,11 +37,6 @@
         android:icon="@drawable/ic_menu_mark_unread_holo_light"
     />
     <item
-        android:id="@+id/mailbox_settings"
-        android:title="@string/mailbox_settings_action"
-        android:icon="@android:drawable/ic_menu_preferences"
-    />
-    <item
         android:id="@+id/account_settings"
         android:title="@string/settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
