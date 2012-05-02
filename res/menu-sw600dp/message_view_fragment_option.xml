@@ -37,6 +37,20 @@
         android:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/move"
+        android:title="@string/move_action"
+        android:icon="@drawable/ic_menu_move_to_holo_light"
+        android:showAsAction="never"
+    />
+
+    <item
+        android:id="@+id/mark_as_unread"
+        android:title="@string/mark_as_unread_action"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_menu_mark_unread_holo_light"
+    />
+
+    <item
         android:id="@+id/mailbox_settings"
         android:title="@string/mailbox_settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
