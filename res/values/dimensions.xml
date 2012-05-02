@@ -85,4 +85,6 @@
     <dimen name="checkmark_left_margin_wide">16dip</dimen>
     <dimen name="date_region_width_wide">144dip</dimen>
     <dimen name="star_right_margin_wide">16dip</dimen>
+
+    <integer name="message_use_wide_header_mode">0</integer>
 </resources>
