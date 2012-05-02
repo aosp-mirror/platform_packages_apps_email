@@ -317,7 +317,9 @@ public final class DBHelper {
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer"
+            + AccountColumns.POLICY_KEY + " integer, "
+            + AccountColumns.NOTIFIED_MESSAGE_ID + " integer, "
+            + AccountColumns.NOTIFIED_MESSAGE_COUNT + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -407,7 +409,8 @@ public final class DBHelper {
             + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0, "
-            + MailboxColumns.TOTAL_COUNT + " integer"
+            + MailboxColumns.TOTAL_COUNT + " integer, "
+            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
