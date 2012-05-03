@@ -100,7 +100,8 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         int frequencyValuesId;
         int frequencyEntriesId;
         Account account = SetupData.getAccount();
-        String protocol = account.mHostAuthRecv.mProtocol;
+        HostAuth host = account.getOrCreateHostAuthRecv(this);
+        String protocol = host != null ? host.mProtocol : "";
         boolean eas = HostAuth.SCHEME_EAS.equals(protocol);
         if (eas) {
             frequencyValuesId = R.array.account_settings_check_frequency_values_push;
