@@ -28,7 +28,8 @@
         android:paddingLeft="8dip"
         android:paddingRight="8dip"
         android:orientation="horizontal"
-        android:background="@drawable/header_bg_email_widget_holo">
+        android:background="@drawable/header_bg_email_widget_holo"
+        android:id="@+id/widget_header">
         <ImageView
             android:id="@+id/widget_logo"
             android:layout_width="32dip"
