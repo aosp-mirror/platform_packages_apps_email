@@ -240,7 +240,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         boolean calendar = false;
         boolean contacts = false;
         boolean email = mSyncEmailView.isChecked();
-        if (account.mHostAuthRecv.mProtocol.equals("eas")) {
+        if ("eas".equals(account.getOrCreateHostAuthRecv(this).mProtocol)) {
             if (SetupData.getPolicy() != null) {
                 account.mFlags |= Account.FLAGS_SECURITY_HOLD;
                 account.mPolicy = SetupData.getPolicy();
