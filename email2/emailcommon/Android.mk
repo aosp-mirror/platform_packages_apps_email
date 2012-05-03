@@ -20,8 +20,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-unified_email_src_dir := ../../../UnifiedEmail/src
-apache_src_dir := ../../../UnifiedEmail/src/org
+unified_email_src_dir := ../../src
+apache_src_dir := ../../src/org
 
 imported_unified_email_files := \
         $(unified_email_src_dir)/com/android/mail/utils/LogUtils.java \
