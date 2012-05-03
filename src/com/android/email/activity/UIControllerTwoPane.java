@@ -105,7 +105,9 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         int menuId = -1;
         switch (state) {
             case ThreePaneLayout.STATE_LEFT_VISIBLE:
-                if (this.getMessageListFragment().getListContext().isSearch()) {
+                MessageListFragment fragment = getMessageListFragment();
+                MessageListContext context = fragment == null ? null : fragment.getListContext();
+                if (context != null && context.isSearch()) {
                     menuId = R.menu.message_search_list_fragment_option;
                 } else {
                     menuId = R.menu.message_list_fragment_option;
