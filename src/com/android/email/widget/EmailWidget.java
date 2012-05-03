@@ -324,7 +324,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             setActivityIntent(views, R.id.widget_compose, intent);
             // Create click intent for logo to open inbox
             intent = Welcome.createOpenAccountInboxIntent(mContext, mAccountId);
-            setActivityIntent(views, R.id.widget_logo, intent);
+            setActivityIntent(views, R.id.widget_header, intent);
         } else {
             // TODO This really should never happen ... probably can remove the else block
             // Hide compose icon & show "touch to configure" text
