@@ -39,4 +39,6 @@
     <dimen name="compose_area_left_padding">100dip</dimen>
     <dimen name="compose_area_right_padding">100dip</dimen>
     <dimen name="compose_scrollview_width">800dip</dimen>
+
+    <dimen name="search_view_width">500dip</dimen>
 </resources>
