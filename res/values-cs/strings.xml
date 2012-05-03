@@ -37,7 +37,7 @@
     <string name="create_action" msgid="3062715563215392251">"Vytvořit novou"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Smazat"</string>
     <string name="quick_responses_empty_view" msgid="1693308598242828422">"Žádné rychlé odpovědi"</string>
-    <string name="discard_action" msgid="6532206074859505968">"Zrušit"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Zahodit"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Uložit koncept"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Vložit rychlou odpověď"</string>
     <string name="read_action" msgid="4701484794504781686">"Označit jako přečtené"</string>
@@ -356,7 +356,7 @@
     <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Brzy bude třeba změnit kód PIN nebo heslo pro uzamčení obrazovky. Pokud tak neučiníte, budou data účtu <xliff:g id="ACCOUNT">%s</xliff:g> vymazána. Chcete nyní změnit kód PIN nebo heslo?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Platnost hesla zámku obrazovky vypršela"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Ze zařízení jsou mazána data účtu <xliff:g id="ACCOUNT">%s</xliff:g>. Data můžete obnovit změnou kódu PIN nebo hesla pro uzamčení obrazovky."</string>
-    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zrušit neuložené změny?"</string>
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zahodit neuložené změny?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Přihlášení se nezdařilo."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Uživatelské jméno nebo heslo pro účet <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávné. Chcete údaje aktualizovat?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
