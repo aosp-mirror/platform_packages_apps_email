@@ -87,4 +87,7 @@
     <dimen name="star_right_margin_wide">16dip</dimen>
 
     <integer name="message_use_wide_header_mode">0</integer>
+
+    <dimen name="search_view_width">400dip</dimen>
+
 </resources>
