@@ -462,8 +462,7 @@
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"이메일 검색"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> 검색"</string>
-    <!-- no translation found for search_header_text_fmt (2638602588841231811) -->
-    <skip />
+    <string name="search_header_text_fmt" msgid="2638602588841231811">"검색결과"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"결과를 기다리는 중"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"일부 서버는 시간이 오래 걸릴 수 있습니다."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"폴더"</string>
