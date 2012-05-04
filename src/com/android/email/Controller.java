@@ -1719,6 +1719,11 @@ public class Controller {
                     return new MessagingException(String.valueOf(statusCode));
             }
         }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
+        }
     }
 
     private interface ServiceCallbackWrapper {
@@ -1772,6 +1777,11 @@ public class Controller {
 
         @Override
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
+        }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
         }
     };
 
@@ -1878,6 +1888,10 @@ public class Controller {
             @Override
             public int getApiLevel() {
                 return Api.LEVEL;
+            }
+
+            @Override
+            public void sendMail(long accountId) throws RemoteException {
             }
         };
 

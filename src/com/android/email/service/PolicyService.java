@@ -62,6 +62,10 @@ public class PolicyService extends Service {
         public Policy clearUnsupportedPolicies(Policy policy) {
             return mSecurityPolicy.clearUnsupportedPolicies(policy);
         }
+
+        public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
+            mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey);
+        }
     };
 
     @Override
