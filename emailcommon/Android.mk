@@ -20,15 +20,23 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
+unified_email_src_dir := ../src
+apache_src_dir := ../src/org
+
+imported_unified_email_files := \
+        $(unified_email_src_dir)/com/android/mail/utils/LogUtils.java \
+        $(unified_email_src_dir)/com/android/mail/utils/LoggingInputStream.java \
+        $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
+
 LOCAL_MODULE := com.android.emailcommon
-LOCAL_STATIC_JAVA_LIBRARIES := guava
-LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
-LOCAL_SRC_FILES += $(call all-java-files-under, src/org)
-LOCAL_SRC_FILES += \
-    src/com/android/emailcommon/service/IEmailService.aidl \
-    src/com/android/emailcommon/service/IEmailServiceCallback.aidl \
-    src/com/android/emailcommon/service/IPolicyService.aidl \
-    src/com/android/emailcommon/service/IAccountService.aidl
+LOCAL_STATIC_JAVA_LIBRARIES := guava android-common
+LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES += $(call all-java-files-under, $(apache_src_dir))
+LOCAL_SRC_FILES += src/com/android/emailcommon/service/IEmailService.aidl
+LOCAL_SRC_FILES += src/com/android/emailcommon/service/IAccountService.aidl
+LOCAL_SRC_FILES += src/com/android/emailcommon/service/IPolicyService.aidl
+LOCAL_SRC_FILES += src/com/android/emailcommon/service/IEmailServiceCallback.aidl
+LOCAL_SRC_FILES += $(imported_unified_email_files)
 
 LOCAL_SDK_VERSION := current
 

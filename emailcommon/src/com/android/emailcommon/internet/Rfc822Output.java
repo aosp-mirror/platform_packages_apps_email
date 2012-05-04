@@ -16,14 +16,6 @@
 
 package com.android.emailcommon.internet;
 
-import com.android.emailcommon.mail.Address;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.Message;
-
-import org.apache.commons.io.IOUtils;
-
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -32,6 +24,14 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
+
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.Message;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

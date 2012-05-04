@@ -714,4 +714,15 @@ public class TextUtilities {
 
         return (CharSequence)sb;
    }
+
+    /**
+     * Determine whether two Strings (either of which might be null) are the same; this is true
+     * when both are null or both are Strings that are equal.
+     */
+    public static boolean stringOrNullEquals(String a, String b) {
+        if (a == null && b == null) return true;
+        if (a != null && b != null && a.equals(b)) return true;
+        return false;
+    }
+
 }

@@ -20,13 +20,19 @@ import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -34,8 +40,11 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
+
+import java.util.ArrayList;
 
 /**
  * Utility functions to support reading and writing security policies, and handshaking the device
@@ -500,6 +509,100 @@ public class SecurityPolicy {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.FLAGS, account.mFlags);
         account.update(context, cv);
+    }
+
+    public static void clearAccountPolicy(Context context, Account account) {
+        setAccountPolicy(context, account, null, null);
+    }
+
+    /**
+     * Set the policy for an account atomically; this also removes any other policy associated with
+     * the account and sets the policy key for the account.  If policy is null, the policyKey is
+     * set to 0 and the securitySyncKey to null.  Also, update the account object to reflect the
+     * current policyKey and securitySyncKey
+     * @param context the caller's context
+     * @param account the account whose policy is to be set
+     * @param policy the policy to set, or null if we're clearing the policy
+     * @param securitySyncKey the security sync key for this account (ignored if policy is null)
+     */
+    public static void setAccountPolicy(Context context, Account account, Policy policy,
+            String securitySyncKey) {
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+        // Make sure this is a valid policy set
+        if (policy != null) {
+            policy.normalize();
+            // Add the new policy (no account will yet reference this)
+            ops.add(ContentProviderOperation.newInsert(
+                    Policy.CONTENT_URI).withValues(policy.toContentValues()).build());
+            // Make the policyKey of the account our newly created policy, and set the sync key
+            ops.add(ContentProviderOperation.newUpdate(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                    .withValueBackReference(AccountColumns.POLICY_KEY, 0)
+                    .withValue(AccountColumns.SECURITY_SYNC_KEY, securitySyncKey)
+                    .build());
+        } else {
+            ops.add(ContentProviderOperation.newUpdate(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                    .withValue(AccountColumns.SECURITY_SYNC_KEY, null)
+                    .withValue(AccountColumns.POLICY_KEY, 0)
+                    .build());
+        }
+
+        // Delete the previous policy associated with this account, if any
+        if (account.mPolicyKey > 0) {
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(
+                            Policy.CONTENT_URI, account.mPolicyKey)).build());
+        }
+
+        try {
+            context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
+            account.refresh(context);
+        } catch (RemoteException e) {
+           // This is fatal to a remote process
+            throw new IllegalStateException("Exception setting account policy.");
+        } catch (OperationApplicationException e) {
+            // Can't happen; our provider doesn't throw this exception
+        }
+    }
+
+    /**
+     * API: Report that policies may have been updated due to rewriting values in an Account; we
+     * clear the aggregate policy (so it can be recomputed) and set the policies in the DPM
+     */
+    public synchronized void policiesUpdated() {
+        mAggregatePolicy = null;
+        setActivePolicies();
+    }
+
+    public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
+        Account account = Account.restoreAccountWithId(mContext, accountId);
+        Policy oldPolicy = null;
+        if (account.mPolicyKey > 0) {
+            oldPolicy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
+        }
+        boolean policyChanged = (oldPolicy == null) || !oldPolicy.equals(policy);
+        if (!policyChanged && (TextUtilities.stringOrNullEquals(securityKey,
+                account.mSecuritySyncKey))) {
+            Log.d(Logging.LOG_TAG, "setAccountPolicy; policy unchanged");
+        } else {
+            setAccountPolicy(mContext, account, policy, securityKey);
+            policiesUpdated();
+        }
+
+        boolean setHold = false;
+        if (isActive(policy)) {
+            // For Email1, ignore; it's really just a courtesy notification
+        } else {
+            setHold = true;
+            Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName +
+                    " are not being enforced.");
+            // Put up a notification
+            NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
+        }
+        // Set/clear the account hold.
+        setAccountHoldFlag(mContext, account, setHold);
     }
 
     /**

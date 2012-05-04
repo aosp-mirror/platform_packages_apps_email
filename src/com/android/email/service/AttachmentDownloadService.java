@@ -697,6 +697,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
                 throws RemoteException {
         }
+
+        @Override
+        public void loadMessageStatus(long messageId, int statusCode, int progress)
+                throws RemoteException {
+        }
     }
 
     /**

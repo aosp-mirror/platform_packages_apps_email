@@ -152,5 +152,9 @@ public class EmailServiceUtils {
         public IBinder onBind(Intent intent) {
             return null;
         }
+
+        @Override
+        public void sendMail(long accountId) throws RemoteException {
+        }
     }
 }
