@@ -462,8 +462,7 @@
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Paieška el. pašte"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Ieškoti <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <!-- no translation found for search_header_text_fmt (2638602588841231811) -->
-    <skip />
+    <string name="search_header_text_fmt" msgid="2638602588841231811">"Rezultatai"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Laukiama rezultatų"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Kai kurie serveriai gali ilgai užtrukti."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Aplankai"</string>
