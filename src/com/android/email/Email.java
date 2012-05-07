@@ -115,7 +115,7 @@ public class Email extends Application {
                     Account.CONTENT_URI,
                     Account.ID_PROJECTION,
                     null, null, null);
-            boolean enable = c.getCount() > 0;
+            boolean enable = c != null && c.getCount() > 0;
             setServicesEnabled(context, enable);
             return enable;
         } finally {
