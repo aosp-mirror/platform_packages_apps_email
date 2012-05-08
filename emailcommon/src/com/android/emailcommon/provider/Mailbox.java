@@ -492,9 +492,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
             case TYPE_MAIL:
             case TYPE_TRASH:
             case TYPE_JUNK:
+            case TYPE_SENT:
                 return true;
         }
-        return false; // TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, etc
+        return false; // TYPE_DRAFTS, TYPE_OUTBOX, etc
     }
 
     /**
