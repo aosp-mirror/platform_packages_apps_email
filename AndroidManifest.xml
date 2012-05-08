@@ -464,7 +464,7 @@
         <!-- Email AppWidget definitions -->
         <activity
             android:name=".widget.WidgetConfiguration"
-            android:enabled="false"
+            android:enabled="true"
             android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge"
             >
             <intent-filter
