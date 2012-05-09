@@ -147,7 +147,7 @@ public class AttachmentInfo {
                         extension)) {
             boolean sideloadEnabled;
             sideloadEnabled = Settings.Secure.getInt(context.getContentResolver(),
-                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) == 1;
+                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) != 0;
             canSave &= sideloadEnabled;
             canView = canSave;
             canInstall = canSave;
