@@ -117,6 +117,21 @@
             android:visibility="gone" />
     </LinearLayout>
     <TableRow
+        android:paddingTop="16dip" >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dip"
+            android:text="@string/account_setup_incoming_port_label" />
+        <EditText
+            android:id="@+id/account_port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/account_setup_incoming_port_label"
+            android:inputType="number"
+            android:imeOptions="actionDone" />
+    </TableRow>
+    <TableRow
         android:paddingTop="32dip" >
         <TextView
             android:layout_height="wrap_content"
