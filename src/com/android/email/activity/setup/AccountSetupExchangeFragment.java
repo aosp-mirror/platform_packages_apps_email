@@ -63,9 +63,13 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupExchangeFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupExchangeFragment.loaded";
 
+    private static final int PORT_SSL = 443;
+    private static final int PORT_NORMAL = 80;
+
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mServerView;
+    private EditText mPortView;
     private CheckBox mSslSecurityView;
     private CheckBox mTrustCertificatesView;
     private CertificateSelector mClientCertificateSelector;
@@ -109,6 +113,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mPasswordView = UiUtilities.getView(view, R.id.account_password);
         mServerView = UiUtilities.getView(view, R.id.account_server);
+        mPortView = (EditText) UiUtilities.getView(view, R.id.account_port);
         mSslSecurityView = UiUtilities.getView(view, R.id.account_ssl);
         mSslSecurityView.setOnCheckedChangeListener(this);
         mTrustCertificatesView = UiUtilities.getView(view, R.id.account_trust_certificates);
@@ -117,11 +122,14 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         // Calls validateFields() which enables or disables the Next button
         // based on the fields' validity.
         TextWatcher validationTextWatcher = new TextWatcher() {
+            @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
         // We're editing an existing account; don't allow modification of the user name
@@ -132,6 +140,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mUsernameView.addTextChangedListener(validationTextWatcher);
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
+        mPortView.addTextChangedListener(validationTextWatcher);
 
         EditText lastView = mServerView;
         lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
@@ -247,6 +256,18 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         return loadSettings(account);
     }
 
+
+    private int getPortFromSecurityType() {
+        boolean useSsl = mSslSecurityView.isChecked();
+        int port = useSsl ? PORT_SSL : PORT_NORMAL;
+        return port;
+    }
+
+    private void updatePortFromSecurityType() {
+        int port = getPortFromSecurityType();
+        mPortView.setText(Integer.toString(port));
+    }
+
     /**
      * Load the given account settings into the UI and then ensure the settings are valid.
      * As an optimization, if the settings have already been loaded, the UI will not be
@@ -295,6 +316,12 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         }
         onUseSslChanged(ssl);
 
+        int port = hostAuth.mPort;
+        if (port != HostAuth.PORT_UNKNOWN) {
+            mPortView.setText(Integer.toString(port));
+        } else {
+            updatePortFromSecurityType();
+        }
         mLoadedRecvAuth = hostAuth;
         mLoaded = true;
         return validateFields();
@@ -418,7 +445,16 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         String certAlias = mClientCertificateSelector.getCertificate();
         String serverAddress = mServerView.getText().toString().trim();
 
-        int port = mSslSecurityView.isChecked() ? 443 : 80;
+        String portText = mPortView.getText().toString().trim();
+        int port;
+        try {
+            port = Integer.parseInt(portText);
+        } catch (NumberFormatException e) {
+            // Worst case, do something sensible
+            port = mSslSecurityView.isChecked() ? 443 : 80;
+            Log.d(Logging.LOG_TAG, "Non-integer server port; using '" + port + "'");
+        }
+
         HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
         sendAuth.setLogin(userName, userPassword);
         sendAuth.setConnection(mBaseScheme, serverAddress, port, flags, certAlias);

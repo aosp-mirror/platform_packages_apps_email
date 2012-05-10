@@ -364,7 +364,6 @@ public class Utility {
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return cal;
     }
-
     /**
      * Generate a time in milliseconds from an email date string that represents a date/time in GMT
      * @param date string in format 2010-02-23T16:00:00.000Z (ISO 8601, rfc3339)
