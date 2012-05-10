@@ -156,20 +156,25 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
         mSecurityTypeView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 updatePortFromSecurityType();
             }
 
+            @Override
             public void onNothingSelected(AdapterView<?> arg0) { }
         });
 
         // After any text edits, call validateFields() which enables or disables the Next button
         TextWatcher validationTextWatcher = new TextWatcher() {
+            @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
         // We're editing an existing account; don't allow modification of the user name
@@ -285,7 +290,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private void configureEditor() {
         if (mConfigured) return;
         Account account = SetupData.getAccount();
-        if (account == null) {
+        if (account == null || account.mHostAuthRecv == null) {
             return;
         }
         TextView lastView = mImapPathPrefixView;
