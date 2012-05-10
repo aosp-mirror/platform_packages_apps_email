@@ -459,6 +459,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"Загрузка..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Нажмите для настройки."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Вы еще не добавили аккаунт электронной почты."</string>
+    <!-- no translation found for widget_no_mailboxes (5222354534538852579) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Искать в электронной почте"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Искать в папке \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
