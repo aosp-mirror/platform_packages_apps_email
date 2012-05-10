@@ -1657,7 +1657,8 @@ outer:
      * Sends a change notification to any cursors observers of the given base URI. The final
      * notification URI is dynamically built to contain the specified information. It will be
      * of the format <<baseURI>>/<<op>>/<<id>>; where <<op>> and <<id>> are optional depending
-     * upon the given values.
+     * upon the given values.  For message-related notifications, we also notify the widget
+     * provider.
      * NOTE: If <<op>> is specified, notifications for <<baseURI>>/<<id>> will NOT be invoked.
      * If this is necessary, it can be added. However, due to the implementation of
      * {@link ContentObserver}, observers of <<baseURI>> will receive multiple notifications.
@@ -1669,25 +1670,26 @@ outer:
      */
     private void sendNotifierChange(Uri baseUri, String op, String id) {
         if (baseUri == null) return;
-
-        final ContentResolver resolver = getContext().getContentResolver();
+        Uri uri = baseUri;
 
         // Append the operation, if specified
         if (op != null) {
-            baseUri = baseUri.buildUpon().appendEncodedPath(op).build();
+            uri = baseUri.buildUpon().appendEncodedPath(op).build();
         }
 
         long longId = 0L;
         try {
             longId = Long.valueOf(id);
         } catch (NumberFormatException ignore) {}
+
+        final ContentResolver resolver = getContext().getContentResolver();
         if (longId > 0) {
-            resolver.notifyChange(ContentUris.withAppendedId(baseUri, longId), null);
+            resolver.notifyChange(ContentUris.withAppendedId(uri, longId), null);
         } else {
-            resolver.notifyChange(baseUri, null);
+            resolver.notifyChange(uri, null);
         }
 
-        // We want to send the message list changed notification if baseUri is Message.NOTIFIER_URI.
+        // If a message has changed, notify any widgets
         if (baseUri.equals(Message.NOTIFIER_URI)) {
             sendMessageListDataChangedNotification();
         }
