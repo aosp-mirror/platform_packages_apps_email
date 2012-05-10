@@ -166,6 +166,8 @@ public class Email extends Application {
             MailService.actionReschedule(context);
         }
 
+        pm.setComponentEnabledSetting(new ComponentName(context, WidgetConfiguration.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
         // Start/stop the various services depending on whether there are any accounts
         startOrStopService(enabled, context, new Intent(context, AttachmentDownloadService.class));
         NotificationController.getInstance(context).watchForMessages(enabled);
