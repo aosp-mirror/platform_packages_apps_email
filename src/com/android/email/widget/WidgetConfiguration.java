@@ -108,7 +108,15 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
         if (Email.DEBUG) {
             Log.i(Logging.LOG_TAG, "WidgetConfiguration exited abnormally. Probably no accounts.");
         }
-        Utility.showToast(this, R.string.widget_no_accounts);
+        int res = -1;
+        if (missingAccount) {
+            res = R.string.widget_no_accounts;
+        } else if (missingMailbox) {
+            res = R.string.widget_no_mailboxes;
+        }
+        if (res > -1) {
+            Utility.showToast(this, res);
+        }
         finish();
     }
 

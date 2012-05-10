@@ -1195,6 +1195,9 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Shown in a toast when no accounts are configured and the Email widget
          cannot be created in the first place [CHAR LIMIT=none] -->
     <string name="widget_no_accounts">You haven\'t set up an email account yet.</string>
+    <!-- Shown in a toast when no mailboxes have synced for the account and the Email widget
+         cannot be created in the first place [CHAR LIMIT=none] -->
+    <string name="widget_no_mailboxes">This account isn\'t synced. Try again later.</string>
 
     <!-- Generic string shown instead of regular numbers, when a number is larger than 999.
          This should not be altered if the original string ("999+") makes sense in the
