@@ -415,15 +415,15 @@
         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
         <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
     </provider>
-    <!-- Note: Yahoo! Japan's ne.jp and co.jp domains do not yet support open IMAP -->
+    <!-- Note: Yahoo! Japan's ne.jp domain requires $user rather than the usual $email -->
     <provider id="yahoo-jp-ybb" label="Yahoo! Japan" domain="ybb.ne.jp">
-        <incoming uri="pop3+ssl+://android.ybbpop.mail.yahoo.co.jp" username="$email" />
-        <outgoing uri="smtp+ssl+://android.ybbsmtp.mail.yahoo.co.jp" username="$email" />
+        <incoming uri="imap+ssl+://imap.mail.yahoo.co.jp" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.mail.yahoo.co.jp" username="$user" />
     </provider>
     <!-- Note: Yahoo! Japan's co.jp domain requires $user rather than the usual $email -->
     <provider id="yahoo-jp" label="Yahoo! Japan" domain="yahoo.co.jp">
-        <incoming uri="pop3+ssl+://android.pop.mail.yahoo.co.jp" username="$user" />
-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.co.jp" username="$user" />
+        <incoming uri="imap+ssl+://imap.mail.yahoo.co.jp" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.mail.yahoo.co.jp" username="$user" />
     </provider>
     <provider id="yahoo-com-XX" label="Country specific Yahoo!" domain="yahoo.com.??">
         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
