@@ -1324,6 +1324,8 @@ public class EmailProvider extends ContentProvider {
                 // Get our account cursor
                 Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
                         null, null, null, null, null);
+                if (c == null) return 0;
+                Log.d(TAG, "fromDatabase accounts: " + c.getCount());
                 try {
                     // Loop through accounts, copying them and associated host auth's
                     while (c.moveToNext()) {
@@ -1369,12 +1371,15 @@ public class EmailProvider extends ContentProvider {
                 // Say it's ok to commit
                 toDatabase.setTransactionSuccessful();
             } finally {
+                // STOPSHIP: Remove logging here and in at endTransaction() below
+                Log.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
                 toDatabase.endTransaction();
             }
         } catch (SQLiteException ex) {
             Log.w(TAG, "Exception while copying account tables", ex);
             copyCount = -1;
         } finally {
+            Log.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
             fromDatabase.endTransaction();
         }
         return copyCount;
