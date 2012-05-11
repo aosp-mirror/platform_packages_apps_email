@@ -41,7 +41,7 @@
 
     <!-- Wizard buttons on the account setup screens -->
     <style name="accountSetupButton">
-        <item name="android:layout_width">208sp</item>
+        <item name="android:layout_width">208dp</item>
         <item name="android:layout_height">48sp</item>
         <item name="android:textSize">18sp</item>
     </style>
