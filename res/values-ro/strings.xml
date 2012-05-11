@@ -459,6 +459,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"Se încarcă..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Atingeţi pentru a configura."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Nu aţi configurat niciun cont de e-mail."</string>
+    <!-- no translation found for widget_no_mailboxes (5222354534538852579) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Căutaţi în e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Căutaţi în <xliff:g id="ID_1">%1$s</xliff:g>"</string>

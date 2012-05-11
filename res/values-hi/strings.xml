@@ -28,8 +28,8 @@
     <string name="cancel_action" msgid="6967435583794021865">"रद्द करें"</string>
     <string name="previous_action" msgid="5181616311579820981">"पिछला"</string>
     <string name="send_action" msgid="1729766205562446418">"भेजें"</string>
-    <string name="reply_action" msgid="4262472229221507619">"प्रत्युत्तर दें"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"सभी को प्रत्युत्तर दें"</string>
+    <string name="reply_action" msgid="4262472229221507619">"जवाब दें"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"सभी को जवाब दें"</string>
     <string name="delete_action" msgid="8421026208288857155">"हटाएं"</string>
     <string name="forward_action" msgid="669174181042344116">"अग्रेषित करें"</string>
     <string name="favorite_action" msgid="4664259801498253756">"तारांकित करें"</string>
@@ -445,7 +445,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"बड़ा"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"बहुत बड़ा"</string>
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"सभी को प्रत्‍युत्तर दें"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"संदेशों के प्रत्‍युत्तर के लिए \"सभी को प्रत्युत्तर दें\" को डिफ़ॉल्ट बनाएं"</string>
+    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"संदेशों के प्रत्‍युत्तर के लिए \"सभी को जवाब दें\" को डिफ़ॉल्ट बनाएं"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"चित्र दिखाने के लिए पूछें"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"संदेशों के चित्र स्वचालित रूप से नहीं दिखाए जाएंगे"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"चित्र दिखाएं\" साफ़ किया गया."</string>
@@ -459,6 +459,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"लोड हो रहा है..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"सेट करने के लिए स्‍पर्श करें."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"आपने अभी तक ईमेल खाता सेट नहीं कि‍या है."</string>
+    <!-- no translation found for widget_no_mailboxes (5222354534538852579) -->
+    <skip />
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"ईमेल खोजें"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> में खोजें"</string>
