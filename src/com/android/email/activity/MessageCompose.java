@@ -337,16 +337,35 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void setAccount(Intent intent) {
         long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        Account account = null;
+        if (accountId != Account.NO_ACCOUNT) {
+            // User supplied an account; make sure it exists
+            account = Account.restoreAccountWithId(this, accountId);
+            // Deleted account is no account...
+            if (account == null) {
+                accountId = Account.NO_ACCOUNT;
+            }
+        }
+        // If we still have no account, try the default
         if (accountId == Account.NO_ACCOUNT) {
             accountId = Account.getDefaultAccountId(this);
+            if (accountId != Account.NO_ACCOUNT) {
+                // Make sure it exists...
+                account = Account.restoreAccountWithId(this, accountId);
+                // Deleted account is no account...
+                if (account == null) {
+                    accountId = Account.NO_ACCOUNT;
+                }
+            }
         }
-        if (accountId == Account.NO_ACCOUNT) {
+        // If we can't find an account, set one up
+        if (accountId == Account.NO_ACCOUNT || account == null) {
             // There are no accounts set up. This should not have happened. Prompt the
             // user to set up an account as an acceptable bailout.
             Welcome.actionStart(this);
             finish();
         } else {
-            setAccount(Account.restoreAccountWithId(this, accountId));
+            setAccount(account);
         }
     }
 
@@ -1674,6 +1693,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return mIncludeQuotedTextCheckBox.isChecked();
     }
 
+    @Override
     public void onClick(View view) {
         if (handleCommand(view.getId())) {
             return;
