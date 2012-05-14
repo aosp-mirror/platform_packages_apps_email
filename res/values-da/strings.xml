@@ -238,7 +238,7 @@
     <string name="accounts_welcome" msgid="1491126253077950685">"Du kan nemt konfigurere e-mail for de fleste konti."</string>
     <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Du kan nemt konfigurere en Exchange-konto."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Du kan nemt konfigurere en Exchange ActiveSync-konto."</string>
-    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mail-adresse"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailadresse"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Adgangskode"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send e-mail fra denne konto som standard."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
@@ -416,7 +416,7 @@
     <string name="system_account_create_failed" msgid="3673792980526246177">"Kontoen kunne ikke oprettes. Prøv igen."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Muliggør serverspecifikke sikkerhedspolitikker"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"Søger efter <xliff:g id="DOMAIN">%s</xliff:g> …"</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"Søger efter <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>

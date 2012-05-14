@@ -115,8 +115,8 @@
     <string name="message_is_empty_description" msgid="4004644319382041459">"Předmět neuveden"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načíst další zprávy"</string>
   <plurals name="message_view_selected_message_count">
-    <item quantity="one" msgid="5064657358375178519">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
-    <item quantity="other" msgid="7901361399231876038">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+    <item quantity="one" msgid="5064657358375178519">"Vybrané zprávy: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+    <item quantity="other" msgid="7901361399231876038">"Vybrané zprávy: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
   </plurals>
     <string name="message_list_no_messages" msgid="7846910091922523867">"Žádné zprávy"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Komu"</string>
