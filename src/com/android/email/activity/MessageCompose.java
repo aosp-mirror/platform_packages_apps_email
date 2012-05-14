@@ -18,8 +18,6 @@ package com.android.email.activity;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.FragmentTransaction;
@@ -1824,41 +1822,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     private void updateActionSelector() {
         ActionBar actionBar = getActionBar();
-        if (shouldUseActionTabs()) {
-            // Tab-based mode switching.
-            if (actionBar.getTabCount() > 0) {
-                selectActionTab(mAction);
-            } else {
-                createAndAddTab(R.string.reply_action, ACTION_REPLY);
-                createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
-                createAndAddTab(R.string.forward_action, ACTION_FORWARD);
-            }
-
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        } else {
-            // Spinner based mode switching.
-            if (mActionSpinnerAdapter == null) {
-                mActionSpinnerAdapter = new ActionSpinnerAdapter(this);
-                actionBar.setListNavigationCallbacks(
-                        mActionSpinnerAdapter, ACTION_SPINNER_LISTENER);
-            }
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            actionBar.setSelectedNavigationItem(
-                    ActionSpinnerAdapter.getActionPosition(mAction));
+        // Spinner based mode switching.
+        if (mActionSpinnerAdapter == null) {
+            mActionSpinnerAdapter = new ActionSpinnerAdapter(this);
+            actionBar.setListNavigationCallbacks(mActionSpinnerAdapter, ACTION_SPINNER_LISTENER);
         }
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setSelectedNavigationItem(ActionSpinnerAdapter.getActionPosition(mAction));
         actionBar.setDisplayShowTitleEnabled(false);
     }
-
-    private final TabListener ACTION_TAB_LISTENER = new TabListener() {
-        @Override public void onTabReselected(Tab tab, FragmentTransaction ft) {}
-        @Override public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
-
-        @Override
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
-            String action = (String) tab.getTag();
-            setAction(action);
-        }
-    };
 
     private final OnNavigationListener ACTION_SPINNER_LISTENER = new OnNavigationListener() {
         @Override
@@ -1927,31 +1899,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             throw new IllegalArgumentException("Invalid action type for spinner");
         }
 
-    }
-
-    private Tab createAndAddTab(int labelResource, final String action) {
-        ActionBar.Tab tab = getActionBar().newTab();
-        boolean selected = mAction.equals(action);
-        tab.setTag(action);
-        tab.setText(getString(labelResource));
-        tab.setTabListener(ACTION_TAB_LISTENER);
-        getActionBar().addTab(tab, selected);
-        return tab;
-    }
-
-    private void selectActionTab(final String action) {
-        final ActionBar actionBar = getActionBar();
-        for (int i = 0, n = actionBar.getTabCount(); i < n; i++) {
-            ActionBar.Tab tab = actionBar.getTabAt(i);
-            if (action.equals(tab.getTag())) {
-                actionBar.selectTab(tab);
-                return;
-            }
-        }
-    }
-
-    private boolean shouldUseActionTabs() {
-        return getResources().getBoolean(R.bool.message_compose_action_tabs);
     }
 
     @Override
