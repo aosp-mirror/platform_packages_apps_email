@@ -459,8 +459,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Завантаження…"</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Торкніться, щоб налаштувати."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Ви ще не налаштували обліковий запис електронної пошти."</string>
-    <!-- no translation found for widget_no_mailboxes (5222354534538852579) -->
-    <skip />
+    <string name="widget_no_mailboxes" msgid="5222354534538852579">"Цей обліковий запис не синхронізовано. Повторіть спробу пізніше."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Пошук в електронній пошті"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Пошук у <xliff:g id="ID_1">%1$s</xliff:g>"</string>
