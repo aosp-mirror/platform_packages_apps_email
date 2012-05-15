@@ -100,6 +100,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private static int sDateFontSize;
     private static int sDefaultTextColor;
     private static int sLightTextColor;
+    private static Object sWidgetLock = new Object();
 
     private final Context mContext;
     private final AppWidgetManager mWidgetManager;
@@ -185,9 +186,12 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      */
     @Override
     public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
-        mCursor = (EmailWidgetLoader.WidgetCursor) cursor;   // Save away the cursor
-        mAccountName = mCursor.getAccountName();
-        mMailboxName = mCursor.getMailboxName();
+        // Save away the cursor
+        synchronized (sWidgetLock) {
+            mCursor = (EmailWidgetLoader.WidgetCursor) cursor;
+            mAccountName = mCursor.getAccountName();
+            mMailboxName = mCursor.getMailboxName();
+        }
         updateHeader();
         mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
     }
@@ -281,8 +285,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         views.setViewVisibility(R.id.widget_tap, View.VISIBLE);
         setTextViewTextAndDesc(views, R.id.widget_tap, mAccountName);
         String count = "";
-        if (isCursorValid()) {
-            count = UiUtilities.getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
+        synchronized (sWidgetLock) {
+            if (isCursorValid()) {
+                count = UiUtilities
+                        .getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
+            }
         }
         setTextViewTextAndDesc(views, R.id.widget_count, count);
     }
@@ -400,84 +407,86 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     @Override
     public RemoteViews getViewAt(int position) {
-        // Use the cursor to set up the widget
-        if (!isCursorValid() || !mCursor.moveToPosition(position)) {
-            return getLoadingView();
-        }
-        RemoteViews views =
-            new RemoteViews(mContext.getPackageName(), R.layout.widget_list_item);
-        boolean isUnread = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_READ) != 1;
-        int drawableId = R.drawable.conversation_read_selector;
-        if (isUnread) {
-            drawableId = R.drawable.conversation_unread_selector;
-        }
-        views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
-
-        // Add style to sender
-        String rawSender =
-                mCursor.isNull(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME)
-                    ? ""    // an empty string
-                    : mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME);
-        SpannableStringBuilder from = new SpannableStringBuilder(rawSender);
-        from.setSpan(
-                isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
-                from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
-        views.setTextViewText(R.id.widget_from, styledFrom);
-        views.setContentDescription(R.id.widget_from, rawSender);
-
-        long timestamp = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_TIMESTAMP);
-        // Get a nicely formatted date string (relative to today)
-        String date = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
-        // Add style to date
-        CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
-        views.setTextViewText(R.id.widget_date, styledDate);
-        views.setContentDescription(R.id.widget_date, date);
-
-        // Add style to subject/snippet
-        String subject = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SUBJECT);
-        String snippet = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SNIPPET);
-        CharSequence subjectAndSnippet = getStyledSubjectSnippet(subject, snippet, !isUnread);
-        views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
-        views.setContentDescription(R.id.widget_subject, subject);
-
-        int messageFlags = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAGS);
-        boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
-        views.setViewVisibility(R.id.widget_invite, hasInvite ? View.VISIBLE : View.GONE);
-
-        boolean hasAttachment =
-                mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_ATTACHMENT) != 0;
-        views.setViewVisibility(R.id.widget_attachment,
-                hasAttachment ? View.VISIBLE : View.GONE);
-
-        if (mAccountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
-            views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
-        } else {
-            long accountId = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_ACCOUNT_KEY);
-            int colorId = mResourceHelper.getAccountColorId(accountId);
-            if (colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
-                // Color defined by resource ID, so, use it
-                views.setViewVisibility(R.id.color_chip, View.VISIBLE);
-                views.setImageViewResource(R.id.color_chip, colorId);
-            } else {
-                // Color not defined by resource ID, nothing we can do, so, hide the chip
-                views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+        synchronized (sWidgetLock) {
+            // Use the cursor to set up the widget
+            if (!isCursorValid() || !mCursor.moveToPosition(position)) {
+                return getLoadingView();
             }
+            RemoteViews views = new RemoteViews(mContext.getPackageName(),
+                    R.layout.widget_list_item);
+            boolean isUnread = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_READ) != 1;
+            int drawableId = R.drawable.conversation_read_selector;
+            if (isUnread) {
+                drawableId = R.drawable.conversation_unread_selector;
+            }
+            views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
+
+            // Add style to sender
+            String rawSender = mCursor.isNull(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME) ?
+                    "" : mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME);
+            SpannableStringBuilder from = new SpannableStringBuilder(rawSender);
+            from.setSpan(isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL),
+                    0, from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
+            views.setTextViewText(R.id.widget_from, styledFrom);
+            views.setContentDescription(R.id.widget_from, rawSender);
+            long timestamp = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_TIMESTAMP);
+            // Get a nicely formatted date string (relative to today)
+            String date = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
+            // Add style to date
+            CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
+            views.setTextViewText(R.id.widget_date, styledDate);
+            views.setContentDescription(R.id.widget_date, date);
+
+            // Add style to subject/snippet
+            String subject = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SUBJECT);
+            String snippet = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SNIPPET);
+            CharSequence subjectAndSnippet = getStyledSubjectSnippet(subject, snippet, !isUnread);
+            views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
+            views.setContentDescription(R.id.widget_subject, subject);
+
+            int messageFlags = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAGS);
+            boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+            views.setViewVisibility(R.id.widget_invite, hasInvite ? View.VISIBLE : View.GONE);
+
+            boolean hasAttachment = mCursor
+                    .getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_ATTACHMENT) != 0;
+            views.setViewVisibility(R.id.widget_attachment, hasAttachment ? View.VISIBLE
+                    : View.GONE);
+
+            if (mAccountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
+                views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+            } else {
+                long accountId = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_ACCOUNT_KEY);
+                int colorId = mResourceHelper.getAccountColorId(accountId);
+                if (colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
+                    // Color defined by resource ID, so, use it
+                    views.setViewVisibility(R.id.color_chip, View.VISIBLE);
+                    views.setImageViewResource(R.id.color_chip, colorId);
+                } else {
+                    // Color not defined by resource ID, nothing we can do, so,
+                    // hide the chip
+                    views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+                }
+            }
+
+            // Set button intents for view, reply, and delete
+            String messageId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_ID);
+            String mailboxId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_MAILBOX_KEY);
+            setFillInIntent(views, R.id.widget_message, COMMAND_URI_VIEW_MESSAGE, messageId,
+                    mailboxId);
+
+            return views;
         }
-
-        // Set button intents for view, reply, and delete
-        String messageId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_ID);
-        String mailboxId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_MAILBOX_KEY);
-        setFillInIntent(views, R.id.widget_message, COMMAND_URI_VIEW_MESSAGE,
-                messageId, mailboxId);
-
-        return views;
     }
 
     @Override
     public int getCount() {
-        if (!isCursorValid()) return 0;
-        return Math.min(mCursor.getCount(), MAX_MESSAGE_LIST_COUNT);
+        if (!isCursorValid())
+            return 0;
+        synchronized (sWidgetLock) {
+            return Math.min(mCursor.getCount(), MAX_MESSAGE_LIST_COUNT);
+        }
     }
 
     @Override
