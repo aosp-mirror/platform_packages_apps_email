@@ -119,7 +119,6 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
 
         // Process the queue; attachment 1 should be marked "in progress", and should be in
         // the in-progress map
-        mDownloadSet.createWatchdogPendingIntent(mContext);
         mDownloadSet.processQueue();
         DownloadRequest req = mDownloadSet.findDownloadRequest(att1.mId);
         assertNotNull(req);
@@ -183,10 +182,12 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             mUsableSpace = usable;
         }
 
+        @Override
         public long getTotalSpace() {
             return mTotalSpace;
         }
 
+        @Override
         public long getUsableSpace() {
             return mUsableSpace;
         }
@@ -195,6 +196,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             mMockFile.mLength = length;
         }
 
+        @Override
         public File[] listFiles() {
             return mFiles;
         }
@@ -211,6 +213,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
             super("_mock");
         }
 
+        @Override
         public long length() {
             return mLength;
         }
