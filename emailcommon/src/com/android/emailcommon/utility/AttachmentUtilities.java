@@ -239,16 +239,17 @@ public class AttachmentUtilities {
      * @return mime-type for a {@link Uri}.
      *    - Use {@link ContentResolver#getType} for a content: URI.
      *    - Use {@link #inferMimeType} for a file: URI.
-     *    - Otherwise throw {@link IllegalArgumentException}.
+     *    - Otherwise returns null.
      */
     public static String inferMimeTypeForUri(Context context, Uri uri) {
         final String scheme = uri.getScheme();
-        if ("content".equals(scheme)) {
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
             return context.getContentResolver().getType(uri);
-        } else if ("file".equals(scheme)) {
+        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
             return inferMimeType(uri.getLastPathSegment(), "");
         } else {
-            throw new IllegalArgumentException();
+            Log.e(Logging.LOG_TAG, "Unable to determine MIME type for uri=" + uri, new Error());
+            return null;
         }
     }
 
