@@ -193,18 +193,16 @@ public class Welcome extends Activity {
         UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
 
         // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
-        if (MailService.hasMismatchInPopImapAccounts(this)) {
-            EmailAsyncTask.runAsyncParallel(new Runnable() {
-                @Override
-                public void run() {
-                    // Reconciling can be heavy - so do it in the background.
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            @Override
+            public void run() {
+                // Reconciling can be heavy - so do it in the background.
+                if (MailService.hasMismatchInPopImapAccounts(Welcome.this)) {
                     MailService.reconcilePopImapAccountsSync(Welcome.this);
-                    resolveAccount();
                 }
-            });
-        } else {
-            resolveAccount();
-        }
+                resolveAccount();
+            }
+        });
 
         // Reset the "accounts changed" notification, now that we're here
         Email.setNotifyUiAccountsChanged(false);
