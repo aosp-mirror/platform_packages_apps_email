@@ -200,7 +200,11 @@ public class Welcome extends Activity {
                 if (MailService.hasMismatchInPopImapAccounts(Welcome.this)) {
                     MailService.reconcilePopImapAccountsSync(Welcome.this);
                 }
-                resolveAccount();
+                Welcome.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resolveAccount();
+                    }});
             }
         });
 
