@@ -1916,9 +1916,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             } else if (ACTION_FORWARD.equals(action)) {
                 return 2;
             }
-            throw new IllegalArgumentException("Invalid action type for spinner");
+            Log.w(Logging.LOG_TAG, "Invalid action type for spinner");
+            return -1;
         }
-
     }
 
     @Override
