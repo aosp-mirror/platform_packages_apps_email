@@ -57,10 +57,4 @@
         <item name="android:layout_toRightOf">@+id/main_content"</item>
         <item name="android:layout_alignParentRight">true</item>
     </style>
-
-    <style name="SendersStyle">
-        <item name="android:layout_marginLeft">8dip</item>
-        <item name="android:layout_marginTop">10sp</item>
-    </style>
-
 </resources>
