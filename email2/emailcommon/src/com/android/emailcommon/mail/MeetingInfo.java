@@ -26,4 +26,5 @@ public class MeetingInfo {
     public static final String MEETING_TITLE = "TITLE";
     public static final String MEETING_LOCATION = "LOC";
     public static final String MEETING_RESPONSE_REQUESTED = "RESPONSE";
+    public static final String MEETING_ALL_DAY = "ALLDAY";
 }
