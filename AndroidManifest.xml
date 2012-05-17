@@ -21,6 +21,9 @@
     android:versionName="4.1"
     >
 
+    <!-- This needs to be present when we are doing unbundled releases. -->
+    <uses-sdk android:targetSdkVersion="16" android:minSdkVersion="14" />
+
     <original-package
         android:name="com.android.email" />
 
