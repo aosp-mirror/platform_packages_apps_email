@@ -213,7 +213,7 @@ public class NotificationControllerTest extends AndroidTestCase {
         Mailbox b1 = ProviderTestUtils.setupMailbox("inbox", a1.mId, true, c, Mailbox.TYPE_INBOX);
         Message m1 = ProviderTestUtils.setupMessage("message", a1.mId, b1.mId, true, true, c);
 
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, 1);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, null, m1.mId, 1, 1);
 
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
         assertEquals(mMockClock.mTime, n.when);
@@ -223,7 +223,7 @@ public class NotificationControllerTest extends AndroidTestCase {
         // TODO Check content -- how?
 
         // Case 2: 1 account, 2 unseen message
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 2, 2);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, null, m1.mId, 2, 2);
 
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
         assertEquals(mMockClock.mTime, n.when);
@@ -247,7 +247,7 @@ public class NotificationControllerTest extends AndroidTestCase {
         m1.save(c);
 
         // This shouldn't crash.
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, 1);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, null, m1.mId, 1, 1);
 
         // Minimum test for the result
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
