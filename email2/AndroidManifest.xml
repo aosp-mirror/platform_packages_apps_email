@@ -37,6 +37,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
+    <!-- This needs to be present when we are doing unbundled releases. -->
+    <uses-sdk android:targetSdkVersion="16" android:minSdkVersion="14" />
+
     <!-- Grant permission to other apps to view attachments -->
     <permission
         android:name="com.android.email.permission.READ_ATTACHMENT"
