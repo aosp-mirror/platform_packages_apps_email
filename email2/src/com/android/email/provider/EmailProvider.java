@@ -1990,6 +1990,19 @@ outer:
                     " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
                     " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
             " END";
+
+    private static final String ACCOUNT_COLOR =
+            "@CASE (" + AccountColumns.ID + " - 1) % " + ACCOUNT_COLORS.length +
+                    " WHEN 0 THEN " + ACCOUNT_COLORS[0] +
+                    " WHEN 1 THEN " + ACCOUNT_COLORS[1] +
+                    " WHEN 2 THEN " + ACCOUNT_COLORS[2] +
+                    " WHEN 3 THEN " + ACCOUNT_COLORS[3] +
+                    " WHEN 4 THEN " + ACCOUNT_COLORS[4] +
+                    " WHEN 5 THEN " + ACCOUNT_COLORS[5] +
+                    " WHEN 6 THEN " + ACCOUNT_COLORS[6] +
+                    " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
+                    " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
+            " END";
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
@@ -2132,7 +2145,7 @@ outer:
                 ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
         .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
-        // TODO: Is this used?
+        // TODO: Is provider version used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
         .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
@@ -2142,7 +2155,6 @@ outer:
         .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
                 Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
         .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
-
         .build();
 
     /**
@@ -2544,6 +2556,7 @@ outer:
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriStringEmail2("compose", id));
         values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
+        values.put(UIProvider.AccountColumns.COLOR, ACCOUNT_COLOR);
 
         Preferences prefs = Preferences.getPreferences(getContext());
         values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
