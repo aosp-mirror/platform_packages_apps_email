@@ -25,6 +25,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -36,7 +37,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
@@ -406,7 +406,22 @@ public class NotificationController {
         if (TextUtils.isEmpty(email)) {
             return null;
         }
-        return ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
+        Bitmap photo = ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
+
+        if (photo != null) {
+            final Resources res = mContext.getResources();
+            final int idealIconHeight =
+                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+            final int idealIconWidth =
+                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+
+            if (photo.getHeight() < idealIconHeight) {
+                // We should scale this image to fit the intended size
+                photo = Bitmap.createScaledBitmap(
+                        photo, idealIconWidth, idealIconHeight, true);
+            }
+        }
+        return photo;
     }
 
     /**
@@ -459,8 +474,10 @@ public class NotificationController {
                 intent, largeIcon, number, enableAudio, false);
         if (isRunningJellybeanOrLater()) {
             // For a new-style notification
-            if (unseenMessageCount > 1) {
+            if (multipleUnseen) {
                 if (messageCursor != null) {
+                    final int maxNumDigestItems = mContext.getResources().getInteger(
+                            R.integer.max_num_notification_digest_items);
                     // The body of the notification is the account name, or the label name.
                     builder.setSubText(text);
 
@@ -468,6 +485,7 @@ public class NotificationController {
 
                     digest.setBigContentTitle(title);
 
+                    int numDigestItems = 0;
                     // We can assume that the current position of the cursor is on the
                     // newest message
                     do {
@@ -481,8 +499,9 @@ public class NotificationController {
                             final CharSequence digestLine =
                                     getSingleMessageInboxLine(mContext, digestMessage);
                             digest.addLine(digestLine);
+                            numDigestItems++;
                         }
-                    } while (messageCursor.moveToNext());
+                    } while (numDigestItems <= maxNumDigestItems && messageCursor.moveToNext());
 
                     // We want to clear the content text in this case. The content text would have
                     // been set in createBaseAccountNotificationBuilder, but since the same string
@@ -495,7 +514,7 @@ public class NotificationController {
 
                 // The notification subtext will be the subject of the conversation for inbox
                 // notifications, or will based on the the label name for user label notifications.
-                builder.setSubText(text);
+                builder.setSubText(account.mDisplayName);
 
                 final Notification.BigTextStyle bigText = new Notification.BigTextStyle(builder);
                 bigText.bigText(getSingleMessageBigText(mContext, message));
