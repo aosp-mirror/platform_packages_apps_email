@@ -584,6 +584,9 @@ public class NotificationController {
      * @return a {@link CharSequence} suitable for use in {@link Notification.ContentText}
      */
     private static CharSequence getSingleMessageLittleText(Context context, String subject) {
+        if (subject == null) {
+            return null;
+        }
         final TextAppearanceSpan notificationSubjectSpan = new TextAppearanceSpan(
                 context, R.style.NotificationPrimaryText);
 
