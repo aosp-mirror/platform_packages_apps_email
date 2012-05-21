@@ -43,6 +43,8 @@ import javax.net.ssl.KeyManager;
 public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
 
     private static final boolean LOG_ENABLED = false;
+    private static final int STANDARD_PORT = 80;
+    private static final int STANDARD_SSL_PORT = 443;
     /**
      * A {@link KeyManager} to track client certificate requests from servers.
      */
@@ -63,16 +65,15 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
 
         // Create a registry for our three schemes; http and https will use built-in factories
         SchemeRegistry registry = new SchemeRegistry();
-        if (!ssl) {
-            registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), port));
-        } else {
-            // Register https with the secure factory
-            registry.register(new Scheme("https",
-                    SSLUtils.getHttpSocketFactory(false, keyManager), port));
-            // Register the httpts scheme with our insecure factory
-            registry.register(new Scheme("httpts",
-                    SSLUtils.getHttpSocketFactory(true /*insecure*/, keyManager), port));
-        }
+        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(),
+                ssl ? STANDARD_PORT : port));
+        // Register https with the secure factory
+        registry.register(new Scheme("https",
+                SSLUtils.getHttpSocketFactory(false, keyManager), ssl ? port : STANDARD_SSL_PORT));
+        // Register the httpts scheme with our insecure factory
+        registry.register(new Scheme("httpts",
+                SSLUtils.getHttpSocketFactory(true /*insecure*/, keyManager),
+                ssl ? port : STANDARD_SSL_PORT));
 
         return new EmailClientConnectionManager(params, registry, keyManager);
     }
