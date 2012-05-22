@@ -1391,8 +1391,8 @@ public class MessageListFragment extends ListFragment
          * it may still just be loading.
          */
         private boolean isEmptyAndLoading(Cursor cursor) {
-            return (cursor.getCount() == 0)
-                        && mRefreshManager.isMessageListRefreshing(mMailbox.mId);
+            if (mMailbox == null || cursor.getCount() == 0) return false;
+            return mRefreshManager.isMessageListRefreshing(mMailbox.mId);
         }
 
         @Override
