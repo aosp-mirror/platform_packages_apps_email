@@ -1434,66 +1434,78 @@ public class EmailProvider extends ContentProvider {
      */
     private static int copyAccountTables(SQLiteDatabase fromDatabase, SQLiteDatabase toDatabase) {
         if (fromDatabase == null || toDatabase == null) return -1;
+
+        // Lock both databases; for the "from" database, we don't want anyone changing it from
+        // under us; for the "to" database, we want to make the operation atomic
         int copyCount = 0;
+        fromDatabase.beginTransaction();
         try {
-            // Lock both databases; for the "from" database, we don't want anyone changing it from
-            // under us; for the "to" database, we want to make the operation atomic
-            fromDatabase.beginTransaction();
             toDatabase.beginTransaction();
-            // Delete anything hanging around here
-            toDatabase.delete(Account.TABLE_NAME, null, null);
-            toDatabase.delete(HostAuth.TABLE_NAME, null, null);
-            // Get our account cursor
-            Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
-                    null, null, null, null, null);
-            boolean noErrors = true;
             try {
-                // Loop through accounts, copying them and associated host auth's
-                while (c.moveToNext()) {
-                    Account account = new Account();
-                    account.restore(c);
+                // Delete anything hanging around here
+                toDatabase.delete(Account.TABLE_NAME, null, null);
+                toDatabase.delete(HostAuth.TABLE_NAME, null, null);
 
-                    // Clear security sync key and sync key, as these were specific to the state of
-                    // the account, and we've reset that...
-                    // Clear policy key so that we can re-establish policies from the server
-                    // TODO This is pretty EAS specific, but there's a lot of that around
-                    account.mSecuritySyncKey = null;
-                    account.mSyncKey = null;
-                    account.mPolicyKey = 0;
+                // Get our account cursor
+                Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
+                        null, null, null, null, null);
+                if (c == null) return 0;
+                Log.d(TAG, "fromDatabase accounts: " + c.getCount());
+                try {
+                    // Loop through accounts, copying them and associated host auth's
+                    while (c.moveToNext()) {
+                        Account account = new Account();
+                        account.restore(c);
 
-                    // Copy host auth's and update foreign keys
-                    HostAuth hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeyRecv);
-                    // The account might have gone away, though very unlikely
-                    if (hostAuth == null) continue;
-                    account.mHostAuthKeyRecv = toDatabase.insert(HostAuth.TABLE_NAME, null,
-                            hostAuth.toContentValues());
-                    // EAS accounts have no send HostAuth
-                    if (account.mHostAuthKeySend > 0) {
-                        hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeySend);
-                        // Belt and suspenders; I can't imagine that this is possible, since we
-                        // checked the validity of the account above, and the database is now locked
+                        // Clear security sync key and sync key, as these were specific to the
+                        // state of the account, and we've reset that...
+                        // Clear policy key so that we can re-establish policies from the server
+                        // TODO This is pretty EAS specific, but there's a lot of that around
+                        account.mSecuritySyncKey = null;
+                        account.mSyncKey = null;
+                        account.mPolicyKey = 0;
+
+                        // Copy host auth's and update foreign keys
+                        HostAuth hostAuth = restoreHostAuth(fromDatabase,
+                                account.mHostAuthKeyRecv);
+
+                        // The account might have gone away, though very unlikely
                         if (hostAuth == null) continue;
-                        account.mHostAuthKeySend = toDatabase.insert(HostAuth.TABLE_NAME, null,
+                        account.mHostAuthKeyRecv = toDatabase.insert(HostAuth.TABLE_NAME, null,
                                 hostAuth.toContentValues());
+
+                        // EAS accounts have no send HostAuth
+                        if (account.mHostAuthKeySend > 0) {
+                            hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeySend);
+                            // Belt and suspenders; I can't imagine that this is possible,
+                            // since we checked the validity of the account above, and the
+                            // database is now locked
+                            if (hostAuth == null) continue;
+                            account.mHostAuthKeySend = toDatabase.insert(
+                                    HostAuth.TABLE_NAME, null, hostAuth.toContentValues());
+                        }
+
+                        // Now, create the account in the "to" database
+                        toDatabase.insert(Account.TABLE_NAME, null, account.toContentValues());
+                        copyCount++;
                     }
-                    // Now, create the account in the "to" database
-                    toDatabase.insert(Account.TABLE_NAME, null, account.toContentValues());
-                    copyCount++;
+                } finally {
+                    c.close();
                 }
-            } catch (SQLiteException e) {
-                noErrors = false;
-                copyCount = -1;
+
+                // Say it's ok to commit
+                toDatabase.setTransactionSuccessful();
             } finally {
-                fromDatabase.endTransaction();
-                if (noErrors) {
-                    // Say it's ok to commit
-                    toDatabase.setTransactionSuccessful();
-                }
+                // STOPSHIP: Remove logging here and in at endTransaction() below
+                Log.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
                 toDatabase.endTransaction();
-                c.close();
             }
-        } catch (SQLiteException e) {
+        } catch (SQLiteException ex) {
+            Log.w(TAG, "Exception while copying account tables", ex);
             copyCount = -1;
+        } finally {
+            Log.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
+            fromDatabase.endTransaction();
         }
         return copyCount;
     }
