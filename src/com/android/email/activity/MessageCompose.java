@@ -2214,7 +2214,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
         } else if (ACTION_FORWARD.equals(mAction)) {
-            clearAddressViews();
+            // If we had previously filled the recipients from a draft, don't erase them here!
+            if (!ACTION_EDIT_DRAFT.equals(getIntent().getAction())) {
+                clearAddressViews();
+            }
             mSubjectView.setText(!subject.toLowerCase().startsWith("fwd:")
                     ? "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
