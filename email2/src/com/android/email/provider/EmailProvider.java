@@ -16,6 +16,8 @@
 
 package com.android.email.provider;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -81,6 +83,9 @@ import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.utils.MatrixCursorWithExtra;
+import com.android.mail.utils.Utils;
+import com.android.mail.widget.BaseWidgetProvider;
+import com.android.mail.widget.WidgetProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -3555,6 +3560,7 @@ outer:
             notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER,
                     EmailProvider.combinedMailboxId(Mailbox.TYPE_INBOX));
         }
+        notifyWidgets(id);
     }
 
     private void notifyUI(Uri uri, String id) {
@@ -3816,5 +3822,67 @@ outer:
                 // Can't do anything about this
             }
         }
+    }
+
+    private int[] mSavedWidgetIds = new int[0];
+    private ArrayList<Long> mWidgetNotifyMailboxes = new ArrayList<Long>();
+    private AppWidgetManager mAppWidgetManager;
+    private ComponentName mEmailComponent;
+
+    private void notifyWidgets(long mailboxId) {
+        Context context = getContext();
+        // Lazily initialize these
+        if (mAppWidgetManager == null) {
+            mAppWidgetManager = AppWidgetManager.getInstance(context);
+            mEmailComponent = new ComponentName(context, WidgetProvider.PROVIDER_NAME);
+        }
+
+        // See if we have to populate our array of mailboxes used in widgets
+        int[] widgetIds = mAppWidgetManager.getAppWidgetIds(mEmailComponent);
+        if (!Arrays.equals(widgetIds, mSavedWidgetIds)) {
+            mSavedWidgetIds = widgetIds;
+            String[][] widgetInfos = BaseWidgetProvider.getWidgetInfo(context, widgetIds);
+            // widgetInfo now has pairs of account uri/folder uri
+            mWidgetNotifyMailboxes.clear();
+            for (String[] widgetInfo: widgetInfos) {
+                try {
+                    if (widgetInfo == null) continue;
+                    long id = Long.parseLong(Uri.parse(widgetInfo[1]).getLastPathSegment());
+                    if (!isCombinedMailbox(id)) {
+                        // For a regular mailbox, just add it to the list
+                        if (!mWidgetNotifyMailboxes.contains(id)) {
+                            mWidgetNotifyMailboxes.add(id);
+                        }
+                    } else {
+                        switch (getVirtualMailboxType(id)) {
+                            // We only handle the combined inbox in widgets
+                            case Mailbox.TYPE_INBOX:
+                                Cursor c = query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
+                                        MailboxColumns.TYPE + "=?",
+                                        new String[] {Integer.toString(Mailbox.TYPE_INBOX)}, null);
+                                try {
+                                    while (c.moveToNext()) {
+                                        mWidgetNotifyMailboxes.add(
+                                                c.getLong(Mailbox.ID_PROJECTION_COLUMN));
+                                    }
+                                } finally {
+                                    c.close();
+                                }
+                                break;
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // Move along
+                }
+            }
+        }
+
+        // If our mailbox needs to be notified, do so...
+        if (mWidgetNotifyMailboxes.contains(mailboxId)) {
+            Intent intent = new Intent(Utils.ACTION_NOTIFY_DATASET_CHANGED);
+            intent.putExtra(Utils.EXTRA_FOLDER_URI, uiUri("uifolder", mailboxId));
+            intent.setType(EMAIL_APP_MIME_TYPE);
+            context.sendBroadcast(intent);
+         }
     }
 }
