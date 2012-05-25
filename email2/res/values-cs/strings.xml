@@ -185,7 +185,7 @@
     <string name="attachment_info_policy" msgid="3560422300127587508">"Tuto přílohu nelze uložit ani otevřít kvůli zásadám zabezpečení účtu."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Tato příloha je příliš velká, aby ji bylo možné stáhnout pomocí mobilní sítě. Můžete ji stáhnout při příštím připojení k síti Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Nemáte nainstalovanou žádnou aplikaci, která by dokázala tuto přílohu otevřít. Zkuste příslušnou aplikaci stáhnout ze služby Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Tato příloha je aplikace. Chcete-li ji nainstalovat, zaškrtněte nejdříve v části Nastavení &gt; Aplikace možnost Neznámé zdroje."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Tato příloha je aplikace. Chcete-li ji nainstalovat, zaškrtněte nejdříve v sekci Nastavení &gt; Aplikace možnost Neznámé zdroje."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Aplikace nelze instalovat přímo z e-mailu. Nejdříve aplikaci uložte a poté ji nainstalujte pomocí aplikace Stahování."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Přílohu nelze stáhnout."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Při dekódování zprávy došlo k chybě."</string>
@@ -210,7 +210,7 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nepodařilo se přeposlat jednu nebo více příloh."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Příloha nebyla přeposlána"</string>
-    <string name="login_failed_ticker" msgid="2169365211566829350">"Přihlášení do účtu <xliff:g id="ACCOUNT_NAME">%s</xliff:g> se nezdařilo."</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"Přihlášení k účtu <xliff:g id="ACCOUNT_NAME">%s</xliff:g> se nezdařilo."</string>
     <string name="login_failed_title" msgid="7624349996212476176">"Přihlášení se nezdařilo."</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -290,7 +290,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Použít zabezpečené připojení (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Přijímat všechny certifikáty protokolu SSL"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Certifikát klienta"</string>
-    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Zvolit"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Vybrat"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Použít klientský certifikát"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Odebrat"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Žádný"</string>
