@@ -49,9 +49,4 @@ public class RecipientAdapter extends BaseRecipientAdapter {
     protected int getItemLayout() {
         return R.layout.chips_recipient_dropdown_item;
     }
-
-    @Override
-    protected int getWaitingForDirectorySearchLayout() {
-        return R.layout.chips_waiting_for_directory_search;
-    }
 }
