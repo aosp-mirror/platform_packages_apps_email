@@ -16,6 +16,7 @@
 
 package com.android.emailcommon.internet;
 
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64DataException;
 import android.util.Base64InputStream;
@@ -408,7 +409,8 @@ public class MimeUtility {
         String disposition = part.getDisposition();
         String dispositionType = MimeUtility.getHeaderParameter(disposition, null);
         // If a disposition is not specified, default to "inline"
-        boolean inline = dispositionType == null || "inline".equalsIgnoreCase(dispositionType);
+        boolean inline =
+                TextUtils.isEmpty(dispositionType) || "inline".equalsIgnoreCase(dispositionType);
         // The lower-case mime type
         String mimeType = part.getMimeType().toLowerCase();
 

@@ -499,7 +499,7 @@ public class NotificationController {
                                 EmailContent.MAILBOX_NOTIFICATION_URI, mailbox.mAccountKey),
                                 EmailContent.NOTIFICATION_PROJECTION, null, null, null);
 
-                if (messageCursor != null) {
+                if (messageCursor != null && messageCursor.getCount() > 0) {
                     try {
                         final int maxNumDigestItems = mContext.getResources().getInteger(
                                 R.integer.max_num_notification_digest_items);
