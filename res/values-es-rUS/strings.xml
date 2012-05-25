@@ -165,7 +165,7 @@
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Mostrar siempre"</string>
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Mostrar siempre las imágenes de este remitente"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Las imágenes de este remitente se mostrarán automáticamente."</string>
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Ver en Calendario"</string>
+    <string name="message_view_invite_view" msgid="5521032519960111675">"Ver en Calendar"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"Invitación de calendario"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"¿Vas?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Sí"</string>

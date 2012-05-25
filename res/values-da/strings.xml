@@ -154,7 +154,7 @@
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stop"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedhæftelse gemmes som <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Vedhæftning kunne ikke gemmes."</string>
-    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Bemærk: En eller flere vedhæftede filer i din videresendte besked downloades før afsendelse."</string>
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Bemærk! En eller flere vedhæftede filer i din videresendte besked downloades før afsendelse."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Besked"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Inviter"</string>
   <plurals name="message_view_show_attachments_action">
@@ -459,8 +459,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Indlæser..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Tryk for at konfigurere."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Du har ikke oprettet en e-mailkonto endnu."</string>
-    <!-- no translation found for widget_no_mailboxes (5222354534538852579) -->
-    <skip />
+    <string name="widget_no_mailboxes" msgid="5222354534538852579">"Denne konto er ikke synkroniseret. Prøv igen senere."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Søg i e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Søg i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
