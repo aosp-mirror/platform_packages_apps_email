@@ -2044,6 +2044,9 @@ outer:
             "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
                     + MessageColumns.MAILBOX_KEY)
     .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
+    .add(UIProvider.ConversationColumns.ACCOUNT_URI,
+            "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
+                    + MessageColumns.ACCOUNT_KEY)
     .build();
 
     /**
@@ -2499,6 +2502,11 @@ outer:
                         UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
                         UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
             }
+            if (isVirtualMailbox(mailboxId)) {
+                int capa = values.getAsInteger(UIProvider.FolderColumns.CAPABILITIES);
+                values.put(UIProvider.FolderColumns.CAPABILITIES,
+                        capa | UIProvider.FolderCapabilities.IS_VIRTUAL);
+            }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
@@ -2753,7 +2761,7 @@ outer:
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
         values[UIProvider.FOLDER_NAME_COLUMN] = getMailboxNameForType(mailboxType);
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
-        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = 0;
+        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
                 idString);
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
