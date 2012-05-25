@@ -2492,6 +2492,13 @@ outer:
                     values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 }
             }
+            // For trash, we don't allow undo
+            if (mailbox.mType == Mailbox.TYPE_TRASH) {
+                values.put(UIProvider.FolderColumns.CAPABILITIES,
+                        UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
+                        UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
+                        UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
+            }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
