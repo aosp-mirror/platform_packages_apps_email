@@ -199,7 +199,7 @@
     <item quantity="one" msgid="710742672464447084">"Zpráva byla smazána."</item>
     <item quantity="other" msgid="6574961322865652255">"Zprávy byly smazány."</item>
   </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"Zpráva byla zrušena."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Zpráva byla zahozena."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Zpráva byla uložena jako koncept."</string>
     <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Přílohu nelze zobrazit."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Přílohu <xliff:g id="FILENAME">%s</xliff:g> nelze načíst."</string>
