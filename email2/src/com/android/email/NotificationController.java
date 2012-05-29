@@ -499,8 +499,8 @@ public class NotificationController {
                                 EmailContent.MAILBOX_NOTIFICATION_URI, mailbox.mAccountKey),
                                 EmailContent.NOTIFICATION_PROJECTION, null, null, null);
 
-                if (messageCursor != null && messageCursor.getCount() > 0) {
-                    try {
+                try {
+                    if (messageCursor != null && messageCursor.getCount() > 0) {
                         final int maxNumDigestItems = mContext.getResources().getInteger(
                                 R.integer.max_num_notification_digest_items);
                         // The body of the notification is the account name, or the label name.
@@ -513,6 +513,7 @@ public class NotificationController {
                         int numDigestItems = 0;
                         // We can assume that the current position of the cursor is on the
                         // newest message
+                        messageCursor.moveToFirst();
                         do {
                             final long messageId =
                                     messageCursor.getLong(EmailContent.ID_PROJECTION_COLUMN);
@@ -533,7 +534,9 @@ public class NotificationController {
                         // same string was set in as the subtext, we don't want to show a
                         // duplicate string.
                         builder.setContentText(null);
-                    } finally {
+                    }
+                } finally {
+                    if (messageCursor != null) {
                         messageCursor.close();
                     }
                 }
