@@ -25,6 +25,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -36,6 +37,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 
 import com.android.email.activity.ContactStatusLoader;
@@ -57,6 +59,7 @@ import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Conversation;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.Utils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.HashMap;
@@ -152,8 +155,8 @@ public class NotificationController {
     }
 
     /**
-     * Returns a {@link Notification} for an event with the given account. The account contains
-     * specific rules on ring tone usage and these will be used to modify the notification
+     * Returns a {@link Notification.Builder}} for an event with the given account. The account
+     * contains specific rules on ring tone usage and these will be used to modify the notification
      * behaviour.
      *
      * @param accountId The id of the account this notification is being built for.
@@ -168,7 +171,7 @@ public class NotificationController {
      *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
-    private Notification createNotification(long accountId, String ticker,
+    private Notification.Builder createBaseAccountNotificationBuilder(long accountId, String ticker,
             CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
             Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
@@ -179,7 +182,7 @@ public class NotificationController {
         }
 
         // NOTE: the ticker is not shown for notifications in the Holo UX
-        Notification.Builder builder = new Notification.Builder(mContext)
+        final Notification.Builder builder = new Notification.Builder(mContext)
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setContentIntent(pending)
@@ -195,8 +198,7 @@ public class NotificationController {
             setupSoundAndVibration(builder, account);
         }
 
-        Notification notification = builder.getNotification();
-        return notification;
+        return builder;
     }
 
     /**
@@ -211,9 +213,10 @@ public class NotificationController {
      */
     private void showNotification(long accountId, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
-        Notification notification = createNotification(accountId, ticker, title,
-                contentText, intent, null, null, true, needsOngoingNotification(notificationId));
-        mNotificationManager.notify(notificationId, notification);
+        final Notification.Builder builder = createBaseAccountNotificationBuilder(accountId, ticker,
+                title, contentText, intent, null, null, true,
+                needsOngoingNotification(notificationId));
+        mNotificationManager.notify(notificationId, builder.getNotification());
     }
 
     /**
@@ -364,7 +367,22 @@ public class NotificationController {
         if (TextUtils.isEmpty(email)) {
             return null;
         }
-        return ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
+        Bitmap photo = ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
+
+        if (photo != null) {
+            final Resources res = mContext.getResources();
+            final int idealIconHeight =
+                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+            final int idealIconWidth =
+                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+
+            if (photo.getHeight() < idealIconHeight) {
+                // We should scale this image to fit the intended size
+                photo = Bitmap.createScaledBitmap(
+                        photo, idealIconWidth, idealIconHeight, true);
+            }
+        }
+        return photo;
     }
 
     public static final String EXTRA_ACCOUNT = "account";
@@ -428,7 +446,7 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     @VisibleForTesting
-    Notification createNewMessageNotification(long mailboxId, long messageId,
+    Notification createNewMessageNotification(long mailboxId, long newMessageId,
             int unseenMessageCount, int unreadCount) {
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         if (mailbox == null) {
@@ -439,7 +457,7 @@ public class NotificationController {
             return null;
         }
         // Get the latest message
-        final Message message = Message.restoreMessageWithId(mContext, messageId);
+        final Message message = Message.restoreMessageWithId(mContext, newMessageId);
         if (message == null) {
             return null; // no message found???
         }
@@ -462,24 +480,196 @@ public class NotificationController {
                 : message.mSubject;
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unreadCount > 1 ? unreadCount : null;
-        Intent intent = null;
-        // *** Need intent!
-//        if (unseenMessageCount > 1) {
-//            intent = createViewConversationIntent(message);
-//        } else {
-            intent = createViewConversationIntent(message);
-//        }
+        Intent intent = createViewConversationIntent(message);
         if (intent == null) {
             return null;
         }
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         long now = mClock.getTime();
         boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
-        Notification notification = createNotification(
+        final Notification.Builder builder = createBaseAccountNotificationBuilder(
                 mailbox.mAccountKey, title.toString(), title, text,
                 intent, largeIcon, number, enableAudio, false);
+        if (Utils.isRunningJellybeanOrLater()) {
+            // For a new-style notification
+            if (multipleUnseen) {
+                final Cursor messageCursor =
+                        mContext.getContentResolver().query(ContentUris.withAppendedId(
+                                EmailContent.MAILBOX_NOTIFICATION_URI, mailbox.mAccountKey),
+                                EmailContent.NOTIFICATION_PROJECTION, null, null, null);
+
+                try {
+                    if (messageCursor != null && messageCursor.getCount() > 0) {
+                        final int maxNumDigestItems = mContext.getResources().getInteger(
+                                R.integer.max_num_notification_digest_items);
+                        // The body of the notification is the account name, or the label name.
+                        builder.setSubText(text);
+
+                        Notification.InboxStyle digest = new Notification.InboxStyle(builder);
+
+                        digest.setBigContentTitle(title);
+
+                        int numDigestItems = 0;
+                        // We can assume that the current position of the cursor is on the
+                        // newest message
+                        messageCursor.moveToFirst();
+                        do {
+                            final long messageId =
+                                    messageCursor.getLong(EmailContent.ID_PROJECTION_COLUMN);
+
+                            // Get the latest message
+                            final Message digestMessage =
+                                    Message.restoreMessageWithId(mContext, messageId);
+                            if (digestMessage != null) {
+                                final CharSequence digestLine =
+                                        getSingleMessageInboxLine(mContext, digestMessage);
+                                digest.addLine(digestLine);
+                                numDigestItems++;
+                            }
+                        } while (numDigestItems <= maxNumDigestItems && messageCursor.moveToNext());
+
+                        // We want to clear the content text in this case. The content text would
+                        // have been set in createBaseAccountNotificationBuilder, but since the
+                        // same string was set in as the subtext, we don't want to show a
+                        // duplicate string.
+                        builder.setContentText(null);
+                    }
+                } finally {
+                    if (messageCursor != null) {
+                        messageCursor.close();
+                    }
+                }
+            } else {
+                // The notification content will be the subject of the conversation.
+                builder.setContentText(getSingleMessageLittleText(mContext, message.mSubject));
+
+                // The notification subtext will be the subject of the conversation for inbox
+                // notifications, or will based on the the label name for user label notifications.
+                builder.setSubText(account.mDisplayName);
+
+                final Notification.BigTextStyle bigText = new Notification.BigTextStyle(builder);
+                bigText.bigText(getSingleMessageBigText(mContext, message));
+            }
+        }
+
         mLastMessageNotifyTime = now;
-        return notification;
+        return builder.getNotification();
+    }
+
+    /**
+     * Sets the bigtext for a notification for a single new conversation
+     * @param context
+     * @param message New message that triggered the notification.
+     * @return a {@link CharSequence} suitable for use in {@link Notification.BigTextStyle}
+     */
+    private static CharSequence getSingleMessageInboxLine(Context context, Message message) {
+        final String subject = message.mSubject;
+        final String snippet = message.mSnippet;
+        final String senders = Address.toFriendly(Address.unpack(message.mFrom));
+
+        final String subjectSnippet = !TextUtils.isEmpty(subject) ? subject : snippet;
+
+        final TextAppearanceSpan notificationPrimarySpan =
+                new TextAppearanceSpan(context, R.style.NotificationPrimaryText);
+
+        if (TextUtils.isEmpty(senders)) {
+            // If the senders are empty, just use the subject/snippet.
+            return subjectSnippet;
+        }
+        else if (TextUtils.isEmpty(subjectSnippet)) {
+            // If the subject/snippet is empty, just use the senders.
+            final SpannableString spannableString = new SpannableString(senders);
+            spannableString.setSpan(notificationPrimarySpan, 0, senders.length(), 0);
+
+            return spannableString;
+        } else {
+            final String formatString = context.getResources().getString(
+                    R.string.multiple_new_message_notification_item);
+            final TextAppearanceSpan notificationSecondarySpan =
+                    new TextAppearanceSpan(context, R.style.NotificationSecondaryText);
+
+            final String instantiatedString = String.format(formatString, senders, subjectSnippet);
+
+            final SpannableString spannableString = new SpannableString(instantiatedString);
+
+            final boolean isOrderReversed = formatString.indexOf("%2$s") <
+                    formatString.indexOf("%1$s");
+            final int primaryOffset =
+                    (isOrderReversed ? instantiatedString.lastIndexOf(senders) :
+                     instantiatedString.indexOf(senders));
+            final int secondaryOffset =
+                    (isOrderReversed ? instantiatedString.lastIndexOf(subjectSnippet) :
+                     instantiatedString.indexOf(subjectSnippet));
+            spannableString.setSpan(notificationPrimarySpan,
+                    primaryOffset, primaryOffset + senders.length(), 0);
+            spannableString.setSpan(notificationSecondarySpan,
+                    secondaryOffset, secondaryOffset + subjectSnippet.length(), 0);
+            return spannableString;
+        }
+    }
+
+    /**
+     * Sets the bigtext for a notification for a single new conversation
+     * @param context
+     * @param subject Subject of the new message that triggered the notification
+     * @return a {@link CharSequence} suitable for use in {@link Notification.ContentText}
+     */
+    private static CharSequence getSingleMessageLittleText(Context context, String subject) {
+        if (subject == null) {
+            return null;
+        }
+        final TextAppearanceSpan notificationSubjectSpan = new TextAppearanceSpan(
+                context, R.style.NotificationPrimaryText);
+
+        final SpannableString spannableString = new SpannableString(subject);
+        spannableString.setSpan(notificationSubjectSpan, 0, subject.length(), 0);
+
+        return spannableString;
+    }
+
+
+    /**
+     * Sets the bigtext for a notification for a single new conversation
+     * @param context
+     * @param message New message that triggered the notification
+     * @return a {@link CharSequence} suitable for use in {@link Notification.BigTextStyle}
+     */
+    private static CharSequence getSingleMessageBigText(Context context, Message message) {
+        final TextAppearanceSpan notificationSubjectSpan = new TextAppearanceSpan(
+                context, R.style.NotificationPrimaryText);
+
+        final String subject = message.mSubject;
+        final String snippet = message.mSnippet;
+
+        if (TextUtils.isEmpty(subject)) {
+            // If the subject is empty, just use the snippet.
+            return snippet;
+        }
+        else if (TextUtils.isEmpty(snippet)) {
+            // If the snippet is empty, just use the subject.
+            final SpannableString spannableString = new SpannableString(subject);
+            spannableString.setSpan(notificationSubjectSpan, 0, subject.length(), 0);
+
+            return spannableString;
+        } else {
+            final String notificationBigTextFormat = context.getResources().getString(
+                    R.string.single_new_message_notification_big_text);
+
+            // Localizers may change the order of the parameters, look at how the format
+            // string is structured.
+            final boolean isSubjectFirst = notificationBigTextFormat.indexOf("%2$s") >
+                    notificationBigTextFormat.indexOf("%1$s");
+            final String bigText = String.format(notificationBigTextFormat, subject, snippet);
+            final SpannableString spannableString = new SpannableString(bigText);
+
+            final int subjectOffset =
+                    (isSubjectFirst ? bigText.indexOf(subject) : bigText.lastIndexOf(subject));
+            spannableString.setSpan(notificationSubjectSpan,
+                    subjectOffset, subjectOffset + subject.length(), 0);
+
+            return spannableString;
+        }
     }
 
     /**

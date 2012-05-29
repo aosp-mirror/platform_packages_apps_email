@@ -62,7 +62,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // Our idle time, waiting for notifications; this is something of a failsafe
     private static final int PROCESS_QUEUE_WAIT_TIME = 30 * ((int)DateUtils.MINUTE_IN_MILLIS);
     // How often our watchdog checks for callback timeouts
-    private static final int WATCHDOG_CHECK_INTERVAL = 15 * ((int)DateUtils.SECOND_IN_MILLIS);
+    private static final int WATCHDOG_CHECK_INTERVAL = 20 * ((int)DateUtils.SECOND_IN_MILLIS);
     // How long we'll wait for a callback before canceling a download and retrying
     private static final int CALLBACK_TIMEOUT = 30 * ((int)DateUtils.SECOND_IN_MILLIS);
     // Try to download an attachment in the background this many times before giving up
@@ -235,7 +235,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ class DownloadSet extends TreeSet<DownloadRequest> {
         private static final long serialVersionUID = 1L;
         private PendingIntent mWatchdogPendingIntent;
-        private AlarmManager mAlarmManager;
 
         /*package*/ DownloadSet(Comparator<? super DownloadRequest> comparator) {
             super(comparator);
@@ -407,20 +406,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return count;
         }
 
-        private void cancelWatchdogAlarm() {
-            if (mAlarmManager != null && mWatchdogPendingIntent != null) {
-                mAlarmManager.cancel(mWatchdogPendingIntent);
-            }
-        }
-
         /**
          * Watchdog for downloads; we use this in case we are hanging on a download, which might
          * have failed silently (the connection dropped, for example)
          */
         private void onWatchdogAlarm() {
-            // If our service instance is gone, just leave (but cancel alarm first!)
+            // If our service instance is gone, just leave
             if (mStop) {
-                cancelWatchdogAlarm();
                 return;
             }
             long now = System.currentTimeMillis();
@@ -434,13 +426,16 @@ public class AttachmentDownloadService extends Service implements Runnable {
                    cancelDownload(req);
                 }
             }
-            // If there are downloads in progress, reset alarm
-            if (mDownloadsInProgress.isEmpty()) {
-                cancelWatchdogAlarm();
-            }
             // Check whether we can start new downloads...
             if (mConnectivityManager != null && mConnectivityManager.hasConnectivity()) {
                 processQueue();
+            }
+            // If there are downloads in progress, reset alarm
+            if (!mDownloadsInProgress.isEmpty()) {
+                if (MailActivityEmail.DEBUG) {
+                    Log.d(TAG, "Reschedule watchdog...");
+                }
+                setWatchdogAlarm();
             }
         }
 
@@ -475,6 +470,19 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return mDownloadsInProgress.get(attachmentId);
         }
 
+        private void setWatchdogAlarm() {
+            // Lazily initialize the pending intent
+            if (mWatchdogPendingIntent == null) {
+                Intent intent = new Intent(mContext, Watchdog.class);
+                mWatchdogPendingIntent =
+                    PendingIntent.getBroadcast(mContext, 0, intent, 0);
+            }
+            // Set the alarm
+            AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL,
+                    mWatchdogPendingIntent);
+        }
+
         /**
          * Do the work of starting an attachment download using the EmailService interface, and
          * set our watchdog alarm
@@ -489,20 +497,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
             service.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
-            // Lazily initialize our (reusable) pending intent
-            if (mWatchdogPendingIntent == null) {
-                createWatchdogPendingIntent(mContext);
-            }
-            // Set the alarm
-            mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL, WATCHDOG_CHECK_INTERVAL,
-                    mWatchdogPendingIntent);
-        }
-
-        /*package*/ void createWatchdogPendingIntent(Context context) {
-            Intent alarmIntent = new Intent(context, Watchdog.class);
-            mWatchdogPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
-            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+            setWatchdogAlarm();
         }
 
         private void cancelDownload(DownloadRequest req) {

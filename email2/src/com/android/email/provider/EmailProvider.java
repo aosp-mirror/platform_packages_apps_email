@@ -16,6 +16,8 @@
 
 package com.android.email.provider;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -81,6 +83,9 @@ import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.utils.MatrixCursorWithExtra;
+import com.android.mail.utils.Utils;
+import com.android.mail.widget.BaseWidgetProvider;
+import com.android.mail.widget.WidgetProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -1434,66 +1439,78 @@ public class EmailProvider extends ContentProvider {
      */
     private static int copyAccountTables(SQLiteDatabase fromDatabase, SQLiteDatabase toDatabase) {
         if (fromDatabase == null || toDatabase == null) return -1;
+
+        // Lock both databases; for the "from" database, we don't want anyone changing it from
+        // under us; for the "to" database, we want to make the operation atomic
         int copyCount = 0;
+        fromDatabase.beginTransaction();
         try {
-            // Lock both databases; for the "from" database, we don't want anyone changing it from
-            // under us; for the "to" database, we want to make the operation atomic
-            fromDatabase.beginTransaction();
             toDatabase.beginTransaction();
-            // Delete anything hanging around here
-            toDatabase.delete(Account.TABLE_NAME, null, null);
-            toDatabase.delete(HostAuth.TABLE_NAME, null, null);
-            // Get our account cursor
-            Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
-                    null, null, null, null, null);
-            boolean noErrors = true;
             try {
-                // Loop through accounts, copying them and associated host auth's
-                while (c.moveToNext()) {
-                    Account account = new Account();
-                    account.restore(c);
+                // Delete anything hanging around here
+                toDatabase.delete(Account.TABLE_NAME, null, null);
+                toDatabase.delete(HostAuth.TABLE_NAME, null, null);
 
-                    // Clear security sync key and sync key, as these were specific to the state of
-                    // the account, and we've reset that...
-                    // Clear policy key so that we can re-establish policies from the server
-                    // TODO This is pretty EAS specific, but there's a lot of that around
-                    account.mSecuritySyncKey = null;
-                    account.mSyncKey = null;
-                    account.mPolicyKey = 0;
+                // Get our account cursor
+                Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
+                        null, null, null, null, null);
+                if (c == null) return 0;
+                Log.d(TAG, "fromDatabase accounts: " + c.getCount());
+                try {
+                    // Loop through accounts, copying them and associated host auth's
+                    while (c.moveToNext()) {
+                        Account account = new Account();
+                        account.restore(c);
 
-                    // Copy host auth's and update foreign keys
-                    HostAuth hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeyRecv);
-                    // The account might have gone away, though very unlikely
-                    if (hostAuth == null) continue;
-                    account.mHostAuthKeyRecv = toDatabase.insert(HostAuth.TABLE_NAME, null,
-                            hostAuth.toContentValues());
-                    // EAS accounts have no send HostAuth
-                    if (account.mHostAuthKeySend > 0) {
-                        hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeySend);
-                        // Belt and suspenders; I can't imagine that this is possible, since we
-                        // checked the validity of the account above, and the database is now locked
+                        // Clear security sync key and sync key, as these were specific to the
+                        // state of the account, and we've reset that...
+                        // Clear policy key so that we can re-establish policies from the server
+                        // TODO This is pretty EAS specific, but there's a lot of that around
+                        account.mSecuritySyncKey = null;
+                        account.mSyncKey = null;
+                        account.mPolicyKey = 0;
+
+                        // Copy host auth's and update foreign keys
+                        HostAuth hostAuth = restoreHostAuth(fromDatabase,
+                                account.mHostAuthKeyRecv);
+
+                        // The account might have gone away, though very unlikely
                         if (hostAuth == null) continue;
-                        account.mHostAuthKeySend = toDatabase.insert(HostAuth.TABLE_NAME, null,
+                        account.mHostAuthKeyRecv = toDatabase.insert(HostAuth.TABLE_NAME, null,
                                 hostAuth.toContentValues());
+
+                        // EAS accounts have no send HostAuth
+                        if (account.mHostAuthKeySend > 0) {
+                            hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeySend);
+                            // Belt and suspenders; I can't imagine that this is possible,
+                            // since we checked the validity of the account above, and the
+                            // database is now locked
+                            if (hostAuth == null) continue;
+                            account.mHostAuthKeySend = toDatabase.insert(
+                                    HostAuth.TABLE_NAME, null, hostAuth.toContentValues());
+                        }
+
+                        // Now, create the account in the "to" database
+                        toDatabase.insert(Account.TABLE_NAME, null, account.toContentValues());
+                        copyCount++;
                     }
-                    // Now, create the account in the "to" database
-                    toDatabase.insert(Account.TABLE_NAME, null, account.toContentValues());
-                    copyCount++;
+                } finally {
+                    c.close();
                 }
-            } catch (SQLiteException e) {
-                noErrors = false;
-                copyCount = -1;
+
+                // Say it's ok to commit
+                toDatabase.setTransactionSuccessful();
             } finally {
-                fromDatabase.endTransaction();
-                if (noErrors) {
-                    // Say it's ok to commit
-                    toDatabase.setTransactionSuccessful();
-                }
+                // STOPSHIP: Remove logging here and in at endTransaction() below
+                Log.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
                 toDatabase.endTransaction();
-                c.close();
             }
-        } catch (SQLiteException e) {
+        } catch (SQLiteException ex) {
+            Log.w(TAG, "Exception while copying account tables", ex);
             copyCount = -1;
+        } finally {
+            Log.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
+            fromDatabase.endTransaction();
         }
         return copyCount;
     }
@@ -1971,6 +1988,39 @@ outer:
                 " ELSE 0 END";
 
     /**
+     * Array of pre-defined account colors (legacy colors from old email app)
+     */
+    private static final int[] ACCOUNT_COLORS = new int[] {
+        0xff71aea7, 0xff621919, 0xff18462f, 0xffbf8e52, 0xff001f79,
+        0xffa8afc2, 0xff6b64c4, 0xff738359, 0xff9d50a4
+    };
+
+    private static final String CONVERSATION_COLOR =
+            "@CASE (" + MessageColumns.ACCOUNT_KEY + " - 1) % " + ACCOUNT_COLORS.length +
+                    " WHEN 0 THEN " + ACCOUNT_COLORS[0] +
+                    " WHEN 1 THEN " + ACCOUNT_COLORS[1] +
+                    " WHEN 2 THEN " + ACCOUNT_COLORS[2] +
+                    " WHEN 3 THEN " + ACCOUNT_COLORS[3] +
+                    " WHEN 4 THEN " + ACCOUNT_COLORS[4] +
+                    " WHEN 5 THEN " + ACCOUNT_COLORS[5] +
+                    " WHEN 6 THEN " + ACCOUNT_COLORS[6] +
+                    " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
+                    " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
+            " END";
+
+    private static final String ACCOUNT_COLOR =
+            "@CASE (" + AccountColumns.ID + " - 1) % " + ACCOUNT_COLORS.length +
+                    " WHEN 0 THEN " + ACCOUNT_COLORS[0] +
+                    " WHEN 1 THEN " + ACCOUNT_COLORS[1] +
+                    " WHEN 2 THEN " + ACCOUNT_COLORS[2] +
+                    " WHEN 3 THEN " + ACCOUNT_COLORS[3] +
+                    " WHEN 4 THEN " + ACCOUNT_COLORS[4] +
+                    " WHEN 5 THEN " + ACCOUNT_COLORS[5] +
+                    " WHEN 6 THEN " + ACCOUNT_COLORS[6] +
+                    " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
+                    " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
+            " END";
+    /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
      */
@@ -1994,8 +2044,10 @@ outer:
             "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
                     + MessageColumns.MAILBOX_KEY)
     .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
+    .add(UIProvider.ConversationColumns.ACCOUNT_URI,
+            "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
+                    + MessageColumns.ACCOUNT_KEY)
     .build();
-
 
     /**
      * Generate UIProvider draft type; note the test for "reply all" must come before "reply"
@@ -2113,7 +2165,7 @@ outer:
                 ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
         .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
         .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
-        // TODO: Is this used?
+        // TODO: Is provider version used?
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
         .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
@@ -2123,7 +2175,6 @@ outer:
         .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
                 Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
         .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
-
         .build();
 
     /**
@@ -2177,7 +2228,12 @@ outer:
             String val = null;
             // First look at values; this is an override of default behavior
             if (values.containsKey(column)) {
-                val = "'" + values.getAsString(column) + "' AS " + column;
+                String value = values.getAsString(column);
+                if (value.startsWith("@")) {
+                    val = value.substring(1) + " AS " + column;
+                } else {
+                    val = "'" + values.getAsString(column) + "' AS " + column;
+                }
             } else {
                 // Now, get the standard value for the column from our projection map
                 val = map.get(column);
@@ -2322,7 +2378,9 @@ outer:
      */
     private Cursor getVirtualMailboxMessagesCursor(SQLiteDatabase db, String[] uiProjection,
             long mailboxId) {
-        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        ContentValues values = new ContentValues();
+        values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
+        StringBuilder sb = genSelect(sMessageListMap, uiProjection, values);
         if (isCombinedMailbox(mailboxId)) {
             switch (getVirtualMailboxType(mailboxId)) {
                 case Mailbox.TYPE_INBOX:
@@ -2437,6 +2495,18 @@ outer:
                     values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 }
             }
+            // For trash, we don't allow undo
+            if (mailbox.mType == Mailbox.TYPE_TRASH) {
+                values.put(UIProvider.FolderColumns.CAPABILITIES,
+                        UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
+                        UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
+                        UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
+            }
+            if (isVirtualMailbox(mailboxId)) {
+                int capa = values.getAsInteger(UIProvider.FolderColumns.CAPABILITIES);
+                values.put(UIProvider.FolderColumns.CAPABILITIES,
+                        capa | UIProvider.FolderCapabilities.IS_VIRTUAL);
+            }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
@@ -2518,6 +2588,7 @@ outer:
         values.put(UIProvider.AccountColumns.COMPOSE_URI,
                 getExternalUriStringEmail2("compose", id));
         values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
+        values.put(UIProvider.AccountColumns.COLOR, ACCOUNT_COLOR);
 
         Preferences prefs = Preferences.getPreferences(getContext());
         values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
@@ -2690,7 +2761,7 @@ outer:
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
         values[UIProvider.FOLDER_NAME_COLUMN] = getMailboxNameForType(mailboxType);
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
-        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = 0;
+        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
                 idString);
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
@@ -3043,7 +3114,8 @@ outer:
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
-        msg.mQuotedTextStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        Integer quoteStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
         int flags = 0;
         int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
@@ -3062,7 +3134,7 @@ outer:
         }
         msg.mFlags = flags;
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
-        if (ref != null) {
+        if (ref != null && msg.mQuotedTextStartPos > 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
                 long sourceKey = Long.parseLong(refId);
@@ -3503,6 +3575,7 @@ outer:
             notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER,
                     EmailProvider.combinedMailboxId(Mailbox.TYPE_INBOX));
         }
+        notifyWidgets(id);
     }
 
     private void notifyUI(Uri uri, String id) {
@@ -3764,5 +3837,67 @@ outer:
                 // Can't do anything about this
             }
         }
+    }
+
+    private int[] mSavedWidgetIds = new int[0];
+    private ArrayList<Long> mWidgetNotifyMailboxes = new ArrayList<Long>();
+    private AppWidgetManager mAppWidgetManager;
+    private ComponentName mEmailComponent;
+
+    private void notifyWidgets(long mailboxId) {
+        Context context = getContext();
+        // Lazily initialize these
+        if (mAppWidgetManager == null) {
+            mAppWidgetManager = AppWidgetManager.getInstance(context);
+            mEmailComponent = new ComponentName(context, WidgetProvider.PROVIDER_NAME);
+        }
+
+        // See if we have to populate our array of mailboxes used in widgets
+        int[] widgetIds = mAppWidgetManager.getAppWidgetIds(mEmailComponent);
+        if (!Arrays.equals(widgetIds, mSavedWidgetIds)) {
+            mSavedWidgetIds = widgetIds;
+            String[][] widgetInfos = BaseWidgetProvider.getWidgetInfo(context, widgetIds);
+            // widgetInfo now has pairs of account uri/folder uri
+            mWidgetNotifyMailboxes.clear();
+            for (String[] widgetInfo: widgetInfos) {
+                try {
+                    if (widgetInfo == null) continue;
+                    long id = Long.parseLong(Uri.parse(widgetInfo[1]).getLastPathSegment());
+                    if (!isCombinedMailbox(id)) {
+                        // For a regular mailbox, just add it to the list
+                        if (!mWidgetNotifyMailboxes.contains(id)) {
+                            mWidgetNotifyMailboxes.add(id);
+                        }
+                    } else {
+                        switch (getVirtualMailboxType(id)) {
+                            // We only handle the combined inbox in widgets
+                            case Mailbox.TYPE_INBOX:
+                                Cursor c = query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
+                                        MailboxColumns.TYPE + "=?",
+                                        new String[] {Integer.toString(Mailbox.TYPE_INBOX)}, null);
+                                try {
+                                    while (c.moveToNext()) {
+                                        mWidgetNotifyMailboxes.add(
+                                                c.getLong(Mailbox.ID_PROJECTION_COLUMN));
+                                    }
+                                } finally {
+                                    c.close();
+                                }
+                                break;
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // Move along
+                }
+            }
+        }
+
+        // If our mailbox needs to be notified, do so...
+        if (mWidgetNotifyMailboxes.contains(mailboxId)) {
+            Intent intent = new Intent(Utils.ACTION_NOTIFY_DATASET_CHANGED);
+            intent.putExtra(Utils.EXTRA_FOLDER_URI, uiUri("uifolder", mailboxId));
+            intent.setType(EMAIL_APP_MIME_TYPE);
+            context.sendBroadcast(intent);
+         }
     }
 }

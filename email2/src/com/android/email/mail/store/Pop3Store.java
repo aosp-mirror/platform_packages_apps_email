@@ -160,8 +160,9 @@ public class Pop3Store extends Store {
 
     @Override
     public Folder[] updateFolders() {
-        Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
-        updateMailbox(mailbox, mAccount.mId, POP3_MAILBOX_NAME, '\0', true, Mailbox.TYPE_INBOX);
+        String inboxName = mContext.getString(R.string.mailbox_name_display_inbox);
+        Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, inboxName);
+        updateMailbox(mailbox, mAccount.mId, inboxName, '\0', true, Mailbox.TYPE_INBOX);
         // Force the parent key to be "no mailbox" for the mail POP3 mailbox
         mailbox.mParentKey = Mailbox.NO_MAILBOX;
         if (mailbox.isSaved()) {
@@ -178,7 +179,7 @@ public class Pop3Store extends Store {
             }
         }
 
-        return new Folder[] { getFolder(POP3_MAILBOX_NAME) };
+        return new Folder[] { getFolder(inboxName) };
     }
 
 

@@ -260,14 +260,17 @@ public abstract class EmailContent {
         // The plain text content itself
         public static final String TEXT_CONTENT = "textContent";
         // Replied-to or forwarded body (in html form)
+        @Deprecated
         public static final String HTML_REPLY = "htmlReply";
         // Replied-to or forwarded body (in text form)
+        @Deprecated
         public static final String TEXT_REPLY = "textReply";
         // A reference to a message's unique id used in reply/forward.
         // Protocol code can be expected to use this column in determining whether a message can be
         // deleted safely (i.e. isn't referenced by other messages)
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
         // The text to be placed between a reply/forward response and the original message
+        @Deprecated
         public static final String INTRO_TEXT = "introText";
         // The start of quoted text within our text content
         public static final String QUOTED_TEXT_START_POS = "quotedTextStartPos";
@@ -283,9 +286,12 @@ public abstract class EmailContent {
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
+        @Deprecated
         public static final int CONTENT_HTML_REPLY_COLUMN = 4;
+        @Deprecated
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
+        @Deprecated
         public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
 
@@ -301,12 +307,15 @@ public abstract class EmailContent {
         public static final String[] COMMON_PROJECTION_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_TEXT = new String[] {
             RECORD_ID, BodyColumns.TEXT_REPLY
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_REPLY
         };
+        @Deprecated
         public static final String[] COMMON_PROJECTION_INTRO = new String[] {
             RECORD_ID, BodyColumns.INTRO_TEXT
         };
@@ -321,7 +330,9 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
+        @Deprecated
         public String mHtmlReply;
+        @Deprecated
         public String mTextReply;
         public int mQuotedTextStartPos;
 
@@ -331,6 +342,7 @@ public abstract class EmailContent {
          * want to include quoted text.
          */
         public long mSourceKey;
+        @Deprecated
         public String mIntroText;
 
         public Body() {
@@ -445,14 +457,17 @@ public abstract class EmailContent {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
         }
 
+        @Deprecated
         public static String restoreReplyTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_TEXT);
         }
 
+        @Deprecated
         public static String restoreReplyHtmlWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_HTML);
         }
 
+        @Deprecated
         public static String restoreIntroTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
         }
@@ -963,17 +978,8 @@ public abstract class EmailContent {
             if (mHtml != null) {
                 cv.put(Body.HTML_CONTENT, mHtml);
             }
-            if (mTextReply != null) {
-                cv.put(Body.TEXT_REPLY, mTextReply);
-            }
-            if (mHtmlReply != null) {
-                cv.put(Body.HTML_REPLY, mHtmlReply);
-            }
             if (mSourceKey != 0) {
                 cv.put(Body.SOURCE_MESSAGE_KEY, mSourceKey);
-            }
-            if (mIntroText != null) {
-                cv.put(Body.INTRO_TEXT, mIntroText);
             }
             if (mQuotedTextStartPos != 0) {
                 cv.put(Body.QUOTED_TEXT_START_POS, mQuotedTextStartPos);
