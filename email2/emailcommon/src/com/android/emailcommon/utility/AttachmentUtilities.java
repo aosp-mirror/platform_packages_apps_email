@@ -32,6 +32,8 @@ import android.webkit.MimeTypeMap;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.mail.providers.UIProvider;
@@ -42,6 +44,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class AttachmentUtilities {
     public static final String AUTHORITY = "com.android.email.attachmentprovider";
@@ -361,8 +364,7 @@ public class AttachmentUtilities {
         }
     }
 
-    private static long copyFile(InputStream in, File file) throws IOException {
-        FileOutputStream out = new FileOutputStream(file);
+    private static long copyFile(InputStream in, OutputStream out) throws IOException {
         long size = IOUtils.copy(in, out);
         in.close();
         out.flush();
@@ -378,24 +380,20 @@ public class AttachmentUtilities {
         ContentValues cv = new ContentValues();
         long attachmentId = attachment.mId;
         long accountId = attachment.mAccountKey;
-        String contentUri;
+        String contentUri = null;
         long size;
         try {
+            ContentResolver resolver = context.getContentResolver();
             if (attachment.mUiDestination == UIProvider.AttachmentDestination.CACHE) {
-                File saveIn = getAttachmentDirectory(context, accountId);
-                if (!saveIn.exists()) {
-                    saveIn.mkdirs();
-                }
-                File file = getAttachmentFilename(context, accountId, attachmentId);
-                file.createNewFile();
-                size = copyFile(in, file);
-                contentUri = getAttachmentUri(accountId, attachmentId).toString();
+                Uri attUri = getAttachmentUri(accountId, attachmentId);
+                size = copyFile(in, resolver.openOutputStream(attUri));
+                contentUri = attUri.toString();
             } else if (Utility.isExternalStorageMounted()) {
                 File downloads = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 downloads.mkdirs();
                 File file = Utility.createUniqueFile(downloads, attachment.mFileName);
-                size = copyFile(in, file);
+                size = copyFile(in, new FileOutputStream(file));
                 String absolutePath = file.getAbsolutePath();
 
                 // Although the download manager can scan media files, scanning only happens
@@ -428,5 +426,20 @@ public class AttachmentUtilities {
         }
         context.getContentResolver().update(uri, cv, null, null);
 
+        // If this is an inline attachment, update the body
+        if (contentUri != null && attachment.mContentId != null) {
+            Body body = Body.restoreBodyWithMessageId(context, attachment.mMessageKey);
+            if (body != null && body.mHtmlContent != null) {
+                cv.clear();
+                String html = body.mHtmlContent;
+                String contentIdRe =
+                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
+                String srcContentUri = " src=\"" + contentUri + "\"";
+                html = html.replaceAll(contentIdRe, srcContentUri);
+                cv.put(BodyColumns.HTML_CONTENT, html);
+                context.getContentResolver().update(
+                        ContentUris.withAppendedId(Body.CONTENT_URI, body.mId), cv, null, null);
+            }
+        }
     }
 }
