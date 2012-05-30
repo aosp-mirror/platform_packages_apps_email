@@ -2333,6 +2333,9 @@ outer:
                 ArrayList<com.android.mail.providers.Attachment> uiAtts =
                         new ArrayList<com.android.mail.providers.Attachment>();
                 for (Attachment att : atts) {
+                    if (att.mContentId != null && att.mContentUri != null) {
+                        continue;
+                    }
                     com.android.mail.providers.Attachment uiAtt =
                             new com.android.mail.providers.Attachment();
                     uiAtt.name = att.mFileName;
