@@ -205,11 +205,4 @@
         <item>@color/combined_view_account_color_8</item>
         <item>@color/combined_view_account_color_9</item>
     </array>
-
-    <!-- Length of the subject text in the message list items in dips for the
-         various modes: wide, and narrow -->
-    <integer-array name="subject_lengths">
-        <item>50</item>
-        <item>25</item>
-    </integer-array>
 </resources>
