@@ -69,7 +69,6 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -978,7 +977,7 @@ public class MessageListFragment extends ListFragment
             return;
         }
 
-        final HashMap<Long, Boolean> setValues = Maps.newHashMap();
+        final HashMap<Long, Boolean> setValues = new HashMap<Long, Boolean>();
         boolean allWereSet = true;
 
         c.moveToPosition(-1);
@@ -1391,8 +1390,8 @@ public class MessageListFragment extends ListFragment
          * it may still just be loading.
          */
         private boolean isEmptyAndLoading(Cursor cursor) {
-            if (mMailbox == null || cursor.getCount() == 0) return false;
-            return mRefreshManager.isMessageListRefreshing(mMailbox.mId);
+            if (mMailbox == null) return false;
+            return cursor.getCount() == 0 && mRefreshManager.isMessageListRefreshing(mMailbox.mId);
         }
 
         @Override
