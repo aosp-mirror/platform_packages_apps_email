@@ -82,6 +82,9 @@ public abstract class EmailContent {
     public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
             Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
 
+    public static final Uri ACCOUNT_CHECK_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/accountCheck");
+
     public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
