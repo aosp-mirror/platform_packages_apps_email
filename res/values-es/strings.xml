@@ -280,7 +280,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Puerto"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de seguridad"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Acceso obligatorio"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Pedir iniciar sesión"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Configuración de cuenta"</string>
