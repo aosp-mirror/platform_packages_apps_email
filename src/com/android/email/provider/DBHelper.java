@@ -778,6 +778,13 @@ public final class DBHelper {
                 oldVersion = 20;
             }
             if (oldVersion == 20) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
+                }
                 oldVersion = 21;
             }
             if (oldVersion == 21) {
@@ -815,6 +822,15 @@ public final class DBHelper {
                 oldVersion = 27;
             }
             if (oldVersion == 27) {
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + Account.NOTIFIED_MESSAGE_ID + " integer;");
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 28 " + e);
+                }
                 oldVersion = 28;
             }
             if (oldVersion == 28) {
