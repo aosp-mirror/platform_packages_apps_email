@@ -47,9 +47,7 @@
     <dimen name="setup_padding_left">64dip</dimen>
     <dimen name="setup_padding_right">64dip</dimen>
 
-    <!-- Message list items -->            
-    <dimen name="replystate_margin_top">3sp</dimen>   
-    <dimen name="replystate_margin_right">16dip</dimen>  
-    <dimen name="checkmark_margin_top">4sp</dimen>      
-    <dimen name="star_margin_top">30sp</dimen>
+    <!-- Message list items -->
+    <dimen name="replystate_margin_top">3sp</dimen>
+    <dimen name="replystate_margin_right">16dip</dimen>
 </resources>

@@ -178,6 +178,7 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 3;
     private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 4;
     private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 5;
+    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 6;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -350,6 +351,7 @@ public class EmailProvider extends ContentProvider {
         // insert into this URI causes a mailbox to be added to the account
         matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
         matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
 
         // Special URI to reset the new message count.  Only update works, and content values
         // will be ignored.
@@ -1568,6 +1570,12 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    // select count(*) from (select count(*) as dupes from Mailbox where accountKey=?
+    // group by serverId) where dupes > 1;
+    private static final String ACCOUNT_INTEGRITY_SQL =
+            "select count(*) from (select count(*) as dupes from " + Mailbox.TABLE_NAME +
+            " where accountKey=? group by " + MailboxColumns.SERVER_ID + ") where dupes > 1";
+
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Handle this special case the fastest possible way
@@ -1620,6 +1628,23 @@ outer:
                     return uiSendDraft(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
+                case ACCOUNT_CHECK:
+                    id = uri.getLastPathSegment();
+                    // With any error, return 1 (a failure)
+                    int res = 1;
+                    Cursor ic = null;
+                    try {
+                        ic = db.rawQuery(ACCOUNT_INTEGRITY_SQL, new String[] {id});
+                        if (ic.moveToFirst()) {
+                            res = ic.getInt(0);
+                        }
+                    } finally {
+                        if (ic != null) {
+                            ic.close();
+                        }
+                    }
+                    // Count of duplicated mailboxes
+                    return res;
                 case MAILBOX_ID_ADD_TO_FIELD:
                 case ACCOUNT_ID_ADD_TO_FIELD:
                     id = uri.getPathSegments().get(1);
@@ -2333,6 +2358,9 @@ outer:
                 ArrayList<com.android.mail.providers.Attachment> uiAtts =
                         new ArrayList<com.android.mail.providers.Attachment>();
                 for (Attachment att : atts) {
+                    if (att.mContentId != null && att.mContentUri != null) {
+                        continue;
+                    }
                     com.android.mail.providers.Attachment uiAtt =
                             new com.android.mail.providers.Attachment();
                     uiAtt.name = att.mFileName;

@@ -352,25 +352,28 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 // We'll load up the newest 25 attachments that aren't loaded or queued
                 Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
                         MAX_ATTACHMENTS_TO_CHECK);
-                Cursor c = mContext.getContentResolver().query(lookupUri, AttachmentInfo.PROJECTION,
+                Cursor c = mContext.getContentResolver().query(lookupUri,
+                        Attachment.CONTENT_PROJECTION,
                         EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
                         null, Attachment.RECORD_ID + " DESC");
                 File cacheDir = mContext.getCacheDir();
                 try {
                     while (c.moveToNext()) {
-                        long accountKey = c.getLong(AttachmentInfo.COLUMN_ACCOUNT_KEY);
-                        long id = c.getLong(AttachmentInfo.COLUMN_ID);
-                        Account account = Account.restoreAccountWithId(mContext, accountKey);
+                        Attachment att = new Attachment();
+                        att.restore(c);
+                        Account account = Account.restoreAccountWithId(mContext, att.mAccountKey);
                         if (account == null) {
                             // Clean up this orphaned attachment; there's no point in keeping it
                             // around; then try to find another one
-                            EmailContent.delete(mContext, Attachment.CONTENT_URI, id);
-                        } else if (canPrefetchForAccount(account, cacheDir)) {
+                            EmailContent.delete(mContext, Attachment.CONTENT_URI, att.mId);
+                        } else {
                             // Check that the attachment meets system requirements for download
-                            AttachmentInfo info = new AttachmentInfo(mContext, c);
+                            AttachmentInfo info = new AttachmentInfo(mContext, att);
                             if (info.isEligibleForDownload()) {
-                                Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
-                                if (att != null) {
+                                // Either the account must be able to prefetch or this must be
+                                // an inline attachment
+                                if (att.mContentId != null ||
+                                        (canPrefetchForAccount(account, cacheDir))) {
                                     Integer tryCount;
                                     tryCount = mAttachmentFailureMap.get(att.mId);
                                     if (tryCount != null && tryCount > MAX_DOWNLOAD_RETRIES) {
