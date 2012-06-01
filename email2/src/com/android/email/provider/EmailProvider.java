@@ -988,6 +988,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
     private static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
+    private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -3393,6 +3395,12 @@ outer:
                     values.put(AttachmentColumns.FLAGS,
                             attachment.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
                     attachment.update(context, values);
+                    return 1;
+                case UIProvider.AttachmentState.SAVED:
+                    // If this is an inline attachment, notify message has changed
+                    if (!TextUtils.isEmpty(attachment.mContentId)) {
+                        notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, attachment.mMessageKey);
+                    }
                     return 1;
             }
         }
