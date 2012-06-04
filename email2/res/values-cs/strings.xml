@@ -21,7 +21,7 @@
     <string name="permission_access_provider_label" msgid="378256653525377586">"Přístup k datům poskytovatele e-mailu"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"Povoluje aplikaci přístup do databáze e-mailů, a to včetně přijatých a odeslaných zpráv, uživatelských jmen a hesel."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
-    <string name="compose_title" msgid="427986915662706899">"Napsat"</string>
+    <string name="compose_title" msgid="427986915662706899">"Nová zpráva"</string>
     <string name="debug_title" msgid="5175710493691536719">"Ladit"</string>
     <string name="next_action" msgid="3931301986364184415">"Další"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
@@ -46,7 +46,7 @@
     <string name="remove_star_action" msgid="6689770999647007163">"Odebrat hvězdičku"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Aktualizovat"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Přidat účet"</string>
-    <string name="compose_action" msgid="4045702519637388045">"Napsat"</string>
+    <string name="compose_action" msgid="4045702519637388045">"Nová zpráva"</string>
     <string name="search_action" msgid="6325101454876682308">"Hledat"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Nastavení účtu"</string>
     <string name="settings_action" msgid="6334807007967459412">"Nastavení"</string>
@@ -128,7 +128,7 @@
     <string name="cc" msgid="7017720927911078193">"Kopie"</string>
     <string name="bcc" msgid="3098643138241111579">"Skrytá kopie"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Předmět"</string>
-    <string name="body_hint" msgid="4279864165439577668">"Napsat e-mail"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Napsat zprávu"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Komu: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Zahrnout text v uvozovkách"</string>
@@ -240,7 +240,7 @@
     <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Účet služby Exchange ActiveSync můžete nakonfigurovat v několika snadných krocích."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailová adresa"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Heslo"</string>
-    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
+    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ruční nastavení"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Zadejte platnou e-mailovou adresu a heslo."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicitní účet"</string>
@@ -305,7 +305,7 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Každých 15 minut"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Každých 30 minut"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Každou hodinu"</string>
-    <string name="account_setup_options_default_label" msgid="2617227194283720914">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
+    <string name="account_setup_options_default_label" msgid="2617227194283720914">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
     <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Upozornit mě na příchod e-mailu"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Synchronizovat kontakty z tohoto účtu"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Synchronizovat kalendář z tohoto účtu"</string>
@@ -364,7 +364,7 @@
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Přihlášení se nezdařilo."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Uživatelské jméno nebo heslo k účtu <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávné. Chcete je aktualizovat?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
-    <string name="account_settings_default_summary" msgid="1531901438624688482">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stáhnout přílohy"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automaticky stahovat přílohy posledních zpráv pomocí sítě Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailová upozornění"</string>
