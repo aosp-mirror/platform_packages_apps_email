@@ -50,6 +50,6 @@ public class ExchangeStore extends ServiceStore {
 
     @Override
     protected IEmailService getService() {
-        return EmailServiceUtils.getExchangeService(mContext, null);
+        return EmailServiceUtils.getService(mContext, null, "eas");
     }
 }

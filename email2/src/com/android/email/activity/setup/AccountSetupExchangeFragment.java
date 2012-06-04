@@ -117,11 +117,14 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         // Calls validateFields() which enables or disables the Next button
         // based on the fields' validity.
         TextWatcher validationTextWatcher = new TextWatcher() {
+            @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
         // We're editing an existing account; don't allow modification of the user name
@@ -359,7 +362,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // For EAS, notify ExchangeService that the password has changed
         try {
-            EmailServiceUtils.getExchangeService(mContext, null).hostChanged(account.mId);
+            EmailServiceUtils.getService(mContext, null, "eas").hostChanged(account.mId);
         } catch (RemoteException e) {
             // Nothing to be done if this fails
         }

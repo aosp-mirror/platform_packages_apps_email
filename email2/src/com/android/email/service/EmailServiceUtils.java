@@ -16,66 +16,46 @@
 
 package com.android.email.service;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.XmlResourceParser;
 
+import com.android.email.R;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Utility functions for EmailService support.
  */
 public class EmailServiceUtils {
-    /**
-     * Starts an EmailService by name
-     */
-    public static void startService(Context context, String intentAction) {
-        context.startService(new Intent(intentAction));
-    }
+    private static final HashMap<String, EmailServiceInfo> sServiceMap =
+            new HashMap<String, EmailServiceInfo>();
 
     /**
-     * Returns an {@link IEmailService} for the service; otherwise returns an empty
-     * {@link IEmailService} implementation.
-     *
-     * @param context
-     * @param callback Object to get callback, or can be null
+     * Starts an EmailService by protocol
      */
-    public static EmailServiceProxy getService(Context context, String intentAction,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, intentAction, callback);
+    public static void startService(Context context, String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info != null && info.intentAction != null) {
+            context.startService(new Intent(info.intentAction));
+        }
     }
 
     /**
      * Determine if the EmailService is available
      */
-    public static boolean isServiceAvailable(Context context, String intentAction) {
-        return new EmailServiceProxy(context, intentAction, null).test();
-    }
-
-    public static void startExchangeService(Context context) {
-        startService(context, EmailServiceProxy.EXCHANGE_INTENT);
-    }
-
-    public static EmailServiceProxy getExchangeService(Context context,
-            IEmailServiceCallback callback) {
-        return getService(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
-    }
-
-    public static EmailServiceProxy getImapService(Context context,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, ImapService.class, callback);
-    }
-
-    public static EmailServiceProxy getPop3Service(Context context,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, Pop3Service.class, callback);
-    }
-
-    public static boolean isExchangeAvailable(Context context) {
-        return isServiceAvailable(context, EmailServiceProxy.EXCHANGE_INTENT);
+    public static boolean isServiceAvailable(Context context, String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info == null) return false;
+        if (info.klass != null) return true;
+        return new EmailServiceProxy(context, info.intentAction, null).test();
     }
 
     /**
@@ -86,15 +66,86 @@ public class EmailServiceUtils {
      */
     public static EmailServiceProxy getServiceForAccount(Context context,
             IEmailServiceCallback callback, long accountId) {
-        String protocol = Account.getProtocol(context, accountId);
-        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-            return getImapService(context, callback);
-        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
-            return getPop3Service(context, callback);
-        } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
-        return getExchangeService(context, callback);
+        return getService(context, callback, Account.getProtocol(context, accountId));
+    }
+
+    /**
+     * Holder of service information (currently just name and class/intent); if there is a class
+     * member, this is a (local, i.e. same process) service; otherwise, this is a remote service
+     */
+    static class EmailServiceInfo {
+        String name;
+        Class<? extends Service> klass;
+        String intentAction;
+    }
+
+    public static EmailServiceProxy getService(Context context, IEmailServiceCallback callback,
+            String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info.klass != null) {
+            return new EmailServiceProxy(context, info.klass, callback);
         } else {
-            return null;
+            return new EmailServiceProxy(context, info.intentAction, callback);
         }
     }
+
+    private static EmailServiceInfo getServiceInfo(Context context, String protocol) {
+        if (sServiceMap.isEmpty()) {
+            findServices(context);
+        }
+        return sServiceMap.get(protocol);
+    }
+
+    /**
+     * Parse services.xml file to find our available email services
+     */
+    @SuppressWarnings("unchecked")
+    private static void findServices(Context context) {
+        try {
+            XmlResourceParser xml = context.getResources().getXml(R.xml.services);
+            int xmlEventType;
+            // walk through senders.xml file.
+            while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+                if (xmlEventType == XmlResourceParser.START_TAG &&
+                        "service".equals(xml.getName())) {
+                    EmailServiceInfo info = new EmailServiceInfo();
+                    String protocol = xml.getAttributeValue(null, "protocol");
+                    if (protocol == null) {
+                        throw new IllegalStateException(
+                                "No protocol specified in service descriptor");
+                    }
+                    info.name = xml.getAttributeValue(null, "name");
+                    if (info.name == null) {
+                        throw new IllegalStateException(
+                                "No name specified in service descriptor");
+                    }
+                    String klass = xml.getAttributeValue(null, "class");
+                    if (klass != null) {
+                        try {
+                            info.klass = (Class<? extends Service>) Class.forName(klass);
+                        } catch (ClassNotFoundException e) {
+                            throw new IllegalStateException(
+                                    "Class not found in service descriptor: " + klass);
+                        }
+                    }
+                    info.intentAction = xml.getAttributeValue(null, "intent");
+
+                    if (info.klass == null && info.intentAction == null) {
+                        throw new IllegalStateException(
+                                "No class or intent action specified in service descriptor");
+                    }
+                    if (info.klass != null && info.intentAction != null) {
+                        throw new IllegalStateException(
+                                "Both class and intent action specified in service descriptor");
+                    }
+                    sServiceMap.put(protocol, info);
+                }
+            }
+        } catch (XmlPullParserException e) {
+            // ignore
+        } catch (IOException e) {
+            // ignore
+        }
+    }
+
 }

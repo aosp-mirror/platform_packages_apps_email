@@ -67,7 +67,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line
         // instead of the line that follows it
         //if (ExchangeUtils.isExchangeAvailable(this) && flowMode != SetupData.FLOW_MODE_POP_IMAP) {
-        if (EmailServiceUtils.isExchangeAvailable(this)) {
+        if (EmailServiceUtils.isServiceAvailable(this, "eas")) {
             exchangeButton.setOnClickListener(this);
             exchangeButton.setVisibility(View.VISIBLE);
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {

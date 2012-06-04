@@ -104,7 +104,7 @@ public class AccountService extends Service {
                     @Override
                     public void run() {
                         // Make sure the service is properly running (re: lifecycle)
-                        EmailServiceUtils.startExchangeService(mContext);
+                        EmailServiceUtils.startService(mContext, "eas");
                         // Send current logging flags
                         MailActivityEmail.updateLoggingFlags(mContext);
                     }});
