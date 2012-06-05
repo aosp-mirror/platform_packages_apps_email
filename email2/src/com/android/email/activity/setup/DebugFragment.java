@@ -72,7 +72,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
 
-        boolean exchangeAvailable = EmailServiceUtils.isExchangeAvailable(context);
+        boolean exchangeAvailable = EmailServiceUtils.isServiceAvailable(context, "eas");
         if (exchangeAvailable) {
             mEnableExchangeLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_VERBOSE);
             mEnableExchangeFileLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_FILE);

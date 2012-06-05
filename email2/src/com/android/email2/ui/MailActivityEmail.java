@@ -193,7 +193,7 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         int enableStrictMode =
             prefs.getEnableStrictMode() ? EmailServiceProxy.DEBUG_ENABLE_STRICT_MODE : 0;
         int debugBits = debugLogging | verboseLogging | fileLogging | enableStrictMode;
-        EmailServiceProxy service = EmailServiceUtils.getExchangeService(context, null);
+        EmailServiceProxy service = EmailServiceUtils.getService(context, null, "eas");
         if (service != null) {
             try {
                 service.setLogging(debugBits);
