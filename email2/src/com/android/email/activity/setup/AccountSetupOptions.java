@@ -373,7 +373,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 AccountSettingsUtils.commitSettings(context, account);
                 // Start up services based on new account(s)
                 MailActivityEmail.setServicesEnabledSync(context);
-                EmailServiceUtils.startExchangeService(context);
+                EmailServiceUtils.startService(context, "eas");
                 // Move to final setup screen
                 AccountSetupNames.actionSetNames(context);
                 finish();
