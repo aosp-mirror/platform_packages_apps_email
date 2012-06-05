@@ -2374,6 +2374,12 @@ outer:
                 values.put(UIProvider.MessageColumns.ATTACHMENTS,
                         com.android.mail.providers.Attachment.toJSONArray(uiAtts));
             }
+            if (msg.mDraftInfo != 0) {
+                values.put(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
+                        (msg.mDraftInfo & Message.DRAFT_INFO_APPEND_REF_MESSAGE) != 0 ? 1 : 0);
+                values.put(UIProvider.MessageColumns.QUOTE_START_POS,
+                        msg.mDraftInfo & Message.DRAFT_INFO_QUOTE_POS_MASK);
+            }
         }
         if ((msg.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0) {
             values.put(UIProvider.MessageColumns.EVENT_INTENT_URI,
@@ -3163,6 +3169,11 @@ outer:
                 break;
         }
         msg.mFlags = flags;
+        int draftInfo = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        if (values.getAsInteger(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT) != 0) {
+            draftInfo |= Message.DRAFT_INFO_APPEND_REF_MESSAGE;
+        }
+        msg.mDraftInfo = draftInfo;
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
         if (ref != null && msg.mQuotedTextStartPos > 0) {
             String refId = Uri.parse(ref).getLastPathSegment();

@@ -157,7 +157,7 @@ public final class DBHelper {
             + MessageColumns.FLAG_FAVORITE + " integer, "
             + MessageColumns.FLAG_ATTACHMENT + " integer, "
             + MessageColumns.FLAGS + " integer, "
-            + MessageColumns.CLIENT_ID + " integer, "
+            + MessageColumns.DRAFT_INFO + " integer, "
             + MessageColumns.MESSAGE_ID + " text, "
             + MessageColumns.MAILBOX_KEY + " integer, "
             + MessageColumns.ACCOUNT_KEY + " integer, "
