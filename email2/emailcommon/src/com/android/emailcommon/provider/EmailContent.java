@@ -515,8 +515,8 @@ public abstract class EmailContent {
         public static final String FLAGS = "flags";
 
         // Sync related identifiers
-        // Any client-required identifier
-        public static final String CLIENT_ID = "clientId";
+        // Saved draft info (reusing the never-used "clientId" column)
+        public static final String DRAFT_INFO = "clientId";
         // The message-id in the message's header
         public static final String MESSAGE_ID = "messageId";
 
@@ -575,7 +575,7 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
         public static final int CONTENT_SERVER_ID_COLUMN = 9;
-        public static final int CONTENT_CLIENT_ID_COLUMN = 10;
+        public static final int CONTENT_DRAFT_INFO_COLUMN = 10;
         public static final int CONTENT_MESSAGE_ID_COLUMN = 11;
         public static final int CONTENT_MAILBOX_KEY_COLUMN = 12;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 13;
@@ -596,7 +596,7 @@ public abstract class EmailContent {
             MessageColumns.SUBJECT, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
-            SyncColumns.SERVER_ID, MessageColumns.CLIENT_ID,
+            SyncColumns.SERVER_ID, MessageColumns.DRAFT_INFO,
             MessageColumns.MESSAGE_ID, MessageColumns.MAILBOX_KEY,
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
@@ -719,7 +719,7 @@ public abstract class EmailContent {
 
         public String mServerId;
         public long mServerTimeStamp;
-        public String mClientId;
+        public int mDraftInfo;
         public String mMessageId;
 
         public long mMailboxKey;
@@ -808,6 +808,10 @@ public abstract class EmailContent {
         // compatibility
         public static final int FLAG_TYPE_REPLY_ALL = 1 << 21;
 
+        // Flag used in draftInfo to indicate that the reference message should be appended
+        public static final int DRAFT_INFO_APPEND_REF_MESSAGE = 1 << 24;
+        public static final int DRAFT_INFO_QUOTE_POS_MASK = 0xFFFFFF;
+
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
 
@@ -831,7 +835,7 @@ public abstract class EmailContent {
 
             values.put(SyncColumns.SERVER_ID, mServerId);
             values.put(SyncColumns.SERVER_TIMESTAMP, mServerTimeStamp);
-            values.put(MessageColumns.CLIENT_ID, mClientId);
+            values.put(MessageColumns.DRAFT_INFO, mDraftInfo);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
@@ -872,7 +876,7 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mServerTimeStamp = cursor.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
-            mClientId = cursor.getString(CONTENT_CLIENT_ID_COLUMN);
+            mDraftInfo = cursor.getInt(CONTENT_DRAFT_INFO_COLUMN);
             mMessageId = cursor.getString(CONTENT_MESSAGE_ID_COLUMN);
             mMailboxKey = cursor.getLong(CONTENT_MAILBOX_KEY_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
