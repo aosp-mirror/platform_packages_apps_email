@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Открывать прикрепленные файлы"</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Просмотр пересылаемых файлов"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Приложение получит доступ к прикрепленным файлам в сообщениях эл. почты."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным сервиса эл. почты"</string>
     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, которая включает полученные и отправленные письма, имена пользователей и пароли."</string>
