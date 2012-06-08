@@ -44,7 +44,6 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 
@@ -77,13 +76,6 @@ public class AccountSettings extends PreferenceActivity {
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
     private static final String EXTRA_TITLE = "AccountSettings.title";
 
-    // Intent extras for launch directly from system account manager
-    // NOTE: This string must match the one in res/xml/account_preferences.xml
-    private static final String ACTION_ACCOUNT_MANAGER_ENTRY =
-        "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
-    // NOTE: This constant should eventually be defined in android.accounts.Constants
-    private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
-
     // Key for arguments bundle for QuickResponse editing
     private static final String QUICK_RESPONSE_ACCOUNT_KEY = "account";
 
@@ -93,10 +85,6 @@ public class AccountSettings extends PreferenceActivity {
             KeyEvent.KEYCODE_G
             };
     private int mSecretKeyCodeIndex = 0;
-
-    // Support for account-by-name lookup
-    private static final String SELECTION_ACCOUNT_EMAIL_ADDRESS =
-        AccountColumns.EMAIL_ADDRESS + "=?";
 
     // When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
     private int mNumGeneralHeaderClicked = 0;
@@ -112,7 +100,6 @@ public class AccountSettings extends PreferenceActivity {
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
-    private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
     private ContentObserver mAccountObserver;
 
     // Specific callbacks used by settings fragments
@@ -161,23 +148,14 @@ public class AccountSettings extends PreferenceActivity {
 
         Intent i = getIntent();
         if (savedInstanceState == null) {
-            // If we are not restarting from a previous instance, we need to
-            // figure out the initial prefs to show.  (Otherwise, we want to
-            // continue showing whatever the user last selected.)
-            if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
-                // This case occurs if we're changing account settings from Settings -> Accounts
-                mGetAccountIdFromAccountTask =
-                        (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
-                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
-            } else {
-                // Otherwise, we're called from within the Email app and look for our extras
-                mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
-                String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
-                if (loginWarningAccount != null) {
-                    // Show dialog (first time only - don't re-show on a rotation)
-                    LoginWarningDialog dialog = LoginWarningDialog.newInstance(loginWarningAccount);
-                    dialog.show(getFragmentManager(), "loginwarning");
-                }
+            // This will be -1 if not included in the intent, which is safe as onBuildHeaders
+            // will never find an account with that id
+            mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
+            String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
+            if (loginWarningAccount != null) {
+                // Show dialog (first time only - don't re-show on a rotation)
+                LoginWarningDialog dialog = LoginWarningDialog.newInstance(loginWarningAccount);
+                dialog.show(getFragmentManager(), "loginwarning");
             }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
@@ -216,8 +194,6 @@ public class AccountSettings extends PreferenceActivity {
         super.onDestroy();
         Utility.cancelTaskInterrupt(mLoadAccountListTask);
         mLoadAccountListTask = null;
-        Utility.cancelTaskInterrupt(mGetAccountIdFromAccountTask);
-        mGetAccountIdFromAccountTask = null;
     }
 
     /**
@@ -732,32 +708,6 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     /**
-     * This AsyncTask looks up an account based on its email address (which is what we get from
-     * the Account Manager).  When the account id is determined, we refresh the header list,
-     * which will select the preferences for that account.
-     */
-    private class GetAccountIdFromAccountTask extends AsyncTask<Intent, Void, Long> {
-
-        @Override
-        protected Long doInBackground(Intent... params) {
-            Intent intent = params[0];
-            android.accounts.Account acct =
-                (android.accounts.Account) intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
-            return Utility.getFirstRowLong(AccountSettings.this, Account.CONTENT_URI,
-                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS,
-                    new String[] {acct.name}, null, Account.ID_PROJECTION_COLUMN, -1L);
-        }
-
-        @Override
-        protected void onPostExecute(Long accountId) {
-            if (accountId != -1 && !isCancelled()) {
-                mRequestedAccountId = accountId;
-                invalidateHeaders();
-            }
-        }
-    }
-
-    /**
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
     /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
@@ -809,6 +759,7 @@ public class AccountSettings extends PreferenceActivity {
                 .setPositiveButton(
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (isBack) {
                                     activity.forceBack();
