@@ -137,11 +137,6 @@ public class Email extends Application {
             MailService.actionReschedule(context);
         }
         pm.setComponentEnabledSetting(
-                new ComponentName(context, MessageCompose.class),
-                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
-        pm.setComponentEnabledSetting(
                 new ComponentName(context, ShortcutPicker.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
