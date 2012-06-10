@@ -22,9 +22,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -146,15 +143,6 @@ public abstract class AccountServerBaseFragment extends Fragment
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        MenuItem item = menu.findItem(R.id.add_new_account);
-        //***
-        //if (item != null && !UiUtilities.useTwoPane(getActivity())) {
-        //    item.setVisible(false);
-        //}
     }
 
     /**
@@ -421,6 +409,11 @@ public abstract class AccountServerBaseFragment extends Fragment
         boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
         return sendChanged || recvChanged;
+    }
+
+    public boolean setHostAuthFromAutodiscover(HostAuth hostAuth) {
+        // This is overridden, if necessary
+        return true;
     }
 
     /**

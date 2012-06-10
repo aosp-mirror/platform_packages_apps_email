@@ -635,9 +635,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_password_label">Password</string>
     <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_pop_server_label">POP3 server</string>
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_imap_server_label">IMAP server</string>
+    <string name="account_setup_incoming_server_label">Server</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_port_label">Port</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->

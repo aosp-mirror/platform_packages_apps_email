@@ -14,8 +14,42 @@
      limitations under the License.
 -->
 
-<services>
-    <service protocol="pop3" name="POP3" class="com.android.email.service.ImapService" />
-    <service protocol="imap" name="IMAP" class="com.android.email.service.Pop3Service" />
-    <service protocol="eas" name="Exchange" intent="com.android.email.EXCHANGE_INTENT" />
-</services>
+<emailservices xmlns:email="http://schemas.android.com/apk/res/com.android.email">
+    <emailservice
+        email:protocol="pop3"
+        email:name="POP3"
+        email:accountType="com.android.email"
+        email:serviceClass="com.android.email.service.ImapService"
+        email:port="110"
+        email:portSsl="995"
+        email:usesSmtp="true"
+        email:syncIntervalStrings="@array/account_settings_check_frequency_entries"
+        email:syncIntervals="@array/account_settings_check_frequency_values" />
+    <emailservice
+        email:protocol="imap"
+        email:name="IMAP"
+        email:accountType="com.android.email"
+        email:serviceClass="com.android.email.service.Pop3Service"
+        email:attachmentPreload="true"
+        email:port="143"
+        email:portSsl="995"
+        email:usesSmtp="true"
+        email:syncIntervalStrings="@array/account_settings_check_frequency_entries"
+        email:syncIntervals="@array/account_settings_check_frequency_values" />
+    <emailservice
+        email:protocol="eas"
+        email:name="Exchange"
+        email:accountType="com.android.exchange"
+        email:intent="com.android.email.EXCHANGE_INTENT"
+        email:port="80"
+        email:portSsl="443"
+        email:preferSsl="true"
+        email:syncIntervalStrings="@array/account_settings_check_frequency_entries_push"
+        email:syncIntervals="@array/account_settings_check_frequency_values_push"
+        email:autodiscover="true"
+        email:attachmentPreload="true"
+        email:push="true"
+        email:lookback="true"
+        email:contacts="true"
+        email:calendar="true" />
+</emailservices>

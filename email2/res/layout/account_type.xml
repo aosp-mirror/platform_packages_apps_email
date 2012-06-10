@@ -16,20 +16,12 @@
 
 <!-- small -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/accountTypes"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/setup_fragment_padding_top"
-    android:paddingLeft="@dimen/setup_fragment_padding_left"
-    android:paddingRight="@dimen/setup_fragment_padding_right"
-    >
-    <TextView
-        android:text="@string/account_setup_account_type_instructions"
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/button"
+        android:text="@string/account_setup_options_mail_window_auto"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-          />
-</LinearLayout>
+        android:layout_width="150sp"
+        android:layout_marginTop="25dip"
+        android:minWidth="@dimen/button_minWidth"
+        android:layout_gravity="center_horizontal"
+        />

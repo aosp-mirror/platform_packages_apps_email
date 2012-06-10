@@ -21,4 +21,23 @@
         <attr name="maxWidth" format="dimension"/>
         <attr name="maxHeight" format="dimension"/>
     </declare-styleable>
+    <declare-styleable name="EmailServiceInfo">
+        <attr name="protocol" format="string"/>
+        <attr name="name" format="string"/>
+        <attr name="accountType" format="string"/>
+        <attr name="serviceClass" format="string"/>
+        <attr name="intent" format="string"/>
+        <attr name="port" format="integer"/>
+        <attr name="portSsl" format="integer"/>
+        <attr name="preferSsl" format="boolean"/>
+        <attr name="usesSmtp" format="boolean"/>
+        <attr name="push" format="boolean"/>
+        <attr name="contacts" format="boolean"/>
+        <attr name="calendar" format="boolean"/>
+        <attr name="autodiscover" format="boolean"/>
+        <attr name="lookback" format="boolean"/>
+        <attr name="attachmentPreload" format="boolean"/>
+        <attr name="syncIntervalStrings" format="reference"/>
+        <attr name="syncIntervals" format="reference"/>
+    </declare-styleable>
 </resources>

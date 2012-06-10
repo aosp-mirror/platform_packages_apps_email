@@ -212,7 +212,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.setup.AccountSetupAccountType"
+            android:name=".activity.setup.AccountSetupType"
             android:label="@string/account_setup_account_type_title"
             >
         </activity>
@@ -224,11 +224,6 @@
         <activity
             android:name=".activity.setup.AccountSetupOutgoing"
             android:label="@string/account_setup_outgoing_title"
-            >
-        </activity>
-        <activity
-            android:name=".activity.setup.AccountSetupExchange"
-            android:label="@string/account_setup_exchange_title"
             >
         </activity>
         <activity

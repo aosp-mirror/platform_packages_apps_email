@@ -607,7 +607,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
 
         SetupData.setAllowAutodiscover(allowAutoDiscover);
-        AccountSetupAccountType.actionSelectAccountType(this);
+        AccountSetupType.actionSelectAccountType(this);
     }
 
     /**
