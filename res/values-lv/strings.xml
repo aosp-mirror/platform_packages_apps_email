@@ -241,7 +241,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-pasta adrese"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Parole"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Pēc noklusējuma sūtīt e-pastu no šī konta."</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuāla iestatīšana"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuāla iest."</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Ierakstiet derīgu e-pasta adresi un paroli."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dublikāta konts"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Jūs jau izmantojat šo lietotājvārdu kontam <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
