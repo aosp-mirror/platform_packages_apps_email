@@ -1311,5 +1311,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- This is shown when a user responds to a meeting invitation [CHAR LIMIT=none]-->
     <string name="confirm_response">Sending response...</string>
+
+    <!-- Displayed in the middle of the screen when the inbox is empty [CHAR LIMIT 100]-->
+    <string name="no_conversations">No messages.</string>
 </resources>
 
