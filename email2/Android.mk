@@ -19,11 +19,10 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-# Include res dir from chips, mailcommon, and unified
+# Include res dir from chips and unified
 chips_dir := ../../../../frameworks/ex/chips/res
-mail_common_dir := ../../../../frameworks/opt/mailcommon/res
 unified_email_dir := ../../UnifiedEmail
-res_dir := $(chips_dir) $(mail_common_dir) res $(unified_email_dir)/res
+res_dir := $(chips_dir) res $(unified_email_dir)/res
 
 LOCAL_MODULE_TAGS := optional
 
