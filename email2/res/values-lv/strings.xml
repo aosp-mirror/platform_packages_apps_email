@@ -241,7 +241,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-pasta adrese"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Parole"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Pēc noklusējuma sūtīt e-pasta ziņojumus no šī konta"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuāla iestatīšana"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuāla iest."</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Ierakstiet derīgu e-pasta adresi un paroli."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dublikāta konts"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Jūs jau izmantojat šo lietotājvārdu kontam <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"Norunāsim tikšanos, lai to pārrunātu."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Viesabonēšanas laikā fona sinhronizācija šajā kontā ir atspējota."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Notiek atbildes sūtīšana..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>
