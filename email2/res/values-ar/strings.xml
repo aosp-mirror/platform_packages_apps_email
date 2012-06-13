@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"دعونا نعد اجتماعًا لمناقشة هذا الأمر."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"تم تعطيل المزامنة في الخلفية لهذا الحساب أثناء التجوال."</string>
     <string name="confirm_response" msgid="5747902757569543165">"جارٍ إرسال الرد..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>

@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"Wir können das am besten bei einem Meeting besprechen."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Die Hintergrundsynchronisierung ist für dieses Konto während des Roamings deaktiviert."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Antwort wird gesendet..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>

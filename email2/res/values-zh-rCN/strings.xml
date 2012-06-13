@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"让我们通过会议讨论一下这个问题。"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"漫游时停用了此帐户的后台同步功能。"</string>
     <string name="confirm_response" msgid="5747902757569543165">"正在发送回复..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>

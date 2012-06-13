@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"आइए इस पर चर्चा करने के लिए कोई मीटिंग सेट करें."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"रोमिंग के दौरान इस खाते के लिए पृष्ठभूमि समन्‍वयन अक्षम है."</string>
     <string name="confirm_response" msgid="5747902757569543165">"प्रत्‍युत्तर भेज रहा है..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>

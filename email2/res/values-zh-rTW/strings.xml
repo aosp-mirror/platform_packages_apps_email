@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"開會討論吧。"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"系統會在漫遊時停用這個帳戶的背景同步處理。"</string>
     <string name="confirm_response" msgid="5747902757569543165">"正在傳送回應..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>

@@ -496,4 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"จัดการประชุมเพื่อคุยเรื่องนี้กัน"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"การซิงค์พื้นหลังสำหรับบัญชีนี้ถูกปิดใช้งานขณะโรมมิ่ง"</string>
     <string name="confirm_response" msgid="5747902757569543165">"กำลังส่งการตอบกลับ..."</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>
