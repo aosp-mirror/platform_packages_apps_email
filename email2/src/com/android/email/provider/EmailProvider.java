@@ -82,6 +82,7 @@ import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
+import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
@@ -240,6 +241,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 17;
     private static final int UI_CONVERSATION = UI_BASE + 18;
     private static final int UI_RECENT_FOLDERS = UI_BASE + 19;
+    private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 20;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -458,6 +460,8 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
         matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
         matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
+                UI_DEFAULT_RECENT_FOLDERS);
     }
 
     /**
@@ -482,6 +486,12 @@ public class EmailProvider extends ContentProvider {
         return Uri.parse(uiUriString(type, id));
     }
 
+    /**
+     * Creates a URI string from a database ID (guaranteed to be unique).
+     * @param type of the resource: uifolder, message, etc.
+     * @param id the id of the resource.
+     * @return
+     */
     public static String uiUriString(String type, long id) {
         return "content://" + EmailContent.AUTHORITY + "/" + type + ((id == -1) ? "" : ("/" + id));
     }
@@ -1622,6 +1632,8 @@ outer:
                     return uiUpdateFolder(uri, values);
                 case UI_RECENT_FOLDERS:
                     return uiUpdateRecentFolders(uri, values);
+                case UI_DEFAULT_RECENT_FOLDERS:
+                    return uiPopulateRecentFolders(uri);
                 case UI_ATTACHMENT:
                     return uiUpdateAttachment(uri, values);
                 case UI_UPDATEDRAFT:
@@ -2181,7 +2193,6 @@ outer:
         .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
         .build();
 
-
     private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, AccountColumns.ID)
         .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
@@ -2196,6 +2207,8 @@ outer:
         .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
         .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
         .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
+        .add(UIProvider.AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
+                uriWithId("uidefaultrecentfolders"))
         .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
         .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
                 Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
@@ -2885,6 +2898,13 @@ outer:
 
     private static final String COMBINED_ACCOUNT_ID_STRING = Long.toString(COMBINED_ACCOUNT_ID);
 
+    /**
+     * Returns a cursor over all the folders for a specific URI which corresponds to a single
+     * account.
+     * @param uri
+     * @param uiProjection
+     * @return
+     */
     private Cursor uiFolders(Uri uri, String[] uiProjection) {
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
@@ -2925,6 +2945,48 @@ outer:
                 return new MergeCursor(cursors);
             }
         }
+    }
+
+    /**
+     * Returns an array of the default recent folders for a given URI which is unique for an
+     * account. Some accounts might not have default recent folders, in which case an empty array
+     * is returned.
+     * @param id
+     * @return
+     */
+    private Uri[] defaultRecentFolders(final String id) {
+        final SQLiteDatabase db = getDatabase(getContext());
+        if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+            // We don't have default recents for the combined view.
+            return new Uri[0];
+        }
+        // We search for the types we want, and find corresponding IDs.
+        final String[] idAndType = { BaseColumns._ID, UIProvider.FolderColumns.TYPE };
+
+        // Sent, Drafts, and Starred are the default recents.
+        final StringBuilder sb = genSelect(sFolderListMap, idAndType);
+        sb.append(" FROM " + Mailbox.TABLE_NAME
+                + " WHERE " + MailboxColumns.ACCOUNT_KEY + " = " + id
+                + " AND "
+                + MailboxColumns.TYPE + " IN (" + Mailbox.TYPE_SENT +
+                    ", " + Mailbox.TYPE_DRAFTS +
+                    ", " + Mailbox.TYPE_STARRED
+                + ")");
+        LogUtils.d(TAG, "defaultRecentFolders: Query is %s", sb);
+        final Cursor c = db.rawQuery(sb.toString(), null);
+        if (c == null || c.getCount() <= 0 || !c.moveToFirst()) {
+            return new Uri[0];
+        }
+        // Read all the IDs of the mailboxes, and turn them into URIs.
+        final Uri[] recentFolders = new Uri[c.getCount()];
+        int i = 0;
+        do {
+            final long folderId = c.getLong(0);
+            recentFolders[i] = uiUri("uifolder", folderId);
+            LogUtils.d(TAG, "Default recent folder: %d, with uri %s", folderId, recentFolders[i]);
+            ++i;
+        } while (c.moveToNext());
+        return recentFolders;
     }
 
     /**
@@ -3355,24 +3417,70 @@ outer:
         }
     }
 
+    /**
+     * Update the timestamps for the folders specified and notifies on the recent folder URI.
+     * @param folders
+     * @return number of folders updated
+     */
+    private int updateTimestamp(final Context context, String id, Uri[] folders){
+        int updated = 0;
+        final long now = System.currentTimeMillis();
+        final ContentResolver resolver = context.getContentResolver();
+        final ContentValues touchValues = new ContentValues();
+        for (int i=0, size=folders.length; i < size; ++i) {
+            touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, now);
+            LogUtils.d(TAG, "updateStamp: %s updated", folders[i]);
+            updated += resolver.update(folders[i], touchValues, null, null);
+        }
+        final String toNotify = uriWithColumn("uirecentfolders", id);
+        LogUtils.d(TAG, "updateTimestamp: Notifying on %s", toNotify);
+        context.getContentResolver().notifyChange(Uri.parse(toNotify), null);
+        return updated;
+    }
+
+    /**
+     * Updates the recent folders. The values to be updated are specified as ContentValues pairs
+     * of (Folder URI, access timestamp). Returns nonzero if successful, always.
+     * @param uri
+     * @param values
+     * @return nonzero value always.
+     */
     private int uiUpdateRecentFolders(Uri uri, ContentValues values) {
-        Context context = getContext();
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues touchValues = new ContentValues();
-        for (String uriString: values.keySet()) {
-            Uri folderUri = Uri.parse(uriString);
-            touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, values.getAsLong(uriString));
-            resolver.update(folderUri, touchValues, null, null);
-            String mailboxIdString = folderUri.getLastPathSegment();
-            long mailboxId;
+        final int numFolders = values.size();
+        final String id = uri.getPathSegments().get(1);
+        final Uri[] folders = new Uri[numFolders];
+        final Context context = getContext();
+        final NotificationController controller = NotificationController.getInstance(context);
+        int i = 0;
+        for (final String uriString: values.keySet()) {
+            folders[i] = Uri.parse(uriString);
             try {
-                mailboxId = Long.parseLong(mailboxIdString);
-                NotificationController.getInstance(context).cancelNewMessageNotification(mailboxId);
+                final String mailboxIdString = folders[i].getLastPathSegment();
+                final long mailboxId = Long.parseLong(mailboxIdString);
+                controller.cancelNewMessageNotification(mailboxId);
             } catch (NumberFormatException e) {
                 // Keep on going...
             }
         }
-        return 1;
+        return updateTimestamp(context, id, folders);
+    }
+
+    /**
+     * Populates the recent folders according to the design.
+     * @param uri
+     * @return the number of recent folders were populated.
+     */
+    private int uiPopulateRecentFolders(Uri uri) {
+        final Context context = getContext();
+        final String id = uri.getLastPathSegment();
+        final Uri[] recentFolders = defaultRecentFolders(id);
+        final int numFolders = recentFolders.length;
+        if (numFolders <= 0) {
+            return 0;
+        }
+        final int rowsUpdated = updateTimestamp(context, id, recentFolders);
+        LogUtils.d(TAG, "uiPopulateRecentFolders: %d folders changed", rowsUpdated);
+        return rowsUpdated;
     }
 
     private int uiUpdateAttachment(Uri uri, ContentValues uiValues) {
