@@ -393,7 +393,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
-        AccountSetupExchange activity = (AccountSetupExchange) getActivity();
+        AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
         activity.onAutoDiscoverComplete(result, hostAuth);
     }
 

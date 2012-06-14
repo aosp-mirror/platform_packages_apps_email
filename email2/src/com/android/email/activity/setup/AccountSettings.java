@@ -40,7 +40,6 @@ import android.view.MenuItem;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
-import com.android.email.mail.Store;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -313,10 +312,7 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     private void launchMailboxSettings(Intent intent) {
-        final Folder folder =
-                (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
-        final com.android.mail.providers.Account account = (com.android.mail.providers.Account)
-                intent.getParcelableExtra(EditSettingsExtras.EXTRA_ACCOUNT);
+        final Folder folder = (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
 
         // TODO: determine from the account if we should navigate to the mailbox settings.
         // See bug 6242668
@@ -648,27 +644,13 @@ public class AccountSettings extends PreferenceActivity {
 
     /**
      * Dispatch to edit incoming settings.
-     *
-     * TODO: Make things less hardwired
      */
     public void onIncomingSettings(Account account) {
         try {
-            Store store = Store.getInstance(account, getApplication());
-            if (store != null) {
-                Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
-                if (setting != null) {
-                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-                    if (setting.equals(AccountSetupIncoming.class)) {
-                        startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
-                                AccountSetupIncomingFragment.getSettingsModeArgs(),
-                                R.string.account_settings_incoming_label, null, null, 0);
-                    } else if (setting.equals(AccountSetupExchange.class)) {
-                        startPreferencePanel(AccountSetupExchangeFragment.class.getName(),
-                                AccountSetupExchangeFragment.getSettingsModeArgs(),
-                                R.string.account_settings_incoming_label, null, null, 0);
-                    }
-                }
-            }
+            SetupData.init(SetupData.FLOW_MODE_EDIT, account);
+            startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
+                    AccountSetupIncomingFragment.getSettingsModeArgs(),
+                    R.string.account_settings_incoming_label, null, null, 0);
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }

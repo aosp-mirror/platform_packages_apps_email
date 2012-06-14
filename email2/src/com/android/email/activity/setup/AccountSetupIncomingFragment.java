@@ -37,6 +37,8 @@ import android.widget.TextView;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -53,12 +55,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
-
-    private static final int POP3_PORT_NORMAL = 110;
-    private static final int POP3_PORT_SSL = 995;
-
-    private static final int IMAP_PORT_NORMAL = 143;
-    private static final int IMAP_PORT_SSL = 993;
 
     private EditText mUsernameView;
     private EditText mPasswordView;
@@ -290,16 +286,13 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         }
         TextView lastView = mImapPathPrefixView;
         mBaseScheme = account.mHostAuthRecv.mProtocol;
+        mServerLabelView.setText(R.string.account_setup_incoming_server_label);
+        mServerView.setContentDescription(getResources().getText(
+                R.string.account_setup_incoming_server_label));
         if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
-            mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
-            mServerView.setContentDescription(
-                    getResources().getString(R.string.account_setup_incoming_pop_server_label));
             mImapPathPrefixSectionView.setVisibility(View.GONE);
             lastView = mPortView;
         } else if (HostAuth.SCHEME_IMAP.equals(mBaseScheme)) {
-            mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
-            mServerView.setContentDescription(
-                    getResources().getString(R.string.account_setup_incoming_imap_server_label));
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
             mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
@@ -390,10 +383,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private int getPortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         boolean useSsl = ((securityType & HostAuth.FLAG_SSL) != 0);
-        int port = useSsl ? IMAP_PORT_SSL : IMAP_PORT_NORMAL;     // default to IMAP
-        if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
-            port = useSsl ? POP3_PORT_SSL : POP3_PORT_NORMAL;
-        }
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext,
+                SetupData.getAccount().mHostAuthRecv.mProtocol);
+        int port = useSsl ? info.portSsl : info.port;
         return port;
     }
 

@@ -37,12 +37,12 @@ import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
-import com.android.email.mail.Sender;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
@@ -483,14 +483,10 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mAccountSignature.setOnPreferenceChangeListener(this);
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-
-        // TODO Move protocol into Account to avoid retrieving the HostAuth (implicitly)
         String protocol = Account.getProtocol(mContext, mAccount.mId);
-        if (HostAuth.SCHEME_EAS.equals(protocol)) {
-            mCheckFrequency.setEntries(R.array.account_settings_check_frequency_entries_push);
-            mCheckFrequency.setEntryValues(R.array.account_settings_check_frequency_values_push);
-        }
-
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+        mCheckFrequency.setEntries(info.syncIntervalStrings);
+        mCheckFrequency.setEntryValues(info.syncIntervals);
         mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(this);
@@ -510,7 +506,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
         mSyncWindow = null;
-        if (HostAuth.SCHEME_EAS.equals(protocol)) {
+        if (info.lookback) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
@@ -533,10 +529,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             dataUsageCategory.addPreference(mSyncWindow);
         }
 
-        // Show "background attachments" for IMAP & EAS - hide it for POP3.
         mAccountBackgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
-        if (HostAuth.SCHEME_POP3.equals(mAccount.mHostAuthRecv.mProtocol)) {
+        if (!info.attachmentPreload) {
             dataUsageCategory.removePreference(mAccountBackgroundAttachments);
         } else {
             mAccountBackgroundAttachments.setChecked(
@@ -639,17 +634,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         // Hide the outgoing account setup link if it's not activated
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
-        boolean showOutgoing = true;
-        try {
-            Sender sender = Sender.getInstance(mContext, mAccount);
-            if (sender != null) {
-                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
-                showOutgoing = (setting != null);
-            }
-        } catch (MessagingException me) {
-            // just leave showOutgoing as true - bias towards showing it, so user can fix it
-        }
-        if (showOutgoing) {
+        if (info.usesSmtp) {
             prefOutgoing.setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
                         @Override
@@ -668,15 +653,25 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
-        if (mAccount.mHostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS)) {
+        if (info.contacts || info.calendar) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    AccountManagerTypes.TYPE_EXCHANGE);
-            mSyncContacts.setChecked(ContentResolver
-                    .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
-            mSyncContacts.setOnPreferenceChangeListener(this);
-            mSyncCalendar.setChecked(ContentResolver
-                    .getSyncAutomatically(acct, CalendarProviderStub.AUTHORITY));
-            mSyncCalendar.setOnPreferenceChangeListener(this);
+                    info.accountType);
+            if (info.contacts) {
+                mSyncContacts.setChecked(ContentResolver
+                        .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
+                mSyncContacts.setOnPreferenceChangeListener(this);
+            } else {
+                mSyncContacts.setChecked(false);
+                mSyncContacts.setEnabled(false);
+            }
+            if (info.calendar) {
+                mSyncCalendar.setChecked(ContentResolver
+                        .getSyncAutomatically(acct, CalendarProviderStub.AUTHORITY));
+                mSyncCalendar.setOnPreferenceChangeListener(this);
+            } else {
+                mSyncCalendar.setChecked(false);
+                mSyncCalendar.setEnabled(false);
+            }
             mSyncEmail.setChecked(ContentResolver
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
             mSyncEmail.setOnPreferenceChangeListener(this);
@@ -728,7 +723,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);
 
-        if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
+        EmailServiceInfo info =
+                EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
+        if (info.contacts || info.calendar) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     AccountManagerTypes.TYPE_EXCHANGE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
