@@ -496,6 +496,5 @@
     <string name="quick_4" msgid="3988974084396883051">"Organitzem una reunió per parlar-ne."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"La sincronització de fons per a aquest compte està desactivada en itinerància."</string>
     <string name="confirm_response" msgid="5747902757569543165">"S\'està enviant la resposta..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"No hi ha missatges."</string>
 </resources>
