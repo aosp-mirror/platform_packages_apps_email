@@ -1000,6 +1000,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
+    private static final Uri UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uirecentfolders");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -2300,7 +2302,7 @@ outer:
 
     /**
      * Convenience method to create a Uri string given the "type" of query; we append the type
-     * of the query and the passed in column nam
+     * of the query and the passed in column name
      *
      * @param type the "type" of the query, as defined by our UriMatcher definitions
      * @param columnName the column in the table being queried
@@ -3041,6 +3043,7 @@ outer:
         switch(match) {
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
+                notifyUri = UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_SUBFOLDERS:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
@@ -3432,9 +3435,10 @@ outer:
             LogUtils.d(TAG, "updateStamp: %s updated", folders[i]);
             updated += resolver.update(folders[i], touchValues, null, null);
         }
-        final String toNotify = uriWithColumn("uirecentfolders", id);
+        final Uri toNotify =
+                UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
         LogUtils.d(TAG, "updateTimestamp: Notifying on %s", toNotify);
-        context.getContentResolver().notifyChange(Uri.parse(toNotify), null);
+        resolver.notifyChange(toNotify, null);
         return updated;
     }
 
