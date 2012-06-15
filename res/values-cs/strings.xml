@@ -361,7 +361,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Uživatelské jméno nebo heslo pro účet <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávné. Chcete údaje aktualizovat?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
-    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stáhnout přílohy"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stahovat přílohy"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automaticky stahovat přílohy posledních zpráv pomocí sítě Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailová upozornění"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frekvence synchronizace, oznámení apod."</string>
