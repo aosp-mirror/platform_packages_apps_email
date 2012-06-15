@@ -261,7 +261,8 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Impostazioni server Posta in arrivo"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nome utente"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Password"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP3"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Porta"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo di sicurezza"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nessuna"</string>

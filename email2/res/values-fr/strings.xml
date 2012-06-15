@@ -261,8 +261,8 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Paramètres du serveur entrant"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nom d\'utilisateur"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Mot de passe"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Serveur POP3"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Serveur IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Type de sécurité"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Aucun"</string>
@@ -496,5 +496,6 @@
     <string name="quick_4" msgid="3988974084396883051">"Organisons une réunion pour en discuter."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"La synchronisation en arrière-plan pour ce compte est désactivée en itinérance."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Envoi de la réponse en cours..."</string>
-    <string name="no_conversations" msgid="5559527390337162819">"Aucun message"</string>
+    <!-- no translation found for no_conversations (5559527390337162819) -->
+    <skip />
 </resources>
