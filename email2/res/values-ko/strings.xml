@@ -261,8 +261,8 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"수신 서버 설정"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"사용자 이름"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"비밀번호"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3 서버"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP 서버"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"포트"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"보안 유형"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"없음"</string>
