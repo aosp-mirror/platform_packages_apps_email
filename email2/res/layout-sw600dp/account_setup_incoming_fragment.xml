@@ -60,13 +60,13 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
-            android:text="@string/account_setup_incoming_pop_server_label" />
+            android:text="@string/account_setup_incoming_server_label" />
         <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
         <EditText
             android:id="@+id/account_server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/account_setup_incoming_pop_server_label"
+            android:contentDescription="@string/account_setup_incoming_server_label"
             android:inputType="textUri"
             android:imeOptions="actionDone" />
     </TableRow>
