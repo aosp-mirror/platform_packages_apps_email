@@ -261,8 +261,8 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Nastavení serveru příchozí pošty"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Uživatelské jméno"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Heslo"</string>
-    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP"</string>
-    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
+    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
+    <skip />
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Typ zabezpečení"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Žádný"</string>
@@ -365,7 +365,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Uživatelské jméno nebo heslo k účtu <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávné. Chcete je aktualizovat?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
-    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stáhnout přílohy"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stahovat přílohy"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automaticky stahovat přílohy posledních zpráv pomocí sítě Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailová upozornění"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frekvence synchronizace, oznámení apod."</string>
