@@ -3234,9 +3234,12 @@ outer:
                 break;
         }
         msg.mFlags = flags;
-        int draftInfo = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
-        if (values.getAsInteger(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT) != 0) {
-            draftInfo |= Message.DRAFT_INFO_APPEND_REF_MESSAGE;
+        int draftInfo = 0;
+        if (values.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
+            draftInfo = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+            if (values.getAsInteger(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT) != 0) {
+                draftInfo |= Message.DRAFT_INFO_APPEND_REF_MESSAGE;
+            }
         }
         msg.mDraftInfo = draftInfo;
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
