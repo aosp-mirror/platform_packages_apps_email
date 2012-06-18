@@ -496,6 +496,5 @@
     <string name="quick_4" msgid="3988974084396883051">"회의에서 얘기해 봅시다."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"계정 백그라운드 동기화가 로밍하는 동안 사용 중지됩니다."</string>
     <string name="confirm_response" msgid="5747902757569543165">"응답을 보내는 중..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"메시지가 없습니다."</string>
 </resources>

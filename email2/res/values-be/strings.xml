@@ -496,6 +496,5 @@
     <string name="quick_4" msgid="3988974084396883051">"Давайце прызначым сустрэчу, каб абмеркаваць гэта."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Фонавая сінхранізацыя для гэтага ўліковага запісу адключана ў роўмінгу."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Адпраўка адказу..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"Паведамленняў няма."</string>
 </resources>
