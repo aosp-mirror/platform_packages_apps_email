@@ -261,8 +261,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"የገቢ አገልጋይ ቅንብሮች"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"የተጠቃሚ ስም"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"የይለፍ ቃል"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"አገልጋይ"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"ወደብ"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"የደህንነትአይነት"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"አንዱም"</string>
@@ -496,6 +495,5 @@
     <string name="quick_4" msgid="3988974084396883051">"ስብሰባ እናዘጋጅ እስቲ ይሄንን ለመወያየት፡፡"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለዚህ መለያ ቦዝኗል፡፡"</string>
     <string name="confirm_response" msgid="5747902757569543165">"ምላሽ በመላክ ላይ..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"መልዕክቶች የሉም።"</string>
 </resources>

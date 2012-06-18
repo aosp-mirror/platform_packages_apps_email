@@ -496,6 +496,5 @@
     <string name="quick_4" msgid="3988974084396883051">"Vamos a convocar a una reunión para tratar esto."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Se ha inhabilitado la sincronización en segundo plano de esta cuenta en itinerancia."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Enviando respuesta..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"No hay mensajes."</string>
 </resources>

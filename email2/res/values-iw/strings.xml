@@ -261,8 +261,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"הגדרות שרת דואר נכנס"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"שם משתמש"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"סיסמה"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"שרת"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"יציאה"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"סוג אבטחה"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"ללא"</string>
@@ -496,6 +495,5 @@
     <string name="quick_4" msgid="3988974084396883051">"בוא נקבע פגישה כדי לדון בנושא זה."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"סינכרון ברקע של חשבון זה מושבת בזמן נדידה."</string>
     <string name="confirm_response" msgid="5747902757569543165">"שולח תגובה..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"אין הודעות."</string>
 </resources>
