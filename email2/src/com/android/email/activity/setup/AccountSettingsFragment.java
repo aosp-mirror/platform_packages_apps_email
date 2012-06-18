@@ -31,6 +31,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.RingtonePreference;
+import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +42,6 @@ import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -666,7 +666,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             }
             if (info.calendar) {
                 mSyncCalendar.setChecked(ContentResolver
-                        .getSyncAutomatically(acct, CalendarProviderStub.AUTHORITY));
+                        .getSyncAutomatically(acct, CalendarContract.AUTHORITY));
                 mSyncCalendar.setOnPreferenceChangeListener(this);
             } else {
                 mSyncCalendar.setChecked(false);
@@ -730,7 +730,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     AccountManagerTypes.TYPE_EXCHANGE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
-            ContentResolver.setSyncAutomatically(acct, CalendarProviderStub.AUTHORITY,
+            ContentResolver.setSyncAutomatically(acct, CalendarContract.AUTHORITY,
                     mSyncCalendar.isChecked());
             ContentResolver.setSyncAutomatically(acct, EmailContent.AUTHORITY,
                     mSyncEmail.isChecked());

@@ -24,12 +24,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -1040,7 +1040,7 @@ public final class DBHelper {
         ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
         ContentResolver.setIsSyncable(amAccount, ContactsContract.AUTHORITY, 0);
-        ContentResolver.setIsSyncable(amAccount, CalendarProviderStub.AUTHORITY, 0);
+        ContentResolver.setIsSyncable(amAccount, CalendarContract.AUTHORITY, 0);
     }
 
     @VisibleForTesting
