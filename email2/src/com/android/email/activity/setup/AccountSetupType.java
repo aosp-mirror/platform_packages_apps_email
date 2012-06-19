@@ -55,7 +55,7 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
 
         // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
         if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
-            onSelect("eas");
+            onSelect(HostAuth.SCHEME_EAS);
             return;
         }
 

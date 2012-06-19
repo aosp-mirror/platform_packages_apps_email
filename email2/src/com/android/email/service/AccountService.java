@@ -32,6 +32,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.IAccountService;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
@@ -104,7 +105,7 @@ public class AccountService extends Service {
                     @Override
                     public void run() {
                         // Make sure the service is properly running (re: lifecycle)
-                        EmailServiceUtils.startService(mContext, "eas");
+                        EmailServiceUtils.startService(mContext, HostAuth.SCHEME_EAS);
                         // Send current logging flags
                         MailActivityEmail.updateLoggingFlags(mContext);
                     }});

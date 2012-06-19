@@ -131,7 +131,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         performOneTimeInitialization();
 
         // Starts the service for Exchange, if supported.
-        EmailServiceUtils.startService(this, "eas");
+        EmailServiceUtils.startService(this, HostAuth.SCHEME_EAS);
     }
 
     private void performOneTimeInitialization() {
@@ -207,6 +207,6 @@ public class EmailBroadcastProcessorService extends IntentService {
 
         // If the exchange service wasn't already running, starting it will cause exchange account
         // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
-        EmailServiceUtils.startService(this, "eas");
+        EmailServiceUtils.startService(this, HostAuth.SCHEME_EAS);
     }
 }

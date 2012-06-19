@@ -44,6 +44,7 @@ import com.android.email.service.MailService;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
@@ -224,7 +225,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         boolean calendar = false;
         boolean contacts = false;
         boolean email = mSyncEmailView.isChecked();
-        if (account.mHostAuthRecv.mProtocol.equals("eas")) {
+        if (account.mHostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS)) {
             if (SetupData.getPolicy() != null) {
                 account.mFlags |= Account.FLAGS_SECURITY_HOLD;
                 account.mPolicy = SetupData.getPolicy();
