@@ -261,8 +261,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Setări pentru serverul de mesaje de intrare"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nume de utilizator"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Parolă"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipul de securitate"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Niciunul"</string>
@@ -496,6 +495,5 @@
     <string name="quick_4" msgid="3988974084396883051">"Să stabilim o întâlnire pentru a discuta această acţiune."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sincronizarea în fundal pentru acest cont este dezactivată în roaming."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Se trimite răspunsul..."</string>
-    <!-- no translation found for no_conversations (5559527390337162819) -->
-    <skip />
+    <string name="no_conversations" msgid="5559527390337162819">"Niciun mesaj."</string>
 </resources>
