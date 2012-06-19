@@ -24,7 +24,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
@@ -60,16 +61,23 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
 
         // Otherwise proceed into this screen
         setContentView(R.layout.account_setup_account_type);
+        ViewGroup parent = UiUtilities.getView(this, R.id.accountTypes);
+        boolean parentRelative = parent instanceof RelativeLayout;
+        View lastView = parent.getChildAt(0);
         int i = 1;
         for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
             if (EmailServiceUtils.isServiceAvailable(this, info.protocol)) {
-                ViewGroup parent = UiUtilities.getView(this, R.id.accountTypes);
-                LinearLayout view = (LinearLayout)LayoutInflater.from(this)
-                        .inflate(R.layout.account_type, parent);
-                Button button = (Button)view.getChildAt(i);
+                LayoutInflater.from(this).inflate(R.layout.account_type, parent);
+                Button button = (Button)parent.getChildAt(i);
+                if (parentRelative) {
+                    LayoutParams params = (LayoutParams)button.getLayoutParams();
+                    params.addRule(RelativeLayout.BELOW, lastView.getId());
+                 }
+                button.setId(i);
                 button.setTag(info.protocol);
                 button.setText(info.name);
                 button.setOnClickListener(this);
+                lastView = button;
                 i++;
                 // TODO: Remember vendor overlay for exchange name
             }
@@ -87,7 +95,7 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
         EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, protocol);
-        if (info.autodiscover) {
+        if (info.usesAutodiscover) {
             SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         } else {
             SetupData.setCheckSettingsMode(
@@ -96,16 +104,18 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
         AccountSetupBasics.setFlagsForProtocol(account, protocol);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
+        // Back from the incoming screen returns to AccountSetupBasics
+        finish();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button:
-                onSelect((String)v.getTag());
-                break;
             case R.id.previous:
                 finish();
+                break;
+            default:
+                onSelect((String)v.getTag());
                 break;
         }
     }

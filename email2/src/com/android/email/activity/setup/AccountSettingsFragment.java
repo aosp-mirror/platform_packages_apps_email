@@ -506,7 +506,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
         mSyncWindow = null;
-        if (info.lookback) {
+        if (info.offerLookback) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
@@ -531,7 +531,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         mAccountBackgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
-        if (!info.attachmentPreload) {
+        if (!info.offerAttachmentPreload) {
             dataUsageCategory.removePreference(mAccountBackgroundAttachments);
         } else {
             mAccountBackgroundAttachments.setChecked(
@@ -653,10 +653,10 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
-        if (info.contacts || info.calendar) {
+        if (info.syncContacts || info.syncCalendar) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     info.accountType);
-            if (info.contacts) {
+            if (info.syncContacts) {
                 mSyncContacts.setChecked(ContentResolver
                         .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
                 mSyncContacts.setOnPreferenceChangeListener(this);
@@ -664,7 +664,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 mSyncContacts.setChecked(false);
                 mSyncContacts.setEnabled(false);
             }
-            if (info.calendar) {
+            if (info.syncCalendar) {
                 mSyncCalendar.setChecked(ContentResolver
                         .getSyncAutomatically(acct, CalendarContract.AUTHORITY));
                 mSyncCalendar.setOnPreferenceChangeListener(this);
@@ -725,7 +725,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         EmailServiceInfo info =
                 EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
-        if (info.contacts || info.calendar) {
+        if (info.syncContacts || info.syncCalendar) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     AccountManagerTypes.TYPE_EXCHANGE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,

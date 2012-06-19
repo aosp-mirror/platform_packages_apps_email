@@ -18,6 +18,8 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -39,11 +41,18 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
+import com.android.email.view.CertificateSelector;
+import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.email2.ui.MailActivityEmail;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Provides UI for IMAP/POP account settings.
@@ -51,8 +60,10 @@ import com.android.emailcommon.utility.Utility;
  * This fragment is used by AccountSetupIncoming (for creating accounts) and by AccountSettingsXL
  * (for editing existing accounts).
  */
-public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
+public class AccountSetupIncomingFragment extends AccountServerBaseFragment
+        implements HostCallback {
 
+    private static final int CERTIFICATE_REQUEST = 0;
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
 
@@ -65,7 +76,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private TextView mDeletePolicyLabelView;
     private Spinner mDeletePolicyView;
     private View mImapPathPrefixSectionView;
+    private View mDeviceIdSectionView;
     private EditText mImapPathPrefixView;
+    private CertificateSelector mClientCertificateSelector;
     // Delete policy as loaded from the device
     private int mLoadedDeletePolicy;
 
@@ -74,6 +87,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private boolean mConfigured;
     private boolean mLoaded;
     private String mCacheLoginCredential;
+    private HostAuth mRecvAuth;
+    private EmailServiceInfo mServiceInfo;
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -105,6 +120,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
+        mRecvAuth = SetupData.getAccount().mHostAuthRecv;
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, mRecvAuth.mProtocol);
+
         mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
         mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
         mServerLabelView = (TextView) UiUtilities.getView(view, R.id.account_server_label);
@@ -115,39 +133,51 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
                 R.id.account_delete_policy_label);
         mDeletePolicyView = (Spinner) UiUtilities.getView(view, R.id.account_delete_policy);
         mImapPathPrefixSectionView = UiUtilities.getView(view, R.id.imap_path_prefix_section);
+        mDeviceIdSectionView = UiUtilities.getView(view, R.id.device_id_section);
         mImapPathPrefixView = (EditText) UiUtilities.getView(view, R.id.imap_path_prefix);
+        mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
 
-        // Set up spinners
-        SpinnerOption securityTypes[] = {
-            new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
-                    R.string.account_setup_incoming_security_none_label)),
-            new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
-                    R.string.account_setup_incoming_security_ssl_label)),
-            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
-                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
-            new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
-                    R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, context.getString(
-                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
-        };
-
-        SpinnerOption deletePolicies[] = {
-            new SpinnerOption(Account.DELETE_POLICY_NEVER,
-                    context.getString(R.string.account_setup_incoming_delete_policy_never_label)),
-            new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
-                    context.getString(R.string.account_setup_incoming_delete_policy_delete_label)),
-        };
-
-        ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(context,
-                android.R.layout.simple_spinner_item, securityTypes);
+        // Set up security type spinner
+        ArrayList<SpinnerOption> securityTypes = new ArrayList<SpinnerOption>();
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
+                        R.string.account_setup_incoming_security_none_label)));
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_label)));
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_trust_certificates_label)));
+        if (mServiceInfo.offerTls) {
+            securityTypes.add(
+                    new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
+                            R.string.account_setup_incoming_security_tls_label)));
+            securityTypes.add(
+                    new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL,
+                        context.getString(
+                           R.string.account_setup_incoming_security_tls_trust_certificates_label)));
+        }
+        ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(
+                context, android.R.layout.simple_spinner_item, securityTypes);
         securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSecurityTypeView.setAdapter(securityTypesAdapter);
 
-        ArrayAdapter<SpinnerOption> deletePoliciesAdapter = new ArrayAdapter<SpinnerOption>(context,
-                android.R.layout.simple_spinner_item, deletePolicies);
-        deletePoliciesAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
-        mDeletePolicyView.setAdapter(deletePoliciesAdapter);
+        if (mServiceInfo.offerLocalDeletes) {
+            SpinnerOption deletePolicies[] = {
+                    new SpinnerOption(Account.DELETE_POLICY_NEVER,
+                            context.getString(
+                                    R.string.account_setup_incoming_delete_policy_never_label)),
+                    new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
+                            context.getString(
+                                    R.string.account_setup_incoming_delete_policy_delete_label)),
+            };
+            ArrayAdapter<SpinnerOption> deletePoliciesAdapter =
+                    new ArrayAdapter<SpinnerOption>(context,
+                            android.R.layout.simple_spinner_item, deletePolicies);
+            deletePoliciesAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            mDeletePolicyView.setAdapter(deletePoliciesAdapter);
+        }
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
@@ -193,6 +223,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
+        mClientCertificateSelector.setHostActivity(this);
     }
 
     /**
@@ -289,15 +320,14 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         mServerLabelView.setText(R.string.account_setup_incoming_server_label);
         mServerView.setContentDescription(getResources().getText(
                 R.string.account_setup_incoming_server_label));
-        if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
+        if (!mServiceInfo.offerPrefix) {
             mImapPathPrefixSectionView.setVisibility(View.GONE);
             lastView = mPortView;
-        } else if (HostAuth.SCHEME_IMAP.equals(mBaseScheme)) {
+        }
+        if (!mServiceInfo.offerLocalDeletes) {
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
             mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-        } else {
-            throw new Error("Unknown account type: " + account);
         }
         lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
         mConfigured = true;
@@ -314,6 +344,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
         String username = recvAuth.mLogin;
         if (username != null) {
+            //*** For eas?
+            // Add a backslash to the start of the username, but only if the username has no
+            // backslash in it.
+            //if (userName.indexOf('\\') < 0) {
+            //    userName = "\\" + userName;
+            //}
             mUsernameView.setText(username);
         }
         String password = recvAuth.mPassword;
@@ -325,14 +361,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             }
         }
 
-        if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+        if (mServiceInfo.offerPrefix) {
             String prefix = recvAuth.mDomain;
             if (prefix != null && prefix.length() > 0) {
                 mImapPathPrefixView.setText(prefix.substring(1));
             }
-        } else if (!HostAuth.SCHEME_POP3.equals(recvAuth.mProtocol)) {
-            // Account must either be IMAP or POP3
-            throw new Error("Unknown account type: " + recvAuth.mProtocol);
         }
 
         // The delete policy is set for all legacy accounts. For POP3 accounts, the user sets
@@ -343,6 +376,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
         int flags = recvAuth.mFlags;
         flags &= ~HostAuth.FLAG_AUTHENTICATE;
+        if (mServiceInfo.defaultSsl) {
+            flags |= HostAuth.FLAG_SSL;
+        }
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
 
         String hostname = recvAuth.mAddress;
@@ -380,18 +416,39 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
     }
 
-    private int getPortFromSecurityType() {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        boolean useSsl = ((securityType & HostAuth.FLAG_SSL) != 0);
+    private int getPortFromSecurityType(boolean useSsl) {
         EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext,
                 SetupData.getAccount().mHostAuthRecv.mProtocol);
-        int port = useSsl ? info.portSsl : info.port;
-        return port;
+        return useSsl ? info.portSsl : info.port;
+    }
+
+    private boolean getSslSelected() {
+        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        return ((securityType & HostAuth.FLAG_SSL) != 0);
+    }
+
+    public void onUseSslChanged(boolean useSsl) {
+        if (mServiceInfo.offerCerts) {
+            int mode = useSsl ? View.VISIBLE : View.GONE;
+            mClientCertificateSelector.setVisibility(mode);
+            String deviceId = "";
+            try {
+                deviceId = Device.getDeviceId(mContext);
+            } catch (IOException e) {
+                // Not required
+            }
+            ((TextView) UiUtilities.getView(getView(), R.id.device_id)).setText(deviceId);
+
+            mDeviceIdSectionView.setVisibility(mode);
+            //UiUtilities.setVisibilitySafe(getView(), R.id.client_certificate_divider, mode);
+        }
     }
 
     private void updatePortFromSecurityType() {
-        int port = getPortFromSecurityType();
+        boolean sslSelected = getSslSelected();
+        int port = getPortFromSecurityType(sslSelected);
         mPortView.setText(Integer.toString(port));
+        onUseSslChanged(sslSelected);
     }
 
     /**
@@ -450,12 +507,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         try {
             serverPort = Integer.parseInt(mPortView.getText().toString().trim());
         } catch (NumberFormatException e) {
-            serverPort = getPortFromSecurityType();
+            serverPort = getPortFromSecurityType(getSslSelected());
             Log.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
         int securityType = (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
         recvAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
-        if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+        if (mServiceInfo.offerPrefix) {
             String prefix = mImapPathPrefixView.getText().toString().trim();
             recvAuth.mDomain = TextUtils.isEmpty(prefix) ? null : ("/" + prefix);
         } else {
@@ -480,5 +537,31 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         }
 
         return deletePolicyChanged || super.haveSettingsChanged();
+    }
+
+    /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     */
+    @Override
+    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+        AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
+        activity.onAutoDiscoverComplete(result, hostAuth);
+    }
+
+    @Override
+    public void onCertificateRequested() {
+        Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
+        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
+        startActivityForResult(intent, CERTIFICATE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
+            String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
+            if (certAlias != null) {
+                mClientCertificateSelector.setCertificate(certAlias);
+            }
+        }
     }
 }
