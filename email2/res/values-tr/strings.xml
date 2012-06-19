@@ -261,8 +261,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Gelen sunucu ayarları"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Kullanıcı adı"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Şifre"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
-    <skip />
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Sunucu"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Bağlantı Noktası"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Güvenlik türü"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Yok"</string>
