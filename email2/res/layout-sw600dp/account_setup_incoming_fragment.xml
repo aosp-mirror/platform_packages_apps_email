@@ -98,6 +98,10 @@
             android:inputType="number"
             android:imeOptions="actionDone" />
     </TableRow>
+    <include
+        android:id="@+id/client_certificate_selector"
+        layout="@layout/client_certificate_selector"
+        android:visibility="gone" />
     <TableRow
         android:paddingTop="16dip" >
         <TextView
@@ -128,6 +132,22 @@
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
             android:inputType="text"
             android:imeOptions="actionDone" />
+    </TableRow>
+    <TableRow
+        android:id="@+id/device_id_section"
+        android:paddingTop="32dip"
+        android:visibility="gone" >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dip"
+            android:text="@string/account_setup_exchange_device_id_label" />
+        <!-- TODO - when adding back in styles, this should be slightly different (was "medium") -->
+        <TextView
+            android:id="@+id/device_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffbebebe" />
     </TableRow>
 </TableLayout>
 

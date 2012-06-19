@@ -111,7 +111,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
 
-        if (info.lookback) {
+        if (info.offerLookback) {
             enableLookbackSpinner();
         }
 
@@ -124,18 +124,18 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 (account.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
 
-        if (info.contacts) {
+        if (info.syncContacts) {
             mSyncContactsView.setVisibility(View.VISIBLE);
             mSyncContactsView.setChecked(true);
             UiUtilities.setVisibilitySafe(this, R.id.account_sync_contacts_divider, View.VISIBLE);
         }
-        if (info.calendar) {
+        if (info.syncCalendar) {
             mSyncCalendarView.setVisibility(View.VISIBLE);
             mSyncCalendarView.setChecked(true);
             UiUtilities.setVisibilitySafe(this, R.id.account_sync_calendar_divider, View.VISIBLE);
         }
 
-        if (info.attachmentPreload) {
+        if (!info.offerAttachmentPreload) {
             mBackgroundAttachmentsView.setVisibility(View.GONE);
             UiUtilities.setVisibilitySafe(this, R.id.account_background_attachments_divider,
                     View.GONE);

@@ -65,9 +65,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         HostAuth hostAuth = SetupData.getAccount().mHostAuthRecv;
         mServiceInfo = EmailServiceUtils.getServiceInfo(this, hostAuth.mProtocol);
 
-        setContentView(hostAuth.mProtocol.equals("eas") ? R.layout.account_setup_exchange :
-            R.layout.account_setup_incoming);
-
+        setContentView(R.layout.account_setup_incoming);
         mFragment = (AccountServerBaseFragment)
                 getFragmentManager().findFragmentById(R.id.setup_fragment);
 
@@ -79,7 +77,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
 
         // One-shot to launch autodiscovery at the entry to this activity (but not if it restarts)
-        if (mServiceInfo.autodiscover) {
+        if (mServiceInfo.usesAutodiscover) {
             mStartedAutoDiscovery = false;
             if (savedInstanceState != null) {
                 mStartedAutoDiscovery = savedInstanceState.getBoolean(STATE_STARTED_AUTODISCOVERY);

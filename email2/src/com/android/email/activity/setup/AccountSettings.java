@@ -56,7 +56,7 @@ import java.util.List;
  *
  * This activity uses the following fragments:
  *   AccountSettingsFragment
- *   Account{Incoming/Outgoing/Exchange}Fragment
+ *   Account{Incoming/Outgoing}Fragment
  *   AccountCheckSettingsFragment
  *   GeneralPreferences
  *   DebugFragment
