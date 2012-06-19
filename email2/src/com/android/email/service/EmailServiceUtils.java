@@ -84,14 +84,18 @@ public class EmailServiceUtils {
         String intentAction;
         public int port;
         public int portSsl;
-        public boolean preferSsl = false;
-        public boolean usesSmtp = true;
-        public boolean autodiscover = false;
-        public boolean push = false;
-        public boolean lookback = false;
-        public boolean contacts = false;
-        public boolean calendar = false;
-        public boolean attachmentPreload = true;
+        public boolean defaultSsl = false;
+        public boolean offerTls = false;
+        public boolean offerCerts = false;
+        public boolean usesSmtp = false;
+        public boolean offerLocalDeletes = false;
+        public boolean offerPrefix = false;
+        public boolean usesAutodiscover = false;
+        public boolean offerPush = false;
+        public boolean offerLookback = false;
+        public boolean syncContacts = false;
+        public boolean syncCalendar = false;
+        public boolean offerAttachmentPreload = false;
         public int serverLabel;
         public CharSequence[] syncIntervalStrings;
         public CharSequence[] syncIntervals;
@@ -146,18 +150,27 @@ public class EmailServiceUtils {
                     String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
                     info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
                     info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
-                    info.preferSsl = ta.getBoolean(R.styleable.EmailServiceInfo_preferSsl, false);
+                    info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
                     info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
                     info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
+                    info.offerTls = ta.getBoolean(R.styleable.EmailServiceInfo_offerTls, false);
+                    info.offerCerts = ta.getBoolean(R.styleable.EmailServiceInfo_offerCerts, false);
+                    info.offerLocalDeletes =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLocalDeletes, false);
+                    info.offerPrefix =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerPrefix, false);
                     info.usesSmtp = ta.getBoolean(R.styleable.EmailServiceInfo_usesSmtp, false);
-                    info.autodiscover =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_autodiscover, false);
-                    info.push = ta.getBoolean(R.styleable.EmailServiceInfo_push, false);
-                    info.lookback = ta.getBoolean(R.styleable.EmailServiceInfo_lookback, false);
-                    info.contacts = ta.getBoolean(R.styleable.EmailServiceInfo_contacts, false);
-                    info.calendar = ta.getBoolean(R.styleable.EmailServiceInfo_calendar, false);
-                    info.attachmentPreload =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_attachmentPreload, false);
+                    info.usesAutodiscover =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_usesAutodiscover, false);
+                    info.offerPush = ta.getBoolean(R.styleable.EmailServiceInfo_offerPush, false);
+                    info.offerLookback =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLookback, false);
+                    info.syncContacts =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_syncContacts, false);
+                    info.syncCalendar =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_syncCalendar, false);
+                    info.offerAttachmentPreload =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_offerAttachmentPreload, false);
                     info.syncIntervalStrings =
                         ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervalStrings);
                     info.syncIntervals =

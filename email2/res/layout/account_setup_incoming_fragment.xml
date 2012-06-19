@@ -87,6 +87,10 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:contentDescription="@string/account_setup_incoming_security_label" />
+    <include
+        android:id="@+id/client_certificate_selector"
+        layout="@layout/client_certificate_selector"
+        android:visibility="gone" />
     <TextView
         android:id="@+id/account_delete_policy_label"
         android:text="@string/account_setup_incoming_delete_policy_label"
@@ -118,5 +122,23 @@
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
             android:inputType="text"
             android:imeOptions="actionDone" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/device_id_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <TextView
+            android:text="@string/account_setup_exchange_device_id_label"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textColor="?android:attr/textColorPrimary" />
+        <TextView
+            android:id="@+id/device_id"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#ffbebebe" />
     </LinearLayout>
 </LinearLayout>

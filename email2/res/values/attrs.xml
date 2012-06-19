@@ -29,14 +29,18 @@
         <attr name="intent" format="string"/>
         <attr name="port" format="integer"/>
         <attr name="portSsl" format="integer"/>
-        <attr name="preferSsl" format="boolean"/>
+        <attr name="defaultSsl" format="boolean"/>
+        <attr name="offerTls" format="boolean"/>
+        <attr name="offerCerts" format="boolean"/>
+        <attr name="offerLocalDeletes" format="boolean"/>
+        <attr name="offerPrefix" format="boolean"/>
         <attr name="usesSmtp" format="boolean"/>
-        <attr name="push" format="boolean"/>
-        <attr name="contacts" format="boolean"/>
-        <attr name="calendar" format="boolean"/>
-        <attr name="autodiscover" format="boolean"/>
-        <attr name="lookback" format="boolean"/>
-        <attr name="attachmentPreload" format="boolean"/>
+        <attr name="offerPush" format="boolean"/>
+        <attr name="syncContacts" format="boolean"/>
+        <attr name="syncCalendar" format="boolean"/>
+        <attr name="usesAutodiscover" format="boolean"/>
+        <attr name="offerLookback" format="boolean"/>
+        <attr name="offerAttachmentPreload" format="boolean"/>
         <attr name="syncIntervalStrings" format="reference"/>
         <attr name="syncIntervals" format="reference"/>
     </declare-styleable>

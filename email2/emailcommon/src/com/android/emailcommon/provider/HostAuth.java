@@ -269,19 +269,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPort = port;
         if (mPort == PORT_UNKNOWN) {
             boolean useSSL = ((mFlags & FLAG_SSL) != 0);
-            // infer port# from protocol + security
-            // SSL implies a different port - TLS runs in the "regular" port
-            // NOTE: Although the port should be setup in the various setup screens, this
-            // block cannot easily be moved because we get process URIs from other sources
-            // (e.g. for tests, provider templates and account restore) that may or may not
-            // have a port specified.
-            if (SCHEME_POP3.equals(mProtocol)) {
-                mPort = useSSL ? 995 : 110;
-            } else if (SCHEME_IMAP.equals(mProtocol)) {
-                mPort = useSSL ? 993 : 143;
-            } else if (SCHEME_EAS.equals(mProtocol)) {
-                mPort = useSSL ? 443 : 80;
-            } else if (SCHEME_SMTP.equals(mProtocol)) {
+            if (SCHEME_SMTP.equals(mProtocol)) {
                 mPort = useSSL ? 465 : 587;
             }
         }
