@@ -100,7 +100,7 @@ public class Pop3Store extends Store {
         mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth == null || !HostAuth.SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
+        if (recvAuth == null || !HostAuth.LEGACY_SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers

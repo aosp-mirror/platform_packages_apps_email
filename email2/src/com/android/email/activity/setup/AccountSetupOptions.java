@@ -63,6 +63,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private CheckBox mBackgroundAttachmentsView;
     private View mAccountSyncWindowRow;
     private boolean mDonePressed = false;
+    private EmailServiceInfo mServiceInfo;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
@@ -95,10 +96,10 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         mAccountSyncWindowRow = UiUtilities.getView(this, R.id.account_sync_window_row);
 
         Account account = SetupData.getAccount();
-        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(getApplicationContext(),
+        mServiceInfo = EmailServiceUtils.getServiceInfo(getApplicationContext(),
                 account.mHostAuthRecv.mProtocol);
-        CharSequence[] frequencyValues = info.syncIntervals;
-        CharSequence[] frequencyEntries = info.syncIntervalStrings;
+        CharSequence[] frequencyValues = mServiceInfo.syncIntervals;
+        CharSequence[] frequencyEntries = mServiceInfo.syncIntervalStrings;
 
         // Now create the array used by the sync interval Spinner
         SpinnerOption[] checkFrequencies = new SpinnerOption[frequencyEntries.length];
@@ -112,7 +113,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
 
-        if (info.offerLookback) {
+        if (mServiceInfo.offerLookback) {
             enableLookbackSpinner();
         }
 
@@ -125,18 +126,18 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 (account.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
 
-        if (info.syncContacts) {
+        if (mServiceInfo.syncContacts) {
             mSyncContactsView.setVisibility(View.VISIBLE);
             mSyncContactsView.setChecked(true);
             UiUtilities.setVisibilitySafe(this, R.id.account_sync_contacts_divider, View.VISIBLE);
         }
-        if (info.syncCalendar) {
+        if (mServiceInfo.syncCalendar) {
             mSyncCalendarView.setVisibility(View.VISIBLE);
             mSyncCalendarView.setChecked(true);
             UiUtilities.setVisibilitySafe(this, R.id.account_sync_calendar_divider, View.VISIBLE);
         }
 
-        if (!info.offerAttachmentPreload) {
+        if (!mServiceInfo.offerAttachmentPreload) {
             mBackgroundAttachmentsView.setVisibility(View.GONE);
             UiUtilities.setVisibilitySafe(this, R.id.account_background_attachments_divider,
                     View.GONE);
@@ -222,18 +223,19 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         // Finish setting up the account, and commit it to the database
         // Set the incomplete flag here to avoid reconciliation issues in ExchangeService
         account.mFlags |= Account.FLAGS_INCOMPLETE;
-        boolean calendar = false;
+        if (SetupData.getPolicy() != null) {
+            account.mFlags |= Account.FLAGS_SECURITY_HOLD;
+            account.mPolicy = SetupData.getPolicy();
+        }
         boolean contacts = false;
-        boolean email = mSyncEmailView.isChecked();
-        if (account.mHostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS)) {
-            if (SetupData.getPolicy() != null) {
-                account.mFlags |= Account.FLAGS_SECURITY_HOLD;
-                account.mPolicy = SetupData.getPolicy();
-            }
-            // Get flags for contacts/calendar sync
+        if (mServiceInfo.syncContacts) {
             contacts = mSyncContactsView.isChecked();
+        }
+        boolean calendar = false;
+        if (mServiceInfo.syncCalendar) {
             calendar = mSyncCalendarView.isChecked();
         }
+        boolean email = mSyncEmailView.isChecked();
 
         // Finally, write the completed account (for the first time) and then
         // install it into the Account manager as well.  These are done off-thread.

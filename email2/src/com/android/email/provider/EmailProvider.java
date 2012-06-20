@@ -51,6 +51,7 @@ import com.android.email.SecurityPolicy;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
@@ -2529,16 +2530,14 @@ outer:
             Context context = getContext();
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
             // Make sure we can't get NPE if mailbox has disappeared (the result will end up moot)
-            String protocol = HostAuth.SCHEME_EAS;
             if (mailbox != null) {
-                protocol = Account.getProtocol(context, mailbox.mAccountKey);
-                // "load more" is valid for IMAP/POP3
-                if (HostAuth.SCHEME_IMAP.equals(protocol) ||
-                        HostAuth.SCHEME_POP3.equals(protocol)) {
+                String protocol = Account.getProtocol(context, mailbox.mAccountKey);
+                EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+                // "load more" is valid for protocols not supporting "lookback"
+                if (info != null && !info.offerLookback) {
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));
                 } else {
-                    // For EAS, allow settings
                     int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
                     if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
                         caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
@@ -2564,28 +2563,6 @@ outer:
         return sb.toString();
     }
 
-    private static final long IMAP_CAPABILITIES =
-            AccountCapabilities.SYNCABLE_FOLDERS |
-            AccountCapabilities.FOLDER_SERVER_SEARCH |
-            AccountCapabilities.UNDO;
-
-    private static final long POP3_CAPABILITIES =
-            AccountCapabilities.UNDO;
-
-    private static final long EAS_12_CAPABILITIES =
-            AccountCapabilities.SYNCABLE_FOLDERS |
-            AccountCapabilities.FOLDER_SERVER_SEARCH |
-            AccountCapabilities.SANITIZED_HTML |
-            AccountCapabilities.SMART_REPLY |
-            AccountCapabilities.SERVER_SEARCH |
-            AccountCapabilities.UNDO;
-
-    private static final long EAS_2_CAPABILITIES =
-            AccountCapabilities.SYNCABLE_FOLDERS |
-            AccountCapabilities.SANITIZED_HTML |
-            AccountCapabilities.SMART_REPLY |
-            AccountCapabilities.UNDO;
-
     private static final Uri BASE_EXTERNAL_URI = Uri.parse("content://ui.email.android.com");
 
     private static final Uri BASE_EXTERAL_URI2 = Uri.parse("content://ui.email2.android.com");
@@ -2606,34 +2583,20 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    // TODO: Get protocol specific stuff out of here (it should be in the account)
     private String genQueryAccount(String[] uiProjection, String id) {
         ContentValues values = new ContentValues();
         long accountId = Long.parseLong(id);
-        String protocol = Account.getProtocol(getContext(), accountId);
-        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-            values.put(UIProvider.AccountColumns.CAPABILITIES, IMAP_CAPABILITIES);
-        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
-            values.put(UIProvider.AccountColumns.CAPABILITIES, POP3_CAPABILITIES);
-        } else {
-            Account account = Account.restoreAccountWithId(getContext(), accountId);
-            if (account != null) {
-                String easVersion = account.mProtocolVersion;
-                Double easVersionDouble = 2.5D;
-                if (easVersion != null) {
-                    try {
-                        easVersionDouble = Double.parseDouble(easVersion);
-                    } catch (NumberFormatException e) {
-                        // Stick with 2.5
-                    }
-                }
-                if (easVersionDouble >= 12.0D) {
-                    values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_12_CAPABILITIES);
-                } else {
-                    values.put(UIProvider.AccountColumns.CAPABILITIES, EAS_2_CAPABILITIES);
-                }
-            }
+
+        // Get account capabilities from the service
+        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
+                mServiceCallback, accountId);
+        int capabilities = 0;
+        try {
+            capabilities = service.getCapabilities(accountId);
+        } catch (RemoteException e) {
         }
+        values.put(UIProvider.AccountColumns.CAPABILITIES, capabilities);
+
         values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
                 getExternalUriString("settings", id));
         values.put(UIProvider.AccountColumns.COMPOSE_URI,

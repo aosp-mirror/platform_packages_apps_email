@@ -22,9 +22,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.os.RemoteException;
 
 import com.android.email.R;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailServiceCallback;
 
@@ -48,6 +50,48 @@ public class EmailServiceUtils {
         EmailServiceInfo info = getServiceInfo(context, protocol);
         if (info != null && info.intentAction != null) {
             context.startService(new Intent(info.intentAction));
+        }
+    }
+
+    /**
+     * Starts all remote services
+     */
+    public static void startRemoteServices(Context context) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                context.startService(new Intent(info.intentAction));
+            }
+        }
+    }
+
+    /**
+     * Returns whether or not remote services are present on device
+     */
+    public static boolean areRemoteServicesInstalled(Context context) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Starts all remote services
+     */
+    public static void setRemoteServicesLogging(Context context, int debugBits) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                EmailServiceProxy service =
+                        EmailServiceUtils.getService(context, null, info.protocol);
+                if (service != null) {
+                    try {
+                        service.setLogging(debugBits);
+                    } catch (RemoteException e) {
+                        // Move along, nothing to see
+                    }
+                }
+            }
         }
     }
 

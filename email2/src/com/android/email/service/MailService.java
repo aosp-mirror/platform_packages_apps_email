@@ -27,6 +27,7 @@ import android.os.IBinder;
 
 import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountReconciler;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
@@ -76,9 +77,8 @@ public class MailService extends Service {
             while (c.moveToNext()) {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 String protocol = Account.getProtocol(context, accountId);
-                if ((protocol != null) &&
-                        (HostAuth.SCHEME_POP3.equals(protocol) ||
-                                HostAuth.SCHEME_IMAP.equals(protocol))) {
+                EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+                if ((info != null) && info.accountType.equals(AccountManagerTypes.TYPE_POP_IMAP)) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
@@ -150,10 +150,8 @@ public class MailService extends Service {
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, contacts);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
         options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
-        String accountType = hostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS) ?
-                AccountManagerTypes.TYPE_EXCHANGE :
-                AccountManagerTypes.TYPE_POP_IMAP;
-        AccountManager.get(context).addAccount(accountType, null, null, options, null, callback,
-                null);
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, hostAuthRecv.mProtocol);
+        AccountManager.get(context).addAccount(info.accountType, null, null, options, null,
+                callback, null);
     }
 }

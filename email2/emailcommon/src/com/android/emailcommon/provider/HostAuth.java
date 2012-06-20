@@ -34,14 +34,19 @@ import java.net.URISyntaxException;
 
 public final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
     public static final String TABLE_NAME = "HostAuth";
-    @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
-    // TODO the three following constants duplicate constants in Store.java; remove those and
-    //      just reference these.
+
+    // These legacy constants should be used in code created prior to Email2
+    public static final String LEGACY_SCHEME_IMAP = "imap";
+    public static final String LEGACY_SCHEME_POP3 = "pop3";
+    public static final String LEGACY_SCHEME_EAS = "eas";
+    public static final String LEGACY_SCHEME_SMTP = "smtp";
+
+    // These constants should, over time, be replaced by information in services.xml
     public static final String SCHEME_IMAP = "imap";
     public static final String SCHEME_POP3 = "pop3";
     public static final String SCHEME_EAS = "eas";
-    public static final String SCHEME_SMTP = "smtp";
+
     public static final String SCHEME_TRUST_ALL_CERTS = "trustallcerts";
 
     public static final int PORT_UNKNOWN = -1;
@@ -269,7 +274,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPort = port;
         if (mPort == PORT_UNKNOWN) {
             boolean useSSL = ((mFlags & FLAG_SSL) != 0);
-            if (SCHEME_SMTP.equals(mProtocol)) {
+            if (LEGACY_SCHEME_SMTP.equals(mProtocol)) {
                 mPort = useSSL ? 465 : 587;
             }
         }

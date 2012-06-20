@@ -414,9 +414,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "deleteAccountPIMData");
     }
 
-
     /**
-     * PRELIMINARY
      * Search for messages given a query string.  The string is interpreted as the logical AND of
      * terms separated by white space.  The search is performed on the specified mailbox in the
      * specified account (including subfolders, as specified by the includeSubfolders parameter).
@@ -462,6 +460,23 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
                 mService.sendMail(accountId);
             }
         }, "sendMail");
+    }
+
+    @Override
+    public int getCapabilities(final long accountId) throws RemoteException {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                if (mCallback != null) mService.setCallback(mCallback);
+                mReturn = mService.getCapabilities(accountId);
+            }
+        }, "getCapabilities");
+        waitForCompletion();
+        if (mReturn == null) {
+            return 0;
+        } else {
+            return (Integer)mReturn;
+        }
     }
 
     @Override

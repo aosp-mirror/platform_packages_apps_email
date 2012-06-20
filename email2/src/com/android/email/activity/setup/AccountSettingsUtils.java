@@ -295,8 +295,8 @@ public class AccountSettingsUtils {
         if (firstDotIndex != -1) {
             // look at first word and decide what to do
             String firstWord = server.substring(0, firstDotIndex).toLowerCase();
-            boolean isImapOrPop = HostAuth.SCHEME_IMAP.equals(firstWord)
-                    || "pop".equals(firstWord) || HostAuth.SCHEME_POP3.equals(firstWord);
+            boolean isImapOrPop = "imap".equals(firstWord)
+                    || "pop".equals(firstWord) || "pop3".equals(firstWord);
             boolean isMail = "mail".equals(firstWord);
             // Now decide what to do
             if (incoming != null) {

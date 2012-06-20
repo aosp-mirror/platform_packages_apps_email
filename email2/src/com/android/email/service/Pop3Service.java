@@ -57,6 +57,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.mail.providers.UIProvider.AccountCapabilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -180,6 +181,11 @@ public class Pop3Service extends Service {
         @Override
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
             mCallbackList.register(cb);
+        }
+
+        @Override
+        public int getCapabilities(long accountId) throws RemoteException {
+            return AccountCapabilities.UNDO;
         }
     };
 

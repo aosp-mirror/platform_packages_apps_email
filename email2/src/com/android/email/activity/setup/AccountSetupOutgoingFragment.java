@@ -82,7 +82,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (savedInstanceState != null) {
             mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
-        mBaseScheme = HostAuth.SCHEME_SMTP;
+        mBaseScheme = HostAuth.LEGACY_SCHEME_SMTP;
     }
 
     @Override

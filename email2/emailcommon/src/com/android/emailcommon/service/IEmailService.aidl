@@ -59,4 +59,7 @@ interface IEmailService {
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 
     void sendMail(long accountId);
+
+    // API level 3
+    int getCapabilities(long accountId);
 }

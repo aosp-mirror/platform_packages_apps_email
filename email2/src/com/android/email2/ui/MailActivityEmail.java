@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.NotificationController;
@@ -34,7 +33,6 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -56,8 +54,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     // Exchange debugging flags (passed to Exchange, when available, via EmailServiceProxy)
     public static boolean DEBUG_EXCHANGE;
-    public static boolean DEBUG_EXCHANGE_VERBOSE;
-    public static boolean DEBUG_EXCHANGE_FILE;
+    public static boolean DEBUG_VERBOSE;
+    public static boolean DEBUG_FILE;
 
     /**
      * If true, inhibit hardware graphics acceleration in UI (for a/b testing)
@@ -194,15 +192,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         int enableStrictMode =
             prefs.getEnableStrictMode() ? EmailServiceProxy.DEBUG_ENABLE_STRICT_MODE : 0;
         int debugBits = debugLogging | verboseLogging | fileLogging | enableStrictMode;
-        EmailServiceProxy service =
-                EmailServiceUtils.getService(context, null, HostAuth.SCHEME_EAS);
-        if (service != null) {
-            try {
-                service.setLogging(debugBits);
-            } catch (RemoteException e) {
-            }
-        }
-    }
+        EmailServiceUtils.setRemoteServicesLogging(context, debugBits);
+     }
 
     /**
      * Internal, utility method for logging.

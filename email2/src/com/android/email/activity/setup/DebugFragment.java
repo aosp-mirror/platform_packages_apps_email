@@ -41,8 +41,8 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
     private TextView mVersionView;
     private CheckBox mEnableDebugLoggingView;
-    private CheckBox mEnableExchangeLoggingView;
-    private CheckBox mEnableExchangeFileLoggingView;
+    private CheckBox mEnableVerboseLoggingView;
+    private CheckBox mEnableFileLoggingView;
     private CheckBox mInhibitGraphicsAccelerationView;
     private CheckBox mEnableStrictModeView;
 
@@ -66,23 +66,21 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mEnableDebugLoggingView = (CheckBox) UiUtilities.getView(view, R.id.debug_logging);
         mEnableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);
 
-        mEnableExchangeLoggingView = (CheckBox) UiUtilities.getView(view, R.id.exchange_logging);
-        mEnableExchangeFileLoggingView =
-            (CheckBox) UiUtilities.getView(view, R.id.exchange_file_logging);
+        mEnableVerboseLoggingView = (CheckBox) UiUtilities.getView(view, R.id.verbose_logging);
+        mEnableFileLoggingView =
+            (CheckBox) UiUtilities.getView(view, R.id.file_logging);
 
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
 
-        boolean exchangeAvailable =
-                EmailServiceUtils.isServiceAvailable(context, HostAuth.SCHEME_EAS);
-        if (exchangeAvailable) {
-            mEnableExchangeLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_VERBOSE);
-            mEnableExchangeFileLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_FILE);
-            mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
-            mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
+        if (EmailServiceUtils.areRemoteServicesInstalled(context)) {
+            mEnableVerboseLoggingView.setChecked(MailActivityEmail.DEBUG_VERBOSE);
+            mEnableFileLoggingView.setChecked(MailActivityEmail.DEBUG_FILE);
+            mEnableVerboseLoggingView.setOnCheckedChangeListener(this);
+            mEnableFileLoggingView.setOnCheckedChangeListener(this);
         } else {
-            mEnableExchangeLoggingView.setVisibility(View.GONE);
-            mEnableExchangeFileLoggingView.setVisibility(View.GONE);
+            mEnableVerboseLoggingView.setVisibility(View.GONE);
+            mEnableFileLoggingView.setVisibility(View.GONE);
         }
 
         UiUtilities.getView(view, R.id.clear_webview_cache).setOnClickListener(this);
@@ -109,13 +107,13 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
                 MailActivityEmail.DEBUG = isChecked;
                 MailActivityEmail.DEBUG_EXCHANGE = isChecked;
                 break;
-             case R.id.exchange_logging:
+            case R.id.verbose_logging:
                 mPreferences.setEnableExchangeLogging(isChecked);
-                MailActivityEmail.DEBUG_EXCHANGE_VERBOSE = isChecked;
+                MailActivityEmail.DEBUG_VERBOSE = isChecked;
                 break;
-            case R.id.exchange_file_logging:
+            case R.id.file_logging:
                 mPreferences.setEnableExchangeFileLogging(isChecked);
-                MailActivityEmail.DEBUG_EXCHANGE_FILE = isChecked;
+                MailActivityEmail.DEBUG_FILE = isChecked;
                 break;
            case R.id.debug_disable_graphics_acceleration:
                 MailActivityEmail.sDebugInhibitGraphicsAcceleration = isChecked;

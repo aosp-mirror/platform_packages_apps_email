@@ -455,21 +455,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     }
 
     /**
-     * @return true if the instance is of an EAS account.
-     *
-     * NOTE This method accesses the DB if {@link #mHostAuthRecv} hasn't been restored yet.
-     * Use caution when you use this on the main thread.
-     */
-    public boolean isEasAccount(Context context) {
-        return HostAuth.SCHEME_EAS.equals(getProtocol(context));
-    }
-
-    public boolean supportsMoveMessages(Context context) {
-        String protocol = getProtocol(context);
-        return HostAuth.SCHEME_EAS.equals(protocol) || HostAuth.SCHEME_IMAP.equals(protocol);
-    }
-
-    /**
      * @return true if the account supports "search".
      */
     public static boolean supportsServerSearch(Context context, long accountId) {
