@@ -22,13 +22,20 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.android.email.R;
+import com.android.emailcommon.Api;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -143,10 +150,23 @@ public class EmailServiceUtils {
         public int serverLabel;
         public CharSequence[] syncIntervalStrings;
         public CharSequence[] syncIntervals;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder("Protocol: ");
+            sb.append(protocol);
+            sb.append(", ");
+            sb.append(klass != null ? "Local" : "Remote");
+            return sb.toString();
+        }
     }
 
     public static EmailServiceProxy getService(Context context, IEmailServiceCallback callback,
             String protocol) {
+        // Handle the degenerate case here (account might have been deleted)
+        if (protocol == null) {
+            Log.w(Logging.LOG_TAG, "Returning NullService for " + protocol);
+            return new EmailServiceProxy(context, NullService.class, null);
+        }
         EmailServiceInfo info = getServiceInfo(context, protocol);
         if (info.klass != null) {
             return new EmailServiceProxy(context, info.klass, callback);
@@ -247,4 +267,99 @@ public class EmailServiceUtils {
         }
     }
 
+    /**
+     * A no-op service that can be returned for non-existent/null protocols
+     */
+    class NullService implements IEmailService {
+        @Override
+        public IBinder asBinder() {
+            return null;
+        }
+
+        @Override
+        public Bundle validate(HostAuth hostauth) throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+        }
+
+        @Override
+        public void stopSync(long mailboxId) throws RemoteException {
+        }
+
+        @Override
+        public void loadMore(long messageId) throws RemoteException {
+        }
+
+        @Override
+        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+        }
+
+        @Override
+        public void updateFolderList(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public boolean createFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean renameFolder(long accountId, String oldName, String newName)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+        }
+
+        @Override
+        public void setLogging(int on) throws RemoteException {
+        }
+
+        @Override
+        public void hostChanged(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+        }
+
+        @Override
+        public void deleteAccountPIMData(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public int getApiLevel() throws RemoteException {
+            return Api.LEVEL;
+        }
+
+        @Override
+        public int searchMessages(long accountId, SearchParams params, long destMailboxId)
+                throws RemoteException {
+            return 0;
+        }
+
+        @Override
+        public void sendMail(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public int getCapabilities(long accountId) throws RemoteException {
+            return 0;
+        }
+    }
 }
