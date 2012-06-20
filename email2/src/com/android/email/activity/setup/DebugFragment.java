@@ -35,6 +35,7 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.HostAuth;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
@@ -72,7 +73,8 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
 
-        boolean exchangeAvailable = EmailServiceUtils.isServiceAvailable(context, "eas");
+        boolean exchangeAvailable =
+                EmailServiceUtils.isServiceAvailable(context, HostAuth.SCHEME_EAS);
         if (exchangeAvailable) {
             mEnableExchangeLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_VERBOSE);
             mEnableExchangeFileLoggingView.setChecked(MailActivityEmail.DEBUG_EXCHANGE_FILE);

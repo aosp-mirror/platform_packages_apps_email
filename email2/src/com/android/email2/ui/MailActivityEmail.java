@@ -34,6 +34,7 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -193,7 +194,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         int enableStrictMode =
             prefs.getEnableStrictMode() ? EmailServiceProxy.DEBUG_ENABLE_STRICT_MODE : 0;
         int debugBits = debugLogging | verboseLogging | fileLogging | enableStrictMode;
-        EmailServiceProxy service = EmailServiceUtils.getService(context, null, "eas");
+        EmailServiceProxy service =
+                EmailServiceUtils.getService(context, null, HostAuth.SCHEME_EAS);
         if (service != null) {
             try {
                 service.setLogging(debugBits);

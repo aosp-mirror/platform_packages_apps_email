@@ -2529,7 +2529,7 @@ outer:
             Context context = getContext();
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
             // Make sure we can't get NPE if mailbox has disappeared (the result will end up moot)
-            String protocol = "eas";
+            String protocol = HostAuth.SCHEME_EAS;
             if (mailbox != null) {
                 protocol = Account.getProtocol(context, mailbox.mAccountKey);
                 // "load more" is valid for IMAP/POP3

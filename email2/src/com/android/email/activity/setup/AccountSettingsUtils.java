@@ -30,6 +30,7 @@ import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.QuickResponse;
 import com.google.common.annotations.VisibleForTesting;
@@ -294,8 +295,8 @@ public class AccountSettingsUtils {
         if (firstDotIndex != -1) {
             // look at first word and decide what to do
             String firstWord = server.substring(0, firstDotIndex).toLowerCase();
-            boolean isImapOrPop = "imap".equals(firstWord)
-                    || "pop3".equals(firstWord) || "pop".equals(firstWord);
+            boolean isImapOrPop = HostAuth.SCHEME_IMAP.equals(firstWord)
+                    || "pop".equals(firstWord) || HostAuth.SCHEME_POP3.equals(firstWord);
             boolean isMail = "mail".equals(firstWord);
             // Now decide what to do
             if (incoming != null) {

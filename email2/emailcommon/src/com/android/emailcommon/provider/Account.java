@@ -461,12 +461,12 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      * Use caution when you use this on the main thread.
      */
     public boolean isEasAccount(Context context) {
-        return "eas".equals(getProtocol(context));
+        return HostAuth.SCHEME_EAS.equals(getProtocol(context));
     }
 
     public boolean supportsMoveMessages(Context context) {
         String protocol = getProtocol(context);
-        return "eas".equals(protocol) || "imap".equals(protocol);
+        return HostAuth.SCHEME_EAS.equals(protocol) || HostAuth.SCHEME_IMAP.equals(protocol);
     }
 
     /**

@@ -76,7 +76,9 @@ public class MailService extends Service {
             while (c.moveToNext()) {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 String protocol = Account.getProtocol(context, accountId);
-                if ((protocol != null) && ("pop3".equals(protocol) || "imap".equals(protocol))) {
+                if ((protocol != null) &&
+                        (HostAuth.SCHEME_POP3.equals(protocol) ||
+                                HostAuth.SCHEME_IMAP.equals(protocol))) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
@@ -148,7 +150,7 @@ public class MailService extends Service {
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, contacts);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
         options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
-        String accountType = hostAuthRecv.mProtocol.equals("eas") ?
+        String accountType = hostAuthRecv.mProtocol.equals(HostAuth.SCHEME_EAS) ?
                 AccountManagerTypes.TYPE_EXCHANGE :
                 AccountManagerTypes.TYPE_POP_IMAP;
         AccountManager.get(context).addAccount(accountType, null, null, options, null, callback,
