@@ -43,10 +43,11 @@ import android.widget.Toast;
 
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -98,6 +99,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      */
     private static final String ACTION_CREATE_ACCOUNT = "com.android.email.CREATE_ACCOUNT";
     private static final String EXTRA_FLOW_MODE = "FLOW_MODE";
+    private static final String EXTRA_FLOW_ACCOUNT_TYPE = "FLOW_ACCOUNT_TYPE";
     private static final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
     private static final String EXTRA_CREATE_ACCOUNT_USER = "USER";
     private static final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
@@ -110,7 +112,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     private static final int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
 
     // Support for UI
-    private TextView mWelcomeView;
     private EditText mEmailView;
     private EditText mPasswordView;
     private CheckBox mDefaultView;
@@ -141,19 +142,10 @@ public class AccountSetupBasics extends AccountSetupActivity
      * This generates setup data that can be used to start a self-contained account creation flow
      * for exchange accounts.
      */
-    public static Intent actionSetupExchangeIntent(Context context) {
+    public static Intent actionGetCreateAccountIntent(Context context, String accountManagerType) {
         Intent i = new Intent(context, AccountSetupBasics.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS);
-        return i;
-    }
-
-    /**
-     * This generates setup data that can be used to start a self-contained account creation flow
-     * for pop/imap accounts.
-     */
-    public static Intent actionSetupPopImapIntent(Context context) {
-        Intent i = new Intent(context, AccountSetupBasics.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_ACCOUNT_MANAGER_POP_IMAP);
+        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_ACCOUNT_MANAGER);
+        i.putExtra(EXTRA_FLOW_ACCOUNT_TYPE, accountManagerType);
         return i;
     }
 
@@ -182,6 +174,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         fromActivity.startActivity(i);
     }
 
+    @SuppressWarnings("deprecation")
     public static void actionAccountCreateFinished(final Activity fromActivity,
             final long accountId) {
         Utility.runAsync(new Runnable() {
@@ -211,7 +204,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         int flowMode = getIntent().getIntExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_UNSPECIFIED);
         if (flowMode != SetupData.FLOW_MODE_UNSPECIFIED) {
-            SetupData.init(flowMode);
+            SetupData.init(flowMode, getIntent().getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
         } else {
             // TODO: get rid of this case. It's not safe to rely on this global static state. It
             // should be specified in the Intent always.
@@ -243,7 +236,6 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-        mWelcomeView = (TextView) UiUtilities.getView(this, R.id.instructions);
         mEmailView = (EditText) UiUtilities.getView(this, R.id.account_email);
         mPasswordView = (EditText) UiUtilities.getView(this, R.id.account_password);
         mDefaultView = (CheckBox) UiUtilities.getView(this, R.id.account_default);
@@ -256,19 +248,6 @@ public class AccountSetupBasics extends AccountSetupActivity
         new DisplayCheckboxTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         boolean manualButtonDisplayed = true;
-        boolean alternateStrings = false;
-        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
-            // No need for manual button -> next is appropriate
-            manualButtonDisplayed = false;
-            // Swap welcome text for EAS-specific text
-            alternateStrings = VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
-            setTitle(alternateStrings
-                    ? R.string.account_setup_basics_exchange_title_alternate
-                    : R.string.account_setup_basics_exchange_title);
-            mWelcomeView.setText(alternateStrings
-                    ? R.string.accounts_welcome_exchange_alternate
-                    : R.string.accounts_welcome_exchange);
-        }
 
         // Configure buttons
         mManualButton = (Button) UiUtilities.getView(this, R.id.manual_setup);
@@ -545,27 +524,24 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
     }
 
-
     /**
      * When "next" button is clicked
      */
     private void onNext() {
         // Try auto-configuration from XML providers (unless in EAS mode, we can skip it)
-        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
-            String email = mEmailView.getText().toString().trim();
-            String[] emailParts = email.split("@");
-            String domain = emailParts[1].trim();
-            mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
-            if (mProvider != null) {
-                if (mProvider.note != null) {
-                    NoteDialogFragment dialogFragment =
-                            NoteDialogFragment.newInstance(mProvider.note);
-                    dialogFragment.show(getFragmentManager(), NoteDialogFragment.TAG);
-                } else {
-                    finishAutoSetup();
-                }
-                return;
+        String email = mEmailView.getText().toString().trim();
+        String[] emailParts = email.split("@");
+        String domain = emailParts[1].trim();
+        mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
+        if (mProvider != null) {
+            if (mProvider.note != null) {
+                NoteDialogFragment dialogFragment =
+                        NoteDialogFragment.newInstance(mProvider.note);
+                dialogFragment.show(getFragmentManager(), NoteDialogFragment.TAG);
+            } else {
+                finishAutoSetup();
             }
+            return;
         }
         // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
         onManualSetup(true);
@@ -598,11 +574,11 @@ public class AccountSetupBasics extends AccountSetupActivity
         Account account = SetupData.getAccount();
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setLogin(user, password);
-        recvAuth.setConnection("placeholder", domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+        recvAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
 
         HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
         sendAuth.setLogin(user, password);
-        sendAuth.setConnection("placeholder", domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+        sendAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
 
         populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
 
@@ -638,6 +614,17 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
     }
 
+    public static void setDefaultsForProtocol(Context context, Account account) {
+        String protocol = account.mHostAuthRecv.mProtocol;
+        if (protocol == null) return;
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+        account.mSyncInterval = info.defaultSyncInterval;
+        account.mSyncLookback = info.defaultLookback;
+        if (info.offerLocalDeletes) {
+            account.setDeletePolicy(info.defaultLocalDeletes);
+        }
+    }
+
     /**
      * Populate SetupData's account with complete setup info.
      */
@@ -648,31 +635,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         account.setDisplayName(senderEmail);
         account.setDefaultAccount(isDefault);
         SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
-
-        String protocol = account.mHostAuthRecv.mProtocol;
-        setFlagsForProtocol(account, protocol);
-    }
-
-    /**
-     * Sets the account sync, delete, and other misc flags not captured in {@code HostAuth}
-     * information for the specified account based on the protocol type.
-     */
-    @VisibleForTesting
-    static void setFlagsForProtocol(Account account, String protocol) {
-        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-            // Delete policy must be set explicitly, because IMAP does not provide a UI selection
-            // for it.
-            account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-            account.mFlags |= Account.FLAGS_SUPPORTS_SEARCH;
-        }
-
-        if (HostAuth.SCHEME_EAS.equals(protocol)) {
-            account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
-            account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
-            account.setSyncLookback(SyncWindow.SYNC_WINDOW_AUTO);
-        } else {
-            account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
-        }
+        setDefaultsForProtocol(this, account);
     }
 
     /**

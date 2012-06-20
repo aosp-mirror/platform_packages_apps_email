@@ -205,4 +205,11 @@
         <item>@color/combined_view_account_color_8</item>
         <item>@color/combined_view_account_color_9</item>
     </array>
+
+    <!-- Host addresses starting with these infer an smtp address replacing the word with "smtp" -->
+    <string-array translatable="false" name="smtp_host_prefixes">
+        <item>pop3</item>
+        <item>pop</item>
+        <item>imap</item>
+    </string-array>
 </resources>

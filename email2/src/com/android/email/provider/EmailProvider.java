@@ -3579,14 +3579,25 @@ outer:
         }
     }
 
+    // TODO: This should depend on flags on the mailbox...
+    private boolean uploadsToServer(Context context, Mailbox m) {
+        if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX ||
+                m.mType == Mailbox.TYPE_SEARCH) {
+            return false;
+        }
+        String protocol = Account.getProtocol(context, m.mAccountKey);
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+        return (info != null && info.syncChanges);
+    }
+
     private int uiUpdateMessage(Uri uri, ContentValues values) {
         Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
         if (mailbox == null) return 0;
-        Uri ourBaseUri =
-                mailbox.uploadsToServer(context) ? Message.SYNCED_CONTENT_URI : Message.CONTENT_URI;
+        Uri ourBaseUri = uploadsToServer(context, mailbox) ? Message.SYNCED_CONTENT_URI :
+            Message.CONTENT_URI;
         Uri ourUri = convertToEmailProviderUri(uri, ourBaseUri, true);
         if (ourUri == null) return 0;
 

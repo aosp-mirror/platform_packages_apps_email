@@ -53,10 +53,22 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         ActivityHelper.debugSetWindowFlags(this);
         int flowMode = SetupData.getFlowMode();
 
-        // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS
-        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
-            onSelect(HostAuth.SCHEME_EAS);
-            return;
+        String accountType = SetupData.getFlowAccountType();
+        // If we're in account setup flow mode, see if there's just one protocol that matches
+        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER) {
+            int matches = 0;
+            String protocol = null;
+            for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
+                if (info.accountType.equals(accountType)) {
+                    protocol = info.protocol;
+                    matches++;
+                }
+            }
+            // If so, select it...
+            if (matches == 1) {
+                onSelect(protocol);
+                return;
+            }
         }
 
         // Otherwise proceed into this screen
@@ -67,6 +79,10 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         int i = 1;
         for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
             if (EmailServiceUtils.isServiceAvailable(this, info.protocol)) {
+                // If we're looking for a specific account type, reject others
+                if (accountType != null && !accountType.equals(info.accountType)) {
+                    continue;
+                }
                 LayoutInflater.from(this).inflate(R.layout.account_type, parent);
                 Button button = (Button)parent.getChildAt(i);
                 if (parentRelative) {
@@ -102,7 +118,7 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
                     SetupData.CHECK_INCOMING | (info.usesSmtp ? SetupData.CHECK_OUTGOING : 0));
         }
         recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
-        AccountSetupBasics.setFlagsForProtocol(account, protocol);
+        AccountSetupBasics.setDefaultsForProtocol(this, account);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         // Back from the incoming screen returns to AccountSetupBasics
         finish();

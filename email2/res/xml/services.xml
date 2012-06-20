@@ -27,6 +27,7 @@
         email:offerLocalDeletes="true"
         email:syncIntervalStrings="@array/account_settings_check_frequency_entries"
         email:syncIntervals="@array/account_settings_check_frequency_values"
+        email:defaultSyncInterval="15"
          />
     <emailservice
         email:protocol="imap"
@@ -41,6 +42,8 @@
         email:offerPrefix="true"
         email:syncIntervalStrings="@array/account_settings_check_frequency_entries"
         email:syncIntervals="@array/account_settings_check_frequency_values"
+        email:defaultSyncInterval="15"
+        email:syncChanges="true"
          />
     <emailservice
         email:protocol="eas"
@@ -53,10 +56,13 @@
         email:offerCerts="true"
         email:syncIntervalStrings="@array/account_settings_check_frequency_entries_push"
         email:syncIntervals="@array/account_settings_check_frequency_values_push"
+        email:defaultSyncInterval="-2"
+        email:syncChanges="true"
         email:usesAutodiscover="true"
         email:offerAttachmentPreload="true"
         email:offerPush="true"
         email:offerLookback="true"
+        email:defaultLookback="-2"
         email:syncContacts="true"
         email:syncCalendar="true"
          />

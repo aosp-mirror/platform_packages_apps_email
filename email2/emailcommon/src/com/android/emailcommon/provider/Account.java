@@ -40,7 +40,6 @@ import java.util.UUID;
 
 public final class Account extends EmailContent implements AccountColumns, Parcelable {
     public static final String TABLE_NAME = "Account";
-    @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
     public static final Uri ADD_TO_FIELD_URI =
         Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
@@ -193,13 +192,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     private static final String FIND_INBOX_SELECTION =
             MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
             " AND " + MailboxColumns.ACCOUNT_KEY + " =?";
-
-    /**
-     * This projection is for searching for the default account
-     */
-    private static final String[] DEFAULT_ID_PROJECTION = new String[] {
-        RECORD_ID, IS_DEFAULT
-    };
 
     /**
      * no public constructor since this is a utility class

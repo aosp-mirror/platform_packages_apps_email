@@ -33,6 +33,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.QuickResponse;
+import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.Serializable;
@@ -279,35 +280,35 @@ public class AccountSettingsUtils {
      *
      * Incoming: Prepend "imap" or "pop3" to domain, unless "pop", "pop3",
      *          "imap", or "mail" are found.
-     * Outgoing: Prepend "smtp" if "pop", "pop3", "imap" are found.
-     *          Leave "mail" as-is.
-     * TBD: Are there any useful defaults for exchange?
+     * Outgoing: Prepend "smtp" if domain starts with any in the host prefix array
      *
      * @param server name as we know it so far
      * @param incoming "pop3" or "imap" (or null)
      * @param outgoing "smtp" or null
      * @return the post-processed name for use in the UI
      */
-    public static String inferServerName(String server, String incoming, String outgoing) {
+    public static String inferServerName(Context context, String server, String incoming,
+            String outgoing) {
         // Default values cause entire string to be kept, with prepended server string
         int keepFirstChar = 0;
         int firstDotIndex = server.indexOf('.');
         if (firstDotIndex != -1) {
             // look at first word and decide what to do
             String firstWord = server.substring(0, firstDotIndex).toLowerCase();
-            boolean isImapOrPop = "imap".equals(firstWord)
-                    || "pop".equals(firstWord) || "pop3".equals(firstWord);
+            String[] hostPrefixes =
+                    context.getResources().getStringArray(R.array.smtp_host_prefixes);
+            boolean canSubstituteSmtp = Utility.arrayContains(hostPrefixes, firstWord);
             boolean isMail = "mail".equals(firstWord);
             // Now decide what to do
             if (incoming != null) {
                 // For incoming, we leave imap/pop/pop3/mail alone, or prepend incoming
-                if (isImapOrPop || isMail) {
+                if (canSubstituteSmtp || isMail) {
                     return server;
                 }
             } else {
                 // For outgoing, replace imap/pop/pop3 with outgoing, leave mail alone, or
                 // prepend outgoing
-                if (isImapOrPop) {
+                if (canSubstituteSmtp) {
                     keepFirstChar = firstDotIndex + 1;
                 } else if (isMail) {
                     return server;
