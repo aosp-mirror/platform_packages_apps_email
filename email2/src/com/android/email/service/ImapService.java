@@ -60,6 +60,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.mail.providers.UIProvider.AccountCapabilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -225,6 +226,13 @@ public class ImapService extends Service {
             } catch (MessagingException e) {
             }
             return 0;
+        }
+
+        @Override
+        public int getCapabilities(long accountId) throws RemoteException {
+            return AccountCapabilities.SYNCABLE_FOLDERS |
+                    AccountCapabilities.FOLDER_SERVER_SEARCH |
+                    AccountCapabilities.UNDO;
         }
     };
 

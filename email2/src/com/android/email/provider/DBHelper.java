@@ -917,7 +917,7 @@ public final class DBHelper {
                             HostAuth.TABLE_NAME + " where " + Account.TABLE_NAME + "." +
                             AccountColumns.HOST_AUTH_KEY_RECV + "=" + HostAuth.TABLE_NAME + "." +
                             HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
-                            HostAuth.SCHEME_EAS + "')");
+                            HostAuth.LEGACY_SCHEME_EAS + "')");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
@@ -1061,8 +1061,8 @@ public final class DBHelper {
                         if (hostAuthCursor.moveToFirst()) {
                             String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
                             // If this is a pop3 or imap account, create the account manager account
-                            if (HostAuth.SCHEME_IMAP.equals(protocol) ||
-                                    HostAuth.SCHEME_POP3.equals(protocol)) {
+                            if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol) ||
+                                    HostAuth.LEGACY_SCHEME_POP3.equals(protocol)) {
                                 if (MailActivityEmail.DEBUG) {
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
                                             "account: " +
@@ -1073,7 +1073,7 @@ public final class DBHelper {
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
                             // If an EAS account, make Email sync automatically (equivalent of
                             // checking the "Sync Email" box in settings
-                            } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
+                            } else if (HostAuth.LEGACY_SCHEME_EAS.equals(protocol)) {
                                 android.accounts.Account amAccount =
                                         new android.accounts.Account(
                                                 accountCursor.getString(V21_ACCOUNT_EMAIL),
@@ -1157,7 +1157,7 @@ public final class DBHelper {
                         if (hostAuthCursor.moveToFirst()) {
                             String protocol = hostAuthCursor.getString(V25_HOSTAUTH_PROTOCOL);
                             // If this is an imap account, add the search flag
-                            if (HostAuth.SCHEME_IMAP.equals(protocol)) {
+                            if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol)) {
                                 String id = accountCursor.getString(V25_ACCOUNT_ID);
                                 int flags = accountCursor.getInt(V25_ACCOUNT_FLAGS);
                                 cv.put(AccountColumns.FLAGS, flags | Account.FLAGS_SUPPORTS_SEARCH);
@@ -1262,7 +1262,7 @@ public final class DBHelper {
                     HostAuth.TABLE_NAME + " where " + Account.TABLE_NAME + "." +
                     AccountColumns.HOST_AUTH_KEY_RECV + "=" + HostAuth.TABLE_NAME + "." +
                     HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
-                    HostAuth.SCHEME_EAS + "')");
+                    HostAuth.LEGACY_SCHEME_EAS + "')");
         } catch (SQLException e) {
             Log.w(TAG, "Exception upgrading EmailProvider.db from 35/36 to 37/100 " + e);
         }

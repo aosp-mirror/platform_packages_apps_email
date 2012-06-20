@@ -87,6 +87,25 @@ public class PopImapSyncAdapterService extends Service {
         return sSyncAdapter.getSyncAdapterBinder();
     }
 
+    /**
+     * @return whether or not this mailbox retrieves its data from the server (as opposed to just
+     *     a local mailbox that is never synced).
+     */
+    public static boolean loadsFromServer(Mailbox m, String protocol) {
+        if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol)) {
+            // TODO: actually use a sync flag when creating the mailboxes. Right now we use an
+            // approximation for IMAP.
+            return m.mType != Mailbox.TYPE_DRAFTS
+                    && m.mType != Mailbox.TYPE_OUTBOX
+                    && m.mType != Mailbox.TYPE_SEARCH;
+
+        } else if (HostAuth.LEGACY_SCHEME_POP3.equals(protocol)) {
+            return Mailbox.TYPE_INBOX == m.mType;
+        }
+
+        return false;
+    }
+
     private static void sync(Context context, long mailboxId, SyncResult syncResult,
             boolean uiRefresh) {
         TempDirectory.setTempDirectory(context);
@@ -96,7 +115,7 @@ public class PopImapSyncAdapterService extends Service {
         if (account == null) return;
         ContentResolver resolver = context.getContentResolver();
         String protocol = account.getProtocol(context);
-        if ((mailbox.mType != Mailbox.TYPE_OUTBOX) && !mailbox.loadsFromServer(protocol)) {
+        if ((mailbox.mType != Mailbox.TYPE_OUTBOX) && !loadsFromServer(mailbox, protocol)) {
             // This is an update to a message in a non-syncing mailbox; delete this from the
             // updates table and return
             resolver.delete(Message.UPDATED_CONTENT_URI, Message.MAILBOX_KEY + "=?",
@@ -115,7 +134,7 @@ public class PopImapSyncAdapterService extends Service {
             try {
                 if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                     EmailServiceStub.sendMailImpl(context, account.mId);
-                } else if (protocol.equals(HostAuth.SCHEME_IMAP)) {
+                } else if (protocol.equals(HostAuth.LEGACY_SCHEME_IMAP)) {
                     ImapService.synchronizeMailboxSynchronous(context, account, mailbox);
                 } else {
                     Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox);

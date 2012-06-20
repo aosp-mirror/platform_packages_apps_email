@@ -228,11 +228,11 @@
     <string name="debug_enable_debug_logging_label" translatable="false">
         Enable extra debug logging?</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_exchange_logging_label" translatable="false">
-        Enable exchange parser logging? (extremely verbose)</string>
+    <string name="debug_enable_verbose_logging_label" translatable="false">
+        Enable extremely verbose logging?</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_exchange_file_logging_label" translatable="false">
-        Enable exchange sd card logging?</string>
+    <string name="debug_enable_file_logging_label" translatable="false">
+        Enable sd card logging?</string>
     <!-- Do Not Translate.  Button label, shown only on debug screen -->
     <string name="debug_clear_webview_cache" translatable="false">
         Clear WebView cache</string>

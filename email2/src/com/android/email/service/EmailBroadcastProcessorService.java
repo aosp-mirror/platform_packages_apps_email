@@ -130,8 +130,8 @@ public class EmailBroadcastProcessorService extends IntentService {
     private void onBootCompleted() {
         performOneTimeInitialization();
 
-        // Starts the service for Exchange, if supported.
-        EmailServiceUtils.startService(this, HostAuth.SCHEME_EAS);
+        // Starts remote services, if any
+        EmailServiceUtils.startRemoteServices(this);
     }
 
     private void performOneTimeInitialization() {
@@ -177,7 +177,7 @@ public class EmailBroadcastProcessorService extends IntentService {
             while (c.moveToNext()) {
                 long recvAuthKey = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 HostAuth recvAuth = HostAuth.restoreHostAuthWithId(context, recvAuthKey);
-                if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+                if (HostAuth.LEGACY_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
                     int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
                     flags &= ~Account.FLAGS_DELETE_POLICY_MASK;
                     flags |= Account.DELETE_POLICY_ON_DELETE << Account.FLAGS_DELETE_POLICY_SHIFT;
@@ -205,8 +205,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         Log.i(Logging.LOG_TAG, "System accounts updated.");
         MailService.reconcilePopImapAccountsSync(this);
 
-        // If the exchange service wasn't already running, starting it will cause exchange account
-        // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
-        EmailServiceUtils.startService(this, HostAuth.SCHEME_EAS);
+        // Start any remote services
+        EmailServiceUtils.startRemoteServices(this);
     }
 }

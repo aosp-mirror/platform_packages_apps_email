@@ -58,8 +58,8 @@ public abstract class Store {
         new HashMap<String, Class<? extends Store>>();
 
     static {
-        sStoreClasses.put(HostAuth.SCHEME_IMAP, ImapStore.class);
-        sStoreClasses.put(HostAuth.SCHEME_POP3, Pop3Store.class);
+        sStoreClasses.put(HostAuth.LEGACY_SCHEME_IMAP, ImapStore.class);
+        sStoreClasses.put(HostAuth.LEGACY_SCHEME_POP3, Pop3Store.class);
     }
 
     /**

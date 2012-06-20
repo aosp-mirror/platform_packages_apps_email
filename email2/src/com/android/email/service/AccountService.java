@@ -104,8 +104,8 @@ public class AccountService extends Service {
                 EmailAsyncTask.runAsyncSerial(new Runnable() {
                     @Override
                     public void run() {
-                        // Make sure the service is properly running (re: lifecycle)
-                        EmailServiceUtils.startService(mContext, HostAuth.SCHEME_EAS);
+                        // Make sure remote services are running (re: lifecycle)
+                        EmailServiceUtils.startRemoteServices(mContext);
                         // Send current logging flags
                         MailActivityEmail.updateLoggingFlags(mContext);
                     }});
