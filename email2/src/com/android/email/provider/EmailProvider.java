@@ -2544,18 +2544,18 @@ outer:
                     }
                     values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 }
-            }
-            // For trash, we don't allow undo
-            if (mailbox.mType == Mailbox.TYPE_TRASH) {
-                values.put(UIProvider.FolderColumns.CAPABILITIES,
-                        UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
-                        UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
-                        UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
-            }
-            if (isVirtualMailbox(mailboxId)) {
-                int capa = values.getAsInteger(UIProvider.FolderColumns.CAPABILITIES);
-                values.put(UIProvider.FolderColumns.CAPABILITIES,
-                        capa | UIProvider.FolderCapabilities.IS_VIRTUAL);
+                // For trash, we don't allow undo
+                if (mailbox.mType == Mailbox.TYPE_TRASH) {
+                    values.put(UIProvider.FolderColumns.CAPABILITIES,
+                            UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
+                            UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
+                            UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
+                }
+                if (isVirtualMailbox(mailboxId)) {
+                    int capa = values.getAsInteger(UIProvider.FolderColumns.CAPABILITIES);
+                    values.put(UIProvider.FolderColumns.CAPABILITIES,
+                            capa | UIProvider.FolderCapabilities.IS_VIRTUAL);
+                }
             }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
