@@ -144,7 +144,6 @@ public class EmailServiceUtils {
         public int defaultLocalDeletes;
         public boolean offerPrefix;
         public boolean usesAutodiscover;
-        public boolean offerPush;
         public boolean offerLookback;
         public int defaultLookback;
         public boolean syncChanges;
@@ -233,7 +232,6 @@ public class EmailServiceUtils {
                     info.usesSmtp = ta.getBoolean(R.styleable.EmailServiceInfo_usesSmtp, false);
                     info.usesAutodiscover =
                         ta.getBoolean(R.styleable.EmailServiceInfo_usesAutodiscover, false);
-                    info.offerPush = ta.getBoolean(R.styleable.EmailServiceInfo_offerPush, false);
                     info.offerLookback =
                         ta.getBoolean(R.styleable.EmailServiceInfo_offerLookback, false);
                     info.defaultLookback =
