@@ -232,12 +232,9 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Cũ hơn"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Thiết lập tài khoản"</string>
-    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Thêm tài khoản Exchange"</string>
-    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Thêm tài khoản Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Tài khoản email"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Bạn có thể thiết lập email cho hầu hết mọi tài khoản chỉ bằng vài bước."</string>
-    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Bạn có thể thiết lập tài khoản Exchange chỉ bằng vài bước."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Bạn có thể thiết lập tài khoản Exchange ActiveSync chỉ bằng vài bước."</string>
+    <!-- no translation found for accounts_welcome (8337750045270269649) -->
+    <skip />
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Địa chỉ email"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Mật khẩu"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Gửi email từ tài khoản này theo mặc định"</string>
