@@ -232,12 +232,9 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Nzee zaidi"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Usanidi wa akaunti"</string>
-    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Ongeza akaunti ya Exchange"</string>
-    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Ongeza akaunti ya Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Akaunti ya barua pepe"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Unaweza kusanidi barua pepe ya akaunti nyingi kwa hatua chache tu."</string>
-    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Unaweza kusanidi akaunti ya Exchange kwa hatua chache tu."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Unaweza kusanidi akaunti ya Exchange ActiveSync kwa hatua chache tu."</string>
+    <!-- no translation found for accounts_welcome (8337750045270269649) -->
+    <skip />
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Anwani ya barua pepe"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Nenosiri"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Tuma barua pepe kutoka kwa akaunti hii kama chaguo-msingi"</string>

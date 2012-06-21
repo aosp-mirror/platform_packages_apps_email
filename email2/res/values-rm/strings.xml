@@ -317,15 +317,9 @@
     <skip />
     <!-- no translation found for account_setup_basics_title (3578333196594678422) -->
     <skip />
-    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agiuntar in conto Exchange"</string>
-    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agiuntar in conto Exchange ActiveSync"</string>
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
     <skip />
-    <!-- no translation found for accounts_welcome (1491126253077950685) -->
-    <skip />
-    <!-- no translation found for accounts_welcome_exchange (4432917203403596617) -->
-    <skip />
-    <!-- no translation found for accounts_welcome_exchange_alternate (1319376442032224845) -->
+    <!-- no translation found for accounts_welcome (8337750045270269649) -->
     <skip />
     <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
     <skip />
