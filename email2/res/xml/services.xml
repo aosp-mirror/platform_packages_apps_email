@@ -36,7 +36,7 @@
         email:serviceClass="com.android.email.service.Pop3Service"
         email:offerAttachmentPreload="true"
         email:port="143"
-        email:portSsl="995"
+        email:portSsl="993"
         email:offerTls="true"
         email:usesSmtp="true"
         email:offerPrefix="true"
