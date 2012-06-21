@@ -454,6 +454,9 @@ public class AccountSetupBasics extends AccountSetupActivity
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
             recvAuth.setLogin(mProvider.incomingUsername, password);
+            EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
+            recvAuth.mPort =
+                    ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
 
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
             HostAuth.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
