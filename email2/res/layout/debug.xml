@@ -19,12 +19,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     >
-    <TextView
-        android:id="@+id/version"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/debug_version_fmt"
-        />
     <CheckBox
         android:id="@+id/debug_logging"
         android:layout_width="wrap_content"

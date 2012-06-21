@@ -27,7 +27,6 @@ import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.TextView;
 
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -35,11 +34,9 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.HostAuth;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
-    private TextView mVersionView;
     private CheckBox mEnableDebugLoggingView;
     private CheckBox mEnableVerboseLoggingView;
     private CheckBox mEnableFileLoggingView;
@@ -58,10 +55,6 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
 
         Context context = getActivity();
         mPreferences = Preferences.getPreferences(context);
-
-        mVersionView = (TextView) UiUtilities.getView(view, R.id.version);
-        mVersionView.setText(String.format(context.getString(R.string.debug_version_fmt).toString(),
-                context.getString(R.string.build_number)));
 
         mEnableDebugLoggingView = (CheckBox) UiUtilities.getView(view, R.id.debug_logging);
         mEnableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);

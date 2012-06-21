@@ -536,24 +536,12 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>
-    <!-- Title of the screen when adding exchange account [CHAR LIMIT=45] -->
-    <string name="account_setup_basics_exchange_title">
-        Add an Exchange account</string>
-    <!-- Title of the screen when adding exchange account [CHAR LIMIT=45] -->
-    <string name="account_setup_basics_exchange_title_alternate">
-        Add an Exchange ActiveSync account</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
         [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
-    <string name="accounts_welcome">You can set up email for most accounts in just a few steps.
+    <string name="accounts_welcome">You can set up your account in just a few steps.
         </string>
-    <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
-    <string name="accounts_welcome_exchange">You can set up an Exchange account in just a few
-        steps.</string>
-    <!-- On "Set up email" screen, enthusiastic welcome message (in EAS mode). -->
-    <string name="accounts_welcome_exchange_alternate">
-        You can set up an Exchange ActiveSync account in just a few steps.</string>
     <!-- On "Set up email" screen, hint for account email address text field -->
     <string name="account_setup_basics_email_label">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->

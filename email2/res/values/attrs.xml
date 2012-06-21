@@ -33,15 +33,19 @@
         <attr name="offerTls" format="boolean"/>
         <attr name="offerCerts" format="boolean"/>
         <attr name="offerLocalDeletes" format="boolean"/>
+        <attr name="defaultLocalDeletes" format="integer"/>
         <attr name="offerPrefix" format="boolean"/>
         <attr name="usesSmtp" format="boolean"/>
         <attr name="offerPush" format="boolean"/>
+        <attr name="syncChanges" format="boolean"/>
         <attr name="syncContacts" format="boolean"/>
         <attr name="syncCalendar" format="boolean"/>
         <attr name="usesAutodiscover" format="boolean"/>
         <attr name="offerLookback" format="boolean"/>
+        <attr name="defaultLookback" format="integer"/>
         <attr name="offerAttachmentPreload" format="boolean"/>
         <attr name="syncIntervalStrings" format="reference"/>
         <attr name="syncIntervals" format="reference"/>
+        <attr name="defaultSyncInterval" format="integer"/>
     </declare-styleable>
 </resources>

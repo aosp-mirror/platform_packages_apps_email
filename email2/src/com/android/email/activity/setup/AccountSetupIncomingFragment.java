@@ -478,7 +478,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         // Set the username and password for the outgoing settings to the username and
         // password the user just set for incoming.  Use the verified host address to try and
         // pick a smarter outgoing address.
-        String hostName = AccountSettingsUtils.inferServerName(recvAuth.mAddress, null, "smtp");
+        String hostName =
+                AccountSettingsUtils.inferServerName(mContext, recvAuth.mAddress, null, "smtp");
         sendAuth.setLogin(recvAuth.mLogin, recvAuth.mPassword);
         sendAuth.setConnection(sendAuth.mProtocol, hostName, sendAuth.mPort, sendAuth.mFlags);
     }

@@ -1154,24 +1154,6 @@ public class ImapService extends Service {
             return;
         }
 
-        // 3. If DELETE_POLICY_NEVER, simply write back the deleted sentinel and return
-        //
-        // This sentinel takes the place of the server-side message, and locally "deletes" it
-        // by inhibiting future sync or display of the message.  It will eventually go out of
-        // scope when it becomes old, or is deleted on the server, and the regular sync code
-        // will clean it up for us.
-        if (account.getDeletePolicy() == Account.DELETE_POLICY_NEVER) {
-            EmailContent.Message sentinel = new EmailContent.Message();
-            sentinel.mAccountKey = oldMessage.mAccountKey;
-            sentinel.mMailboxKey = oldMessage.mMailboxKey;
-            sentinel.mFlagLoaded = EmailContent.Message.FLAG_LOADED_DELETED;
-            sentinel.mFlagRead = true;
-            sentinel.mServerId = oldMessage.mServerId;
-            sentinel.save(context);
-
-            return;
-        }
-
         // The rest of this method handles server-side deletion
 
         // 4.  Find the remote mailbox (that we deleted from), and open it
