@@ -84,7 +84,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     // Support for lifecycle
     private boolean mStarted;
-    private boolean mConfigured;
     private boolean mLoaded;
     private String mCacheLoginCredential;
     private HostAuth mRecvAuth;
@@ -310,7 +309,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Configure the editor for the account type
      */
     private void configureEditor() {
-        if (mConfigured) return;
         Account account = SetupData.getAccount();
         if (account == null) {
             return;
@@ -330,7 +328,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
         lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
-        mConfigured = true;
     }
 
     /**
@@ -402,7 +399,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Check the values in the fields and decide if it makes sense to enable the "next" button
      */
     private void validateFields() {
-        if (!mConfigured || !mLoaded) return;
+        if (!mLoaded) return;
         boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && Utility.isServerNameValid(mServerView)
