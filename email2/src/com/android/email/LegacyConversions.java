@@ -213,8 +213,11 @@ public class LegacyConversions {
         String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
         String partId = partIds != null ? partIds[0] : null;
 
+        // Run the mime type through inferMimeType in case we have something generic and can do
+        // better using the filename extension
+        String mimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
+        localAttachment.mMimeType = mimeType;
         localAttachment.mFileName = name;
-        localAttachment.mMimeType = part.getMimeType();
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();
         localAttachment.mContentUri = null;     // Will be rewritten by saveAttachmentBody
