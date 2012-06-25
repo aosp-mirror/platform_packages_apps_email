@@ -233,8 +233,7 @@
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"הגדרת חשבון"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"חשבון דוא\"ל"</string>
-    <!-- no translation found for accounts_welcome (8337750045270269649) -->
-    <skip />
+    <string name="accounts_welcome" msgid="8337750045270269649">"ניתן להגדיר את החשבון במספר פעולות פשוטות."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"כתובת דוא\"ל"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"סיסמה"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"שלח דוא\"ל מחשבון זה כברירת מחדל"</string>
