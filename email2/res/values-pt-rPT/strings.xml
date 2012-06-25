@@ -233,8 +233,7 @@
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuração da conta"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Conta de e-mail"</string>
-    <!-- no translation found for accounts_welcome (8337750045270269649) -->
-    <skip />
+    <string name="accounts_welcome" msgid="8337750045270269649">"É possível configurar a sua conta em apenas alguns passos."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Palavra-passe"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Enviar e-mail a partir desta conta por predefinição"</string>
