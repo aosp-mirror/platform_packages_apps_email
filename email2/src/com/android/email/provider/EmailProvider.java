@@ -243,6 +243,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_CONVERSATION = UI_BASE + 18;
     private static final int UI_RECENT_FOLDERS = UI_BASE + 19;
     private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 20;
+    private static final int UI_ALL_FOLDERS = UI_BASE + 21;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -442,6 +443,7 @@ public class EmailProvider extends ContentProvider {
                 QUICK_RESPONSE_ACCOUNT_ID);
 
         matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
         matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
@@ -1241,6 +1243,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_ATTACHMENTS:
                 case UI_CONVERSATION:
                 case UI_RECENT_FOLDERS:
+                case UI_ALL_FOLDERS:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
@@ -2194,11 +2197,13 @@ outer:
         .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
         .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
         .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
+        .add(UIProvider.FolderColumns.HIERARCHICAL_DESC, MailboxColumns.HIERARCHICAL_NAME)
         .build();
 
     private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
         .add(BaseColumns._ID, AccountColumns.ID)
         .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
+        .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
         .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
         .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
         .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
@@ -2491,6 +2496,26 @@ outer:
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
+        return sb.toString();
+    }
+
+    /**
+     * Generate the "all folders" SQLite query, given a projection from UnifiedEmail.  The list is
+     * sorted by the name as it appears in a hierarchical listing
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAccountAllMailboxes(String[] uiProjection) {
+        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        // Use a derived column to choose either hierarchicalName or displayName
+        sb.append(", case when " + MailboxColumns.HIERARCHICAL_NAME + " is null then " +
+                MailboxColumns.DISPLAY_NAME + " else " + MailboxColumns.HIERARCHICAL_NAME +
+                " end as h_name");
+        // Order by the derived column
+        sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
+                "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " ORDER BY h_name");
         return sb.toString();
     }
 
@@ -3004,6 +3029,9 @@ outer:
         String id = uri.getPathSegments().get(1);
         Uri notifyUri = null;
         switch(match) {
+            case UI_ALL_FOLDERS:
+                c = db.rawQuery(genQueryAccountAllMailboxes(uiProjection), new String[] {id});
+                break;
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
                 notifyUri = UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
