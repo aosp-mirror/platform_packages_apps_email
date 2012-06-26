@@ -50,10 +50,6 @@ import java.io.IOException;
 public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     private static final String TAG = "EmailServiceProxy";
 
-    // Private intent that will be used to connect to an independent Exchange service
-    public static final String EXCHANGE_INTENT = "com.android.email.EXCHANGE_INTENT";
-    public static final String IMAP_INTENT = "com.android.email.IMAP_INTENT";
-
     public static final String AUTO_DISCOVER_BUNDLE_ERROR_CODE = "autodiscover_error_code";
     public static final String AUTO_DISCOVER_BUNDLE_HOST_AUTH = "autodiscover_host_auth";
 
