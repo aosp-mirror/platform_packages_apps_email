@@ -60,6 +60,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public long mLastNotifiedMessageKey;
     public int mLastNotifiedMessageCount;
     public int mTotalCount;
+    public String mHierarchicalName;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -83,6 +84,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN = 19;
     public static final int CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN = 20;
     public static final int CONTENT_TOTAL_COUNT_COLUMN = 21;
+    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 22;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -97,7 +99,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY, MailboxColumns.LAST_TOUCHED_TIME,
         MailboxColumns.UI_SYNC_STATUS, MailboxColumns.UI_LAST_SYNC_RESULT,
         MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT,
-        MailboxColumns.TOTAL_COUNT
+        MailboxColumns.TOTAL_COUNT, MailboxColumns.HIERARCHICAL_NAME
     };
 
     private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -329,6 +331,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mLastNotifiedMessageKey = cursor.getLong(CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN);
         mLastNotifiedMessageCount = cursor.getInt(CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN);
         mTotalCount = cursor.getInt(CONTENT_TOTAL_COUNT_COLUMN);
+        mHierarchicalName = cursor.getString(CONTENT_HIERARCHICAL_NAME_COLUMN);
     }
 
     @Override
@@ -355,6 +358,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, mLastNotifiedMessageKey);
         values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, mLastNotifiedMessageCount);
         values.put(MailboxColumns.TOTAL_COUNT, mTotalCount);
+        values.put(MailboxColumns.HIERARCHICAL_NAME, mHierarchicalName);
         return values;
     }
 
@@ -550,6 +554,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 = mLastNotifiedMessageCount;
         hash[CONTENT_TOTAL_COUNT_COLUMN]
                 = mTotalCount;
+        hash[CONTENT_HIERARCHICAL_NAME_COLUMN]
+                = mHierarchicalName;
         return hash;
     }
 
@@ -585,6 +591,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         dest.writeLong(mLastNotifiedMessageKey);
         dest.writeInt(mLastNotifiedMessageCount);
         dest.writeInt(mTotalCount);
+        dest.writeString(mHierarchicalName);
     }
 
     public Mailbox(Parcel in) {
@@ -611,6 +618,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mLastNotifiedMessageKey = in.readLong();
         mLastNotifiedMessageCount = in.readInt();
         mTotalCount = in.readInt();
+        mHierarchicalName = in.readString();
     }
 
     public static final Parcelable.Creator<Mailbox> CREATOR = new Parcelable.Creator<Mailbox>() {

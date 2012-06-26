@@ -125,8 +125,9 @@ public final class DBHelper {
     // Version 39 is last Email1 version
     // Version 100 is first Email2 version
     // Version 101 SHOULD NOT BE USED
+    // Version 102&103: Add hierarchicalName to Mailbox
 
-    public static final int DATABASE_VERSION = 100;
+    public static final int DATABASE_VERSION = 103;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -407,7 +408,8 @@ public final class DBHelper {
             + MailboxColumns.UI_LAST_SYNC_RESULT + " integer default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0, "
-            + MailboxColumns.TOTAL_COUNT + " integer"
+            + MailboxColumns.TOTAL_COUNT + " integer, "
+            + MailboxColumns.HIERARCHICAL_NAME + " text"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -959,6 +961,16 @@ public final class DBHelper {
             if (oldVersion == 39) {
                 upgradeToEmail2(db);
                 oldVersion = 100;
+            }
+            if (oldVersion >= 100 && oldVersion < 103) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
+                }
+                oldVersion = 103;
             }
         }
 
