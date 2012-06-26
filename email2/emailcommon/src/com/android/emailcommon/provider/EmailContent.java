@@ -1505,6 +1505,8 @@ public abstract class EmailContent {
         public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
         // The total number of messages in the remote mailbox
         public static final String TOTAL_COUNT = "totalCount";
+        // The full hierarchical name of this folder, in the form a/b/c
+        public static final String HIERARCHICAL_NAME = "hierarchicalName";
     }
 
     public interface HostAuthColumns {
