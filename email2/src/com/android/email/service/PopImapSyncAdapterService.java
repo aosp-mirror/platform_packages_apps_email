@@ -175,14 +175,14 @@ public class PopImapSyncAdapterService extends Service {
                 if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
                     Log.d(TAG, "Upload sync request for " + acct.mDisplayName);
                     // See if any boxes have mail...
+                    ArrayList<Long> mailboxesToUpdate;
                     Cursor updatesCursor = provider.query(Message.UPDATED_CONTENT_URI,
                             new String[] {Message.MAILBOX_KEY},
                             Message.ACCOUNT_KEY + "=?",
                             new String[] {Long.toString(acct.mId)},
                             null);
-                    if ((updatesCursor == null) || (updatesCursor.getCount() == 0)) return;
-                    ArrayList<Long> mailboxesToUpdate;
                     try {
+                        if ((updatesCursor == null) || (updatesCursor.getCount() == 0)) return;
                         mailboxesToUpdate = new ArrayList<Long>();
                         while (updatesCursor.moveToNext()) {
                             Long mailboxId = updatesCursor.getLong(0);
@@ -191,7 +191,9 @@ public class PopImapSyncAdapterService extends Service {
                             }
                         }
                     } finally {
-                        updatesCursor.close();
+                        if (updatesCursor != null) {
+                            updatesCursor.close();
+                        }
                     }
                     for (long mailboxId: mailboxesToUpdate) {
                         sync(context, mailboxId, syncResult, false);

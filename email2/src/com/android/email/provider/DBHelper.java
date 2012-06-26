@@ -123,6 +123,8 @@ public final class DBHelper {
     // Version 37: Add flag for settings support in folders
     // Version 38&39: Add threadTopic to message (for future support)
     // Version 39 is last Email1 version
+    // Version 100 is first Email2 version
+    // Version 101 SHOULD NOT BE USED
 
     public static final int DATABASE_VERSION = 100;
 
@@ -561,6 +563,14 @@ public final class DBHelper {
             createAccountTable(db);
             createPolicyTable(db);
             createQuickResponseTable(db);
+        }
+
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            if (oldVersion == 101 && newVersion == 100) {
+                Log.d(TAG, "Downgrade from v101 to v100");
+            } else {
+                super.onDowngrade(db, oldVersion, newVersion);
+            }
         }
 
         @Override
