@@ -233,8 +233,7 @@
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"帳戶設定"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"電子郵件帳戶"</string>
-    <!-- no translation found for accounts_welcome (8337750045270269649) -->
-    <skip />
+    <string name="accounts_welcome" msgid="8337750045270269649">"只要幾個步驟即可設定您的帳戶。"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"電子郵件地址"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"密碼"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"預設使用這個帳戶傳送電子郵件"</string>

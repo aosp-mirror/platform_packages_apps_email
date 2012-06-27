@@ -233,8 +233,7 @@
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Setup ng account"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Email account"</string>
-    <!-- no translation found for accounts_welcome (8337750045270269649) -->
-    <skip />
+    <string name="accounts_welcome" msgid="8337750045270269649">"Mase-set up mo ang iyong account sa ilang hakbang lang."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Email address"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Password"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Magpadala ng email mula sa account na ito bilang default"</string>
