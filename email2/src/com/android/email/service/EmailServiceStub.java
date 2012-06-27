@@ -291,6 +291,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
             // 6. Report success
             mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
+
+            // Close the connection
+            remoteFolder.close(false);
         }
         catch (MessagingException me) {
             if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
