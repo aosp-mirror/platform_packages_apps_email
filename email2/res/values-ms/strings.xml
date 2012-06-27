@@ -233,8 +233,7 @@
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Persediaan akaun"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Akaun e-mel"</string>
-    <!-- no translation found for accounts_welcome (8337750045270269649) -->
-    <skip />
+    <string name="accounts_welcome" msgid="8337750045270269649">"Anda boleh membuat akaun anda dalam hanya beberapa langkah."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Alamat e-mel"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Kata laluan"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Hantar e-mel daripada akaun ini secara lalai"</string>
