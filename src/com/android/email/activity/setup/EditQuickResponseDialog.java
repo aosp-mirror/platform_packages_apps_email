@@ -30,6 +30,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
@@ -71,8 +73,9 @@ public class EditQuickResponseDialog extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Context context = getActivity();
         mQuickResponse = (QuickResponse) getArguments().getParcelable(QUICK_RESPONSE);
-
-        mQuickResponseEditText = new EditText(context);
+        View wrapper = LayoutInflater.from(context)
+                .inflate(R.layout.quick_response_edit_dialog, null);
+        mQuickResponseEditText = (EditText) wrapper.findViewById(R.id.quick_response_text);
         if (savedInstanceState != null) {
             String quickResponseSavedString =
                     savedInstanceState.getString(QUICK_RESPONSE_EDITED_STRING);
@@ -87,7 +90,7 @@ public class EditQuickResponseDialog extends DialogFragment
 
         final AlertDialog.Builder b = new AlertDialog.Builder(context);
         b.setTitle(getResources().getString(R.string.edit_quick_response_dialog))
-                .setView(mQuickResponseEditText)
+                .setView(wrapper)
                 .setNegativeButton(R.string.cancel_action, this)
                 .setPositiveButton(R.string.save_action, this);
         mDialog = b.create();

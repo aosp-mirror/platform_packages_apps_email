@@ -29,6 +29,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
+import com.android.email2.ui.MailActivityEmail;
+
 /**
  * Encapsulates functionality of ConnectivityManager for use in the Email application.  In
  * particular, this class provides callbacks for connectivity lost, connectivity restored, and
@@ -179,14 +181,14 @@ public class EmailConnectivityManager extends BroadcastReceiver {
                 if (info != null) {
                     // We're done if there's an active network
                     if (waiting) {
-                        if (Email.DEBUG) {
+                        if (MailActivityEmail.DEBUG) {
                             Log.d(TAG, mName + ": Connectivity wait ended");
                         }
                     }
                     return;
                 } else {
                     if (!waiting) {
-                        if (Email.DEBUG) {
+                        if (MailActivityEmail.DEBUG) {
                             Log.d(TAG, mName + ": Connectivity waiting...");
                         }
                         waiting = true;

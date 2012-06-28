@@ -16,21 +16,35 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.mail.providers.UIProvider;
+
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class AttachmentUtilities {
     public static final String AUTHORITY = "com.android.email.attachmentprovider";
@@ -225,24 +239,6 @@ public class AttachmentUtilities {
     }
 
     /**
-     * @return mime-type for a {@link Uri}.
-     *    - Use {@link ContentResolver#getType} for a content: URI.
-     *    - Use {@link #inferMimeType} for a file: URI.
-     *    - Otherwise returns null.
-     */
-    public static String inferMimeTypeForUri(Context context, Uri uri) {
-        final String scheme = uri.getScheme();
-        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            return context.getContentResolver().getType(uri);
-        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            return inferMimeType(uri.getLastPathSegment(), "");
-        } else {
-            Log.e(Logging.LOG_TAG, "Unable to determine MIME type for uri=" + uri, new Error());
-            return null;
-        }
-    }
-
-    /**
      * Extract and return filename's extension, converted to lower case, and not including the "."
      *
      * @return extension, or null if not found (or null/empty filename)
@@ -347,6 +343,85 @@ public class AttachmentUtilities {
             boolean result = file.delete();
             if (!result) {
                 Log.e(Logging.LOG_TAG, "Failed to delete attachment file " + file.getName());
+            }
+        }
+    }
+
+    private static long copyFile(InputStream in, OutputStream out) throws IOException {
+        long size = IOUtils.copy(in, out);
+        in.close();
+        out.flush();
+        out.close();
+        return size;
+    }
+
+    /**
+     * Save the attachment to its final resting place (cache or sd card)
+     */
+    public static void saveAttachment(Context context, InputStream in, Attachment attachment) {
+        Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachment.mId);
+        ContentValues cv = new ContentValues();
+        long attachmentId = attachment.mId;
+        long accountId = attachment.mAccountKey;
+        String contentUri = null;
+        long size;
+        try {
+            ContentResolver resolver = context.getContentResolver();
+            if (attachment.mUiDestination == UIProvider.AttachmentDestination.CACHE) {
+                Uri attUri = getAttachmentUri(accountId, attachmentId);
+                size = copyFile(in, resolver.openOutputStream(attUri));
+                contentUri = attUri.toString();
+            } else if (Utility.isExternalStorageMounted()) {
+                File downloads = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS);
+                downloads.mkdirs();
+                File file = Utility.createUniqueFile(downloads, attachment.mFileName);
+                size = copyFile(in, new FileOutputStream(file));
+                String absolutePath = file.getAbsolutePath();
+
+                // Although the download manager can scan media files, scanning only happens
+                // after the user clicks on the item in the Downloads app. So, we run the
+                // attachment through the media scanner ourselves so it gets added to
+                // gallery / music immediately.
+                MediaScannerConnection.scanFile(context, new String[] {absolutePath},
+                        null, null);
+
+                DownloadManager dm =
+                        (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                long id = dm.addCompletedDownload(attachment.mFileName, attachment.mFileName,
+                        false /* do not use media scanner */,
+                        attachment.mMimeType, absolutePath, size,
+                        true /* show notification */);
+                contentUri = dm.getUriForDownloadedFile(id).toString();
+
+            } else {
+                Log.w(Logging.LOG_TAG, "Trying to save an attachment without external storage?");
+                throw new IOException();
+            }
+
+            // Update the attachment
+            cv.put(AttachmentColumns.SIZE, size);
+            cv.put(AttachmentColumns.CONTENT_URI, contentUri);
+            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
+        } catch (IOException e) {
+            // Handle failures here...
+            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
+        }
+        context.getContentResolver().update(uri, cv, null, null);
+
+        // If this is an inline attachment, update the body
+        if (contentUri != null && attachment.mContentId != null) {
+            Body body = Body.restoreBodyWithMessageId(context, attachment.mMessageKey);
+            if (body != null && body.mHtmlContent != null) {
+                cv.clear();
+                String html = body.mHtmlContent;
+                String contentIdRe =
+                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
+                String srcContentUri = " src=\"" + contentUri + "\"";
+                html = html.replaceAll(contentIdRe, srcContentUri);
+                cv.put(BodyColumns.HTML_CONTENT, html);
+                context.getContentResolver().update(
+                        ContentUris.withAppendedId(Body.CONTENT_URI, body.mId), cv, null, null);
             }
         }
     }

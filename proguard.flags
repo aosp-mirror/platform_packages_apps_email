@@ -215,8 +215,3 @@
   *** toByteArray(java.io.Reader, java.lang.String);
   *** toByteArray(java.lang.String);
 }
-
--keepclasseswithmembers class com.android.email.activity.ThreePaneLayout {
-  *** setMessageListWidthAnim(...);
-  *** setMailboxListLeftAnim(...);
-}

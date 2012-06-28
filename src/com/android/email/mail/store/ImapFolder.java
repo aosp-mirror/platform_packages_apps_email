@@ -21,7 +21,6 @@ import android.text.TextUtils;
 import android.util.Base64DataException;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.store.imap.ImapConstants;
@@ -32,6 +31,7 @@ import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.store.imap.ImapUtility;
 import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.BinaryTempFileBody;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -643,14 +643,12 @@ class ImapFolder extends Folder {
                         // Previously used "BODY[..." but this can be confused with "BODY[HEADER..."
                         // TODO Should we accept "RFC822" as well??
                         ImapString body = fetchList.getKeyedStringOrEmpty("BODY[]", true);
-                        String bodyText = body.getString();
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }
                     if (fetchPart != null && fetchPart.getSize() > 0) {
                         InputStream bodyStream =
                                 fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
-                        String contentType = fetchPart.getContentType();
                         String contentTransferEncoding = fetchPart.getHeader(
                                 MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
 
@@ -696,7 +694,7 @@ class ImapFolder extends Folder {
                 }
             }
         } catch (Base64DataException bde) {
-            String warning = "\n\n" + Email.getMessageDecodeErrorString();
+            String warning = "\n\n" + MailActivityEmail.getMessageDecodeErrorString();
             out.write(warning.getBytes());
         } finally {
             out.close();
@@ -1110,7 +1108,7 @@ class ImapFolder extends Folder {
     }
 
     private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe) {
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
         }
         connection.close();

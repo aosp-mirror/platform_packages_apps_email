@@ -22,9 +22,10 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     >
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:paddingTop="@dimen/settings_fragment_padding_top"
         android:paddingLeft="@dimen/settings_fragment_padding_left"
         android:paddingRight="@dimen/settings_fragment_padding_right"
@@ -34,22 +35,18 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:id="@+id/fragment_wrapper"
             >
             <include
                 layout="@layout/account_setup_incoming_fragment"
                 />
         </FrameLayout>
 
-        <RelativeLayout
-            android:id="@+id/buttons_wrapper"
-            android:layout_below="@id/fragment_wrapper"
+        <!-- This spacer fills the viewport and moves the buttons to the bottom -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dip"
+            android:layout_weight="1" />
 
-            <include layout="@layout/account_settings_buttons" />
-
-        </RelativeLayout>
-    </RelativeLayout>
+        <include layout="@layout/account_settings_buttons" />
+    </LinearLayout>
 </ScrollView>

@@ -16,11 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.UiUtilities;
-import com.android.emailcommon.provider.Account;
-
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -28,6 +23,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import com.android.email.R;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 
 /**
  * Provides setup flow for IMAP/POP accounts.
@@ -38,9 +41,15 @@ import android.widget.Button;
 public class AccountSetupIncoming extends AccountSetupActivity
         implements AccountSetupIncomingFragment.Callback, OnClickListener {
 
-    /* package */ AccountSetupIncomingFragment mFragment;
+    /* package */ AccountServerBaseFragment mFragment;
     private Button mNextButton;
     /* package */ boolean mNextButtonEnabled;
+    private boolean mStartedAutoDiscovery;
+    private EmailServiceInfo mServiceInfo;
+
+    // Keys for savedInstanceState
+    private final static String STATE_STARTED_AUTODISCOVERY =
+            "AccountSetupExchange.StartedAutoDiscovery";
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
         SetupData.setFlowMode(mode);
@@ -52,9 +61,12 @@ public class AccountSetupIncoming extends AccountSetupActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-        setContentView(R.layout.account_setup_incoming);
 
-        mFragment = (AccountSetupIncomingFragment)
+        HostAuth hostAuth = SetupData.getAccount().mHostAuthRecv;
+        mServiceInfo = EmailServiceUtils.getServiceInfo(this, hostAuth.mProtocol);
+
+        setContentView(R.layout.account_setup_incoming);
+        mFragment = (AccountServerBaseFragment)
                 getFragmentManager().findFragmentById(R.id.setup_fragment);
 
         // Configure fragment
@@ -63,6 +75,17 @@ public class AccountSetupIncoming extends AccountSetupActivity
         mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
+
+        // One-shot to launch autodiscovery at the entry to this activity (but not if it restarts)
+        if (mServiceInfo.usesAutodiscover) {
+            mStartedAutoDiscovery = false;
+            if (savedInstanceState != null) {
+                mStartedAutoDiscovery = savedInstanceState.getBoolean(STATE_STARTED_AUTODISCOVERY);
+            }
+            if (!mStartedAutoDiscovery) {
+                startAutoDiscover();
+            }
+        }
    }
 
     /**
@@ -78,6 +101,62 @@ public class AccountSetupIncoming extends AccountSetupActivity
                 onBackPressed();
                 break;
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_STARTED_AUTODISCOVERY, mStartedAutoDiscovery);
+    }
+
+    /**
+     * If the conditions are right, launch the autodiscover fragment.  If it succeeds (even
+     * partially) it will prefill the setup fields and we can proceed as if the user entered them.
+     *
+     * Conditions for skipping:
+     *  Editing existing account
+     *  AutoDiscover blocked (used for unit testing only)
+     *  Username or password not entered yet
+     */
+    private void startAutoDiscover() {
+        // Note that we've started autodiscovery - even if we decide not to do it,
+        // this prevents repeating.
+        mStartedAutoDiscovery = true;
+
+        if (!SetupData.isAllowAutodiscover()) {
+            return;
+        }
+
+        Account account = SetupData.getAccount();
+        // If we've got a username and password and we're NOT editing, try autodiscover
+        String username = account.mHostAuthRecv.mLogin;
+        String password = account.mHostAuthRecv.mPassword;
+        if (username != null && password != null) {
+            onProceedNext(SetupData.CHECK_AUTODISCOVER, mFragment);
+        }
+    }
+
+    /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     *
+     * @param result configuration data returned by AD server, or null if no data available
+     */
+    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+        // If authentication failed, exit immediately (to re-enter credentials)
+        if (result == AccountCheckSettingsFragment.AUTODISCOVER_AUTHENTICATION) {
+            finish();
+            return;
+        }
+
+        // If data was returned, populate the account & populate the UI fields and validate it
+        if (result == AccountCheckSettingsFragment.AUTODISCOVER_OK) {
+            boolean valid = mFragment.setHostAuthFromAutodiscover(hostAuth);
+            if (valid) {
+                // "click" next to launch server verification
+                mFragment.onNext();
+            }
+        }
+        // Otherwise, proceed into this activity for manual setup
     }
 
     /**
@@ -109,9 +188,13 @@ public class AccountSetupIncoming extends AccountSetupActivity
      */
     public void onCheckSettingsComplete(int result, int setupMode) {
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
-                    SetupData.getAccount());
-            finish();
+            if (mServiceInfo.usesSmtp) {
+                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
+                        SetupData.getAccount());
+            } else {
+                AccountSetupOptions.actionOptions(this);
+                finish();
+            }
         }
     }
 }

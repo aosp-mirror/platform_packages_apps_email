@@ -49,24 +49,6 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     }
 
     @Override
-    public Policy clearUnsupportedPolicies(final Policy arg0) throws RemoteException {
-        setTask(new ProxyTask() {
-            public void run() throws RemoteException {
-                mReturn = mService.clearUnsupportedPolicies(arg0);
-            }
-        }, "clearUnsupportedPolicies");
-        waitForCompletion();
-        if (DEBUG_PROXY) {
-            Log.v(TAG, "clearUnsupportedPolicies: " + ((mReturn == null) ? "null" : mReturn));
-        }
-        if (mReturn == null) {
-            throw new ServiceUnavailableException("clearUnsupportedPolicies");
-        } else {
-            return (Policy)mReturn;
-        }
-    }
-
-    @Override
     public boolean isActive(final Policy arg0) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -85,48 +67,14 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     }
 
     @Override
-    public boolean isActiveAdmin() throws RemoteException {
+    public void setAccountPolicy(final long accountId, final Policy policy,
+            final String securityKey) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
-                mReturn = mService.isActiveAdmin();
+                mService.setAccountPolicy(accountId, policy, securityKey);
             }
-        }, "isActiveAdmin");
+        }, "setAccountPolicy");
         waitForCompletion();
-        if (DEBUG_PROXY) {
-            Log.v(TAG, "isActiveAdmin: " + ((mReturn == null) ? "null" : mReturn));
-        }
-        if (mReturn == null) {
-            throw new ServiceUnavailableException("isActiveAdmin");
-        } else {
-            return (Boolean)mReturn;
-        }
-    }
-
-    @Override
-    public boolean isSupported(final Policy arg0) throws RemoteException {
-        setTask(new ProxyTask() {
-            public void run() throws RemoteException {
-                mReturn = mService.isSupported(arg0);
-            }
-        }, "isSupported");
-        waitForCompletion();
-        if (DEBUG_PROXY) {
-            Log.v(TAG, "isSupported: " + ((mReturn == null) ? "null" : mReturn));
-        }
-        if (mReturn == null) {
-            throw new ServiceUnavailableException("isSupported");
-        } else {
-            return (Boolean)mReturn;
-        }
-    }
-
-    @Override
-    public void policiesRequired(final long arg0) throws RemoteException {
-        setTask(new ProxyTask() {
-            public void run() throws RemoteException {
-                mService.policiesRequired(arg0);
-            }
-        }, "policiesRequired");
     }
 
     @Override
@@ -147,15 +95,6 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }, "setAccountHoldFlag");
     }
 
-    @Override
-    public void policiesUpdated(final long arg0) throws RemoteException {
-        setTask(new ProxyTask() {
-            public void run() throws RemoteException {
-                mService.policiesUpdated(arg0);
-            }
-        }, "policiesUpdated");
-    }
-
     // Static methods that encapsulate the proxy calls above
     public static boolean isActive(Context context, Policy policies) {
         try {
@@ -163,22 +102,6 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         } catch (RemoteException e) {
         }
         return false;
-    }
-
-    public static void policiesRequired(Context context, long accountId) {
-        try {
-            new PolicyServiceProxy(context).policiesRequired(accountId);
-        } catch (RemoteException e) {
-            throw new IllegalStateException("PolicyService transaction failed");
-        }
-    }
-
-    public static void policiesUpdated(Context context, long accountId) {
-        try {
-            new PolicyServiceProxy(context).policiesUpdated(accountId);
-        } catch (RemoteException e) {
-            throw new IllegalStateException("PolicyService transaction failed");
-        }
     }
 
     public static void setAccountHoldFlag(Context context, Account account, boolean newState) {
@@ -189,14 +112,6 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }
     }
 
-    public static boolean isActiveAdmin(Context context) {
-        try {
-            return new PolicyServiceProxy(context).isActiveAdmin();
-        } catch (RemoteException e) {
-        }
-        return false;
-    }
-
     public static void remoteWipe(Context context) {
         try {
             new PolicyServiceProxy(context).remoteWipe();
@@ -205,17 +120,11 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }
     }
 
-    public static boolean isSupported(Context context, Policy policy) {
+    public static void setAccountPolicy(Context context, long accountId, Policy policy,
+            String securityKey) {
         try {
-            return new PolicyServiceProxy(context).isSupported(policy);
-        } catch (RemoteException e) {
-        }
-        return false;
-     }
-
-    public static Policy clearUnsupportedPolicies(Context context, Policy policy) {
-        try {
-            return new PolicyServiceProxy(context).clearUnsupportedPolicies(policy);
+            new PolicyServiceProxy(context).setAccountPolicy(accountId, policy, securityKey);
+            return;
         } catch (RemoteException e) {
         }
         throw new IllegalStateException("PolicyService transaction failed");

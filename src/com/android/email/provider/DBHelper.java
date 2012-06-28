@@ -24,12 +24,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.android.email.Email;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -50,6 +50,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
+import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 public final class DBHelper {
@@ -121,10 +122,12 @@ public final class DBHelper {
     // Version 36: mblank intentionally left this space
     // Version 37: Add flag for settings support in folders
     // Version 38&39: Add threadTopic to message (for future support)
+    // Version 39 is last Email1 version
+    // Version 100 is first Email2 version
+    // Version 101 SHOULD NOT BE USED
+    // Version 102&103: Add hierarchicalName to Mailbox
 
-    // Versions 100+ are in Email2
-
-    public static final int DATABASE_VERSION = 39;
+    public static final int DATABASE_VERSION = 103;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -133,10 +136,8 @@ public final class DBHelper {
     // Version 5: Database wipe required; changing AccountManager interface w/Exchange
     // Version 6: Adding Body.mIntroText column
     // Version 7/8: Adding quoted text start pos
-
-    // Versions 100+ are in Email2
-
-    public static final int BODY_DATABASE_VERSION = 8;
+    // Version 8 is last Email1 version
+    public static final int BODY_DATABASE_VERSION = 100;
 
     /*
      * Internal helper method for index creation.
@@ -159,7 +160,7 @@ public final class DBHelper {
             + MessageColumns.FLAG_FAVORITE + " integer, "
             + MessageColumns.FLAG_ATTACHMENT + " integer, "
             + MessageColumns.FLAGS + " integer, "
-            + MessageColumns.CLIENT_ID + " integer, "
+            + MessageColumns.DRAFT_INFO + " integer, "
             + MessageColumns.MESSAGE_ID + " text, "
             + MessageColumns.MAILBOX_KEY + " integer, "
             + MessageColumns.ACCOUNT_KEY + " integer, "
@@ -317,9 +318,7 @@ public final class DBHelper {
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_ID + " integer, "
-            + AccountColumns.NOTIFIED_MESSAGE_COUNT + " integer"
+            + AccountColumns.POLICY_KEY + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -410,7 +409,7 @@ public final class DBHelper {
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0, "
             + MailboxColumns.TOTAL_COUNT + " integer, "
-            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer"
+            + MailboxColumns.HIERARCHICAL_NAME + " text"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -501,7 +500,7 @@ public final class DBHelper {
             }
             oldVersion = 6;
         }
-        if (oldVersion == 6 || oldVersion ==7) {
+        if (oldVersion == 6 || oldVersion == 7) {
             try {
                 db.execSQL("alter table " + Body.TABLE_NAME
                         + " add " + BodyColumns.QUOTED_TEXT_START_POS + " integer");
@@ -510,6 +509,10 @@ public final class DBHelper {
                 Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
             }
             oldVersion = 8;
+        }
+        if (oldVersion == 8) {
+            // Move to Email2 version
+            oldVersion = 100;
         }
     }
 
@@ -562,6 +565,14 @@ public final class DBHelper {
             createAccountTable(db);
             createPolicyTable(db);
             createQuickResponseTable(db);
+        }
+
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            if (oldVersion == 101 && newVersion == 100) {
+                Log.d(TAG, "Downgrade from v101 to v100");
+            } else {
+                super.onDowngrade(db, oldVersion, newVersion);
+            }
         }
 
         @Override
@@ -778,13 +789,6 @@ public final class DBHelper {
                 oldVersion = 20;
             }
             if (oldVersion == 20) {
-                try {
-                    db.execSQL("alter table " + Mailbox.TABLE_NAME
-                            + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
-                }
                 oldVersion = 21;
             }
             if (oldVersion == 21) {
@@ -822,15 +826,6 @@ public final class DBHelper {
                 oldVersion = 27;
             }
             if (oldVersion == 27) {
-                try {
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_ID + " integer;");
-                    db.execSQL("alter table " + Account.TABLE_NAME
-                            + " add column " + Account.NOTIFIED_MESSAGE_COUNT + " integer;");
-                } catch (SQLException e) {
-                    // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 27 to 28 " + e);
-                }
                 oldVersion = 28;
             }
             if (oldVersion == 28) {
@@ -885,6 +880,11 @@ public final class DBHelper {
                             + " add column " + Attachment.UI_DESTINATION + " integer;");
                     db.execSQL("alter table " + Attachment.TABLE_NAME
                             + " add column " + Attachment.UI_DOWNLOADED_SIZE + " integer;");
+                    // If we have a contentUri then the attachment is saved
+                    // uiDestination of 0 = "cache", so we don't have to set this
+                    db.execSQL("update " + Attachment.TABLE_NAME + " set " + Attachment.UI_STATE +
+                            "=" + UIProvider.AttachmentState.SAVED + " where " +
+                            AttachmentColumns.CONTENT_URI + " is not null;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
@@ -902,9 +902,38 @@ public final class DBHelper {
                 oldVersion = 34;
             }
             if (oldVersion == 34) {
+                try {
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                            Mailbox.DRAFTS_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                            " = " + Mailbox.TYPE_DRAFTS);
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                            Mailbox.SENT_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                            " = " + Mailbox.TYPE_SENT);
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
+                }
                 oldVersion = 35;
             }
             if (oldVersion == 35 || oldVersion == 36) {
+                try {
+                    // Set "supports settings" for EAS mailboxes
+                    db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                            MailboxColumns.FLAGS + "=" + MailboxColumns.FLAGS + "|" +
+                            Mailbox.FLAG_SUPPORTS_SETTINGS + " where (" +
+                            MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HOLDS_MAIL + ")!=0 and " +
+                            MailboxColumns.ACCOUNT_KEY + " IN (SELECT " + Account.TABLE_NAME +
+                            "." + AccountColumns.ID + " from " + Account.TABLE_NAME + "," +
+                            HostAuth.TABLE_NAME + " where " + Account.TABLE_NAME + "." +
+                            AccountColumns.HOST_AUTH_KEY_RECV + "=" + HostAuth.TABLE_NAME + "." +
+                            HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
+                            HostAuth.LEGACY_SCHEME_EAS + "')");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
+                }
                 oldVersion = 37;
             }
             if (oldVersion == 37) {
@@ -928,6 +957,20 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 38 to 39 " + e);
                 }
                 oldVersion = 39;
+            }
+            if (oldVersion == 39) {
+                upgradeToEmail2(db);
+                oldVersion = 100;
+            }
+            if (oldVersion >= 100 && oldVersion < 103) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
+                }
+                oldVersion = 103;
             }
         }
 
@@ -1019,7 +1062,7 @@ public final class DBHelper {
         ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
         ContentResolver.setIsSyncable(amAccount, ContactsContract.AUTHORITY, 0);
-        ContentResolver.setIsSyncable(amAccount, CalendarProviderStub.AUTHORITY, 0);
+        ContentResolver.setIsSyncable(amAccount, CalendarContract.AUTHORITY, 0);
     }
 
     @VisibleForTesting
@@ -1040,9 +1083,9 @@ public final class DBHelper {
                         if (hostAuthCursor.moveToFirst()) {
                             String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
                             // If this is a pop3 or imap account, create the account manager account
-                            if (HostAuth.SCHEME_IMAP.equals(protocol) ||
-                                    HostAuth.SCHEME_POP3.equals(protocol)) {
-                                if (Email.DEBUG) {
+                            if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol) ||
+                                    HostAuth.LEGACY_SCHEME_POP3.equals(protocol)) {
+                                if (MailActivityEmail.DEBUG) {
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
                                             "account: " +
                                             accountCursor.getString(V21_ACCOUNT_EMAIL));
@@ -1052,7 +1095,7 @@ public final class DBHelper {
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
                             // If an EAS account, make Email sync automatically (equivalent of
                             // checking the "Sync Email" box in settings
-                            } else if (HostAuth.SCHEME_EAS.equals(protocol)) {
+                            } else if (HostAuth.LEGACY_SCHEME_EAS.equals(protocol)) {
                                 android.accounts.Account amAccount =
                                         new android.accounts.Account(
                                                 accountCursor.getString(V21_ACCOUNT_EMAIL),
@@ -1136,7 +1179,7 @@ public final class DBHelper {
                         if (hostAuthCursor.moveToFirst()) {
                             String protocol = hostAuthCursor.getString(V25_HOSTAUTH_PROTOCOL);
                             // If this is an imap account, add the search flag
-                            if (HostAuth.SCHEME_IMAP.equals(protocol)) {
+                            if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol)) {
                                 String id = accountCursor.getString(V25_ACCOUNT_ID);
                                 int flags = accountCursor.getInt(V25_ACCOUNT_FLAGS);
                                 cv.put(AccountColumns.FLAGS, flags | Account.FLAGS_SUPPORTS_SEARCH);
@@ -1193,4 +1236,57 @@ public final class DBHelper {
         }
     }
 
+    private static void upgradeToEmail2(SQLiteDatabase db) {
+        // Perform cleanup operations from Email1 to Email2; Email1 will have added new
+        // data that won't conform to what's expected in Email2
+
+        // From 31->32 upgrade
+        try {
+            db.execSQL("update Mailbox set " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY +
+                    "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY + " IS NULL");
+            db.execSQL("update Mailbox set " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT +
+                    "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT + " IS NULL");
+        } catch (SQLException e) {
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32/100 " + e);
+        }
+
+        // From 32->33 upgrade
+        try {
+            db.execSQL("update " + Attachment.TABLE_NAME + " set " + Attachment.UI_STATE +
+                    "=" + UIProvider.AttachmentState.SAVED + " where " +
+                    AttachmentColumns.CONTENT_URI + " is not null;");
+        } catch (SQLException e) {
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33/100 " + e);
+        }
+
+        // From 34->35 upgrade
+        try {
+            db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                    MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                    Mailbox.DRAFTS_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                    " = " + Mailbox.TYPE_DRAFTS);
+            db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                    MailboxColumns.LAST_TOUCHED_TIME + " = " +
+                    Mailbox.SENT_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
+                    " = " + Mailbox.TYPE_SENT);
+        } catch (SQLException e) {
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35/100 " + e);
+        }
+
+        // From 35/36->37
+        try {
+            db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
+                    MailboxColumns.FLAGS + "=" + MailboxColumns.FLAGS + "|" +
+                    Mailbox.FLAG_SUPPORTS_SETTINGS + " where (" +
+                    MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HOLDS_MAIL + ")!=0 and " +
+                    MailboxColumns.ACCOUNT_KEY + " IN (SELECT " + Account.TABLE_NAME +
+                    "." + AccountColumns.ID + " from " + Account.TABLE_NAME + "," +
+                    HostAuth.TABLE_NAME + " where " + Account.TABLE_NAME + "." +
+                    AccountColumns.HOST_AUTH_KEY_RECV + "=" + HostAuth.TABLE_NAME + "." +
+                    HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
+                    HostAuth.LEGACY_SCHEME_EAS + "')");
+        } catch (SQLException e) {
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 35/36 to 37/100 " + e);
+        }
+    }
 }

@@ -127,7 +127,7 @@
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Nahrát všechny existující fotky a videa z telefonu"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Vypnuto"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
-    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Nahrávání (%1$d %%)"</string>
+    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Nahrávání (%1$d%%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d z celkem %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Pozastaveno. Nahrávání obnovíte dotykem."</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Nahrát existující fotky"</string>

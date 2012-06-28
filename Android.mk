@@ -14,38 +14,42 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Build the Email application itself, along with its tests and the tests for the emailcommon
+# Build the Email application itself, along with its tests and tests for the emailcommon
 # static library.  All tests can be run via runtest email
 
 include $(CLEAR_VARS)
-# Include res dir from chips
+
+# Include res dir from chips, unified, and photoviewer
 chips_dir := ../../../frameworks/ex/chips/res
-mail_common_dir := ../../../frameworks/opt/mailcommon/res
-res_dir := $(chips_dir) $(mail_common_dir) res
+unified_email_dir := ../UnifiedEmail
+photo_dir := ../../../frameworks/ex/photoviewer/res
+res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir)
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/email)
+LOCAL_SRC_FILES := $(call all-java-files-under, $(unified_email_dir)/src)
+LOCAL_SRC_FILES += $(call all-java-files-under, src/com/android)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
+
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
+
+# Use assets dir from UnifiedEmail
+# (the default package target doesn't seem to deal with multiple asset dirs)
+LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
+
 LOCAL_AAPT_FLAGS := --auto-add-overlay
-LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips
+LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.ex.photo
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava android-common-chips
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon2 guava android-common-chips android-common-photoviewer
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
 
-LOCAL_PACKAGE_NAME := Email
+LOCAL_PACKAGE_NAME := Email2
+LOCAL_OVERRIDES_PACKAGES := Email
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
 LOCAL_SDK_VERSION := 16
-
-# The Emma tool analyzes code coverage when running unit tests on the
-# application. This configuration line selects which packages will be analyzed,
-# leaving out code which is tested by other means (e.g. static libraries) that
-# would dilute the coverage results. These options do not affect regular
-# production builds.
-LOCAL_EMMA_COVERAGE_FILTER := +com.android.emailcommon.*,+com.android.email.*, \
-    +org.apache.james.mime4j.*,+com.beetstra.jutf7.*,+org.apache.commons.io.*
 
 include $(BUILD_PACKAGE)
 
@@ -54,3 +58,4 @@ ifeq ($(strip $(LOCAL_PACKAGE_OVERRIDES)),)
 # additionally, build unit tests in a separate .apk
 include $(call all-makefiles-under,$(LOCAL_PATH))
 endif
+

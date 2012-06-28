@@ -54,8 +54,8 @@
     <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"venter på å prøve på nytt"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"Ett minutt"</string>
-    <string name="retry_in_2min" msgid="5845688527405283031">"2 minutter"</string>
-    <string name="retry_in_5min" msgid="3153220715959570358">"5 minutter"</string>
+    <string name="retry_in_2min" msgid="5845688527405283031">"To minutter"</string>
+    <string name="retry_in_5min" msgid="3153220715959570358">"Fem minutter"</string>
     <string name="retry_no_data" msgid="630347885498641534">"Ingen datatilkobling"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"Kontoen har ingen tilgjengelig diskkvote"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"Finner ikke filen"</string>

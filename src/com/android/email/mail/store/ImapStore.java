@@ -26,6 +26,7 @@ import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
+import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
@@ -106,7 +107,7 @@ public class ImapStore extends Store {
         mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth == null || !HostAuth.SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
+        if (recvAuth == null || !HostAuth.LEGACY_SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers
@@ -418,8 +419,9 @@ public class ImapStore extends Store {
                     mailboxes.put(folderName, folder);
                 }
             }
+            String inboxName = mContext.getString(R.string.mailbox_name_display_inbox);
             Folder newFolder =
-                addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, '\0', true /*selectable*/);
+                addMailbox(mContext, mAccount.mId, inboxName, '\0', true /*selectable*/);
             mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);

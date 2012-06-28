@@ -67,7 +67,8 @@ public class EasTestAuthenticatorService extends Service {
             } else {
                 Bundle b = new Bundle();
                 Intent intent =
-                    AccountSetupBasics.actionSetupExchangeIntent(EasTestAuthenticatorService.this);
+                    AccountSetupBasics.actionGetCreateAccountIntent(
+                            EasTestAuthenticatorService.this, accountType);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 b.putParcelable(AccountManager.KEY_INTENT, intent);
                 return b;

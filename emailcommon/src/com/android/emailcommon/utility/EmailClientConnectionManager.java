@@ -42,9 +42,10 @@ import javax.net.ssl.KeyManager;
  */
 public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
 
-    private static final boolean LOG_ENABLED = false;
     private static final int STANDARD_PORT = 80;
     private static final int STANDARD_SSL_PORT = 443;
+    private static final boolean LOG_ENABLED = false;
+
     /**
      * A {@link KeyManager} to track client certificate requests from servers.
      */

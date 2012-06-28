@@ -16,13 +16,13 @@
 
 package com.android.email.activity.setup;
 
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Policy;
-
 import android.accounts.AccountAuthenticatorResponse;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Policy;
 
 public class SetupData implements Parcelable {
     // The "extra" name for the Bundle saved with SetupData
@@ -32,14 +32,15 @@ public class SetupData implements Parcelable {
     // Settings -> Accounts
     public static final int FLOW_MODE_UNSPECIFIED = -1;
     public static final int FLOW_MODE_NORMAL = 0;
-    public static final int FLOW_MODE_ACCOUNT_MANAGER_EAS = 1;
-    public static final int FLOW_MODE_ACCOUNT_MANAGER_POP_IMAP = 2;
+    public static final int FLOW_MODE_ACCOUNT_MANAGER = 1;
     public static final int FLOW_MODE_EDIT = 3;
     public static final int FLOW_MODE_FORCE_CREATE = 4;
     // The following two modes are used to "pop the stack" and return from the setup flow.  We
     // either return to the caller (if we're in an account type flow) or go to the message list
     public static final int FLOW_MODE_RETURN_TO_CALLER = 5;
     public static final int FLOW_MODE_RETURN_TO_MESSAGE_LIST = 6;
+    public static final int FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT = 7;
+    public static final int FLOW_MODE_NO_ACCOUNTS = 8;
 
     // For debug logging
     private static final String[] FLOW_MODES = {"normal", "eas", "pop/imap", "edit", "force",
@@ -52,6 +53,7 @@ public class SetupData implements Parcelable {
 
     // All access will be through getters/setters
     private int mFlowMode = FLOW_MODE_NORMAL;
+    private String mFlowAccountType;
     private Account mAccount;
     private String mUsername;
     private String mPassword;
@@ -79,6 +81,10 @@ public class SetupData implements Parcelable {
 
     static public int getFlowMode() {
         return getInstance().mFlowMode;
+    }
+
+    static public String getFlowAccountType() {
+        return getInstance().mFlowAccountType;
     }
 
     static public void setFlowMode(int mFlowMode) {
@@ -171,6 +177,13 @@ public class SetupData implements Parcelable {
         data.mFlowMode = flowMode;
     }
 
+    public static void init(int flowMode, String accountType) {
+        SetupData data = getInstance();
+        data.commonInit();
+        data.mFlowMode = flowMode;
+        data.mFlowAccountType = accountType;
+    }
+
     public static void init(int flowMode, Account account) {
         SetupData data = getInstance();
         data.commonInit();
@@ -191,21 +204,25 @@ public class SetupData implements Parcelable {
     }
 
     // Parcelable methods
+    @Override
     public int describeContents() {
         return 0;
     }
 
     public static final Parcelable.Creator<SetupData> CREATOR =
             new Parcelable.Creator<SetupData>() {
+        @Override
         public SetupData createFromParcel(Parcel in) {
             return new SetupData(in);
         }
 
+        @Override
         public SetupData[] newArray(int size) {
             return new SetupData[size];
         }
     };
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mFlowMode);
         dest.writeParcelable(mAccount, 0);

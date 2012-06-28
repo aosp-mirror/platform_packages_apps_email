@@ -32,6 +32,7 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -81,6 +82,9 @@ public abstract class EmailContent {
     public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
             Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
 
+    public static final Uri ACCOUNT_CHECK_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/accountCheck");
+
     public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
@@ -102,6 +106,19 @@ public abstract class EmailContent {
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";
     public static final String SET_COLUMN_NAME = "set";
+
+    public static final int SYNC_STATUS_NONE = UIProvider.SyncStatus.NO_SYNC;
+    public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
+    public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
+
+    public static final int LAST_SYNC_RESULT_SUCCESS = UIProvider.LastSyncResult.SUCCESS;
+    public static final int LAST_SYNC_RESULT_AUTH_ERROR = UIProvider.LastSyncResult.AUTH_ERROR;
+    public static final int LAST_SYNC_RESULT_SECURITY_ERROR =
+            UIProvider.LastSyncResult.SECURITY_ERROR;
+    public static final int LAST_SYNC_RESULT_CONNECTION_ERROR =
+            UIProvider.LastSyncResult.CONNECTION_ERROR;
+    public static final int LAST_SYNC_RESULT_INTERNAL_ERROR =
+            UIProvider.LastSyncResult.INTERNAL_ERROR;
 
     // Newly created objects get this id
     public static final int NOT_SAVED = -1;
@@ -498,8 +515,8 @@ public abstract class EmailContent {
         public static final String FLAGS = "flags";
 
         // Sync related identifiers
-        // Any client-required identifier
-        public static final String CLIENT_ID = "clientId";
+        // Saved draft info (reusing the never-used "clientId" column)
+        public static final String DRAFT_INFO = "clientId";
         // The message-id in the message's header
         public static final String MESSAGE_ID = "messageId";
 
@@ -558,7 +575,7 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
         public static final int CONTENT_SERVER_ID_COLUMN = 9;
-        public static final int CONTENT_CLIENT_ID_COLUMN = 10;
+        public static final int CONTENT_DRAFT_INFO_COLUMN = 10;
         public static final int CONTENT_MESSAGE_ID_COLUMN = 11;
         public static final int CONTENT_MAILBOX_KEY_COLUMN = 12;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 13;
@@ -579,7 +596,7 @@ public abstract class EmailContent {
             MessageColumns.SUBJECT, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
-            SyncColumns.SERVER_ID, MessageColumns.CLIENT_ID,
+            SyncColumns.SERVER_ID, MessageColumns.DRAFT_INFO,
             MessageColumns.MESSAGE_ID, MessageColumns.MAILBOX_KEY,
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
@@ -702,7 +719,7 @@ public abstract class EmailContent {
 
         public String mServerId;
         public long mServerTimeStamp;
-        public String mClientId;
+        public int mDraftInfo;
         public String mMessageId;
 
         public long mMailboxKey;
@@ -791,6 +808,10 @@ public abstract class EmailContent {
         // compatibility
         public static final int FLAG_TYPE_REPLY_ALL = 1 << 21;
 
+        // Flag used in draftInfo to indicate that the reference message should be appended
+        public static final int DRAFT_INFO_APPEND_REF_MESSAGE = 1 << 24;
+        public static final int DRAFT_INFO_QUOTE_POS_MASK = 0xFFFFFF;
+
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
 
@@ -814,7 +835,7 @@ public abstract class EmailContent {
 
             values.put(SyncColumns.SERVER_ID, mServerId);
             values.put(SyncColumns.SERVER_TIMESTAMP, mServerTimeStamp);
-            values.put(MessageColumns.CLIENT_ID, mClientId);
+            values.put(MessageColumns.DRAFT_INFO, mDraftInfo);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
 
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
@@ -855,7 +876,7 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mServerTimeStamp = cursor.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
-            mClientId = cursor.getString(CONTENT_CLIENT_ID_COLUMN);
+            mDraftInfo = cursor.getInt(CONTENT_DRAFT_INFO_COLUMN);
             mMessageId = cursor.getString(CONTENT_MESSAGE_ID_COLUMN);
             mMailboxKey = cursor.getLong(CONTENT_MAILBOX_KEY_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
@@ -1427,10 +1448,6 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
-
-        // For compatibility with Email1 (Deprecated in Email2)
-        public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
-        public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
     public interface QuickResponseColumns {
@@ -1488,9 +1505,8 @@ public abstract class EmailContent {
         public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
         // The total number of messages in the remote mailbox
         public static final String TOTAL_COUNT = "totalCount";
-
-        // For compatibility with Email1 (Deprecated in Email2)
-        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
+        // The full hierarchical name of this folder, in the form a/b/c
+        public static final String HIERARCHICAL_NAME = "hierarchicalName";
     }
 
     public interface HostAuthColumns {

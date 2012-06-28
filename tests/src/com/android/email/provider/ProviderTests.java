@@ -1690,7 +1690,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testCreateIndex() {
         String oldStr = "create index message_" + MessageColumns.TIMESTAMP
             + " on " + Message.TABLE_NAME + " (" + MessageColumns.TIMESTAMP + ");";
-        String newStr = DBHelper.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
+        String newStr = EmailProvider.createIndex(Message.TABLE_NAME, MessageColumns.TIMESTAMP);
         assertEquals(newStr, oldStr);
     }
 
@@ -2138,7 +2138,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // Batch update.
         SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        DBHelper.recalculateMessageCount(db);
+        EmailProvider.recalculateMessageCount(db);
 
         // Check message counts are valid again
         assertEquals(1, getMessageCount(b1.mId));
@@ -2266,7 +2266,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(b34, testMailbox);
 
         SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        DBHelper.upgradeFromVersion17ToVersion18(db);
+        EmailProvider.upgradeFromVersion17ToVersion18(db);
 
         // Verify that only IMAP/POP3 mailboxes w/ a parent key of '0' are changed
         // Exchange mailboxes; none should be changed
@@ -2488,7 +2488,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         try {
             // Upgrade the database
             SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-            DBHelper.upgradeFromVersion21ToVersion22(db, getContext());
+            EmailProvider.upgradeFromVersion21ToVersion22(db, getContext());
 
             // The pop3 and imap account should now be in account manager
             amAccountList = accountManager.getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);

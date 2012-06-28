@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  * Encapsulates commonly used attachment information related to suitability for viewing and saving,
- * based on the attachment's filename and mime type.
+ * based on the attachment's filename and mimetype.
  */
 public class AttachmentInfo {
     // Projection which can be used with the constructor taking a Cursor argument
@@ -147,7 +147,7 @@ public class AttachmentInfo {
                         extension)) {
             boolean sideloadEnabled;
             sideloadEnabled = Settings.Secure.getInt(context.getContentResolver(),
-                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) != 0;
+                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) == 1;
             canSave &= sideloadEnabled;
             canView = canSave;
             canInstall = canSave;

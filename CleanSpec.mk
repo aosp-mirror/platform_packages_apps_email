@@ -73,6 +73,8 @@ $(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/JAVA_LIBRARIES/co
 $(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/APPS/Email*)
 $(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon*)
 $(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/APPS/Email*)
+$(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon*)
+$(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/APPS/Email*)
 
 # ************************************************
 # NEWER CLEAN STEPS MUST BE AT THE END OF THE LIST

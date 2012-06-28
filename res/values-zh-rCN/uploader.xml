@@ -120,7 +120,7 @@
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"高级"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"使用移动网络时的上传设置"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"漫游时的上传设置"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"在移动数据网络中漫游时上传照片和视频"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"在数据网络中漫游时上传照片和视频"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"充电时上传"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"仅在充电时上传照片和视频"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"上传现有照片"</string>

@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -33,17 +33,11 @@
             class="com.android.email.activity.setup.AccountSetupIncomingFragment"
             android:layout_alignParentTop="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dip"
+            android:layout_weight="1"
         />
 
-        <FrameLayout
-            android:id="@+id/buttons_wrapper"
-            android:layout_below="@id/setup_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <include layout="@layout/account_setup_buttons" />
 
-            <include layout="@layout/account_setup_buttons" />
-
-        </FrameLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </ScrollView>
