@@ -20,9 +20,9 @@ import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
@@ -145,7 +145,7 @@ public class SmtpSender extends Sender {
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -167,19 +167,19 @@ public class SmtpSender extends Sender {
                     saslAuthLogin(mUsername, mPassword);
                 }
                 else {
-                    if (Email.DEBUG) {
+                    if (MailActivityEmail.DEBUG) {
                         Log.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());

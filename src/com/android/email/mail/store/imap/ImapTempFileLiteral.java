@@ -16,14 +16,14 @@
 
 package com.android.email.mail.store.imap;
 
+import android.util.Log;
+
 import com.android.email.FixedLengthInputStream;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
-
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -88,9 +88,14 @@ public class ImapTempFileLiteral extends ImapString {
     public String getString() {
         checkNotDestroyed();
         try {
-            return Utility.fromAscii(IOUtils.toByteArray(getAsStream()));
+            byte[] bytes = IOUtils.toByteArray(getAsStream());
+            // Prevent crash from OOM; we've seen this, but only rarely and not reproducibly
+            if (bytes.length > ImapResponseParser.LITERAL_KEEP_IN_MEMORY_THRESHOLD) {
+                throw new IOException();
+            }
+            return Utility.fromAscii(bytes);
         } catch (IOException e) {
-            Log.w(Logging.LOG_TAG, "ImapTempFileLiteral: Error while reading temp file");
+            Log.w(Logging.LOG_TAG, "ImapTempFileLiteral: Error while reading temp file", e);
             return "";
         }
     }

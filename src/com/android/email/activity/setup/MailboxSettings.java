@@ -32,16 +32,14 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.android.email.Email;
-import com.android.email.FolderProperties;
 import com.android.email.R;
-import com.android.email.RefreshManager;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -225,7 +223,7 @@ public class MailboxSettings extends PreferenceActivity {
 
         // Update the title with the mailbox name.
         ActionBar actionBar = getActionBar();
-        String mailboxName = FolderProperties.getInstance(this).getDisplayName(mMailbox);
+        String mailboxName = mMailbox.mDisplayName;
         if (actionBar != null) {
             actionBar.setTitle(mailboxName);
             actionBar.setSubtitle(getString(R.string.mailbox_settings_activity_title));
@@ -293,7 +291,7 @@ public class MailboxSettings extends PreferenceActivity {
                 return false;
             }
             mNeedsSave = true;
-            if (Email.DEBUG) {
+            if (MailActivityEmail.DEBUG) {
                 Log.i(Logging.LOG_TAG, "Setting changed");
             }
             // In order to set the current entry to the summary, we need to udpate the value
@@ -311,7 +309,7 @@ public class MailboxSettings extends PreferenceActivity {
     private void updateObjects() {
         final int syncInterval = Integer.valueOf(mSyncIntervalPref.getValue());
         final int syncLookback = Integer.valueOf(mSyncLookbackPref.getValue());
-        if (Email.DEBUG) {
+        if (MailActivityEmail.DEBUG) {
             Log.i(Logging.LOG_TAG, "Updating object: " + syncInterval + "," + syncLookback);
         }
         if (mMailbox.mType == Mailbox.TYPE_INBOX) {
@@ -369,8 +367,9 @@ public class MailboxSettings extends PreferenceActivity {
             @Override
             protected void onSuccess(Void result) {
                 // must be called on the ui thread
-                RefreshManager.getInstance(context).refreshMessageList(account.mId, mailbox.mId,
-                        true);
+                //***
+                //RefreshManager.getInstance(context).refreshMessageList(account.mId, mailbox.mId,
+                //        true);
             }
         }.executeSerial((Void [])null);
     }

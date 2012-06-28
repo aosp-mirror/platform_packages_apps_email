@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Đọc tệp đính kèm trong email"</string>
-    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Cho phép ứng dụng này đọc tệp đính kèm trong email của bạn."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Cho phép ứng dụng đọc tệp đính kèm trong email của bạn."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Truy cập dữ liệu của nhà cung cấp email"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Cho phép ứng dụng này truy cập cơ sở dữ liệu email của bạn, bao gồm thư đã nhận, thư đã gửi, tên người dùng và mật khẩu."</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Cho phép ứng dụng truy cập cơ sở dữ liệu email của bạn, bao gồm thư đã nhận, thư đã gửi, tên người dùng và mật khẩu."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Soạn"</string>
     <string name="debug_title" msgid="5175710493691536719">"Gỡ lỗi"</string>
@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Xong"</string>
     <string name="create_action" msgid="3062715563215392251">"Tạo mới"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Xóa"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Không có câu trả lời nhanh nào"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Không có câu trả lời nhanh nào."</string>
     <string name="discard_action" msgid="6532206074859505968">"Hủy"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Lưu thư nháp"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Chèn trả lời nhanh"</string>
@@ -50,7 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Tìm kiếm"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Cài đặt tài khoản"</string>
     <string name="settings_action" msgid="6334807007967459412">"Cài đặt"</string>
-    <string name="mailbox_settings_action" msgid="8008375875310554776">"Tùy chọn đồng bộ hóa"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Tùy chọn đồng bộ hóa"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Đánh dấu là chưa đọc"</string>
     <string name="move_action" msgid="3059189775933985898">"Di chuyển"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
@@ -133,7 +133,7 @@
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> đã viết:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Bao gồm nội dung được trích dẫn"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Bao gồm văn bản"</string>
-    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Bạn phải thêm ít nhất một người nhận."</string>
+    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Thêm ít nhất một người nhận."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Một số địa chỉ email không hợp lệ."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Tệp quá lớn để có thể đính kèm."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Chèn trả lời nhanh"</string>
@@ -153,8 +153,8 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Đã lưu"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Dừng"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Đã lưu tệp đính kèm với tên <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Không thể lưu tệp đính kèm."</string>
-    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Lưu ý: Một hoặc nhiều tệp đính kèm trong thư chuyển tiếp của bạn sẽ được tải xuống trước khi gửi."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Không thể lưu tệp đính kèm."</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Một hoặc nhiều tệp đính kèm trong thư chuyển tiếp của bạn sẽ được tải xuống trước khi gửi."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Thư"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Mời"</string>
   <plurals name="message_view_show_attachments_action">
@@ -210,7 +210,7 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Không thể chuyển tiếp một hoặc nhiều tệp đính kèm"</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Tệp đính kèm không được chuyển tiếp"</string>
-    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> đăng nhập không thành công."</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"Đăng nhập vào <xliff:g id="ACCOUNT_NAME">%s</xliff:g> không thành công."</string>
     <string name="login_failed_title" msgid="7624349996212476176">"Không thể đăng nhập"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -232,15 +232,11 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Cũ hơn"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Thiết lập tài khoản"</string>
-    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Thêm tài khoản Exchange"</string>
-    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Thêm tài khoản Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Tài khoản email"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Bạn có thể thiết lập email cho hầu hết mọi tài khoản chỉ bằng vài bước."</string>
-    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Bạn có thể thiết lập tài khoản Exchange chỉ bằng vài bước."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Bạn có thể thiết lập tài khoản Exchange ActiveSync chỉ bằng vài bước."</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"Bạn có thể thiết lập tài khoản của mình chỉ bằng vài bước."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Địa chỉ email"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Mật khẩu"</string>
-    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Gửi email từ tài khoản này theo mặc định."</string>
+    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Gửi email từ tài khoản này theo mặc định"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Thiết lập thủ công"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Hãy nhập địa chỉ email và mật khẩu hợp lệ."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Tài khoản trùng lặp"</string>
@@ -250,7 +246,7 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Đang kiểm tra cài đặt máy chủ thư đến..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Đang kiểm tra cài đặt máy chủ thư đi..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Thiết lập tài khoản"</string>
-    <string name="account_setup_names_headline" msgid="2413440250372658881">"Tài khoản của bạn đã được thiết lập và email đang được gửi!"</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Tài khoản của bạn đã được thiết lập và email đang được gửi!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Đặt tên cho tài khoản này (tùy chọn)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tên bạn (được hiển thị trong tin nhắn đi)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Không được để trống trường này."</string>
@@ -261,8 +257,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Cài đặt máy chủ thư đến"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Tên người dùng"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Mật khẩu"</string>
-    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Máy chủ POP3"</string>
-    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Máy chủ IMAP"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Máy chủ"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Cổng"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Loại bảo mật"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Không"</string>
@@ -280,7 +275,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Máy chủ SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Cổng"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Loại bảo mật"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Yêu cầu đăng nhập."</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Yêu cầu đăng nhập"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Tên người dùng"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Mật khẩu"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Thiết lập tài khoản"</string>
@@ -305,11 +300,11 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"15 phút một lần"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"30 phút một lần"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Hàng giờ"</string>
-    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Gửi email từ tài khoản này theo mặc định."</string>
-    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Thông báo cho tôi khi email đến."</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Đồng bộ hóa danh bạ từ tài khoản này."</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Đồng bộ hóa lịch từ tài khoản này."</string>
-    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Đồng bộ hóa email từ tài khoản này."</string>
+    <string name="account_setup_options_default_label" msgid="2617227194283720914">"Gửi email từ tài khoản này theo mặc định"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Thông báo cho tôi khi email đến"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Đồng bộ hóa danh bạ từ tài khoản này"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Đồng bộ hóa lịch từ tài khoản này"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Đồng bộ hóa email từ tài khoản này"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Tự động tải xuống tệp đính kèm khi được kết nối Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Không thể kết thúc"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Số ngày đồng bộ hóa"</string>
@@ -321,13 +316,13 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Một tháng"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tất cả"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Sử dụng mặc định của tài khoản"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Tên người dùng hoặc mật khẩu không chính xác."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Tên người dùng hoặc mật khẩu không chính xác."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Tên người dùng hoặc mật khẩu không chính xác."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Tên người dùng hoặc mật khẩu không chính xác."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Không thể kết nối an toàn với máy chủ."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Không thể kết nối an toàn với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Yêu cầu chứng chỉ ứng dụng khách. Kết nối với máy chủ có chứng chỉ ứng dụng khách?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Chứng chỉ không hợp lệ hoặc không thể truy cập được."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Máy chủ trả về lỗi. Hãy kiểm tra tên người dùng và mật khẩu rồi thử lại."</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Cần chứng chỉ ứng dụng khách. Bạn có muốn kết nối với máy chủ bằng chứng chỉ ứng dụng khách không?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Chứng chỉ không hợp lệ hoặc không thể truy cập được."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Máy chủ trả về lỗi. Hãy kiểm tra tên người dùng và mật khẩu rồi thử lại."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Không thể kết nối với máy chủ."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Không thể kết nối với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS được yêu cầu nhưng không được máy chủ hỗ trợ."</string>
@@ -343,8 +338,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"CẢNH BÁO: Việc vô hiệu hóa quyền quản lý điện thoại của bạn của ứng dụng Email sẽ xóa tất cả tài khoản email yêu cầu quyền đó, cùng với email, địa chỉ liên hệ, sự kiện lịch và các dữ liệu khác."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Cập nhật bảo mật"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> yêu cầu bạn cập nhật cài đặt bảo mật của mình."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" yêu cầu cập nhật cài đặt bảo mật."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Yêu cầu cập nhật bảo mật"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"Không thể đồng bộ hóa tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" do các yêu cầu về bảo mật."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" yêu cầu cập nhật cài đặt bảo mật."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" đã thay đổi cài đặt bảo mật; không yêu cầu bất kỳ tác vụ người dùng nào."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Yêu cầu cập nhật bảo mật"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Chính sách bảo mật đã thay đổi"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Ko thể đáp ứng c.sách bảo mật"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Bảo mật thiết bị"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Máy chủ <xliff:g id="SERVER">%s</xliff:g> yêu cầu bạn cho phép kiểm soát từ xa một số tính năng bảo mật của thiết bị Android của bạn."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Chỉnh sửa chi tiết"</string>
@@ -353,38 +352,45 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"Mật khẩu hoặc mã PIN khóa màn hình của bạn đã hết hạn."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Mật khẩu khóa màn hình đã hết hạn"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Mật khẩu khóa màn hình sắp hết hạn"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Bạn phải sớm thay đổi mã PIN hoặc mật khẩu khóa màn hình của mình, nếu không dữ liệu cho <xliff:g id="ACCOUNT">%s</xliff:g> sẽ bị xóa. Thay đổi ngay bây giờ?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Bạn cần phải sớm thay đổi PIN khóa màn hình hoặc mật khẩu, nếu không dữ liệu của <xliff:g id="ACCOUNT">%s</xliff:g> sẽ bị xóa. Bạn có muốn thay đổi ngay bây giờ không?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Mật khẩu khóa màn hình đã hết hạn"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Dữ liệu của <xliff:g id="ACCOUNT">%s</xliff:g> đang bị xóa khỏi thiết bị của bạn. Bạn có thể khôi phục dữ liệu đó bằng cách thay đổi mật khẩu hoặc mã PIN khóa màn hình của mình. Bạn có muốn thay đổi ngay bây giờ không?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Dữ liệu của <xliff:g id="ACCOUNT">%s</xliff:g> đang bị xóa khỏi thiết bị của bạn. Bạn có thể khôi phục dữ liệu bằng cách thay đổi PIN khóa màn hình hoặc mật khẩu của mình. Bạn có muốn thay đổi ngay bây giờ không?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Hủy những thay đổi chưa lưu?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Không thể đăng nhập"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Tên người dùng hoặc mật khẩu của <xliff:g id="ACCOUNT">%s</xliff:g> không đúng. Cập nhật tên người dùng hoặc mật khẩu ngay bây giờ?"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Tên người dùng hoặc mật khẩu của <xliff:g id="ACCOUNT">%s</xliff:g> không chính xác. Bạn có muốn cập nhật các thông tin này ngay bây giờ không?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Tài khoản mặc định"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Gửi email từ tài khoản này theo mặc định"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Tải xuống tệp đính kèm"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Tự động tải xuống tệp đính kèm tin nhắn gần đây qua Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Thông báo qua email"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Đồng bộ hóa tần suất, thông báo, v.v."</string>
-    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Thông báo trên thanh Hệ thống khi email đến"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Gửi thông báo khi email đến"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Tần suất kiểm tra hộp thư đến"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Cài đặt thư đến"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Tên người dùng, mật khẩu và các cài đặt máy chủ thư đến khác"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Cài đặt thư đi"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Tên người dùng, mật khẩu và cài đặt máy chủ thư đi khác"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Chính sách bắt buộc"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Bỏ chọn tất cả"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Chính sách không được hỗ trợ"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Bỏ chọn tất cả"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Thử đồng bộ hóa"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Chạm vào đây để đồng bộ hóa tài khoản này"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Tên tài khoản"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tên bạn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Chữ ký"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Trả lời nhanh"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Chỉnh sửa văn bản mà bạn thường xuyên chèn khi soạn email"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Chỉnh sửa văn bản mà bạn thường xuyên chèn khi soạn email"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Thêm văn bản vào tin nhắn bạn gửi"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Cài đặt thông báo"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Sử dụng dữ liệu"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Chính sách bảo mật"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Chỉnh sửa trả lời nhanh"</string>
     <string name="save_action" msgid="1988862706623227093">"Lưu"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Đồng bộ hóa danh bạ"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Đồng bộ hóa danh bạ cho tài khoản này"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Đồng bộ hóa lịch"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Đồng bộ hóa lịch cho tài khoản này"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Đồng bộ hóa lịch"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Đ.bộ hóa sự kiện lịch cho TK này"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Đồng bộ hóa email"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Đồng bộ hóa email cho tài khoản này"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Rung"</string>
@@ -422,10 +428,16 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> kết quả từ <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Cài đặt"</string>
-    <string name="header_label_general_preferences" msgid="9204600297009680176">"Chung"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"Cài đặt chung"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Ứng dụng"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Tự động tiến"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Chọn màn hình hiển thị sau khi bạn xóa thư"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ẩn hộp kiểm"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Trong danh sách các thư, chạm và giữ để chọn"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Xác nhận trước khi xóa"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Thư"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Xác nhận trước khi gửi"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Thư"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Chuyển sang"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Thư mới hơn"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Thư cũ hơn"</string>
@@ -466,5 +478,18 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Đang chờ kết quả"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Một số máy chủ có thể xử lý lâu."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Thư mục"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Ko cho phép sử dụng máy ảnh của thiết bị"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Yêu cầu mật khẩu của thiết bị"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Hạn chế sử dụng lại các mật khẩu gần đây"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Buộc mật khẩu hết hạn"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Thiết bị cần ở chế độ rảnh để khóa màn hình"</string>
+    <string name="policy_calendar_age" msgid="627405158087482302">"Giới hạn số lượng sự kiện lịch được đồng bộ hóa"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Giới hạn số lượng email được đồng bộ hóa"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Cảm ơn bạn!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Tôi thấy được đấy!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Tôi sẽ đọc thư này sau và sẽ liên hệ lại với bạn."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Chúng ta hãy cùng tổ chức một cuộc họp để thảo luận về vấn đề này."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Đồng bộ hóa nền cho tài khoản này bị tắt trong khi chuyển vùng."</string>
+    <string name="confirm_response" msgid="5747902757569543165">"Đang gửi trả lời..."</string>
+    <string name="no_conversations" msgid="5559527390337162819">"Không có thư nào."</string>
 </resources>

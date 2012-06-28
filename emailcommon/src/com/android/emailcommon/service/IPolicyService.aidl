@@ -19,12 +19,7 @@ import com.android.emailcommon.provider.Policy;
 
 interface IPolicyService {
     boolean isActive(in Policy policies);
-    void policiesRequired(long accountId);
-    void policiesUpdated(long accountId);
     void setAccountHoldFlag(long accountId, boolean newState);
-    boolean isActiveAdmin();
-    // This is about as oneway as you can get
+    void setAccountPolicy(long accountId, in Policy policy, String securityKey);
     oneway void remoteWipe();
-    boolean isSupported(in Policy policies);
-    Policy clearUnsupportedPolicies(in Policy policies);
 }

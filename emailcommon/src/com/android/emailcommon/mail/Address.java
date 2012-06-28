@@ -16,15 +16,15 @@
 
 package com.android.emailcommon.mail;
 
+import android.text.TextUtils;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
+
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.DecoderUtil;
-
-import android.text.TextUtils;
-import android.text.util.Rfc822Token;
-import android.text.util.Rfc822Tokenizer;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -192,6 +192,10 @@ public class Address {
         return super.equals(o);
     }
 
+    public int hashCode() {
+        return getAddress().hashCode();
+    }
+
     /**
      * Get human readable address string.
      * Do not use this for email header.
@@ -352,14 +356,21 @@ public class Address {
     }
 
     /**
-     * Unpacks an address list previously packed with pack()
-     * @param addressList String with packed addresses as returned by pack()
+     * Unpacks an address list that is either CSV of RFC822 addresses OR (for backward
+     * compatibility) previously packed with pack()
+     * @param addressList string packed with pack() or CSV of RFC822 addresses
      * @return array of addresses resulting from unpack
      */
     public static Address[] unpack(String addressList) {
         if (addressList == null || addressList.length() == 0) {
             return EMPTY_ADDRESS_ARRAY;
         }
+        // IF we're CSV, just parse
+        if ((addressList.indexOf(LIST_DELIMITER_PERSONAL) == -1) &&
+                (addressList.indexOf(LIST_DELIMITER_EMAIL) == -1)) {
+            return Address.parse(addressList);
+        }
+        // Otherwise, do backward-compatibile unpack
         ArrayList<Address> addresses = new ArrayList<Address>();
         int length = addressList.length();
         int pairStartIndex = 0;
@@ -395,45 +406,11 @@ public class Address {
     }
 
     /**
-     * Packs an address list into a String that is very quick to read
-     * and parse. Packed lists can be unpacked with unpack().
-     * The format is a series of packed addresses separated by LIST_DELIMITER_EMAIL.
-     * Each address is packed as
-     * a pair of address and personal separated by LIST_DELIMITER_PERSONAL,
-     * where the personal and delimiter are optional.
-     * E.g. "foo@x.com\1joe@x.com\2Joe Doe"
-     * @param addresses Array of addresses
-     * @return a string containing the packed addresses.
+     * Generate a String containing RFC822 addresses separated by commas
+     * NOTE: We used to "pack" these addresses in an app-specific format, but no longer do so
      */
     public static String pack(Address[] addresses) {
-        // TODO: return same value for both null & empty list
-        if (addresses == null) {
-            return null;
-        }
-        final int nAddr = addresses.length;
-        if (nAddr == 0) {
-            return "";
-        }
-
-        // shortcut: one email with no displayName
-        if (nAddr == 1 && addresses[0].getPersonal() == null) {
-            return addresses[0].getAddress();
-        }
-
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < nAddr; i++) {
-            if (i != 0) {
-                sb.append(LIST_DELIMITER_EMAIL);
-            }
-            final Address address = addresses[i];
-            sb.append(address.getAddress());
-            final String displayName = address.getPersonal();
-            if (displayName != null) {
-                sb.append(LIST_DELIMITER_PERSONAL);
-                sb.append(displayName);
-            }
-        }
-        return sb.toString();
+        return Address.toHeader(addresses);
     }
 
     /**

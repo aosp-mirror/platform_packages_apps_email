@@ -33,7 +33,6 @@ import com.android.emailcommon.utility.Utility;
 
 public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
-    @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
     public static final Uri ADD_TO_FIELD_URI =
         Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
@@ -55,8 +54,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public int mFlags;
     public int mVisibleLimit;
     public String mSyncStatus;
-    public long mLastSeenMessageKey;
     public long mLastTouchedTime;
+    public int mUiSyncStatus;
+    public int mUiLastSyncResult;
+    public long mLastNotifiedMessageKey;
+    public int mLastNotifiedMessageCount;
+    public int mTotalCount;
+    public String mHierarchicalName;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -74,8 +78,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
     public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
     public static final int CONTENT_PARENT_KEY_COLUMN = 15;
-    public static final int CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN = 16;
-    public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 17;
+    public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 16;
+    public static final int CONTENT_UI_SYNC_STATUS_COLUMN = 17;
+    public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 18;
+    public static final int CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN = 19;
+    public static final int CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN = 20;
+    public static final int CONTENT_TOTAL_COUNT_COLUMN = 21;
+    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 22;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -87,8 +96,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
         MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,
         MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
-        MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
-        MailboxColumns.LAST_SEEN_MESSAGE_KEY, MailboxColumns.LAST_TOUCHED_TIME,
+        MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY, MailboxColumns.LAST_TOUCHED_TIME,
+        MailboxColumns.UI_SYNC_STATUS, MailboxColumns.UI_LAST_SYNC_RESULT,
+        MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT,
+        MailboxColumns.TOTAL_COUNT, MailboxColumns.HIERARCHICAL_NAME
     };
 
     private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -168,6 +179,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int TYPE_JUNK = 7;
     /** Search results */
     public static final int TYPE_SEARCH = 8;
+    /** Starred (virtual */
+    public static final int TYPE_STARRED = 9;
 
     // Types after this are used for non-mail mailboxes (as in EAS)
     public static final int TYPE_NOT_EMAIL = 0x40;
@@ -180,6 +193,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int TYPE_NOT_SYNCABLE = 0x100;
     // A mailbox that holds Messages that are attachments
     public static final int TYPE_ATTACHMENT = 0x101;
+
+    // Default "touch" time for system mailboxes
+    public static final int DRAFTS_DEFAULT_TOUCH_TIME = 2;
+    public static final int SENT_DEFAULT_TOUCH_TIME = 1;
 
     // Bit field flags; each is defined below
     // Warning: Do not read these flags until POP/IMAP/EAS all populate them
@@ -197,6 +214,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int FLAG_ACCEPTS_MOVED_MAIL = 1<<4;
     /** can be used as a target for appending messages */
     public static final int FLAG_ACCEPTS_APPENDED_MAIL = 1<<5;
+    /** has user settings (sync lookback, etc.) */
+    public static final int FLAG_SUPPORTS_SETTINGS = 1<<6;
 
     // Magic mailbox ID's
     // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
@@ -306,8 +325,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
         mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
         mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
-        mLastSeenMessageKey = cursor.getLong(CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN);
         mLastTouchedTime = cursor.getLong(CONTENT_LAST_TOUCHED_TIME_COLUMN);
+        mUiSyncStatus = cursor.getInt(CONTENT_UI_SYNC_STATUS_COLUMN);
+        mUiLastSyncResult = cursor.getInt(CONTENT_UI_LAST_SYNC_RESULT_COLUMN);
+        mLastNotifiedMessageKey = cursor.getLong(CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN);
+        mLastNotifiedMessageCount = cursor.getInt(CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN);
+        mTotalCount = cursor.getInt(CONTENT_TOTAL_COUNT_COLUMN);
+        mHierarchicalName = cursor.getString(CONTENT_HIERARCHICAL_NAME_COLUMN);
     }
 
     @Override
@@ -328,8 +352,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.FLAGS, mFlags);
         values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
         values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
-        values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, mLastSeenMessageKey);
         values.put(MailboxColumns.LAST_TOUCHED_TIME, mLastTouchedTime);
+        values.put(MailboxColumns.UI_SYNC_STATUS, mUiSyncStatus);
+        values.put(MailboxColumns.UI_LAST_SYNC_RESULT, mUiLastSyncResult);
+        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, mLastNotifiedMessageKey);
+        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, mLastNotifiedMessageCount);
+        values.put(MailboxColumns.TOTAL_COUNT, mTotalCount);
+        values.put(MailboxColumns.HIERARCHICAL_NAME, mHierarchicalName);
         return values;
     }
 
@@ -468,31 +497,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     }
 
     /**
-     * @return whether or not this mailbox retrieves its data from the server (as opposed to just
-     *     a local mailbox that is never synced).
-     */
-    public boolean loadsFromServer(String protocol) {
-        if (HostAuth.SCHEME_EAS.equals(protocol)) {
-            return mType != Mailbox.TYPE_DRAFTS
-                    && mType != Mailbox.TYPE_OUTBOX
-                    && mType != Mailbox.TYPE_SEARCH
-                    && mType < Mailbox.TYPE_NOT_SYNCABLE;
-
-        } else if (HostAuth.SCHEME_IMAP.equals(protocol)) {
-            // TODO: actually use a sync flag when creating the mailboxes. Right now we use an
-            // approximation for IMAP.
-            return mType != Mailbox.TYPE_DRAFTS
-                    && mType != Mailbox.TYPE_OUTBOX
-                    && mType != Mailbox.TYPE_SEARCH;
-
-        } else if (HostAuth.SCHEME_POP3.equals(protocol)) {
-            return TYPE_INBOX == mType;
-        }
-
-        return false;
-    }
-
-    /**
      * @return true if messages in a mailbox of a type can be replied/forwarded.
      */
     public static boolean isMailboxTypeReplyAndForwardable(int type) {
@@ -538,10 +542,20 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 = mSyncStatus;
         hash[CONTENT_PARENT_KEY_COLUMN]
                 = mParentKey;
-        hash[CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN]
-                = mLastSeenMessageKey;
         hash[CONTENT_LAST_TOUCHED_TIME_COLUMN]
                 = mLastTouchedTime;
+        hash[CONTENT_UI_SYNC_STATUS_COLUMN]
+                = mUiSyncStatus;
+        hash[CONTENT_UI_LAST_SYNC_RESULT_COLUMN]
+                = mUiLastSyncResult;
+        hash[CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN]
+                = mLastNotifiedMessageKey;
+        hash[CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN]
+                = mLastNotifiedMessageCount;
+        hash[CONTENT_TOTAL_COUNT_COLUMN]
+                = mTotalCount;
+        hash[CONTENT_HIERARCHICAL_NAME_COLUMN]
+                = mHierarchicalName;
         return hash;
     }
 
@@ -571,8 +585,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         dest.writeInt(mFlags);
         dest.writeInt(mVisibleLimit);
         dest.writeString(mSyncStatus);
-        dest.writeLong(mLastSeenMessageKey);
         dest.writeLong(mLastTouchedTime);
+        dest.writeInt(mUiSyncStatus);
+        dest.writeInt(mUiLastSyncResult);
+        dest.writeLong(mLastNotifiedMessageKey);
+        dest.writeInt(mLastNotifiedMessageCount);
+        dest.writeInt(mTotalCount);
+        dest.writeString(mHierarchicalName);
     }
 
     public Mailbox(Parcel in) {
@@ -593,8 +612,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mFlags = in.readInt();
         mVisibleLimit = in.readInt();
         mSyncStatus = in.readString();
-        mLastSeenMessageKey = in.readLong();
         mLastTouchedTime = in.readLong();
+        mUiSyncStatus = in.readInt();
+        mUiLastSyncResult = in.readInt();
+        mLastNotifiedMessageKey = in.readLong();
+        mLastNotifiedMessageCount = in.readInt();
+        mTotalCount = in.readInt();
+        mHierarchicalName = in.readString();
     }
 
     public static final Parcelable.Creator<Mailbox> CREATOR = new Parcelable.Creator<Mailbox>() {
@@ -608,4 +632,9 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
             return new Mailbox[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "[Mailbox " + mId + ": " + mDisplayName + "]";
+    }
 }

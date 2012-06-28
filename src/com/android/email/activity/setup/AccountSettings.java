@@ -37,16 +37,17 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
-import com.android.email.mail.Store;
+import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider.EditSettingsExtras;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ import java.util.List;
  *
  * This activity uses the following fragments:
  *   AccountSettingsFragment
- *   Account{Incoming/Outgoing/Exchange}Fragment
+ *   Account{Incoming/Outgoing}Fragment
  *   AccountCheckSettingsFragment
  *   GeneralPreferences
  *   DebugFragment
@@ -76,6 +77,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
     private static final String EXTRA_TITLE = "AccountSettings.title";
+    public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -159,7 +161,7 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
-        Intent i = getIntent();
+        final Intent i = getIntent();
         if (savedInstanceState == null) {
             // If we are not restarting from a previous instance, we need to
             // figure out the initial prefs to show.  (Otherwise, we want to
@@ -169,6 +171,13 @@ public class AccountSettings extends PreferenceActivity {
                 mGetAccountIdFromAccountTask =
                         (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
+            } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
+                launchMailboxSettings(i);
+                return;
+            } else if (i.hasExtra(EXTRA_NO_ACCOUNTS)) {
+                AccountSetupBasics.actionNewAccountWithResult(this);
+                finish();
+                return;
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
@@ -245,11 +254,6 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return shouldShowNewAccount();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -307,38 +311,23 @@ public class AccountSettings extends PreferenceActivity {
         super.onBackPressed();
     }
 
-    /**
-     * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
-     * so the user is free to edit another account as well.
-     */
-    @Override
-    public Header onGetNewHeader() {
-        Header result = mRequestedAccountHeader;
-        mRequestedAccountHeader = null;
-        return result;
+    private void launchMailboxSettings(Intent intent) {
+        final Folder folder = (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
+
+        // TODO: determine from the account if we should navigate to the mailbox settings.
+        // See bug 6242668
+
+        // Get the mailbox id from the folder
+        final long mailboxId = Long.parseLong(folder.uri.getPathSegments().get(1));
+
+        MailboxSettings.start(this, mailboxId);
+        finish();
     }
+
 
     private void enableDebugMenu() {
         mShowDebugMenu = true;
         invalidateHeaders();
-    }
-
-    /**
-     * Decide if "add account" should be shown
-     */
-    private boolean shouldShowNewAccount() {
-        // If in single pane mode, only add accounts at top level
-        if (!onIsMultiPane()) {
-            return hasHeaders();
-        } else {
-            // If in multi pane mode, only add accounts when showing a top level fragment
-            // Note: null is OK; This is the case when we first launch the activity
-            if ((mCurrentFragment != null)
-                && !(mCurrentFragment instanceof GeneralPreferences)
-                && !(mCurrentFragment instanceof DebugFragment)
-                && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
-        }
-        return true;
     }
 
     private void onAddNewAccount() {
@@ -589,10 +578,6 @@ public class AccountSettings extends PreferenceActivity {
         public void abandonEdit() {
             finish();
         }
-        @Override
-        public void deleteAccount(Account account) {
-            AccountSettings.this.deleteAccount(account);
-        }
     }
 
     /**
@@ -659,27 +644,13 @@ public class AccountSettings extends PreferenceActivity {
 
     /**
      * Dispatch to edit incoming settings.
-     *
-     * TODO: Make things less hardwired
      */
     public void onIncomingSettings(Account account) {
         try {
-            Store store = Store.getInstance(account, getApplication());
-            if (store != null) {
-                Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
-                if (setting != null) {
-                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-                    if (setting.equals(AccountSetupIncoming.class)) {
-                        startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
-                                AccountSetupIncomingFragment.getSettingsModeArgs(),
-                                R.string.account_settings_incoming_label, null, null, 0);
-                    } else if (setting.equals(AccountSetupExchange.class)) {
-                        startPreferencePanel(AccountSetupExchangeFragment.class.getName(),
-                                AccountSetupExchangeFragment.getSettingsModeArgs(),
-                                R.string.account_settings_incoming_label, null, null, 0);
-                    }
-                }
-            }
+            SetupData.init(SetupData.FLOW_MODE_EDIT, account);
+            startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
+                    AccountSetupIncomingFragment.getSettingsModeArgs(),
+                    R.string.account_settings_incoming_label, null, null, 0);
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
@@ -712,11 +683,16 @@ public class AccountSettings extends PreferenceActivity {
     /**
      * Delete the selected account
      */
-    public void deleteAccount(Account account) {
+    public void deleteAccount(final Account account) {
         // Kick off the work to actually delete the account
-        // Delete the account (note, this is async.  Would be nice to get a callback.
-        Controller.getInstance(this).deleteAccount(account.mId);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
+                getContentResolver().delete(uri, null, null);
+            }}).start();
 
+        // TODO: Remove ui glue for unified
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
         if (onIsMultiPane()) {
@@ -761,7 +737,7 @@ public class AccountSettings extends PreferenceActivity {
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
     /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
-        private final static String TAG = "UnsavedChangesDialogFragment";
+        final static String TAG = "UnsavedChangesDialogFragment";
 
         // Argument bundle keys
         private final static String BUNDLE_KEY_HEADER = "UnsavedChangesDialogFragment.Header";
@@ -809,6 +785,7 @@ public class AccountSettings extends PreferenceActivity {
                 .setPositiveButton(
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (isBack) {
                                     activity.forceBack();

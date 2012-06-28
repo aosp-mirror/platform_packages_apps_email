@@ -19,138 +19,359 @@ package com.android.email.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
+import com.android.email.R;
 import com.android.emailcommon.Api;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
+import com.android.emailcommon.service.SyncWindow;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility functions for EmailService support.
  */
 public class EmailServiceUtils {
+    private static final ArrayList<EmailServiceInfo> sServiceList =
+            new ArrayList<EmailServiceInfo>();
+
     /**
-     * Starts an EmailService by name
+     * Starts an EmailService by protocol
      */
-    public static void startService(Context context, String intentAction) {
-        context.startService(new Intent(intentAction));
+    public static void startService(Context context, String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info != null && info.intentAction != null) {
+            context.startService(new Intent(info.intentAction));
+        }
     }
 
     /**
-     * Returns an {@link IEmailService} for the service; otherwise returns an empty
-     * {@link IEmailService} implementation.
-     *
-     * @param context
-     * @param callback Object to get callback, or can be null
+     * Starts all remote services
      */
-    public static IEmailService getService(Context context, String intentAction,
-            IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, intentAction, callback);
+    public static void startRemoteServices(Context context) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                context.startService(new Intent(info.intentAction));
+            }
+        }
+    }
+
+    /**
+     * Returns whether or not remote services are present on device
+     */
+    public static boolean areRemoteServicesInstalled(Context context) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Starts all remote services
+     */
+    public static void setRemoteServicesLogging(Context context, int debugBits) {
+        for (EmailServiceInfo info: getServiceInfoList(context)) {
+            if (info.intentAction != null) {
+                EmailServiceProxy service =
+                        EmailServiceUtils.getService(context, null, info.protocol);
+                if (service != null) {
+                    try {
+                        service.setLogging(debugBits);
+                    } catch (RemoteException e) {
+                        // Move along, nothing to see
+                    }
+                }
+            }
+        }
     }
 
     /**
      * Determine if the EmailService is available
      */
-    public static boolean isServiceAvailable(Context context, String intentAction) {
-        return new EmailServiceProxy(context, intentAction, null).test();
-    }
-
-    public static void startExchangeService(Context context) {
-        startService(context, EmailServiceProxy.EXCHANGE_INTENT);
-    }
-
-    public static IEmailService getExchangeService(Context context,
-            IEmailServiceCallback callback) {
-        return getService(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
-    }
-
-    public static boolean isExchangeAvailable(Context context) {
-        return isServiceAvailable(context, EmailServiceProxy.EXCHANGE_INTENT);
+    public static boolean isServiceAvailable(Context context, String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info == null) return false;
+        if (info.klass != null) return true;
+        return new EmailServiceProxy(context, info.intentAction, null).test();
     }
 
     /**
-     * An empty {@link IEmailService} implementation which is used instead of
-     * {@link com.android.exchange.ExchangeService} on the build with no exchange support.
+     * For a given account id, return a service proxy if applicable, or null.
      *
-     * <p>In theory, the service in question isn't used on the no-exchange-support build,
-     * because we won't have any exchange accounts in that case, so we wouldn't have to have this
-     * class.  However, there are a few places we do use the service even if there's no exchange
-     * accounts (e.g. setLogging), so this class is added for safety and simplicity.
+     * @param accountId the message of interest
+     * @result service proxy, or null if n/a
      */
-    public static class NullEmailService extends Service implements IEmailService {
-        public static final NullEmailService INSTANCE = new NullEmailService();
+    public static EmailServiceProxy getServiceForAccount(Context context,
+            IEmailServiceCallback callback, long accountId) {
+        return getService(context, callback, Account.getProtocol(context, accountId));
+    }
 
-        public int getApiLevel() {
-            return Api.LEVEL;
+    /**
+     * Holder of service information (currently just name and class/intent); if there is a class
+     * member, this is a (local, i.e. same process) service; otherwise, this is a remote service
+     */
+    public static class EmailServiceInfo {
+        public String protocol;
+        public String name;
+        public String accountType;
+        Class<? extends Service> klass;
+        String intentAction;
+        public int port;
+        public int portSsl;
+        public boolean defaultSsl;
+        public boolean offerTls;
+        public boolean offerCerts;
+        public boolean usesSmtp;
+        public boolean offerLocalDeletes;
+        public int defaultLocalDeletes;
+        public boolean offerPrefix;
+        public boolean usesAutodiscover;
+        public boolean offerLookback;
+        public int defaultLookback;
+        public boolean syncChanges;
+        public boolean syncContacts;
+        public boolean syncCalendar;
+        public boolean offerAttachmentPreload;
+        public CharSequence[] syncIntervalStrings;
+        public CharSequence[] syncIntervals;
+        public int defaultSyncInterval;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder("Protocol: ");
+            sb.append(protocol);
+            sb.append(", ");
+            sb.append(klass != null ? "Local" : "Remote");
+            return sb.toString();
         }
+    }
 
-        public Bundle autoDiscover(String userName, String password) throws RemoteException {
-            return Bundle.EMPTY;
+    public static EmailServiceProxy getService(Context context, IEmailServiceCallback callback,
+            String protocol) {
+        // Handle the degenerate case here (account might have been deleted)
+        if (protocol == null) {
+            Log.w(Logging.LOG_TAG, "Returning NullService for " + protocol);
+            return new EmailServiceProxy(context, NullService.class, null);
         }
-
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info.klass != null) {
+            return new EmailServiceProxy(context, info.klass, callback);
+        } else {
+            return new EmailServiceProxy(context, info.intentAction, callback);
         }
+    }
 
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
+    public static EmailServiceInfo getServiceInfo(Context context, String protocol) {
+        if (sServiceList.isEmpty()) {
+            findServices(context);
         }
-
-        public void hostChanged(long accountId) throws RemoteException {
+        for (EmailServiceInfo info: sServiceList) {
+            if (info.protocol.equals(protocol)) {
+                return info;
+            }
         }
+        return null;
+    }
 
-        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+    public static List<EmailServiceInfo> getServiceInfoList(Context context) {
+        if (sServiceList.isEmpty()) {
+            findServices(context);
         }
+        return sServiceList;
+    }
 
-        public void loadMore(long messageId) throws RemoteException {
+    /**
+     * Parse services.xml file to find our available email services
+     */
+    @SuppressWarnings("unchecked")
+    private static void findServices(Context context) {
+        try {
+            Resources res = context.getResources();
+            XmlResourceParser xml = res.getXml(R.xml.services);
+            int xmlEventType;
+            // walk through senders.xml file.
+            while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+                if (xmlEventType == XmlResourceParser.START_TAG &&
+                        "emailservice".equals(xml.getName())) {
+                    EmailServiceInfo info = new EmailServiceInfo();
+                    TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
+                    info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
+                    info.name = ta.getString(R.styleable.EmailServiceInfo_name);
+                    String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
+                    info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
+                    info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
+                    info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
+                    info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
+                    info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
+                    info.offerTls = ta.getBoolean(R.styleable.EmailServiceInfo_offerTls, false);
+                    info.offerCerts = ta.getBoolean(R.styleable.EmailServiceInfo_offerCerts, false);
+                    info.offerLocalDeletes =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_offerLocalDeletes, false);
+                    info.defaultLocalDeletes =
+                        ta.getInteger(R.styleable.EmailServiceInfo_defaultLocalDeletes,
+                                Account.DELETE_POLICY_ON_DELETE);
+                    info.offerPrefix =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_offerPrefix, false);
+                    info.usesSmtp = ta.getBoolean(R.styleable.EmailServiceInfo_usesSmtp, false);
+                    info.usesAutodiscover =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_usesAutodiscover, false);
+                    info.offerLookback =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_offerLookback, false);
+                    info.defaultLookback =
+                        ta.getInteger(R.styleable.EmailServiceInfo_defaultLookback,
+                                SyncWindow.SYNC_WINDOW_3_DAYS);
+                    info.syncChanges =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_syncChanges, false);
+                    info.syncContacts =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_syncContacts, false);
+                    info.syncCalendar =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_syncCalendar, false);
+                    info.offerAttachmentPreload =
+                        ta.getBoolean(R.styleable.EmailServiceInfo_offerAttachmentPreload, false);
+                    info.syncIntervalStrings =
+                        ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervalStrings);
+                    info.syncIntervals =
+                        ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervals);
+                    info.defaultSyncInterval =
+                        ta.getInteger(R.styleable.EmailServiceInfo_defaultSyncInterval, 15);
+
+                    // Must have either "class" (local) or "intent" (remote)
+                    if (klass != null) {
+                        try {
+                            info.klass = (Class<? extends Service>) Class.forName(klass);
+                        } catch (ClassNotFoundException e) {
+                            throw new IllegalStateException(
+                                    "Class not found in service descriptor: " + klass);
+                        }
+                    }
+                    if (info.klass == null && info.intentAction == null) {
+                        throw new IllegalStateException(
+                                "No class or intent action specified in service descriptor");
+                    }
+                    if (info.klass != null && info.intentAction != null) {
+                        throw new IllegalStateException(
+                                "Both class and intent action specified in service descriptor");
+                    }
+                    sServiceList.add(info);
+                }
+            }
+        } catch (XmlPullParserException e) {
+            // ignore
+        } catch (IOException e) {
+            // ignore
         }
+    }
 
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
-
-        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
-        }
-
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-        }
-
-        public void setLogging(int flags) throws RemoteException {
-        }
-
-        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
-        }
-
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
-
-        public Bundle validate(HostAuth hostAuth) throws RemoteException {
-            return null;
-        }
-
-        public void deleteAccountPIMData(long accountId) throws RemoteException {
-        }
-
-        public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
-            return 0;
-        }
-
+    /**
+     * A no-op service that can be returned for non-existent/null protocols
+     */
+    class NullService implements IEmailService {
+        @Override
         public IBinder asBinder() {
             return null;
         }
 
         @Override
-        public IBinder onBind(Intent intent) {
+        public Bundle validate(HostAuth hostauth) throws RemoteException {
             return null;
+        }
+
+        @Override
+        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+        }
+
+        @Override
+        public void stopSync(long mailboxId) throws RemoteException {
+        }
+
+        @Override
+        public void loadMore(long messageId) throws RemoteException {
+        }
+
+        @Override
+        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+        }
+
+        @Override
+        public void updateFolderList(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public boolean createFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean renameFolder(long accountId, String oldName, String newName)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+        }
+
+        @Override
+        public void setLogging(int on) throws RemoteException {
+        }
+
+        @Override
+        public void hostChanged(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+        }
+
+        @Override
+        public void deleteAccountPIMData(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public int getApiLevel() throws RemoteException {
+            return Api.LEVEL;
+        }
+
+        @Override
+        public int searchMessages(long accountId, SearchParams params, long destMailboxId)
+                throws RemoteException {
+            return 0;
+        }
+
+        @Override
+        public void sendMail(long accountId) throws RemoteException {
+        }
+
+        @Override
+        public int getCapabilities(long accountId) throws RemoteException {
+            return 0;
         }
     }
 }

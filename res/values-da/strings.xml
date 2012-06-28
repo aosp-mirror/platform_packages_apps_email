@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Læs vedhæftede filer i e-mails"</string>
-    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Tillader, at denne applikation læser vedhæftede filer i dine e-mails."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Tillader, at appen kan læse vedhæftede filer i dine e-mails."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Få adgang til data om e-mailudbyder"</string>
-    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Tillader, at denne applikation får adgang til din e-maildatabase, f.eks. modtagne beskeder, sendte beskeder, brugernavne og adgangskoder."</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Tillader, at denne app kan få adgang til din e-maildatabase, f.eks. modtagne beskeder, sendte beskeder, brugernavne og adgangskoder."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Skriv"</string>
     <string name="debug_title" msgid="5175710493691536719">"Fejlretning"</string>
@@ -33,10 +33,10 @@
     <string name="delete_action" msgid="8421026208288857155">"Slet"</string>
     <string name="forward_action" msgid="669174181042344116">"Videresend"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Stjernemarker"</string>
-    <string name="done_action" msgid="7497990549515580249">"Udfør"</string>
+    <string name="done_action" msgid="7497990549515580249">"Færdig"</string>
     <string name="create_action" msgid="3062715563215392251">"Opret nyt"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Slet"</string>
-    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Ingen hurtige svar"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Ingen hurtige svar."</string>
     <string name="discard_action" msgid="6532206074859505968">"Kassér"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Gem kladde"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Indsæt hurtigt svar"</string>
@@ -50,7 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Søg"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Indstillinger for konto"</string>
     <string name="settings_action" msgid="6334807007967459412">"Indstillinger"</string>
-    <string name="mailbox_settings_action" msgid="8008375875310554776">"Indstillinger for synkronisering"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Muligheder for synkronisering"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markér som ulæst"</string>
     <string name="move_action" msgid="3059189775933985898">"Flyt"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
@@ -133,7 +133,7 @@
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Inkluder citeret tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Medtag tekst"</string>
-    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du skal tilføje mindst en modtager."</string>
+    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Tilføj mindst én modtager."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Nogle e-mailadresser er ugyldige."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen er for stor til at vedhæfte."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Indsæt hurtigt svar"</string>
@@ -153,8 +153,8 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Gemt"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stop"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedhæftelse gemmes som <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Vedhæftning kunne ikke gemmes."</string>
-    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Bemærk: En eller flere vedhæftede filer i din videresendte besked downloades før afsendelse."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Vedhæftning kunne ikke gemmes"</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"En eller flere vedhæftede filer i din videresendte besked downloades før afsendelse."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Besked"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Inviter"</string>
   <plurals name="message_view_show_attachments_action">
@@ -210,7 +210,7 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"En eller flere vedhæftede filer kunne ikke videresendes."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Vedhæftet fil er ikke sendt"</string>
-    <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> kunne ikke logge ind."</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> kunne ikke logge ind."</string>
     <string name="login_failed_title" msgid="7624349996212476176">"Login mislykkedes"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> b"</item>
@@ -232,15 +232,11 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Ældre"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Kontoindstillinger"</string>
-    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Tilføj en Exchange-konto"</string>
-    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Tilføj en Exchange ActiveSync-konto"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mailkonto"</string>
-    <string name="accounts_welcome" msgid="1491126253077950685">"Du kan nemt konfigurere e-mail for de fleste konti."</string>
-    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Du kan nemt konfigurere en Exchange-konto."</string>
-    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Du kan nemt konfigurere en Exchange ActiveSync-konto."</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"Du kan nemt og hurtigt oprette din konto."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailadresse"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Adgangskode"</string>
-    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send e-mail fra denne konto som standard."</string>
+    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Send e-mail fra denne konto som standard"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Indtast en gyldig e-mailadresse og adgangskode."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dobbeltforekomst af konto"</string>
@@ -250,7 +246,7 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerer indstillinger for indgående server ..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerer indstillinger for udgående server ..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoindstillinger"</string>
-    <string name="account_setup_names_headline" msgid="2413440250372658881">"Din konto er oprettet, og der er e-mail på vej."</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Din konto er konfigureret, og der er e-mail på vej."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Giv kontoen et navn (valgfrit)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Dit navn (vist på udgående beskeder)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dette felt må ikke være tomt."</string>
@@ -261,8 +257,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Indstillinger for indgående server"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Brugernavn"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Adgangskode"</string>
-    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3-server"</string>
-    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP-server"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Sikkerhedstype"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ingen"</string>
@@ -280,7 +275,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-server"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Sikkerhedstype"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Kræver login"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Kræv login"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Brugernavn"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Adgangskode"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Kontoindstillinger"</string>
@@ -305,11 +300,11 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Hvert 15. minut"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Hvert 30. minut"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Hver time"</string>
-    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Send e-mail fra denne konto som standard."</string>
-    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Underret mig, når der kommer e-mail."</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synkroniser kontaktpersoner fra denne konto."</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synkroniser kalender fra denne konto."</string>
-    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synkroniser e-mail fra denne konto."</string>
+    <string name="account_setup_options_default_label" msgid="2617227194283720914">"Send e-mail fra denne konto som standard"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Giv mig besked ved nye e-mails"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Synkroniser kontaktpersoner fra denne konto"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Synkroniser kalender fra denne konto"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Synkroniser e-mails fra denne konto"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Download vedhæftede filer automatisk, når forbundet til Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Kunne ikke afsluttes"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dage, der skal synkroniseres"</string>
@@ -321,13 +316,13 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"En måned"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Anvend kontostandarden"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Brugernavn eller adgangskode er forkert."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Brugernavn eller adgangskode er forkert."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Brugernavn eller adgangskode er forkert."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Brugernavn eller adgangskode er forkert."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Der kan ikke oprettes en sikker forbindelse til serveren."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Der kan ikke oprettes en sikker forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Klientcertifikat kræves. Vil du oprette forbindelse til serveren med et klientcertifikat?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certifikatet er ugyldigt eller ikke tilgængeligt."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Serveren reagerede med en fejl. Kontroller dit brugernavn og din adgangskode, og prøv igen."</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Der kræves et klientcertifikat. Vil du oprette forbindelse til serveren med et klientcertifikat?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certifikatet er ugyldigt eller ikke tilgængeligt."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serveren reagerede med en fejl. Kontroller dit brugernavn og din adgangskode, og prøv igen."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Der kan ikke oprettes forbindelse til serveren."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Der kan ikke oprettes forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS er påkrævet, men understøttes ikke af serveren."</string>
@@ -343,8 +338,12 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"ADVARSEL! Hvis du deaktiverer appen E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Sikkerhedsopdatering"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> kræver, at du opdaterer dine sikkerhedsindstillinger."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver opdatering af sikkerhedsindstillingerne."</string>
-    <string name="security_notification_content_title" msgid="3352841884304076235">"Sikkerhedsopdatering kræves"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kan ikke synkroniseres på grund af sikkerhedskravene."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver opdatering af sikkerhedsindstillingerne."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" har skiftet sikkerhedsindstillinger. Ingen brugerhandling er påkrævet."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Sikkerhedsopdatering kræves"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Sikkerhedpolitikker er ændret"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Politikker kan ikke opfyldes"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Enhedssikkerhed"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af Android-enhedens sikkerhedsfunktioner."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediger detaljer"</string>
@@ -353,38 +352,45 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"Pinkoden eller adgangskoden til skærmlåsen er udløbet."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Skærmlåskoden er udløbet"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Skærmlåskoden er ved at udløbe"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Du skal snart ændre skærmlåsens pinkode eller adgangskode, ellers vil dataene på <xliff:g id="ACCOUNT">%s</xliff:g> blive slettet. Vil du ændre den nu?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Du skal ændre pinkoden eller adgangskoden til din skærmlås snart, ellers vil data for <xliff:g id="ACCOUNT">%s</xliff:g> vil blive slettet. Vil du ændre dette nu?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Skærmlåskoden er udløbet"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Dataene for <xliff:g id="ACCOUNT">%s</xliff:g> slettes på din enhed. Du kan gendanne dem ved at ændre skærmlåsens pinkode eller adgangskode. Vil du ændre den nu?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Dataene for <xliff:g id="ACCOUNT">%s</xliff:g> er ved at blive slettet fra enheden. Du kan gendanne dem ved at ændre skærmlåsens pinkode eller adgangskode. Vil du ændre dette nu?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vil du kassere ændringer, som ikke er gemt?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Login mislykkedes"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Brugernavn eller adgangskode for <xliff:g id="ACCOUNT">%s</xliff:g> er forkert. Vil du opdatere dem nu?"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Brugernavn eller adgangskode for <xliff:g id="ACCOUNT">%s</xliff:g> er forkert. Vil du opdatere dem nu?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send e-mail fra denne konto som standard"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Download vedhæftede filer"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Download autom. vedhæftede filer i de seneste beskeder via Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsinterval, meddelelser osv."</string>
-    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Underret i statuslinjen, når der kommer e-mail"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Send en meddelelse ved nye e-mails"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Kontrolfrekvens for indbakke"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Brugernavn, adgangskode og indstillinger for indgående server"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Udgående indstillinger"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Brugernavn, adgangskode og indstillinger for udgående server"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Politikker håndhævet"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Ingen"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Ikke-understøttede politikker"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Ingen"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Forsøg synkronisering"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Tryk her for at synkronisere denne konto"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonavn"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Dit navn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Hurtige svar"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediger tekst, du ofte indsætter, når du skriver e-mails"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Rediger tekst, som du ofte indsætter, når du skriver e-mails"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Vedhæft tekst til beskeder, du sender"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for underretninger"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataforbrug"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Sikkerhedspolitikker"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Rediger hurtigt svar"</string>
     <string name="save_action" msgid="1988862706623227093">"Gem"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synkroniser kontaktpersoner"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Synkroniser kontaktpersoner til denne konto"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Synkroniser kalender"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Synkroniser kalender for denne konto"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Synkroniser kalender"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Synkroniser begivenhed for konto"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Synkroniser e-mails"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Synkroniser e-mail for denne konto"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
@@ -422,10 +428,16 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Indstillinger"</string>
-    <string name="header_label_general_preferences" msgid="9204600297009680176">"Generelt"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"Generelle indstillinger"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Applikation"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Gå automatisk frem"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Vælg, hvilken skærm der skal vises, når du har slettet en besked"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Skjul afkrydsningsfelter"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Tryk og holde nede for at vælge på lister over samtaler"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekræft før sletning"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Meddelelser"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekræft før afsendelse"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Meddelelser"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå frem til"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nyere besked"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ældre besked"</string>
@@ -466,5 +478,18 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Venter på resultater"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Nogle servere kan være langsomme."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapper"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Tillad ikke brug af enheden kamera"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Kræv adgangskode for enheden"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Begræns genbrug af seneste adgangskoder"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Kræv, at adgangskoder udløber"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Kræv, at en inaktiv enheds skærm låses"</string>
+    <string name="policy_calendar_age" msgid="627405158087482302">"Begræns antallet af synkron. kalenderbegivenheder"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Begræns antallet af synkroniserede e-mails"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Tak!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Det passer mig fint!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Jeg læser dette senere og vender tilbage til dig."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Lad os holde et møde for at diskutere dette."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Baggrundssynkronisering for denne konto deaktiveres under roaming."</string>
+    <string name="confirm_response" msgid="5747902757569543165">"Sender svar..."</string>
+    <string name="no_conversations" msgid="5559527390337162819">"Ingen meddelelser."</string>
 </resources>

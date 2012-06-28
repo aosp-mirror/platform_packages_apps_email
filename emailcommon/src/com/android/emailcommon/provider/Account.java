@@ -40,7 +40,6 @@ import java.util.UUID;
 
 public final class Account extends EmailContent implements AccountColumns, Parcelable {
     public static final String TABLE_NAME = "Account";
-    @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
     public static final Uri ADD_TO_FIELD_URI =
         Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
@@ -127,8 +126,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public String mSecuritySyncKey;
     public String mSignature;
     public long mPolicyKey;
-    public long mNotifiedMessageId;
-    public int mNotifiedMessageCount;
 
     // Convenience for creating/working with an account
     public transient HostAuth mHostAuthRecv;
@@ -155,8 +152,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 15;
     public static final int CONTENT_SIGNATURE_COLUMN = 16;
     public static final int CONTENT_POLICY_KEY = 17;
-    public static final int CONTENT_NOTIFIED_MESSAGE_ID = 18;
-    public static final int CONTENT_NOTIFIED_MESSAGE_COUNT = 19;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -166,8 +161,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
         AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
-        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY,
-        AccountColumns.NOTIFIED_MESSAGE_ID, AccountColumns.NOTIFIED_MESSAGE_COUNT
+        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY
     };
 
     public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -198,13 +192,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     private static final String FIND_INBOX_SELECTION =
             MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
             " AND " + MailboxColumns.ACCOUNT_KEY + " =?";
-
-    /**
-     * This projection is for searching for the default account
-     */
-    private static final String[] DEFAULT_ID_PROJECTION = new String[] {
-        RECORD_ID, IS_DEFAULT
-    };
 
     /**
      * no public constructor since this is a utility class
@@ -272,8 +259,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
         mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
         mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY);
-        mNotifiedMessageId = cursor.getLong(CONTENT_NOTIFIED_MESSAGE_ID);
-        mNotifiedMessageCount = cursor.getInt(CONTENT_NOTIFIED_MESSAGE_COUNT);
     }
 
     private long getId(Uri u) {
@@ -459,21 +444,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     public String getLocalStoreUri(Context context) {
         return "local://localhost/" + context.getDatabasePath(getUuid() + ".db");
-    }
-
-    /**
-     * @return true if the instance is of an EAS account.
-     *
-     * NOTE This method accesses the DB if {@link #mHostAuthRecv} hasn't been restored yet.
-     * Use caution when you use this on the main thread.
-     */
-    public boolean isEasAccount(Context context) {
-        return "eas".equals(getProtocol(context));
-    }
-
-    public boolean supportsMoveMessages(Context context) {
-        String protocol = getProtocol(context);
-        return "eas".equals(protocol) || "imap".equals(protocol);
     }
 
     /**
@@ -717,10 +687,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     @Override
     public int update(Context context, ContentValues cv) {
-        if (mPolicy != null && mPolicyKey <= 0) {
-            // If a policy is set and there's no policy, link it to the account
-            Policy.setAccountPolicy(context, this, mPolicy, null);
-        }
         if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
                 cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
@@ -766,7 +732,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         int index = 0;
         int recvIndex = -1;
         int sendIndex = -1;
-        int policyIndex = -1;
 
         // Create operations for saving the send and recv hostAuths
         // Also, remember which operation in the array they represent
@@ -783,12 +748,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                     .withValues(mHostAuthSend.toContentValues())
                     .build());
         }
-        if (mPolicy != null) {
-            policyIndex = index++;
-            ops.add(ContentProviderOperation.newInsert(mPolicy.mBaseUri)
-                    .withValues(mPolicy.toContentValues())
-                    .build());
-        }
 
         // Create operations for making this the only default account
         // Note, these are always updates because they change existing accounts
@@ -801,16 +760,13 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
         // Now do the Account
         ContentValues cv = null;
-        if (recvIndex >= 0 || sendIndex >= 0 || policyIndex >= 0) {
+        if (recvIndex >= 0 || sendIndex >= 0) {
             cv = new ContentValues();
             if (recvIndex >= 0) {
                 cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
             }
             if (sendIndex >= 0) {
                 cv.put(Account.HOST_AUTH_KEY_SEND, sendIndex);
-            }
-            if (policyIndex >= 0) {
-                cv.put(Account.POLICY_KEY, policyIndex);
             }
         }
 
@@ -834,11 +790,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                 long newId = getId(results[sendIndex].uri);
                 mHostAuthKeySend = newId;
                 mHostAuthSend.mId = newId;
-            }
-            if (policyIndex >= 0) {
-                long newId = getId(results[policyIndex].uri);
-                mPolicyKey = newId;
-                mPolicy.mId = newId;
             }
             Uri u = results[index].uri;
             mId = getId(u);
@@ -871,8 +822,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
         values.put(AccountColumns.SIGNATURE, mSignature);
         values.put(AccountColumns.POLICY_KEY, mPolicyKey);
-        values.put(AccountColumns.NOTIFIED_MESSAGE_ID, mNotifiedMessageId);
-        values.put(AccountColumns.NOTIFIED_MESSAGE_COUNT, mNotifiedMessageCount);
         return values;
     }
 
@@ -924,8 +873,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         dest.writeString(mSecuritySyncKey);
         dest.writeString(mSignature);
         dest.writeLong(mPolicyKey);
-        dest.writeLong(mNotifiedMessageId);
-        dest.writeInt(mNotifiedMessageCount);
 
         if (mHostAuthRecv != null) {
             dest.writeByte((byte)1);
@@ -965,8 +912,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mSecuritySyncKey = in.readString();
         mSignature = in.readString();
         mPolicyKey = in.readLong();
-        mNotifiedMessageId = in.readLong();
-        mNotifiedMessageCount = in.readInt();
 
         mHostAuthRecv = null;
         if (in.readByte() == 1) {
@@ -997,5 +942,4 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         sb.append(']');
         return sb.toString();
     }
-
 }

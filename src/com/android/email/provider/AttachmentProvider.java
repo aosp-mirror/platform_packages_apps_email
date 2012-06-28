@@ -142,7 +142,7 @@ public class AttachmentProvider extends ContentProvider {
         // based on signature only
         if (mode.equals("w")) {
             Context context = getContext();
-            if (context.checkCallingPermission(EmailContent.PROVIDER_PERMISSION)
+            if (context.checkCallingOrSelfPermission(EmailContent.PROVIDER_PERMISSION)
                     != PackageManager.PERMISSION_GRANTED) {
                 throw new FileNotFoundException();
             }

@@ -16,21 +16,17 @@
 
 package com.android.emailcommon.provider;
 import android.app.admin.DevicePolicyManager;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
-import android.util.Log;
 
+import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 
@@ -56,6 +52,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public static final int PASSWORD_MODE_SIMPLE = 1;
     public static final int PASSWORD_MODE_STRONG = 2;
 
+    public static final char POLICY_STRING_DELIMITER = '\1';
+
     public int mPasswordMode;
     public int mPasswordMinLength;
     public int mPasswordMaxFails;
@@ -76,6 +74,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public int mMaxEmailLookback;
     public int mMaxCalendarLookback;
     public boolean mPasswordRecoveryEnabled;
+    public String mProtocolPoliciesEnforced;
+    public String mProtocolPoliciesUnsupported;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PASSWORD_MODE_COLUMN = 1;
@@ -98,6 +98,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public static final int CONTENT_MAX_EMAIL_LOOKBACK_COLUMN = 18;
     public static final int CONTENT_MAX_CALENDAR_LOOKBACK_COLUMN = 19;
     public static final int CONTENT_PASSWORD_RECOVERY_ENABLED_COLUMN = 20;
+    public static final int CONTENT_PROTOCOL_POLICIES_ENFORCED_COLUMN = 21;
+    public static final int CONTENT_PROTOCOL_POLICIES_UNSUPPORTED_COLUMN = 22;
 
     public static final String[] CONTENT_PROJECTION = new String[] {RECORD_ID,
         PolicyColumns.PASSWORD_MODE, PolicyColumns.PASSWORD_MIN_LENGTH,
@@ -109,7 +111,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         PolicyColumns.DONT_ALLOW_ATTACHMENTS, PolicyColumns.DONT_ALLOW_HTML,
         PolicyColumns.MAX_ATTACHMENT_SIZE, PolicyColumns.MAX_TEXT_TRUNCATION_SIZE,
         PolicyColumns.MAX_HTML_TRUNCATION_SIZE, PolicyColumns.MAX_EMAIL_LOOKBACK,
-        PolicyColumns.MAX_CALENDAR_LOOKBACK, PolicyColumns.PASSWORD_RECOVERY_ENABLED
+        PolicyColumns.MAX_CALENDAR_LOOKBACK, PolicyColumns.PASSWORD_RECOVERY_ENABLED,
+        PolicyColumns.PROTOCOL_POLICIES_ENFORCED, PolicyColumns.PROTOCOL_POLICIES_UNSUPPORTED
     };
 
     public static final Policy NO_POLICY = new Policy();
@@ -139,81 +142,29 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
                 Account.ID_PROJECTION_COLUMN, Account.NO_ACCOUNT);
     }
 
+    public static ArrayList<String> addPolicyStringToList(String policyString,
+            ArrayList<String> policyList) {
+        if (policyString != null) {
+            int start = 0;
+            int len = policyString.length();
+            while(start < len) {
+                int end = policyString.indexOf(POLICY_STRING_DELIMITER, start);
+                if (end > start) {
+                    policyList.add(policyString.substring(start, end));
+                    start = end + 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        return policyList;
+    }
+
     // We override this method to insure that we never write invalid policy data to the provider
     @Override
     public Uri save(Context context) {
         normalize();
         return super.save(context);
-    }
-
-    public static void clearAccountPolicy(Context context, Account account) {
-        setAccountPolicy(context, account, null, null);
-    }
-
-    /**
-     * Convenience method for {@link #setAccountPolicy(Context, Account, Policy, String)}.
-     */
-    @VisibleForTesting
-    public static void setAccountPolicy(Context context, long accountId, Policy policy,
-            String securitySyncKey) {
-        setAccountPolicy(context, Account.restoreAccountWithId(context, accountId),
-                policy, securitySyncKey);
-    }
-
-    /**
-     * Set the policy for an account atomically; this also removes any other policy associated with
-     * the account and sets the policy key for the account.  If policy is null, the policyKey is
-     * set to 0 and the securitySyncKey to null.  Also, update the account object to reflect the
-     * current policyKey and securitySyncKey
-     * @param context the caller's context
-     * @param account the account whose policy is to be set
-     * @param policy the policy to set, or null if we're clearing the policy
-     * @param securitySyncKey the security sync key for this account (ignored if policy is null)
-     */
-    public static void setAccountPolicy(Context context, Account account, Policy policy,
-            String securitySyncKey) {
-        if (DEBUG_POLICY) {
-            Log.d(TAG, "Set policy for account " + account.mDisplayName + ": " +
-                    ((policy == null) ? "none" : policy.toString()));
-        }
-        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-
-        // Make sure this is a valid policy set
-        if (policy != null) {
-            policy.normalize();
-            // Add the new policy (no account will yet reference this)
-            ops.add(ContentProviderOperation.newInsert(
-                    Policy.CONTENT_URI).withValues(policy.toContentValues()).build());
-            // Make the policyKey of the account our newly created policy, and set the sync key
-            ops.add(ContentProviderOperation.newUpdate(
-                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
-                    .withValueBackReference(AccountColumns.POLICY_KEY, 0)
-                    .withValue(AccountColumns.SECURITY_SYNC_KEY, securitySyncKey)
-                    .build());
-        } else {
-            ops.add(ContentProviderOperation.newUpdate(
-                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
-                    .withValue(AccountColumns.SECURITY_SYNC_KEY, null)
-                    .withValue(AccountColumns.POLICY_KEY, 0)
-                    .build());
-        }
-
-        // Delete the previous policy associated with this account, if any
-        if (account.mPolicyKey > 0) {
-            ops.add(ContentProviderOperation.newDelete(
-                    ContentUris.withAppendedId(
-                            Policy.CONTENT_URI, account.mPolicyKey)).build());
-        }
-
-        try {
-            context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
-            account.refresh(context);
-        } catch (RemoteException e) {
-           // This is fatal to a remote process
-            throw new IllegalStateException("Exception setting account policy.");
-        } catch (OperationApplicationException e) {
-            // Can't happen; our provider doesn't throw this exception
-        }
     }
 
     /**
@@ -286,6 +237,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public boolean equals(Object other) {
         if (!(other instanceof Policy)) return false;
         Policy otherPolicy = (Policy)other;
+        // Policies here are enforced by the DPM
         if (mRequireEncryption != otherPolicy.mRequireEncryption) return false;
         if (mRequireEncryptionExternal != otherPolicy.mRequireEncryptionExternal) return false;
         if (mRequireRemoteWipe != otherPolicy.mRequireRemoteWipe) return false;
@@ -296,10 +248,13 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         if (mPasswordMaxFails != otherPolicy.mPasswordMaxFails) return false;
         if (mPasswordMinLength != otherPolicy.mPasswordMinLength) return false;
         if (mPasswordMode != otherPolicy.mPasswordMode) return false;
+        if (mDontAllowCamera != otherPolicy.mDontAllowCamera) return false;
+
+        // Policies here are enforced by the Exchange sync manager
+        // They should eventually be removed from Policy and replaced with some opaque data
         if (mRequireManualSyncWhenRoaming != otherPolicy.mRequireManualSyncWhenRoaming) {
             return false;
         }
-        if (mDontAllowCamera != otherPolicy.mDontAllowCamera) return false;
         if (mDontAllowAttachments != otherPolicy.mDontAllowAttachments) return false;
         if (mDontAllowHtml != otherPolicy.mDontAllowHtml) return false;
         if (mMaxAttachmentSize != otherPolicy.mMaxAttachmentSize) return false;
@@ -308,6 +263,15 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         if (mMaxEmailLookback != otherPolicy.mMaxEmailLookback) return false;
         if (mMaxCalendarLookback != otherPolicy.mMaxCalendarLookback) return false;
         if (mPasswordRecoveryEnabled != otherPolicy.mPasswordRecoveryEnabled) return false;
+
+        if (!TextUtilities.stringOrNullEquals(mProtocolPoliciesEnforced,
+                otherPolicy.mProtocolPoliciesEnforced)) {
+            return false;
+        }
+        if (!TextUtilities.stringOrNullEquals(mProtocolPoliciesUnsupported,
+                otherPolicy.mProtocolPoliciesUnsupported)) {
+            return false;
+        }
         return true;
     }
 
@@ -353,6 +317,9 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         mMaxEmailLookback = cursor.getInt(CONTENT_MAX_EMAIL_LOOKBACK_COLUMN);
         mMaxCalendarLookback = cursor.getInt(CONTENT_MAX_CALENDAR_LOOKBACK_COLUMN);
         mPasswordRecoveryEnabled = cursor.getInt(CONTENT_PASSWORD_RECOVERY_ENABLED_COLUMN) == 1;
+        mProtocolPoliciesEnforced = cursor.getString(CONTENT_PROTOCOL_POLICIES_ENFORCED_COLUMN);
+        mProtocolPoliciesUnsupported =
+            cursor.getString(CONTENT_PROTOCOL_POLICIES_UNSUPPORTED_COLUMN);
     }
 
     @Override
@@ -378,6 +345,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         values.put(PolicyColumns.MAX_EMAIL_LOOKBACK, mMaxEmailLookback);
         values.put(PolicyColumns.MAX_CALENDAR_LOOKBACK, mMaxCalendarLookback);
         values.put(PolicyColumns.PASSWORD_RECOVERY_ENABLED, mPasswordRecoveryEnabled);
+        values.put(PolicyColumns.PROTOCOL_POLICIES_ENFORCED, mProtocolPoliciesEnforced);
+        values.put(PolicyColumns.PROTOCOL_POLICIES_UNSUPPORTED, mProtocolPoliciesUnsupported);
         return values;
     }
 
@@ -508,6 +477,8 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         dest.writeInt(mMaxEmailLookback);
         dest.writeInt(mMaxCalendarLookback);
         dest.writeInt(mPasswordRecoveryEnabled ? 1 : 0);
+        dest.writeString(mProtocolPoliciesEnforced);
+        dest.writeString(mProtocolPoliciesUnsupported);
     }
 
     /**
@@ -536,5 +507,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         mMaxEmailLookback = in.readInt();
         mMaxCalendarLookback = in.readInt();
         mPasswordRecoveryEnabled = in.readInt() == 1;
+        mProtocolPoliciesEnforced = in.readString();
+        mProtocolPoliciesUnsupported = in.readString();
     }
 }

@@ -21,4 +21,46 @@
         <attr name="maxWidth" format="dimension"/>
         <attr name="maxHeight" format="dimension"/>
     </declare-styleable>
+    <declare-styleable name="EmailServiceInfo">
+        <attr name="protocol" format="string"/>
+        <attr name="name" format="string"/>
+        <attr name="accountType" format="string"/>
+        <attr name="serviceClass" format="string"/>
+        <attr name="intent" format="string"/>
+        <attr name="port" format="integer"/>
+        <attr name="portSsl" format="integer"/>
+        <attr name="defaultSsl" format="boolean"/>
+        <attr name="offerTls" format="boolean"/>
+        <attr name="offerCerts" format="boolean"/>
+        <attr name="offerLocalDeletes" format="boolean"/>
+        <attr name="defaultLocalDeletes" format="integer"/>
+        <attr name="offerPrefix" format="boolean"/>
+        <attr name="usesSmtp" format="boolean"/>
+        <attr name="syncChanges" format="boolean"/>
+        <attr name="syncContacts" format="boolean"/>
+        <attr name="syncCalendar" format="boolean"/>
+        <attr name="usesAutodiscover" format="boolean"/>
+        <attr name="offerLookback" format="boolean"/>
+        <attr name="defaultLookback">
+            <enum name="auto" value="-2"/>
+            <enum name="days1" value="1"/>
+            <enum name="days3" value="2"/>
+            <enum name="weeks1" value="3"/>
+            <enum name="weeks2" value="4"/>
+            <enum name="months1" value="5"/>
+            <enum name="all" value="6"/>
+        </attr>
+        <attr name="offerAttachmentPreload" format="boolean"/>
+        <attr name="syncIntervalStrings" format="reference"/>
+        <attr name="syncIntervals" format="reference"/>
+        <attr name="defaultSyncInterval">
+            <enum name="push" value="-2"/>
+            <enum name="never" value="-1"/>
+            <enum name="mins5" value="5"/>
+            <enum name="mins10" value="10"/>
+            <enum name="mins15" value="15"/>
+            <enum name="mins30" value="30"/>
+            <enum name="mins60" value="60"/>
+        </attr>
+    </declare-styleable>
 </resources>
