@@ -2336,16 +2336,30 @@ outer:
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");
 
     /**
+     * Class that holds the sqlite query and the attachment (JSON) value (which might be null)
+     */
+    private static class MessageQuery {
+        final String query;
+        final String attachmentJson;
+
+        MessageQuery(String _query, String _attachmentJson) {
+            query = _query;
+            attachmentJson = _attachmentJson;
+        }
+    }
+
+    /**
      * Generate the "view message" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryViewMessage(String[] uiProjection, String id) {
+    private MessageQuery genQueryViewMessage(String[] uiProjection, String id) {
         Context context = getContext();
         long messageId = Long.parseLong(id);
         Message msg = Message.restoreMessageWithId(context, messageId);
         ContentValues values = new ContentValues();
+        String attachmentJson = null;
         if (msg != null) {
             if (msg.mFlagLoaded == Message.FLAG_LOADED_PARTIAL) {
                 EmailServiceProxy service =
@@ -2392,8 +2406,8 @@ outer:
                     uiAtt.uri = uiUri("uiattachment", att.mId);
                     uiAtts.add(uiAtt);
                 }
-                values.put(UIProvider.MessageColumns.ATTACHMENTS,
-                        com.android.mail.providers.Attachment.toJSONArray(uiAtts));
+                values.put(UIProvider.MessageColumns.ATTACHMENTS, "@?"); // @ for literal
+                attachmentJson = com.android.mail.providers.Attachment.toJSONArray(uiAtts);
             }
             if (msg.mDraftInfo != 0) {
                 values.put(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
@@ -2410,7 +2424,8 @@ outer:
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
                 Message.TABLE_NAME + "." + Message.RECORD_ID + "=?");
-        return sb.toString();
+        String sql = sb.toString();
+        return new MessageQuery(sql, attachmentJson);
     }
 
     /**
@@ -3050,7 +3065,15 @@ outer:
                 c = new VisibilityCursor(context, c, mailboxId);
                 break;
             case UI_MESSAGE:
-                c = db.rawQuery(genQueryViewMessage(uiProjection, id), new String[] {id});
+                MessageQuery qq = genQueryViewMessage(uiProjection, id);
+                String sql = qq.query;
+                String attJson = qq.attachmentJson;
+                // With attachments, we have another argument to bind
+                if (attJson != null) {
+                    c = db.rawQuery(sql, new String[] {attJson, id});
+                } else {
+                    c = db.rawQuery(sql, new String[] {id});
+                }
                 break;
             case UI_ATTACHMENTS:
                 c = db.rawQuery(genQueryAttachments(uiProjection), new String[] {id});
