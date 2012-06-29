@@ -3,8 +3,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="7812006268714926951">"Unggah Sekejap"</string>
-    <string name="picasa_default_destination" msgid="2052406684123992574">"Album Unggah Sekejap"</string>
+    <string name="application_name" msgid="7812006268714926951">"Upload Instan"</string>
+    <string name="picasa_default_destination" msgid="2052406684123992574">"Album Upload Instan"</string>
     <string name="summary_title_uploading" msgid="3357617474017589370">"Mengunggah"</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Selesai"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Dijeda"</string>
@@ -76,10 +76,10 @@
     <string name="manager_sync_all" msgid="5207146576940014345">"Sinkronkan semua"</string>
     <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Sinkronisasi Terakhir:"\n"%1$s"\n"%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Daftar item yang selesai kosong."</string>
-    <string name="notify_uploads" msgid="8593982942665493037">"Unggah Sekejap"</string>
+    <string name="notify_uploads" msgid="8593982942665493037">"Upload Instan"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Unggahan selesai"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Unggahan dijeda"</string>
-    <string name="notify_activation_reminder" msgid="1639234651193843030">"Unggah Sekejap belum diaktifkan"</string>
+    <string name="notify_activation_reminder" msgid="1639234651193843030">"Upload Instan belum diaktifkan"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"File berukuran besar akan diunggah melalui sambungan WiFi saja."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Memindai file..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Menyiapkan <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto dan <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video untuk diunggah..."</string>
@@ -108,13 +108,13 @@
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto &amp; video melalui jaringan seluler"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Foto &amp; video melalui Wi-Fi saja"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Tentang"</string>
-    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Versi Unggah Sekejap"</string>
+    <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Versi Upload Instan"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Disarankan: 1600 piksel (untuk berbagi, dicetak, dan screensaver)"</string>
     <string name="photos_upload_dimension_original" msgid="6807552546029109517">"Ukuran asli (unggahan paling lambat)"</string>
     <string name="pause_state_need_media" msgid="3849758767808306320">"dijeda - kartu SD tidak tersedia"</string>
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"Kartu SD tidak tersedia"</string>
-    <string name="preference_plus_title" msgid="8505499389432915393">"Setelan Unggah Sekejap"</string>
-    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Unggah Sekejap"</string>
+    <string name="preference_plus_title" msgid="8505499389432915393">"Setelan Upload Instan"</string>
+    <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Upload Instan"</string>
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Otomatis mengunggah foto &amp; video baru ke album web pribadi"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Status unggahan"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Lanjutan"</string>
