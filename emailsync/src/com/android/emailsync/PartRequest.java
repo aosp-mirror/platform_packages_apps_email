@@ -20,7 +20,7 @@ package com.android.emailsync;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 
 /**
- * PartRequest is the EAS wrapper for attachment loading requests.  In addition to information about
+ * PartRequest is the wrapper for attachment loading requests.  In addition to information about
  * the attachment to be loaded, it also contains the callback to be used for status/progress
  * updates to the UI.
  */

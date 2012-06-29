@@ -30,12 +30,12 @@ import android.content.Intent;
 public class MailboxAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        long mailboxId = intent.getLongExtra("mailbox", SyncServiceManager.EXTRA_MAILBOX_ID);
+        long mailboxId = intent.getLongExtra("mailbox", SyncManager.EXTRA_MAILBOX_ID);
         // EXCHANGE_SERVICE_MAILBOX_ID tells us that the service is asking to be started
-        if (mailboxId == SyncServiceManager.SYNC_SERVICE_MAILBOX_ID) {
-            context.startService(new Intent(context, SyncServiceManager.class));
+        if (mailboxId == SyncManager.SYNC_SERVICE_MAILBOX_ID) {
+            context.startService(new Intent(context, SyncManager.class));
         } else {
-            SyncServiceManager.alert(context, mailboxId);
+            SyncManager.alert(context, mailboxId);
         }
     }
 }

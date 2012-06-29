@@ -77,12 +77,17 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.Conversation;
+import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
+import com.android.mail.ui.ConversationUpdater;
+import com.android.mail.ui.DestructiveAction;
+import com.android.mail.ui.FoldersSelectionDialog;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
@@ -181,6 +186,7 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 4;
     private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 5;
     private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 6;
+    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 7;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -194,6 +200,7 @@ public class EmailProvider extends ContentProvider {
     private static final int MESSAGE = MESSAGE_BASE;
     private static final int MESSAGE_ID = MESSAGE_BASE + 1;
     private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 2;
+    private static final int SYNCED_MESSAGE_SELECTION = MESSAGE_BASE + 3;
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
@@ -412,6 +419,8 @@ public class EmailProvider extends ContentProvider {
          * TO A SERVER VIA A SYNC ADAPTER
          */
         matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "syncedMessageSelection",
+                SYNCED_MESSAGE_SELECTION);
 
         /**
          * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
@@ -465,6 +474,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
                 UI_DEFAULT_RECENT_FOLDERS);
+        matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
     }
 
     /**
@@ -784,6 +794,21 @@ public class EmailProvider extends ContentProvider {
                     return uiDeleteAccountData(uri);
                 case UI_ACCOUNT:
                     return uiDeleteAccount(uri);
+                case SYNCED_MESSAGE_SELECTION:
+                    Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
+                            selectionArgs, null, null, null);
+                    try {
+                        if (findCursor.moveToFirst()) {
+                            return delete(ContentUris.withAppendedId(
+                                    Message.SYNCED_CONTENT_URI,
+                                    findCursor.getLong(Message.ID_COLUMNS_ID_COLUMN)),
+                                    null, null);
+                        } else {
+                            return 0;
+                        }
+                    } finally {
+                        findCursor.close();
+                    }
                 // These are cases in which one or more Messages might get deleted, either by
                 // cascade or explicitly
                 case MAILBOX_ID:
@@ -1627,13 +1652,10 @@ public class EmailProvider extends ContentProvider {
         String id = "0";
 
         try {
-            if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-                if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                    notifyUIConversation(uri);
-                }
-            }
 outer:
             switch (match) {
+                case ACCOUNT_PICK_TRASH_FOLDER:
+                    return pickTrashFolder(uri);
                 case UI_FOLDER:
                     return uiUpdateFolder(uri, values);
                 case UI_RECENT_FOLDERS:
@@ -1706,6 +1728,21 @@ outer:
                         }
                     }
                     break;
+                case SYNCED_MESSAGE_SELECTION:
+                    Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
+                            selectionArgs, null, null, null);
+                    try {
+                        if (findCursor.moveToFirst()) {
+                            return update(ContentUris.withAppendedId(
+                                    Message.SYNCED_CONTENT_URI,
+                                    findCursor.getLong(Message.ID_COLUMNS_ID_COLUMN)),
+                                    values, null, null);
+                        } else {
+                            return 0;
+                        }
+                    } finally {
+                        findCursor.close();
+                    }
                 case SYNCED_MESSAGE_ID:
                 case UPDATED_MESSAGE_ID:
                 case MESSAGE_ID:
@@ -1741,7 +1778,11 @@ outer:
                             cache.unlock(id, values);
                         }
                     }
-                    if (match == ATTACHMENT_ID) {
+                    if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
+                        if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
+                            notifyUIConversation(uri);
+                        }
+                    } else if (match == ATTACHMENT_ID) {
                         long attId = Integer.parseInt(id);
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
@@ -3698,8 +3739,12 @@ outer:
         return update(ourUri, ourValues, null, null);
     }
 
+    public static final String PICKER_UI_ACCOUNT = "picker_ui_account";
+    public static final String PICKER_MAILBOX_TYPE = "picker_mailbox_type";
+    public static final String PICKER_MESSAGE_ID = "picker_message_id";
+
     private int uiDeleteMessage(Uri uri) {
-        Context context = getContext();
+        final Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
@@ -3709,15 +3754,40 @@ outer:
             AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
             notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
             return context.getContentResolver().delete(
-                    ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId), null, null);
+                    ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg.mId), null, null);
         }
         Mailbox trashMailbox =
                 Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
-        if (trashMailbox == null) return 0;
+        if (trashMailbox == null) {
+            return 0;
+        }
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
         return uiUpdateMessage(uri, values);
+    }
+
+    private int pickTrashFolder(Uri uri) {
+        Context context = getContext();
+        Long acctId = Long.parseLong(uri.getLastPathSegment());
+        // For push imap, for example, we want the user to select the trash mailbox
+        Cursor ac = query(uiUri("uiaccount", acctId), UIProvider.ACCOUNTS_PROJECTION,
+                null, null, null);
+        try {
+            if (ac.moveToFirst()) {
+                final com.android.mail.providers.Account uiAccount =
+                        new com.android.mail.providers.Account(ac);
+                Intent intent = new Intent(context, FolderPickerActivity.class);
+                intent.putExtra(PICKER_UI_ACCOUNT, uiAccount);
+                intent.putExtra(PICKER_MAILBOX_TYPE, Mailbox.TYPE_TRASH);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                return 1;
+            }
+            return 0;
+        } finally {
+            ac.close();
+        }
     }
 
     private Cursor uiUndo(String[] projection) {

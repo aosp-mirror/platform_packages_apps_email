@@ -198,6 +198,12 @@
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
         </activity>
 
+        <activity
+            android:name=".provider.FolderPickerActivity"
+            android:label="@string/folder_picker_title"
+            >
+        </activity>
+
         <!-- Must be exported in order for the AccountManager to launch it -->
         <!-- Also available for continuous test systems to force account creation -->
         <activity
@@ -508,7 +514,20 @@
                 android:resource="@xml/authenticator_alternate"
                 />
         </service>
-
+        <service
+            android:name=".service.Imap2AuthenticatorService"
+            android:exported="true"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/imap2_authenticator"
+                />
+        </service>
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"

@@ -65,7 +65,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         ContentResolver cr = context.getContentResolver();
 
         // Get a selector for EAS accounts (we don't want to sync on changes to POP/IMAP messages)
-        String selector = SyncServiceManager.getAccountSelector();
+        String selector = SyncManager.getAccountSelector();
 
         try {
             // Find all of the deletions
@@ -102,7 +102,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
 
             // Request service from the mailbox
             for (Long mailboxId: mailboxesToNotify) {
-                SyncServiceManager.serviceRequest(mailboxId, SyncServiceManager.SYNC_UPSYNC);
+                SyncManager.serviceRequest(mailboxId, SyncManager.SYNC_UPSYNC);
             }
         } catch (ProviderUnavailableException e) {
             Log.e("EmailSyncAlarmReceiver", "EmailProvider unavailable; aborting alarm receiver");
