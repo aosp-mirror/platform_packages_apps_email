@@ -2149,6 +2149,11 @@ outer:
                 uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
         .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
         .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
+        .add(UIProvider.MessageColumns.SPAM_WARNING_STRING, null)
+        .add(UIProvider.MessageColumns.SPAM_WARNING_LEVEL,
+                Integer.toString(UIProvider.SpamWarningLevel.NO_WARNING))
+        .add(UIProvider.MessageColumns.SPAM_WARNING_LINK_TYPE,
+                Integer.toString(UIProvider.SpamWarningLinkType.NO_LINK))
         .build();
 
     /**
