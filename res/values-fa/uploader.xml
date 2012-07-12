@@ -139,7 +139,7 @@
     <skip />
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"موقتاً متوقف شد: برای از سرگیری آپلود، لمس کنید"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"آپلود عکس‌های موجود"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"آپلود عکس‌ها و ویدیوهایی که هنوز از تلفن شما در یک آلبوم خصوصی روی وب آپلود نشده‌اند ممکن است کمی طول بکشد، اما در پس زمینه انجام خواهد شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"آپلود عکس‌ها و ویدیوهایی که هنوز از تلفن شما در یک آلبوم خصوصی روی وب آپلود نشده‌اند ممکن است کمی طول بکشد، اما در پس‌زمینه انجام خواهد شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"بله"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"خیر"</string>
 </resources>

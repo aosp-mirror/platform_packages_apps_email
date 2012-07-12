@@ -283,7 +283,7 @@
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"سرور"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"دامنه/نام کاربری"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"از اتصال امن (SSL) استفاده شود"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"پذیرش همه گواهی های SSL"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"پذیرش همه گواهی‌های SSL"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"گواهی سرویس گیرنده"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"انتخاب"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"استفاده از گواهی مشتری"</string>
