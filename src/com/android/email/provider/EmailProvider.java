@@ -2154,6 +2154,7 @@ outer:
                 Integer.toString(UIProvider.SpamWarningLevel.NO_WARNING))
         .add(UIProvider.MessageColumns.SPAM_WARNING_LINK_TYPE,
                 Integer.toString(UIProvider.SpamWarningLinkType.NO_LINK))
+        .add(UIProvider.MessageColumns.VIA_DOMAIN, null)
         .build();
 
     /**
