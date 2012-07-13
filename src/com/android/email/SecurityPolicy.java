@@ -28,11 +28,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -462,8 +460,13 @@ public class SecurityPolicy {
             // local wipe (failed passwords limit)
             dpm.setMaximumFailedPasswordsForWipe(mAdminName, aggregatePolicy.mPasswordMaxFails);
             // password expiration (days until a password expires).  API takes mSec.
-            dpm.setPasswordExpirationTimeout(mAdminName,
-                    aggregatePolicy.getDPManagerPasswordExpirationTimeout());
+            long oldExpiration = dpm.getPasswordExpirationTimeout(mAdminName);
+            long newExpiration = aggregatePolicy.getDPManagerPasswordExpirationTimeout();
+            // we only set this if it has changed; otherwise, we're pushing out the existing
+            // expiration time!
+            if (oldExpiration != newExpiration) {
+                dpm.setPasswordExpirationTimeout(mAdminName, newExpiration);
+            }
             // password history length (number of previous passwords that may not be reused)
             dpm.setPasswordHistoryLength(mAdminName, aggregatePolicy.mPasswordHistory);
             // password minimum complex characters.
