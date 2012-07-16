@@ -393,9 +393,11 @@ public class NotificationController {
             com.android.mail.providers.Account account) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.setDataAndType(conversation.uri, account.mimeType);
-        intent.putExtra(EXTRA_ACCOUNT, account);
-        intent.putExtra(EXTRA_FOLDER, folder);
+        intent.putExtra(EXTRA_ACCOUNT, account.serialize());
+        if (folder != null) {
+            intent.setDataAndType(folder.uri, account.mimeType);
+            intent.putExtra(EXTRA_FOLDER, folder.serialize());
+        }
         intent.putExtra(EXTRA_CONVERSATION, conversation);
         return intent;
     }
