@@ -3304,7 +3304,7 @@ outer:
         }
         msg.mDraftInfo = draftInfo;
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
-        if (ref != null && msg.mQuotedTextStartPos > 0) {
+        if (ref != null && msg.mQuotedTextStartPos >= 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
                 long sourceKey = Long.parseLong(refId);
