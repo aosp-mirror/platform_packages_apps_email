@@ -112,6 +112,7 @@
         email:syncIntervals="@array/account_settings_check_frequency_values_push"
         email:defaultSyncInterval="push"
 
+        email:offerLookback="true"
         email:offerTls="true"
         email:usesSmtp="true"
         email:offerAttachmentPreload="true"

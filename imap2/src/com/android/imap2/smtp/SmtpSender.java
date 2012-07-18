@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.imap2.smtp;
 
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
-import com.android.email.mail.Sender;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
@@ -44,7 +42,7 @@ import javax.net.ssl.SSLException;
  * This class handles all of the protocol-level aspects of sending messages via SMTP.
  * TODO Remove dependence upon URI; there's no reason why we need it here
  */
-public class SmtpSender extends Sender {
+public class SmtpSender {
 
     private static final int DEFAULT_SMTP_PORT = 587;
     private static final int DEFAULT_SMTP_SSL_PORT = 465;
@@ -53,23 +51,15 @@ public class SmtpSender extends Sender {
     private Transport mTransport;
     private String mUsername;
     private String mPassword;
-
-    /**
-     * Static named constructor.
-     */
-    public static Sender newInstance(Account account, Context context) throws MessagingException {
-        return new SmtpSender(context, account);
-    }
+    private boolean mLog;
 
     /**
      * Creates a new sender for the given account.
      */
-    private SmtpSender(Context context, Account account) throws MessagingException {
+    public SmtpSender(Context context, Account account, boolean log) {
         mContext = context;
+        mLog = log;
         HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
-        if (sendAuth == null || !"smtp".equalsIgnoreCase(sendAuth.mProtocol)) {
-            throw new MessagingException("Unsupported protocol");
-        }
         // defaults, which can be changed by security modifiers
         int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
         int defaultPort = DEFAULT_SMTP_PORT;
@@ -86,7 +76,7 @@ public class SmtpSender extends Sender {
         if (sendAuth.mPort != HostAuth.PORT_UNKNOWN) {
             port = sendAuth.mPort;
         }
-        mTransport = new MailTransport("IMAP");
+        mTransport = new MailTransport(mLog);
         mTransport.setHost(sendAuth.mAddress);
         mTransport.setPort(port);
         mTransport.setSecurity(connectionSecurity, trustCertificates);
@@ -107,7 +97,6 @@ public class SmtpSender extends Sender {
         mTransport = testTransport;
     }
 
-    @Override
     public void open() throws MessagingException {
         try {
             mTransport.open();
@@ -149,7 +138,7 @@ public class SmtpSender extends Sender {
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
-                    if (MailActivityEmail.DEBUG) {
+                    if (mLog) {
                         Log.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -171,26 +160,25 @@ public class SmtpSender extends Sender {
                     saslAuthLogin(mUsername, mPassword);
                 }
                 else {
-                    if (MailActivityEmail.DEBUG) {
+                    if (mLog) {
                         Log.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
     }
 
-    @Override
     public void sendMessage(long messageId) throws MessagingException {
         close();
         open();
@@ -233,7 +221,6 @@ public class SmtpSender extends Sender {
      *
      * MUST NOT return any exceptions.
      */
-    @Override
     public void close() {
         mTransport.close();
     }

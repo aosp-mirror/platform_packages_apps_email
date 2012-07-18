@@ -187,6 +187,7 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 5;
     private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 6;
     private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 7;
+    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 8;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -475,6 +476,7 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
                 UI_DEFAULT_RECENT_FOLDERS);
         matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
+        matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
     }
 
     /**
@@ -1656,6 +1658,8 @@ outer:
             switch (match) {
                 case ACCOUNT_PICK_TRASH_FOLDER:
                     return pickTrashFolder(uri);
+                case ACCOUNT_PICK_SENT_FOLDER:
+                    return pickSentFolder(uri);
                 case UI_FOLDER:
                     return uiUpdateFolder(uri, values);
                 case UI_RECENT_FOLDERS:
@@ -3742,6 +3746,7 @@ outer:
     public static final String PICKER_UI_ACCOUNT = "picker_ui_account";
     public static final String PICKER_MAILBOX_TYPE = "picker_mailbox_type";
     public static final String PICKER_MESSAGE_ID = "picker_message_id";
+    public static final String PICKER_HEADER_ID = "picker_header_id";
 
     private int uiDeleteMessage(Uri uri) {
         final Context context = getContext();
@@ -3767,7 +3772,7 @@ outer:
         return uiUpdateMessage(uri, values);
     }
 
-    private int pickTrashFolder(Uri uri) {
+    private int pickFolder(Uri uri, int type, int headerId) {
         Context context = getContext();
         Long acctId = Long.parseLong(uri.getLastPathSegment());
         // For push imap, for example, we want the user to select the trash mailbox
@@ -3779,7 +3784,8 @@ outer:
                         new com.android.mail.providers.Account(ac);
                 Intent intent = new Intent(context, FolderPickerActivity.class);
                 intent.putExtra(PICKER_UI_ACCOUNT, uiAccount);
-                intent.putExtra(PICKER_MAILBOX_TYPE, Mailbox.TYPE_TRASH);
+                intent.putExtra(PICKER_MAILBOX_TYPE, type);
+                intent.putExtra(PICKER_HEADER_ID, headerId);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return 1;
@@ -3788,6 +3794,14 @@ outer:
         } finally {
             ac.close();
         }
+    }
+
+    private int pickTrashFolder(Uri uri) {
+        return pickFolder(uri, Mailbox.TYPE_TRASH, R.string.trash_folder_selection_title);
+    }
+
+    private int pickSentFolder(Uri uri) {
+        return pickFolder(uri, Mailbox.TYPE_SENT, R.string.sent_folder_selection_title);
     }
 
     private Cursor uiUndo(String[] projection) {
