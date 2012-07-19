@@ -1300,5 +1300,13 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- Displayed in the middle of the screen when the inbox is empty [CHAR LIMIT 100]-->
     <string name="no_conversations">No messages.</string>
+
+        <!-- Temporary; used by AccountManager -->
+    <string name="imap2_name">Push IMAP</string>
+
+    <string name="folder_picker_title">Picky, picky, picky!</string>
+    <string name="trash_folder_selection_title">Select trash folder</string>
+    <string name="create_new_folder">Create folder</string>
+
 </resources>
 

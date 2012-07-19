@@ -146,6 +146,11 @@
 
     <!-- USA -->
 
+    <provider id="eon" label="EON" domain="nextobject.com">
+        <incoming uri="imap2://imap.everyone.net" username="$email" />
+        <outgoing uri="smtp://smtp.everyone.net" username="$email" />
+    </provider>
+
     <!-- AOL and variants -->
     <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">

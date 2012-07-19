@@ -101,4 +101,21 @@
         email:syncContacts="true"
         email:syncCalendar="true"
          />
+    <emailservice
+        email:protocol="imap2"
+        email:name="Push IMAP"
+        email:accountType="com.android.imap2"
+        email:intent="com.android.email.IMAP2_INTENT"
+        email:port="143"
+        email:portSsl="993"
+        email:syncIntervalStrings="@array/account_settings_check_frequency_entries_push"
+        email:syncIntervals="@array/account_settings_check_frequency_values_push"
+        email:defaultSyncInterval="push"
+
+        email:offerTls="true"
+        email:usesSmtp="true"
+        email:offerAttachmentPreload="true"
+        email:offerPrefix="true"
+        email:syncChanges="true"
+         />
 </emailservices>

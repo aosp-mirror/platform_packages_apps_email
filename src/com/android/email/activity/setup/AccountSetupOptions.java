@@ -44,7 +44,6 @@ import com.android.email.service.MailService;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
@@ -244,6 +243,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         final boolean email2 = email;
         final boolean calendar2 = calendar;
         final boolean contacts2 = contacts;
+
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {

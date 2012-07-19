@@ -26,9 +26,10 @@ import android.util.Log;
 import android.widget.EditText;
 
 import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.VendorPolicyLoader;
+import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -228,50 +229,6 @@ public class AccountSettingsUtils {
         }
         else {
             return context.getString(resId);
-        }
-    }
-
-    public static class Provider implements Serializable {
-        private static final long serialVersionUID = 8511656164616538989L;
-
-        public String id;
-        public String label;
-        public String domain;
-        public String incomingUriTemplate;
-        public String incomingUsernameTemplate;
-        public String outgoingUriTemplate;
-        public String outgoingUsernameTemplate;
-        public String incomingUri;
-        public String incomingUsername;
-        public String outgoingUri;
-        public String outgoingUsername;
-        public String note;
-
-        /**
-         * Expands templates in all of the  provider fields that support them. Currently,
-         * templates are used in 4 fields -- incoming and outgoing URI and user name.
-         * @param email user-specified data used to replace template values
-         */
-        public void expandTemplates(String email) {
-            String[] emailParts = email.split("@");
-            String user = emailParts[0];
-
-            incomingUri = expandTemplate(incomingUriTemplate, email, user);
-            incomingUsername = expandTemplate(incomingUsernameTemplate, email, user);
-            outgoingUri = expandTemplate(outgoingUriTemplate, email, user);
-            outgoingUsername = expandTemplate(outgoingUsernameTemplate, email, user);
-        }
-
-        /**
-         * Replaces all parameterized values in the given template. The values replaced are
-         * $domain, $user and $email.
-         */
-        private String expandTemplate(String template, String email, String user) {
-            String returnString = template;
-            returnString = returnString.replaceAll("\\$email", email);
-            returnString = returnString.replaceAll("\\$user", user);
-            returnString = returnString.replaceAll("\\$domain", domain);
-            return returnString;
         }
     }
 

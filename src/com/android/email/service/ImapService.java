@@ -56,6 +56,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.EmailServiceCallback;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
@@ -106,102 +107,8 @@ public class ImapService extends Service {
     private static final RemoteCallbackList<IEmailServiceCallback> mCallbackList =
             new RemoteCallbackList<IEmailServiceCallback>();
 
-    private interface ServiceCallbackWrapper {
-        public void call(IEmailServiceCallback cb) throws RemoteException;
-    }
-
-    /**
-     * Proxy that can be used by various sync adapters to tie into ExchangeService's callback system
-     * Used this way:  ExchangeService.callback().callbackMethod(args...);
-     * The proxy wraps checking for existence of a ExchangeService instance
-     * Failures of these callbacks can be safely ignored.
-     */
-    static private final IEmailServiceCallback.Stub sCallbackProxy =
-            new IEmailServiceCallback.Stub() {
-
-        /**
-         * Broadcast a callback to the everyone that's registered
-         *
-         * @param wrapper the ServiceCallbackWrapper used in the broadcast
-         */
-        private synchronized void broadcastCallback(ServiceCallbackWrapper wrapper) {
-            RemoteCallbackList<IEmailServiceCallback> callbackList = mCallbackList;
-            if (callbackList != null) {
-                // Call everyone on our callback list
-                int count = callbackList.beginBroadcast();
-                try {
-                    for (int i = 0; i < count; i++) {
-                        try {
-                            wrapper.call(callbackList.getBroadcastItem(i));
-                        } catch (RemoteException e) {
-                            // Safe to ignore
-                        } catch (RuntimeException e) {
-                            // We don't want an exception in one call to prevent other calls, so
-                            // we'll just log this and continue
-                            Log.e(TAG, "Caught RuntimeException in broadcast", e);
-                        }
-                    }
-                } finally {
-                    // No matter what, we need to finish the broadcast
-                    callbackList.finishBroadcast();
-                }
-            }
-        }
-
-        @Override
-        public void loadAttachmentStatus(final long messageId, final long attachmentId,
-                final int status, final int progress) {
-            broadcastCallback(new ServiceCallbackWrapper() {
-                @Override
-                public void call(IEmailServiceCallback cb) throws RemoteException {
-                    cb.loadAttachmentStatus(messageId, attachmentId, status, progress);
-                }
-            });
-        }
-
-        @Override
-        public void loadMessageStatus(final long messageId, final int status, final int progress) {
-            broadcastCallback(new ServiceCallbackWrapper() {
-                @Override
-                public void call(IEmailServiceCallback cb) throws RemoteException {
-                    cb.loadMessageStatus(messageId, status, progress);
-                }
-            });
-        }
-
-        @Override
-        public void sendMessageStatus(final long messageId, final String subject, final int status,
-                final int progress) {
-            broadcastCallback(new ServiceCallbackWrapper() {
-                @Override
-                public void call(IEmailServiceCallback cb) throws RemoteException {
-                    cb.sendMessageStatus(messageId, subject, status, progress);
-                }
-            });
-        }
-
-        @Override
-        public void syncMailboxListStatus(final long accountId, final int status,
-                final int progress) {
-            broadcastCallback(new ServiceCallbackWrapper() {
-                @Override
-                public void call(IEmailServiceCallback cb) throws RemoteException {
-                    cb.syncMailboxListStatus(accountId, status, progress);
-                }
-            });
-        }
-
-        @Override
-        public void syncMailboxStatus(final long mailboxId, final int status,
-                final int progress) {
-            broadcastCallback(new ServiceCallbackWrapper() {
-                @Override
-                public void call(IEmailServiceCallback cb) throws RemoteException {
-                    cb.syncMailboxStatus(mailboxId, status, progress);
-                }
-            });
-        }
-    };
+    private static final EmailServiceCallback sCallbackProxy =
+            new EmailServiceCallback(mCallbackList);
 
     /**
      * Create our EmailService implementation here.
@@ -243,10 +150,7 @@ public class ImapService extends Service {
     }
 
     private static void sendMailboxStatus(Mailbox mailbox, int status) {
-        try {
-            sCallbackProxy.syncMailboxStatus(mailbox.mId, status, 0);
-        } catch (RemoteException e) {
-        }
+        sCallbackProxy.syncMailboxStatus(mailbox.mId, status, 0);
     }
 
     /**

@@ -126,8 +126,9 @@ public final class DBHelper {
     // Version 100 is first Email2 version
     // Version 101 SHOULD NOT BE USED
     // Version 102&103: Add hierarchicalName to Mailbox
+    // Version 104&105: add syncData to Message
 
-    public static final int DATABASE_VERSION = 103;
+    public static final int DATABASE_VERSION = 105;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -172,7 +173,8 @@ public final class DBHelper {
             + MessageColumns.MEETING_INFO + " text, "
             + MessageColumns.SNIPPET + " text, "
             + MessageColumns.PROTOCOL_SEARCH_INFO + " text, "
-            + MessageColumns.THREAD_TOPIC + " text"
+            + MessageColumns.THREAD_TOPIC + " text, "
+            + MessageColumns.SYNC_DATA + " text"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -968,9 +970,31 @@ public final class DBHelper {
                             + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
+                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v10x to v103", e);
                 }
                 oldVersion = 103;
+            }
+            if (oldVersion == 103) {
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add " + MessageColumns.SYNC_DATA + " text");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v103 to v104", e);
+                }
+                oldVersion = 104;
+            }
+            if (oldVersion == 104) {
+                try {
+                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                            + " add " + MessageColumns.SYNC_DATA + " text");
+                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                            + " add " + MessageColumns.SYNC_DATA + " text");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v104 to v105", e);
+                }
+                oldVersion = 105;
             }
         }
 

@@ -27,7 +27,6 @@ import android.util.Log;
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.store.imap.ImapConstants;
@@ -35,6 +34,7 @@ import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.transport.MailTransport;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.Flag;
@@ -182,8 +182,8 @@ public class ImapStore extends Store {
      * @param capabilities a list of the capabilities from the server
      * @return a String for use in an IMAP ID message.
      */
-    @VisibleForTesting
-    static String getImapId(Context context, String userName, String host, String capabilities) {
+    public static String getImapId(Context context, String userName, String host,
+            String capabilities) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {

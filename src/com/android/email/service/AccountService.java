@@ -26,11 +26,11 @@ import android.os.IBinder;
 
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountReconciler;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.IAccountService;

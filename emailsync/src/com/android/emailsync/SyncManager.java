@@ -61,7 +61,6 @@ import com.android.emailcommon.provider.ProviderUnavailableException;
 import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
-import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.IEmailServiceCallback.Stub;
 import com.android.emailcommon.service.PolicyServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -88,7 +87,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * order to maintain proper 2-way syncing of data.  (More documentation to follow)
  *
  */
-public abstract class SyncServiceManager extends Service implements Runnable {
+public abstract class SyncManager extends Service implements Runnable {
 
     private static final String TAG = "SyncServiceManager";
 
@@ -201,7 +200,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     public ContentResolver mResolver;
 
     // The singleton SyncServiceManager object, with its thread and stop flag
-    protected static SyncServiceManager INSTANCE;
+    protected static SyncManager INSTANCE;
     protected static Thread sServiceThread = null;
     // Cached unique device id
     protected static String sDeviceId = null;
@@ -338,7 +337,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     public static String getAccountSelector() {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return "";
         return ssm.getAccountsSelector();
     }
@@ -380,8 +379,8 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                             if (onSecurityHold(account)) {
                                 // If we're in a security hold, and our policies are active, release
                                 // the hold
-                                if (PolicyServiceProxy.isActive(SyncServiceManager.this, null)) {
-                                    PolicyServiceProxy.setAccountHoldFlag(SyncServiceManager.this,
+                                if (PolicyServiceProxy.isActive(SyncManager.this, null)) {
+                                    PolicyServiceProxy.setAccountHoldFlag(SyncManager.this,
                                             account, false);
                                     log("isActive true; release hold for " + account.mDisplayName);
                                 }
@@ -440,7 +439,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                             // The implication is that the account has been deleted; let's find out
                             alwaysLog("Observer found deleted account: " + account.mDisplayName);
                             // Run the reconciler (the reconciliation itself runs in the Email app)
-                            runAccountReconcilerSync(SyncServiceManager.this);
+                            runAccountReconcilerSync(SyncManager.this);
                             // See if the account is still around
                             Account deletedAccount =
                                 Account.restoreAccountWithId(context, account.mId);
@@ -477,7 +476,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
 
                             // See if this account is no longer on security hold
                             if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
-                                releaseSyncHolds(SyncServiceManager.this,
+                                releaseSyncHolds(SyncManager.this,
                                         AbstractSyncService.EXIT_SECURITY_FAILURE, account);
                             }
 
@@ -548,7 +547,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * Unregister all CalendarObserver's
      */
     static public void unregisterCalendarObservers() {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         ContentResolver resolver = ssm.mResolver;
         for (CalendarObserver observer: ssm.mCalendarObservers.values()) {
@@ -718,7 +717,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public Account getAccountById(long accountId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             AccountList accountList = ssm.mAccountList;
             synchronized (accountList) {
@@ -729,7 +728,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public Account getAccountByName(String accountName) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             AccountList accountList = ssm.mAccountList;
             synchronized (accountList) {
@@ -795,7 +794,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @param account the account whose Mailboxes should be released from security hold
      */
     static public void releaseSecurityHold(Account account) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.releaseSyncHolds(INSTANCE, AbstractSyncService.EXIT_SECURITY_FAILURE,
                     account);
@@ -910,7 +909,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     public static void stopAccountSyncs(long acctId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.stopAccountSyncs(acctId, true);
         }
@@ -957,7 +956,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @param acctId
      */
     static public void stopNonAccountMailboxSyncsForAccount(long acctId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.stopAccountSyncs(acctId, false);
             kick("reload folder list");
@@ -1051,7 +1050,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void runAwake(long id) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.acquireWakeLock(id);
             ssm.clearAlarm(id);
@@ -1059,7 +1058,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void runAsleep(long id, long millis) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.setAlarm(id, millis);
             ssm.releaseWakeLock(id);
@@ -1067,27 +1066,27 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void clearWatchdogAlarm(long id) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.clearAlarm(id);
         }
     }
 
     static public void setWatchdogAlarm(long id, long millis) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.setAlarm(id, millis);
         }
     }
 
     static public void alert(Context context, final long id) {
-        final SyncServiceManager ssm = INSTANCE;
+        final SyncManager ssm = INSTANCE;
         checkSyncServiceManagerServiceRunning();
         if (id < 0) {
             log("SyncServiceManager alert");
             kick("ping SyncServiceManager");
         } else if (ssm == null) {
-            context.startService(new Intent(context, SyncServiceManager.class));
+            context.startService(new Intent(context, SyncManager.class));
         } else {
             final AbstractSyncService service = ssm.mServiceMap.get(id);
             if (service != null) {
@@ -1129,7 +1128,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                                }
                                // Shutdown the connection manager; this should close all of our
                                // sockets and generate IOExceptions all around.
-                               SyncServiceManager.shutdownConnectionManager();
+                               SyncManager.shutdownConnectionManager();
                            }
                        }
                     }}, threadName).start();
@@ -1177,7 +1176,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                         public void run() {
                             synchronized (mAccountList) {
                                 for (Account account : mAccountList)
-                                    SyncServiceManager.stopAccountSyncs(account.mId);
+                                    SyncManager.stopAccountSyncs(account.mId);
                             }
                         }});
                 }
@@ -1400,13 +1399,13 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                     try {
                         synchronized (sSyncLock) {
                             // SyncServiceManager cannot start unless we connect to AccountService
-                            if (!new AccountServiceProxy(SyncServiceManager.this).test()) {
+                            if (!new AccountServiceProxy(SyncManager.this).test()) {
                                 alwaysLog("!!! Email application not found; stopping self");
                                 stopSelf();
                             }
                             if (sDeviceId == null) {
                                 try {
-                                    String deviceId = getDeviceId(SyncServiceManager.this);
+                                    String deviceId = getDeviceId(SyncManager.this);
                                     if (deviceId != null) {
                                         sDeviceId = deviceId;
                                     }
@@ -1430,7 +1429,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                             }
                             // Run the reconciler and clean up mismatched accounts - if we weren't
                             // running when accounts were deleted, it won't have been called.
-                            runAccountReconcilerSync(SyncServiceManager.this);
+                            runAccountReconcilerSync(SyncManager.this);
                             // Update other services depending on final account configuration
                             maybeStartSyncServiceManagerThread();
                             if (sServiceThread == null) {
@@ -1450,7 +1449,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     public static void reconcileAccounts(Context context) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.runAccountReconcilerSync(context);
         }
@@ -1504,11 +1503,11 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * com.android.email) and hasn't been restarted. See the comment for onCreate for details
      */
     static void checkSyncServiceManagerServiceRunning() {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         if (sServiceThread == null) {
             log("!!! checkSyncServiceManagerServiceRunning; starting service...");
-            ssm.startService(new Intent(ssm, SyncServiceManager.class));
+            ssm.startService(new Intent(ssm, SyncManager.class));
         }
     }
 
@@ -1598,7 +1597,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
             // process starts running again, remote processes will be started again in due course
             Log.e(TAG, "EmailProvider unavailable; shutting down");
             // Ask for our service to be restarted; this should kick-start the Email process as well
-            startService(new Intent(this, SyncServiceManager.class));
+            startService(new Intent(this, SyncManager.class));
         } catch (RuntimeException e) {
             // Crash; this is a completely unexpected runtime error
             Log.e(TAG, "RuntimeException in SyncServiceManager", e);
@@ -1718,7 +1717,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @return whether or not the account can sync automatically
      */
     /*package*/ public static boolean canAutoSync(Account account) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) {
             return false;
         }
@@ -1971,7 +1970,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void serviceRequest(long mailboxId, long ms, int reason) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         Mailbox m = Mailbox.restoreMailboxWithId(ssm, mailboxId);
         if (m == null || !isSyncable(m)) return;
@@ -1989,7 +1988,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void serviceRequestImmediate(long mailboxId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         AbstractSyncService service = ssm.mServiceMap.get(mailboxId);
         if (service != null) {
@@ -2004,7 +2003,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void sendMessageRequest(Request req) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         Message msg = Message.restoreMessageWithId(ssm, req.mMessageId);
         if (msg == null) return;
         long mailboxId = msg.mMailboxKey;
@@ -2044,7 +2043,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @return whether or not the Mailbox is available for syncing (i.e. is a valid push target)
      */
     static public int pingStatus(long mailboxId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return PING_STATUS_OK;
         // Already syncing...
         if (ssm.mServiceMap.get(mailboxId) != null) {
@@ -2063,7 +2062,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
     }
 
     static public void startManualSync(long mailboxId, int reason, Request req) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         synchronized (sSyncLock) {
             AbstractSyncService svc = ssm.mServiceMap.get(mailboxId);
@@ -2085,7 +2084,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
 
     // DO NOT CALL THIS IN A LOOP ON THE SERVICEMAP
     static public void stopManualSync(long mailboxId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         synchronized (sSyncLock) {
             AbstractSyncService svc = ssm.mServiceMap.get(mailboxId);
@@ -2102,7 +2101,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * Wake up SyncServiceManager to check for mailboxes needing service
      */
     static public void kick(String reason) {
-       SyncServiceManager ssm = INSTANCE;
+       SyncManager ssm = INSTANCE;
        if (ssm != null) {
             synchronized (ssm) {
                 //INSTANCE.log("Kick: " + reason);
@@ -2122,7 +2121,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @param mailboxId the id of the mailbox
      */
     static public void removeFromSyncErrorMap(long mailboxId) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm != null) {
             ssm.mSyncErrorMap.remove(mailboxId);
         }
@@ -2142,7 +2141,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
      * @param svc the service that is finished
      */
     static public void done(AbstractSyncService svc) {
-        SyncServiceManager ssm = INSTANCE;
+        SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         synchronized(sSyncLock) {
             long mailboxId = svc.mMailboxId;
@@ -2181,7 +2180,7 @@ public abstract class SyncServiceManager extends Service implements Runnable {
                         }
                         errorMap.remove(mailboxId);
                         // If we've had a successful sync, clear the shutdown count
-                        synchronized (SyncServiceManager.class) {
+                        synchronized (SyncManager.class) {
                             sClientConnectionManagerShutdownCount = 0;
                         }
                         // Leave now; other statuses are errors

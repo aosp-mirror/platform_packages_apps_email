@@ -71,6 +71,9 @@ public abstract class EmailContent {
 
     public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
+    public static final Uri PICK_TRASH_FOLDER_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/pickTrashFolder");
+
     public static final Uri MAILBOX_NOTIFICATION_URI =
             Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
     public static final String[] NOTIFICATION_PROJECTION =
@@ -543,6 +546,8 @@ public abstract class EmailContent {
         public static final String PROTOCOL_SEARCH_INFO = "protocolSearchInfo";
         // Simple thread topic
         public static final String THREAD_TOPIC = "threadTopic";
+        // For sync adapter use
+        public static final String SYNC_DATA = "syncData";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -551,11 +556,12 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
-        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
         public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
         public static final Uri SYNCED_CONTENT_URI =
-            Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+                Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+        public static final Uri SYNCED_SELECTION_CONTENT_URI =
+                Uri.parse(EmailContent.CONTENT_URI + "/syncedMessageSelection");
         public static final Uri DELETED_CONTENT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
         public static final Uri UPDATED_CONTENT_URI =
@@ -589,6 +595,7 @@ public abstract class EmailContent {
         public static final int CONTENT_SNIPPET_COLUMN = 21;
         public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
         public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
+        public static final int CONTENT_SYNC_DATA_COLUMN = 24;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -603,7 +610,7 @@ public abstract class EmailContent {
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
             MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
-            MessageColumns.THREAD_TOPIC
+            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -740,6 +747,8 @@ public abstract class EmailContent {
 
         public String mThreadTopic;
 
+        public String mSyncData;
+
         /**
          * Base64-encoded representation of the byte array provided by servers for identifying
          * messages belonging to the same conversation thread. Currently unsupported and not
@@ -832,28 +841,22 @@ public abstract class EmailContent {
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite);
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
             values.put(MessageColumns.FLAGS, mFlags);
-
             values.put(SyncColumns.SERVER_ID, mServerId);
             values.put(SyncColumns.SERVER_TIMESTAMP, mServerTimeStamp);
             values.put(MessageColumns.DRAFT_INFO, mDraftInfo);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
-
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
-
             values.put(MessageColumns.FROM_LIST, mFrom);
             values.put(MessageColumns.TO_LIST, mTo);
             values.put(MessageColumns.CC_LIST, mCc);
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
-
             values.put(MessageColumns.MEETING_INFO, mMeetingInfo);
-
             values.put(MessageColumns.SNIPPET, mSnippet);
-
             values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
-
             values.put(MessageColumns.THREAD_TOPIC, mThreadTopic);
+            values.put(MessageColumns.SYNC_DATA, mSyncData);
             return values;
         }
 
@@ -889,6 +892,7 @@ public abstract class EmailContent {
             mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
             mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
             mThreadTopic = cursor.getString(CONTENT_THREAD_TOPIC_COLUMN);
+            mSyncData = cursor.getString(CONTENT_SYNC_DATA_COLUMN);
         }
 
         public boolean update() {
@@ -991,22 +995,25 @@ public abstract class EmailContent {
             if (mQuotedTextStartPos != 0) {
                 cv.put(Body.QUOTED_TEXT_START_POS, mQuotedTextStartPos);
             }
-            b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
-            // Put our message id in the Body
-            if (!isNew) {
-                cv.put(Body.MESSAGE_KEY, mId);
-            }
-            b.withValues(cv);
             // We'll need this if we're new
             int messageBackValue = ops.size() - 1;
-            // If we're new, create a back value entry
-            if (isNew) {
-                ContentValues backValues = new ContentValues();
-                backValues.put(Body.MESSAGE_KEY, messageBackValue);
-                b.withValueBackReferences(backValues);
+            // Only create a body if we've got some data
+            if (!cv.keySet().isEmpty()) {
+                b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
+                // Put our message id in the Body
+                if (!isNew) {
+                    cv.put(Body.MESSAGE_KEY, mId);
+                }
+                b.withValues(cv);
+                // If we're new, create a back value entry
+                if (isNew) {
+                    ContentValues backValues = new ContentValues();
+                    backValues.put(Body.MESSAGE_KEY, messageBackValue);
+                    b.withValueBackReferences(backValues);
+                }
+                // And add the Body operation
+                ops.add(b.build());
             }
-            // And add the Body operation
-            ops.add(b.build());
 
             // Create the attaachments, if any
             if (mAttachments != null) {
