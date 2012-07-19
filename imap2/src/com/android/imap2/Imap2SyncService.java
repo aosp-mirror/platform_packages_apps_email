@@ -24,16 +24,18 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.TrafficStats;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
@@ -43,11 +45,12 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.MailboxUtilities;
-import com.android.emailcommon.provider.ProviderUnavailableException;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.SyncWindow;
+import com.android.emailcommon.utility.CountingOutputStream;
+import com.android.emailcommon.utility.EOLConvertingOutputStream;
 import com.android.emailcommon.utility.SSLUtils;
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -55,6 +58,7 @@ import com.android.emailsync.AbstractSyncService;
 import com.android.emailsync.PartRequest;
 import com.android.emailsync.Request;
 import com.android.emailsync.SyncManager;
+import com.android.imap2.smtp.SmtpSender;
 import com.android.mail.providers.UIProvider;
 import com.beetstra.jutf7.CharsetProvider;
 
@@ -103,16 +107,17 @@ public class Imap2SyncService extends AbstractSyncService {
 
     private static Pattern IMAP_RESPONSE_PATTERN = Pattern.compile("\\*(\\s(\\d+))?\\s(\\w+).*");
 
-    private static final int HEADER_BATCH_COUNT = 10;
+    private static final int HEADER_BATCH_COUNT = 20;
 
-    //  private static final int IDLE_TIMEOUT_MILLIS = 12*MINS;
     private static final int SECONDS = 1000;
     private static final int MINS = 60*SECONDS;
     private static final int IDLE_ASLEEP_MILLIS = 11*MINS;
-    //  private static final int COMMAND_TIMEOUT_MILLIS = 24*SECS;
 
     private static final int SOCKET_CONNECT_TIMEOUT = 10*SECONDS;
     private static final int SOCKET_TIMEOUT = 20*SECONDS;
+
+    private static final int AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES = 250;
+    private static final int AUTOMATIC_SYNC_WINDOW_LARGE_MAILBOX = 1000;
 
     private ContentResolver mResolver;
     private int mWriterTag = 1;
@@ -123,6 +128,7 @@ public class Imap2SyncService extends AbstractSyncService {
     private ArrayList<String> mImapResponse = null;
     private String mImapResult;
     private String mImapErrorLine = null;
+    private String mImapSuccessLine = null;
 
     private Socket mSocket = null;
     private boolean mStop = false;
@@ -144,10 +150,23 @@ public class Imap2SyncService extends AbstractSyncService {
 
     private HostAuth mHostAuth;
     private String mPrefix;
+    private long mTrashMailboxId = Mailbox.NO_MAILBOX;
+    private long mAccountId;
+
+    private final ArrayList<Long> mUpdatedIds = new ArrayList<Long>();
+    private final ArrayList<Long> mDeletedIds = new ArrayList<Long>();
+    private final Stack<Integer> mDeletes = new Stack<Integer>();
+    private final Stack<Integer> mReadUpdates = new Stack<Integer>();
+    private final Stack<Integer> mUnreadUpdates = new Stack<Integer>();
+    private final Stack<Integer> mFlaggedUpdates = new Stack<Integer>();
+    private final Stack<Integer> mUnflaggedUpdates = new Stack<Integer>();
 
     public Imap2SyncService(Context _context, Mailbox _mailbox) {
         super(_context, _mailbox);
         mResolver = _context.getContentResolver();
+        if (mAccount != null) {
+            mAccountId = mAccount.mId;
+        }
         MAILBOX_SERVER_ID_ARGS[0] = Long.toString(mMailboxId);
     }
 
@@ -160,8 +179,10 @@ public class Imap2SyncService extends AbstractSyncService {
         mContext = _context;
         mResolver = _context.getContentResolver();
         mAccount = _account;
+        mAccountId = _account.mId;
         mHostAuth = HostAuth.restoreHostAuthWithId(_context, mAccount.mHostAuthKeyRecv);
         mPrefix = mHostAuth.mDomain;
+        mTrashMailboxId = Mailbox.findMailboxOfType(_context, _account.mId, Mailbox.TYPE_TRASH);
     }
 
     @Override
@@ -282,8 +303,9 @@ public class Imap2SyncService extends AbstractSyncService {
             out.write(cmd);
             out.write("\r\n");
             out.flush();
-            if (!cmd.startsWith("login"))
+            if (!cmd.startsWith("login")) {
                 userLog(tag + cmd);
+            }
             return tag;
         } catch (IOException e) {
             userLog("IOException in writeCommand");
@@ -317,20 +339,21 @@ public class Imap2SyncService extends AbstractSyncService {
                             mLastExists = val;
                     }
                 } catch (NumberFormatException e) {
-                } else if (mMailbox.mSyncKey == null || mMailbox.mSyncKey == "0") {
-                    str = str.toLowerCase();
-                    int idx = str.indexOf("uidvalidity");
-                    if (idx > 0) {
-                        //*** 12?
-                        long num = readLong(str, idx + 12);
-                        mMailbox.mSyncKey = Long.toString(num);
-                        ContentValues cv = new ContentValues();
-                        cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
-                        mContext.getContentResolver().update(
-                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
-                                null, null);
-                    }
                 }
+            else if (mMailbox != null && mMailbox.mSyncKey == null || mMailbox.mSyncKey == "0") {
+                str = str.toLowerCase();
+                int idx = str.indexOf("uidvalidity");
+                if (idx > 0) {
+                    // 12 = length of "uidvalidity" + 1
+                    long num = readLong(str, idx + 12);
+                    mMailbox.mSyncKey = Long.toString(num);
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.SYNC_KEY, mMailbox.mSyncKey);
+                    mContext.getContentResolver().update(
+                            ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
+                            null, null);
+                }
+            }
         }
 
         userLog("Untagged: " + type);
@@ -373,7 +396,9 @@ public class Imap2SyncService extends AbstractSyncService {
             }
         }
 
-        if (!mImapResult.equals(IMAP_OK)) {
+        if (mImapResult.equals(IMAP_OK)) {
+            mImapSuccessLine = str;
+        } else {
             userLog("$$$ Error result = " + mImapResult);
             mImapErrorLine = str;
         }
@@ -471,7 +496,7 @@ public class Imap2SyncService extends AbstractSyncService {
 
         //msg.bodyId = 0;
         //msg.parts = parts.toString();
-        msg.mAccountKey = mAccount.mId;
+        msg.mAccountKey = mAccountId;
 
         msg.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
         msg.mFlags = flag;
@@ -620,24 +645,6 @@ public class Imap2SyncService extends AbstractSyncService {
         return folder;
     }
 
-    private static class ServerUpdate {
-        final long id;
-        final int serverId;
-
-        ServerUpdate(long _id, int _serverId) {
-            id = _id;
-            serverId = _serverId;
-        }
-    }
-
-    private ArrayList<Long> mUpdatedIds = new ArrayList<Long>();
-    private ArrayList<Long> mDeletedIds = new ArrayList<Long>();
-    private Stack<ServerUpdate> mDeletes = new Stack<ServerUpdate>();
-    private Stack<ServerUpdate> mReadUpdates = new Stack<ServerUpdate>();
-    private Stack<ServerUpdate> mUnreadUpdates = new Stack<ServerUpdate>();
-    private Stack<ServerUpdate> mFlaggedUpdates = new Stack<ServerUpdate>();
-    private Stack<ServerUpdate> mUnflaggedUpdates = new Stack<ServerUpdate>();
-
     private Cursor getUpdatesCursor() {
         Cursor c = mResolver.query(Message.UPDATED_CONTENT_URI, UPDATE_DELETE_PROJECTION,
                 MessageColumns.MAILBOX_KEY + '=' + mMailbox.mId, null, null);
@@ -676,7 +683,7 @@ public class Imap2SyncService extends AbstractSyncService {
         try {
             while (c.moveToNext()) {
                 long id = c.getLong(UPDATE_DELETE_ID_COLUMN);
-                mDeletes.add(new ServerUpdate(id, c.getInt(UPDATE_DELETE_SERVER_ID_COLUMN)));
+                mDeletes.add(c.getInt(UPDATE_DELETE_SERVER_ID_COLUMN));
                 mDeletedIds.add(id);
             }
             sendUpdate(mDeletes, "+FLAGS (\\Deleted)");
@@ -758,7 +765,7 @@ public class Imap2SyncService extends AbstractSyncService {
                         continue;
                     }
 
-                    ServerUpdate update = new ServerUpdate(id, serverId);
+                    Integer update = serverId;
                     if (readChange) {
                         if (read == 1) {
                             mReadUpdates.add(update);
@@ -796,16 +803,16 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
-    private void sendUpdate(Stack<ServerUpdate> updates, String command) throws IOException {
+    private void sendUpdate(Stack<Integer> updates, String command) throws IOException {
         // First, generate the appropriate String
         while (!updates.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < 20 && !updates.empty(); i++) {
-                ServerUpdate update = updates.pop();
+                Integer update = updates.pop();
                 if (i != 0) {
                     sb.append(',');
                 }
-                sb.append(update.serverId);
+                sb.append(update);
             }
             String tag =
                     writeCommand(mConnection.writer, "uid store " + sb.toString() + " " + command);
@@ -831,28 +838,39 @@ public class Imap2SyncService extends AbstractSyncService {
     }
 
     private void saveNewMessages (ArrayList<Message> msgList) {
-        //        Cursor dc = getLocalDeletedCursor();
-        //        ArrayList<Integer> dl = new ArrayList<Integer>();
-        //        boolean newDeletions = false;
-        //        try {
-        //            if (dc.moveToFirst()) {
-        //                do {
-        //                    dl.add(dc.getInt(Email.UID_COLUMN));
-        //                    newDeletions = true;
-        //                } while (dc.moveToNext());
-        //            }
-        //        } finally {
-        //            dc.close();
-        //        }
+        // Get the ids of updated messages in this mailbox (usually there won't be any)
+        Cursor c = getUpdatesCursor();
+        ArrayList<Integer> updatedIds = new ArrayList<Integer>();
+        boolean newUpdates = false;
+
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    do {
+                        updatedIds.add(c.getInt(UPDATE_DELETE_SERVER_ID_COLUMN));
+                        newUpdates = true;
+                    } while (c.moveToNext());
+                }
+            } finally {
+                c.close();
+            }
+        }
 
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
         for (Message msg: msgList) {
-            //if (newDeletions && dl.contains(msg.uid)) {
-            //    userLog("PHEW! Didn't save deleted message with uid: " + msg.uid);
-            //    continue;
-            //}
+            // If the message is updated, make sure it's not deleted (we don't want to reload it)
+            if (newUpdates && updatedIds.contains(msg.mServerId)) {
+                Message currentMsg = Message.restoreMessageWithId(mContext, msg.mId);
+                if (currentMsg.mMailboxKey == mTrashMailboxId) {
+                    userLog("PHEW! Didn't save deleted message with uid: " + msg.mServerId);
+                    continue;
+                }
+            }
+            // Add the CPO's for this message
             msg.addSaveOps(ops);
         }
+
+        // Commit these messages
         applyBatch(ops);
     }
 
@@ -1034,7 +1052,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     values.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
                     // Save the attachments...
                     for (Attachment att: attachments) {
-                        att.mAccountKey = mAccount.mId;
+                        att.mAccountKey = mAccountId;
                         att.mMessageKey = msg.mId;
                         att.save(mContext);
                     }
@@ -1166,7 +1184,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     }
                     Mailbox m = new Mailbox();
                     m.mDisplayName = displayName;
-                    m.mAccountKey = mAccount.mId;
+                    m.mAccountKey = mAccountId;
                     m.mServerId = serverId;
                     if (parentName != null && !parentList.contains(parentName)) {
                         parentList.add(parentName);
@@ -1184,7 +1202,7 @@ public class Imap2SyncService extends AbstractSyncService {
 
         // TODO: Use narrower projection
         Cursor c = mResolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
-                Mailbox.ACCOUNT_KEY + "=?", new String[] {Long.toString(mAccount.mId)},
+                Mailbox.ACCOUNT_KEY + "=?", new String[] {Long.toString(mAccountId)},
                 MailboxColumns.SERVER_ID + " asc");
         if (c == null) return;
         int cnt = c.getCount();
@@ -1307,7 +1325,7 @@ public class Imap2SyncService extends AbstractSyncService {
             applyBatch(ops);
             // Fixup parent stuff, flags...
             MailboxUtilities.fixupUninitializedParentKeys(mContext,
-                    Mailbox.ACCOUNT_KEY + "=" + mAccount.mId);
+                    Mailbox.ACCOUNT_KEY + "=" + mAccountId);
         } finally {
             SyncManager.kick("folder list");
         }
@@ -1353,7 +1371,7 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
-    private void processServerUpdates(ArrayList<Integer> deleteList, ContentValues values) {
+    private void processIntegers(ArrayList<Integer> deleteList, ContentValues values) {
         int cnt = deleteList.size();
         if (cnt > 0) {
             ArrayList<ContentProviderOperation> ops =
@@ -1473,9 +1491,9 @@ public class Imap2SyncService extends AbstractSyncService {
             Reconciled r = reconcile(flag, deviceList, serverList);
             ContentValues values = new ContentValues();
             values.put(column, sense);
-            processServerUpdates(r.delete, values);
+            processIntegers(r.delete, values);
             values.put(column, !sense);
-            processServerUpdates(r.insert, values);
+            processIntegers(r.insert, values);
         }
     }
 
@@ -1659,88 +1677,139 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
-    // Upload sent messages to server
+    private void doUpload(long messageId, String mailboxServerId) throws IOException,
+        MessagingException {
+        ContentValues values = new ContentValues();
+        CountingOutputStream out = new CountingOutputStream();
+        EOLConvertingOutputStream eolOut = new EOLConvertingOutputStream(out);
+        Rfc822Output.writeTo(mContext,
+                messageId,
+                eolOut,
+                false /* do not use smart reply */,
+                false /* do not send BCC */);
+        eolOut.flush();
+        long len = out.getCount();
+        try {
+            String tag = writeCommand(mWriter, "append \"" +
+                    encodeFolderName(mailboxServerId) +
+                    "\" (\\seen) {" + len + '}');
+            String line = mReader.readLine();
+            if (line.startsWith("+")) {
+                userLog("append response: " + line);
+                eolOut = new EOLConvertingOutputStream(mSocket.getOutputStream());
+                Rfc822Output.writeTo(mContext,
+                        messageId,
+                        eolOut,
+                        false /* do not use smart reply */,
+                        false /* do not send BCC */);
+                eolOut.flush();
+                mWriter.write("\r\n");
+                mWriter.flush();
+                if (readResponse(mConnection.reader, tag).equals(IMAP_OK)) {
+                    int serverId = 0;
+                    String lc = mImapSuccessLine.toLowerCase();
+                    int appendUid = lc.indexOf("appenduid");
+                    if (appendUid > 0) {
+                        Parser p = new Parser(lc, appendUid + 11);
+                        // UIDVALIDITY (we don't need it)
+                        p.parseInteger();
+                        serverId = p.parseInteger();
+                    }
+                    values.put(SyncColumns.SERVER_ID, serverId);
+                    mResolver.update(ContentUris.withAppendedId(Message.CONTENT_URI,
+                            messageId), values, null, null);
+                } else {
+                    userLog("Append failed: " + mImapErrorLine);
+                }
+            } else {
+                userLog("Append failed: " + line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    //    void foo() {
-    //        Cursor c = ServerUploads.getCursorWhere(mDatabase, "account=" + mAccount.id);
-    //        ArrayList<Long> uploaded = new ArrayList<Long>();
-    //        try {
-    //            if (c.moveToFirst()) {
-    //                do{
-    //                    Mailbox m = Mailbox.restoreFromId(mDatabase, c.getLong(ServerUploads.TO_MAILBOX_COLUMN));
-    //                    String fn = c.getString(ServerUploads.FILENAME_COLUMN);
-    //                    if (m != null) {
-    //                        FileInputStream fi = null;
-    //                        try {
-    //                            fi = mContext.openFileInput(fn);
-    //                        } catch (Exception e) {
-    //                            logException(e);
-    //                        }
-    //                        if (fi != null) {
-    //                            BufferedInputStream bin = new BufferedInputStream(fi);
-    //                            mWriter.flush();
-    //                            BufferedOutputStream bos = new BufferedOutputStream(mSocket.getOutputStream());
-    //                            int len = fi.available();
-    //                            byte[] buf;
-    //                            try {
-    //                                tag = writeCommand(mWriter, "append \"" + m.serverName + "\" (\\seen) {" + len + '}');
-    //                                String line = in.readLine();
-    //                                buf = new byte[CHUNK_SIZE];
-    //                                if (line.startsWith("+")) {
-    //                                    userLog("append response: " + line);
-    //
-    //                                    while (len > 0) {
-    //                                        int rlen = (len > CHUNK_SIZE) ? CHUNK_SIZE : len;
-    //                                        int rd = bin.read(buf, 0, rlen);
-    //                                        if (rd > 0) {
-    //                                            bos.write(buf, 0, rd);
-    //                                        } else if (rd < 0)
-    //                                            break;
-    //                                        len -= rd;
-    //                                    }
-    //
-    //                                    bos.flush();
-    //                                    mWriter.write("\r\n");
-    //                                    mWriter.flush();
-    //                                    bin.close();
-    //                                    if (readResponse(in, tag).equals(IMAP_OK)) {
-    //                                        uploaded.add(c.getLong(ServerUploads.ID_COLUMN));
-    //                                        File f = mContext.getFileStreamPath(fn);
-    //                                        if (f.delete()) {
-    //                                            userLog("Upload file deleted: " + fn);
-    //                                        }
-    //                                    } else {
-    //                                        userLog("Append failed?");
-    //                                        uploaded.add(c.getLong(ServerUploads.ID_COLUMN));
-    //                                    }
-    //                                } else {
-    //                                    userLog("Append failed: " + line);
-    //                                    uploaded.add(c.getLong(ServerUploads.ID_COLUMN));
-    //                                }
-    //                            } catch (Exception e) {
-    //                                logException(e);
-    //                                uploaded.add(c.getLong(ServerUploads.ID_COLUMN));
-    //                            }
-    //
-    //                            buf = null;
-    //                            if (m.name.equals(Mailbox.DRAFTS_NAME))
-    //                                MailService.serviceRequest(m.id, 3000L);
-    //                        } else {
-    //                            userLog("Can't find file to upload, deleting upload record: " + fn);
-    //                            uploaded.add(c.getLong(ServerUploads.ID_COLUMN));
-    //                        }
-    //                    }
-    //                } while (c.moveToNext());
-    //            }
-    //        } finally {
-    //            // Delete the upload records for those completed
-    //            for (Long id: uploaded) {
-    //                ServerUploads.deleteById(mDatabase, id);
-    //            }
-    //            c.close();
-    //        }
-    //    }
+    private void processUploads() {
+        Mailbox sentMailbox = Mailbox.restoreMailboxOfType(mContext, mAccountId, Mailbox.TYPE_SENT);
+        if (sentMailbox == null) {
+            // Nothing to do this time around; we'll check each time through the sync loop
+            return;
+        }
+        Cursor c = mResolver.query(Message.CONTENT_URI, Message.ID_COLUMN_PROJECTION,
+                MessageColumns.MAILBOX_KEY + "=? AND " + SyncColumns.SERVER_ID + " is null",
+                new String[] {Long.toString(sentMailbox.mId)}, null);
+        if (c != null) {
+            String sentMailboxServerId = sentMailbox.mServerId;
+            try {
+                // Upload these messages
+                while (c.moveToNext()) {
+                    try {
+                        doUpload(c.getLong(Message.ID_COLUMNS_ID_COLUMN), sentMailboxServerId);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (MessagingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
 
+    private int[] getServerIds(String since) throws IOException {
+        String tag = writeCommand(mWriter, "uid search undeleted since " + since);
+
+        if (!readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
+            userLog("$$$ WHOA!   Search failed? ");
+            return null;
+        }
+
+        userLog(">>> SEARCH RESULT");
+        String msgs;
+        Parser p;
+        if (mImapResponse.isEmpty()) {
+            return new int[0];
+        } else {
+            msgs = mImapResponse.get(0);
+            // Length of "* search"
+            p = new Parser(msgs, 8);
+            return p.gatherInts();
+        }
+    }
+
+    static private final int[] AUTO_WINDOW_VALUES = new int[] {
+        SyncWindow.SYNC_WINDOW_ALL, SyncWindow.SYNC_WINDOW_1_MONTH, SyncWindow.SYNC_WINDOW_2_WEEKS,
+        SyncWindow.SYNC_WINDOW_1_WEEK, SyncWindow.SYNC_WINDOW_3_DAYS};
+
+    /**
+     * Determine a sync window for this mailbox by trying different possibilities from among the
+     * allowed values (in AUTO_WINDOW_VALUES).  We start testing with "all" unless there are more
+     * than AUTOMATIC_SYNC_WINDOW_LARGE_MAILBOX messages (we really don't want to load that many);
+     * otherwise, we start with one month.  We'll pick any value that has fewer than
+     * AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES messages (arbitrary, but reasonable)
+     * @return a reasonable sync window for this mailbox
+     * @throws IOException
+     */
+    private int getAutoSyncWindow() throws IOException {
+        int i = (mLastExists > AUTOMATIC_SYNC_WINDOW_LARGE_MAILBOX) ? 1 : 0;
+        for (; i < AUTO_WINDOW_VALUES.length; i++) {
+            int window = AUTO_WINDOW_VALUES[i];
+            long days = SyncWindow.toDays(window);
+            Date date = new Date(System.currentTimeMillis() - (days*DAYS));
+            String since = IMAP_DATE_FORMAT.format(date);
+            int msgCount = getServerIds(since).length;
+            if (msgCount < AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES) {
+                return window;
+            }
+        }
+        return SyncWindow.SYNC_WINDOW_1_DAY;
+    }
+
+    /**
+     * Process our list of requested attachment loads
+     * @throws IOException
+     */
     private void processRequests() throws IOException {
          while (!mRequestQueue.isEmpty()) {
             Request req = mRequestQueue.peek();
@@ -1792,33 +1861,39 @@ public class Imap2SyncService extends AbstractSyncService {
                     // Now, handle various requests
                     processRequests();
 
-                    long days;
-                    if (mMailbox.mSyncLookback == SyncWindow.SYNC_WINDOW_UNKNOWN) {
-                        days = 14;
-                    } else
-                        days = SyncWindow.toDays(mMailbox.mSyncLookback);
-
-                    long time = System.currentTimeMillis() - (days*DAYS);
-                    Date date = new Date(time);
-                    String since = IMAP_DATE_FORMAT.format(date);
-                    String tag = writeCommand(mWriter, "uid search undeleted since " + since);
-
-                    // TODO Handle multi-line search result (google)
-                    if (!readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
-                        userLog("$$$ WHOA!   Search failed? ");
+                    // We'll use 14 days as the "default"
+                    long days = 14;
+                    int lookback = mMailbox.mSyncLookback;
+                    if (mMailbox.mType == Mailbox.TYPE_INBOX) {
+                        lookback = mAccount.mSyncLookback;
+                    }
+                    if (lookback == SyncWindow.SYNC_WINDOW_AUTO) {
+                        if (mLastExists >= 0) {
+                            ContentValues values = new ContentValues();
+                            lookback = getAutoSyncWindow();
+                            Uri uri;
+                            if (mMailbox.mType == Mailbox.TYPE_INBOX) {
+                                values.put(AccountColumns.SYNC_LOOKBACK, lookback);
+                                uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
+                            } else {
+                                values.put(MailboxColumns.SYNC_LOOKBACK, lookback);
+                                uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId);
+                            }
+                            mResolver.update(uri, values, null, null);
+                        }
+                    }
+                    if (lookback != SyncWindow.SYNC_WINDOW_UNKNOWN) {
+                        days = SyncWindow.toDays(lookback);
                     }
 
-                    userLog(">>> SEARCH RESULT");
-                    int[] serverList;
-                    String msgs;
-                    Parser p;
-                    if (mImapResponse.isEmpty()) {
-                        serverList = new int[0];
-                    } else {
-                        msgs = mImapResponse.get(0);
-                        //*** Magic number?
-                        p = new Parser(msgs, 8);
-                        serverList = p.gatherInts();
+                    Date date = new Date(System.currentTimeMillis() - (days*DAYS));
+                    String since = IMAP_DATE_FORMAT.format(date);
+                    String tag;
+                    int[] serverList = getServerIds(since);
+                    if (serverList == null) {
+                        // Do backoff; hope it works next time.  Should never happen
+                        mExitStatus = EXIT_IO_ERROR;
+                        return;
                     }
 
                     Arrays.sort(serverList);
@@ -1831,7 +1906,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     deviceList = null;
                     int cnt = loadList.size();
 
-                    // We load message headers 20 at a time at this point...
+                    // We load message headers in batches
                     int idx= 1;
                     boolean loadedSome = false;
                     while (idx <= cnt) {
@@ -1875,6 +1950,8 @@ public class Imap2SyncService extends AbstractSyncService {
                     reconcileState(getFlaggedUidList(), since, "FLAGGED", "flagged",
                             MessageColumns.FLAG_FAVORITE, false);
 
+                    processUploads();
+
                     // We're done if not pushing...
                     if (mMailbox.mSyncInterval != Mailbox.CHECK_INTERVAL_PUSH) {
                         mExitStatus = EXIT_DONE;
@@ -1899,97 +1976,151 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
+    private void sendMail() {
+        long sentMailboxId = Mailbox.findMailboxOfType(mContext, mAccountId, Mailbox.TYPE_SENT);
+        if (sentMailboxId ==  Mailbox.NO_MAILBOX) {
+            // The user must choose a sent mailbox
+            mResolver.update(
+                    ContentUris.withAppendedId(EmailContent.PICK_SENT_FOLDER_URI, mAccountId),
+                    new ContentValues(), null, null);
+        }
+        Account account = Account.restoreAccountWithId(mContext, mAccountId);
+        if (account == null) {
+            return;
+        }
+        TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(mContext, account));
+        // 1.  Loop through all messages in the account's outbox
+        long outboxId = Mailbox.findMailboxOfType(mContext, account.mId, Mailbox.TYPE_OUTBOX);
+        if (outboxId == Mailbox.NO_MAILBOX) {
+            return;
+        }
+        Cursor c = mResolver.query(Message.CONTENT_URI, Message.ID_COLUMN_PROJECTION,
+                Message.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) }, null);
+        ContentValues values = new ContentValues();
+        values.put(MessageColumns.MAILBOX_KEY, sentMailboxId);
+        try {
+            // 2.  exit early
+            if (c.getCount() <= 0) {
+                return;
+            }
+
+            SmtpSender sender = new SmtpSender(mContext, account, mUserLog);
+
+            // 3.  loop through the available messages and send them
+            while (c.moveToNext()) {
+                long messageId = -1;
+                try {
+                    messageId = c.getLong(Message.ID_COLUMNS_ID_COLUMN);
+                    // Don't send messages with unloaded attachments
+                    if (Utility.hasUnloadedAttachments(mContext, messageId)) {
+                        userLog("Can't send #" + messageId + "; unloaded attachments");
+                        continue;
+                    }
+                    sender.sendMessage(messageId);
+                    // Move to sent folder
+                    mResolver.update(ContentUris.withAppendedId(Message.CONTENT_URI, messageId),
+                            values, null, null);
+                } catch (MessagingException me) {
+                    continue;
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+
     @Override
     public void run() {
         try {
-            // If we've been stopped, we're done
-            if (mStop) return;
+            // Check for Outbox (special "sync") and stopped
+            if (mMailbox.mType == Mailbox.TYPE_OUTBOX) {
+                sendMail();
+                mExitStatus = EXIT_DONE;
+                return;
+            } else if (mStop) {
+                return;
+            }
 
-            // Whether or not we're the account mailbox
-            try {
-                if ((mMailbox == null) || (mAccount == null)) {
-                    return;
-                } else {
-                    int trafficFlags = TrafficFlags.getSyncFlags(mContext, mAccount);
-                    TrafficStats.setThreadStatsTag(trafficFlags | TrafficFlags.DATA_EMAIL);
+            if ((mMailbox == null) || (mAccount == null)) {
+                return;
+            } else {
+                int trafficFlags = TrafficFlags.getSyncFlags(mContext, mAccount);
+                TrafficStats.setThreadStatsTag(trafficFlags | TrafficFlags.DATA_EMAIL);
 
-                    // We loop because someone might have put a request in while we were syncing
-                    // and we've missed that opportunity...
-                    do {
-                        if (mRequestTime != 0) {
-                            userLog("Looping for user request...");
-                            mRequestTime = 0;
-                        }
-                        if (mSyncReason >= Imap2SyncManager.SYNC_CALLBACK_START) {
-                            try {
-                                Imap2SyncManager.callback().syncMailboxStatus(mMailboxId,
-                                        EmailServiceStatus.IN_PROGRESS, 0);
-                            } catch (RemoteException e1) {
-                                // Don't care if this fails
-                            }
-                        }
-                        sync();
-                    } while (mRequestTime != 0);
-                }
-            } catch (IOException e) {
-                String message = e.getMessage();
-                userLog("Caught IOException: ", (message == null) ? "No message" : message);
-                mExitStatus = EXIT_IO_ERROR;
-            } catch (Exception e) {
-                userLog("Uncaught exception in EasSyncService", e);
-            } finally {
-                int status;
-                Imap2SyncManager.done(this);
-                if (!mStop) {
-                    userLog("Sync finished");
-                    switch (mExitStatus) {
-                        case EXIT_IO_ERROR:
-                            status = EmailServiceStatus.CONNECTION_ERROR;
-                            break;
-                        case EXIT_DONE:
-                            status = EmailServiceStatus.SUCCESS;
-                            ContentValues cv = new ContentValues();
-                            cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
-                            String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
-                            cv.put(Mailbox.SYNC_STATUS, s);
-                            mContext.getContentResolver().update(
-                                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
-                                    cv, null, null);
-                            break;
-                        case EXIT_LOGIN_FAILURE:
-                            status = EmailServiceStatus.LOGIN_FAILED;
-                            break;
-                        default:
-                            status = EmailServiceStatus.REMOTE_EXCEPTION;
-                            errorLog("Sync ended due to an exception.");
-                            break;
+                // We loop because someone might have put a request in while we were syncing
+                // and we've missed that opportunity...
+                do {
+                    if (mRequestTime != 0) {
+                        userLog("Looping for user request...");
+                        mRequestTime = 0;
                     }
-                } else {
-                    userLog("Stopped sync finished.");
+                    if (mSyncReason >= Imap2SyncManager.SYNC_CALLBACK_START) {
+                        try {
+                            Imap2SyncManager.callback().syncMailboxStatus(mMailboxId,
+                                    EmailServiceStatus.IN_PROGRESS, 0);
+                        } catch (RemoteException e1) {
+                            // Don't care if this fails
+                        }
+                    }
+                    sync();
+                } while (mRequestTime != 0);
+            }
+        } catch (IOException e) {
+            String message = e.getMessage();
+            userLog("Caught IOException: ", (message == null) ? "No message" : message);
+            mExitStatus = EXIT_IO_ERROR;
+        } catch (Exception e) {
+            userLog("Uncaught exception in EasSyncService", e);
+        } finally {
+            int status;
+            Imap2SyncManager.done(this);
+            if (!mStop) {
+                userLog("Sync finished");
+                switch (mExitStatus) {
+                    case EXIT_IO_ERROR:
+                        status = EmailServiceStatus.CONNECTION_ERROR;
+                        break;
+                    case EXIT_DONE:
+                        status = EmailServiceStatus.SUCCESS;
+                        ContentValues cv = new ContentValues();
+                        cv.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+                        String s = "S" + mSyncReason + ':' + status + ':' + mChangeCount;
+                        cv.put(Mailbox.SYNC_STATUS, s);
+                        mContext.getContentResolver().update(
+                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
+                                cv, null, null);
+                        break;
+                    case EXIT_LOGIN_FAILURE:
+                        status = EmailServiceStatus.LOGIN_FAILED;
+                        break;
+                    default:
+                        status = EmailServiceStatus.REMOTE_EXCEPTION;
+                        errorLog("Sync ended due to an exception.");
+                        break;
+                }
+            } else {
+                userLog("Stopped sync finished.");
+                status = EmailServiceStatus.SUCCESS;
+            }
+
+            // Send a callback (doesn't matter how the sync was started)
+            try {
+                // Unless the user specifically asked for a sync, we don't want to report
+                // connection issues, as they are likely to be transient.  In this case, we
+                // simply report success, so that the progress indicator terminates without
+                // putting up an error banner
+                //***
+                if (mSyncReason != Imap2SyncManager.SYNC_UI_REQUEST &&
+                        status == EmailServiceStatus.CONNECTION_ERROR) {
                     status = EmailServiceStatus.SUCCESS;
                 }
-
-                // Send a callback (doesn't matter how the sync was started)
-                try {
-                    // Unless the user specifically asked for a sync, we don't want to report
-                    // connection issues, as they are likely to be transient.  In this case, we
-                    // simply report success, so that the progress indicator terminates without
-                    // putting up an error banner
-                    //***
-                    if (mSyncReason != Imap2SyncManager.SYNC_UI_REQUEST &&
-                            status == EmailServiceStatus.CONNECTION_ERROR) {
-                        status = EmailServiceStatus.SUCCESS;
-                    }
-                    Imap2SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
-                } catch (RemoteException e1) {
-                    // Don't care if this fails
-                }
-
-                // Make sure ExchangeService knows about this
-                Imap2SyncManager.kick("sync finished");
+                Imap2SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
+            } catch (RemoteException e1) {
+                // Don't care if this fails
             }
-        } catch (ProviderUnavailableException e) {
-            Log.e(TAG, "EmailProvider unavailable; sync ended prematurely");
+
+            // Make sure ExchangeService knows about this
+            Imap2SyncManager.kick("sync finished");
         }
     }
 

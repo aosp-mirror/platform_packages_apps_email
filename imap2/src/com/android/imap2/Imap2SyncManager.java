@@ -17,7 +17,6 @@
 package com.android.imap2;
 
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -29,7 +28,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.android.emailcommon.Api;
 import com.android.emailcommon.provider.EmailContent;
@@ -212,10 +210,16 @@ public class Imap2SyncManager extends SyncManager {
         return new AccountObserver(handler) {
             @Override
             public void newAccount(long acctId) {
-                // Create the Inbox for the account
-                Account acct = Account.restoreAccountWithId(getContext(), acctId);
+                // Create the Inbox for the account if it doesn't exist
+                Context context = getContext();
+                Account acct = Account.restoreAccountWithId(context, acctId);
+                if (acct == null) return;
+                long inboxId = Mailbox.findMailboxOfType(context, acctId, Mailbox.TYPE_INBOX);
+                if (inboxId != Mailbox.NO_MAILBOX) {
+                    return;
+                }
                 Mailbox inbox = new Mailbox();
-                inbox.mDisplayName = "Inbox"; // Localize
+                inbox.mDisplayName = context.getString(R.string.mailbox_name_server_inbox);
                 inbox.mServerId = "Inbox";
                 inbox.mAccountKey = acct.mId;
                 inbox.mType = Mailbox.TYPE_INBOX;

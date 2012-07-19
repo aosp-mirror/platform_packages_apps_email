@@ -14,36 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.emailcommon.utility;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class EOLConvertingOutputStream extends FilterOutputStream {
-    int lastChar;
+/**
+ * A simple OutputStream that does nothing but count how many bytes are written to it and
+ * makes that count available to callers.
+ */
+public class CountingOutputStream extends OutputStream {
+    private long mCount;
 
-    public EOLConvertingOutputStream(OutputStream out) {
-        super(out);
+    public CountingOutputStream() {
+    }
+
+    public long getCount() {
+        return mCount;
     }
 
     @Override
     public void write(int oneByte) throws IOException {
-        if (oneByte == '\n') {
-            if (lastChar != '\r') {
-                super.write('\r');
-            }
-        }
-        super.write(oneByte);
-        lastChar = oneByte;
-    }
-
-    @Override
-    public void flush() throws IOException {
-        if (lastChar == '\r') {
-            super.write('\n');
-            lastChar = '\n';
-        }
-        super.flush();
+        mCount++;
     }
 }

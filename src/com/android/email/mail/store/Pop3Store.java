@@ -22,7 +22,6 @@ import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
-import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MailTransport;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
@@ -31,6 +30,7 @@ import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;

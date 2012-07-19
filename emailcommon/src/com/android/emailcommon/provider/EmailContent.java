@@ -73,6 +73,8 @@ public abstract class EmailContent {
 
     public static final Uri PICK_TRASH_FOLDER_URI =
             Uri.parse("content://" + EmailContent.AUTHORITY + "/pickTrashFolder");
+    public static final Uri PICK_SENT_FOLDER_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/pickSentFolder");
 
     public static final Uri MAILBOX_NOTIFICATION_URI =
             Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
