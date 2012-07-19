@@ -77,17 +77,12 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.android.mail.providers.Conversation;
-import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
-import com.android.mail.ui.ConversationUpdater;
-import com.android.mail.ui.DestructiveAction;
-import com.android.mail.ui.FoldersSelectionDialog;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
@@ -2705,10 +2700,13 @@ outer:
         values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
                 textZoomToUiValue(textZoom));
         // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
-        long mailboxId = Mailbox.findMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
+        final Context context = getContext();
+        long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
         if (mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", mailboxId));
+            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME,
+                    Mailbox.getDisplayName(context, mailboxId));
             values.put(UIProvider.AccountColumns.SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
         } else {
             values.put(UIProvider.AccountColumns.SYNC_STATUS,
