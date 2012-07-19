@@ -492,4 +492,8 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Baggrundssynkronisering for denne konto deaktiveres under roaming."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Sender svar..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ingen meddelelser."</string>
+    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Kræsen, kræsen, kræsen!"</string>
+    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Vælg Papirkurv"</string>
+    <string name="create_new_folder" msgid="2726544180243210741">"Opret mappe"</string>
 </resources>

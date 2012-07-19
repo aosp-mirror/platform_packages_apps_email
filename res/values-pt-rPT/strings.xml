@@ -492,4 +492,8 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"A sincronização em segundo plano desta conta está desativada quando está em roaming."</string>
     <string name="confirm_response" msgid="5747902757569543165">"A enviar a resposta..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Não tem mensagens."</string>
+    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Exigente, exigente, exigente!"</string>
+    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Selecionar pasta de caixote de lixo"</string>
+    <string name="create_new_folder" msgid="2726544180243210741">"Criar pasta"</string>
 </resources>
