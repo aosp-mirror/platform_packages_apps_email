@@ -480,8 +480,8 @@
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Folda"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Usiruhusu matumizi ya kamera ya kifaa"</string>
     <string name="policy_require_password" msgid="7177274900480984702">"Zinahitaji nenosiri la kifaa"</string>
-    <string name="policy_password_history" msgid="5743544498302303181">"Zuia matumizi mapya ya nywila ya hivi karibuni"</string>
-    <string name="policy_password_expiration" msgid="1248123255253649199">"Inahitaji nywila kumalizika"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Zuia kutumia tena manenosiri ya hivi karibuni"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Taka muda wa manenosiri kuisha"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Inahitaji kifaa bwete ili kufunga skrini yake"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"Wekea kikomo idadi ya matukio ya kalenda yanayolandanishwa"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"Wekea kikomo idadi ya barua pepe zinazolandanishwa"</string>
@@ -492,4 +492,8 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Ulandanishi wa mandharinyuma ya akaunti hii imelemazwa wakati wa kuzurura."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Inatuma majibu..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Hakuna ujumbe."</string>
+    <string name="imap2_name" msgid="2742745881421883233">"Shinikiza IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
+    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Chagua folda ya barua taka"</string>
+    <string name="create_new_folder" msgid="2726544180243210741">"Unda folda"</string>
 </resources>

@@ -492,4 +492,12 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sinhronizacija v ozadju je za ta račun med gostovanjem onemogočena."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Pošiljanje odgovora ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ni sporočil."</string>
+    <!-- no translation found for imap2_name (2742745881421883233) -->
+    <skip />
+    <!-- no translation found for folder_picker_title (5213735893918108637) -->
+    <skip />
+    <!-- no translation found for trash_folder_selection_title (7357415115740743468) -->
+    <skip />
+    <!-- no translation found for create_new_folder (2726544180243210741) -->
+    <skip />
 </resources>

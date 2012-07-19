@@ -492,4 +492,8 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Ukuvumelaniswa okungemumva kule-akhawunti ayisebenzi ngesikhathi usazula zula."</string>
     <string name="confirm_response" msgid="5747902757569543165">"Thumela impendulo..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ayikho imilayezo."</string>
+    <string name="imap2_name" msgid="2742745881421883233">"Phusha i-IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Ukhetho, ukhetho, ukhetho!"</string>
+    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Khetha ifolda kadoti"</string>
+    <string name="create_new_folder" msgid="2726544180243210741">"Dala ifolda"</string>
 </resources>
