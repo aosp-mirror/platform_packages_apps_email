@@ -1296,7 +1296,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
      roaming.</string>
 
     <!-- This is shown when a user responds to a meeting invitation [CHAR LIMIT=none]-->
-    <string name="confirm_response">Sending response...</string>
+    <string name="confirm_response">Sending response&#8230;</string>
 
     <!-- Displayed in the middle of the screen when the inbox is empty [CHAR LIMIT 100]-->
     <string name="no_conversations">No messages.</string>
@@ -1305,7 +1305,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="imap2_name">Push IMAP</string>
 
     <string name="folder_picker_title">Picky, picky, picky!</string>
-    <string name="trash_folder_selection_title">Select trash folder</string>
+    <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
+    <string name="trash_folder_selection_title">Select server trash folder</string>
+    <!-- Displayed when the user must pick his server's sent items folder from a list [CHAR LIMIT 30]-->
+    <string name="sent_folder_selection_title">Select server sent items folder</string>
     <string name="create_new_folder">Create folder</string>
 
 </resources>

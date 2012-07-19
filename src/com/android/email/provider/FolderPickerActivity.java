@@ -38,7 +38,12 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
                 i.getParcelableExtra(EmailProvider.PICKER_UI_ACCOUNT);
         mAccountId = Long.parseLong(account.uri.getLastPathSegment());
         mMailboxType = i.getIntExtra(EmailProvider.PICKER_MAILBOX_TYPE, -1);
-        new FolderSelectionDialog(this, account, this).show();
+        int headerId = i.getIntExtra(EmailProvider.PICKER_HEADER_ID, 0);
+        if (headerId == 0) {
+            finish();
+            return;
+        }
+        new FolderSelectionDialog(this, account, this, headerId).show();
     }
 
     @Override

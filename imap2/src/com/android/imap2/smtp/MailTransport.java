@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.imap2.smtp;
 
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
@@ -56,8 +55,6 @@ public class MailTransport implements Transport {
     private static final HostnameVerifier HOSTNAME_VERIFIER =
             HttpsURLConnection.getDefaultHostnameVerifier();
 
-    private String mDebugLabel;
-
     private String mHost;
     private int mPort;
     private String[] mUserInfoParts;
@@ -76,15 +73,16 @@ public class MailTransport implements Transport {
     private Socket mSocket;
     private InputStream mIn;
     private OutputStream mOut;
+    private boolean mLog = true; // STOPSHIP Don't ship with this set to true
 
     /**
      * Simple constructor for starting from scratch.  Call setUri() and setSecurity() to
      * complete the configuration.
      * @param debugLabel Label used for Log.d calls
      */
-    public MailTransport(String debugLabel) {
+    public MailTransport(boolean log) {
         super();
-        mDebugLabel = debugLabel;
+        mLog = log;
     }
 
     /**
@@ -94,9 +92,9 @@ public class MailTransport implements Transport {
      */
     @Override
     public Transport clone() {
-        MailTransport newObject = new MailTransport(mDebugLabel);
+        MailTransport newObject = new MailTransport(mLog);
 
-        newObject.mDebugLabel = mDebugLabel;
+        newObject.mLog = mLog;
         newObject.mHost = mHost;
         newObject.mPort = mPort;
         if (mUserInfoParts != null) {
@@ -159,8 +157,8 @@ public class MailTransport implements Transport {
      */
     @Override
     public void open() throws MessagingException, CertificateValidationException {
-        if (MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "*** " + mDebugLabel + " open " +
+        if (mLog) {
+            Log.d(Logging.LOG_TAG, "*** SMTP open " +
                     getHost() + ":" + String.valueOf(getPort()));
         }
 
@@ -180,12 +178,12 @@ public class MailTransport implements Transport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -210,12 +208,12 @@ public class MailTransport implements Transport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (mLog) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -316,7 +314,7 @@ public class MailTransport implements Transport {
      */
     @Override
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
-        if (MailActivityEmail.DEBUG) {
+        if (mLog) {
             if (sensitiveReplacement != null && !Logging.DEBUG_SENSITIVE) {
                 Log.d(Logging.LOG_TAG, ">>> " + sensitiveReplacement);
             } else {
@@ -349,11 +347,11 @@ public class MailTransport implements Transport {
                 sb.append((char)d);
             }
         }
-        if (d == -1 && MailActivityEmail.DEBUG) {
+        if (d == -1 && mLog) {
             Log.d(Logging.LOG_TAG, "End of stream reached while trying to read line.");
         }
         String ret = sb.toString();
-        if (MailActivityEmail.DEBUG) {
+        if (mLog) {
             Log.d(Logging.LOG_TAG, "<<< " + ret);
         }
         return ret;

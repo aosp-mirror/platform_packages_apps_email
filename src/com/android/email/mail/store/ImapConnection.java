@@ -19,7 +19,6 @@ package com.android.email.mail.store;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.email.mail.Transport;
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.store.imap.ImapList;
@@ -33,6 +32,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Transport;
 
 import java.io.IOException;
 import java.util.ArrayList;

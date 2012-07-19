@@ -27,6 +27,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;

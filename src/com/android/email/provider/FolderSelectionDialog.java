@@ -46,12 +46,12 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
     final private FolderPickerCallback mCallback;
 
     public FolderSelectionDialog(final Context context, Account account,
-            FolderPickerCallback callback) {
+            FolderPickerCallback callback, int headerId) {
         mCallback = callback;
         // Mapping of a folder's uri to its checked state
         mCheckedState = new HashMap<Folder, Boolean>();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.trash_folder_selection_title);
+        builder.setTitle(headerId);
         builder.setPositiveButton(R.string.ok, this);
         builder.setNegativeButton(R.string.create_new_folder, this);
         final Cursor foldersCursor = context.getContentResolver().query(
