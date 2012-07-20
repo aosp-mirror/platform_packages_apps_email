@@ -191,10 +191,12 @@ public class EmailServiceUtils {
     }
 
     public static List<EmailServiceInfo> getServiceInfoList(Context context) {
-        if (sServiceList.isEmpty()) {
-            findServices(context);
+        synchronized(sServiceList) {
+            if (sServiceList.isEmpty()) {
+                findServices(context);
+            }
+            return sServiceList;
         }
-        return sServiceList;
     }
 
     /**
