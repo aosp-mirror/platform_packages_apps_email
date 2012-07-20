@@ -2115,7 +2115,7 @@ outer:
     .add(UIProvider.ConversationColumns.MESSAGE_LIST_URI, uriWithId("uimessage"))
     .add(UIProvider.ConversationColumns.SUBJECT, MessageColumns.SUBJECT)
     .add(UIProvider.ConversationColumns.SNIPPET, MessageColumns.SNIPPET)
-    .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
+    .add(UIProvider.ConversationColumns.CONVERSATION_INFO, null)
     .add(UIProvider.ConversationColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
     .add(UIProvider.ConversationColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
     .add(UIProvider.ConversationColumns.NUM_MESSAGES, "1")
@@ -2132,6 +2132,7 @@ outer:
     .add(UIProvider.ConversationColumns.ACCOUNT_URI,
             "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
                     + MessageColumns.ACCOUNT_KEY)
+    .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
     .build();
 
     /**
