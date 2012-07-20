@@ -562,8 +562,8 @@ public abstract class EmailContent {
         public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
         public static final Uri SYNCED_CONTENT_URI =
                 Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
-        public static final Uri SYNCED_SELECTION_CONTENT_URI =
-                Uri.parse(EmailContent.CONTENT_URI + "/syncedMessageSelection");
+        public static final Uri SELECTED_MESSAGE_CONTENT_URI =
+                Uri.parse(EmailContent.CONTENT_URI + "/messageBySelection");
         public static final Uri DELETED_CONTENT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
         public static final Uri UPDATED_CONTENT_URI =

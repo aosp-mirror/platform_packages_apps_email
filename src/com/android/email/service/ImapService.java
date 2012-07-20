@@ -1186,15 +1186,6 @@ public class ImapService extends Service {
         }
     }
 
-    public int searchMailbox(Context context, long accountId, SearchParams searchParams,
-            long destMailboxId) throws MessagingException {
-        try {
-            return searchMailboxImpl(context, accountId, searchParams, destMailboxId);
-        } finally {
-            // Tell UI
-        }
-    }
-
     private int searchMailboxImpl(final Context context, long accountId, SearchParams searchParams,
             final long destMailboxId) throws MessagingException {
         final Account account = Account.restoreAccountWithId(context, accountId);

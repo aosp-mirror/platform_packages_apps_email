@@ -1343,10 +1343,25 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
-
+    private static final int BATCH_SIZE = 100;
     private void applyBatch(ArrayList<ContentProviderOperation> ops) {
         try {
-            mResolver.applyBatch(EmailContent.AUTHORITY, ops);
+            int len = ops.size();
+            if (len == 0) {
+                return;
+            } else if (len < BATCH_SIZE) {
+                mResolver.applyBatch(EmailContent.AUTHORITY, ops);
+            } else {
+                ArrayList<ContentProviderOperation> batchOps =
+                        new ArrayList<ContentProviderOperation>();
+                for (int i = 0; i < len; i+=BATCH_SIZE) {
+                    batchOps.clear();
+                    for (int j = 0; (j < BATCH_SIZE) && ((i+j) < len); j++) {
+                        batchOps.add(ops.get(i+j));
+                    }
+                    mResolver.applyBatch(EmailContent.AUTHORITY, batchOps);
+                }
+            }
         } catch (RemoteException e) {
             // Nothing to be done
         } catch (OperationApplicationException e) {
@@ -1362,7 +1377,7 @@ public class Imap2SyncService extends AbstractSyncService {
             for (int i = 0; i < cnt; i++) {
                 MAILBOX_SERVER_ID_ARGS[1] = Long.toString(deleteList.get(i));
                 Builder b = ContentProviderOperation.newDelete(
-                        Message.SYNCED_SELECTION_CONTENT_URI);
+                        Message.SELECTED_MESSAGE_CONTENT_URI);
                 b.withSelection(MessageColumns.MAILBOX_KEY + "=? AND " +
                         SyncColumns.SERVER_ID + "=?", MAILBOX_SERVER_ID_ARGS);
                 ops.add(b.build());
@@ -1379,7 +1394,7 @@ public class Imap2SyncService extends AbstractSyncService {
             for (int i = 0; i < cnt; i++) {
                 MAILBOX_SERVER_ID_ARGS[1] = Long.toString(deleteList.get(i));
                 Builder b = ContentProviderOperation.newUpdate(
-                        Message.SYNCED_SELECTION_CONTENT_URI);
+                        Message.SELECTED_MESSAGE_CONTENT_URI);
                 b.withSelection(MessageColumns.MAILBOX_KEY + "=? AND " +
                         SyncColumns.SERVER_ID + "=?", MAILBOX_SERVER_ID_ARGS);
                 b.withValues(values);
@@ -2032,6 +2047,8 @@ public class Imap2SyncService extends AbstractSyncService {
     @Override
     public void run() {
         try {
+            TAG = Thread.currentThread().getName();
+
             // Check for Outbox (special "sync") and stopped
             if (mMailbox.mType == Mailbox.TYPE_OUTBOX) {
                 sendMail();
