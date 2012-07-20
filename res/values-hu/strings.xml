@@ -490,14 +490,14 @@
     <string name="quick_3" msgid="8061819976353395585">"Később elolvasom és visszatérünk rá."</string>
     <string name="quick_4" msgid="3988974084396883051">"Szervezzünk egy találkozót a dolog megvitatására."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"A fiók háttérben zajló szinkronizálása le van tiltva barangolás közben."</string>
-    <string name="confirm_response" msgid="5747902757569543165">"Válasz küldése..."</string>
+    <!-- no translation found for confirm_response (9151965975158906286) -->
+    <skip />
     <string name="no_conversations" msgid="5559527390337162819">"Nincsenek üzenetek."</string>
-    <!-- no translation found for imap2_name (2742745881421883233) -->
+    <string name="imap2_name" msgid="2742745881421883233">"Nyomja meg az IMAP-et"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Válogatós, válogatós, válogatós!"</string>
+    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
     <skip />
-    <!-- no translation found for folder_picker_title (5213735893918108637) -->
+    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
     <skip />
-    <!-- no translation found for trash_folder_selection_title (7357415115740743468) -->
-    <skip />
-    <!-- no translation found for create_new_folder (2726544180243210741) -->
-    <skip />
+    <string name="create_new_folder" msgid="2726544180243210741">"Mappa létrehozása"</string>
 </resources>

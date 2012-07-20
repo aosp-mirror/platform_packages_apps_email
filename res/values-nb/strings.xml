@@ -490,10 +490,14 @@
     <string name="quick_3" msgid="8061819976353395585">"Jeg skal lese dette senere og ta kontakt."</string>
     <string name="quick_4" msgid="3988974084396883051">"Jeg foreslår at vi avtaler et møte for å diskutere dette."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under streifing."</string>
-    <string name="confirm_response" msgid="5747902757569543165">"Sender svar ..."</string>
+    <!-- no translation found for confirm_response (9151965975158906286) -->
+    <skip />
     <string name="no_conversations" msgid="5559527390337162819">"Ingen e-poster."</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAP for Push"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Kresen, kresen, kresen!"</string>
-    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Velg papirkurvmappen"</string>
+    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
+    <skip />
+    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
+    <skip />
     <string name="create_new_folder" msgid="2726544180243210741">"Opprett en mappe"</string>
 </resources>

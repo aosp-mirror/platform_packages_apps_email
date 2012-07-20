@@ -490,10 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"سأقرأ هذا لاحقًا، وسأرد عليك."</string>
     <string name="quick_4" msgid="3988974084396883051">"دعونا نعد اجتماعًا لمناقشة هذا الأمر."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"تم تعطيل المزامنة في الخلفية لهذا الحساب أثناء التجوال."</string>
-    <string name="confirm_response" msgid="5747902757569543165">"جارٍ إرسال الرد..."</string>
+    <string name="confirm_response" msgid="9151965975158906286">"جارٍ إرسال الرد..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"ليست هناك أية رسائل."</string>
     <string name="imap2_name" msgid="2742745881421883233">"توجيه الوصول عبر IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"أنيق، أنيق، أنيق!"</string>
-    <string name="trash_folder_selection_title" msgid="7357415115740743468">"حدد مجلد المهملات"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"حدد مجلد المهملات في الخادم"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"حدد مجلد العناصر المرسلة في الخادم"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"إنشاء مجلد"</string>
 </resources>
