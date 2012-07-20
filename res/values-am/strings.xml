@@ -490,10 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"በኋላ ይሄንን አነባለው እና ወደ አንተ እመለሳለሁ፡፡"</string>
     <string name="quick_4" msgid="3988974084396883051">"ስብሰባ እናዘጋጅ እስቲ ይሄንን ለመወያየት፡፡"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለዚህ መለያ ቦዝኗል፡፡"</string>
-    <string name="confirm_response" msgid="5747902757569543165">"ምላሽ በመላክ ላይ..."</string>
+    <string name="confirm_response" msgid="9151965975158906286">"ምላሽ በመላክ ላይ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"መልዕክቶች የሉም።"</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAPን ገ"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"ጥንቃቄ፣ ጥንቃቄ፣ ጥንቃቄ!"</string>
-    <string name="trash_folder_selection_title" msgid="7357415115740743468">"ቆሻሻ መጣ"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"የአገልጋይ ቆሻሻ መጣያ አቃፊን ይምረጡ"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"የአገልጋይ የተላኩ ንጥሎች አቃፊን ይምረጡ"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"አቃፊ ፍጠር"</string>
 </resources>

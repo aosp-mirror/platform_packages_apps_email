@@ -749,7 +749,7 @@
     <skip />
     <!-- no translation found for require_manual_sync_message (7777357288642785955) -->
     <skip />
-    <!-- no translation found for confirm_response (5747902757569543165) -->
+    <!-- no translation found for confirm_response (9151965975158906286) -->
     <skip />
     <!-- no translation found for no_conversations (5559527390337162819) -->
     <skip />
@@ -757,7 +757,9 @@
     <skip />
     <!-- no translation found for folder_picker_title (5213735893918108637) -->
     <skip />
-    <!-- no translation found for trash_folder_selection_title (7357415115740743468) -->
+    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
+    <skip />
+    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
     <skip />
     <!-- no translation found for create_new_folder (2726544180243210741) -->
     <skip />
