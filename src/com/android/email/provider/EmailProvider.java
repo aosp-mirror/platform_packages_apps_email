@@ -196,7 +196,7 @@ public class EmailProvider extends ContentProvider {
     private static final int MESSAGE = MESSAGE_BASE;
     private static final int MESSAGE_ID = MESSAGE_BASE + 1;
     private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 2;
-    private static final int SYNCED_MESSAGE_SELECTION = MESSAGE_BASE + 3;
+    private static final int MESSAGE_SELECTION = MESSAGE_BASE + 3;
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
@@ -415,8 +415,7 @@ public class EmailProvider extends ContentProvider {
          * TO A SERVER VIA A SYNC ADAPTER
          */
         matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
-        matcher.addURI(EmailContent.AUTHORITY, "syncedMessageSelection",
-                SYNCED_MESSAGE_SELECTION);
+        matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
 
         /**
          * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
@@ -791,13 +790,13 @@ public class EmailProvider extends ContentProvider {
                     return uiDeleteAccountData(uri);
                 case UI_ACCOUNT:
                     return uiDeleteAccount(uri);
-                case SYNCED_MESSAGE_SELECTION:
+                case MESSAGE_SELECTION:
                     Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
                             selectionArgs, null, null, null);
                     try {
                         if (findCursor.moveToFirst()) {
                             return delete(ContentUris.withAppendedId(
-                                    Message.SYNCED_CONTENT_URI,
+                                    Message.CONTENT_URI,
                                     findCursor.getLong(Message.ID_COLUMNS_ID_COLUMN)),
                                     null, null);
                         } else {
@@ -1727,13 +1726,13 @@ outer:
                         }
                     }
                     break;
-                case SYNCED_MESSAGE_SELECTION:
+                case MESSAGE_SELECTION:
                     Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
                             selectionArgs, null, null, null);
                     try {
                         if (findCursor.moveToFirst()) {
                             return update(ContentUris.withAppendedId(
-                                    Message.SYNCED_CONTENT_URI,
+                                    Message.CONTENT_URI,
                                     findCursor.getLong(Message.ID_COLUMNS_ID_COLUMN)),
                                     values, null, null);
                         } else {
