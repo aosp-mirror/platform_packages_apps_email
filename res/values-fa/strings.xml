@@ -19,7 +19,7 @@
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"خواندن پیوستهای ایمیل"</string>
     <string name="permission_read_attachment_desc" msgid="3394721085306308972">"به برنامه اجازه می‌دهد پیوست‌های ایمیل شما را بخواند."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"دسترسی به داده‌های ارائه‌کننده ایمیل"</string>
-    <string name="permission_access_provider_desc" msgid="6296566558584670348">"به برنامه کاربردی اجازه می‌دهد به پایگاه داده ایمیل شما، شامل پیام‌های دریافتی، پیام‌های ارسالی، نام‌های کاربری و گذرواژه‌ها دسترسی داشته باشد."</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"به برنامهٔ کاربردی اجازه می‌دهد به پایگاه داده ایمیل شما، شامل پیام‌های دریافتی، پیام‌های ارسالی، نام‌های کاربری و گذرواژه‌ها دسترسی داشته باشد."</string>
     <string name="app_name" msgid="5815426892327290362">"ایمیل"</string>
     <string name="compose_title" msgid="427986915662706899">"نگاشتن"</string>
     <string name="debug_title" msgid="5175710493691536719">"رفع خطا"</string>
@@ -40,8 +40,8 @@
     <string name="discard_action" msgid="6532206074859505968">"صرفنظر"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"ذخیره پیش نویس"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"درج پاسخ سریع"</string>
-    <string name="read_action" msgid="4701484794504781686">"علامت گذاری به‌عنوان خوانده شده"</string>
-    <string name="unread_action" msgid="6280399049357552826">"علامت گذاری به‌عنوان خوانده نشده"</string>
+    <string name="read_action" msgid="4701484794504781686">"علامت‌گذاری به‌عنوان خوانده شده"</string>
+    <string name="unread_action" msgid="6280399049357552826">"علامت‌گذاری به‌عنوان خوانده نشده"</string>
     <string name="set_star_action" msgid="4660317166196258160">"افزودن ستاره"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"حذف ستاره"</string>
     <string name="refresh_action" msgid="5951383001436708175">"تازه کردن"</string>
@@ -51,10 +51,10 @@
     <string name="account_settings_action" msgid="4494079183315085171">"تنظیمات حساب"</string>
     <string name="settings_action" msgid="6334807007967459412">"تنظیمات"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"گزینه‌های همگام‌سازی"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"علامت گذاری به‌عنوان خوانده نشده"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"علامت‌گذاری به‌عنوان خوانده نشده"</string>
     <string name="move_action" msgid="3059189775933985898">"انتقال"</string>
-    <string name="plus_cc_label" msgid="3365150001259912183">"+ گیرنده کپی/گیرنده مخفی"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"افزودن گیرنده کپی/گیرنده کپی مخفی"</string>
+    <string name="plus_cc_label" msgid="3365150001259912183">"+ گیرندهٔ کپی/گیرنده مخفی"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"افزودن گیرندهٔ کپی/گیرندهٔ کپی مخفی"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"پیوست کردن فایل"</string>
     <string name="close_action" msgid="533058985745238100">"بستن"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"ارسال تمام پیام‌ها"</string>
@@ -102,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"نسخه: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"صندوق ورودی"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ستاره دار"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ستاره‌دار"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"پیش‌نویس‌ها"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"صندوق خروجی"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"نمای مرکب"</string>
@@ -120,16 +120,16 @@
   </plurals>
     <string name="message_list_no_messages" msgid="7846910091922523867">"پیامی موجود نیست"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"گیرنده"</string>
-    <string name="message_compose_cc_hint" msgid="8481884461031434144">"گیرنده کپی"</string>
-    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"گیرنده کپی مخفی"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"گیرندهٔ کپی"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"گیرندهٔ کپی مخفی"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"موضوع"</string>
     <string name="message_compose_from_label" msgid="4084843296548498041">"از:"</string>
     <string name="to" msgid="4392614766835725698">"گیرنده"</string>
-    <string name="cc" msgid="7017720927911078193">"گیرنده کپی"</string>
-    <string name="bcc" msgid="3098643138241111579">"گیرنده کپی مخفی"</string>
+    <string name="cc" msgid="7017720927911078193">"گیرندهٔ کپی"</string>
+    <string name="bcc" msgid="3098643138241111579">"گیرندهٔ کپی مخفی"</string>
     <string name="subject_hint" msgid="7253964583324677128">"موضوع"</string>
     <string name="body_hint" msgid="4279864165439577668">"نوشتن ایمیل"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------"\n"موضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"فرستنده: <xliff:g id="SENDER">%2$s</xliff:g>"\n"گیرنده: <xliff:g id="TO">%3$s</xliff:g>"\n"گیرنده کپی: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------"\n"موضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"فرستنده: <xliff:g id="SENDER">%2$s</xliff:g>"\n"گیرنده: <xliff:g id="TO">%3$s</xliff:g>"\n"گیرندهٔ کپی: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> نوشت:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"شامل نوشتار نقل قول شده"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"شامل متن"</string>
@@ -139,7 +139,7 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"درج پاسخ سریع"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> و <xliff:g id="NUMBER">%2$d</xliff:g> دیگر"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"گیرنده:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"گیرنده کپی:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"گیرندهٔ کپی:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"گیرنده مخفی:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"تاریخ:"</string>
     <string name="message_view_from_label" msgid="6055076379282772675">"از:"</string>
@@ -316,13 +316,13 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"یک ماه"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"همه"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"استفاده از پیش‌فرض حساب"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"نام کاربری یا گذرواژه شما اشتباه است."</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"نام کاربری یا گذرواژهٔ شما اشتباه است."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"نام کاربری یا گذرواژه نادرست است."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"اتصال امن به سرور امکان‌پذیر نیست."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"اتصال امن به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"به گواهی‌نامه کلاینت نیاز دارد. آیا می‌خواهید با گواهی‌نامه کلاینت به سرور متصل شوید؟"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"گواهی‌نامه نامعتبر است و یا غیرقابل دسترس است."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"سرور با یک خطا پاسخ داد. نام کاربری و گذرواژه خود را بررسی کرده و دوباره امتحان کنید."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"سرور با یک خطا پاسخ داد. نام کاربری و گذرواژهٔ خود را بررسی کرده و دوباره امتحان کنید."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"اتصال به سرور امکان‌پذیر نیست."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS لازم است اما توسط سرور پشتیبانی نمی‌شود."</string>
@@ -352,9 +352,9 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"کد پین یا رمز ورود قفل صفحه منقضی شده است."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"رمز ورود قفل صفحه منقضی شده است"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"رمز ورود قفل صفحه در حال انقضا"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"باید پین قفل صفحه یا گذرواژه خود را سریع تغییر دهید، در غیر اینصورت داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> پاک خواهد شد . آیا می‌خواهید اکنون آن‌ را تغییر دهید؟"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"باید پین قفل صفحه یا گذرواژهٔ خود را سریع تغییر دهید، در غیر اینصورت داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> پاک خواهد شد . آیا می‌خواهید اکنون آن‌ را تغییر دهید؟"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"رمز ورود قفل صفحه منقضی شده است"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> در حال پاک شدن از دستگاه شما است. با تغییر دادن پین صفحه قفل یا گذرواژه خود می‌توانید آن‌ها را بازگردانید. آیا می‌خواهید هم‌اکنون آن‌ را تغییر دهید؟"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> در حال پاک شدن از دستگاه شما است. با تغییر دادن پین صفحه قفل یا گذرواژهٔ خود می‌توانید آن‌ها را بازگردانید. آیا می‌خواهید هم‌اکنون آن‌ را تغییر دهید؟"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"از تغییرات ذخیره نشده صرفنظر شود؟"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"ورود به سیستم ممکن نیست"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"نام کاربری یا گذرواژه <xliff:g id="ACCOUNT">%s</xliff:g> نادرست است. آیا می‌خواهید هم‌اکنون آن‌ها را به‌روز کنید؟"</string>
@@ -429,7 +429,7 @@
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"تنظیمات"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"تنظیمات کلی"</string>
-    <string name="category_general_preferences" msgid="2742423840964045801">"برنامه کاربردی"</string>
+    <string name="category_general_preferences" msgid="2742423840964045801">"برنامهٔ کاربردی"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"پیشرفته خودکار"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"انتخاب کنید بعد از حذف یک پیام، چه صفحه‌ای نشان داده شود"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"پنهان کردن کادرهای تأیید"</string>
@@ -467,7 +467,7 @@
     <string name="widget_other_views" msgid="4988574907386539499">"برای تغییر، نماد را لمس کنید."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"صندوق ورودی ترکیبی"</string>
     <string name="widget_unread" msgid="4404711399009077833">"خوانده نشده"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"ستاره دار"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"ستاره‌دار"</string>
     <string name="widget_loading" msgid="2340962056927255554">"در حال بارگیری..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"برای راه‌اندازی لمس کنید."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"شما هنوز حساب ایمیلی راه‌اندازی نکرده‌اید."</string>
@@ -490,14 +490,14 @@
     <string name="quick_3" msgid="8061819976353395585">"بعداً این را میخوانم و به شما اطلاع میدهم."</string>
     <string name="quick_4" msgid="3988974084396883051">"بیایید یک جلسه تشکیل بدهیم و درباره آن گفتگو کنیم."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"هنگام رومینگ، همگام‌سازی پس‌زمینه برای این حساب غیرفعال است."</string>
-    <string name="confirm_response" msgid="5747902757569543165">"در حال ارسال پاسخ…"</string>
+    <!-- no translation found for confirm_response (9151965975158906286) -->
+    <skip />
     <string name="no_conversations" msgid="5559527390337162819">"پیامی موجود نیست."</string>
-    <!-- no translation found for imap2_name (2742745881421883233) -->
+    <string name="imap2_name" msgid="2742745881421883233">"ارسال IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"مشکل پسند، مشکل پسند، مشکل پسند!"</string>
+    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
     <skip />
-    <!-- no translation found for folder_picker_title (5213735893918108637) -->
+    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
     <skip />
-    <!-- no translation found for trash_folder_selection_title (7357415115740743468) -->
-    <skip />
-    <!-- no translation found for create_new_folder (2726544180243210741) -->
-    <skip />
+    <string name="create_new_folder" msgid="2726544180243210741">"ایجاد پوشه"</string>
 </resources>

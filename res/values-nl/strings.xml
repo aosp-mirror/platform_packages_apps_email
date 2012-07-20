@@ -490,10 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"Ik zal dit later lezen en kom er dan op terug."</string>
     <string name="quick_4" msgid="3988974084396883051">"Laten we een afspraak maken om dit te bespreken."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Achtergrondsynchronisatie voor dit account is uitgeschakeld tijdens roaming."</string>
-    <string name="confirm_response" msgid="5747902757569543165">"Reactie verzenden..."</string>
+    <string name="confirm_response" msgid="9151965975158906286">"Reactie verzenden…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Geen berichten."</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAP pushen"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Eerste keus!"</string>
-    <string name="trash_folder_selection_title" msgid="7357415115740743468">"Prullenbak selecteren"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Selecteer serverprullenbak"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Selecteer servermap \'Verzonden\'"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Map maken"</string>
 </resources>
