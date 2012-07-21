@@ -16,7 +16,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="500001"
+    android:versionCode="500002"
     android:versionName="4.2" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
