@@ -490,14 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"Luen tämän myöhemmin ja palaan asiaan."</string>
     <string name="quick_4" msgid="3988974084396883051">"Järjestetään tapaaminen ja keskustellaan asiasta."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Tämän tilin taustasynkronointi on pois käytöstä roaming-tilassa."</string>
-    <!-- no translation found for confirm_response (9151965975158906286) -->
-    <skip />
+    <string name="confirm_response" msgid="9151965975158906286">"Vastausta lähetetään..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ei viestejä."</string>
     <string name="imap2_name" msgid="2742745881421883233">"Push-IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Nirso!"</string>
-    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
-    <skip />
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Valitse palvelimen roskakori"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Valitse palvelimen lähetetyt kohteet -kansio"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Luo kansio"</string>
 </resources>

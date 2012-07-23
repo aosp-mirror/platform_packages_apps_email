@@ -493,14 +493,11 @@
     <!-- no translation found for confirm_response (9151965975158906286) -->
     <skip />
     <string name="no_conversations" msgid="5559527390337162819">"无邮件。"</string>
-    <!-- no translation found for imap2_name (2742745881421883233) -->
-    <skip />
-    <!-- no translation found for folder_picker_title (5213735893918108637) -->
-    <skip />
+    <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"千挑万选！"</string>
     <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
     <skip />
     <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
     <skip />
-    <!-- no translation found for create_new_folder (2726544180243210741) -->
-    <skip />
+    <string name="create_new_folder" msgid="2726544180243210741">"新建文件夹"</string>
 </resources>
