@@ -490,14 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"Прочитаћу ово касније и јавити вам."</string>
     <string name="quick_4" msgid="3988974084396883051">"Хајде да организујемо састанак како бисмо о овоме разговарали."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Синхронизација у позадини за овај налог је онемогућена у ромингу."</string>
-    <!-- no translation found for confirm_response (9151965975158906286) -->
-    <skip />
+    <string name="confirm_response" msgid="9151965975158906286">"Слање одговора..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Нема порука."</string>
     <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Бирање, бирање, бирање!"</string>
-    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
-    <skip />
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Изаберите дир. за отпад на серверу"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Изаберите дир. за послате ставке на серверу"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Направи директоријум"</string>
 </resources>
