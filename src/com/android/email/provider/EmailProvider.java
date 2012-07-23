@@ -89,6 +89,7 @@ import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
 import com.android.mail.widget.WidgetProvider;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -97,6 +98,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -2670,51 +2672,83 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryAccount(String[] uiProjection, String id) {
-        ContentValues values = new ContentValues();
-        long accountId = Long.parseLong(id);
+        final ContentValues values = new ContentValues();
+        final long accountId = Long.parseLong(id);
 
-        // Get account capabilities from the service
-        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
-                mServiceCallback, accountId);
-        int capabilities = 0;
-        try {
-            capabilities = service.getCapabilities(accountId);
-        } catch (RemoteException e) {
+        final Set<String> projectionColumns = ImmutableSet.copyOf(uiProjection);
+
+        if (projectionColumns.contains(UIProvider.AccountColumns.CAPABILITIES)) {
+            // Get account capabilities from the service
+            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
+                    mServiceCallback, accountId);
+            int capabilities = 0;
+            try {
+                capabilities = service.getCapabilities(accountId);
+            } catch (RemoteException e) {
+            }
+            values.put(UIProvider.AccountColumns.CAPABILITIES, capabilities);
         }
-        values.put(UIProvider.AccountColumns.CAPABILITIES, capabilities);
+        if (projectionColumns.contains(UIProvider.AccountColumns.SETTINGS_INTENT_URI)) {
+            values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
+                    getExternalUriString("settings", id));
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.COMPOSE_URI)) {
+            values.put(UIProvider.AccountColumns.COMPOSE_URI,
+                    getExternalUriStringEmail2("compose", id));
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.MIME_TYPE)) {
+            values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.COLOR)) {
+            values.put(UIProvider.AccountColumns.COLOR, ACCOUNT_COLOR);
+        }
 
-        values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
-                getExternalUriString("settings", id));
-        values.put(UIProvider.AccountColumns.COMPOSE_URI,
-                getExternalUriStringEmail2("compose", id));
-        values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
-        values.put(UIProvider.AccountColumns.COLOR, ACCOUNT_COLOR);
-
-        Preferences prefs = Preferences.getPreferences(getContext());
-        values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
-                prefs.getConfirmDelete() ? "1" : "0");
-        values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
-                prefs.getConfirmSend() ? "1" : "0");
-        values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
-                prefs.getHideCheckboxes() ? "1" : "0");
-        int autoAdvance = prefs.getAutoAdvanceDirection();
-        values.put(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
-                autoAdvanceToUiValue(autoAdvance));
-        int textZoom = prefs.getTextZoom();
-        values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
-                textZoomToUiValue(textZoom));
-        // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
+        final Preferences prefs = Preferences.getPreferences(getContext());
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
+                    prefs.getConfirmDelete() ? "1" : "0");
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
+                    prefs.getConfirmSend() ? "1" : "0");
+        }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
+                    prefs.getHideCheckboxes() ? "1" : "0");
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
+            int autoAdvance = prefs.getAutoAdvanceDirection();
+            values.put(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
+                    autoAdvanceToUiValue(autoAdvance));
+        }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)) {
+            int textZoom = prefs.getTextZoom();
+            values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
+                    textZoomToUiValue(textZoom));
+        }
+       // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
         final Context context = getContext();
         long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
-        if (mailboxId != Mailbox.NO_MAILBOX) {
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX) &&
+                mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", mailboxId));
+        }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME) &&
+                mailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME,
                     Mailbox.getDisplayName(context, mailboxId));
-            values.put(UIProvider.AccountColumns.SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
-        } else {
-            values.put(UIProvider.AccountColumns.SYNC_STATUS,
-                    UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SYNC_STATUS)) {
+            if (mailboxId != Mailbox.NO_MAILBOX) {
+                values.put(UIProvider.AccountColumns.SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
+            } else {
+                values.put(UIProvider.AccountColumns.SYNC_STATUS,
+                        UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
+            }
         }
 
         StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
