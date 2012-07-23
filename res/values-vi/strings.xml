@@ -490,14 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"Tôi sẽ đọc thư này sau và sẽ liên hệ lại với bạn."</string>
     <string name="quick_4" msgid="3988974084396883051">"Chúng ta hãy cùng tổ chức một cuộc họp để thảo luận về vấn đề này."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Đồng bộ hóa nền cho tài khoản này bị tắt trong khi chuyển vùng."</string>
-    <!-- no translation found for confirm_response (9151965975158906286) -->
-    <skip />
+    <string name="confirm_response" msgid="9151965975158906286">"Đang gửi trả lời..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Không có thư nào."</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAP đẩy thư"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Vui lòng chọn!"</string>
-    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
-    <skip />
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Chọn thư mục thùng rác trên máy chủ"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Chọn thư mục thư đã gửi trên máy chủ"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Tạo thư mục"</string>
 </resources>
