@@ -1983,8 +1983,11 @@ public class Imap2SyncService extends AbstractSyncService {
             } finally {
                 if (mSocket != null) {
                     try {
+                        // Try to logout
+                        readResponse(mReader, writeCommand(mWriter, "logout"));
                         mSocket.close();
                     } catch (IOException e) {
+                        // We're leaving anyway
                     }
                 }
             }
