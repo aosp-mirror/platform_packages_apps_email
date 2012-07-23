@@ -1214,6 +1214,7 @@ public abstract class SyncManager extends Service implements Runnable {
     private void stopPing(long accountId) {
         // Go through our active mailboxes looking for the right one
         synchronized (sSyncLock) {
+            AbstractSyncService serviceToReset = null;
             for (long mailboxId: mServiceMap.keySet()) {
                 Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
                 if (m != null) {
@@ -1221,10 +1222,13 @@ public abstract class SyncManager extends Service implements Runnable {
                     if (m.mAccountKey == accountId && serverId != null &&
                           m.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
                         // Here's our account mailbox; reset him (stopping pings)
-                        AbstractSyncService svc = mServiceMap.get(mailboxId);
-                        svc.reset();
+                        serviceToReset = mServiceMap.get(mailboxId);
+                        break;
                     }
                 }
+            }
+            if (serviceToReset != null) {
+                serviceToReset.reset();
             }
         }
     }
