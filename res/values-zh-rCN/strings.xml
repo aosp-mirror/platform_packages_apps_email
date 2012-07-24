@@ -490,14 +490,11 @@
     <string name="quick_3" msgid="8061819976353395585">"稍后我会阅读此邮件并给您回复。"</string>
     <string name="quick_4" msgid="3988974084396883051">"让我们通过会议讨论一下这个问题。"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"漫游时停用了此帐户的后台同步功能。"</string>
-    <!-- no translation found for confirm_response (9151965975158906286) -->
-    <skip />
+    <string name="confirm_response" msgid="9151965975158906286">"正在发送回复…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"无邮件。"</string>
     <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"千挑万选！"</string>
-    <!-- no translation found for trash_folder_selection_title (8287461989726013461) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (3868598259968276968) -->
-    <skip />
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"请选择服务器的“已删除邮件”文件夹"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"请选择服务器的“已发送邮件”文件夹"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"新建文件夹"</string>
 </resources>
