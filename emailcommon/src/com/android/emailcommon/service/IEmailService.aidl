@@ -18,6 +18,7 @@
 package com.android.emailcommon.service;
 
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import android.os.Bundle;
@@ -61,5 +62,5 @@ interface IEmailService {
     void sendMail(long accountId);
 
     // API level 3
-    int getCapabilities(long accountId);
+    int getCapabilities(in Account acct);
 }
