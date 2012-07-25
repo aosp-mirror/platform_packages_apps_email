@@ -35,17 +35,17 @@ import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.MailboxUtilities;
-import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.SyncWindow;
@@ -1329,7 +1329,6 @@ public class Imap2SyncService extends AbstractSyncService {
         } finally {
             SyncManager.kick("folder list");
         }
-        // TODO: Make sure UI is updated
     }
 
     public int getDepth (String name, char delim) {
@@ -1535,18 +1534,33 @@ public class Imap2SyncService extends AbstractSyncService {
     private String mUserAgent;
 
     private Connection connectAndLogin(HostAuth hostAuth, String name) {
+        return connectAndLogin(hostAuth, name, null);
+    }
+
+    private Connection connectAndLogin(HostAuth hostAuth, String name, Socket tlsSocket) {
         Connection conn = new Connection();
         Socket socket;
         try {
-            socket = getSocket(hostAuth);
+            if (tlsSocket != null) {
+                // Start secure connection on top of existing one
+                boolean trust = (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
+                socket = SSLUtils.getSSLSocketFactory(trust).createSocket(tlsSocket,
+                        hostAuth.mAddress, hostAuth.mPort, true);
+
+            } else {
+                socket = getSocket(hostAuth);
+            }
             socket.setSoTimeout(SOCKET_TIMEOUT);
-            userLog(">>> IMAP CONNECTION SUCCESSFUL: " + name);
+            userLog(">>> IMAP CONNECTION SUCCESSFUL: " + name +
+                    ((socket != null) ? " [STARTTLS]" : ""));
 
             ImapInputStream reader = new ImapInputStream(socket.getInputStream());
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                     socket.getOutputStream()));
             // Get welcome string
-            reader.readLine();
+            if (tlsSocket == null) {
+                reader.readLine();
+            }
 
             String tag = writeCommand(writer, "CAPABILITY");
             if (readResponse(reader, tag, "CAPABILITY").equals(IMAP_OK)) {
@@ -1554,9 +1568,12 @@ public class Imap2SyncService extends AbstractSyncService {
                 if (!mImapResponse.isEmpty()) {
                     String capa = mImapResponse.get(0).toLowerCase();
                     ArrayList<String> tokens = getTokens(capa);
-                    if (tokens.contains("starttls")) {
+                    if (tokens.contains("starttls") && tlsSocket == null) {
                         // Handle STARTTLS
-                        userLog("[Supports STARTTLS]");
+                        userLog("[Use STARTTLS]");
+                        tag = writeCommand(writer, "STARTTLS");
+                        readResponse(reader, tag, "STARTTLS");
+                        return connectAndLogin(hostAuth, name, socket);
                     }
                     if (tokens.contains("id")) {
                         String hostAddress = hostAuth.mAddress;
