@@ -16,24 +16,23 @@
 
 package com.android.imap2;
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 
 import com.android.emailcommon.Api;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.ProviderUnavailableException;
@@ -194,7 +193,7 @@ public class Imap2SyncManager extends SyncManager {
         }
 
         @Override
-        public int getCapabilities(long accountId) throws RemoteException {
+        public int getCapabilities(Account acct) throws RemoteException {
             return AccountCapabilities.SYNCABLE_FOLDERS |
                     //AccountCapabilities.FOLDER_SERVER_SEARCH |
                     AccountCapabilities.UNDO;

@@ -27,6 +27,7 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 
@@ -459,12 +460,12 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     }
 
     @Override
-    public int getCapabilities(final long accountId) throws RemoteException {
+    public int getCapabilities(final Account acct) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
                 if (mCallback != null) mService.setCallback(mCallback);
-                mReturn = mService.getCapabilities(accountId);
+                mReturn = mService.getCapabilities(acct);
             }
         }, "getCapabilities");
         waitForCompletion();
