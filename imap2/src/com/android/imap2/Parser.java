@@ -16,6 +16,8 @@
 
 package com.android.imap2;
 
+import java.util.ArrayList;
+
 public class Parser {
     String str;
     int pos;
@@ -154,7 +156,7 @@ public class Parser {
         return str.substring(start, pos - 1);
     }
 
-    public Integer parseInteger () {
+    public int parseInteger () {
         skipWhite();
         int start = pos;
         while (pos < len) {
@@ -165,14 +167,15 @@ public class Parser {
                 break;
         }
         if (pos > start) {
-            try {
-                Integer i = Integer.parseInt(str.substring(start, pos));
-                return i;
-            } catch (NumberFormatException e) {
-                return -1;
+            // We know these are positive integers
+            int sum = 0;
+            for (int i = start; i < pos; i++) {
+                sum = (sum * 10) + (str.charAt(i) - '0');
             }
-        } else
+            return sum;
+        } else {
             return -1;
+        }
     }
 
     public int[] gatherInts () {
@@ -180,8 +183,7 @@ public class Parser {
         int size = 128;
         int offs = 0;
         while (true) {
-            // TODO Slow; handle this inline rather than calling the method
-            Integer i = parseInteger();
+            int i = parseInteger();
             if (i >= 0) {
                 if (offs == size) {
                     // Double the size of the array as necessary
@@ -198,5 +200,17 @@ public class Parser {
         int[] res = new int[offs];
         System.arraycopy(list, 0, res, 0, offs);
         return res;
+    }
+    public Integer[] gatherIntegers () {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        while (true) {
+            Integer i = parseInteger();
+            if (i >= 0) {
+                list.add(i);
+            }
+            else
+                break;
+        }
+        return list.toArray(new Integer[list.size()]);
     }
 }
