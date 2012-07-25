@@ -493,7 +493,7 @@
     <string name="confirm_response" msgid="9151965975158906286">"正在发送回复…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"无邮件。"</string>
     <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"千挑万选！"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"选择一个文件夹"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"请选择服务器的“已删除邮件”文件夹"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"请选择服务器的“已发送邮件”文件夹"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"新建文件夹"</string>
