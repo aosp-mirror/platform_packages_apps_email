@@ -495,6 +495,6 @@
     <string name="imap2_name" msgid="2742745881421883233">"Druk IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Kieskeurig, kieskeurig, kieskeurig!"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"Kies bediener se rommelvouer"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Kies bediener se gestuurde items-vouer"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Kies bediener se gestuurde-itemsvouer"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Skep vouer"</string>
 </resources>
