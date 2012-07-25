@@ -184,7 +184,7 @@ public class Pop3Service extends Service {
         }
 
         @Override
-        public int getCapabilities(long accountId) throws RemoteException {
+        public int getCapabilities(Account acct) throws RemoteException {
             return AccountCapabilities.UNDO;
         }
     };

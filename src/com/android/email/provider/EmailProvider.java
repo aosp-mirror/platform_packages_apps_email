@@ -2665,6 +2665,21 @@ outer:
                 .appendQueryParameter("account", account).build().toString();
     }
 
+    private int getCapabilities(Context context, long accountId) {
+        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+                mServiceCallback, accountId);
+        int capabilities = 0;
+        try {
+            service.setTimeout(10);
+            Account acct = Account.restoreAccountWithId(context, accountId);
+            if (acct == null) return 0;
+            capabilities = service.getCapabilities(acct);
+        } catch (RemoteException e) {
+            // Nothing to do
+        }
+        return capabilities;
+    }
+
     /**
      * Generate a "single account" SQLite query, given a projection from UnifiedEmail
      *
@@ -2674,19 +2689,13 @@ outer:
     private String genQueryAccount(String[] uiProjection, String id) {
         final ContentValues values = new ContentValues();
         final long accountId = Long.parseLong(id);
+        final Context context = getContext();
 
         final Set<String> projectionColumns = ImmutableSet.copyOf(uiProjection);
 
         if (projectionColumns.contains(UIProvider.AccountColumns.CAPABILITIES)) {
             // Get account capabilities from the service
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
-                    mServiceCallback, accountId);
-            int capabilities = 0;
-            try {
-                capabilities = service.getCapabilities(accountId);
-            } catch (RemoteException e) {
-            }
-            values.put(UIProvider.AccountColumns.CAPABILITIES, capabilities);
+            values.put(UIProvider.AccountColumns.CAPABILITIES, getCapabilities(context, accountId));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SETTINGS_INTENT_URI)) {
             values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
@@ -2729,7 +2738,6 @@ outer:
                     textZoomToUiValue(textZoom));
         }
        // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
-        final Context context = getContext();
         long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX) &&
                 mailboxId != Mailbox.NO_MAILBOX) {

@@ -71,7 +71,8 @@ public abstract class ServiceProxy {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             onConnected(binder);
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Connected: " + name.getShortClassName());
+                Log.v(mTag, "Connected: " + name.getShortClassName() + " at " +
+                        (System.currentTimeMillis() - mStartTime) + "ms");
             }
             // Run our task on a new thread
             new Thread(new Runnable() {
@@ -86,7 +87,8 @@ public abstract class ServiceProxy {
 
         public void onServiceDisconnected(ComponentName name) {
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Disconnected: " + name.getShortClassName());
+                Log.v(mTag, "Disconnected: " + name.getShortClassName() + " at " +
+                        (System.currentTimeMillis() - mStartTime) + "ms");
             }
         }
     }
@@ -169,8 +171,9 @@ public abstract class ServiceProxy {
                 // Can be ignored safely
             }
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Wait for " + mName + " finished in " +
+                Log.v(mTag, "Wait for " + mName + (mDead ? " finished in " : " timed out in ") +
                         (System.currentTimeMillis() - time) + "ms");
+                mDead = true;
             }
         }
     }
