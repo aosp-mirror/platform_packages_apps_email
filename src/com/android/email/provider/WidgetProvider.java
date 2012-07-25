@@ -88,23 +88,6 @@ public class WidgetProvider extends BaseWidgetProvider {
     };
 
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        // We want to migrate any legacy Email widget information to the new format
-        migrateAllLegacyWidgetInformation(context);
-
-        super.onReceive(context, intent);
-    }
-
-    /**
-     * Update all widgets in the list
-     */
-    @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        migrateLegacyWidgetInformation(context, appWidgetIds);
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
-    }
-
     /**
      * Remove preferences when deleting widget
      */
@@ -151,40 +134,32 @@ public class WidgetProvider extends BaseWidgetProvider {
         return false;
     }
 
-
-
-    private void migrateAllLegacyWidgetInformation(Context context) {
-        final int[] currentWidgetIds = getCurrentWidgetIds(context);
-        migrateLegacyWidgetInformation(context, currentWidgetIds);
-    }
-
-    private void migrateLegacyWidgetInformation(Context context, int[] widgetIds) {
+    @Override
+    protected void migrateLegacyWidgetInformation(Context context, int widgetId) {
         final SharedPreferences prefs = context.getSharedPreferences(LEGACY_PREFS_NAME, 0);
         final SharedPreferences.Editor editor = prefs.edit();
 
-        for (int widgetId : widgetIds) {
-            long accountId = loadAccountIdPref(context, widgetId);
-            long mailboxId = loadMailboxIdPref(context, widgetId);
-            // Legacy support; if preferences haven't been saved for this widget, load something
-            if (accountId == Account.NO_ACCOUNT || mailboxId == Mailbox.NO_MAILBOX) {
-                LogUtils.d(LOG_TAG, "Couldn't load account or mailbox.  accountId: %d" +
-                        " mailboxId: %d widgetId %d", accountId, mailboxId);
-                continue;
-            }
+        long accountId = loadAccountIdPref(context, widgetId);
+        long mailboxId = loadMailboxIdPref(context, widgetId);
+        // Legacy support; if preferences haven't been saved for this widget, load something
+        if (accountId == Account.NO_ACCOUNT || mailboxId == Mailbox.NO_MAILBOX) {
+            LogUtils.d(LOG_TAG, "Couldn't load account or mailbox.  accountId: %d" +
+                    " mailboxId: %d widgetId %d", accountId, mailboxId);
+            return;
+        }
 
-            // Get Account and folder objects for the account id and mailbox id
-            final com.android.mail.providers.Account uiAccount = getAccount(context, accountId);
-            final Folder uiFolder = getFolder(context, mailboxId);
+        // Get Account and folder objects for the account id and mailbox id
+        final com.android.mail.providers.Account uiAccount = getAccount(context, accountId);
+        final Folder uiFolder = getFolder(context, mailboxId);
 
-            if (uiAccount != null && uiFolder != null) {
-                WidgetService.saveWidgetInformation(context, widgetId, uiAccount, uiFolder);
+        if (uiAccount != null && uiFolder != null) {
+            WidgetService.saveWidgetInformation(context, widgetId, uiAccount, uiFolder);
 
-                updateWidgetInternal(context, widgetId, uiAccount, uiFolder);
+            updateWidgetInternal(context, widgetId, uiAccount, uiFolder);
 
-                // Now remove the old legacy preference value
-                editor.remove(LEGACY_ACCOUNT_ID_PREFIX + widgetId);
-                editor.remove(LEGACY_MAILBOX_ID_PREFIX + widgetId);
-            }
+            // Now remove the old legacy preference value
+            editor.remove(LEGACY_ACCOUNT_ID_PREFIX + widgetId);
+            editor.remove(LEGACY_MAILBOX_ID_PREFIX + widgetId);
         }
         editor.apply();
     }
