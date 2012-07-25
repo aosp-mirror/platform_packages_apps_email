@@ -77,6 +77,7 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
@@ -2949,12 +2950,34 @@ outer:
      * Generate the "attachment list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
+     * @param contentTypeQueryParameters list of mimeTypes, used as a filter for the attachments
+     * or null if there are no query parameters
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAttachments(String[] uiProjection) {
+    private String genQueryAttachments(String[] uiProjection,
+            List<String> contentTypeQueryParameters) {
         StringBuilder sb = genSelect(sAttachmentMap, uiProjection);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
                 " =? ");
+
+        // Filter for certain content types.
+        // The filter works by adding LIKE operators for each
+        // content type you wish to request. Content types
+        // are filtered by performing a case-insensitive "starts with"
+        // filter. IE, "image/" would return "image/png" as well as "image/jpeg".
+        if (contentTypeQueryParameters != null && !contentTypeQueryParameters.isEmpty()) {
+            final int size = contentTypeQueryParameters.size();
+            sb.append("AND (");
+            for (int i = 0; i < size; i++) {
+                final String contentType = contentTypeQueryParameters.get(i);
+                sb.append(AttachmentColumns.MIME_TYPE + " LIKE '" + contentType + "%'");
+
+                if (i != size - 1) {
+                    sb.append(" OR ");
+                }
+            }
+            sb.append(")");
+        }
         return sb.toString();
     }
 
@@ -3159,7 +3182,10 @@ outer:
                 }
                 break;
             case UI_ATTACHMENTS:
-                c = db.rawQuery(genQueryAttachments(uiProjection), new String[] {id});
+                final List<String> contentTypeQueryParameters =
+                        uri.getQueryParameters(PhotoContract.ContentTypeParameters.CONTENT_TYPE);
+                c = db.rawQuery(genQueryAttachments(uiProjection, contentTypeQueryParameters),
+                        new String[] {id});
                 notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ATTACHMENT:
