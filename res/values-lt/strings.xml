@@ -436,6 +436,10 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Jei norite pasirinkti, pranešimų sąraš. palieskite ir laikykite"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Patvirtinti prieš ištrinant"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Pranešimai"</string>
+    <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
+    <skip />
+    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
+    <skip />
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Patvirtinti prieš siunčiant"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Pranešimai"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Pereiti į"</string>

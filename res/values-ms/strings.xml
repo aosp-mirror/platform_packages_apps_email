@@ -436,6 +436,10 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Dalam senarai mesej, sentuh dan tahan untuk memilih"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Sahkan sebelum memadam"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mesej"</string>
+    <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
+    <skip />
+    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
+    <skip />
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Sahkan sebelum menghantar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mesej"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Mara ke"</string>
