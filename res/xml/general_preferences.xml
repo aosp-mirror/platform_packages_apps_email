@@ -62,6 +62,13 @@
         android:title="@string/general_preference_reply_all_label"
         android:summary="@string/general_preference_reply_all_summary" />
 
+    <CheckBoxPreference
+        android:key="swipe_delete"
+        android:persistent="true"
+        android:defaultValue="true"
+        android:title="@string/general_preference_swipe_delete_label"
+        android:summary="@string/general_preference_swipe_delete_summary" />
+
     <PreferenceScreen
         android:key="clear_trusted_senders"
         android:title="@string/general_preferences_clear_trusted_senders_title"
