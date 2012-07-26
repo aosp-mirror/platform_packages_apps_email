@@ -53,6 +53,7 @@ public class Preferences {
     private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
     private static final String CONFIRM_DELETE = "confirm_delete";
     private static final String CONFIRM_SEND = "confirm_send";
+    private static final String SWIPE_DELETE = "swipe_delete";
     private static final String HIDE_CHECKBOXES = "hide_checkboxes";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
@@ -63,6 +64,7 @@ public class Preferences {
     private static final boolean CONFIRM_DELETE_DEFAULT = false;
     private static final boolean CONFIRM_SEND_DEFAULT = false;
     private static final boolean HIDE_CHECKBOXES_DEFAULT = false;
+    private static final boolean SWIPE_DELETE_DEFAULT = true;
 
     // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
     public static final int TEXT_ZOOM_TINY = 0;
@@ -220,6 +222,14 @@ public class Preferences {
 
     public void setConfirmSend(boolean set) {
         mSharedPreferences.edit().putBoolean(CONFIRM_SEND, set).apply();
+    }
+
+    public boolean getSwipeDelete() {
+        return mSharedPreferences.getBoolean(SWIPE_DELETE, SWIPE_DELETE_DEFAULT);
+    }
+
+    public void setSwipeDelete(boolean set) {
+        mSharedPreferences.edit().putBoolean(SWIPE_DELETE, set).apply();
     }
 
     public int getTextZoom() {

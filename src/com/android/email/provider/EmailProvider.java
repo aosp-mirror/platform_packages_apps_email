@@ -84,6 +84,7 @@ import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
+import com.android.mail.providers.UIProvider.Swipe;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
@@ -350,6 +351,9 @@ public class EmailProvider extends ContentProvider {
 
     // Query parameter indicating the command came from UIProvider
     private static final String IS_UIPROVIDER = "is_uiprovider";
+
+    private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
+    private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
 
     static {
         // Email URI matching table
@@ -1023,7 +1027,7 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
-    private static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
+    public static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
@@ -2721,6 +2725,10 @@ outer:
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
                     prefs.getConfirmSend() ? "1" : "0");
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SWIPE)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.SWIPE,
+                    prefs.getSwipeDelete() ? SWIPE_DELETE : SWIPE_DISABLED);
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {

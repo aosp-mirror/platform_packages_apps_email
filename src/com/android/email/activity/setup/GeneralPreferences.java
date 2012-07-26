@@ -17,8 +17,6 @@
 package com.android.email.activity.setup;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -30,7 +28,6 @@ import android.widget.Toast;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.provider.Account;
 
 public class GeneralPreferences extends EmailPreferenceFragment implements
         OnPreferenceChangeListener {
@@ -39,6 +36,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
+    private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
@@ -53,6 +51,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
     private CheckBoxPreference mHideCheckboxes;
+    private CheckBoxPreference mSwipeDelete;
 
     private boolean mSettingsChanged = false;
 
@@ -82,19 +81,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     public void onPause() {
         super.onPause();
         if (mSettingsChanged) {
-            // Notify all account settings listeners
+            // Notify the account list that we have changes
             ContentResolver resolver = getActivity().getContentResolver();
-            Cursor c = resolver.query(Account.CONTENT_URI, Account.ID_PROJECTION, null, null, null);
-            if (c != null) {
-                try {
-                    while (c.moveToNext()) {
-                        resolver.notifyChange(ContentUris.withAppendedId(
-                                EmailProvider.UIPROVIDER_SETTINGS_NOTIFIER, c.getLong(0)), null);
-                    }
-                } finally {
-                    c.close();
-                }
-            }
+            resolver.notifyChange(EmailProvider.UIPROVIDER_ACCOUNTS_NOTIFIER, null);
         }
     }
 
@@ -136,6 +125,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_HIDE_CHECKBOXES.equals(key)) {
             mPreferences.setHideCheckboxes(mHideCheckboxes.isChecked());
             return true;
+        } else if (PREFERENCE_KEY_SWIPE_DELETE.equals(key)) {
+            mPreferences.setSwipeDelete(mSwipeDelete.isChecked());
+            return true;
         }
         return false;
     }
@@ -155,6 +147,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
         mHideCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_HIDE_CHECKBOXES);
+        mSwipeDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SWIPE_DELETE);
 
         reloadDynamicSummaries();
     }
