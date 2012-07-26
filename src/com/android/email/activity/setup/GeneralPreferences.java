@@ -83,7 +83,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         if (mSettingsChanged) {
             // Notify the account list that we have changes
             ContentResolver resolver = getActivity().getContentResolver();
-            resolver.notifyChange(EmailProvider.UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+            resolver.notifyChange(EmailProvider.UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
         }
     }
 

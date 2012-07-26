@@ -889,7 +889,7 @@ public class EmailProvider extends ContentProvider {
                     }
                     if (match == ACCOUNT_ID) {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
-                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
                     }
@@ -1027,7 +1027,7 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
-    public static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
+    public static final Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
@@ -1126,7 +1126,7 @@ public class EmailProvider extends ContentProvider {
                         // Report all new attachments to the download service
                         mAttachmentService.attachmentChanged(getContext(), longId, flags);
                     } else if (match == ACCOUNT) {
-                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     }
                     break;
                 case MAILBOX_ID:
@@ -1808,7 +1808,9 @@ outer:
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
                     } else if (match == ACCOUNT_ID) {
+                        // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     }
                     break;
                 case BODY:
@@ -2958,7 +2960,7 @@ outer:
         } finally {
             accountIdCursor.close();
         }
-        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ACCOUNTS_NOTIFIER);
+        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
         return mc;
     }
 
