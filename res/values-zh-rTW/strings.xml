@@ -436,6 +436,10 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"在郵件清單中，輕觸並按住項目即可選取"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"刪除前需確認"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"郵件"</string>
+    <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
+    <skip />
+    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
+    <skip />
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"傳送前需確認"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"郵件"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"推進至"</string>
@@ -494,7 +498,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"沒有任何郵件。"</string>
     <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"仔細挑選！"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"選取伺服器垃圾郵件資料夾"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"選取伺服器垃圾桶資料夾"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"選取伺服器寄件備份資料夾"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"建立資料夾"</string>
 </resources>
