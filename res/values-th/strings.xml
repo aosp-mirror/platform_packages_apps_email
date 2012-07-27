@@ -498,7 +498,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"ไม่มีข้อความ"</string>
     <string name="imap2_name" msgid="2742745881421883233">"ส่งการเข้าถึงแบบ IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"ช่างเลือกจริงๆ เลย!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"เลือกโฟลเดอร์ถังขยะของเซิร์ฟเวอร์"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"เลือกโฟลเดอร์รายการที่ส่งของเซิร์ฟเวอร์"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"เลือกโฟลเดอร์ถังขยะ"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"เลือกโฟลเดอร์รายการที่ส่ง"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"สร้างโฟลเดอร์"</string>
 </resources>

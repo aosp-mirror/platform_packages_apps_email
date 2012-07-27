@@ -498,7 +498,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"Nema poruka."</string>
     <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Birajte, birajte, birajte!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Odaberite poslužiteljsku mapu za smeće"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Odaberite poslužiteljsku mapu za poslane stavke"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Odaberite mapu za otpad poslužitelja"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Odaberite mapu za poslane stavke poslužitelja"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Izradi mapu"</string>
 </resources>
