@@ -59,6 +59,7 @@ public abstract class AbstractSyncService implements Runnable {
     public Mailbox mMailbox;
     protected long mMailboxId;
     protected int mExitStatus = EXIT_EXCEPTION;
+    protected String mExitReason;
     protected String mMailboxName;
     public Account mAccount;
     public Context mContext;

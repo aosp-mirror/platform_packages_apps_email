@@ -2209,7 +2209,7 @@ public abstract class SyncManager extends Service implements Runnable {
                         break;
                     // These errors are not retried automatically
                     case AbstractSyncService.EXIT_LOGIN_FAILURE:
-                        new AccountServiceProxy(ssm).notifyLoginFailed(m.mAccountKey);
+                        new AccountServiceProxy(ssm).notifyLoginFailed(m.mAccountKey, svc.mExitReason);
                         lastResult = EmailContent.LAST_SYNC_RESULT_AUTH_ERROR;
                         break;
                     case AbstractSyncService.EXIT_SECURITY_FAILURE:

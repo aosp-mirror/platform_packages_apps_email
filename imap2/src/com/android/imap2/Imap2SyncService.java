@@ -101,6 +101,7 @@ public class Imap2SyncService extends AbstractSyncService {
     private static final SimpleDateFormat GMAIL_INTERNALDATE_FORMAT =
             new SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z");
     private static final String IMAP_ERR = "ERR";
+    private static final String IMAP_NO = "NO";
 
     private static final SimpleDateFormat IMAP_DATE_FORMAT =
             new SimpleDateFormat("dd-MMM-yyyy");
@@ -1573,6 +1574,7 @@ public class Imap2SyncService extends AbstractSyncService {
     public static class Connection {
         Socket socket;
         int status;
+        String reason;
         ImapInputStream reader;
         BufferedWriter writer;
 
@@ -1649,7 +1651,13 @@ public class Imap2SyncService extends AbstractSyncService {
 
             tag = writeCommand(writer,
                     "login " + hostAuth.mLogin + ' ' + hostAuth.mPassword);
-            if (!readResponse(reader, tag).equals(IMAP_OK)) {
+            if (!IMAP_OK.equals(readResponse(reader, tag))) {
+                if (IMAP_NO.equals(mImapResult)) {
+                    int alertPos = mImapErrorLine.indexOf("[ALERT]");
+                    if (alertPos > 0) {
+                        conn.reason = mImapErrorLine.substring(alertPos + 7);
+                    }
+                }
                 conn.status = EXIT_LOGIN_FAILURE;
             } else {
                 conn.socket = socket;
@@ -1960,6 +1968,7 @@ public class Imap2SyncService extends AbstractSyncService {
         Connection conn = connectAndLogin(hostAuth, "main");
         if (conn.status != EXIT_DONE) {
             mExitStatus = conn.status;
+            mExitReason = conn.reason;
             return;
         }
         setConnection(conn);

@@ -47,8 +47,9 @@ public class AccountService extends Service {
     private final IAccountService.Stub mBinder = new IAccountService.Stub() {
 
         @Override
-        public void notifyLoginFailed(long accountId) {
-            NotificationController.getInstance(mContext).showLoginFailedNotification(accountId);
+        public void notifyLoginFailed(long accountId, String reason) {
+            NotificationController nc = NotificationController.getInstance(mContext);
+            nc.showLoginFailedNotification(accountId, reason);
         }
 
         @Override
