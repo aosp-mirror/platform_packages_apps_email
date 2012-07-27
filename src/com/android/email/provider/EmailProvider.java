@@ -3927,6 +3927,10 @@ outer:
     private void notifyUIConversationMailbox(long id) {
         notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(id));
         Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(), id);
+        if (mailbox == null) {
+            Log.w(TAG, "No mailbox for notification: " + id);
+            return;
+        }
         // Notify combined inbox...
         if (mailbox.mType == Mailbox.TYPE_INBOX) {
             notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER,

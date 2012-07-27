@@ -45,7 +45,9 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailsync.AbstractSyncService;
 import com.android.emailsync.PartRequest;
 import com.android.emailsync.SyncManager;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
+import com.android.mail.providers.UIProvider.LastSyncResult;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -183,8 +185,23 @@ public class Imap2SyncManager extends SyncManager {
         @Override
         public int searchMessages(long accountId, SearchParams params, long destMailboxId)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-            return 0;
+            SyncManager ssm = INSTANCE;
+            if (ssm == null) return 0;
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(ssm, params.mMailboxId);
+            Imap2SyncService svc = new Imap2SyncService(ssm, mailbox);
+            setMailboxSyncStatus(destMailboxId, UIProvider.SyncStatus.USER_QUERY);
+            boolean ioError = false;
+            try {
+                return svc.searchMailbox(ssm, accountId, params, destMailboxId);
+            } catch (IOException e) {
+                ioError = true;
+                return 0;
+            } finally {
+                // Report ioError status back
+                setMailboxLastSyncResult(destMailboxId,
+                        ioError ? LastSyncResult.CONNECTION_ERROR : LastSyncResult.SUCCESS);
+                setMailboxSyncStatus(destMailboxId, UIProvider.SyncStatus.NO_SYNC);
+            }
         }
 
         @Override
