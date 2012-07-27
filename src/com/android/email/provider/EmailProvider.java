@@ -78,6 +78,7 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
+import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
@@ -2133,9 +2134,6 @@ outer:
     .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
     .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
     .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
-    .add(UIProvider.ConversationColumns.FOLDER_LIST,
-            "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
-                    + MessageColumns.MAILBOX_KEY)
     .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
     .add(UIProvider.ConversationColumns.ACCOUNT_URI,
             "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
@@ -3697,13 +3695,14 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
             } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
-            } else if (columnName.equals(UIProvider.ConversationColumns.FOLDER_LIST)) {
-                // Convert from folder list uri to mailbox key
-                Uri uri = Uri.parse((String)val);
-                Long mailboxId = Long.parseLong(uri.getLastPathSegment());
-                putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
-                // Ignore; this is updated by the FOLDER_LIST update above.
+                // Convert from folder list uri to mailbox key
+                ArrayList<Folder> folders = Folder.getFoldersArray((String)val);
+                for (Folder f : folders) {
+                    Uri uri = f.uri;
+                    Long mailboxId = Long.parseLong(uri.getLastPathSegment());
+                    putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
+                }
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
                 Address[] fromList = Address.unpack(message.mFrom);
                 Preferences prefs = Preferences.getPreferences(getContext());
