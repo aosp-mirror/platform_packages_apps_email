@@ -76,6 +76,8 @@ public class AccountSettings extends PreferenceActivity {
     // Intent extras for our internal activity launch
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
+    private static final String EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT =
+            "AccountSettings.for_account_reason";
     private static final String EXTRA_TITLE = "AccountSettings.title";
     public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
 
@@ -127,7 +129,8 @@ public class AccountSettings extends PreferenceActivity {
      * Display (and edit) settings for a specific account, or -1 for any/all accounts
      */
     public static void actionSettings(Activity fromActivity, long accountId) {
-        fromActivity.startActivity(createAccountSettingsIntent(fromActivity, accountId, null));
+        fromActivity.startActivity(
+                createAccountSettingsIntent(fromActivity, accountId, null, null));
     }
 
     /**
@@ -136,12 +139,15 @@ public class AccountSettings extends PreferenceActivity {
      * displayed as well.
      */
     public static Intent createAccountSettingsIntent(Context context, long accountId,
-            String loginWarningAccountName) {
+            String loginWarningAccountName, String loginWarningReason) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
         IntentUtilities.setAccountId(b, accountId);
         Intent i = new Intent(Intent.ACTION_EDIT, b.build());
         if (loginWarningAccountName != null) {
             i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
+        }
+        if (loginWarningReason != null) {
+            i.putExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT, loginWarningReason);
         }
         return i;
     }
@@ -182,9 +188,12 @@ public class AccountSettings extends PreferenceActivity {
                 // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
                 String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
+                String loginWarningReason =
+                        i.getStringExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT);
                 if (loginWarningAccount != null) {
                     // Show dialog (first time only - don't re-show on a rotation)
-                    LoginWarningDialog dialog = LoginWarningDialog.newInstance(loginWarningAccount);
+                    LoginWarningDialog dialog =
+                            LoginWarningDialog.newInstance(loginWarningAccount, loginWarningReason);
                     dialog.show(getFragmentManager(), "loginwarning");
                 }
             }
@@ -809,15 +818,17 @@ public class AccountSettings extends PreferenceActivity {
     public static class LoginWarningDialog extends DialogFragment
             implements DialogInterface.OnClickListener {
         private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
+        private String mReason;
 
         /**
          * Create a new dialog.
          */
-        public static LoginWarningDialog newInstance(String accountName) {
+        public static LoginWarningDialog newInstance(String accountName, String reason) {
             final LoginWarningDialog dialog = new LoginWarningDialog();
             Bundle b = new Bundle();
             b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
             dialog.setArguments(b);
+            dialog.mReason = reason;
             return dialog;
         }
 
@@ -830,8 +841,13 @@ public class AccountSettings extends PreferenceActivity {
             final AlertDialog.Builder b = new AlertDialog.Builder(context);
             b.setTitle(R.string.account_settings_login_dialog_title);
             b.setIconAttribute(android.R.attr.alertDialogIcon);
-            b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
-                    accountName));
+            if (mReason != null) {
+                b.setMessage(res.getString(R.string.account_settings_login_dialog_reason_fmt,
+                        accountName, mReason));
+            } else {
+                b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
+                        accountName));
+            }
             b.setPositiveButton(R.string.okay_action, this);
             b.setNegativeButton(R.string.cancel_action, this);
             return b.create();

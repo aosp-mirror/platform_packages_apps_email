@@ -45,11 +45,11 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void notifyLoginFailed(final long accountId) {
+    public void notifyLoginFailed(final long accountId, final String reason) {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.notifyLoginFailed(accountId);
+                mService.notifyLoginFailed(accountId, reason);
             }
         }, "notifyLoginFailed");
     }

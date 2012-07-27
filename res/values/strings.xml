@@ -911,11 +911,16 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On AccountSettingsXL, dialog title if you were brought here due to a login failure.
         [CHAR_LIMIT=40] -->
     <string name="account_settings_login_dialog_title">Couldn\'t sign in</string>
-    <!-- On AccountSettingsXL, dialog content if you were brought here due to a login failure.
+    <!-- Dialog content if you were brought here due to a login failure.
         [CHAR_LIMIT=none] -->
     <string name="account_settings_login_dialog_content_fmt">
          The username or password for <xliff:g id="account">%s</xliff:g> is incorrect.
          Do you want to update them now?</string>
+    <!-- Dialog content if you were brought here due to a login failure, and the server provided a reason
+        [CHAR_LIMIT=none] -->
+    <string name="account_settings_login_dialog_reason_fmt">
+         Your login to <xliff:g id="account">%s</xliff:g> failed; the server said: <xliff:g id="reason">%s</xliff:g>
+         Do you want to update your username and/or password?</string>
 
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_default_label">Default account</string>
