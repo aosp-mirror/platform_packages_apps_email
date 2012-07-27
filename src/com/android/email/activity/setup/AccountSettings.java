@@ -32,10 +32,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
@@ -842,8 +847,21 @@ public class AccountSettings extends PreferenceActivity {
             b.setTitle(R.string.account_settings_login_dialog_title);
             b.setIconAttribute(android.R.attr.alertDialogIcon);
             if (mReason != null) {
-                b.setMessage(res.getString(R.string.account_settings_login_dialog_reason_fmt,
-                        accountName, mReason));
+                final TextView message = new TextView(context);
+                String alert = res.getString(
+                        R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
+                SpannableString spannableAlertString = new SpannableString(alert);
+                Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
+                message.setText(spannableAlertString);
+                // There must be a better way than specifying size/padding this way
+                // It does work and look right, though
+                int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
+                message.setTextSize(textSize);
+                int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
+                int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
+                message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
+                message.setMovementMethod(LinkMovementMethod.getInstance());
+                b.setView(message);
             } else {
                 b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
                         accountName));

@@ -50,4 +50,9 @@
     <dimen name="replystate_margin_left">8dip</dimen>
     <dimen name="replystate_margin_right">0dip</dimen>
     <dimen name="replystate_margin_top">10sp</dimen>
+
+    <!-- Notification dialog -->
+    <dimen name="dialog_text_size">10sp</dimen>
+    <dimen name="dialog_padding_left">10sp</dimen>
+    <dimen name="dialog_padding_other">4sp</dimen>
 </resources>
