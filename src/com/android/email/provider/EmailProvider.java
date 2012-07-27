@@ -3687,7 +3687,7 @@ outer:
 
     private ContentValues convertUiMessageValues(Message message, ContentValues values) {
         ContentValues ourValues = new ContentValues();
-        for (String columnName: values.keySet()) {
+        for (String columnName : values.keySet()) {
             Object val = values.get(columnName);
             if (columnName.equals(UIProvider.ConversationColumns.STARRED)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
@@ -3697,8 +3697,13 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
                 // Convert from folder list uri to mailbox key
-                ArrayList<Folder> folders = Folder.getFoldersArray((String)val);
-                for (Folder f : folders) {
+                ArrayList<Folder> folders = Folder.getFoldersArray((String) val);
+                if (folders == null || folders.size() == 0 || folders.size() > 1) {
+                    LogUtils.d(TAG,
+                            "Incorrect number of folders for this message: Message is %s",
+                            message.mId);
+                } else {
+                    Folder f = folders.get(0);
                     Uri uri = f.uri;
                     Long mailboxId = Long.parseLong(uri.getLastPathSegment());
                     putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
