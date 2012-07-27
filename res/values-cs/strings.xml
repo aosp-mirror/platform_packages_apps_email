@@ -499,6 +499,6 @@
     <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Kdo vybírá, přebere."</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"Vyberte na serveru složku koše"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Vyberte na serveru složku odeslaných položek"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Vyberte složku odesl. položek"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Vytvořit složku"</string>
 </resources>

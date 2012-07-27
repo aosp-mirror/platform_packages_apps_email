@@ -436,10 +436,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"በመልዕክቶች ዝርዝሮች ውስጥ ለመምረጥ ንካና ያዝ"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
-    <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
-    <skip />
-    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
-    <skip />
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"ለመሰረዝ ያንሸራቱ"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"መልእክቶች"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ከመላክህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልእክቶች"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"ለ የላቀ"</string>
@@ -491,7 +489,7 @@
     <string name="policy_email_age" msgid="7144148367145424963">"የሚመሳሰሉ ኢሜይሎችን ቁጥር ወሰን አድርግ"</string>
     <string name="quick_1" msgid="3426057697353380951">"እናመሰግናለን!"</string>
     <string name="quick_2" msgid="4188036352885736617">"ለኔ ጥሩ ይመስላል!"</string>
-    <string name="quick_3" msgid="8061819976353395585">"በኋላ ይሄንን አነባለው እና ወደ አንተ እመለሳለሁ፡፡"</string>
+    <string name="quick_3" msgid="8061819976353395585">"በኋላ ይሄንን አነበዋለሁ እና ወደ እርስዎ እመለሳለሁ።"</string>
     <string name="quick_4" msgid="3988974084396883051">"ስብሰባ እናዘጋጅ እስቲ ይሄንን ለመወያየት፡፡"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለዚህ መለያ ቦዝኗል፡፡"</string>
     <string name="confirm_response" msgid="9151965975158906286">"ምላሽ በመላክ ላይ..."</string>
