@@ -212,7 +212,7 @@ public class Imap2SyncManager extends SyncManager {
         @Override
         public int getCapabilities(Account acct) throws RemoteException {
             return AccountCapabilities.SYNCABLE_FOLDERS |
-                    //AccountCapabilities.FOLDER_SERVER_SEARCH |
+                    AccountCapabilities.FOLDER_SERVER_SEARCH |
                     AccountCapabilities.UNDO;
         }
     };
