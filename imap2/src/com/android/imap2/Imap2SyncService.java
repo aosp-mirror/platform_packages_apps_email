@@ -1894,9 +1894,11 @@ public class Imap2SyncService extends AbstractSyncService {
             String since = IMAP_DATE_FORMAT.format(date);
             int msgCount = getServerIds(since).length;
             if (msgCount < AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES) {
+                userLog("getAutoSyncWindow returns " + days + " days.");
                 return window;
             }
         }
+        userLog("getAutoSyncWindow returns 1 day.");
         return SyncWindow.SYNC_WINDOW_1_DAY;
     }
 
