@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"要捨棄尚未儲存的變更？"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"無法登入"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> 的使用者名稱或密碼不正確。您要現在更新嗎？"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"您無法登入 <xliff:g id="ACCOUNT">%s</xliff:g> (伺服器顯示訊息：<xliff:g id="REASON">%s</xliff:g>)。您要更新使用者名稱和/或密碼嗎？"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"預設帳戶"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"預設使用這個帳戶傳送電子郵件"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"下載附件"</string>
@@ -436,6 +437,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"在郵件清單中，輕觸並按住項目即可選取"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"刪除前需確認"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"郵件"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"滑動即可刪除"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"郵件"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"傳送前需確認"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"郵件"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"推進至"</string>

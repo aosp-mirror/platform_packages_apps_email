@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Odrzucić niezapisane zmiany?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Nie można się zalogować"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Nazwa użytkownika lub hasło dla konta <xliff:g id="ACCOUNT">%s</xliff:g> są nieprawidłowe. Chcesz je poprawić?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Błąd logowania się na <xliff:g id="ACCOUNT">%s</xliff:g>. Odpowiedź serwera: <xliff:g id="REASON">%s</xliff:g> Czy chcesz zaktualizować nazwę użytkownika i/lub hasło?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Domyślne konto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Pobieraj załączniki"</string>
@@ -436,6 +437,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Dotknij i przytrzymaj, by wybrać pozycję na liście wiadomości"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Potwierdź usuwanie"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Wiadomości"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Usuwaj po przesunięciu palcem"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Wiadomości"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Potwierdź wysyłanie"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Wiadomości"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Przejdź do"</string>

@@ -19,7 +19,7 @@ package com.android.emailcommon.service;
 import android.os.Bundle;
 
 interface IAccountService {
-    oneway void notifyLoginFailed(long accountId);
+    oneway void notifyLoginFailed(long accountId, String reason);
     oneway void notifyLoginSucceeded(long accountId);
 
     void reconcileAccounts(String protocol, String accountManagerType);

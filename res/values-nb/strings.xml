@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vil du forkaste endringer som ikke er lagret?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kunne ikke logge på"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Brukernavnet eller passordet til <xliff:g id="ACCOUNT">%s</xliff:g> er feil. Vil du oppdatere dette nå?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Påloggingen din til <xliff:g id="ACCOUNT">%s</xliff:g> mislyktes. Tjeneren sa: <xliff:g id="REASON">%s</xliff:g> Ønsker du å oppdatere brukernavnet eller passordet ditt?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Bruk denne kontoen som standard for utgående e-post."</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Nedlasting av vedlegg"</string>
@@ -436,6 +437,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Trykk og hold nede for å merke i e-postlister"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekreft før sletting"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"E-poster"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Sveip for å slette"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"E-post"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekreft før sending"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"E-poster"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå til"</string>

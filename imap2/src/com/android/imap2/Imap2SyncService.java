@@ -27,7 +27,9 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.Log;
 
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.internet.Rfc822Output;
@@ -48,6 +50,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.MailboxUtilities;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.CountingOutputStream;
 import com.android.emailcommon.utility.EOLConvertingOutputStream;
@@ -61,6 +64,7 @@ import com.android.emailsync.SyncManager;
 import com.android.imap2.smtp.SmtpSender;
 import com.android.mail.providers.UIProvider;
 import com.beetstra.jutf7.CharsetProvider;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -77,7 +81,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,6 +101,7 @@ public class Imap2SyncService extends AbstractSyncService {
     private static final SimpleDateFormat GMAIL_INTERNALDATE_FORMAT =
             new SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z");
     private static final String IMAP_ERR = "ERR";
+    private static final String IMAP_NO = "NO";
 
     private static final SimpleDateFormat IMAP_DATE_FORMAT =
             new SimpleDateFormat("dd-MMM-yyyy");
@@ -115,6 +123,7 @@ public class Imap2SyncService extends AbstractSyncService {
 
     private static final int SOCKET_CONNECT_TIMEOUT = 10*SECONDS;
     private static final int SOCKET_TIMEOUT = 20*SECONDS;
+    private static final int SEARCH_TIMEOUT = 60*SECONDS;
 
     private static final int AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES = 250;
     private static final int AUTOMATIC_SYNC_WINDOW_LARGE_MAILBOX = 1000;
@@ -295,22 +304,28 @@ public class Imap2SyncService extends AbstractSyncService {
         mStop = true;
     }
 
-    public String writeCommand (Writer out, String cmd) {
+    public String writeCommand (Writer out, String cmd) throws IOException {
+        Integer t = mWriterTag++;
+        String tag = "@@a" + t + ' ';
+        if (!cmd.startsWith("login")) {
+            userLog(tag + cmd);
+        }
+        out.write(tag);
+        out.write(cmd);
+        out.write("\r\n");
+        out.flush();
+        return tag;
+    }
+
+    private void writeContinuation(Writer out, String cmd) {
         try {
-            Integer t = mWriterTag++;
-            String tag = "@@a" + t + ' ';
-            out.write(tag);
             out.write(cmd);
             out.write("\r\n");
             out.flush();
-            if (!cmd.startsWith("login")) {
-                userLog(tag + cmd);
-            }
-            return tag;
+            userLog(cmd);
         } catch (IOException e) {
             userLog("IOException in writeCommand");
         }
-        return null;
     }
 
     private long readLong (String str, int idx) {
@@ -340,7 +355,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     }
                 } catch (NumberFormatException e) {
                 }
-            else if (mMailbox != null && mMailbox.mSyncKey == null || mMailbox.mSyncKey == "0") {
+            else if (mMailbox != null && (mMailbox.mSyncKey == null || mMailbox.mSyncKey == "0")) {
                 str = str.toLowerCase();
                 int idx = str.indexOf("uidvalidity");
                 if (idx > 0) {
@@ -389,6 +404,9 @@ public class Imap2SyncService extends AbstractSyncService {
                         readUntagged(str);
                 } else
                     readUntagged(str);
+            } else if (str.charAt(0) == '+') {
+                mImapResult = str;
+                return str;
             } else if (!mImapResponse.isEmpty()) {
                 // Continuation with string literal, perhaps?
                 int off = mImapResponse.size() - 1;
@@ -432,7 +450,7 @@ public class Imap2SyncService extends AbstractSyncService {
         return Address.toFriendly(Address.unpack(msg.mFrom));
     }
 
-    private Message createMessage (String str) {
+    private Message createMessage (String str, long mailboxId) {
         Parser p = new Parser(str, str.indexOf('(') + 1);
         Date date = null;
         String subject = null;
@@ -444,7 +462,7 @@ public class Imap2SyncService extends AbstractSyncService {
         boolean bodystructure = false;
 
         Message msg = new Message();
-        msg.mMailboxKey = mMailboxId;
+        msg.mMailboxKey = mailboxId;
 
         try {
             while (true) {
@@ -504,6 +522,11 @@ public class Imap2SyncService extends AbstractSyncService {
             msg.mFlagRead = true;
         msg.mTimeStamp = ((date != null) ? date : new Date()).getTime();
         msg.mServerId = Long.toString(uid);
+
+        // If we're not storing to the same mailbox (search), save away our mailbox name
+        if (mailboxId != mMailboxId) {
+            msg.mProtocolSearchInfo = mMailboxName;
+        }
         return msg;
     }
 
@@ -807,7 +830,7 @@ public class Imap2SyncService extends AbstractSyncService {
         // First, generate the appropriate String
         while (!updates.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 20 && !updates.empty(); i++) {
+            for (int i = 0; i < HEADER_BATCH_COUNT && !updates.empty(); i++) {
                 Integer update = updates.pop();
                 if (i != 0) {
                     sb.append(',');
@@ -926,7 +949,7 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
-    private Thread mBodyThread;
+    private BodyThread mBodyThread;
     private Connection mConnection;
 
     private void parseBodystructure (Message msg, Parser p, String level, int cnt,
@@ -1103,9 +1126,40 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
+    /**
+     * Class that loads message bodies in its own thread
+     */
+    private class BodyThread extends Thread {
+        final Connection mConnection;
+        final Cursor mCursor;
+
+        BodyThread(Connection conn, Cursor cursor) {
+            super();
+            mConnection = conn;
+            mCursor = cursor;
+        }
+
+        public void run() {
+            try {
+                fetchMessageData(mConnection, mCursor);
+            } catch (IOException e) {
+                userLog("IOException in body thread; closing...");
+            } finally {
+                mConnection.close();
+                mBodyThread = null;
+            }
+        }
+
+        void close() {
+            mConnection.close();
+        }
+    }
+
     private void fetchMessageData () throws IOException {
         // If we're already loading messages on another thread, there's nothing to do
-        if (mBodyThread != null) return;
+        if (mBodyThread != null) {
+            return;
+        }
         HostAuth hostAuth =
                 HostAuth.restoreHostAuthWithId(mContext, mAccount.mHostAuthKeyRecv);
         if (hostAuth == null) return;
@@ -1122,19 +1176,9 @@ public class Imap2SyncService extends AbstractSyncService {
             if (cnt > 1) {
                 final Connection conn = connectAndLogin(hostAuth, "body");
                 if (conn.status == EXIT_DONE) {
-                    mBodyThread =
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        fetchMessageData(conn, unloaded);
-                                        conn.socket.close();
-                                    } catch (IOException e) {
-                                    } finally {
-                                        mBodyThread = null;
-                                    }
-                                }});
+                    mBodyThread = new BodyThread(conn, unloaded);
                     mBodyThread.start();
+                    userLog("***** Starting mBodyThread " + mBodyThread.getId());
                 } else {
                     fetchMessageData(mConnection, unloaded);
                 }
@@ -1524,11 +1568,23 @@ public class Imap2SyncService extends AbstractSyncService {
         return tokens;
     }
 
+    /**
+     * Convenience class to hold state for a single IMAP connection
+     */
     public static class Connection {
         Socket socket;
         int status;
+        String reason;
         ImapInputStream reader;
         BufferedWriter writer;
+
+        void close() {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                // It's all good
+            }
+        }
     }
 
     private String mUserAgent;
@@ -1595,7 +1651,13 @@ public class Imap2SyncService extends AbstractSyncService {
 
             tag = writeCommand(writer,
                     "login " + hostAuth.mLogin + ' ' + hostAuth.mPassword);
-            if (!readResponse(reader, tag).equals(IMAP_OK)) {
+            if (!IMAP_OK.equals(readResponse(reader, tag))) {
+                if (IMAP_NO.equals(mImapResult)) {
+                    int alertPos = mImapErrorLine.indexOf("[ALERT]");
+                    if (alertPos > 0) {
+                        conn.reason = mImapErrorLine.substring(alertPos + 7);
+                    }
+                }
                 conn.status = EXIT_LOGIN_FAILURE;
             } else {
                 conn.socket = socket;
@@ -1702,7 +1764,7 @@ public class Imap2SyncService extends AbstractSyncService {
             // We might have left IDLE due to an exception
             if (mSocket != null) {
                 // Reset the standard timeout
-                mSocket.setSoTimeout(20 * 1000);
+                mSocket.setSoTimeout(SOCKET_TIMEOUT);
             }
             mIsIdle = false;
             mThread.setName(mMailboxName + "[" + mAccount.mDisplayName + "]");
@@ -1832,9 +1894,11 @@ public class Imap2SyncService extends AbstractSyncService {
             String since = IMAP_DATE_FORMAT.format(date);
             int msgCount = getServerIds(since).length;
             if (msgCount < AUTOMATIC_SYNC_WINDOW_MAX_MESSAGES) {
+                userLog("getAutoSyncWindow returns " + days + " days.");
                 return window;
             }
         }
+        userLog("getAutoSyncWindow returns 1 day.");
         return SyncWindow.SYNC_WINDOW_1_DAY;
     }
 
@@ -1863,6 +1927,40 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
+    private void loadMessages(ArrayList<Integer> loadList, long mailboxId) throws IOException {
+        int idx= 1;
+        boolean loadedSome = false;
+        int cnt = loadList.size();
+        while (idx <= cnt) {
+            ArrayList<Message> tmsgList = new ArrayList<Message> ();
+            int tcnt = 0;
+            StringBuilder tsb = new StringBuilder("uid fetch ");
+            for (tcnt = 0; tcnt < HEADER_BATCH_COUNT && idx <= cnt; tcnt++, idx++) {
+                // Load most recent first
+                if (tcnt > 0)
+                    tsb.append(',');
+                tsb.append(loadList.get(cnt - idx));
+            }
+            tsb.append(" (uid internaldate flags envelope bodystructure)");
+            String tag = writeCommand(mWriter, tsb.toString());
+            if (readResponse(mReader, tag, "FETCH").equals(IMAP_OK)) {
+                // Create message and store
+                for (int j = 0; j < tcnt; j++) {
+                    Message msg = createMessage(mImapResponse.get(j), mailboxId);
+                    tmsgList.add(msg);
+                }
+                saveNewMessages(tmsgList);
+            }
+
+            fetchMessageData();
+            loadedSome = true;
+        }
+        // TODO: Use loader to watch for changes on unloaded body cursor
+        if (!loadedSome) {
+            fetchMessageData();
+        }
+    }
+
     private void sync () throws IOException {
         mThread = Thread.currentThread();
 
@@ -1872,6 +1970,7 @@ public class Imap2SyncService extends AbstractSyncService {
         Connection conn = connectAndLogin(hostAuth, "main");
         if (conn.status != EXIT_DONE) {
             mExitStatus = conn.status;
+            mExitReason = conn.reason;
             return;
         }
         setConnection(conn);
@@ -1920,7 +2019,6 @@ public class Imap2SyncService extends AbstractSyncService {
 
                     Date date = new Date(System.currentTimeMillis() - (days*DAYS));
                     String since = IMAP_DATE_FORMAT.format(date);
-                    String tag;
                     int[] serverList = getServerIds(since);
                     if (serverList == null) {
                         // Do backoff; hope it works next time.  Should never happen
@@ -1936,39 +2034,9 @@ public class Imap2SyncService extends AbstractSyncService {
                     ArrayList<Integer> deleteList = r.delete;
                     serverList = null;
                     deviceList = null;
-                    int cnt = loadList.size();
 
                     // We load message headers in batches
-                    int idx= 1;
-                    boolean loadedSome = false;
-                    while (idx <= cnt) {
-                        ArrayList<Message> tmsgList = new ArrayList<Message> ();
-                        int tcnt = 0;
-                        StringBuilder tsb = new StringBuilder("uid fetch ");
-                        for (tcnt = 0; tcnt < HEADER_BATCH_COUNT && idx <= cnt; tcnt++, idx++) {
-                            // Load most recent first
-                            if (tcnt > 0)
-                                tsb.append(',');
-                            tsb.append(loadList.get(cnt - idx));
-                        }
-                        tsb.append(" (uid internaldate flags envelope bodystructure)");
-                        tag = writeCommand(mWriter, tsb.toString());
-                        if (readResponse(mReader, tag, "FETCH").equals(IMAP_OK)) {
-                            // Create message and store
-                            for (int j = 0; j < tcnt; j++) {
-                                Message msg = createMessage(mImapResponse.get(j));
-                                tmsgList.add(msg);
-                            }
-                            saveNewMessages(tmsgList);
-                        }
-
-                        fetchMessageData();
-                        loadedSome = true;
-                    }   
-                    // TODO: Use loader to watch for changes on unloaded body cursor
-                    if (!loadedSome) {
-                        fetchMessageData();
-                    }
+                    loadMessages(loadList, mMailboxId);
 
                     // Reflect server deletions on device; do them all at once
                     processServerDeletes(deleteList);
@@ -1998,11 +2066,11 @@ public class Imap2SyncService extends AbstractSyncService {
                 }
 
             } finally {
-                if (mSocket != null) {
+                if (mConnection != null) {
                     try {
                         // Try to logout
                         readResponse(mReader, writeCommand(mWriter, "logout"));
-                        mSocket.close();
+                        mConnection.close();
                     } catch (IOException e) {
                         // We're leaving anyway
                     }
@@ -2107,7 +2175,7 @@ public class Imap2SyncService extends AbstractSyncService {
             userLog("Caught IOException: ", (message == null) ? "No message" : message);
             mExitStatus = EXIT_IO_ERROR;
         } catch (Exception e) {
-            userLog("Uncaught exception in EasSyncService", e);
+            userLog("Uncaught exception in Imap2SyncService", e);
         } finally {
             int status;
             Imap2SyncManager.done(this);
@@ -2154,6 +2222,11 @@ public class Imap2SyncService extends AbstractSyncService {
                 Imap2SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
             } catch (RemoteException e1) {
                 // Don't care if this fails
+            }
+
+            // Make sure we close our body thread (if any)
+            if (mBodyThread != null) {
+                mBodyThread.close();
             }
 
             // Make sure ExchangeService knows about this
@@ -2221,4 +2294,157 @@ public class Imap2SyncService extends AbstractSyncService {
                     "Certificate hostname not useable for server: " + hostname);
         }
     }
+
+    /**
+     * Cache search results by account; this allows for "load more" support without having to
+     * redo the search (which can be quite slow).
+     */
+    private static final HashMap<Long, Integer[]> sSearchResults = new HashMap<Long, Integer[]>();
+
+    @VisibleForTesting
+    protected static boolean isAsciiString(String str) {
+        int len = str.length();
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+            if (c >= 128) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Wrapper for a search result with possible exception (to be sent back to the UI)
+     */
+    private static class SearchResult {
+        Integer[] uids;
+        Exception exception;
+
+        SearchResult(Integer[] _uids, Exception _exception) {
+            uids = _uids;
+            exception = _exception;
+        }
+    }
+
+    private SearchResult getSearchResults(SearchParams searchParams) {
+        String filter = searchParams.mFilter;
+        // All servers MUST accept US-ASCII, so we'll send this as the CHARSET unless we're really
+        // dealing with a string that contains non-ascii characters
+        String charset = "US-ASCII";
+        if (!isAsciiString(filter)) {
+            charset = "UTF-8";
+        }
+        List<String> commands = new ArrayList<String>();
+        // This is the length of the string in octets (bytes), formatted as a string literal {n}
+        String octetLength = "{" + filter.getBytes().length + "}";
+        // Break the command up into pieces ending with the string literal length
+        commands.add("UID SEARCH CHARSET " + charset + " OR FROM " + octetLength);
+        commands.add(filter + " (OR TO " + octetLength);
+        commands.add(filter + " (OR CC " + octetLength);
+        commands.add(filter + " (OR SUBJECT " + octetLength);
+        commands.add(filter + " BODY " + octetLength);
+        commands.add(filter + ")))");
+
+        Exception exception = null;
+        try {
+            int len = commands.size();
+            String tag = null;
+            for (int i = 0; i < len; i++) {
+                String command = commands.get(i);
+                if (i == 0) {
+                    mSocket.setSoTimeout(SEARCH_TIMEOUT);
+                    tag = writeCommand(mWriter, command);
+                } else {
+                    writeContinuation(mWriter, command);
+                }
+                if (readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
+                    // Done
+                    String msgs = mImapResponse.get(0);
+                    Parser p = new Parser(msgs, 8);
+                    Integer[] serverList = p.gatherIntegers();
+                    Arrays.sort(serverList, Collections.reverseOrder());
+                    return new SearchResult(serverList, null);
+                } else if (mImapResult.startsWith("+")){
+                    continue;
+                } else {
+                    errorLog("Server doesn't understand complex SEARCH?");
+                    break;
+                }
+            }
+        } catch (SocketTimeoutException e) {
+            exception = e;
+            errorLog("Search timed out");
+        } catch (IOException e) {
+            exception = e;
+            errorLog("Search IOException");
+        }
+        return new SearchResult(new Integer[0], exception);
+    }
+
+    public int searchMailbox(final Context context, long accountId, SearchParams searchParams,
+            final long destMailboxId) throws IOException {
+        final Account account = Account.restoreAccountWithId(context, accountId);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, searchParams.mMailboxId);
+        final Mailbox destMailbox = Mailbox.restoreMailboxWithId(context, destMailboxId);
+        if (account == null || mailbox == null || destMailbox == null) {
+            Log.d(Logging.LOG_TAG, "Attempted search for " + searchParams
+                    + " but account or mailbox information was missing");
+            return 0;
+        }
+        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+        if (hostAuth == null) {
+        }
+
+        Connection conn = connectAndLogin(hostAuth, "search");
+        if (conn.status != EXIT_DONE) {
+            mExitStatus = conn.status;
+            return 0;
+        }
+        try {
+            setConnection(conn);
+
+            Integer[] sortedUids = null;
+            if (searchParams.mOffset == 0) {
+                SearchResult result = getSearchResults(searchParams);
+                if (result.exception == null) {
+                    sortedUids = result.uids;
+                    sSearchResults.put(accountId, sortedUids);
+                } else {
+                    throw new IOException();
+                }
+            } else {
+                sortedUids = sSearchResults.get(accountId);
+            }
+
+            final int numSearchResults = sortedUids.length;
+            final int numToLoad =
+                Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+            if (numToLoad <= 0) {
+                return 0;
+            }
+
+            final ArrayList<Integer> loadList = new ArrayList<Integer>();
+            for (int i = searchParams.mOffset; i < numToLoad + searchParams.mOffset; i++) {
+                loadList.add(sortedUids[i]);
+            }
+            try {
+                loadMessages(loadList, destMailboxId);
+            } catch (IOException e) {
+                // TODO: How do we handle this?
+                return 0;
+            }
+
+            return sortedUids.length;
+        } finally {
+            if (mSocket != null) {
+                try {
+                    // Try to logout
+                    readResponse(mReader, writeCommand(mWriter, "logout"));
+                    mSocket.close();
+                } catch (IOException e) {
+                    // We're leaving anyway
+                }
+            }
+        }
+    }
 }
+
+

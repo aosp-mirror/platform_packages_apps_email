@@ -78,12 +78,14 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
+import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
+import com.android.mail.providers.UIProvider.Swipe;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
@@ -350,6 +352,9 @@ public class EmailProvider extends ContentProvider {
 
     // Query parameter indicating the command came from UIProvider
     private static final String IS_UIPROVIDER = "is_uiprovider";
+
+    private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
+    private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
 
     static {
         // Email URI matching table
@@ -885,7 +890,7 @@ public class EmailProvider extends ContentProvider {
                     }
                     if (match == ACCOUNT_ID) {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
-                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
                     }
@@ -1023,7 +1028,7 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
-    private static final Uri UIPROVIDER_ACCOUNTS_NOTIFIER =
+    public static final Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
@@ -1122,7 +1127,7 @@ public class EmailProvider extends ContentProvider {
                         // Report all new attachments to the download service
                         mAttachmentService.attachmentChanged(getContext(), longId, flags);
                     } else if (match == ACCOUNT) {
-                        resolver.notifyChange(UIPROVIDER_ACCOUNTS_NOTIFIER, null);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     }
                     break;
                 case MAILBOX_ID:
@@ -1804,7 +1809,9 @@ outer:
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
                     } else if (match == ACCOUNT_ID) {
+                        // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
+                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     }
                     break;
                 case BODY:
@@ -2127,9 +2134,6 @@ outer:
     .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
     .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
     .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
-    .add(UIProvider.ConversationColumns.FOLDER_LIST,
-            "'content://" + EmailContent.AUTHORITY + "/uifolder/' || "
-                    + MessageColumns.MAILBOX_KEY)
     .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
     .add(UIProvider.ConversationColumns.ACCOUNT_URI,
             "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
@@ -2722,6 +2726,10 @@ outer:
             values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
                     prefs.getConfirmSend() ? "1" : "0");
         }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SWIPE)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.SWIPE,
+                    prefs.getSwipeDelete() ? SWIPE_DELETE : SWIPE_DISABLED);
+        }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
@@ -2950,7 +2958,7 @@ outer:
         } finally {
             accountIdCursor.close();
         }
-        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ACCOUNTS_NOTIFIER);
+        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
         return mc;
     }
 
@@ -3679,7 +3687,7 @@ outer:
 
     private ContentValues convertUiMessageValues(Message message, ContentValues values) {
         ContentValues ourValues = new ContentValues();
-        for (String columnName: values.keySet()) {
+        for (String columnName : values.keySet()) {
             Object val = values.get(columnName);
             if (columnName.equals(UIProvider.ConversationColumns.STARRED)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
@@ -3687,13 +3695,19 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
             } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
-            } else if (columnName.equals(UIProvider.ConversationColumns.FOLDER_LIST)) {
-                // Convert from folder list uri to mailbox key
-                Uri uri = Uri.parse((String)val);
-                Long mailboxId = Long.parseLong(uri.getLastPathSegment());
-                putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
-                // Ignore; this is updated by the FOLDER_LIST update above.
+                // Convert from folder list uri to mailbox key
+                ArrayList<Folder> folders = Folder.getFoldersArray((String) val);
+                if (folders == null || folders.size() == 0 || folders.size() > 1) {
+                    LogUtils.d(TAG,
+                            "Incorrect number of folders for this message: Message is %s",
+                            message.mId);
+                } else {
+                    Folder f = folders.get(0);
+                    Uri uri = f.uri;
+                    Long mailboxId = Long.parseLong(uri.getLastPathSegment());
+                    putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
+                }
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
                 Address[] fromList = Address.unpack(message.mFrom);
                 Preferences prefs = Preferences.getPreferences(getContext());
@@ -3913,6 +3927,10 @@ outer:
     private void notifyUIConversationMailbox(long id) {
         notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(id));
         Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(), id);
+        if (mailbox == null) {
+            Log.w(TAG, "No mailbox for notification: " + id);
+            return;
+        }
         // Notify combined inbox...
         if (mailbox.mType == Mailbox.TYPE_INBOX) {
             notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER,

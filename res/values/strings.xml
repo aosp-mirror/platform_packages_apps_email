@@ -549,7 +549,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On "Set up email" screen, checkbox label for making the new account the default account -->
     <string name="account_setup_basics_default_label">
         Send email from this account by default</string>
-    <!-- Button name on "Set up email" screen -->
+    <!-- Button name on "Set up email" screen [CHAR LIMIT=20] -->
     <string name="account_setup_basics_manual_setup_action">Manual setup</string>
     <!-- Toast when we can't build a URI from the given email & password -->
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know
@@ -911,11 +911,16 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On AccountSettingsXL, dialog title if you were brought here due to a login failure.
         [CHAR_LIMIT=40] -->
     <string name="account_settings_login_dialog_title">Couldn\'t sign in</string>
-    <!-- On AccountSettingsXL, dialog content if you were brought here due to a login failure.
+    <!-- Dialog content if you were brought here due to a login failure.
         [CHAR_LIMIT=none] -->
     <string name="account_settings_login_dialog_content_fmt">
          The username or password for <xliff:g id="account">%s</xliff:g> is incorrect.
          Do you want to update them now?</string>
+    <!-- Dialog content if you were brought here due to a login failure, and the server provided a reason
+        [CHAR_LIMIT=none] -->
+    <string name="account_settings_login_dialog_reason_fmt">
+         Your login to <xliff:g id="account">%s</xliff:g> failed; the server said: <xliff:g id="reason">%s</xliff:g>
+         Do you want to update your username and/or password?</string>
 
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_default_label">Default account</string>
@@ -1128,6 +1133,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=64] -->
     <string name="general_preference_confirm_delete_summary">Messages</string>
+    <!-- General preference: Label of the setting for enabling swipe-to-delete [CHAR LIMIT=32] -->
+    <string name="general_preference_swipe_delete_label">Swipe to delete</string>
+    <!-- General preference: Description of the setting for enabling swipe-to-delete [CHAR LIMIT=64] -->
+    <string name="general_preference_swipe_delete_summary">Messages</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_send_label">Confirm before sending</string>

@@ -396,12 +396,12 @@ public class NotificationController {
         intent.putExtra(EXTRA_ACCOUNT, account.serialize());
         if (folder != null) {
             intent.setDataAndType(folder.uri, account.mimeType);
-            intent.putExtra(EXTRA_FOLDER, folder.serialize());
+            intent.putExtra(EXTRA_FOLDER, Folder.toString(folder));
         }
         intent.putExtra(EXTRA_CONVERSATION, conversation);
         return intent;
     }
-    
+
     private Cursor getUiCursor(Uri uri, String[] projection) {
         Cursor c = mContext.getContentResolver().query(uri, projection, null, null, null);
         if (c == null) return null;
@@ -412,7 +412,7 @@ public class NotificationController {
             return null;
         }
     }
-    
+
     private Intent createViewConversationIntent(Message message) {
         Cursor c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
                 UIProvider.ACCOUNTS_PROJECTION);
@@ -747,6 +747,10 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showLoginFailedNotification(long accountId) {
+        showLoginFailedNotification(accountId, null);
+    }
+
+    public void showLoginFailedNotification(long accountId, String reason) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
         final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
@@ -757,7 +761,7 @@ public class NotificationController {
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
                 AccountSettings.createAccountSettingsIntent(mContext, accountId,
-                        account.mDisplayName),
+                        account.mDisplayName, reason),
                 getLoginFailedNotificationId(accountId));
     }
 
@@ -841,7 +845,8 @@ public class NotificationController {
      * account settings screen where he can view the list of enforced policies
      */
     public void showSecurityChangedNotification(Account account) {
-        Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
+        Intent intent =
+                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
@@ -855,7 +860,8 @@ public class NotificationController {
      * account settings screen where he can view the list of unsupported policies
      */
     public void showSecurityUnsupportedNotification(Account account) {
-        Intent intent = AccountSettings.createAccountSettingsIntent(mContext, account.mId, null);
+        Intent intent =
+                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);

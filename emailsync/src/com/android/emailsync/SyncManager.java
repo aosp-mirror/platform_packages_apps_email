@@ -1270,13 +1270,13 @@ public abstract class SyncManager extends Service implements Runnable {
         }
     }
 
-    private void setMailboxSyncStatus(long id, int status) {
+    public void setMailboxSyncStatus(long id, int status) {
         ContentValues values = new ContentValues();
         values.put(Mailbox.UI_SYNC_STATUS, status);
         mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
     }
 
-    private void setMailboxLastSyncResult(long id, int result) {
+    public void setMailboxLastSyncResult(long id, int result) {
         ContentValues values = new ContentValues();
         values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
         mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
@@ -2008,6 +2008,7 @@ public abstract class SyncManager extends Service implements Runnable {
 
     static public void sendMessageRequest(Request req) {
         SyncManager ssm = INSTANCE;
+        if (ssm == null) return;
         Message msg = Message.restoreMessageWithId(ssm, req.mMessageId);
         if (msg == null) return;
         long mailboxId = msg.mMailboxKey;
@@ -2029,7 +2030,12 @@ public abstract class SyncManager extends Service implements Runnable {
                 }
             }
         }
+        sendRequest(mailboxId, req);
+    }
 
+    static public void sendRequest(long mailboxId, Request req) {
+        SyncManager ssm = INSTANCE;
+        if (ssm == null) return;
         AbstractSyncService service = ssm.mServiceMap.get(mailboxId);
         if (service == null) {
             startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
@@ -2203,7 +2209,7 @@ public abstract class SyncManager extends Service implements Runnable {
                         break;
                     // These errors are not retried automatically
                     case AbstractSyncService.EXIT_LOGIN_FAILURE:
-                        new AccountServiceProxy(ssm).notifyLoginFailed(m.mAccountKey);
+                        new AccountServiceProxy(ssm).notifyLoginFailed(m.mAccountKey, svc.mExitReason);
                         lastResult = EmailContent.LAST_SYNC_RESULT_AUTH_ERROR;
                         break;
                     case AbstractSyncService.EXIT_SECURITY_FAILURE:
