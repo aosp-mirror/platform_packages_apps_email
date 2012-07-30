@@ -358,6 +358,8 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"要舍弃未保存的更改？"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"无法登录"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> 的用户名或密码不正确。要立即更新吗？"</string>
+    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
+    <skip />
     <string name="account_settings_default_label" msgid="3575963379680943640">"默认帐户"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"默认情况下从此帐户发送电子邮件"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"下载附件"</string>

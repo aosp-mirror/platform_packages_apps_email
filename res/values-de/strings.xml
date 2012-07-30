@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Anmeldung nicht möglich"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Nutzername oder Passwort für <xliff:g id="ACCOUNT">%s</xliff:g> ist falsch. Möchten Sie die Daten jetzt ändern?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Fehler bei Ihrer Anmeldung in <xliff:g id="ACCOUNT">%s</xliff:g>. Servermeldung: <xliff:g id="REASON">%s</xliff:g> Möchten Sie Ihren Nutzernamen und/oder Ihr Passwort aktualisieren?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-Mails standardmäßig von diesem Konto senden"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Anhänge herunterladen"</string>

@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Discard unsaved changes?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Couldn\'t sign in"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"The username or password for <xliff:g id="ACCOUNT">%s</xliff:g> is incorrect. Do you want to update them now?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Your login to <xliff:g id="ACCOUNT">%s</xliff:g> failed; the server said: <xliff:g id="REASON">%s</xliff:g> Do you want to update your username and/or password?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Default account"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send email from this account by default"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Download attachments"</string>

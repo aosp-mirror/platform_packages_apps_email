@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Відхилити незбережені зміни?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не вдалося ввійти"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Ім’я користувача чи пароль для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g> неправильні. Оновити зараз?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Не вдалося ввійти в обліковий запис <xliff:g id="ACCOUNT">%s</xliff:g>; відповідь сервера: <xliff:g id="REASON">%s</xliff:g> Оновити ім’я користувача та/чи пароль?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Обл. зап. за умовч."</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Надіс. ел.листи з цього обл. зап. за умовч."</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Завантажити вкладені файли"</string>
