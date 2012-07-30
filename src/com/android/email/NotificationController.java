@@ -396,12 +396,12 @@ public class NotificationController {
         intent.putExtra(EXTRA_ACCOUNT, account.serialize());
         if (folder != null) {
             intent.setDataAndType(folder.uri, account.mimeType);
-            intent.putExtra(EXTRA_FOLDER, folder.serialize());
+            intent.putExtra(EXTRA_FOLDER, Folder.toString(folder));
         }
         intent.putExtra(EXTRA_CONVERSATION, conversation);
         return intent;
     }
-    
+
     private Cursor getUiCursor(Uri uri, String[] projection) {
         Cursor c = mContext.getContentResolver().query(uri, projection, null, null, null);
         if (c == null) return null;
@@ -412,7 +412,7 @@ public class NotificationController {
             return null;
         }
     }
-    
+
     private Intent createViewConversationIntent(Message message) {
         Cursor c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
                 UIProvider.ACCOUNTS_PROJECTION);
