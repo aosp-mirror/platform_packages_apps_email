@@ -27,6 +27,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -38,7 +39,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.email.EmailAddressValidator;
@@ -52,10 +52,9 @@ import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -453,6 +452,13 @@ public class AccountSetupBasics extends AccountSetupActivity
             Account account = SetupData.getAccount();
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
+
+            // STOPSHIP; Use for Imap2 testing
+            if (HostAuth.LEGACY_SCHEME_IMAP.equals(recvAuth.mProtocol) &&
+                    EmailServiceUtils.isServiceAvailable(this, "imap2")) {
+                recvAuth.mProtocol = "imap2";
+            }
+
             recvAuth.setLogin(mProvider.incomingUsername, password);
             EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
             recvAuth.mPort =
@@ -537,6 +543,23 @@ public class AccountSetupBasics extends AccountSetupActivity
         String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider != null) {
+
+            // STOPSHIP Warn user about Imap2, if necessary
+            mProvider.expandTemplates(email);
+            try {
+                URI uri = new URI(mProvider.incomingUri);
+                String scheme = uri.getScheme();
+                String[] schemeParts = scheme.split("\\+");
+                String protocol = schemeParts[0];
+                if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol) &&
+                        EmailServiceUtils.isServiceAvailable(this, "imap2")) {
+                    mProvider.note = "This account will use the new \"Push Imap\" sync adapter." +
+                        " To use the legacy adapter, please cancel and use Manual Setup.";
+                }
+            } catch (URISyntaxException e) {
+                // Ignore
+            }
+
             if (mProvider.note != null) {
                 NoteDialogFragment dialogFragment =
                         NoteDialogFragment.newInstance(mProvider.note);
