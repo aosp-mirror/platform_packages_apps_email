@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"از تغییرات ذخیره نشده صرفنظر شود؟"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"ورود به سیستم ممکن نیست"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"نام کاربری یا گذرواژه <xliff:g id="ACCOUNT">%s</xliff:g> نادرست است. آیا می‌خواهید هم‌اکنون آن‌ها را به‌روز کنید؟"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"ورود به سیستم شما به <xliff:g id="ACCOUNT">%s</xliff:g> انجام نشد؛ سرور این پیام را داد: <xliff:g id="REASON">%s</xliff:g> آیا می‌خواهید نام کاربری و/یا  گذرواژه خود را به‌روزرسانی کنید؟"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"حساب پیش‌فرض"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"ارسال ایمیل از این حساب به صورت پیش‌فرض"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"دانلود پیوست‌ها"</string>

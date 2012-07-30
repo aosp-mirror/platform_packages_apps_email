@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Απόρριψη μη αποθηκευμένων αλλαγών;"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Δεν ήταν δυνατή η σύνδεση"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Το όνομα χρήστη ή ο κωδικός πρόσβασης του λογαριασμού <xliff:g id="ACCOUNT">%s</xliff:g> είναι λάθος. Θέλετε να τα ενημερώσετε τώρα;"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Η σύνδεση στο <xliff:g id="ACCOUNT">%s</xliff:g> απέτυχε. Ο διακομιστής ανέφερε την εξής αιτία: <xliff:g id="REASON">%s</xliff:g> Θέλετε να ενημερώσετε το όνομα χρήστη και τον κωδικό πρόσβασης;"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Προεπιλεγμένος λογαριασμός"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Αποστολή μηνυμάτων ηλεκτρονικού ταχυδρομείου από αυτόν τον λογαριασμό από προεπιλογή"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Λήψη συνημμένων"</string>

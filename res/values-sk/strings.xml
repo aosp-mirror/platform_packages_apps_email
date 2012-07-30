@@ -358,6 +358,8 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zahodiť neuložené zmeny?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Prihlásenie sa nepodarilo"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Používateľské meno alebo heslo pre účet <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávne. Chcete ich aktualizovať?"</string>
+    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
+    <skip />
     <string name="account_settings_default_label" msgid="3575963379680943640">"Predvolený účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"V predvolenom nastavení odosielať e-maily z tohto účtu"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Preberať všetky prílohy"</string>
@@ -436,10 +438,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"V zozname správ urobte výber dotknutím sa a podržaním"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Pred odstránením potvrdiť"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Správy"</string>
-    <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
-    <skip />
-    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
-    <skip />
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Odstránenie posunutím"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Správy"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Pred odoslaním potvrdiť"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Správy"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Pokračovať do"</string>
