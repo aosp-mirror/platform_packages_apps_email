@@ -493,8 +493,8 @@
     <string name="confirm_response" msgid="9151965975158906286">"Надсилання відповіді…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Немає повідомлень."</string>
     <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Вибрати папку."</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Виберіть серверну папку Кошик"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Вибер.серверну папку з надісл."</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Вибрати папку"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Виберіть папку для видалених"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Виберіть папку для надісланих"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Створити папку"</string>
 </resources>

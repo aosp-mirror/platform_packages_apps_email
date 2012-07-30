@@ -494,7 +494,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"Niciun mesaj."</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAP de tip push"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Dosar coş de gunoi pt. server"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Dosar elem. trimise pt. server"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Alegeți coș gunoi server"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Alegeți mesaje trimise server"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Creaţi un dosar"</string>
 </resources>

@@ -494,7 +494,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"沒有任何郵件。"</string>
     <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"仔細挑選！"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"選取伺服器垃圾郵件資料夾"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"選取伺服器垃圾桶資料夾"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"選取伺服器寄件備份資料夾"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"建立資料夾"</string>
 </resources>

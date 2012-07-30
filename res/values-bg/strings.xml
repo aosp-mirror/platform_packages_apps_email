@@ -493,7 +493,7 @@
     <string name="confirm_response" msgid="9151965975158906286">"Отговорът се изпраща…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Няма съобщения."</string>
     <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Подбирайте внимателно!"</string>
+    <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"Избор на папка „Кошче“ за сървъра"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"Избор на папка за изпратени до сървъра елементи"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Създаване на папка"</string>

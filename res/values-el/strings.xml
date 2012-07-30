@@ -495,6 +495,6 @@
     <string name="imap2_name" msgid="2742745881421883233">"Προώθηση IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"Επιλεκτικό, επιλεκτικό, επιλεκτικό!"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"Επιλ.φάκ. απορριμ.διακομ."</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Επιλ.φάκ. για απεσ.στοιχ.διακ."</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Επιλ. φάκελο απεστ. διακομ."</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Δημιουργία φακέλου"</string>
 </resources>
