@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Atmesti neišsaugotus pakeitimus?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Nepavyko prisijungti"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Neteisingas „<xliff:g id="ACCOUNT">%s</xliff:g>“ naudotojo vardas ar slaptažodis. Ar norite atnaujinti juos dabar?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Nepavyko prisijungti prie <xliff:g id="ACCOUNT">%s</xliff:g>. Serveris nurodė: <xliff:g id="REASON">%s</xliff:g> Ar norite atnaujinti naudotojo vardą ir (arba) slaptažodį?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Numatytoji paskyra"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Pagal numatytuosius nustatymus siųsti el. laišką iš šios paskyros"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Atsisiųsti priedus"</string>

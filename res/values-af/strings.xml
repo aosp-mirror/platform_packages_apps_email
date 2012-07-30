@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Raak van ongestoorde veranderinge ontslae?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kon nie aanmeld nie."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Die gebruikernaam of wagwoord vir <xliff:g id="ACCOUNT">%s</xliff:g> is verkeerd. Wil jy dit nou opdateer?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Jou aanmelding by <xliff:g id="ACCOUNT">%s</xliff:g> het misluk; die bediener het gesê: <xliff:g id="REASON">%s</xliff:g> Wil jy jou gebruikernaam en/of wagwoord opdateer?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Verstek rekening"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Stuur e-pos by verstek vanaf hierdie rekening"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Laai aanhegsels af"</string>

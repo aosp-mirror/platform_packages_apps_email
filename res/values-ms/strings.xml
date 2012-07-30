@@ -358,6 +358,8 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Buang perubahan yang belum disimpan?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Tidak dapat melog masuk"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Nama pengguna atau kata laluan untuk <xliff:g id="ACCOUNT">%s</xliff:g> adalah tidak betul. Adakah anda mahu mengemaskininya sekarang?"</string>
+    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
+    <skip />
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akaun lalai"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Hantar e-mel daripada akaun ini secara lalainya"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Muat turun lampiran"</string>

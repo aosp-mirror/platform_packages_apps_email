@@ -527,6 +527,8 @@
     <skip />
     <!-- no translation found for account_settings_login_dialog_content_fmt (8849649646111167377) -->
     <skip />
+    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
+    <skip />
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conto predefinì"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Trametter ils e-mails tenor standard cun quest conto"</string>
     <!-- no translation found for account_settings_background_attachments_label (2980317599840958688) -->

@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Скасаваць незахаваныя змяненні?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не атрымалася ўвайсці"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Імя карыстальніка і пароль для ўліковага запісу <xliff:g id="ACCOUNT">%s</xliff:g> няправільныя. Абнавіць іх зараз?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Не атрымалася ўвайсцi ва ўлiковы запiс <xliff:g id="ACCOUNT">%s</xliff:g>; сервер адказаў: <xliff:g id="REASON">%s</xliff:g> Абнавiць ваша iмя карыстальнiка або пароль?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Уліковы запіс па змаўчанні"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Адпраўляць пошту з гэтага ўліковага запісу па змаўчанні"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Спампаваць далучэнні"</string>
