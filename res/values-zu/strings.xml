@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Lahla izinguquko ezingagciniwe?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Ayikwazanga ukungena ngemvume."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Igama lomsebenzisi noma iphasiwedi ye-<xliff:g id="ACCOUNT">%s</xliff:g> ayilungile. Ufuna ukuzivuselela manje?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Ukungena kwakho ngemvume ku-<xliff:g id="ACCOUNT">%s</xliff:g> akuphumelelanga; isiphakeli sithe: <xliff:g id="REASON">%s</xliff:g> Ingabe ufuna ukubuyekeza igama lomsebenzisi kanye/noma iphasiwedi yakho?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"I-akhawunti ezenzakalelayo"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Thumela i-imeyli kusuka kule akhawunti ngokuzenzakalelayo"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Layisha ngokungenisa okunamathelayo"</string>

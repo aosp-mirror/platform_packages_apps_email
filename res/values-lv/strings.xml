@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vai atmest nesaglabātās izmaiņas?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Nevarēja pierakstīties"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Konta <xliff:g id="ACCOUNT">%s</xliff:g> lietotājvārds vai parole nav pareiza. Vai vēlaties tos atjaunināt tūlīt?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Pieteikšanās kontā <xliff:g id="ACCOUNT">%s</xliff:g> nebija veiksmīga; serveris norādīja šādu iemeslu: <xliff:g id="REASON">%s</xliff:g> Vai vēlaties atjaunināt lietotājvārdu un/vai paroli?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Noklusējuma konts"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Pēc noklusējuma sūtīt e-pasta ziņojumus no šī konta"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Lejupielādēt pielikumus"</string>

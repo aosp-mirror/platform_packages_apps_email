@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Rejeitar alterações não guardadas?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Não foi possível iniciar sessão."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"O nome de utilizador ou a palavra-passe para <xliff:g id="ACCOUNT">%s</xliff:g> estão incorretos. Pretende atualizá-los agora?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"O seu início de sessão para <xliff:g id="ACCOUNT">%s</xliff:g> falhou; o servidor perguntou: <xliff:g id="REASON">%s</xliff:g> Pretende atualizar o seu nome de utilizador e/ou palavra-passe?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conta predefinida"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar e-mail a partir desta conta por predefinição"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Transferir anexos"</string>

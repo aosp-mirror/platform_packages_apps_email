@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Ignorare le modifiche non salvate?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Impossibile accedere"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Password o nome utente di <xliff:g id="ACCOUNT">%s</xliff:g> errato. Vuoi aggiornarli ora?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Accesso a <xliff:g id="ACCOUNT">%s</xliff:g> non riuscito. Il server ha restituito il seguente messaggio: <xliff:g id="REASON">%s</xliff:g>Vuoi aggiornare nome utente e/o password?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Invia email da questo account per impostazione predefinita"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Scarica allegati"</string>
