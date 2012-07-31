@@ -16,31 +16,123 @@
 
 package com.android.emailcommon.utility;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.SSLCertificateSocketFactory;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.util.Log;
 
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
+import com.android.emailcommon.provider.HostAuth;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.X509TrustManager;
 
 public class SSLUtils {
-    private static SSLCertificateSocketFactory sInsecureFactory;
+    // All secure factories are the same; all insecure factories are associated with HostAuth's
     private static SSLCertificateSocketFactory sSecureFactory;
 
     private static final boolean LOG_ENABLED = false;
     private static final String TAG = "Email.Ssl";
+
+    /**
+     * A trust manager specific to a particular HostAuth.  The first time a server certificate is
+     * encountered for the HostAuth, its certificate is saved; subsequent checks determine whether
+     * the PublicKey of the certificate presented matches that of the saved certificate
+     * TODO: UI to ask user about changed certificates
+     */
+    private static class SameCertificateCheckingTrustManager implements X509TrustManager {
+        private final HostAuth mHostAuth;
+        private final Context mContext;
+        // The public key associated with the HostAuth; we'll lazily initialize it
+        private PublicKey mPublicKey;
+
+        SameCertificateCheckingTrustManager(Context context, HostAuth hostAuth) {
+            mContext = context;
+            mHostAuth = hostAuth;
+            // We must load the server cert manually (the ContentCache won't handle blobs
+            Cursor c = context.getContentResolver().query(HostAuth.CONTENT_URI,
+                    new String[] {HostAuthColumns.SERVER_CERT}, HostAuth.ID + "=?",
+                    new String[] {Long.toString(hostAuth.mId)}, null);
+            if (c != null) {
+                try {
+                    if (c.moveToNext()) {
+                        mHostAuth.mServerCert = c.getBlob(0);
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+            // We don't check client certificates
+            throw new CertificateException("We don't check client certificates");
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+            if (chain.length == 0) {
+                throw new CertificateException("No certificates?");
+            } else {
+                X509Certificate serverCert = chain[0];
+                if (mHostAuth.mServerCert != null) {
+                    // Compare with the current public key
+                    if (mPublicKey == null) {
+                        ByteArrayInputStream bais = new ByteArrayInputStream(mHostAuth.mServerCert);
+                        Certificate storedCert =
+                                CertificateFactory.getInstance("X509").generateCertificate(bais);
+                        mPublicKey = storedCert.getPublicKey();
+                        try {
+                            bais.close();
+                        } catch (IOException e) {
+                            // Yeah, right.
+                        }
+                    }
+                    if (!mPublicKey.equals(serverCert.getPublicKey())) {
+                        throw new CertificateException(
+                                "PublicKey has changed since initial connection!");
+                    }
+                } else {
+                    // First time; save this away
+                    byte[] encodedCert = serverCert.getEncoded();
+                    mHostAuth.mServerCert = encodedCert;
+                    ContentValues values = new ContentValues();
+                    values.put(HostAuthColumns.SERVER_CERT, encodedCert);
+                    mContext.getContentResolver().update(
+                            ContentUris.withAppendedId(HostAuth.CONTENT_URI, mHostAuth.mId),
+                            values, null, null);
+                }
+            }
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+    }
 
     /**
      * Returns a {@link javax.net.ssl.SSLSocketFactory}.
@@ -48,14 +140,15 @@ public class SSLUtils {
      *
      * @param insecure if true, bypass all SSL certificate checks
      */
-    public synchronized static SSLCertificateSocketFactory getSSLSocketFactory(
-            boolean insecure) {
+    public synchronized static SSLCertificateSocketFactory getSSLSocketFactory(Context context,
+            HostAuth hostAuth, boolean insecure) {
         if (insecure) {
-            if (sInsecureFactory == null) {
-                sInsecureFactory = (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getInsecure(0, null);
-            }
-            return sInsecureFactory;
+            SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
+                    SSLCertificateSocketFactory.getDefault(0, null);
+            insecureFactory.setTrustManagers(
+                    new TrustManager[] {
+                            new SameCertificateCheckingTrustManager(context, hostAuth)});
+            return insecureFactory;
         } else {
             if (sSecureFactory == null) {
                 sSecureFactory = (SSLCertificateSocketFactory)
@@ -69,8 +162,9 @@ public class SSLUtils {
      * Returns a {@link org.apache.http.conn.ssl.SSLSocketFactory SSLSocketFactory} for use with the
      * Apache HTTP stack.
      */
-    public static SSLSocketFactory getHttpSocketFactory(boolean insecure, KeyManager keyManager) {
-        SSLCertificateSocketFactory underlying = getSSLSocketFactory(insecure);
+    public static SSLSocketFactory getHttpSocketFactory(Context context, HostAuth hostAuth,
+            KeyManager keyManager, boolean insecure) {
+        SSLCertificateSocketFactory underlying = getSSLSocketFactory(context, hostAuth, insecure);
         if (keyManager != null) {
             underlying.setKeyManagers(new KeyManager[] { keyManager });
         }

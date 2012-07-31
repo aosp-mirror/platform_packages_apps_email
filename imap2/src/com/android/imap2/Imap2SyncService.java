@@ -1600,8 +1600,8 @@ public class Imap2SyncService extends AbstractSyncService {
             if (tlsSocket != null) {
                 // Start secure connection on top of existing one
                 boolean trust = (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
-                socket = SSLUtils.getSSLSocketFactory(trust).createSocket(tlsSocket,
-                        hostAuth.mAddress, hostAuth.mPort, true);
+                socket = SSLUtils.getSSLSocketFactory(mContext, hostAuth, trust)
+                        .createSocket(tlsSocket, hostAuth.mAddress, hostAuth.mPort, true);
 
             } else {
                 socket = getSocket(hostAuth);
@@ -2241,7 +2241,7 @@ public class Imap2SyncService extends AbstractSyncService {
             boolean trust = (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
             SocketAddress socketAddress = new InetSocketAddress(hostAuth.mAddress, hostAuth.mPort);
             if (ssl) {
-                socket = SSLUtils.getSSLSocketFactory(trust).createSocket();
+                socket = SSLUtils.getSSLSocketFactory(mContext, hostAuth, trust).createSocket();
             } else {
                 socket = new Socket();
             }

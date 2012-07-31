@@ -60,26 +60,7 @@ public class SmtpSender {
         mContext = context;
         mLog = log;
         HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
-        // defaults, which can be changed by security modifiers
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = DEFAULT_SMTP_PORT;
-
-        // check for security flags and apply changes
-        if ((sendAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
-            defaultPort = DEFAULT_SMTP_SSL_PORT;
-        } else if ((sendAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
-        }
-        boolean trustCertificates = ((sendAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
-        int port = defaultPort;
-        if (sendAuth.mPort != HostAuth.PORT_UNKNOWN) {
-            port = sendAuth.mPort;
-        }
-        mTransport = new MailTransport(mLog);
-        mTransport.setHost(sendAuth.mAddress);
-        mTransport.setPort(port);
-        mTransport.setSecurity(connectionSecurity, trustCertificates);
+        mTransport = new MailTransport(context, mLog, sendAuth);
 
         String[] userInfoParts = sendAuth.getLogin();
         if (userInfoParts != null) {

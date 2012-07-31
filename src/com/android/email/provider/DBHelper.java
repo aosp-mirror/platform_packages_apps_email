@@ -127,8 +127,9 @@ public final class DBHelper {
     // Version 101 SHOULD NOT BE USED
     // Version 102&103: Add hierarchicalName to Mailbox
     // Version 104&105: add syncData to Message
+    // Version 106: Add certificate to HostAuth
 
-    public static final int DATABASE_VERSION = 105;
+    public static final int DATABASE_VERSION = 106;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -373,7 +374,8 @@ public final class DBHelper {
             + HostAuthColumns.PASSWORD + " text, "
             + HostAuthColumns.DOMAIN + " text, "
             + HostAuthColumns.ACCOUNT_KEY + " integer,"
-            + HostAuthColumns.CLIENT_CERT_ALIAS + " text"
+            + HostAuthColumns.CLIENT_CERT_ALIAS + " text,"
+            + HostAuthColumns.SERVER_CERT + "blob"
             + ");";
         db.execSQL("create table " + HostAuth.TABLE_NAME + s);
     }
@@ -970,7 +972,7 @@ public final class DBHelper {
                             + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v10x to v103", e);
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v10x to v103", e);
                 }
                 oldVersion = 103;
             }
@@ -980,7 +982,7 @@ public final class DBHelper {
                             + " add " + MessageColumns.SYNC_DATA + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v103 to v104", e);
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v103 to v104", e);
                 }
                 oldVersion = 104;
             }
@@ -992,9 +994,19 @@ public final class DBHelper {
                             + " add " + MessageColumns.SYNC_DATA + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProviderBody.db from v104 to v105", e);
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v104 to v105", e);
                 }
                 oldVersion = 105;
+            }
+            if (oldVersion == 105) {
+                try {
+                    db.execSQL("alter table " + HostAuth.TABLE_NAME
+                            + " add " + HostAuthColumns.SERVER_CERT + " blob");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v105 to v106", e);
+                }
+                oldVersion = 106;
             }
         }
 

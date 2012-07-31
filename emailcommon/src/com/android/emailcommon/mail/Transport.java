@@ -53,16 +53,6 @@ public interface Transport extends Cloneable {
     public Transport clone();
 
     /**
-     * Sets the host
-     */
-    public void setHost(String host);
-
-    /**
-     * Sets the port
-     */
-    public void setPort(int port);
-
-    /**
      * Returns the host or {@code null} if none was specified.
      */
     public String getHost();
@@ -71,18 +61,6 @@ public interface Transport extends Cloneable {
      * Returns the port or {@code 0} if none was specified.
      */
     public int getPort();
-
-    /**
-     * Set the desired security mode for this connection.
-     * @param connectionSecurity A value indicating the desired security mode.
-     * @param trustAllCertificates true to allow unverifiable certificates to be used
-     */
-    public void setSecurity(int connectionSecurity, boolean trustAllCertificates);
-
-    /**
-     * @return Returns the desired security mode for this connection.
-     */
-    public int getSecurity();
 
     /**
      * @return true if the security mode indicates that SSL is possible

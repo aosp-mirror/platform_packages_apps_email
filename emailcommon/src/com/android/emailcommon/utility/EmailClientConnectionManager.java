@@ -60,9 +60,11 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
         mTrackingKeyManager = keyManager;
     }
 
-    public static EmailClientConnectionManager newInstance(HttpParams params, boolean ssl,
-            int port) {
+    public static EmailClientConnectionManager newInstance(Context context, HttpParams params,
+            HostAuth hostAuth) {
         TrackingKeyManager keyManager = new TrackingKeyManager();
+        boolean ssl = hostAuth.shouldUseSsl();
+        int port = hostAuth.mPort;
 
         // Create a registry for our three schemes; http and https will use built-in factories
         SchemeRegistry registry = new SchemeRegistry();
@@ -70,10 +72,11 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
                 ssl ? STANDARD_PORT : port));
         // Register https with the secure factory
         registry.register(new Scheme("https",
-                SSLUtils.getHttpSocketFactory(false, keyManager), ssl ? port : STANDARD_SSL_PORT));
+                SSLUtils.getHttpSocketFactory(context, hostAuth, keyManager, false),
+                ssl ? port : STANDARD_SSL_PORT));
         // Register the httpts scheme with our insecure factory
         registry.register(new Scheme("httpts",
-                SSLUtils.getHttpSocketFactory(true /*insecure*/, keyManager),
+                SSLUtils.getHttpSocketFactory(context, hostAuth, keyManager, true),
                 ssl ? port : STANDARD_SSL_PORT));
 
         return new EmailClientConnectionManager(params, registry, keyManager);
@@ -99,8 +102,8 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
             }
             KeyManager keyManager =
                     KeyChainKeyManager.fromAlias(context, hostAuth.mClientCertAlias);
-            SSLCertificateSocketFactory underlying = SSLUtils.getSSLSocketFactory(
-                    hostAuth.shouldTrustAllServerCerts());
+            SSLCertificateSocketFactory underlying = SSLUtils.getSSLSocketFactory(context, hostAuth,
+                    false);
             underlying.setKeyManagers(new KeyManager[] { keyManager });
             registry.register(
                     new Scheme(schemeName, new SSLSocketFactory(underlying), hostAuth.mPort));
