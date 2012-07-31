@@ -1624,8 +1624,8 @@ public class Imap2SyncService extends AbstractSyncService {
                 if (!mImapResponse.isEmpty()) {
                     String capa = mImapResponse.get(0).toLowerCase();
                     ArrayList<String> tokens = getTokens(capa);
-                    if (tokens.contains("starttls") && tlsSocket == null) {
-                        // Handle STARTTLS
+                    if (tokens.contains("starttls") && tlsSocket == null &&
+                            ((hostAuth.mFlags & HostAuth.FLAG_SSL) == 0)) {
                         userLog("[Use STARTTLS]");
                         tag = writeCommand(writer, "STARTTLS");
                         readResponse(reader, tag, "STARTTLS");
