@@ -2767,8 +2767,13 @@ outer:
                         UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
             }
         }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED)) {
+            // Email doesn't support priority inbox, so always state priority arrows disabled.
+            values.put(UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED, "0");
+        }
 
-        StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
+        final StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
     }
