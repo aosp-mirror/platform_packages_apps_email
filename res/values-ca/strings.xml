@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vols descartar els canvis no desats?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"No es pot iniciar la sessió"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"El nom d\'usuari o la contrasenya de <xliff:g id="ACCOUNT">%s</xliff:g> no són correctes. Vols actualitzar-los ara?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"S\'ha produït un error en iniciar sessió a <xliff:g id="ACCOUNT">%s</xliff:g>. El servidor ha dit: <xliff:g id="REASON">%s</xliff:g> Vols actualitzar el teu nom d\'usuari o la contrasenya?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte predeterminat"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Envia correu electrònic des d\'aquest compte de manera predeterminada"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Baixada de fitxers adjunts"</string>
@@ -436,6 +437,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"En les llistes de missatges, toca i mantén premut per seleccionar"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirma abans de suprimir"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Missatges"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Fes lliscar el dit per suprimir"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Missatges"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirma abans d\'enviar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Missatges"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Vés a"</string>

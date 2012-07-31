@@ -358,6 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Lahla izinguquko ezingagciniwe?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Ayikwazanga ukungena ngemvume."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Igama lomsebenzisi noma iphasiwedi ye-<xliff:g id="ACCOUNT">%s</xliff:g> ayilungile. Ufuna ukuzivuselela manje?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Ukungena kwakho ngemvume ku-<xliff:g id="ACCOUNT">%s</xliff:g> akuphumelelanga; isiphakeli sithe: <xliff:g id="REASON">%s</xliff:g> Ingabe ufuna ukubuyekeza igama lomsebenzisi kanye/noma iphasiwedi yakho?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"I-akhawunti ezenzakalelayo"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Thumela i-imeyli kusuka kule akhawunti ngokuzenzakalelayo"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Layisha ngokungenisa okunamathelayo"</string>
@@ -436,6 +437,8 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Ezinhlwini zemilayezo, thinta bese ubamba ukuze ukhethe"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Qinisekisa ngaphambi kokususa"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Imilayezo"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Swayipha ukuze ususe"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Imilayezo"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Qinisekisa ngaphambi kokuthumela"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Imilayezo"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Dlulela ku"</string>
