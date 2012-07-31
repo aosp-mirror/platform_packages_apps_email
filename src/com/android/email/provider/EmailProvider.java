@@ -2468,10 +2468,10 @@ outer:
                 values.put(UIProvider.MessageColumns.QUOTE_START_POS,
                         msg.mDraftInfo & Message.DRAFT_INFO_QUOTE_POS_MASK);
             }
-        }
-        if ((msg.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0) {
-            values.put(UIProvider.MessageColumns.EVENT_INTENT_URI,
-                    "content://ui.email2.android.com/event/" + msg.mId);
+            if ((msg.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0) {
+                values.put(UIProvider.MessageColumns.EVENT_INTENT_URI,
+                        "content://ui.email2.android.com/event/" + msg.mId);
+            }
         }
         StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
