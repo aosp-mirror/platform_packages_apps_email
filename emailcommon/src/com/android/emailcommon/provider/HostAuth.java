@@ -67,6 +67,8 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public String mPassword;
     public String mDomain;
     public String mClientCertAlias = null;
+    // NOTE: The server certificate is NEVER automatically retrieved from EmailProvider
+    public byte[] mServerCert = null;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PROTOCOL_COLUMN = 1;
@@ -368,6 +370,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mPassword, that.mPassword)
                 && Utility.areStringsEqual(mDomain, that.mDomain)
                 && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
+                // We don't care about the server certificate for equals
     }
 
     /**

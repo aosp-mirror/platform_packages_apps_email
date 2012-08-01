@@ -20,8 +20,10 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Transport;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.SSLUtils;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -55,8 +57,8 @@ public class MailTransport implements Transport {
     private static final HostnameVerifier HOSTNAME_VERIFIER =
             HttpsURLConnection.getDefaultHostnameVerifier();
 
-    private String mHost;
-    private int mPort;
+    private final HostAuth mHostAuth;
+    private final Context mContext;
     private String[] mUserInfoParts;
 
     /**
@@ -75,14 +77,11 @@ public class MailTransport implements Transport {
     private OutputStream mOut;
     private boolean mLog = true; // STOPSHIP Don't ship with this set to true
 
-    /**
-     * Simple constructor for starting from scratch.  Call setUri() and setSecurity() to
-     * complete the configuration.
-     * @param debugLabel Label used for Log.d calls
-     */
-    public MailTransport(boolean log) {
+
+    public MailTransport(Context context, boolean log, HostAuth hostAuth) {
         super();
-        mLog = log;
+        mContext = context;
+        mHostAuth = hostAuth;
     }
 
     /**
@@ -92,48 +91,17 @@ public class MailTransport implements Transport {
      */
     @Override
     public Transport clone() {
-        MailTransport newObject = new MailTransport(mLog);
-
-        newObject.mLog = mLog;
-        newObject.mHost = mHost;
-        newObject.mPort = mPort;
-        if (mUserInfoParts != null) {
-            newObject.mUserInfoParts = mUserInfoParts.clone();
-        }
-        newObject.mConnectionSecurity = mConnectionSecurity;
-        newObject.mTrustCertificates = mTrustCertificates;
-        return newObject;
-    }
-
-    @Override
-    public void setHost(String host) {
-        mHost = host;
-    }
-
-    @Override
-    public void setPort(int port) {
-        mPort = port;
+        return new MailTransport(mContext, mLog, mHostAuth);
     }
 
     @Override
     public String getHost() {
-        return mHost;
+        return mHostAuth.mAddress;
     }
 
     @Override
     public int getPort() {
-        return mPort;
-    }
-
-    @Override
-    public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
-        mConnectionSecurity = connectionSecurity;
-        mTrustCertificates = trustAllCertificates;
-    }
-
-    @Override
-    public int getSecurity() {
-        return mConnectionSecurity;
+        return mHostAuth.mPort;
     }
 
     @Override
@@ -165,7 +133,8 @@ public class MailTransport implements Transport {
         try {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
-                mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates()).createSocket();
+                mSocket = SSLUtils.getSSLSocketFactory(
+                        mContext, mHostAuth, canTrustAllCertificates()).createSocket();
             } else {
                 mSocket = new Socket();
             }
@@ -201,7 +170,7 @@ public class MailTransport implements Transport {
     @Override
     public void reopenTls() throws MessagingException {
         try {
-            mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates())
+            mSocket = SSLUtils.getSSLSocketFactory(mContext, mHostAuth, canTrustAllCertificates())
                     .createSocket(mSocket, getHost(), getPort(), true);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
