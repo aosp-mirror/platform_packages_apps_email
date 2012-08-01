@@ -358,8 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"저장되지 않은 변경사항을 삭제하시겠습니까?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"로그인하지 못했습니다."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g>의 사용자 이름 또는 비밀번호가 잘못되었습니다. 지금 업데이트하시겠습니까?"</string>
-    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
-    <skip />
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g>에 로그인하지 못했습니다. 이유는 다음과 같습니다: <xliff:g id="REASON">%s</xliff:g> 사용자 이름 또는 비밀번호를 업데이트하시겠습니까?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"기본적으로 이 계정에서 이메일 전송"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"첨부파일 다운로드"</string>
