@@ -358,8 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Kaydedilmeyen değişiklikler silinsin mi?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Oturum açılamadı."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> için kullanıcı adı veya şifre yanlış. Bunları şimdi güncellemek ister misiniz?"</string>
-    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
-    <skip />
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g> hesabına giriş yapamadınız; sunucu şu yanıtı verdi: <xliff:g id="REASON">%s</xliff:g> Kullanıcı adınızı veya şifrenizi güncellemek ister misiniz?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Varsayılan hesap"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Ekleri indir"</string>
