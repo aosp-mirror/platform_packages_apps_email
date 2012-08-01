@@ -358,8 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zahodit neuložené změny?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Přihlášení se nezdařilo."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Uživatelské jméno nebo heslo k účtu <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávné. Chcete je aktualizovat?"</string>
-    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
-    <skip />
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Připojení k účtu <xliff:g id="ACCOUNT">%s</xliff:g> se nezdařilo. Odpověď serveru: <xliff:g id="REASON">%s</xliff:g> Chcete aktualizovat své uživatelské jméno a heslo?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Použít tento účet jako výchozí pro odesílání e-mailů"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Stahovat přílohy"</string>
