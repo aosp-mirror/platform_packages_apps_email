@@ -879,8 +879,12 @@ public abstract class SyncManager extends Service implements Runnable {
 
     static public synchronized EmailClientConnectionManager getClientConnectionManager(
             Context context, HostAuth hostAuth) {
-        // We'll use a different connection manager for each ssl/port pair
-        EmailClientConnectionManager mgr = sClientConnectionManagers.get(hostAuth.mId);
+        // We'll use a different connection manager for each HostAuth
+        EmailClientConnectionManager mgr = null;
+        // We don't save managers for validation/autodiscover
+        if (hostAuth.mId != HostAuth.NOT_SAVED) {
+            mgr = sClientConnectionManagers.get(hostAuth.mId);
+        }
         if (mgr == null) {
             // After two tries, kill the process.  Most likely, this will happen in the background
             // The service will restart itself after about 5 seconds
