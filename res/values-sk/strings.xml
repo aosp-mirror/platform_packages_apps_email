@@ -358,8 +358,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zahodiť neuložené zmeny?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Prihlásenie sa nepodarilo"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Používateľské meno alebo heslo pre účet <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávne. Chcete ich aktualizovať?"</string>
-    <!-- no translation found for account_settings_login_dialog_reason_fmt (4266359321648406752) -->
-    <skip />
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Prihlásenie do účtu <xliff:g id="ACCOUNT">%s</xliff:g> zlyhalo. Odpoveď servera: <xliff:g id="REASON">%s</xliff:g> Chcete aktualizovať svoje používateľské meno alebo heslo?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Predvolený účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"V predvolenom nastavení odosielať e-maily z tohto účtu"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Preberať všetky prílohy"</string>
