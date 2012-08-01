@@ -110,26 +110,7 @@ public class ImapStore extends Store {
         if (recvAuth == null || !HostAuth.LEGACY_SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
-        // defaults, which can be changed by security modifiers
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = 143;
-
-        // check for security flags and apply changes
-        if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
-            defaultPort = 993;
-        } else if ((recvAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
-        }
-        boolean trustCertificates = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
-        int port = defaultPort;
-        if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
-            port = recvAuth.mPort;
-        }
-        mTransport = new MailTransport("IMAP");
-        mTransport.setHost(recvAuth.mAddress);
-        mTransport.setPort(port);
-        mTransport.setSecurity(connectionSecurity, trustCertificates);
+        mTransport = new MailTransport(context, "IMAP", recvAuth);
 
         String[] userInfo = recvAuth.getLogin();
         if (userInfo != null) {
