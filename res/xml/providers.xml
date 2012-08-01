@@ -212,6 +212,10 @@
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
     </provider>
+        <provider id="outlook" label="Outlook" domain="outlook.com">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
     <!-- EXCHANGE-REMOVE-SECTION-END -->
     <provider id="live" label="Windows Live Hotmail Plus" domain="live.com"
             note="@string/provider_note_live">
