@@ -204,9 +204,9 @@ public abstract class SyncManager extends Service implements Runnable {
     protected static Thread sServiceThread = null;
     // Cached unique device id
     protected static String sDeviceId = null;
-    // HashMap of ConnectionManagers that all EAS threads can use (by ssl/port pair)
-    private static HashMap<Integer, EmailClientConnectionManager> sClientConnectionManagers =
-            new HashMap<Integer, EmailClientConnectionManager>();
+    // HashMap of ConnectionManagers that all EAS threads can use (by HostAuth id)
+    private static HashMap<Long, EmailClientConnectionManager> sClientConnectionManagers =
+            new HashMap<Long, EmailClientConnectionManager>();
     // Count of ClientConnectionManager shutdowns
     private static volatile int sClientConnectionManagerShutdownCount = 0;
 
@@ -877,11 +877,10 @@ public abstract class SyncManager extends Service implements Runnable {
         }
     };
 
-    static public synchronized EmailClientConnectionManager getClientConnectionManager(boolean ssl,
-            int port) {
+    static public synchronized EmailClientConnectionManager getClientConnectionManager(
+            Context context, HostAuth hostAuth) {
         // We'll use a different connection manager for each ssl/port pair
-        int key = (ssl ? 0x10000 : 0) + port;
-        EmailClientConnectionManager mgr = sClientConnectionManagers.get(key);
+        EmailClientConnectionManager mgr = sClientConnectionManagers.get(hostAuth.mId);
         if (mgr == null) {
             // After two tries, kill the process.  Most likely, this will happen in the background
             // The service will restart itself after about 5 seconds
@@ -892,9 +891,11 @@ public abstract class SyncManager extends Service implements Runnable {
             HttpParams params = new BasicHttpParams();
             params.setIntParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 25);
             params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, sConnPerRoute);
-            mgr = EmailClientConnectionManager.newInstance(params, ssl, port);
+            boolean ssl = hostAuth.shouldUseSsl();
+            int port = hostAuth.mPort;
+            mgr = EmailClientConnectionManager.newInstance(context, params, hostAuth);
             log("Creating connection manager for port " + port + ", ssl: " + ssl);
-            sClientConnectionManagers.put(key, mgr);
+            sClientConnectionManagers.put(hostAuth.mId, mgr);
         }
         // Null is a valid return result if we get an exception
         return mgr;

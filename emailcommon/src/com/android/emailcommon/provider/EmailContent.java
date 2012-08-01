@@ -1538,6 +1538,8 @@ public abstract class EmailContent {
         static final String CLIENT_CERT_ALIAS = "certAlias";
         // DEPRECATED - Will not be set or stored
         static final String ACCOUNT_KEY = "accountKey";
+        // A blob containing an X509 server certificate
+        static final String SERVER_CERT = "serverCert";
     }
 
     public interface PolicyColumns {

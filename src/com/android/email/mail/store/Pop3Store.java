@@ -103,28 +103,7 @@ public class Pop3Store extends Store {
         if (recvAuth == null || !HostAuth.LEGACY_SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
-        // defaults, which can be changed by security modifiers
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = 110;
-
-        // check for security flags and apply changes
-        if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
-            defaultPort = 995;
-        } else if ((recvAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
-        }
-        boolean trustCertificates = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
-
-        int port = defaultPort;
-        if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
-            port = recvAuth.mPort;
-        }
-        mTransport = new MailTransport("POP3");
-        mTransport.setHost(recvAuth.mAddress);
-        mTransport.setPort(port);
-        mTransport.setSecurity(connectionSecurity, trustCertificates);
-
+        mTransport = new MailTransport(context, "POP3", recvAuth);
         String[] userInfoParts = recvAuth.getLogin();
         if (userInfoParts != null) {
             mUsername = userInfoParts[0];
