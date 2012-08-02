@@ -87,7 +87,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         MailboxColumns.TYPE,
     };
 
-    private Context mContext;
+    protected Context mContext;
     private IEmailServiceCallback.Stub mCallback;
 
     protected void init(Context context, IEmailServiceCallback.Stub callbackProxy) {
