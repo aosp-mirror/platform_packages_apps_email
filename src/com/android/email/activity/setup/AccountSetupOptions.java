@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,6 +46,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
 
@@ -203,7 +205,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         if (mNotifyView.isChecked()) {
             newFlags |= Account.FLAGS_NOTIFY_NEW_MAIL;
         }
-        if (mBackgroundAttachmentsView.isChecked()) {
+        if (mServiceInfo.offerAttachmentPreload && mBackgroundAttachmentsView.isChecked()) {
             newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
         account.setFlags(newFlags);
@@ -332,6 +334,16 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             return;
         }
         saveAccountAndFinish();
+
+        // If we're local, update the folder list (to get our starting folders, e.g. Inbox)
+        EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(this, null, account.mId);
+        if (!proxy.isRemote()) {
+            try {
+                proxy.updateFolderList(account.mId);
+            } catch (RemoteException e) {
+                // It's all good
+            }
+        }
     }
 
     /**

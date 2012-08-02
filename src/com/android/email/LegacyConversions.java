@@ -185,7 +185,7 @@ public class LegacyConversions {
      * @param part a single attachment part from POP or IMAP
      * @throws IOException
      */
-    private static void addOneAttachment(Context context, EmailContent.Message localMessage,
+    public static void addOneAttachment(Context context, EmailContent.Message localMessage,
             Part part) throws MessagingException, IOException {
 
         Attachment localAttachment = new Attachment();

@@ -43,9 +43,9 @@ import java.util.HashMap;
 public abstract class Store {
     /**
      * A global suggestion to Store implementors on how much of the body
-     * should be returned on FetchProfile.Item.BODY_SANE requests.
+     * should be returned on FetchProfile.Item.BODY_SANE requests. We'll use 125k now.
      */
-    public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
+    public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (125 * 1024);
 
     @VisibleForTesting
     static final HashMap<HostAuth, Store> sStores = new HashMap<HostAuth, Store>();
