@@ -18,11 +18,13 @@ package com.android.email.mail.store;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.transport.MailTransport;
+import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
@@ -47,7 +49,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Pop3Store extends Store {
     // All flags defining debug or development code settings must be FALSE
@@ -59,31 +60,6 @@ public class Pop3Store extends Store {
     /** The name of the only mailbox available to POP3 accounts */
     private static final String POP3_MAILBOX_NAME = "INBOX";
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
-
-//    /**
-//     * Detected latency, used for usage scaling.
-//     * Usage scaling occurs when it is necessary to get information about
-//     * messages that could result in large data loads. This value allows
-//     * the code that loads this data to decide between using large downloads
-//     * (high latency) or multiple round trips (low latency) to accomplish
-//     * the same thing.
-//     * Default is Integer.MAX_VALUE implying massive latency so that the large
-//     * download method is used by default until latency data is collected.
-//     */
-//    private int mLatencyMs = Integer.MAX_VALUE;
-//
-//    /**
-//     * Detected throughput, used for usage scaling.
-//     * Usage scaling occurs when it is necessary to get information about
-//     * messages that could result in large data loads. This value allows
-//     * the code that loads this data to decide between using large downloads
-//     * (high latency) or multiple round trips (low latency) to accomplish
-//     * the same thing.
-//     * Default is Integer.MAX_VALUE implying massive bandwidth so that the
-//     * large download method is used by default until latency data is
-//     * collected.
-//     */
-//    private int mThroughputKbS = Integer.MAX_VALUE;
 
     /**
      * Static named constructor.
@@ -154,7 +130,8 @@ public class Pop3Store extends Store {
         for (int type : DEFAULT_FOLDERS) {
             if (Mailbox.findMailboxOfType(mContext, mAccount.mId, type) == Mailbox.NO_MAILBOX) {
                 String name = getMailboxServerName(mContext, type);
-                Mailbox.newSystemMailbox(mAccount.mId, type, name).save(mContext);
+                mailbox = Mailbox.newSystemMailbox(mAccount.mId, type, name);
+                mailbox.save(mContext);
             }
         }
 
@@ -216,7 +193,7 @@ public class Pop3Store extends Store {
         return bundle;
     }
 
-    class Pop3Folder extends Folder {
+    public class Pop3Folder extends Folder {
         private final HashMap<String, Pop3Message> mUidToMsgMap
                 = new HashMap<String, Pop3Message>();
         private final HashMap<Integer, Pop3Message> mMsgNumToMsgMap
@@ -245,24 +222,22 @@ public class Pop3Store extends Store {
         public Bundle checkSettings() throws MessagingException {
             Bundle bundle = new Bundle();
             int result = MessagingException.NO_ERROR;
-            if (!mCapabilities.uidl) {
-                try {
-                    UidlParser parser = new UidlParser();
-                    executeSimpleCommand("UIDL");
-                    // drain the entire output, so additional communications don't get confused.
-                    String response;
-                    while ((response = mTransport.readLine()) != null) {
-                        parser.parseMultiLine(response);
-                        if (parser.mEndOfMessage) {
-                            break;
-                        }
+            try {
+                UidlParser parser = new UidlParser();
+                executeSimpleCommand("UIDL");
+                // drain the entire output, so additional communications don't get confused.
+                String response;
+                while ((response = mTransport.readLine()) != null) {
+                    parser.parseMultiLine(response);
+                    if (parser.mEndOfMessage) {
+                        break;
                     }
-                } catch (IOException ioe) {
-                    mTransport.close();
-                    result = MessagingException.IOERROR;
-                    bundle.putString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE,
-                            ioe.getMessage());
                 }
+            } catch (IOException ioe) {
+                mTransport.close();
+                result = MessagingException.IOERROR;
+                bundle.putString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE,
+                        ioe.getMessage());
             }
             bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, result);
             return bundle;
@@ -413,7 +388,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
+        public Pop3Message[] getMessages(int start, int end, MessageRetrievalListener listener)
                 throws MessagingException {
             if (start < 1 || end < 1 || end < start) {
                 throw new MessagingException(String.format("Invalid message set %d %d",
@@ -432,11 +407,8 @@ public class Pop3Store extends Store {
             for (int msgNum = start; msgNum <= end; msgNum++) {
                 Pop3Message message = mMsgNumToMsgMap.get(msgNum);
                 messages.add(message);
-                if (listener != null) {
-                    listener.messageRetrieved(message);
-                }
             }
-            return messages.toArray(new Message[messages.size()]);
+            return messages.toArray(new Pop3Message[messages.size()]);
         }
 
         /**
@@ -493,39 +465,6 @@ public class Pop3Store extends Store {
                             indexMessage(msgNum, message);
                         }
                     }
-                }
-            }
-        }
-
-        private void indexUids(ArrayList<String> uids)
-                throws MessagingException, IOException {
-            HashSet<String> unindexedUids = new HashSet<String>();
-            for (String uid : uids) {
-                if (mUidToMsgMap.get(uid) == null) {
-                    unindexedUids.add(uid);
-                }
-            }
-            if (unindexedUids.size() == 0) {
-                return;
-            }
-            /*
-             * If we are missing uids in the cache the only sure way to
-             * get them is to do a full UIDL list. A possible optimization
-             * would be trying UIDL for the latest X messages and praying.
-             */
-            UidlParser parser = new UidlParser();
-            String response = executeSimpleCommand("UIDL");
-            while ((response = mTransport.readLine()) != null) {
-                parser.parseMultiLine(response);
-                if (parser.mEndOfMessage) {
-                    break;
-                }
-                if (unindexedUids.contains(parser.mUniqueId)) {
-                    Pop3Message message = mUidToMsgMap.get(parser.mUniqueId);
-                    if (message == null) {
-                        message = new Pop3Message(parser.mUniqueId, this);
-                    }
-                    indexMessage(parser.mMessageNumber, message);
                 }
             }
         }
@@ -651,130 +590,8 @@ public class Pop3Store extends Store {
         @Override
         public void fetch(Message[] messages, FetchProfile fp, MessageRetrievalListener listener)
                 throws MessagingException {
-            if (messages == null || messages.length == 0) {
-                return;
-            }
-            ArrayList<String> uids = new ArrayList<String>();
-            for (Message message : messages) {
-                uids.add(message.getUid());
-            }
-            try {
-                indexUids(uids);
-                if (fp.contains(FetchProfile.Item.ENVELOPE)) {
-                    // Note: We never pass the listener for the ENVELOPE call, because we're going
-                    // to be calling the listener below in the per-message loop.
-                    fetchEnvelope(messages, null);
-                }
-            } catch (IOException ioe) {
-                mTransport.close();
-                if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ioe.toString());
-                }
-                throw new MessagingException("fetch", ioe);
-            }
-            for (int i = 0, count = messages.length; i < count; i++) {
-                Message message = messages[i];
-                if (!(message instanceof Pop3Message)) {
-                    throw new MessagingException("Pop3Store.fetch called with non-Pop3 Message");
-                }
-                Pop3Message pop3Message = (Pop3Message)message;
-                try {
-                    if (fp.contains(FetchProfile.Item.BODY)) {
-                        fetchBody(pop3Message, -1);
-                    }
-                    else if (fp.contains(FetchProfile.Item.BODY_SANE)) {
-                        /*
-                         * To convert the suggested download size we take the size
-                         * divided by the maximum line size (76).
-                         */
-                        fetchBody(pop3Message,
-                                FETCH_BODY_SANE_SUGGESTED_SIZE / 76);
-                    }
-                    else if (fp.contains(FetchProfile.Item.STRUCTURE)) {
-                        /*
-                         * If the user is requesting STRUCTURE we are required to set the body
-                         * to null since we do not support the function.
-                         */
-                        pop3Message.setBody(null);
-                    }
-                    if (listener != null) {
-                        listener.messageRetrieved(message);
-                    }
-                } catch (IOException ioe) {
-                    mTransport.close();
-                    if (MailActivityEmail.DEBUG) {
-                        Log.d(Logging.LOG_TAG, ioe.toString());
-                    }
-                    throw new MessagingException("Unable to fetch message", ioe);
-                }
-            }
-        }
-
-        private void fetchEnvelope(Message[] messages,
-                MessageRetrievalListener listener)  throws IOException, MessagingException {
-            int unsizedMessages = 0;
-            for (Message message : messages) {
-                if (message.getSize() == -1) {
-                    unsizedMessages++;
-                }
-            }
-            if (unsizedMessages == 0) {
-                return;
-            }
-            if (unsizedMessages < 50 && mMessageCount > 5000) {
-                /*
-                 * In extreme cases we'll do a command per message instead of a bulk request
-                 * to hopefully save some time and bandwidth.
-                 */
-                for (int i = 0, count = messages.length; i < count; i++) {
-                    Message message = messages[i];
-                    if (!(message instanceof Pop3Message)) {
-                        throw new MessagingException(
-                                "Pop3Store.fetch called with non-Pop3 Message");
-                    }
-                    Pop3Message pop3Message = (Pop3Message)message;
-                    String response = executeSimpleCommand(String.format("LIST %d",
-                            mUidToMsgNumMap.get(pop3Message.getUid())));
-                    try {
-                        String[] listParts = response.split(" ");
-                        int msgNum = Integer.parseInt(listParts[1]);
-                        int msgSize = Integer.parseInt(listParts[2]);
-                        pop3Message.setSize(msgSize);
-                    } catch (NumberFormatException nfe) {
-                        throw new IOException();
-                    }
-                    if (listener != null) {
-                        listener.messageRetrieved(pop3Message);
-                    }
-                }
-            } else {
-                HashSet<String> msgUidIndex = new HashSet<String>();
-                for (Message message : messages) {
-                    msgUidIndex.add(message.getUid());
-                }
-                String response = executeSimpleCommand("LIST");
-                while ((response = mTransport.readLine()) != null) {
-                    if (response.equals(".")) {
-                        break;
-                    }
-                    Pop3Message pop3Message = null;
-                    int msgSize = 0;
-                    try {
-                        String[] listParts = response.split(" ");
-                        int msgNum = Integer.parseInt(listParts[0]);
-                        msgSize = Integer.parseInt(listParts[1]);
-                        pop3Message = mMsgNumToMsgMap.get(msgNum);
-                    } catch (NumberFormatException nfe) {
-                        throw new IOException();
-                    }
-                    if (pop3Message != null && msgUidIndex.contains(pop3Message.getUid())) {
-                        pop3Message.setSize(msgSize);
-                        if (listener != null) {
-                            listener.messageRetrieved(pop3Message);
-                        }
-                    }
-                }
-            }
+            throw new UnsupportedOperationException(
+                    "Pop3Folder.fetch(Message[], FetchProfile, MessageRetrievalListener)");
         }
 
         /**
@@ -791,7 +608,7 @@ public class Pop3Store extends Store {
          * @param message
          * @param lines
          */
-        private void fetchBody(Pop3Message message, int lines)
+        public void fetchBody(Pop3Message message, int lines)
                 throws IOException, MessagingException {
             String response = null;
             int messageId = mUidToMsgNumMap.get(message.getUid());
@@ -808,6 +625,22 @@ public class Pop3Store extends Store {
             }
             if (response != null)  {
                 try {
+                    int ok = response.indexOf("OK");
+                    if (ok > 0) {
+                        try {
+                            int start = ok + 3;
+                            int end = response.indexOf(" ", start);
+                            String intString;
+                            if (end > 0) {
+                                intString = response.substring(start, end);
+                            } else {
+                                intString = response.substring(start);
+                            }
+                            message.setSize(Integer.parseInt(intString));
+                        } catch (NumberFormatException e) {
+                            // We tried
+                        }
+                    }
                     InputStream in = mTransport.getInputStream();
                     if (DEBUG_LOG_RAW_STREAM && MailActivityEmail.DEBUG) {
                         in = new LoggingInputStream(in);
@@ -875,13 +708,6 @@ public class Pop3Store extends Store {
             throw new UnsupportedOperationException("copyMessages is not supported in POP3");
         }
 
-//        private boolean isRoundTripModeSuggested() {
-//            long roundTripMethodMs =
-//                (uncachedMessageCount * 2 * mLatencyMs);
-//            long bulkMethodMs =
-//                    (mMessageCount * 58) / (mThroughputKbS * 1024 / 8) * 1000;
-//        }
-
         private Pop3Capabilities getCapabilities() throws IOException {
             Pop3Capabilities capabilities = new Pop3Capabilities();
             try {
@@ -889,21 +715,8 @@ public class Pop3Store extends Store {
                 while ((response = mTransport.readLine()) != null) {
                     if (response.equals(".")) {
                         break;
-                    }
-                    if (response.equalsIgnoreCase("STLS")){
+                    } else if (response.equalsIgnoreCase("STLS")){
                         capabilities.stls = true;
-                    }
-                    else if (response.equalsIgnoreCase("UIDL")) {
-                        capabilities.uidl = true;
-                    }
-                    else if (response.equalsIgnoreCase("PIPELINING")) {
-                        capabilities.pipelining = true;
-                    }
-                    else if (response.equalsIgnoreCase("USER")) {
-                        capabilities.user = true;
-                    }
-                    else if (response.equalsIgnoreCase("TOP")) {
-                        capabilities.top = true;
                     }
                 }
             }
@@ -1008,23 +821,10 @@ public class Pop3Store extends Store {
     class Pop3Capabilities {
         /** The STLS (start TLS) command is supported */
         public boolean stls;
-        /** the TOP command (retrieve a partial message) is supported */
-        public boolean top;
-        /** USER and PASS login/auth commands are supported */
-        public boolean user;
-        /** the optional UIDL command is supported (unused) */
-        public boolean uidl;
-        /** the server is capable of accepting multiple commands at a time (unused) */
-        public boolean pipelining;
 
         @Override
         public String toString() {
-            return String.format("STLS %b, TOP %b, USER %b, UIDL %b, PIPELINING %b",
-                    stls,
-                    top,
-                    user,
-                    uidl,
-                    pipelining);
+            return String.format("STLS %b", stls);
         }
     }
 
