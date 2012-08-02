@@ -893,6 +893,8 @@ public class EmailProvider extends ContentProvider {
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
+                    } else if (match == ATTACHMENT_ID) {
+                        notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
                     }
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
@@ -2414,15 +2416,6 @@ outer:
         ContentValues values = new ContentValues();
         String attachmentJson = null;
         if (msg != null) {
-            if (msg.mFlagLoaded == Message.FLAG_LOADED_PARTIAL) {
-                EmailServiceProxy service =
-                        EmailServiceUtils.getServiceForAccount(context, null, msg.mAccountKey);
-                try {
-                    service.loadMore(messageId);
-                } catch (RemoteException e) {
-                    // Nothing to do
-                }
-            }
             Body body = Body.restoreBodyWithMessageId(context, messageId);
             if (body != null) {
                 if (body.mHtmlContent != null) {

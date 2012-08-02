@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
@@ -35,6 +36,7 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.ConversionUtilities;
+import com.android.mail.providers.Attachment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,20 +61,24 @@ public class Utilities {
                     EmailContent.Message.CONTENT_URI,
                     EmailContent.Message.CONTENT_PROJECTION,
                     EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                    " AND " + MessageColumns.MAILBOX_KEY + "=?" +
-                    " AND " + SyncColumns.SERVER_ID + "=?",
-                    new String[] {
+                            " AND " + MessageColumns.MAILBOX_KEY + "=?" +
+                            " AND " + SyncColumns.SERVER_ID + "=?",
+                            new String[] {
                             String.valueOf(account.mId),
                             String.valueOf(folder.mId),
                             String.valueOf(message.getUid())
                     },
                     null);
-            if (c.moveToNext()) {
+            if (c == null) {
+                return;
+            } else if (c.moveToNext()) {
                 localMessage = EmailContent.getContent(c, EmailContent.Message.class);
-                localMessage.mMailboxKey = folder.mId;
-                localMessage.mAccountKey = account.mId;
-                copyOneMessageToProvider(context, message, localMessage, loadStatus);
+            } else {
+                localMessage = new EmailContent.Message();
             }
+            localMessage.mMailboxKey = folder.mId;
+            localMessage.mAccountKey = account.mId;
+            copyOneMessageToProvider(context, message, localMessage, loadStatus);
         } finally {
             if (c != null) {
                 c.close();
@@ -94,8 +100,10 @@ public class Utilities {
             EmailContent.Message localMessage, int loadStatus) {
         try {
 
-            EmailContent.Body body = EmailContent.Body.restoreBodyWithMessageId(context,
-                    localMessage.mId);
+            EmailContent.Body body = null;
+            if (localMessage.mId != EmailContent.Message.NO_MESSAGE) {
+                body = EmailContent.Body.restoreBodyWithMessageId(context, localMessage.mId);
+            }
             if (body == null) {
                 body = new EmailContent.Body();
             }
@@ -113,10 +121,23 @@ public class Utilities {
 
                 // Commit the message & body to the local store immediately
                 saveOrUpdate(localMessage, context);
+                body.mMessageKey = localMessage.mId;
                 saveOrUpdate(body, context);
 
                 // process (and save) attachments
-                LegacyConversions.updateAttachments(context, localMessage, attachments);
+                if (loadStatus != EmailContent.Message.FLAG_LOADED_UNKNOWN) {
+                    LegacyConversions.updateAttachments(context, localMessage, attachments);
+                } else {
+                    EmailContent.Attachment att = new EmailContent.Attachment();
+                    // STOPSHIP: Redo UI or localize
+                    att.mFileName = "Click to load entire message";
+                    att.mSize = message.getSize();
+                    att.mMimeType = "text/plain";
+                    att.mMessageKey = localMessage.mId;
+                    att.mAccountKey = localMessage.mAccountKey;
+                    att.save(context);
+                    localMessage.mFlagAttachment = true;
+                }
 
                 // One last update of message with two updated flags
                 localMessage.mFlagLoaded = loadStatus;
