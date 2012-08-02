@@ -779,6 +779,7 @@ public abstract class EmailContent {
         public static final int FLAG_LOADED_COMPLETE = 1;
         public static final int FLAG_LOADED_PARTIAL = 2;
         public static final int FLAG_LOADED_DELETED = 3;
+        public static final int FLAG_LOADED_UNKNOWN = 4;
 
         // Bits used in mFlags
         // The following three states are mutually exclusive, and indicate whether the message is an
