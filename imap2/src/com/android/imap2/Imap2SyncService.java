@@ -102,6 +102,7 @@ public class Imap2SyncService extends AbstractSyncService {
             new SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z");
     private static final String IMAP_ERR = "ERR";
     private static final String IMAP_NO = "NO";
+    private static final String IMAP_BAD = "BAD";
 
     private static final SimpleDateFormat IMAP_DATE_FORMAT =
             new SimpleDateFormat("dd-MMM-yyyy");
@@ -120,6 +121,7 @@ public class Imap2SyncService extends AbstractSyncService {
     private static final int SECONDS = 1000;
     private static final int MINS = 60*SECONDS;
     private static final int IDLE_ASLEEP_MILLIS = 11*MINS;
+    private static final int IDLE_FALLBACK_SYNC_INTERVAL = 10;
 
     private static final int SOCKET_CONNECT_TIMEOUT = 10*SECONDS;
     private static final int SOCKET_TIMEOUT = 20*SECONDS;
@@ -1694,6 +1696,25 @@ public class Imap2SyncService extends AbstractSyncService {
         mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
     }
 
+    /**
+     * Reset the sync interval for this mailbox (account if it's Inbox)
+     */
+    private void resetSyncInterval(int minutes) {
+        ContentValues values = new ContentValues();
+        Uri uri;
+        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
+            values.put(AccountColumns.SYNC_INTERVAL, minutes);
+            uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
+        } else {
+            values.put(MailboxColumns.SYNC_INTERVAL, minutes);
+            uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId);
+        }
+        // Reset this so that we won't loop
+        mMailbox.mSyncInterval = minutes;
+        // Update the mailbox/account with new sync interval
+        mResolver.update(uri, values, null, null);
+    }
+
     private void idle() throws IOException {
         mIsIdle = true;
         mThread.setName(mMailboxName + ":IDLE[" + mAccount.mDisplayName + "]");
@@ -1710,7 +1731,11 @@ public class Imap2SyncService extends AbstractSyncService {
                     handleUntagged(resp);
                 else {
                     userLog("Error in IDLE response: " + resp);
-                    //*** How to handle this?
+                    if (resp.contains(IMAP_BAD)) {
+                        // Fatal error (server doesn't support this command)
+                        userLog("IDLE not supported; falling back to scheduled sync");
+                        resetSyncInterval(IDLE_FALLBACK_SYNC_INTERVAL);
+                    }
                     return;
                 }
             }
