@@ -375,7 +375,7 @@ public final class DBHelper {
             + HostAuthColumns.DOMAIN + " text, "
             + HostAuthColumns.ACCOUNT_KEY + " integer,"
             + HostAuthColumns.CLIENT_CERT_ALIAS + " text,"
-            + HostAuthColumns.SERVER_CERT + "blob"
+            + HostAuthColumns.SERVER_CERT + " blob"
             + ");";
         db.execSQL("create table " + HostAuth.TABLE_NAME + s);
     }
