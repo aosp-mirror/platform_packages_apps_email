@@ -134,7 +134,6 @@ public class Pop3Service extends Service {
         }
         NotificationController nc = NotificationController.getInstance(context);
         try {
-            processPendingActionsSynchronous(context, account);
             synchronizePop3Mailbox(context, account, folder);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
@@ -223,7 +222,7 @@ public class Pop3Service extends Service {
      */
     private static void synchronizePop3Mailbox(final Context context,
             final Account account, final Mailbox mailbox) throws MessagingException {
-
+        // TODO Break this into smaller pieces
         ContentResolver resolver = context.getContentResolver();
 
         // We only sync Inbox
@@ -275,6 +274,35 @@ public class Pop3Service extends Service {
         values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
         mailbox.update(context, values);
 
+        String[] accountIdArgs = new String[] { Long.toString(account.mId) };
+        long trashMailboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_TRASH);
+        Cursor updates = resolver.query(
+                EmailContent.Message.UPDATED_CONTENT_URI,
+                EmailContent.Message.ID_COLUMN_PROJECTION,
+                EmailContent.MessageColumns.ACCOUNT_KEY + "=?", accountIdArgs,
+                null);
+        try {
+            // loop through messages marked as deleted
+            while (updates.moveToNext()) {
+                long id = updates.getLong(Message.ID_COLUMNS_ID_COLUMN);
+                EmailContent.Message currentMsg =
+                        EmailContent.Message.restoreMessageWithId(context, id);
+                if (currentMsg.mMailboxKey == trashMailboxId) {
+                    // Delete this on the server
+                    Pop3Message popMessage =
+                            (Pop3Message)remoteFolder.getMessage(currentMsg.mServerId);
+                    if (popMessage != null) {
+                        remoteFolder.deleteMessage(popMessage);
+                    }
+                }
+                // Finally, delete the update
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.UPDATED_CONTENT_URI, id);
+                context.getContentResolver().delete(uri, null, null);
+            }
+        } finally {
+            updates.close();
+        }
+
         // Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;
         if (visibleLimit <= 0) {
@@ -290,9 +318,7 @@ public class Pop3Service extends Service {
             /*
              * Message numbers start at 1.
              */
-            int remoteStart = Math.max(0, remoteMessageCount - visibleLimit) + 1;
-            int remoteEnd = remoteMessageCount;
-            remoteMessages = remoteFolder.getMessages(remoteStart, remoteEnd, null);
+            remoteMessages = remoteFolder.getMessages(remoteMessageCount, visibleLimit);
 
             /*
              * Get a list of the messages that are in the remote list but not on
@@ -314,6 +340,11 @@ public class Pop3Service extends Service {
                     unsyncedMessages.add(message);
                 }
             }
+        } else {
+            if (MailActivityEmail.DEBUG) {
+                Log.d(TAG, "*** Message count is zero??");
+            }
+            return;
         }
 
         // Get "attachments" to be loaded
@@ -395,55 +426,5 @@ public class Pop3Service extends Service {
 
         // Clean up and report results
         remoteFolder.close(false);
-    }
-
-    /**
-     * Find messages in the updated table that need to be written back to
-     * server. Handles: Read/Unread Flagged Append (upload) Move To Trash Empty
-     * trash TODO: Move
-     *
-     * @param account the account to scan for pending actions
-     * @throws MessagingException
-     */
-    private static void processPendingActionsSynchronous(Context context, Account account)
-            throws MessagingException {
-        TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-        String[] accountIdArgs = new String[] {
-            Long.toString(account.mId)
-        };
-
-        // Handle deletes first, it's always better to get rid of things first
-        processPendingDeletesSynchronous(context, account, accountIdArgs);
-    }
-
-    /**
-     * Scan for messages that are in the Message_Deletes table, look for
-     * differences that we can deal with, and do the work.
-     *
-     * @param account
-     * @param resolver
-     * @param accountIdArgs
-     */
-    private static void processPendingDeletesSynchronous(Context context, Account account,
-            String[] accountIdArgs) {
-        Cursor deletes = context.getContentResolver().query(
-                EmailContent.Message.DELETED_CONTENT_URI,
-                EmailContent.Message.CONTENT_PROJECTION,
-                EmailContent.MessageColumns.ACCOUNT_KEY + "=?", accountIdArgs,
-                EmailContent.MessageColumns.MAILBOX_KEY);
-        try {
-            // loop through messages marked as deleted
-            while (deletes.moveToNext()) {
-                EmailContent.Message oldMessage =
-                        EmailContent.getContent(deletes, EmailContent.Message.class);
-
-                // Finally, delete the update
-                Uri uri = ContentUris.withAppendedId(EmailContent.Message.DELETED_CONTENT_URI,
-                        oldMessage.mId);
-                context.getContentResolver().delete(uri, null, null);
-            }
-        } finally {
-            deletes.close();
-        }
     }
 }
