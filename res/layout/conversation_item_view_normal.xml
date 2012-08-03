@@ -39,7 +39,7 @@
             android:layout_marginRight="@dimen/replystate_margin_right"
             android:src="@drawable/ic_badge_reply_holo_light"
             />
-        <com.android.mail.browse.SendersView
+        <TextView
             android:id="@+id/senders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
