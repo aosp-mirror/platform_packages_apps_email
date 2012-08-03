@@ -92,6 +92,7 @@ import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
 import com.android.mail.widget.WidgetProvider;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
@@ -2850,51 +2851,106 @@ outer:
     }
 
     private void addCombinedAccountRow(MatrixCursor mc) {
-        long id = Account.getDefaultAccountId(getContext());
+        final long id = Account.getDefaultAccountId(getContext());
         if (id == Account.NO_ACCOUNT) return;
-        String idString = Long.toString(id);
-        Object[] values = new Object[UIProvider.ACCOUNTS_PROJECTION.length];
-        values[UIProvider.ACCOUNT_ID_COLUMN] = 0;
-        values[UIProvider.ACCOUNT_CAPABILITIES_COLUMN] =
-                AccountCapabilities.UNDO | AccountCapabilities.SENDING_UNAVAILABLE;
-        values[UIProvider.ACCOUNT_FOLDER_LIST_URI_COLUMN] =
-            combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
-        values[UIProvider.ACCOUNT_NAME_COLUMN] = getContext().getString(
+        final String idString = Long.toString(id);
+
+        // Build a map of the requested columns to the appropriate positions
+        final ImmutableMap.Builder<String, Integer> builder =
+                new ImmutableMap.Builder<String, Integer>();
+        final String[] columnNames = mc.getColumnNames();
+        for (int i = 0; i < columnNames.length; i++) {
+            builder.put(columnNames[i], i);
+        }
+        final Map<String, Integer> colPosMap = builder.build();
+
+        final Object[] values = new Object[columnNames.length];
+        if (colPosMap.containsKey(BaseColumns._ID)) {
+            values[colPosMap.get(BaseColumns._ID)] = 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.CAPABILITIES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.CAPABILITIES)] =
+                    AccountCapabilities.UNDO | AccountCapabilities.SENDING_UNAVAILABLE;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.FOLDER_LIST_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.FOLDER_LIST_URI)] =
+                    combinedUriString("uifolders", COMBINED_ACCOUNT_ID_STRING);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.NAME)) {
+            values[colPosMap.get(UIProvider.AccountColumns.NAME)] = getContext().getString(
                 R.string.mailbox_list_account_selector_combined_view);
-        values[UIProvider.ACCOUNT_SAVE_DRAFT_URI_COLUMN] =
-                combinedUriString("uisavedraft", idString);
-        values[UIProvider.ACCOUNT_SEND_MESSAGE_URI_COLUMN] =
-                combinedUriString("uisendmail", idString);
-        values[UIProvider.ACCOUNT_UNDO_URI_COLUMN] =
-                "'content://" + UIProvider.AUTHORITY + "/uiundo'";
-        values[UIProvider.ACCOUNT_URI_COLUMN] =
-            combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
-        values[UIProvider.ACCOUNT_MIME_TYPE_COLUMN] = EMAIL_APP_MIME_TYPE;
-        values[UIProvider.ACCOUNT_SETTINGS_INTENT_URI_COLUMN] =
-                getExternalUriString("settings", COMBINED_ACCOUNT_ID_STRING);
-        values[UIProvider.ACCOUNT_COMPOSE_INTENT_URI_COLUMN] =
-                getExternalUriStringEmail2("compose", Long.toString(id));
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SAVE_DRAFT_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SAVE_DRAFT_URI)] =
+                    combinedUriString("uisavedraft", idString);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SEND_MAIL_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SEND_MAIL_URI)] =
+                    combinedUriString("uisendmail", idString);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.UNDO_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.UNDO_URI)] =
+                    "'content://" + UIProvider.AUTHORITY + "/uiundo'";
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.URI)] =
+                    combinedUriString("uiaccount", COMBINED_ACCOUNT_ID_STRING);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.MIME_TYPE)) {
+            values[colPosMap.get(UIProvider.AccountColumns.MIME_TYPE)] =
+                    EMAIL_APP_MIME_TYPE;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SETTINGS_INTENT_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SETTINGS_INTENT_URI)] =
+                    getExternalUriString("settings", COMBINED_ACCOUNT_ID_STRING);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.COMPOSE_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.COMPOSE_URI)] =
+                    getExternalUriStringEmail2("compose", Long.toString(id));
+        }
 
         // TODO: Get these from default account?
         Preferences prefs = Preferences.getPreferences(getContext());
-        values[UIProvider.ACCOUNT_SETTINGS_AUTO_ADVANCE_COLUMN] =
-            Integer.toString(UIProvider.AutoAdvance.NEWER);
-        values[UIProvider.ACCOUNT_SETTINGS_MESSAGE_TEXT_SIZE_COLUMN] =
-            Integer.toString(UIProvider.MessageTextSize.NORMAL);
-        values[UIProvider.ACCOUNT_SETTINGS_SNAP_HEADERS_COLUMN] =
-            Integer.toString(UIProvider.SnapHeaderValue.ALWAYS);
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)] =
+                    Integer.toString(UIProvider.AutoAdvance.NEWER);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)] =
+                    Integer.toString(UIProvider.MessageTextSize.NORMAL);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)] =
+                    Integer.toString(UIProvider.SnapHeaderValue.ALWAYS);
+        }
         //.add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        values[UIProvider.ACCOUNT_SETTINGS_REPLY_BEHAVIOR_COLUMN] =
-            Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
-        values[UIProvider.ACCOUNT_SETTINGS_HIDE_CHECKBOXES_COLUMN] = 0;
-        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_DELETE_COLUMN] =
-                prefs.getConfirmDelete() ? 1 : 0;
-        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_ARCHIVE_COLUMN] = 0;
-        values[UIProvider.ACCOUNT_SETTINGS_CONFIRM_SEND_COLUMN] = prefs.getConfirmSend() ? 1 : 0;
-        values[UIProvider.ACCOUNT_SETTINGS_HIDE_CHECKBOXES_COLUMN] =
-                prefs.getHideCheckboxes() ? 1 : 0;
-        values[UIProvider.ACCOUNT_SETTINGS_DEFAULT_INBOX_COLUMN] = combinedUriString("uifolder",
-                combinedMailboxId(Mailbox.TYPE_INBOX));
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)] =
+                    Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] = 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
+                    prefs.getConfirmDelete() ? 1 : 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE)) {
+            values[colPosMap.get(
+                    UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE)] = 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)] =
+                    prefs.getConfirmSend() ? 1 : 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] =
+                    prefs.getHideCheckboxes() ? 1 : 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)] =
+                    combinedUriString("uifolder", combinedMailboxId(Mailbox.TYPE_INBOX));
+        }
 
         mc.addRow(values);
     }
@@ -3217,7 +3273,7 @@ outer:
                 break;
             case UI_ACCOUNT:
                 if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-                    MatrixCursor mc = new MatrixCursor(UIProvider.ACCOUNTS_PROJECTION, 1);
+                    MatrixCursor mc = new MatrixCursor(uiProjection, 1);
                     addCombinedAccountRow(mc);
                     c = mc;
                 } else {
