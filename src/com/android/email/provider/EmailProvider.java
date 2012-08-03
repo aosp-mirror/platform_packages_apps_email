@@ -3773,13 +3773,18 @@ outer:
     }
 
     private int uiUpdateMessage(Uri uri, ContentValues values) {
+        return uiUpdateMessage(uri, values, false);
+    }
+
+    private int uiUpdateMessage(Uri uri, ContentValues values, boolean forceSync) {
         Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
         if (msg == null) return 0;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
         if (mailbox == null) return 0;
-        Uri ourBaseUri = uploadsToServer(context, mailbox) ? Message.SYNCED_CONTENT_URI :
-            Message.CONTENT_URI;
+        Uri ourBaseUri =
+                (forceSync || uploadsToServer(context, mailbox)) ? Message.SYNCED_CONTENT_URI :
+                    Message.CONTENT_URI;
         Uri ourUri = convertToEmailProviderUri(uri, ourBaseUri, true);
         if (ourUri == null) return 0;
 
@@ -3849,7 +3854,7 @@ outer:
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
-        return uiUpdateMessage(uri, values);
+        return uiUpdateMessage(uri, values, true);
     }
 
     private int pickFolder(Uri uri, int type, int headerId) {
