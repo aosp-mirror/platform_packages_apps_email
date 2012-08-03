@@ -120,7 +120,7 @@ public class MimeMessage extends Message {
         parse(in);
     }
 
-    protected void parse(InputStream in) throws IOException, MessagingException {
+    private MimeStreamParser init() {
         // Before parsing the input stream, clear all local fields that may be superceded by
         // the new incoming message.
         getMimeHeaders().clear();
@@ -135,7 +135,19 @@ public class MimeMessage extends Message {
 
         MimeStreamParser parser = new MimeStreamParser();
         parser.setContentHandler(new MimeMessageBuilder());
+        return parser;
+    }
+
+    protected void parse(InputStream in) throws IOException, MessagingException {
+        MimeStreamParser parser = init();
         parser.parse(new EOLConvertingInputStream(in));
+        mComplete = !parser.getPrematureEof();
+    }
+
+    public void parse(InputStream in, EOLConvertingInputStream.Callback callback)
+            throws IOException, MessagingException {
+        MimeStreamParser parser = init();
+        parser.parse(new EOLConvertingInputStream(in, getSize(), callback));
         mComplete = !parser.getPrematureEof();
     }
 
