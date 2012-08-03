@@ -18,13 +18,11 @@ package com.android.email.mail.store;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.transport.MailTransport;
-import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
@@ -60,6 +58,7 @@ public class Pop3Store extends Store {
     /** The name of the only mailbox available to POP3 accounts */
     private static final String POP3_MAILBOX_NAME = "INBOX";
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
+    private final Message[] mOneMessage = new Message[1];
 
     /**
      * Static named constructor.
@@ -390,12 +389,13 @@ public class Pop3Store extends Store {
         @Override
         public Pop3Message[] getMessages(int start, int end, MessageRetrievalListener listener)
                 throws MessagingException {
-            if (start < 1 || end < 1 || end < start) {
-                throw new MessagingException(String.format("Invalid message set %d %d",
-                        start, end));
-            }
+            return null;
+        }
+
+        public Pop3Message[] getMessages(int end, final int limit)
+                throws MessagingException {
             try {
-                indexMsgNums(start, end);
+                indexMsgNums(1, end);
             } catch (IOException ioe) {
                 mTransport.close();
                 if (MailActivityEmail.DEBUG) {
@@ -404,9 +404,11 @@ public class Pop3Store extends Store {
                 throw new MessagingException("getMessages", ioe);
             }
             ArrayList<Message> messages = new ArrayList<Message>();
-            for (int msgNum = start; msgNum <= end; msgNum++) {
+            for (int msgNum = end; msgNum > 0 && (messages.size() < limit); msgNum--) {
                 Pop3Message message = mMsgNumToMsgMap.get(msgNum);
-                messages.add(message);
+                if (message != null) {
+                    messages.add(message);
+                }
             }
             return messages.toArray(new Pop3Message[messages.size()]);
         }
@@ -421,18 +423,11 @@ public class Pop3Store extends Store {
          */
         private void indexMsgNums(int start, int end)
                 throws MessagingException, IOException {
-            int unindexedMessageCount = 0;
-            for (int msgNum = start; msgNum <= end; msgNum++) {
-                if (mMsgNumToMsgMap.get(msgNum) == null) {
-                    unindexedMessageCount++;
-                }
-            }
-            if (unindexedMessageCount == 0) {
+            if (!mMsgNumToMsgMap.isEmpty()) {
                 return;
             }
             UidlParser parser = new UidlParser();
-            if (DEBUG_FORCE_SINGLE_LINE_UIDL ||
-                    (unindexedMessageCount < 50 && mMessageCount > 5000)) {
+            if (DEBUG_FORCE_SINGLE_LINE_UIDL || (mMessageCount > 5000)) {
                 /*
                  * In extreme cases we'll do a UIDL command per message instead of a bulk
                  * download.
@@ -620,7 +615,11 @@ public class Pop3Store extends Store {
                 try {
                     response = executeSimpleCommand(String.format("TOP %d %d", messageId,  lines));
                 } catch (MessagingException me) {
-                    response = executeSimpleCommand(String.format("RETR %d", messageId));
+                    try {
+                        response = executeSimpleCommand(String.format("RETR %d", messageId));
+                    } catch (MessagingException e) {
+                        Log.w(Logging.LOG_TAG, "Can't read message " + messageId);
+                    }
                 }
             }
             if (response != null)  {
@@ -679,6 +678,11 @@ public class Pop3Store extends Store {
             return null;
         }
 
+        public void deleteMessage(Message message) throws MessagingException {
+            mOneMessage[0] = message;
+            setFlags(mOneMessage, PERMANENT_FLAGS, true);
+        }
+
         @Override
         public void setFlags(Message[] messages, Flag[] flags, boolean value)
                 throws MessagingException {
@@ -690,8 +694,16 @@ public class Pop3Store extends Store {
             }
             try {
                 for (Message message : messages) {
-                    executeSimpleCommand(String.format("DELE %s",
-                            mUidToMsgNumMap.get(message.getUid())));
+                    try {
+                        String uid = message.getUid();
+                        int msgNum = mUidToMsgNumMap.get(uid);
+                        executeSimpleCommand(String.format("DELE %s", msgNum));
+                        // Remove from the maps
+                        mMsgNumToMsgMap.remove(msgNum);
+                        mUidToMsgNumMap.remove(uid);
+                    } catch (MessagingException e) {
+                        // A failed deletion isn't a problem
+                    }
                 }
             }
             catch (IOException ioe) {
