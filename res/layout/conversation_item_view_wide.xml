@@ -35,7 +35,7 @@
         android:layout_marginRight="16dip"
         android:layout_gravity="center_vertical"
         android:src="@drawable/btn_check_on_normal_holo_light" />
-    <com.android.mail.browse.SendersView
+    <TextView
         android:id="@+id/senders"
         android:layout_width="224dip"
         android:layout_height="wrap_content"
