@@ -84,7 +84,9 @@ public class WidgetProvider extends BaseWidgetProvider {
         AccountColumns.SettingsColumns.DEFAULT_INBOX,
         AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME,
         AccountColumns.SettingsColumns.FORCE_REPLY_FROM_DEFAULT,
-        AccountColumns.SettingsColumns.MAX_ATTACHMENT_SIZE
+        AccountColumns.SettingsColumns.MAX_ATTACHMENT_SIZE,
+        AccountColumns.SettingsColumns.SWIPE,
+        AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED
     };
 
 
