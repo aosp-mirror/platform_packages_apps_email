@@ -27,6 +27,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Pattern;
@@ -89,7 +90,13 @@ public class ImapId {
 
         // Generate a UID that mixes a "stable" device UID with the email address
         try {
-            String devUID = Device.getConsistentDeviceId(context);
+            String devUID;
+            try {
+                devUID = Device.getDeviceId(context);
+            } catch (IOException e) {
+                // This would only happen with file system failure; it's fine to generate one
+                devUID = "_dev" + System.currentTimeMillis();
+            }
             MessageDigest messageDigest;
             messageDigest = MessageDigest.getInstance("SHA-1");
             messageDigest.update(userName.getBytes());
