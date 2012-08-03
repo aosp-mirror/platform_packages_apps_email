@@ -307,7 +307,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"ከዚህ መለያ ኢሜይል አመሳስል"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"ወደ Wi-Fi ስትገናኝ አባሪዎችን በራስ ሰር አውርድ"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"ማጠናቀቅ አልተቻለም"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ቀኖች አሳምር"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ቀኖች አስምር"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ራስ ሰር"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"አንድ ቀን"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"ሦስት ቀን"</string>
@@ -364,7 +364,7 @@
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"አባሪዎችን አውርድ"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"ራስሰር-አውርድ አባሪዎች ወደ በቅርብ ጊዜ በWi-Fi የተላኩ መልዕክቶች"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"የኢሜይል ማሳወቂያ"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"ድግግሞሽ፣ ማሳወቂያዎች፣ ወዘተ አሳምር።"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"ድግግሞሽ፣ ማሳወቂያዎች፣ ወዘተ አስምር።"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ኢሜይል ሲመጣ ማሳወቂያ አሳይ"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"የገቢ መልዕክት ምልከታ ድግግሞሽ"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"የገቢ ቅንብሮች"</string>
@@ -388,12 +388,12 @@
     <string name="account_settings_policies" msgid="6292833636418641840">"የደህንነት ቋሚ መመሪያዎች"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"ፈጣን ምላሽ አርትዕ"</string>
     <string name="save_action" msgid="1988862706623227093">"አስቀምጥ"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ዕውቂያዎች አሳምር"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ለዚህ መለያ እውቂያዎች አሳምር"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"የቀን አቆጣጠር አሳምር"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ዕውቂያዎች አስምር"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ለዚህ መለያ እውቂያዎች አስምር"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"የቀን አቆጣጠር አስምር"</string>
     <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"ለዚህ መለያ የቀን መቁጠሪያ ክስተት አመሳስል"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"ኢሜይል አመሳስል"</string>
-    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"ለዚህ መለያ ኢሜይል አሳምር"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"ለዚህ መለያ ኢሜይል አስምር"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"ንዘር"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"ኢሜይል ሲደርስ እንዲሁ ንዘር"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"ዘወትር"</string>
@@ -406,8 +406,8 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"መለያው  \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ከኢሜይል ይወገዳል።"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"መለያ አስወግድ"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"መለያ አስወግድ"</string>
-    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"አሳምር አማራጮች"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"የ(<xliff:g id="MAILBOXX_NAME">%s</xliff:g>) አሳምር አማራጮች"</string>
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"አስምር አማራጮች"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"የ(<xliff:g id="MAILBOXX_NAME">%s</xliff:g>) አስምር አማራጮች"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"ቅንብሮች አስምር"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"ድግግሞሽ ተመልከት"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"ቀኖች ለአሳምር"</string>
