@@ -3713,6 +3713,8 @@ outer:
                     String email = sender.getAddress();
                     prefs.setSenderAsTrusted(email);
                 }
+            } else if (columnName.equals(UIProvider.ConversationColumns.VIEWED)) {
+                // Ignore for now
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
