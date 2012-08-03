@@ -86,7 +86,7 @@
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"ምንም ተጨማሪ ፎቶዎች/ቪዲዮዎች መስቀል አያስፈልግም።"</string>
     <string name="dialog_sync_all_server_error" msgid="2177063494820815086">"ከአገልጋዩ ጋር የመገናኘት ችግር ነበር። እባክዎ ትንሽ ቆይተው እንደገና ይሞክሩ።"</string>
     <string name="dialog_sync_all_canceled" msgid="2595386304244274687">"ሁሉን አስምር ቀርቷል"</string>
-    <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"ሁሉንም አሳምር"</string>
+    <string name="dialog_sync_all_error_title" msgid="6227689508729774372">"ሁሉንም አስምር"</string>
     <string name="manager_view_completed" msgid="5119780300858727185">"ዕይታ ተጠናቋል"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"በይደር ያለን እይ"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"አጠቃላይ"</string>

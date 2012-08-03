@@ -437,7 +437,7 @@
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Na popisima poruka dodirnite i držite da biste odabrali"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Potvrdite prije brisanja"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Poruke"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Pomaknite za brisanje"</string>
+    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Trznite prstom za brisanje"</string>
     <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Poruke"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Potvrdite prije slanja"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Poruke"</string>
