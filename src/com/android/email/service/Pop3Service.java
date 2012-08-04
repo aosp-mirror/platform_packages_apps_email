@@ -59,6 +59,8 @@ import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AttachmentState;
 
+import org.apache.james.mime4j.EOLConvertingInputStream;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -197,7 +199,8 @@ public class Pop3Service extends Service {
             // We'll load them from most recent to oldest
             for (int i = cnt - 1; i >= 0; i--) {
                 Pop3Message message = unsyncedMessages.get(i);
-                remoteFolder.fetchBody(message, Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76);
+                remoteFolder.fetchBody(message, Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76,
+                        null);
                 int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
                 if (!message.isComplete()) {
                      flag = EmailContent.Message.FLAG_LOADED_UNKNOWN;
@@ -210,6 +213,23 @@ public class Pop3Service extends Service {
             }
         } catch (IOException e) {
             throw new MessagingException(MessagingException.IOERROR);
+        }
+    }
+
+    private static class FetchCallback implements EOLConvertingInputStream.Callback {
+        private final ContentResolver mResolver;
+        private final Uri mAttachmentUri;
+        private final ContentValues mContentValues = new ContentValues();
+
+        FetchCallback(ContentResolver resolver, Uri attachmentUri) {
+            mResolver = resolver;
+            mAttachmentUri = attachmentUri;
+        }
+
+        @Override
+        public void report(int bytesRead) {
+            mContentValues.put(AttachmentColumns.UI_DOWNLOADED_SIZE, bytesRead);
+            mResolver.update(mAttachmentUri, mContentValues, null, null);
         }
     }
 
@@ -368,15 +388,16 @@ public class Pop3Service extends Service {
                     String uid = msg.mServerId;
                     Pop3Message popMessage = remoteUidMap.get(uid);
                     if (popMessage != null) {
+                        Uri attUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, att.mId);
                         try {
-                            remoteFolder.fetchBody(popMessage, -1);
+                            remoteFolder.fetchBody(popMessage, -1,
+                                    new FetchCallback(resolver, attUri));
                         } catch (IOException e) {
                             throw new MessagingException(MessagingException.IOERROR);
                         }
 
                         // Say we've downloaded the attachment
                         values.put(AttachmentColumns.UI_STATE, AttachmentState.SAVED);
-                        Uri attUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, att.mId);
                         resolver.update(attUri, values, null, null);
 
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
