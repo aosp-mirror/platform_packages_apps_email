@@ -43,6 +43,8 @@ import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
+import org.apache.james.mime4j.EOLConvertingInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -298,6 +300,8 @@ public class Pop3Store extends Store {
                 } else {
                     mMessageCount = Integer.parseInt(parts[1]);
                 }
+            } catch (MessagingException me) {
+                statException = me;
             } catch (IOException ioe) {
                 statException = ioe;
             } catch (NumberFormatException nfe) {
@@ -596,15 +600,12 @@ public class Pop3Store extends Store {
          * for any other value. If the server does not support TOP it is
          * emulated with RETR and extra lines are thrown away.
          *
-         * Note:  Some servers (e.g. live.com) don't support CAPA, but turn out to
-         * support TOP after all.  For better performance on these servers, we'll always
-         * probe TOP, and fall back to RETR when it's truly unsupported.
-         *
          * @param message
          * @param lines
+         * @param optional callback that reports progress of the fetch
          */
-        public void fetchBody(Pop3Message message, int lines)
-                throws IOException, MessagingException {
+        public void fetchBody(Pop3Message message, int lines,
+                EOLConvertingInputStream.Callback callback) throws IOException, MessagingException {
             String response = null;
             int messageId = mUidToMsgNumMap.get(message.getUid());
             if (lines == -1) {
@@ -644,7 +645,7 @@ public class Pop3Store extends Store {
                     if (DEBUG_LOG_RAW_STREAM && MailActivityEmail.DEBUG) {
                         in = new LoggingInputStream(in);
                     }
-                    message.parse(new Pop3ResponseInputStream(in));
+                    message.parse(new Pop3ResponseInputStream(in), callback);
                 }
                 catch (MessagingException me) {
                     /*
