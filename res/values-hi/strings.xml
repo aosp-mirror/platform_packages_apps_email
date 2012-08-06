@@ -172,7 +172,7 @@
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" शायद"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" नहीं"</string>
     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"आपने यह आमंत्रण स्वीकार कर लिया है."</string>
-    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"आपने इस आमंत्रण के लिए \"संभवतः\" प्रत्युत्तर दिया है."</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"आपने इस आमंत्रण के लिए \"संभवतः\" जवाब दिया है."</string>
     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"आपने यह आमंत्रण अस्वीकार कर दिया है."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"विवरण दिखाएं"</string>
     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"संदेश विवरण"</string>
