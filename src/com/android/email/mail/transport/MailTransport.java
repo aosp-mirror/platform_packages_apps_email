@@ -145,6 +145,11 @@ public class MailTransport implements Transport {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
+        } catch (IllegalArgumentException iae) {
+            if (MailActivityEmail.DEBUG) {
+                Log.d(Logging.LOG_TAG, iae.toString());
+            }
+            throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION, iae.toString());
         }
     }
 
