@@ -1931,7 +1931,9 @@ public abstract class SyncManager extends Service implements Runnable {
                             log("Dead thread, mailbox released: " +
                                     c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
                         }
-                        releaseMailbox(mailboxId);
+                        synchronized (sSyncLock) {
+                            releaseMailbox(mailboxId);
+                        }
                         // Restart this if necessary
                         if (nextWait > 3*SECONDS) {
                             nextWait = 3*SECONDS;
