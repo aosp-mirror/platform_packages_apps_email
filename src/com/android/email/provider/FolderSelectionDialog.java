@@ -25,6 +25,7 @@ import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.database.Cursor;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 
 import com.android.mail.R;
 import com.android.mail.providers.Account;
@@ -40,10 +41,10 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClickListener {
-    private AlertDialog mDialog;
-    private HashMap<Folder, Boolean> mCheckedState;
-    private SeparatedFolderListAdapter mAdapter;
-    final private FolderPickerCallback mCallback;
+    private final AlertDialog mDialog;
+    private final HashMap<Folder, Boolean> mCheckedState;
+    private final SeparatedFolderListAdapter mAdapter;
+    private final FolderPickerCallback mCallback;
 
     public FolderSelectionDialog(final Context context, Account account,
             FolderPickerCallback callback, int headerId) {
@@ -75,12 +76,18 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
         mDialog.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object item = mAdapter.getItem(position);
+                final Object item = mAdapter.getItem(position);
                 if (item instanceof FolderRow) {
                     update((FolderRow) item);
                 }
             }
         });
+
+        final Button button = mDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (mCheckedState.size() == 0) {
+            // No items are selected, so disable the OK button.
+            button.setEnabled(false);
+        }
     }
 
     /**
@@ -109,6 +116,10 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
         row.setIsPresent(add);
         mAdapter.notifyDataSetChanged();
         mCheckedState.put(row.getFolder(), add);
+
+        // Since we know that an item is selected in the list, enable the OK button
+        final Button button = mDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        button.setEnabled(true);
     }
 
     @Override
