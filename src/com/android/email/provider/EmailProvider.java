@@ -410,7 +410,7 @@ public class EmailProvider extends ContentProvider {
         // All hostauth records
         matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
         // A specific hostauth
-        matcher.addURI(EmailContent.AUTHORITY, "hostauth/#", HOSTAUTH_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
 
         // Atomically a constant value to a particular field of a mailbox/account
         matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
