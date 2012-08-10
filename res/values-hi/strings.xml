@@ -382,7 +382,7 @@
     <string name="account_settings_signature_label" msgid="4091969938785803201">"हस्ताक्षर"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"त्वरित प्रतिसाद"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"वह पाठ संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"आपके भेजे जाने वाले संदेशों में पाठ संशोधित करें"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"आपके भेजे जाने वाले संदेशों में पाठ बदलें"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"सूचना सेटिंग"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"डेटा उपयोग"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"सुरक्षा नीतियां"</string>
