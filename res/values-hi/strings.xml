@@ -413,7 +413,7 @@
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"समन्वयन के लिए दिन:"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"ईमेल खाता"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"कोई खाता चुनें"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"फ़ोल्डर का चयन करें"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"फ़ोल्डर को चुनें"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"खाता नहीं मिला. संभवत: इसे निकाल दिया गया है."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"फ़ोल्डर नहीं मिला. संभवत: इसे निकाल दिया गया है."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"केवल कुछ \"प्लस\" खातों को POP पहुंच प्राप्त होती है जो इस प्रोग्राम को कनेक्‍ट करने देती है. यदि आप अपने सही ईमेल पते और पासवर्ड द्वारा साइन इन नहीं कर पा रहे हैं, तो हो सकता है कि आपके पास सशुल्‍क \"प्लस\" खाता न हो. इन ईमेल खातों में पहुंच प्राप्‍त करने के लिए वेब ब्राउज़र लॉन्च करें."</string>
@@ -497,7 +497,7 @@
     <string name="no_conversations" msgid="5559527390337162819">"कोई संदेश नहीं."</string>
     <string name="imap2_name" msgid="2742745881421883233">"पुश IMAP"</string>
     <string name="folder_picker_title" msgid="5213735893918108637">"चुनें, चुनें, चुनें!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"सर्वर के ट्रैश फ़ोल्डर का चयन करें"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"सर्वर के भेजे गए आइटम फ़ोल्डर का चयन करें"</string>
+    <string name="trash_folder_selection_title" msgid="8287461989726013461">"सर्वर के ट्रैश फ़ोल्डर को चुनें"</string>
+    <string name="sent_folder_selection_title" msgid="3868598259968276968">"सर्वर के भेजे गए आइटम फ़ोल्डर को चुनें"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"फ़ोल्डर बनाएं"</string>
 </resources>
