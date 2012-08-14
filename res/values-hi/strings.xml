@@ -285,7 +285,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"सुरक्षित कनेक्शन (SSL) का उपयोग करें"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"सभी SSL प्रमाणपत्र स्‍वीकार करें"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"क्लाइंट प्रमाणपत्र"</string>
-    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"चयन करें"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"चुनें"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"क्लाइंट प्रमाणपत्र का उपयोग करें"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"निकालें"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"कोई नहीं"</string>
