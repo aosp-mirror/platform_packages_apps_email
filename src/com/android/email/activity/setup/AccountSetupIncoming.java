@@ -86,7 +86,13 @@ public class AccountSetupIncoming extends AccountSetupActivity
                 startAutoDiscover();
             }
         }
-   }
+
+        // If we've got a default prefix for this protocol, use it
+        String prefix = mServiceInfo.inferPrefix;
+        if (prefix != null && !hostAuth.mAddress.startsWith(prefix + ".")) {
+            hostAuth.mAddress = prefix + "." + hostAuth.mAddress;
+        }
+    }
 
     /**
      * Implements View.OnClickListener
