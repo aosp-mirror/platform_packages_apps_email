@@ -62,6 +62,7 @@
         email:offerTls="true"
         email:usesSmtp="true"
         email:offerLocalDeletes="true"
+        email:inferPrefix="pop"
          />
     <emailservice
         email:protocol="imap"
@@ -79,6 +80,7 @@
         email:offerAttachmentPreload="true"
         email:offerPrefix="true"
         email:syncChanges="true"
+        email:inferPrefix="imap"
          />
     <emailservice
         email:protocol="eas"
@@ -118,5 +120,6 @@
         email:offerAttachmentPreload="true"
         email:offerPrefix="true"
         email:syncChanges="true"
+        email:inferPrefix="imap"
          />
 </emailservices>
