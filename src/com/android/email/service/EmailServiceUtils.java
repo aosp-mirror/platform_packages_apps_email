@@ -165,13 +165,15 @@ public class EmailServiceUtils {
 
     public static EmailServiceProxy getService(Context context, IEmailServiceCallback callback,
             String protocol) {
+        EmailServiceInfo info = null;
         // Handle the degenerate case here (account might have been deleted)
-        if (protocol == null) {
+        if (protocol != null) {
+            info = getServiceInfo(context, protocol);
+        }
+        if (info == null) {
             Log.w(Logging.LOG_TAG, "Returning NullService for " + protocol);
             return new EmailServiceProxy(context, NullService.class, null);
-        }
-        EmailServiceInfo info = getServiceInfo(context, protocol);
-        if (info.klass != null) {
+        } else if (info.klass != null) {
             return new EmailServiceProxy(context, info.klass, callback);
         } else {
             return new EmailServiceProxy(context, info.intentAction, callback);
