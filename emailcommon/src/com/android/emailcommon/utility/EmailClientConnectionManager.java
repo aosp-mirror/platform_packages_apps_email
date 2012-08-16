@@ -102,11 +102,10 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
             }
             KeyManager keyManager =
                     KeyChainKeyManager.fromAlias(context, hostAuth.mClientCertAlias);
-            SSLCertificateSocketFactory underlying = SSLUtils.getSSLSocketFactory(context, hostAuth,
-                    false);
-            underlying.setKeyManagers(new KeyManager[] { keyManager });
-            registry.register(
-                    new Scheme(schemeName, new SSLSocketFactory(underlying), hostAuth.mPort));
+            boolean insecure = hostAuth.shouldTrustAllServerCerts();
+            SSLSocketFactory ssf =
+                    SSLUtils.getHttpSocketFactory(context, hostAuth, keyManager, insecure);
+            registry.register(new Scheme(schemeName, ssf, hostAuth.mPort));
         }
     }
 
