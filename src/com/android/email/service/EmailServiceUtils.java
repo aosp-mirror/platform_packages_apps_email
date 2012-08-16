@@ -153,6 +153,7 @@ public class EmailServiceUtils {
         public CharSequence[] syncIntervalStrings;
         public CharSequence[] syncIntervals;
         public int defaultSyncInterval;
+        public String inferPrefix;
 
         public String toString() {
             StringBuilder sb = new StringBuilder("Protocol: ");
@@ -255,6 +256,7 @@ public class EmailServiceUtils {
                         ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervals);
                     info.defaultSyncInterval =
                         ta.getInteger(R.styleable.EmailServiceInfo_defaultSyncInterval, 15);
+                    info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
 
                     // Must have either "class" (local) or "intent" (remote)
                     if (klass != null) {
