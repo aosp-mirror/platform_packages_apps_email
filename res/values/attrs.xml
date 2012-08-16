@@ -62,5 +62,6 @@
             <enum name="mins30" value="30"/>
             <enum name="mins60" value="60"/>
         </attr>
+        <attr name="inferPrefix" format="string"/>
     </declare-styleable>
 </resources>
