@@ -461,7 +461,6 @@ public class Imap2SyncService extends AbstractSyncService {
         int flag = 0;
         String flags = null;
         int uid = 0;
-        boolean bodystructure = false;
 
         Message msg = new Message();
         msg.mMailboxKey = mailboxId;
@@ -469,9 +468,6 @@ public class Imap2SyncService extends AbstractSyncService {
         try {
             while (true) {
                 String atm = p.parseAtom();
-                // We're done if we have all of these, regardless of order
-                if (date != null && flags != null && bodystructure)
-                    break;
                 // Not sure if this case is possible
                 if (atm == null)
                     break;
@@ -494,8 +490,6 @@ public class Imap2SyncService extends AbstractSyncService {
                         flag = 1;
                 } else if (atm.equalsIgnoreCase("BODYSTRUCTURE")) {
                     msg.mSyncData = p.parseList();
-                    bodystructure = true;
-                    //parseBodystructure(msg, new Parser(bs), "", 1, parts);
                 } else if (atm.equalsIgnoreCase("INTERNALDATE")) {
                     date = parseInternaldate(p.parseString());
                 }
