@@ -543,23 +543,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider != null) {
-
-            // STOPSHIP Warn user about Imap2, if necessary
             mProvider.expandTemplates(email);
-            try {
-                URI uri = new URI(mProvider.incomingUri);
-                String scheme = uri.getScheme();
-                String[] schemeParts = scheme.split("\\+");
-                String protocol = schemeParts[0];
-                if (HostAuth.LEGACY_SCHEME_IMAP.equals(protocol) &&
-                        EmailServiceUtils.isServiceAvailable(this, "imap2")) {
-                    mProvider.note = "This account will use the new \"Push Imap\" sync adapter." +
-                        " To use the legacy adapter, please cancel and use Manual Setup.";
-                }
-            } catch (URISyntaxException e) {
-                // Ignore
-            }
-
             if (mProvider.note != null) {
                 NoteDialogFragment dialogFragment =
                         NoteDialogFragment.newInstance(mProvider.note);
