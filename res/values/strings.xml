@@ -573,10 +573,10 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     Retrieving account information\u2026</string>
     <!-- Appears on screen while system is checking incoming server settings -->
     <string name="account_setup_check_settings_check_incoming_msg">
-    Checking incoming server settings\u2026</string>
+    Validating server settings\u2026</string>
     <!-- Appears on screen while system is checking outgoing server settings -->
     <string name="account_setup_check_settings_check_outgoing_msg">
-    Checking outgoing server settings\u2026</string>
+    Validating smtp settings\u2026</string>
 
     <!-- Title of "Set up email" screen after success [CHAR LIMIT=45] -->
     <string name="account_setup_names_title">Account setup</string>
