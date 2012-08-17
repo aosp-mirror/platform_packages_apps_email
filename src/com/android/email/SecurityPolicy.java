@@ -457,6 +457,10 @@ public class SecurityPolicy {
         Account account = Account.restoreAccountWithId(context, accountId);
         if (account != null) {
             setAccountHoldFlag(context, account, newState);
+            if (newState) {
+                // Make sure there's a notification up
+                NotificationController.getInstance(context).showSecurityNeededNotification(account);
+            }
         }
     }
 
@@ -598,6 +602,8 @@ public class SecurityPolicy {
                 // Notify that policies changed
                 NotificationController.getInstance(mContext).showSecurityChangedNotification(
                         account);
+            } else {
+                Log.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
             }
         } else {
             setHold = true;

@@ -1742,7 +1742,11 @@ public abstract class SyncManager extends Service implements Runnable {
             if (policy == null) {
                 policy = Policy.restorePolicyWithId(INSTANCE, policyKey);
                 account.mPolicy = policy;
-                if (!PolicyServiceProxy.isActive(ssm, policy)) return false;
+                if (!PolicyServiceProxy.isActive(ssm, policy)) {
+                    PolicyServiceProxy.setAccountHoldFlag(ssm, account, true);
+                    log("canAutoSync; policies not active, set hold flag");
+                    return false;
+                }
             }
             if (policy != null && policy.mRequireManualSyncWhenRoaming && networkInfo.isRoaming()) {
                 return false;
