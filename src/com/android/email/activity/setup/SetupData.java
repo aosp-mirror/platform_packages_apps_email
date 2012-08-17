@@ -171,6 +171,10 @@ public class SetupData implements Parcelable {
         getInstance().mAccountAuthenticatorResponse = response;
     }
 
+    public static synchronized void init(SetupData setupData) {
+        INSTANCE = setupData;
+    }
+
     public static void init(int flowMode) {
         SetupData data = getInstance();
         data.commonInit();
