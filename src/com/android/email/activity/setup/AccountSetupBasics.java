@@ -27,7 +27,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -54,7 +53,6 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -106,9 +104,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private static final Boolean DEBUG_ALLOW_NON_TEST_HARNESS_CREATION = false;
 
     private static final String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
-
-    // NOTE: If you change this value, confirm that the new interval exists in arrays.xml
-    private static final int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
+    private static final String STATE_KEY_SETUP_DATA = "AccountSetupBasics.setupData";
 
     // Support for UI
     private EditText mEmailView;
@@ -196,20 +192,27 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // Check for forced account creation first, as it comes from an externally-generated
         // intent and won't have any SetupData prepared.
-        String action = getIntent().getAction();
-        if (ACTION_CREATE_ACCOUNT.equals(action)) {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        SetupData intentData = null;
+        // See if we have SetupData to restore; if so, use it
+        if (savedInstanceState != null) {
+            intentData = savedInstanceState.getParcelable(STATE_KEY_SETUP_DATA);
+        }
+        if (intentData != null) {
+            SetupData.init(intentData);
+        } else if (ACTION_CREATE_ACCOUNT.equals(action)) {
             SetupData.init(SetupData.FLOW_MODE_FORCE_CREATE);
-        }
-
-        int flowMode = getIntent().getIntExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_UNSPECIFIED);
-        if (flowMode != SetupData.FLOW_MODE_UNSPECIFIED) {
-            SetupData.init(flowMode, getIntent().getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
         } else {
-            // TODO: get rid of this case. It's not safe to rely on this global static state. It
-            // should be specified in the Intent always.
-            flowMode = SetupData.getFlowMode();
+            int intentFlowMode =
+                    intent.getIntExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_UNSPECIFIED);
+            if (intentFlowMode != SetupData.FLOW_MODE_UNSPECIFIED) {
+                SetupData.init(intentFlowMode, intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
+            }
         }
 
+        int flowMode = SetupData.getFlowMode();
         if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
             // Return to the caller who initiated account creation
             finish();
@@ -294,7 +297,6 @@ public class AccountSetupBasics extends AccountSetupActivity
                 finish();
                 return;
             }
-            Intent intent = getIntent();
             String email = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_EMAIL);
             String user = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_USER);
             String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
@@ -354,6 +356,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (mProvider != null) {
             outState.putSerializable(STATE_KEY_PROVIDER, mProvider);
         }
+        // Save the current state of our SetupData so we don't re-init it
+        outState.putParcelable(STATE_KEY_SETUP_DATA, SetupData.getInstance());
     }
 
     /**
