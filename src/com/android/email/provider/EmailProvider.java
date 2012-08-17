@@ -2333,10 +2333,12 @@ outer:
             // First look at values; this is an override of default behavior
             if (values.containsKey(column)) {
                 String value = values.getAsString(column);
-                if (value.startsWith("@")) {
+                if (value == null) {
+                    throw new IllegalArgumentException("Null value in " + column);
+                } else if (value.startsWith("@")) {
                     val = value.substring(1) + " AS " + column;
                 } else {
-                    val = "'" + values.getAsString(column) + "' AS " + column;
+                    val = "'" + value + "' AS " + column;
                 }
             } else {
                 // Now, get the standard value for the column from our projection map
