@@ -251,6 +251,12 @@ public class Imap2SyncService extends AbstractSyncService {
             resultCode = MessagingException.AUTHENTICATION_FAILED;
         }
 
+        // Report the error back to the UI...
+        String alert = getAlert();
+        if (alert != null) {
+            bundle.putString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE, alert);
+        }
+
         bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, resultCode);
         return bundle;
     }
@@ -1585,6 +1591,16 @@ public class Imap2SyncService extends AbstractSyncService {
 
     private String mUserAgent;
 
+    private String getAlert() {
+        if (IMAP_NO.equals(mImapResult)) {
+            int alertPos = mImapErrorLine.indexOf("[ALERT]");
+            if (alertPos > 0) {
+                return mImapErrorLine.substring(alertPos + 7);
+            }
+        }
+        return null;
+    }
+
     private Connection connectAndLogin(HostAuth hostAuth, String name) {
         return connectAndLogin(hostAuth, name, null);
     }
@@ -1648,12 +1664,8 @@ public class Imap2SyncService extends AbstractSyncService {
             tag = writeCommand(writer,
                     "login " + hostAuth.mLogin + ' ' + hostAuth.mPassword);
             if (!IMAP_OK.equals(readResponse(reader, tag))) {
-                if (IMAP_NO.equals(mImapResult)) {
-                    int alertPos = mImapErrorLine.indexOf("[ALERT]");
-                    if (alertPos > 0) {
-                        conn.reason = mImapErrorLine.substring(alertPos + 7);
-                    }
-                }
+                // Fine if the alert is null
+                conn.reason = getAlert();
                 conn.status = EXIT_LOGIN_FAILURE;
             } else {
                 conn.socket = socket;
