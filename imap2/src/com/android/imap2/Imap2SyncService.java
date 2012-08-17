@@ -1223,9 +1223,9 @@ public class Imap2SyncService extends AbstractSyncService {
 
                     }
                     Mailbox m = new Mailbox();
-                    m.mDisplayName = displayName;
+                    m.mDisplayName = decodeFolderName(displayName, null);
                     m.mAccountKey = mAccountId;
-                    m.mServerId = serverId;
+                    m.mServerId = decodeFolderName(serverId, null);
                     if (parentName != null && !parentList.contains(parentName)) {
                         parentList.add(parentName);
                     }
