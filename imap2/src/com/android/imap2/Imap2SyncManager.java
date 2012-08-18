@@ -342,4 +342,9 @@ public class Imap2SyncManager extends SyncManager {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
+    @Override
+    public void onStartService(Mailbox mailbox) {
+        // No special behavior
+    }
 }
