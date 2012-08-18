@@ -1093,7 +1093,7 @@ public abstract class SyncManager extends Service implements Runnable {
         } else if (ssm == null) {
             context.startService(new Intent(context, SyncManager.class));
         } else {
-            final AbstractSyncService service = ssm.mServiceMap.get(id);
+            final AbstractSyncService service = ssm.getRunningService(id);
             if (service != null) {
                 // Handle alerts in a background thread, as we are typically called from a
                 // broadcast receiver, and are therefore running in the UI thread
@@ -1680,6 +1680,18 @@ public abstract class SyncManager extends Service implements Runnable {
     }
 
     /**
+     * Retrieve a running sync service for the passed-in mailbox id in a threadsafe manner
+     *
+     * @param mailboxId the id of the mailbox whose service is to be found
+     * @return the running service (a subclass of AbstractSyncService) or null if none
+     */
+    public AbstractSyncService getRunningService(long mailboxId) {
+        synchronized(sSyncLock) {
+            return mServiceMap.get(mailboxId);
+        }
+    }
+
+    /**
      * Check whether an Outbox (referenced by a Cursor) has any messages that can be sent
      * @param c the cursor to an Outbox
      * @return true if there is mail to be sent
@@ -1865,10 +1877,7 @@ public abstract class SyncManager extends Service implements Runnable {
         try {
             while (c.moveToNext()) {
                 long mailboxId = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                AbstractSyncService service = null;
-                synchronized (sSyncLock) {
-                    service = mServiceMap.get(mailboxId);
-                }
+                AbstractSyncService service = getRunningService(mailboxId);
                 if (service == null) {
                     // Get the cached account
                     Account account = getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
@@ -1990,7 +1999,7 @@ public abstract class SyncManager extends Service implements Runnable {
         Mailbox m = Mailbox.restoreMailboxWithId(ssm, mailboxId);
         if (m == null || !isSyncable(m)) return;
         try {
-            AbstractSyncService service = ssm.mServiceMap.get(mailboxId);
+            AbstractSyncService service = ssm.getRunningService(mailboxId);
             if (service != null) {
                 service.mRequestTime = System.currentTimeMillis() + ms;
                 kick("service request");
@@ -2005,7 +2014,7 @@ public abstract class SyncManager extends Service implements Runnable {
     static public void serviceRequestImmediate(long mailboxId) {
         SyncManager ssm = INSTANCE;
         if (ssm == null) return;
-        AbstractSyncService service = ssm.mServiceMap.get(mailboxId);
+        AbstractSyncService service = ssm.getRunningService(mailboxId);
         if (service != null) {
             service.mRequestTime = System.currentTimeMillis();
             Mailbox m = Mailbox.restoreMailboxWithId(ssm, mailboxId);
@@ -2047,7 +2056,7 @@ public abstract class SyncManager extends Service implements Runnable {
     static public void sendRequest(long mailboxId, Request req) {
         SyncManager ssm = INSTANCE;
         if (ssm == null) return;
-        AbstractSyncService service = ssm.mServiceMap.get(mailboxId);
+        AbstractSyncService service = ssm.getRunningService(mailboxId);
         if (service == null) {
             startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
             kick("part request");
@@ -2067,7 +2076,7 @@ public abstract class SyncManager extends Service implements Runnable {
         SyncManager ssm = INSTANCE;
         if (ssm == null) return PING_STATUS_OK;
         // Already syncing...
-        if (ssm.mServiceMap.get(mailboxId) != null) {
+        if (ssm.getRunningService(mailboxId) != null) {
             return PING_STATUS_RUNNING;
         }
         // No errors or a transient error, don't ping...
@@ -2149,7 +2158,7 @@ public abstract class SyncManager extends Service implements Runnable {
     }
 
     private boolean isRunningInServiceThread(long mailboxId) {
-        AbstractSyncService syncService = mServiceMap.get(mailboxId);
+        AbstractSyncService syncService = getRunningService(mailboxId);
         Thread thisThread = Thread.currentThread();
         return syncService != null && syncService.mThread != null &&
             thisThread == syncService.mThread;
