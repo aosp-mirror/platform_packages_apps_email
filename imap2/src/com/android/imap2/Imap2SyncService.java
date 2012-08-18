@@ -852,7 +852,7 @@ public class Imap2SyncService extends AbstractSyncService {
         String tag = writeCommand(mConnection.writer, "uid copy " + serverId + " \"" +
                 encodeFolderName(mailbox.mServerId) + "\"");
         if (readResponse(mConnection.reader, tag, "COPY").equals(IMAP_OK)) {
-            tag = writeCommand(mConnection.writer, "uid store " + serverId + " +FLAGS(\\Deleted)");
+            tag = writeCommand(mConnection.writer, "uid store " + serverId + " +FLAGS (\\Deleted)");
             if (readResponse(mConnection.reader, tag, "STORE").equals(IMAP_OK)) {
                 tag = writeCommand(mConnection.writer, "expunge");
                 readResponse(mConnection.reader, tag, "expunge");
