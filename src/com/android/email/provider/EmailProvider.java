@@ -2627,7 +2627,8 @@ outer:
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));
                 } else {
-                    int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
+                    int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS |
+                            UIProvider.FolderCapabilities.DELETE;
                     if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
                         caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
                     }
@@ -2638,6 +2639,7 @@ outer:
                     values.put(UIProvider.FolderColumns.CAPABILITIES,
                             UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
                             UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
+                            UIProvider.FolderCapabilities.DELETE |
                             UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
                 }
                 if (isVirtualMailbox(mailboxId)) {
