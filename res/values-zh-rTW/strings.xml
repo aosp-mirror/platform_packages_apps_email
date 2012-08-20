@@ -243,8 +243,10 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"您的「<xliff:g id="DUPLICATE">%s</xliff:g>」帳戶已經使用這個使用者名稱。"</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"這組密碼的開頭或結尾為一或多個空白字元，許多伺服器都不支援包含空白字元的密碼。"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在擷取帳戶資訊..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"正在檢查收信伺服器設定..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在檢查外寄伺服器設定..."</string>
+    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"帳戶設定"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"您的帳戶已設定完成，可以開始收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"設定帳戶名稱 (選擇性)"</string>
@@ -317,7 +319,8 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"全部"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"使用帳戶預設值"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"使用者名稱或密碼不正確。"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"無法安全連線至伺服器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"無法安全連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"需要用戶端憑證，您要透過用戶端憑證連線到伺服器嗎？"</string>

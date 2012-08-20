@@ -243,8 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"אתה כבר משתמש בשם משתמש זה עבור החשבון \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"סיסמה זו מתחילה או מסתיימת בתו רווח אחד או יותר. שרתים רבים אינם תומכים בסיסמאות המכילות רווחים."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"מאחזר פרטי חשבון..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"בודק הגדרות שרת דואר נכנס..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"בודק הגדרות שרת דואר יוצא..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"מאמת הגדרות שרת…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"מאמת הגדרות smtp…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"הגדרת חשבון"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"החשבון שלך הוגדר והדוא\"ל בדרך!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"תן שם לחשבון זה (אופציונלי)"</string>
@@ -317,7 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"הכל"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"השתמש בברירת המחדל של החשבון"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"שם המשתמש או הסיסמה שגויים."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"שם המשתמש או הסיסמה שגויים. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"ההתחברות נכשלה."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"לא ניתן להתחבר לשרת באופן בטוח."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"לא ניתן להתחבר לשרת באופן בטוח."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"דרוש אישרו לקוח. האם אתה רוצה להתחבר לשרת עם אישור לקוח?"</string>
