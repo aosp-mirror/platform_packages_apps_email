@@ -243,8 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Toto uživatelské jméno již používáte pro účet <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Toto heslo začíná nebo končí nejméně jednou mezerou. Většina serverů hesla s mezerami nepodporuje."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Načítání informací o účtu..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrola nastavení serveru příchozí pošty..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrola nastavení serveru odchozí pošty..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Ověřování nastavení serveru…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Ověřování nastavení serveru SMTP…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Nastavení účtu"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Váš účet je nastaven, e-mail je na cestě!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Pojmenovat tento účet (nepovinné)"</string>
@@ -317,7 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Vše"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Použít výchozí nastavení účtu"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Uživatelské jméno nebo heslo jsou nesprávné."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Uživatelské jméno nebo heslo jsou nesprávné."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Přihlášení se nezdařilo."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nelze se bezpečně připojit k serveru."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nelze se bezpečně připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Je vyžadován certifikát klienta. Chcete se k serveru připojit pomocí certifikátu klienta?"</string>

@@ -243,8 +243,10 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에 이 사용자 이름을 사용하고 있습니다."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"비밀번호의 시작 또는 끝에 하나 이상의 공백 문자가 있습니다. 서버 중에는 공백이 포함된 비밀번호를 지원하지 않는 것이 많습니다."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
+    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"계정 설정"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"계정이 설정되었으며 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"계정 이름 지정(선택사항)"</string>
@@ -317,7 +319,8 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"전체"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"계정 기본값 사용"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"사용자 이름 또는 비밀번호가 잘못되었습니다."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"사용자 이름 또는 비밀번호가 잘못되었습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"서버에 안전하게 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"클라이언트 인증서가 필요합니다. 클라이언트 인증서로 서버에 연결하시겠습니까?"</string>
