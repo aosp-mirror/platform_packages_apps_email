@@ -16,9 +16,7 @@
 
 package com.android.emailcommon.internet;
 
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.util.Base64;
 import android.util.Base64OutputStream;
@@ -40,7 +38,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,9 +54,6 @@ public class Rfc822Output {
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     private static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
-
-    private static final String WHERE_NOT_SMART_FORWARD = "(" + Attachment.FLAGS + "&" +
-        Attachment.FLAG_SMART_FORWARD + ")=0";
 
     /** A less-than-perfect pattern to pull out <body> content */
     private static final Pattern BODY_PATTERN = Pattern.compile(
@@ -111,9 +108,16 @@ public class Rfc822Output {
      * @param messageId the message to write out
      * @param out the output stream to write the message to
      * @param useSmartReply whether or not quoted text is appended to a reply/forward
+     * @param a list of attachments to send (or null if retrieved from the message itself)
      */
     public static void writeTo(Context context, long messageId, OutputStream out,
             boolean useSmartReply, boolean sendBcc) throws IOException, MessagingException {
+        writeTo(context, messageId, out, useSmartReply, sendBcc, null);
+    }
+
+    public static void writeTo(Context context, long messageId, OutputStream out,
+            boolean useSmartReply, boolean sendBcc, List<Attachment> attachments)
+                    throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -148,59 +152,53 @@ public class Rfc822Output {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
         String[] bodyText = buildBodyText(body, message.mFlags, useSmartReply);
 
-        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
-        Cursor attachmentsCursor = context.getContentResolver().query(uri,
-                Attachment.CONTENT_PROJECTION, WHERE_NOT_SMART_FORWARD, null, null);
+        // If a list of attachments hasn't been passed in, build one from the message
+        if (attachments == null) {
+            attachments =
+                    Arrays.asList(Attachment.restoreAttachmentsWithMessageId(context, messageId));
+        }
 
-        try {
-            int attachmentCount = attachmentsCursor.getCount();
-            boolean multipart = attachmentCount > 0;
-            String multipartBoundary = null;
-            String multipartType = "mixed";
+        boolean multipart = attachments.size() > 0;
+        String multipartBoundary = null;
+        String multipartType = "mixed";
 
-            // Simplified case for no multipart - just emit text and be done.
-            if (!multipart) {
-                writeTextWithHeaders(writer, stream, bodyText);
-            } else {
-                // continue with multipart headers, then into multipart body
-                multipartBoundary = getNextBoundary();
+        // Simplified case for no multipart - just emit text and be done.
+        if (!multipart) {
+            writeTextWithHeaders(writer, stream, bodyText);
+        } else {
+            // continue with multipart headers, then into multipart body
+            multipartBoundary = getNextBoundary();
 
-                // Move to the first attachment; this must succeed because multipart is true
-                attachmentsCursor.moveToFirst();
-                if (attachmentCount == 1) {
-                    // If we've got one attachment and it's an ics "attachment", we want to send
-                    // this as multipart/alternative instead of multipart/mixed
-                    int flags = attachmentsCursor.getInt(Attachment.CONTENT_FLAGS_COLUMN);
-                    if ((flags & Attachment.FLAG_ICS_ALTERNATIVE_PART) != 0) {
-                        multipartType = "alternative";
-                    }
+            // Move to the first attachment; this must succeed because multipart is true
+            if (attachments.size() == 1) {
+                // If we've got one attachment and it's an ics "attachment", we want to send
+                // this as multipart/alternative instead of multipart/mixed
+                int flags = attachments.get(0).mFlags;
+                if ((flags & Attachment.FLAG_ICS_ALTERNATIVE_PART) != 0) {
+                    multipartType = "alternative";
                 }
-
-                writeHeader(writer, "Content-Type",
-                        "multipart/" + multipartType + "; boundary=\"" + multipartBoundary + "\"");
-                // Finish headers and prepare for body section(s)
-                writer.write("\r\n");
-
-                // first multipart element is the body
-                if (bodyText[INDEX_BODY_TEXT] != null || bodyText[INDEX_BODY_HTML] != null) {
-                    writeBoundary(writer, multipartBoundary, false);
-                    writeTextWithHeaders(writer, stream, bodyText);
-                }
-
-                // Write out the attachments until we run out
-                do {
-                    writeBoundary(writer, multipartBoundary, false);
-                    Attachment attachment =
-                        Attachment.getContent(attachmentsCursor, Attachment.class);
-                    writeOneAttachment(context, writer, stream, attachment);
-                    writer.write("\r\n");
-                } while (attachmentsCursor.moveToNext());
-
-                // end of multipart section
-                writeBoundary(writer, multipartBoundary, true);
             }
-        } finally {
-            attachmentsCursor.close();
+
+            writeHeader(writer, "Content-Type",
+                    "multipart/" + multipartType + "; boundary=\"" + multipartBoundary + "\"");
+            // Finish headers and prepare for body section(s)
+            writer.write("\r\n");
+
+            // first multipart element is the body
+            if (bodyText[INDEX_BODY_TEXT] != null || bodyText[INDEX_BODY_HTML] != null) {
+                writeBoundary(writer, multipartBoundary, false);
+                writeTextWithHeaders(writer, stream, bodyText);
+            }
+
+            // Write out the attachments until we run out
+            for (Attachment att: attachments) {
+                writeBoundary(writer, multipartBoundary, false);
+                writeOneAttachment(context, writer, stream, att);
+                writer.write("\r\n");
+            }
+
+            // end of multipart section
+            writeBoundary(writer, multipartBoundary, true);
         }
 
         writer.flush();
