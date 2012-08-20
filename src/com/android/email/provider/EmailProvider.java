@@ -3176,16 +3176,30 @@ outer:
 
     /**
      * Wrapper that handles the visibility feature (i.e. the conversation list is visible, so
-     * any pending notifications for the corresponding mailbox should be canceled)
+     * any pending notifications for the corresponding mailbox should be canceled). We also handle
+     * getExtras() to provide a snapshot of the mailbox's status
      */
     static class VisibilityCursor extends CursorWrapper {
         private final long mMailboxId;
         private final Context mContext;
+        private final Bundle mExtras = new Bundle();
 
         public VisibilityCursor(Context context, Cursor cursor, long mailboxId) {
             super(cursor);
             mMailboxId = mailboxId;
             mContext = context;
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+            if (mailbox != null) {
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS, mailbox.mUiSyncStatus);
+                if (mailbox.mUiLastSyncResult != UIProvider.LastSyncResult.SUCCESS) {
+                    mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
+                            mailbox.mUiLastSyncResult);
+                }
+            }
+        }
+
+        public Bundle getExtras() {
+            return mExtras;
         }
 
         @Override
