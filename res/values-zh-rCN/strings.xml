@@ -243,8 +243,10 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"帐户“<xliff:g id="DUPLICATE">%s</xliff:g>”已经使用了此用户名。"</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"该密码的开头或结尾存在一个或多个空格。很多服务器不支持带空格的密码。"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在检索帐户信息..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"正在检查接收服务器设置..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在检查外发服务器设置..."</string>
+    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"帐户设置"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"您的帐户已设置完毕，可以收发电子邮件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"为此帐户创建名称（可选）"</string>
@@ -317,7 +319,8 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"全部"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"使用帐户的默认设置"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"用户名或密码不正确。"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"用户名或密码不正确。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"无法安全地连接到服务器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"无法安全地连接到服务器。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"需要客户端证书。要通过客户端证书连接到服务器吗？"</string>
