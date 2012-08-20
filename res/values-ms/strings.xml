@@ -243,8 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Anda telah menggunakan nama pengguna ini untuk akaun \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Kata laluan ini dimulakan atau berakhir dengan satu atau lebih aksara ruang. Banyak pelayan tidak menyokong kata laluan dengan ruang."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Mendapatkan semula maklumat akaun..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Menyemak tetapan pelayan masuk..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Menyemak tetapan pelayan keluar..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Mengesahkan tetapan pelayan…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Mengesahkan tetapan smtp…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Persediaan akaun"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Akaun anda sudah disediakan dan e-mel akan muncul sebentar lagi!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Namakan akaun ini (pilihan)"</string>
@@ -317,7 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Semua"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gunakan lalai akaun"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nama pengguna atau kata laluan salah."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Nama pengguna atau kata laluan salah. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Log masuk gagal."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Tidak boleh menyambung ke pelayan dengan selamat."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Tidak dapat menyambung ke pelayan dengan selamat."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Sijil klien diperlukan. Adakah anda mahu menyambung ke pelayan dengan sijil klien?"</string>
