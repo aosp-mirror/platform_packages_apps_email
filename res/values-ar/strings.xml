@@ -243,8 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"إنك تستخدم اسم المستخدم هذا للحساب \"<xliff:g id="DUPLICATE">%s</xliff:g>\" فعلاً."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"تبدأ كلمة المرور هذه وتنتهي بحرف مسافة واحد أو أكثر. لا تتوافق العديد من الخوادم مع كلمات المرور التي تحتوي على مسافات."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"جارٍ استرداد معلومات الحساب…"</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"جارٍ فحص إعدادات خادم البريد الوارد…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"جارٍ فحص إعدادات خادم البريد الصادر…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"جارٍ التحقق من إعدادات الخادم…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"جارٍ التحقق من إعدادات smtp…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"إعداد الحساب"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"تمّ إعداد حسابك، وستصلك رسالة إلكترونية بعد قليل."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"تسمية هذا الحساب (اختياري)"</string>
@@ -317,7 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"الكل"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"استخدام الإعدادات الافتراضية للحساب"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"اسم المستخدم غير صحيح أو كلمة مرور غير صحيحة."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"اسم المستخدم غير صحيح أو كلمة المرور غير صحيحة."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"أخفق تسجيل الدخول."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"لا يمكن الاتصال بالخادم بأمان."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"لا يمكن الاتصال بالخادم بأمان."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"يستلزم الأمر شهادة عميل. هل تريد الاتصال بالخادم باستخدام شهادة عميل؟"</string>

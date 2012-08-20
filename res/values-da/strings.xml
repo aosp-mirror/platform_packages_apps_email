@@ -243,8 +243,10 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Du bruger allerede dette brugernavn til kontoen \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Denne adgangskode starter eller slutter med ét eller flere mellemrum. Mange servere understøtter ikke adgangskoder med mellemrum."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Henter kontooplysninger ..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerer indstillinger for indgående server ..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerer indstillinger for udgående server ..."</string>
+    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoindstillinger"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Din konto er konfigureret, og der er e-mail på vej."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Giv kontoen et navn (valgfrit)"</string>
@@ -317,7 +319,8 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Anvend kontostandarden"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Brugernavn eller adgangskode er forkert."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="737111956772240007">"Brugernavn eller adgangskode er forkert."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Der kan ikke oprettes en sikker forbindelse til serveren."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Der kan ikke oprettes en sikker forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Der kræves et klientcertifikat. Vil du oprette forbindelse til serveren med et klientcertifikat?"</string>
