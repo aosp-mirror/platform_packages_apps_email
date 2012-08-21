@@ -64,7 +64,7 @@
     <string name="failed_server_auth" msgid="2428208784689362254">"प्रमाणीकरण विफल"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"लंबित अपलोड [%d]"</string>
     <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"पूर्ण किए गए अपलोड [%d]"</string>
-    <string name="manager_pause" msgid="7046645023617816964">"अपलोड रोकें"</string>
+    <string name="manager_pause" msgid="7046645023617816964">"अपलोड पॉज़ करें"</string>
     <string name="manager_resume" msgid="1608630525599824933">"अपलोड फिर से शुरू करें"</string>
     <string name="manager_upload_now" msgid="2284408578936376342">"अभी अपलोड करें"</string>
     <string name="manager_upload_later" msgid="5453932124711705632">"बाद में अपलोड करें"</string>
@@ -90,7 +90,7 @@
     <string name="manager_view_completed" msgid="5119780300858727185">"पूर्ण देखें"</string>
     <string name="manager_view_pending" msgid="4403346072556950609">"लंबित देखें"</string>
     <string name="preference_category_title_general" msgid="330919434495694575">"सामान्य"</string>
-    <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"सभी अपलोड रोकें"</string>
+    <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"सभी अपलोड पॉज़ करें"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"पावर"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"केवल तभी अपलोड करें जब फ़ोन चार्ज किया जा रहा हो."</string>
     <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
