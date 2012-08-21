@@ -25,6 +25,7 @@
         <attr name="protocol" format="string"/>
         <attr name="name" format="string"/>
         <attr name="accountType" format="string"/>
+        <attr name="replaceWith" format="string"/>
         <attr name="serviceClass" format="string"/>
         <attr name="intent" format="string"/>
         <attr name="port" format="integer"/>

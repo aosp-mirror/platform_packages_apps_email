@@ -546,6 +546,25 @@
                 android:resource="@xml/imap2_authenticator"
                 />
         </service>
+
+         <service
+            android:name=".imap2.EmailSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_imap2" />
+        </service>
+
+        <service
+            android:name=".imap2.Imap2SyncManager"
+            android:enabled="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            >
+        </service>
+
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"
