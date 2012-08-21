@@ -243,10 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ginagamit mo na ang username na ito para sa account na \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Nagsisimula o nagtatapos ang password na ito na may isa o higit pang character na puwang. Hindi sinusuportahan ng maraming server ang mga password na may mga puwang."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Binabawi ang impormasyon ng account…"</string>
-    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
-    <skip />
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Pinapatunayan ang mga setting ng server…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Pinapatunayan ang mga setting ng smtp…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Setup ng account"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Naka-set up na ang iyong account at paparating na ang email!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Bigyan ng pangalan ang account na ito (opsyonal)"</string>
@@ -319,8 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Lahat"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gamitin ang default ng account"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Hindi tama ang username o password."</string>
-    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
-    <skip />
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Nabigo ang login."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Hindi makakonekta nang ligtas sa server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Hindi makakonekta nang ligtas sa server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Kinakailangan ng certificate ng client. Nais mo bang kumonekta sa server gamit ang isang certificate ng client?"</string>
