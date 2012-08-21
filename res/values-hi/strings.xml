@@ -164,7 +164,7 @@
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"चित्र दिखाएं"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"हमेशा दिखाएं"</string>
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"इस प्रेषक के चित्र हमेशा दिखाएं:"</string>
-    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"इस प्रेषक के चित्रों को स्वचालित रूप से दिखाया जाएगा."</string>
+    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"इस प्रेषक के चित्रों को अपने आप दिखाया जाएगा."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"कैलेंडर में देखें"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"कैलेंडर आमंत्रण"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"आप जा रहे हैं?"</string>
@@ -243,10 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"आप पहले से ही \"<xliff:g id="DUPLICATE">%s</xliff:g>\" खाते के लिए इस उपयोगकर्ता नाम का उपयोग कर रहे हैं."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"यह पासवर्ड एक या अधिक स्पेस वर्णों के साथ प्रारंभ या समाप्त होता है. कई सर्वर स्पेस वाले पासवर्ड का समर्थन नहीं करते हैं."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"खाता जानकारी पुनर्प्राप्त कर रहा है…"</string>
-    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
-    <skip />
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"सर्वर सेटिंग सत्यापित की जा रही हैं…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"smtp सेटिंग सत्यापित की जा रही हैं…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"खाता सेटअप"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"इस खाते को कोई नाम दें (वैकल्पिक)"</string>
@@ -319,8 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"सभी"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"खाते के डिफ़ॉल्ट का उपयोग करें"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"उपयोगकर्ता नाम या पासवर्ड गलत है."</string>
-    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
-    <skip />
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"लॉगिन विफल रहा."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"एक क्लाइंट प्रमाणपत्र की आवश्यकता है. क्या आप क्लाइंट प्रमाणपत्र के साथ सर्वर से कनेक्ट होना चाहते हैं?"</string>
@@ -465,7 +462,7 @@
     <string name="general_preference_reply_all_label" msgid="7806833609810003510">"सभी को प्रत्‍युत्तर दें"</string>
     <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"संदेशों के प्रत्‍युत्तर के लिए \"सभी को जवाब दें\" को डिफ़ॉल्ट बनाएं"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"चित्र दिखाने के लिए पूछें"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"संदेशों के चित्र स्वचालित रूप से नहीं दिखाए जाएंगे"</string>
+    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"संदेशों के चित्र अपने आप नहीं दिखाए जाएंगे"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"चित्र दिखाएं\" साफ़ किया गया."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_2">%2$s</xliff:g> का <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"समन्वयन की प्रतीक्षा कर रहा है"</string>

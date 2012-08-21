@@ -243,10 +243,8 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Du använder redan det här användarnamnet för kontot <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Det här lösenordet inleds eller avslutas med ett eller flera mellanslag. Många servrar saknar stöd för lösenord med mellanslag."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Hämtar kontoinformation…"</string>
-    <!-- no translation found for account_setup_check_settings_check_incoming_msg (2869198335297585862) -->
-    <skip />
-    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4566131393776891419) -->
-    <skip />
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validerar serverinställningar ..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validerar SMTP-inställningar ..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoinställningar"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Ditt konto är färdigt och snart kan du skicka och ta emot e-postmeddelanden."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ge kontot ett namn (valfritt)"</string>
@@ -319,8 +317,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alla"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Använd standardinställning"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Användarnamnet eller lösenordet är felaktigt."</string>
-    <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
-    <skip />
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Inloggningen misslyckades."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Det går inte att upprätta en säker anslutning till servern."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Det går inte att upprätta en säker anslutning till servern."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Ett klientcertifikat måste anges. Vill du ansluta till servern med ett klientcertifikat?"</string>
