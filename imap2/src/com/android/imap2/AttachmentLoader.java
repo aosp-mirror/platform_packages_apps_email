@@ -26,6 +26,8 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.imap2.Imap2SyncService.Connection;
 import com.android.mail.providers.UIProvider;
 
+import org.apache.james.mime4j.decoder.Base64InputStream;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,6 +95,10 @@ public class AttachmentLoader {
         InputStream in = null;
         try {
             in = new FileInputStream(file);
+            if (mAttachment.mEncoding != null &&
+                    "base64".equals(mAttachment.mEncoding.toLowerCase())) {
+                in = new Base64InputStream(in);
+            }
             AttachmentUtilities.saveAttachment(mContext, in, mAttachment);
             doStatusCallback(EmailServiceStatus.SUCCESS);
         } catch (FileNotFoundException e) {

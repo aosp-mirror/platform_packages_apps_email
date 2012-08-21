@@ -3222,6 +3222,21 @@ outer:
     }
 
     /**
+     * For debugging purposes; shouldn't be used in production code
+     */
+    static class CloseDetectingCursor extends CursorWrapper {
+
+        public CloseDetectingCursor(Cursor cursor) {
+            super(cursor);
+        }
+
+        public void close() {
+            super.close();
+            Log.d(TAG, "Closing cursor", new Error());
+        }
+    }
+
+    /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
      * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
