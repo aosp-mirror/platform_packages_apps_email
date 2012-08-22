@@ -40,7 +40,7 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.ex.photo
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon2 guava android-common-chips android-common-photoviewer
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon2 com.android.emailsync guava android-common-chips android-common-photoviewer
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
 

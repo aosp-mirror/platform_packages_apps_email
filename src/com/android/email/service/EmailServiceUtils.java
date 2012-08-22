@@ -16,22 +16,35 @@
 
 package com.android.email.service;
 
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.CalendarContract;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.android.email.R;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -202,11 +215,110 @@ public class EmailServiceUtils {
         }
     }
 
+    private static void finishAccountManagerBlocker(AccountManagerFuture<?> future) {
+        try {
+            // Note: All of the potential errors are simply logged
+            // here, as there is nothing to actually do about them.
+            future.getResult();
+        } catch (OperationCanceledException e) {
+            Log.w(Logging.LOG_TAG, e.toString());
+        } catch (AuthenticatorException e) {
+            Log.w(Logging.LOG_TAG, e.toString());
+        } catch (IOException e) {
+            Log.w(Logging.LOG_TAG, e.toString());
+        }
+    }
+
+    /**
+     * "Change" the account manager type of the account; this entails deleting the account
+     * and adding a new one.  We can't call into AccountManager on the UI thread, but we might
+     * well be on it (currently no clean way of guaranteeing that we're not).
+     *
+     * @param context the caller's context
+     * @param amAccount the AccountManager account we're changing
+     * @param newType the new AccountManager type for this account
+     * @param newProtocol the protocol now being used
+     */
+    private static void updateAccountManagerType(final Context context,
+            final android.accounts.Account amAccount, final String newType,
+            final String newProtocol) {
+        // STOPSHIP There must be a better way
+        Thread amThread = new Thread(new Runnable() {
+           @Override
+            public void run() {
+               updateAccountManagerTypeImpl(context, amAccount, newType, newProtocol);
+            }});
+        amThread.start();
+    }
+
+    private static void updateAccountManagerTypeImpl(Context context,
+            android.accounts.Account amAccount, String newType, String newProtocol) {
+        ContentResolver resolver = context.getContentResolver();
+        Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
+                AccountColumns.EMAIL_ADDRESS + "=?", new String[] { amAccount.name }, null);
+        // That's odd, isn't it?
+        if (c == null) return;
+        try {
+            if (c.moveToNext()) {
+                Log.w(Logging.LOG_TAG, "Converting " + amAccount.name + " to " + newProtocol);
+                // Get the EmailProvider Account/HostAuth
+                Account account = new Account();
+                account.restore(c);
+                HostAuth hostAuth =
+                        HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+                if (hostAuth == null) return;
+
+                ContentValues accountValues = new ContentValues();
+                int oldFlags = account.mFlags;
+
+                // Mark the provider account incomplete so it can't get reconciled away
+                account.mFlags |= Account.FLAGS_INCOMPLETE;
+                accountValues.put(AccountColumns.FLAGS, account.mFlags);
+                Uri accountUri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
+                resolver.update(accountUri, accountValues, null, null);
+
+                // Change the HostAuth to reference the new protocol; this has to be done before
+                // trying to create the AccountManager account (below)
+                ContentValues hostValues = new ContentValues();
+                hostValues.put(HostAuth.PROTOCOL, newProtocol);
+                resolver.update(ContentUris.withAppendedId(HostAuth.CONTENT_URI, hostAuth.mId),
+                        hostValues, null, null);
+
+                try {
+                    // Get current settings for the existing AccountManager account
+                    boolean email = ContentResolver.getSyncAutomatically(amAccount,
+                            EmailContent.AUTHORITY);
+                    boolean contacts = ContentResolver.getSyncAutomatically(amAccount,
+                            ContactsContract.AUTHORITY);
+                    boolean calendar = ContentResolver.getSyncAutomatically(amAccount,
+                            CalendarContract.AUTHORITY);
+
+                    // Delete the AccountManager account
+                    AccountManagerFuture<?> amFuture = AccountManager.get(context)
+                            .removeAccount(amAccount, null, null);
+                    finishAccountManagerBlocker(amFuture);
+
+                    // Set up a new AccountManager account with new type and old settings
+                    amFuture = MailService.setupAccountManagerAccount(context, account, email,
+                            calendar, contacts, null);
+                    finishAccountManagerBlocker(amFuture);
+                    Log.w(Logging.LOG_TAG, "Conversion complete!");
+                } finally {
+                    // Clear the incomplete flag on the provider account
+                    accountValues.put(AccountColumns.FLAGS, oldFlags);
+                    resolver.update(accountUri, accountValues, null, null);
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+
     /**
      * Parse services.xml file to find our available email services
      */
     @SuppressWarnings("unchecked")
-    private static void findServices(Context context) {
+    private static synchronized void findServices(Context context) {
         try {
             Resources res = context.getResources();
             XmlResourceParser xml = res.getXml(R.xml.services);
@@ -218,10 +330,27 @@ public class EmailServiceUtils {
                     EmailServiceInfo info = new EmailServiceInfo();
                     TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
                     info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
+                    info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
+                    // Handle upgrade of one protocol to another (e.g. imap to imap2)
+                    String newProtocol = ta.getString(R.styleable.EmailServiceInfo_replaceWith);
+                    if (newProtocol != null) {
+                        EmailServiceInfo newInfo = getServiceInfo(context, newProtocol);
+                        if (newInfo == null) {
+                            throw new IllegalStateException(
+                                    "Replacement service not found: " + newProtocol);
+                        }
+                        AccountManager am = AccountManager.get(context);
+                        android.accounts.Account[] amAccounts =
+                                am.getAccountsByType(info.accountType);
+                        for (android.accounts.Account amAccount: amAccounts) {
+                            updateAccountManagerType(context, amAccount, newInfo.accountType,
+                                    newProtocol);
+                        }
+                        continue;
+                    }
                     info.name = ta.getString(R.styleable.EmailServiceInfo_name);
                     String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
                     info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
-                    info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
                     info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
                     info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
                     info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
