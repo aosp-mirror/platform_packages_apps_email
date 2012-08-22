@@ -2622,18 +2622,21 @@ outer:
             if (mailbox != null) {
                 String protocol = Account.getProtocol(context, mailbox.mAccountKey);
                 EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
-                // "load more" is valid for protocols not supporting "lookback"
+                // All folders support delete
+                int caps = UIProvider.FolderCapabilities.DELETE;
                 if (info != null && !info.offerLookback) {
+                    // "load more" is valid for protocols not supporting "lookback"
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));
                 } else {
-                    int caps = UIProvider.FolderCapabilities.SUPPORTS_SETTINGS |
-                            UIProvider.FolderCapabilities.DELETE;
+                    // Protocols supporting lookback support settings
+                    caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
                     if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+                        // If the mailbox can accept moved mail, report that as well
                         caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
                     }
-                    values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 }
+                values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
                 // For trash, we don't allow undo
                 if (mailbox.mType == Mailbox.TYPE_TRASH) {
                     values.put(UIProvider.FolderColumns.CAPABILITIES,
