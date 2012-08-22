@@ -18,6 +18,7 @@ package com.android.email.service;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -138,12 +139,14 @@ public class MailService extends Service {
                 providerContext);
     }
 
-    public static void setupAccountManagerAccount(Context context, Account account,
-            boolean email, boolean calendar, boolean contacts,
+    public static AccountManagerFuture<Bundle> setupAccountManagerAccount(Context context,
+            Account account, boolean email, boolean calendar, boolean contacts,
             AccountManagerCallback<Bundle> callback) {
         Bundle options = new Bundle();
         HostAuth hostAuthRecv = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
-        if (hostAuthRecv == null) return;
+        if (hostAuthRecv == null) {
+            return null;
+        }
         // Set up username/password
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, account.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, hostAuthRecv.mPassword);
@@ -151,7 +154,7 @@ public class MailService extends Service {
         options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
         options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
         EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, hostAuthRecv.mProtocol);
-        AccountManager.get(context).addAccount(info.accountType, null, null, options, null,
+        return AccountManager.get(context).addAccount(info.accountType, null, null, options, null,
                 callback, null);
     }
 }
