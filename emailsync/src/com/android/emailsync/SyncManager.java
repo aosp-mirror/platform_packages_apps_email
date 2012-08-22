@@ -89,7 +89,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class SyncManager extends Service implements Runnable {
 
-    private static final String TAG = "SyncServiceManager";
+    private static String TAG = "SyncManager";
 
     // The SyncServiceManager's mailbox "id"
     public static final int EXTRA_MAILBOX_ID = -1;
@@ -274,9 +274,9 @@ public abstract class SyncManager extends Service implements Runnable {
     public abstract String getAccountManagerType();
 
     /**
-     * Returns the intent action used for this sync service
+     * Returns the intent used for this sync service
      */
-    public abstract String getServiceIntentAction();
+    public abstract Intent getServiceIntent();
 
     /**
      * Returns the callback proxy used for communicating back with the Email app
@@ -1092,7 +1092,7 @@ public abstract class SyncManager extends Service implements Runnable {
 
     static public void alert(Context context, final long id) {
         final SyncManager ssm = INSTANCE;
-        checkSyncServiceManagerServiceRunning();
+        checkSyncManagerRunning();
         if (id < 0) {
             log("SyncServiceManager alert");
             kick("ping SyncServiceManager");
@@ -1356,16 +1356,17 @@ public abstract class SyncManager extends Service implements Runnable {
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate() {
+        TAG = getClass().getSimpleName();
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {
                 // Quick checks first, before getting the lock
                 if (sStartingUp) return;
                 synchronized (sSyncLock) {
-                    alwaysLog("!!! EAS SyncServiceManager, onCreate");
+                    alwaysLog("!!! onCreate");
                     // Try to start up properly; we might be coming back from a crash that the Email
                     // application isn't aware of.
-                    startService(new Intent(getServiceIntentAction()));
+                    startService(getServiceIntent());
                     if (sStop) {
                         return;
                     }
@@ -1376,8 +1377,8 @@ public abstract class SyncManager extends Service implements Runnable {
     @SuppressWarnings("deprecation")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        alwaysLog("!!! EAS SyncServiceManager, onStartCommand, startingUp = " + sStartingUp +
-                ", running = " + (INSTANCE != null));
+        alwaysLog("!!! onStartCommand, startingUp = " + sStartingUp + ", running = " +
+                (INSTANCE != null));
         if (!sStartingUp && INSTANCE == null) {
             sStartingUp = true;
             Utility.runAsync(new Runnable() {
@@ -1409,7 +1410,7 @@ public abstract class SyncManager extends Service implements Runnable {
                                                 Thread.sleep(5000);
                                             } catch (InterruptedException e) {
                                             }
-                                            startService(new Intent(getServiceIntentAction()));
+                                            startService(getServiceIntent());
                                         }});
                                     return;
                                 }
@@ -1447,7 +1448,7 @@ public abstract class SyncManager extends Service implements Runnable {
     @SuppressWarnings("deprecation")
     @Override
     public void onDestroy() {
-        log("!!! EAS SyncServiceManager, onDestroy");
+        log("!!! onDestroy");
         // Handle shutting down off the UI thread
         Utility.runAsync(new Runnable() {
             @Override
@@ -1485,11 +1486,11 @@ public abstract class SyncManager extends Service implements Runnable {
     }
 
     /**
-     * Start up the SyncServiceManager service if it's not already running
+     * Start up the SyncManager service if it's not already running
      * This is a stopgap for cases in which SyncServiceManager died (due to a crash somewhere in
      * com.android.email) and hasn't been restarted. See the comment for onCreate for details
      */
-    static void checkSyncServiceManagerServiceRunning() {
+    static void checkSyncManagerRunning() {
         SyncManager ssm = INSTANCE;
         if (ssm == null) return;
         if (sServiceThread == null) {
@@ -1502,7 +1503,7 @@ public abstract class SyncManager extends Service implements Runnable {
     @Override
     public void run() {
         sStop = false;
-        alwaysLog("SyncServiceManager thread running");
+        alwaysLog("Service thread running");
 
         TempDirectory.setTempDirectory(this);
 
@@ -1587,7 +1588,7 @@ public abstract class SyncManager extends Service implements Runnable {
             startService(new Intent(this, SyncManager.class));
         } catch (RuntimeException e) {
             // Crash; this is a completely unexpected runtime error
-            Log.e(TAG, "RuntimeException in SyncServiceManager", e);
+            Log.e(TAG, "RuntimeException", e);
             throw e;
         } finally {
             shutdown();
@@ -1598,7 +1599,7 @@ public abstract class SyncManager extends Service implements Runnable {
         synchronized (sSyncLock) {
             // If INSTANCE is null, we've already been shut down
             if (INSTANCE != null) {
-                log("SyncServiceManager shutting down...");
+                log("Shutting down...");
 
                 // Stop our running syncs
                 stopServiceThreads();
