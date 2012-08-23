@@ -172,7 +172,7 @@
     <string name="message_view_invite_maybe" msgid="7555189462441562318">" ምናልባት"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" አይ"</string>
     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"ይህን ግብዣ ተቀብለሃል::"</string>
-    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"ለዚህ ግብዣ \"ምናልባት\" ብለህ መልስ ሰጥተሃል።"</string>
+    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"ለእዚህ ግብዣ \"ምናልባት\" ብለህ መልስ ሰጥተሃል።"</string>
     <string name="message_view_invite_toast_no" msgid="1842341256942784143">"ይህን ግብዣ ውድቅ አድርገኸዋል::"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"ዝርዝሮቹን አሳይ"</string>
     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"የመልዕክት ዝርዝሮች"</string>
@@ -389,11 +389,11 @@
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"ፈጣን ምላሽ አርትዕ"</string>
     <string name="save_action" msgid="1988862706623227093">"አስቀምጥ"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ዕውቂያዎች አስምር"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ለዚህ መለያ እውቂያዎች አስምር"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ለእዚህ መለያ እውቂያዎች አስምር"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"የቀን አቆጣጠር አስምር"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"ለዚህ መለያ የቀን መቁጠሪያ ክስተት አመሳስል"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"ለእዚህ መለያ የቀን መቁጠሪያ ክስተት አመሳስል"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"ኢሜይል አመሳስል"</string>
-    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"ለዚህ መለያ ኢሜይል አስምር"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"ለእዚህ መለያ ኢሜይል አስምር"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"ንዘር"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"ኢሜይል ሲደርስ እንዲሁ ንዘር"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"ዘወትር"</string>
@@ -492,7 +492,7 @@
     <string name="quick_2" msgid="4188036352885736617">"ለኔ ጥሩ ይመስላል!"</string>
     <string name="quick_3" msgid="8061819976353395585">"በኋላ ይሄንን አነበዋለሁ እና ወደ እርስዎ እመለሳለሁ።"</string>
     <string name="quick_4" msgid="3988974084396883051">"ስብሰባ እናዘጋጅ እስቲ ይሄንን ለመወያየት፡፡"</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለዚህ መለያ ቦዝኗል፡፡"</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለእዚህ መለያ ቦዝኗል፡፡"</string>
     <string name="confirm_response" msgid="9151965975158906286">"ምላሽ በመላክ ላይ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"መልዕክቶች የሉም።"</string>
     <string name="imap2_name" msgid="2742745881421883233">"IMAPን ገ"</string>
