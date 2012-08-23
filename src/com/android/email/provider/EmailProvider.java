@@ -136,15 +136,6 @@ public class EmailProvider extends ContentProvider {
     public static final String EMAIL_ATTACHMENT_MIME_TYPE =
         "vnd.android.cursor.item/email-attachment";
 
-    public static final Uri INTEGRITY_CHECK_URI =
-        Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
-    public static final Uri ACCOUNT_BACKUP_URI =
-        Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
-    public static final Uri FOLDER_STATUS_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
-    public static final Uri FOLDER_REFRESH_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
-
     /** Appended to the notification URI for delete operations */
     public static final String NOTIFICATION_OP_DELETE = "delete";
     /** Appended to the notification URI for insert operations */
@@ -310,7 +301,7 @@ public class EmailProvider extends ContentProvider {
         null   // UI
     };
 
-    private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static UriMatcher sURIMatcher = null;
 
     private static final String MAILBOX_PRE_CACHE_SELECTION = MailboxColumns.TYPE + " IN (" +
         Mailbox.TYPE_INBOX + "," + Mailbox.TYPE_DRAFTS + "," + Mailbox.TYPE_TRASH + "," +
@@ -341,7 +332,7 @@ public class EmailProvider extends ContentProvider {
 
     private static final String ID_EQUALS = EmailContent.RECORD_ID + "=?";
 
-    private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
+    private static ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
     private static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
 
     public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
@@ -357,130 +348,6 @@ public class EmailProvider extends ContentProvider {
     private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
     private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
 
-    static {
-        // Email URI matching table
-        UriMatcher matcher = sURIMatcher;
-
-        // All accounts
-        matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
-        // A specific account
-        // insert into this URI causes a mailbox to be added to the account
-        matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
-        matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
-        matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
-
-        // Special URI to reset the new message count.  Only update works, and content values
-        // will be ignored.
-        matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
-                ACCOUNT_RESET_NEW_COUNT);
-        matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
-                ACCOUNT_RESET_NEW_COUNT_ID);
-
-        // All mailboxes
-        matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
-        // A specific mailbox
-        // insert into this URI causes a message to be added to the mailbox
-        // ** NOTE For now, the accountKey must be set manually in the values!
-        matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
-        matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
-                MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
-        matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
-        matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
-                MAILBOX_MOST_RECENT_MESSAGE);
-
-        // All messages
-        matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
-        // A specific message
-        // insert into this URI causes an attachment to be added to the message
-        matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
-
-        // A specific attachment
-        matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
-        // A specific attachment (the header information)
-        matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
-        // The attachments of a specific message (query only) (insert & delete TBD)
-        matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
-                ATTACHMENTS_MESSAGE_ID);
-
-        // All mail bodies
-        matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
-        // A specific mail body
-        matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
-
-        // All hostauth records
-        matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
-        // A specific hostauth
-        matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
-
-        // Atomically a constant value to a particular field of a mailbox/account
-        matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
-                MAILBOX_ID_ADD_TO_FIELD);
-        matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
-                ACCOUNT_ID_ADD_TO_FIELD);
-
-        /**
-         * THIS URI HAS SPECIAL SEMANTICS
-         * ITS USE IS INTENDED FOR THE UI APPLICATION TO MARK CHANGES THAT NEED TO BE SYNCED BACK
-         * TO A SERVER VIA A SYNC ADAPTER
-         */
-        matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
-        matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
-
-        /**
-         * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
-         * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
-         * BY THE UI APPLICATION
-         */
-        // All deleted messages
-        matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
-        // A specific deleted message
-        matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
-
-        // All updated messages
-        matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
-        // A specific updated message
-        matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
-
-        CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
-        CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
-
-        matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
-        matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
-
-        // All quick responses
-        matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
-        // A specific quick response
-        matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
-        // All quick responses associated with a particular account id
-        matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
-                QUICK_RESPONSE_ACCOUNT_ID);
-
-        matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
-        matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
-        matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
-        matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
-        matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
-        matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
-        matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
-        matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
-        matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
-        matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
-        matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
-        matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
-        matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
-        matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
-        matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
-        matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
-        matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
-        matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
-        matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
-        matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
-        matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
-        matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
-                UI_DEFAULT_RECENT_FOLDERS);
-        matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
-        matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
-    }
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -496,6 +363,11 @@ public class EmailProvider extends ContentProvider {
         }
         return match;
     }
+
+    public static Uri INTEGRITY_CHECK_URI;
+    public static Uri ACCOUNT_BACKUP_URI;
+    public static Uri FOLDER_STATUS_URI;
+    public static Uri FOLDER_REFRESH_URI;
 
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
@@ -1171,10 +1043,147 @@ public class EmailProvider extends ContentProvider {
         return resultUri;
     }
 
-    @Override
-    public boolean onCreate() {
-        MailActivityEmail.setServicesEnabledAsync(getContext());
-        checkDatabases();
+        @Override
+        public boolean onCreate() {
+            Context context = getContext();
+            EmailContent.init(context);
+            if (INTEGRITY_CHECK_URI == null) {
+                INTEGRITY_CHECK_URI = Uri.parse("content://" + EmailContent.AUTHORITY +
+                        "/integrityCheck");
+                ACCOUNT_BACKUP_URI =
+                        Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
+                FOLDER_STATUS_URI =
+                        Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
+                FOLDER_REFRESH_URI =
+                        Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
+            }
+            MailActivityEmail.setServicesEnabledAsync(context);
+            checkDatabases();
+            if (sURIMatcher == null) {
+                sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+            // Email URI matching table
+            UriMatcher matcher = sURIMatcher;
+
+            // All accounts
+            matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
+            // A specific account
+            // insert into this URI causes a mailbox to be added to the account
+            matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
+            matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
+            matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
+
+            // Special URI to reset the new message count.  Only update works, and content values
+            // will be ignored.
+            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
+                    ACCOUNT_RESET_NEW_COUNT);
+            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
+                    ACCOUNT_RESET_NEW_COUNT_ID);
+
+            // All mailboxes
+            matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
+            // A specific mailbox
+            // insert into this URI causes a message to be added to the mailbox
+            // ** NOTE For now, the accountKey must be set manually in the values!
+            matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
+            matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
+                    MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
+            matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
+            matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
+                    MAILBOX_MOST_RECENT_MESSAGE);
+
+            // All messages
+            matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
+            // A specific message
+            // insert into this URI causes an attachment to be added to the message
+            matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
+
+            // A specific attachment
+            matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
+            // A specific attachment (the header information)
+            matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
+            // The attachments of a specific message (query only) (insert & delete TBD)
+            matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
+                    ATTACHMENTS_MESSAGE_ID);
+
+            // All mail bodies
+            matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
+            // A specific mail body
+            matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
+
+            // All hostauth records
+            matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
+            // A specific hostauth
+            matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
+
+            // Atomically a constant value to a particular field of a mailbox/account
+            matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
+                    MAILBOX_ID_ADD_TO_FIELD);
+            matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
+                    ACCOUNT_ID_ADD_TO_FIELD);
+
+            /**
+             * THIS URI HAS SPECIAL SEMANTICS
+             * ITS USE IS INTENDED FOR THE UI TO MARK CHANGES THAT NEED TO BE SYNCED BACK
+             * TO A SERVER VIA A SYNC ADAPTER
+             */
+            matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+            matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
+
+            /**
+             * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
+             * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
+             * BY THE UI APPLICATION
+             */
+            // All deleted messages
+            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
+            // A specific deleted message
+            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
+
+            // All updated messages
+            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
+            // A specific updated message
+            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
+
+            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
+            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
+
+            matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
+            matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
+
+            // All quick responses
+            matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
+            // A specific quick response
+            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
+            // All quick responses associated with a particular account id
+            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
+                    QUICK_RESPONSE_ACCOUNT_ID);
+
+            matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+            matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
+            matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
+            matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
+            matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
+            matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
+            matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
+            matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
+            matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
+            matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
+            matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
+            matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
+            matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
+            matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+            matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
+            matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+            matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
+            matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
+            matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
+            matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
+            matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
+            matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
+                    UI_DEFAULT_RECENT_FOLDERS);
+            matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
+            matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
+        }
         return false;
     }
 
@@ -2121,28 +2130,34 @@ outer:
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
      */
-    private static final ProjectionMap sMessageListMap = ProjectionMap.builder()
-    .add(BaseColumns._ID, MessageColumns.ID)
-    .add(UIProvider.ConversationColumns.URI, uriWithId("uimessage"))
-    .add(UIProvider.ConversationColumns.MESSAGE_LIST_URI, uriWithId("uimessage"))
-    .add(UIProvider.ConversationColumns.SUBJECT, MessageColumns.SUBJECT)
-    .add(UIProvider.ConversationColumns.SNIPPET, MessageColumns.SNIPPET)
-    .add(UIProvider.ConversationColumns.CONVERSATION_INFO, null)
-    .add(UIProvider.ConversationColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
-    .add(UIProvider.ConversationColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
-    .add(UIProvider.ConversationColumns.NUM_MESSAGES, "1")
-    .add(UIProvider.ConversationColumns.NUM_DRAFTS, "0")
-    .add(UIProvider.ConversationColumns.SENDING_STATE,
-            Integer.toString(ConversationSendingState.OTHER))
-    .add(UIProvider.ConversationColumns.PRIORITY, Integer.toString(ConversationPriority.LOW))
-    .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
-    .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
-    .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
-    .add(UIProvider.ConversationColumns.ACCOUNT_URI,
-            "'content://" + EmailContent.AUTHORITY + "/uiaccount/' || "
-                    + MessageColumns.ACCOUNT_KEY)
-    .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
-    .build();
+    private ProjectionMap getMessageListMap() {
+        if (sMessageListMap == null) {
+            sMessageListMap = ProjectionMap.builder()
+                .add(BaseColumns._ID, MessageColumns.ID)
+                .add(UIProvider.ConversationColumns.URI, uriWithId("uimessage"))
+                .add(UIProvider.ConversationColumns.MESSAGE_LIST_URI, uriWithId("uimessage"))
+                .add(UIProvider.ConversationColumns.SUBJECT, MessageColumns.SUBJECT)
+                .add(UIProvider.ConversationColumns.SNIPPET, MessageColumns.SNIPPET)
+                .add(UIProvider.ConversationColumns.CONVERSATION_INFO, null)
+                .add(UIProvider.ConversationColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
+                .add(UIProvider.ConversationColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
+                .add(UIProvider.ConversationColumns.NUM_MESSAGES, "1")
+                .add(UIProvider.ConversationColumns.NUM_DRAFTS, "0")
+                .add(UIProvider.ConversationColumns.SENDING_STATE,
+                        Integer.toString(ConversationSendingState.OTHER))
+                .add(UIProvider.ConversationColumns.PRIORITY,
+                        Integer.toString(ConversationPriority.LOW))
+                .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
+                .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
+                .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
+                .add(UIProvider.ConversationColumns.ACCOUNT_URI,
+                        uriWithColumn("uiaccount", MessageColumns.ACCOUNT_KEY))
+                .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
+                .build();
+        }
+        return sMessageListMap;
+    }
+    private static ProjectionMap sMessageListMap;
 
     /**
      * Generate UIProvider draft type; note the test for "reply all" must come before "reply"
@@ -2167,45 +2182,53 @@ outer:
      * Mapping of UIProvider columns to EmailProvider columns for a detailed message view in
      * UnifiedEmail
      */
-    private static final ProjectionMap sMessageViewMap = ProjectionMap.builder()
-        .add(BaseColumns._ID, Message.TABLE_NAME + "." + EmailContent.MessageColumns.ID)
-        .add(UIProvider.MessageColumns.SERVER_ID, SyncColumns.SERVER_ID)
-        .add(UIProvider.MessageColumns.URI, uriWithFQId("uimessage", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.CONVERSATION_ID,
-                uriWithFQId("uimessage", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.SUBJECT, EmailContent.MessageColumns.SUBJECT)
-        .add(UIProvider.MessageColumns.SNIPPET, EmailContent.MessageColumns.SNIPPET)
-        .add(UIProvider.MessageColumns.FROM, EmailContent.MessageColumns.FROM_LIST)
-        .add(UIProvider.MessageColumns.TO, EmailContent.MessageColumns.TO_LIST)
-        .add(UIProvider.MessageColumns.CC, EmailContent.MessageColumns.CC_LIST)
-        .add(UIProvider.MessageColumns.BCC, EmailContent.MessageColumns.BCC_LIST)
-        .add(UIProvider.MessageColumns.REPLY_TO, EmailContent.MessageColumns.REPLY_TO_LIST)
-        .add(UIProvider.MessageColumns.DATE_RECEIVED_MS, EmailContent.MessageColumns.TIMESTAMP)
-        .add(UIProvider.MessageColumns.BODY_HTML, Body.HTML_CONTENT)
-        .add(UIProvider.MessageColumns.BODY_TEXT, Body.TEXT_CONTENT)
-        .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
-        .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
-        .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
-        .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, EmailContent.MessageColumns.FLAG_ATTACHMENT)
-        .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
-                uriWithFQId("uiattachments", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
-        .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
-                uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
-                uriWithFQId("uisenddraft", Message.TABLE_NAME))
-        .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
-        .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
-                uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
-        .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
-        .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
-        .add(UIProvider.MessageColumns.SPAM_WARNING_STRING, null)
-        .add(UIProvider.MessageColumns.SPAM_WARNING_LEVEL,
-                Integer.toString(UIProvider.SpamWarningLevel.NO_WARNING))
-        .add(UIProvider.MessageColumns.SPAM_WARNING_LINK_TYPE,
-                Integer.toString(UIProvider.SpamWarningLinkType.NO_LINK))
-        .add(UIProvider.MessageColumns.VIA_DOMAIN, null)
-        .build();
+    private ProjectionMap getMessageViewMap() {
+        if (sMessageViewMap == null) {
+            sMessageViewMap = ProjectionMap.builder()
+                .add(BaseColumns._ID, Message.TABLE_NAME + "." + EmailContent.MessageColumns.ID)
+                .add(UIProvider.MessageColumns.SERVER_ID, SyncColumns.SERVER_ID)
+                .add(UIProvider.MessageColumns.URI, uriWithFQId("uimessage", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.CONVERSATION_ID,
+                        uriWithFQId("uimessage", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.SUBJECT, EmailContent.MessageColumns.SUBJECT)
+                .add(UIProvider.MessageColumns.SNIPPET, EmailContent.MessageColumns.SNIPPET)
+                .add(UIProvider.MessageColumns.FROM, EmailContent.MessageColumns.FROM_LIST)
+                .add(UIProvider.MessageColumns.TO, EmailContent.MessageColumns.TO_LIST)
+                .add(UIProvider.MessageColumns.CC, EmailContent.MessageColumns.CC_LIST)
+                .add(UIProvider.MessageColumns.BCC, EmailContent.MessageColumns.BCC_LIST)
+                .add(UIProvider.MessageColumns.REPLY_TO, EmailContent.MessageColumns.REPLY_TO_LIST)
+                .add(UIProvider.MessageColumns.DATE_RECEIVED_MS,
+                        EmailContent.MessageColumns.TIMESTAMP)
+                .add(UIProvider.MessageColumns.BODY_HTML, Body.HTML_CONTENT)
+                .add(UIProvider.MessageColumns.BODY_TEXT, Body.TEXT_CONTENT)
+                .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
+                .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
+                .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
+                .add(UIProvider.MessageColumns.HAS_ATTACHMENTS,
+                        EmailContent.MessageColumns.FLAG_ATTACHMENT)
+                .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
+                        uriWithFQId("uiattachments", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
+                .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
+                        uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
+                        uriWithFQId("uisenddraft", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
+                .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
+                        uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
+                .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
+                .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
+                .add(UIProvider.MessageColumns.SPAM_WARNING_STRING, null)
+                .add(UIProvider.MessageColumns.SPAM_WARNING_LEVEL,
+                        Integer.toString(UIProvider.SpamWarningLevel.NO_WARNING))
+                .add(UIProvider.MessageColumns.SPAM_WARNING_LINK_TYPE,
+                        Integer.toString(UIProvider.SpamWarningLinkType.NO_LINK))
+                .add(UIProvider.MessageColumns.VIA_DOMAIN, null)
+                .build();
+        }
+        return sMessageViewMap;
+    }
+    private static ProjectionMap sMessageViewMap;
 
     /**
      * Generate UIProvider folder capabilities from mailbox flags
@@ -2236,50 +2259,62 @@ outer:
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_menu_star_holo_light
             + " ELSE -1 END";
 
-    private static final ProjectionMap sFolderListMap = ProjectionMap.builder()
-        .add(BaseColumns._ID, MailboxColumns.ID)
-        .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
-        .add(UIProvider.FolderColumns.NAME, "displayName")
-        .add(UIProvider.FolderColumns.HAS_CHILDREN,
-                MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
-        .add(UIProvider.FolderColumns.CAPABILITIES, FOLDER_CAPABILITIES)
-        .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
-        .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
-        .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
-        .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
-        .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
-        .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
-        .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
-        .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
-        .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
-        .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
-        .add(UIProvider.FolderColumns.HIERARCHICAL_DESC, MailboxColumns.HIERARCHICAL_NAME)
-        .build();
+    private ProjectionMap getFolderListMap() {
+        if (sFolderListMap == null) {
+            sFolderListMap = ProjectionMap.builder()
+                .add(BaseColumns._ID, MailboxColumns.ID)
+                .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
+                .add(UIProvider.FolderColumns.NAME, "displayName")
+                .add(UIProvider.FolderColumns.HAS_CHILDREN,
+                        MailboxColumns.FLAGS + "&" + Mailbox.FLAG_HAS_CHILDREN)
+                .add(UIProvider.FolderColumns.CAPABILITIES, FOLDER_CAPABILITIES)
+                .add(UIProvider.FolderColumns.SYNC_WINDOW, "3")
+                .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
+                .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
+                .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
+                .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
+                .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
+                .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
+                .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
+                .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
+                .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
+                .add(UIProvider.FolderColumns.HIERARCHICAL_DESC, MailboxColumns.HIERARCHICAL_NAME)
+                .build();
+        }
+        return sFolderListMap;
+    }
+    private static ProjectionMap sFolderListMap;
 
-    private static final ProjectionMap sAccountListMap = ProjectionMap.builder()
-        .add(BaseColumns._ID, AccountColumns.ID)
-        .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
-        .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
-        .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
-        .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
-        .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
-        .add(UIProvider.AccountColumns.UNDO_URI,
-                ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
-        .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
-        .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
-        // TODO: Is provider version used?
-        .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
-        .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
-        .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
-        .add(UIProvider.AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
-                uriWithId("uidefaultrecentfolders"))
-        .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-        .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
-                Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
-        .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-                Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
-        .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
-        .build();
+    private ProjectionMap getAccountListMap() {
+        if (sAccountListMap == null) {
+            sAccountListMap = ProjectionMap.builder()
+                .add(BaseColumns._ID, AccountColumns.ID)
+                .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
+                .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
+                .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
+                .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
+                .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
+                .add(UIProvider.AccountColumns.UNDO_URI,
+                        ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
+                .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
+                .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
+                // TODO: Is provider version used?
+                .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
+                .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
+                .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
+                .add(UIProvider.AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
+                        uriWithId("uidefaultrecentfolders"))
+                .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
+                .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
+                        Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
+                .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
+                        Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
+                .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
+                .build();
+        }
+        return sAccountListMap;
+    }
+    private static ProjectionMap sAccountListMap;
 
     /**
      * The "ORDER BY" clause for top level folders
@@ -2298,16 +2333,23 @@ outer:
     /**
      * Mapping of UIProvider columns to EmailProvider columns for a message's attachments
      */
-    private static final ProjectionMap sAttachmentMap = ProjectionMap.builder()
-        .add(UIProvider.AttachmentColumns.NAME, AttachmentColumns.FILENAME)
-        .add(UIProvider.AttachmentColumns.SIZE, AttachmentColumns.SIZE)
-        .add(UIProvider.AttachmentColumns.URI, uriWithId("uiattachment"))
-        .add(UIProvider.AttachmentColumns.CONTENT_TYPE, AttachmentColumns.MIME_TYPE)
-        .add(UIProvider.AttachmentColumns.STATE, AttachmentColumns.UI_STATE)
-        .add(UIProvider.AttachmentColumns.DESTINATION, AttachmentColumns.UI_DESTINATION)
-        .add(UIProvider.AttachmentColumns.DOWNLOADED_SIZE, AttachmentColumns.UI_DOWNLOADED_SIZE)
-        .add(UIProvider.AttachmentColumns.CONTENT_URI, AttachmentColumns.CONTENT_URI)
-        .build();
+    private ProjectionMap getAttachmentMap() {
+        if (sAttachmentMap == null) {
+            sAttachmentMap = ProjectionMap.builder()
+                .add(UIProvider.AttachmentColumns.NAME, AttachmentColumns.FILENAME)
+                .add(UIProvider.AttachmentColumns.SIZE, AttachmentColumns.SIZE)
+                .add(UIProvider.AttachmentColumns.URI, uriWithId("uiattachment"))
+                .add(UIProvider.AttachmentColumns.CONTENT_TYPE, AttachmentColumns.MIME_TYPE)
+                .add(UIProvider.AttachmentColumns.STATE, AttachmentColumns.UI_STATE)
+                .add(UIProvider.AttachmentColumns.DESTINATION, AttachmentColumns.UI_DESTINATION)
+                .add(UIProvider.AttachmentColumns.DOWNLOADED_SIZE,
+                        AttachmentColumns.UI_DOWNLOADED_SIZE)
+                .add(UIProvider.AttachmentColumns.CONTENT_URI, AttachmentColumns.CONTENT_URI)
+                .build();
+        }
+        return sAttachmentMap;
+    }
+    private static ProjectionMap sAttachmentMap;
 
     /**
      * Generate the SELECT clause using a specified mapping and the original UI projection
@@ -2469,7 +2511,7 @@ outer:
                         "content://ui.email2.android.com/event/" + msg.mId);
             }
         }
-        StringBuilder sb = genSelect(sMessageViewMap, uiProjection, values);
+        StringBuilder sb = genSelect(getMessageViewMap(), uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
                 Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
                 Message.TABLE_NAME + "." + Message.RECORD_ID + "=?");
@@ -2484,7 +2526,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryMailboxMessages(String[] uiProjection) {
-        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ORDER BY " +
                 MessageColumns.TIMESTAMP + " DESC");
         return sb.toString();
@@ -2501,7 +2543,7 @@ outer:
             long mailboxId) {
         ContentValues values = new ContentValues();
         values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
-        StringBuilder sb = genSelect(sMessageListMap, uiProjection, values);
+        StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
         if (isCombinedMailbox(mailboxId)) {
             switch (getVirtualMailboxType(mailboxId)) {
                 case Mailbox.TYPE_INBOX:
@@ -2543,7 +2585,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryConversation(String[] uiProjection) {
-        StringBuilder sb = genSelect(sMessageListMap, uiProjection);
+        StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.RECORD_ID + "=?");
         return sb.toString();
     }
@@ -2555,7 +2597,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryAccountMailboxes(String[] uiProjection) {
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
@@ -2571,7 +2613,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryAccountAllMailboxes(String[] uiProjection) {
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         // Use a derived column to choose either hierarchicalName or displayName
         sb.append(", case when " + MailboxColumns.HIERARCHICAL_NAME + " is null then " +
                 MailboxColumns.DISPLAY_NAME + " else " + MailboxColumns.HIERARCHICAL_NAME +
@@ -2590,7 +2632,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryRecentMailboxes(String[] uiProjection) {
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 AND " +
@@ -2656,7 +2698,7 @@ outer:
                         getFolderCapabilities(info, mailbox.mFlags, mailbox.mType, mailboxId));
              }
         }
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
+        StringBuilder sb = genSelect(getFolderListMap(), uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
         return sb.toString();
     }
@@ -2778,7 +2820,7 @@ outer:
             values.put(UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED, "0");
         }
 
-        final StringBuilder sb = genSelect(sAccountListMap, uiProjection, values);
+        final StringBuilder sb = genSelect(getAccountListMap(), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
     }
@@ -3037,7 +3079,7 @@ outer:
      */
     private String genQueryAttachments(String[] uiProjection,
             List<String> contentTypeQueryParameters) {
-        StringBuilder sb = genSelect(sAttachmentMap, uiProjection);
+        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
                 " =? ");
 
@@ -3069,7 +3111,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryAttachment(String[] uiProjection) {
-        StringBuilder sb = genSelect(sAttachmentMap, uiProjection);
+        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.ID + " =? ");
         return sb.toString();
     }
@@ -3081,7 +3123,7 @@ outer:
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQuerySubfolders(String[] uiProjection) {
-        StringBuilder sb = genSelect(sFolderListMap, uiProjection);
+        StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.PARENT_KEY +
                 " =? ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
@@ -3157,7 +3199,7 @@ outer:
         final String[] idAndType = { BaseColumns._ID, UIProvider.FolderColumns.TYPE };
 
         // Sent, Drafts, and Starred are the default recents.
-        final StringBuilder sb = genSelect(sFolderListMap, idAndType);
+        final StringBuilder sb = genSelect(getFolderListMap(), idAndType);
         sb.append(" FROM " + Mailbox.TABLE_NAME
                 + " WHERE " + MailboxColumns.ACCOUNT_KEY + " = " + id
                 + " AND "

@@ -33,6 +33,8 @@ import android.util.Log;
 import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
@@ -473,6 +475,11 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (bundle != null) {
                         resultCode = bundle.getInt(
                                 EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
+                        // Only show "policies required" if this is a new account setup
+                        if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED &&
+                                mAccount.isSaved()) {
+                            resultCode = MessagingException.NO_ERROR;
+                        }
                     }
                     if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
                         SetupData.setPolicy((Policy)bundle.getParcelable(
@@ -491,8 +498,11 @@ public class AccountCheckSettingsFragment extends Fragment {
                     }
                 }
 
+                String protocol = mAccount.mHostAuthRecv.mProtocol;
+                EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+
                 // Check Outgoing Settings
-                if ((mMode & SetupData.CHECK_OUTGOING) != 0) {
+                if (info.usesSmtp && (mMode & SetupData.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
                     Log.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);

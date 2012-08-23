@@ -16,6 +16,7 @@
 
 package com.android.mail.providers.protos.boot;
 
+import com.android.emailcommon.provider.EmailContent;
 import com.android.mail.providers.MailAppProvider;
 
 import android.content.BroadcastReceiver;
@@ -30,12 +31,9 @@ public class AccountReceiver extends BroadcastReceiver {
     public static final String ACTION_PROVIDER_CREATED
             = "com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED";
 
-    private static final Uri ACCOUNTS_URI =
-            Uri.parse("content://com.android.email.provider/uiaccts");
-
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        MailAppProvider.addAccountsForUriAsync(ACCOUNTS_URI);
+        EmailContent.init(context);
+        MailAppProvider.addAccountsForUriAsync(Uri.parse(EmailContent.CONTENT_URI + "/uiaccts"));
     }
 }

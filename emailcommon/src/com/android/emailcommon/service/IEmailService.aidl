@@ -63,4 +63,6 @@ interface IEmailService {
 
     // API level 3
     int getCapabilities(in Account acct);
+
+	void serviceUpdated(String emailAddress);
 }

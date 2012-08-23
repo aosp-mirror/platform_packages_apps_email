@@ -149,7 +149,7 @@ public class Imap2SyncService extends AbstractSyncService {
 
     private final String[] MAILBOX_SERVER_ID_ARGS = new String[2];
     public Imap2SyncService() {
-        this("Imap2 Validation");
+        this("Imap Validation");
     }
 
     private final ArrayList<Integer> SERVER_DELETES = new ArrayList<Integer>();
@@ -186,7 +186,7 @@ public class Imap2SyncService extends AbstractSyncService {
     }
 
     public Imap2SyncService(Context _context, Account _account) {
-        this("Imap2 Account");
+        this("Imap Account");
         mContext = _context;
         mResolver = _context.getContentResolver();
         mAccount = _account;
@@ -1512,8 +1512,9 @@ public class Imap2SyncService extends AbstractSyncService {
         if (andClause != null) {
             ac = ac + andClause;
         }
+        // Add "+0" to the sort order to coerce the text field to an integer
         Cursor c = mResolver.query(Message.CONTENT_URI, UID_PROJECTION,
-                ac, new String[] {Long.toString(mMailboxId)}, SyncColumns.SERVER_ID);
+                ac, new String[] {Long.toString(mMailboxId)}, SyncColumns.SERVER_ID + "+0");
         if (c != null) {
             try {
                 int[] uids = new int[c.getCount()];
@@ -1521,6 +1522,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     do {
                         uids[offs++] = c.getInt(0);
                     } while (c.moveToNext());
+                    System.err.println(uids);
                     return uids;
                 }
             } finally {

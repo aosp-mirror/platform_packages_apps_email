@@ -22,8 +22,8 @@ import com.android.email.imap2.Imap2SyncService.Connection;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceStatus;
-import com.android.emailsync.PartRequest;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailsync.PartRequest;
 import com.android.mail.providers.UIProvider;
 
 import org.apache.james.mime4j.decoder.Base64InputStream;
@@ -177,7 +177,7 @@ public class AttachmentLoader {
             OutputStream os = null;
             File tmpFile = null;
             try {
-                tmpFile = File.createTempFile("imap2_", "tmp", mContext.getCacheDir());
+                tmpFile = File.createTempFile("imap_", "tmp", mContext.getCacheDir());
                 os = new FileOutputStream(tmpFile);
                 String tag = mService.writeCommand(conn.writer, "uid fetch " + mMessage.mServerId +
                         " body[" + mAttachment.mLocation + ']');
