@@ -243,7 +243,7 @@
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ya estás usando este nombre de usuario para la cuenta \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Esta contraseña comienza o finaliza con uno o más caracteres con espacios. Muchos servidores no son compatibles con caracteres con espacios."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando información de la cuenta..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando configuración de servidor..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando configuración del servidor…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validando configuración de SMTP…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Se ha configurado tu cuenta y el correo está en camino."</string>
