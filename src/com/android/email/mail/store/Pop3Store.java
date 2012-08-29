@@ -722,8 +722,8 @@ public class Pop3Store extends Store {
                                 "Pop3Store.fetch called with non-Pop3 Message");
                     }
                     Pop3Message pop3Message = (Pop3Message)message;
-                    String response = executeSimpleCommand(String.format("LIST %d",
-                            mUidToMsgNumMap.get(pop3Message.getUid())));
+                    String response = executeSimpleCommand("LIST " +
+                            mUidToMsgNumMap.get(pop3Message.getUid()));
                     try {
                         String[] listParts = response.split(" ");
                         int msgNum = Integer.parseInt(listParts[1]);
@@ -786,13 +786,13 @@ public class Pop3Store extends Store {
             int messageId = mUidToMsgNumMap.get(message.getUid());
             if (lines == -1) {
                 // Fetch entire message
-                response = executeSimpleCommand(String.format("RETR %d", messageId));
+                response = executeSimpleCommand("RETR " + messageId);
             } else {
                 // Fetch partial message.  Try "TOP", and fall back to slower "RETR" if necessary
                 try {
-                    response = executeSimpleCommand(String.format("TOP %d %d", messageId,  lines));
+                    response = executeSimpleCommand("TOP " + messageId + ' ' + lines);
                 } catch (MessagingException me) {
-                    response = executeSimpleCommand(String.format("RETR %d", messageId));
+                    response = executeSimpleCommand("RETR " + messageId);
                 }
             }
             if (response != null)  {
@@ -846,8 +846,7 @@ public class Pop3Store extends Store {
             }
             try {
                 for (Message message : messages) {
-                    executeSimpleCommand(String.format("DELE %s",
-                            mUidToMsgNumMap.get(message.getUid())));
+                    executeSimpleCommand("DELE " + mUidToMsgNumMap.get(message.getUid()));
                 }
             }
             catch (IOException ioe) {
