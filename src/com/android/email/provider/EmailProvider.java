@@ -2599,6 +2599,30 @@ outer:
         return sb.toString();
     }
 
+    private int getFolderCapabilities(EmailServiceInfo info, int flags, int type, long mailboxId) {
+        // All folders support delete
+        int caps = UIProvider.FolderCapabilities.DELETE;
+        if (info != null && info.offerLookback) {
+            // Protocols supporting lookback support settings
+            caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
+            if ((flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+                // If the mailbox can accept moved mail, report that as well
+                caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+            }
+        }
+        // For trash, we don't allow undo
+        if (type == Mailbox.TYPE_TRASH) {
+            caps =  UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
+                    UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
+                    UIProvider.FolderCapabilities.DELETE |
+                    UIProvider.FolderCapabilities.DELETE_ACTION_FINAL;
+        }
+        if (isVirtualMailbox(mailboxId)) {
+            caps |= UIProvider.FolderCapabilities.IS_VIRTUAL;
+        }
+        return caps;
+    }
+
     /**
      * Generate a "single mailbox" SQLite query, given a projection from UnifiedEmail
      *
@@ -2623,34 +2647,14 @@ outer:
                 String protocol = Account.getProtocol(context, mailbox.mAccountKey);
                 EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
                 // All folders support delete
-                int caps = UIProvider.FolderCapabilities.DELETE;
                 if (info != null && !info.offerLookback) {
                     // "load more" is valid for protocols not supporting "lookback"
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));
-                } else {
-                    // Protocols supporting lookback support settings
-                    caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
-                    if ((mailbox.mFlags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
-                        // If the mailbox can accept moved mail, report that as well
-                        caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
-                    }
-                }
-                values.put(UIProvider.FolderColumns.CAPABILITIES, caps);
-                // For trash, we don't allow undo
-                if (mailbox.mType == Mailbox.TYPE_TRASH) {
-                    values.put(UIProvider.FolderColumns.CAPABILITIES,
-                            UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
-                            UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
-                            UIProvider.FolderCapabilities.DELETE |
-                            UIProvider.FolderCapabilities.DELETE_ACTION_FINAL);
-                }
-                if (isVirtualMailbox(mailboxId)) {
-                    int capa = values.getAsInteger(UIProvider.FolderColumns.CAPABILITIES);
-                    values.put(UIProvider.FolderColumns.CAPABILITIES,
-                            capa | UIProvider.FolderCapabilities.IS_VIRTUAL);
-                }
-            }
+                };
+                values.put(UIProvider.FolderColumns.CAPABILITIES,
+                        getFolderCapabilities(info, mailbox.mFlags, mailbox.mType, mailboxId));
+             }
         }
         StringBuilder sb = genSelect(sFolderListMap, uiProjection, values);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ID + "=?");
@@ -3116,6 +3120,7 @@ outer:
             return mc;
         } else {
             Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
+            c = getFolderListCursor(db, c, uiProjection);
             int numStarred = EmailContent.count(context, Message.CONTENT_URI,
                     MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.FLAG_FAVORITE + "=1",
                     new String[] {id});
@@ -3240,6 +3245,33 @@ outer:
     }
 
     /**
+     * We need to do individual queries for the mailboxes in order to get correct
+     * folder capabilities.
+     */
+    Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
+        final MatrixCursor mc = new MatrixCursor(uiProjection);
+        Object[] values = new Object[uiProjection.length];
+        String[] args = new String[1];
+        try {
+            // Loop through mailboxes, building matrix cursor
+            while (c.moveToNext()) {
+                String id = c.getString(0);
+                args[0] = id;
+                Cursor mailboxCursor = db.rawQuery(genQueryMailbox(uiProjection, id), args);
+                if (mailboxCursor.moveToNext()) {
+                    for (int i = 0; i < uiProjection.length; i++) {
+                        values[i] = mailboxCursor.getString(i);
+                    }
+                    mc.addRow(values);
+                }
+            }
+        } finally {
+            c.close();
+        }
+       return mc;
+    }
+
+    /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
      * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
@@ -3258,6 +3290,7 @@ outer:
         switch(match) {
             case UI_ALL_FOLDERS:
                 c = db.rawQuery(genQueryAccountAllMailboxes(uiProjection), new String[] {id});
+                c = getFolderListCursor(db, c, uiProjection);
                 break;
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
@@ -3265,6 +3298,7 @@ outer:
                 break;
             case UI_SUBFOLDERS:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
+                c = getFolderListCursor(db, c, uiProjection);
                 break;
             case UI_MESSAGES:
                 long mailboxId = Long.parseLong(id);
