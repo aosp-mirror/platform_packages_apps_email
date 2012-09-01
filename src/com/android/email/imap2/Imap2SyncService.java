@@ -26,6 +26,7 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -1999,6 +2000,60 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
+    /**
+     * Add "more" UIDs to the server list (when the user explicitly asks for more)
+     *
+     * @param serverList the list of server UIDs
+     * @param howManyMore how many additional messages we want to load
+     * @return an updated list of server UIDs
+     * @throws IOException
+     */
+    private int[] handleLoadMore(int[] serverList, int howManyMore) throws IOException {
+        // User has asked for more; find the oldest message
+        Arrays.sort(serverList);
+        int oldest = serverList[serverList.length - 1];
+        // Get its current sequence number
+        String tag = writeCommand(mWriter, "uid fetch " + oldest + " (UID)");
+        // IMAP_OK if we want it to work
+        if (readResponse(mReader, tag, "FETCH").equals(IMAP_OK)) {
+            String line = mImapResponse.get(0);
+            Parser lp = new Parser(line.substring(2));
+            // Last one we want is one before this message
+            int end = lp.parseInteger() - 1;
+            // First one is end - 9 (we want 10)
+            int start = end - 9;
+            if (start < 1) {
+                start = 1;
+            }
+            if (end > 0) {
+                // Get the uid's of the messages to load
+                tag = writeCommand(mWriter, "uid search " + start + ":" + end);
+                // IMAP_OK if we want it to work
+                if (readResponse(mReader, tag, "SEARCH").equals(IMAP_BAD)) {
+                    int[] moreServerList;
+
+                    // Parse the list
+                    if (mImapResponse.isEmpty()) {
+                        // Just return the original list
+                        return serverList;
+                    } else {
+                        String msgs = mImapResponse.get(0);
+                        // Length of "* search"
+                        Parser p = new Parser(msgs, 8);
+                        moreServerList = p.gatherInts();
+                        int[] completeList = new int[serverList.length + moreServerList.length];
+                        System.arraycopy(serverList, 0, completeList, 0, serverList.length);
+                        System.arraycopy(moreServerList, 0, completeList, serverList.length,
+                                moreServerList.length);
+                        return completeList;
+                    }
+                }
+            }
+        }
+        // In worst case, just return the original list
+        return serverList;
+    }
+
     private void sync () throws IOException {
         mThread = Thread.currentThread();
 
@@ -2062,6 +2117,12 @@ public class Imap2SyncService extends AbstractSyncService {
                         // Do backoff; hope it works next time.  Should never happen
                         mExitStatus = EXIT_IO_ERROR;
                         return;
+                    }
+
+                    // See if we need extra messages; start by restoring the mailbox
+                    mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                    if (mMailbox.mVisibleLimit > 0) {
+                        serverList = handleLoadMore(serverList, mMailbox.mVisibleLimit);
                     }
 
                     Arrays.sort(serverList);

@@ -176,6 +176,7 @@ public class EmailServiceUtils {
         public int defaultSyncInterval;
         public String inferPrefix;
         public boolean requiresAccountUpdate;
+        public boolean offerLoadMore;
 
         public String toString() {
             StringBuilder sb = new StringBuilder("Protocol: ");
@@ -279,6 +280,7 @@ public class EmailServiceUtils {
         protected Void doInBackground(Void... params) {
             disableComponent(mContext, LegacyEmailAuthenticatorService.class);
             disableComponent(mContext, LegacyEasAuthenticatorService.class);
+            disableComponent(mContext, LegacyImap2AuthenticatorService.class);
             return null;
         }
     }
@@ -525,6 +527,8 @@ public class EmailServiceUtils {
                     info.defaultSyncInterval =
                         ta.getInteger(R.styleable.EmailServiceInfo_defaultSyncInterval, 15);
                     info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
+                    info.offerLoadMore =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLoadMore, false);
 
                     // Must have either "class" (local) or "intent" (remote)
                     if (klass != null) {
