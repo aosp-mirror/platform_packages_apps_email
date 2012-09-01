@@ -26,11 +26,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import com.android.email.R;
 import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountReconciler;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -51,7 +51,7 @@ public class MailService extends Service {
         EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
-                reconcilePopImapAccountsSync(MailService.this);
+                reconcilePopAccountsSync(MailService.this);
             }
         });
 
@@ -70,7 +70,7 @@ public class MailService extends Service {
         return null;
     }
 
-    public static ArrayList<Account> getPopImapAccountList(Context context) {
+    public static ArrayList<Account> getPopAccountList(Context context) {
         ArrayList<Account> providerAccounts = new ArrayList<Account>();
         Cursor c = context.getContentResolver().query(Account.CONTENT_URI, Account.ID_PROJECTION,
                 null, null, null);
@@ -79,7 +79,8 @@ public class MailService extends Service {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 String protocol = Account.getProtocol(context, accountId);
                 EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
-                if ((info != null) && info.accountType.equals(AccountManagerTypes.TYPE_POP_IMAP)) {
+                if ((info != null) && info.accountType.equals(
+                        context.getString(R.string.account_manager_type_pop3))) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
@@ -92,13 +93,14 @@ public class MailService extends Service {
         return providerAccounts;
     }
 
-    private static final SingleRunningTask<Context> sReconcilePopImapAccountsSyncExecutor =
+    private static final SingleRunningTask<Context> sReconcilePopAccountsSyncExecutor =
             new SingleRunningTask<Context>("ReconcilePopImapAccountsSync") {
                 @Override
                 protected void runInternal(Context context) {
                     android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                            .getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
-                    ArrayList<Account> providerAccounts = getPopImapAccountList(context);
+                            .getAccountsByType(
+                                    context.getString(R.string.account_manager_type_pop3));
+                    ArrayList<Account> providerAccounts = getPopAccountList(context);
                     MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
                             accountManagerAccounts, context);
 
@@ -108,20 +110,8 @@ public class MailService extends Service {
     /**
      * Reconcile POP/IMAP accounts.
      */
-    public static void reconcilePopImapAccountsSync(Context context) {
-        sReconcilePopImapAccountsSyncExecutor.run(context);
-    }
-
-    /**
-     * Determines whether or not POP/IMAP accounts need reconciling or not. This is a safe operation
-     * to perform on the UI thread.
-     */
-    public static boolean hasMismatchInPopImapAccounts(Context context) {
-        android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                .getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
-        ArrayList<Account> providerAccounts = getPopImapAccountList(context);
-        return AccountReconciler.accountsNeedReconciling(
-                context, providerAccounts, accountManagerAccounts);
+    public static void reconcilePopAccountsSync(Context context) {
+        sReconcilePopAccountsSyncExecutor.run(context);
     }
 
     /**

@@ -41,7 +41,6 @@ import com.android.email.SecurityPolicy;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -727,7 +726,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
         if (info.syncContacts || info.syncCalendar) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    AccountManagerTypes.TYPE_EXCHANGE);
+                    info.accountType);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
             ContentResolver.setSyncAutomatically(acct, CalendarContract.AUTHORITY,

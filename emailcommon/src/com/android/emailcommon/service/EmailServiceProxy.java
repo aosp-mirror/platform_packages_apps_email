@@ -475,6 +475,23 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             return (Integer)mReturn;
         }
     }
+    /**
+     * Request that the account be updated for this service; this call is synchronous
+     *
+     * @param the email address of the account to be updated
+     */
+    @Override
+    public void serviceUpdated(final String emailAddress) throws RemoteException {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                if (mCallback != null) mService.setCallback(mCallback);
+                mService.serviceUpdated(emailAddress);
+            }
+        }, "settingsUpdate");
+        waitForCompletion();
+    }
+
 
     @Override
     public IBinder asBinder() {

@@ -1357,6 +1357,7 @@ public abstract class SyncManager extends Service implements Runnable {
     @Override
     public void onCreate() {
         TAG = getClass().getSimpleName();
+        EmailContent.init(this);
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {

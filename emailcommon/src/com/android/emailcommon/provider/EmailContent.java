@@ -29,6 +29,7 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -59,38 +60,11 @@ import java.util.ArrayList;
  *
  */
 public abstract class EmailContent {
-
-    public static final String AUTHORITY = "com.android.email.provider";
-    // The notifier authority is used to send notifications regarding changes to messages (insert,
-    // delete, or update) and is intended as an optimization for use by clients of message list
-    // cursors (initially, the email AppWidget).
-    public static final String NOTIFIER_AUTHORITY = "com.android.email.notifier";
-
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-    public static final String PARAMETER_LIMIT = "limit";
-
-    public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
-
-    public static final Uri PICK_TRASH_FOLDER_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/pickTrashFolder");
-    public static final Uri PICK_SENT_FOLDER_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/pickSentFolder");
-
-    public static final Uri MAILBOX_NOTIFICATION_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
     public static final String[] NOTIFICATION_PROJECTION =
         new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
     public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
     public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
     public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
-
-    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
-
-    public static final Uri ACCOUNT_CHECK_URI =
-            Uri.parse("content://" + EmailContent.AUTHORITY + "/accountCheck");
-
-    public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
     public static final String RECORD_ID = "_id";
@@ -138,6 +112,57 @@ public abstract class EmailContent {
     public abstract ContentValues toContentValues();
     // Read the Content from a ContentCursor
     public abstract void restore (Cursor cursor);
+
+
+    public static String PACKAGE_NAME;
+    public static String EMAIL_PACKAGE_NAME;
+    public static String AUTHORITY;
+    // The notifier authority is used to send notifications regarding changes to messages (insert,
+    // delete, or update) and is intended as an optimization for use by clients of message list
+    // cursors (initially, the email AppWidget).
+    public static String NOTIFIER_AUTHORITY;
+    public static Uri CONTENT_URI;
+    public static final String PARAMETER_LIMIT = "limit";
+    public static Uri CONTENT_NOTIFIER_URI;
+    public static Uri PICK_TRASH_FOLDER_URI;
+    public static Uri PICK_SENT_FOLDER_URI;
+    public static Uri MAILBOX_NOTIFICATION_URI;
+    public static Uri MAILBOX_MOST_RECENT_MESSAGE_URI;
+    public static Uri ACCOUNT_CHECK_URI;
+    public static String PROVIDER_PERMISSION;
+
+    public static void init(Context context) {
+        if (AUTHORITY == null) {
+            PACKAGE_NAME = context.getPackageName();
+            EMAIL_PACKAGE_NAME = PACKAGE_NAME;
+            // If our package is com...exchange, the provider is com...email.provider
+            if (PACKAGE_NAME.endsWith("exchange")) {
+                int lastDot = EMAIL_PACKAGE_NAME.lastIndexOf('.');
+                EMAIL_PACKAGE_NAME = PACKAGE_NAME.substring(0, lastDot + 1) + "email";
+            }
+            AUTHORITY = EMAIL_PACKAGE_NAME + ".provider";
+            Log.d("EmailContent", "init for " + AUTHORITY);
+            NOTIFIER_AUTHORITY = EMAIL_PACKAGE_NAME + ".notifier";
+            CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+            CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
+            PICK_TRASH_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickTrashFolder");
+            PICK_SENT_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickSendFolder");
+            MAILBOX_NOTIFICATION_URI = Uri.parse("content://" + AUTHORITY + "/mailboxNotification");
+            MAILBOX_MOST_RECENT_MESSAGE_URI = Uri.parse("content://" + AUTHORITY +
+                    "/mailboxMostRecentMessage");
+            ACCOUNT_CHECK_URI = Uri.parse("content://" + AUTHORITY + "/accountCheck");
+            PROVIDER_PERMISSION = EMAIL_PACKAGE_NAME + ".permission.ACCESS_PROVIDER";
+            // Initialize subclasses
+            Account.initAccount();
+            Mailbox.initMailbox();
+            QuickResponse.initQuickResponse();
+            HostAuth.initHostAuth();
+            Policy.initPolicy();
+            Message.initMessage();
+            Body.initBody();
+            Attachment.initAttachment();
+        }
+    }
 
     // The Uri is lazily initialized
     public Uri getUri() {
@@ -287,8 +312,11 @@ public abstract class EmailContent {
     public static final class Body extends EmailContent implements BodyColumns {
         public static final String TABLE_NAME = "Body";
 
-        @SuppressWarnings("hiding")
-        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
+        public static Uri CONTENT_URI;
+
+        public static void initBody() {
+            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
+        }
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
@@ -330,7 +358,7 @@ public abstract class EmailContent {
         public static final String[] COMMON_PROJECTION_SOURCE = new String[] {
             RECORD_ID, BodyColumns.SOURCE_MESSAGE_KEY
         };
-         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
+        public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         private static final String[] PROJECTION_SOURCE_KEY =
             new String[] { BodyColumns.SOURCE_MESSAGE_KEY };
@@ -558,18 +586,28 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
-        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
-        public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
-        public static final Uri SYNCED_CONTENT_URI =
-                Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
-        public static final Uri SELECTED_MESSAGE_CONTENT_URI =
-                Uri.parse(EmailContent.CONTENT_URI + "/messageBySelection");
-        public static final Uri DELETED_CONTENT_URI =
-            Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
-        public static final Uri UPDATED_CONTENT_URI =
-            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
-        public static final Uri NOTIFIER_URI =
-            Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
+        public static Uri CONTENT_URI;
+        public static Uri CONTENT_URI_LIMIT_1;
+        public static Uri SYNCED_CONTENT_URI;
+        public static Uri SELECTED_MESSAGE_CONTENT_URI ;
+        public static Uri DELETED_CONTENT_URI;
+        public static Uri UPDATED_CONTENT_URI;
+        public static Uri NOTIFIER_URI;
+
+        public static void initMessage() {
+            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+            CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
+            SYNCED_CONTENT_URI =
+                    Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+            SELECTED_MESSAGE_CONTENT_URI =
+                    Uri.parse(EmailContent.CONTENT_URI + "/messageBySelection");
+            DELETED_CONTENT_URI =
+                    Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
+            UPDATED_CONTENT_URI =
+                    Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
+            NOTIFIER_URI =
+                    Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
+        }
 
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
@@ -1143,11 +1181,16 @@ public abstract class EmailContent {
     public static final class Attachment extends EmailContent
             implements AttachmentColumns, Parcelable {
         public static final String TABLE_NAME = "Attachment";
-        @SuppressWarnings("hiding")
-        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
+
+        public static Uri CONTENT_URI;
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
-        public static final Uri MESSAGE_ID_URI = Uri.parse(
-                EmailContent.CONTENT_URI + "/attachment/message");
+        public static Uri MESSAGE_ID_URI;
+
+        public static void initAttachment() {
+            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
+            MESSAGE_ID_URI = Uri.parse(
+                    EmailContent.CONTENT_URI + "/attachment/message");
+        }
 
         public String mFileName;
         public String mMimeType;

@@ -16,11 +16,6 @@
 
 package com.android.email.imap2;
 
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
 import android.app.Service;
@@ -35,8 +30,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
+
 public class EmailSyncAdapterService extends Service {
-    private static final String TAG = "Imap2 EmailSyncAdapterService";
+    private static final String TAG = "Imap EmailSyncAdapterService";
     private static SyncAdapterImpl sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();
 

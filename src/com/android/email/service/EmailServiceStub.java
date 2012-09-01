@@ -28,11 +28,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.email.NotificationController;
+import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
@@ -108,7 +108,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
         if (account == null) return;
         android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
-                AccountManagerTypes.TYPE_POP_IMAP);
+                mContext.getString(R.string.account_manager_type_pop3));
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
@@ -450,7 +450,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     @Override
     public void deleteAccountPIMData(long accountId) throws RemoteException {
-        MailService.reconcilePopImapAccountsSync(mContext);
+        MailService.reconcilePopAccountsSync(mContext);
     }
 
     @Override

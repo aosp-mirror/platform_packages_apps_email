@@ -23,7 +23,7 @@ include $(CLEAR_VARS)
 chips_dir := ../../../frameworks/ex/chips/res
 unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/ex/photoviewer/res
-res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir)
+res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir) build/res
 
 LOCAL_MODULE_TAGS := optional
 

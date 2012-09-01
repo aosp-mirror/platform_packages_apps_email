@@ -457,12 +457,6 @@ public class AccountSetupBasics extends AccountSetupActivity
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
 
-            // STOPSHIP; Use for Imap2 testing
-            if (HostAuth.LEGACY_SCHEME_IMAP.equals(recvAuth.mProtocol) &&
-                    EmailServiceUtils.isServiceAvailable(this, "imap2")) {
-                recvAuth.mProtocol = "imap2";
-            }
-
             recvAuth.setLogin(mProvider.incomingUsername, password);
             EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
             recvAuth.mPort =

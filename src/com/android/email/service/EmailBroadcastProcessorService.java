@@ -203,7 +203,7 @@ public class EmailBroadcastProcessorService extends IntentService {
 
     private void onSystemAccountChanged() {
         Log.i(Logging.LOG_TAG, "System accounts updated.");
-        MailService.reconcilePopImapAccountsSync(this);
+        MailService.reconcilePopAccountsSync(this);
 
         // Start any remote services
         EmailServiceUtils.startRemoteServices(this);

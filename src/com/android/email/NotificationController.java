@@ -124,6 +124,7 @@ public class NotificationController {
     @VisibleForTesting
     NotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
+        EmailContent.init(context);
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
