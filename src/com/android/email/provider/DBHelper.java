@@ -29,7 +29,6 @@ import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -586,7 +585,7 @@ public final class DBHelper {
             // Versions >= 5 require that data be preserved!
             if (oldVersion < 5) {
                 android.accounts.Account[] accounts = AccountManager.get(mContext)
-                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
+                        .getAccountsByType("eas");
                 for (android.accounts.Account account: accounts) {
                     AccountManager.get(mContext).removeAccount(account, null, null);
                 }
@@ -1092,8 +1091,9 @@ public final class DBHelper {
     static private void createAccountManagerAccount(Context context, String login,
             String password) {
         AccountManager accountManager = AccountManager.get(context);
+        // STOPSHIP
         android.accounts.Account amAccount =
-            new android.accounts.Account(login, AccountManagerTypes.TYPE_POP_IMAP);
+            new android.accounts.Account(login, "com.android.email");
         accountManager.addAccountExplicitly(amAccount, password, null);
         ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
@@ -1135,7 +1135,7 @@ public final class DBHelper {
                                 android.accounts.Account amAccount =
                                         new android.accounts.Account(
                                                 accountCursor.getString(V21_ACCOUNT_EMAIL),
-                                                AccountManagerTypes.TYPE_EXCHANGE);
+                                                "eas");
                                 ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
                                 ContentResolver.setSyncAutomatically(amAccount,
                                         EmailContent.AUTHORITY, true);

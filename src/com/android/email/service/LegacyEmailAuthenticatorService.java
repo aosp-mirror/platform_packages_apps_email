@@ -19,5 +19,5 @@ package com.android.email.service;
 /**
  * This service needs to be declared separately from the base service
  */
-public class PopImapAuthenticatorService extends AuthenticatorService {
+public class LegacyEmailAuthenticatorService extends AuthenticatorService {
 }

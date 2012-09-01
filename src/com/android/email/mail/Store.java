@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2008 The Android Open Source P-roject
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.android.email.mail.store.ImapStore;
+import com.android.email.R;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.ServiceStore;
 import com.android.email2.ui.MailActivityEmail;
@@ -58,11 +58,6 @@ public abstract class Store {
     static final HashMap<String, Class<? extends Store>> sStoreClasses =
         new HashMap<String, Class<? extends Store>>();
 
-    static {
-        sStoreClasses.put(HostAuth.LEGACY_SCHEME_IMAP, ImapStore.class);
-        sStoreClasses.put(HostAuth.LEGACY_SCHEME_POP3, Pop3Store.class);
-    }
-
     /**
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
@@ -87,6 +82,9 @@ public abstract class Store {
      */
     public synchronized static Store getInstance(Account account, Context context)
             throws MessagingException {
+        if (sStores.isEmpty()) {
+            sStoreClasses.put(context.getString(R.string.protocol_pop3), Pop3Store.class);
+        }
         HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
         // An existing account might have been deleted
         if (hostAuth == null) return null;

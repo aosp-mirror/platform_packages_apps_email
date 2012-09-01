@@ -1310,8 +1310,9 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Displayed in the middle of the screen when the inbox is empty [CHAR LIMIT 100]-->
     <string name="no_conversations">No messages.</string>
 
-        <!-- Temporary; used by AccountManager -->
-    <string name="imap2_name">Push IMAP</string>
+    <!-- Used by AccountManager -->
+    <string name="imap2_name">IMAP</string>
+    <string name="pop3_name">POP3</string>
 
     <string name="folder_picker_title">Picky, picky, picky!</string>
     <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
@@ -1319,6 +1320,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Displayed when the user must pick his server's sent items folder from a list [CHAR LIMIT 30]-->
     <string name="sent_folder_selection_title">Select server sent items folder</string>
     <string name="create_new_folder">Create folder</string>
-
+    
 </resources>
 

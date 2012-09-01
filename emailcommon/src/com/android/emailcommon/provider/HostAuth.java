@@ -34,18 +34,17 @@ import java.net.URISyntaxException;
 
 public final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
     public static final String TABLE_NAME = "HostAuth";
-    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
+    public static Uri CONTENT_URI;
+
+    public static void initHostAuth() {
+        CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
+    }
 
     // These legacy constants should be used in code created prior to Email2
     public static final String LEGACY_SCHEME_IMAP = "imap";
     public static final String LEGACY_SCHEME_POP3 = "pop3";
     public static final String LEGACY_SCHEME_EAS = "eas";
     public static final String LEGACY_SCHEME_SMTP = "smtp";
-
-    // These constants should, over time, be replaced by information in services.xml
-    public static final String SCHEME_IMAP = "imap";
-    public static final String SCHEME_POP3 = "pop3";
-    public static final String SCHEME_EAS = "eas";
 
     public static final String SCHEME_TRUST_ALL_CERTS = "trustallcerts";
 
@@ -284,10 +283,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mClientCertAlias = clientCertAlias;
     }
 
-    /** Returns {@code true} if this is an EAS connection; otherwise, {@code false}. */
-    public boolean isEasConnection() {
-        return SCHEME_EAS.equals(mProtocol);
-    }
 
     /** Convenience method to determine if SSL is used. */
     public boolean shouldUseSsl() {

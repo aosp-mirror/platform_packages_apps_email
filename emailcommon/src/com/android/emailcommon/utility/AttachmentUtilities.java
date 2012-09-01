@@ -30,6 +30,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
@@ -47,8 +48,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class AttachmentUtilities {
-    public static final String AUTHORITY = "com.android.email.attachmentprovider";
-    public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY);
 
     public static final String FORMAT_RAW = "RAW";
     public static final String FORMAT_THUMBNAIL = "THUMBNAIL";
@@ -137,23 +136,17 @@ public class AttachmentUtilities {
      */
     public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
+    private static Uri sUri;
     public static Uri getAttachmentUri(long accountId, long id) {
-        return CONTENT_URI.buildUpon()
-        .appendPath(Long.toString(accountId))
-        .appendPath(Long.toString(id))
-        .appendPath(FORMAT_RAW)
-        .build();
-    }
-
-    public static Uri getAttachmentThumbnailUri(long accountId, long id,
-            int width, int height) {
-        return CONTENT_URI.buildUpon()
-        .appendPath(Long.toString(accountId))
-        .appendPath(Long.toString(id))
-        .appendPath(FORMAT_THUMBNAIL)
-        .appendPath(Integer.toString(width))
-        .appendPath(Integer.toString(height))
-        .build();
+        if (sUri == null) {
+            sUri = Uri.parse("content://" + EmailContent.EMAIL_PACKAGE_NAME +
+                    ".attachmentprovider");
+        }
+        return sUri.buildUpon()
+                .appendPath(Long.toString(accountId))
+                .appendPath(Long.toString(id))
+                .appendPath(FORMAT_RAW)
+                .build();
     }
 
     /**

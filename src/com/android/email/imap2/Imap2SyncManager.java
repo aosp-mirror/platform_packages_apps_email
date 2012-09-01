@@ -28,9 +28,11 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
+import com.android.email.R;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.HostAuth;
@@ -42,10 +44,10 @@ import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.IEmailServiceCallback.Stub;
 import com.android.emailcommon.service.SearchParams;
+import com.android.emailcommon.service.SyncWindow;
 import com.android.emailsync.AbstractSyncService;
 import com.android.emailsync.PartRequest;
 import com.android.emailsync.SyncManager;
-import com.android.email.R;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.LastSyncResult;
@@ -64,8 +66,7 @@ public class Imap2SyncManager extends SyncManager {
 
     private Intent mIntent;
 
-    private static final String IMAP2_ACCOUNT_TYPE = "com.android.imap2";
-    private static final String PROTOCOL = "imap2";
+    private static String PROTOCOL;
 
     /**
      * Create our EmailService implementation here.
@@ -221,6 +222,30 @@ public class Imap2SyncManager extends SyncManager {
                     AccountCapabilities.FOLDER_SERVER_SEARCH |
                     AccountCapabilities.UNDO;
         }
+
+        @Override
+        public void serviceUpdated(String emailAddress) throws RemoteException {
+            SyncManager ssm = INSTANCE;
+            if (ssm == null) return;
+            log("serviceUpdated called for " + emailAddress);
+            Cursor c =  ssm.getContentResolver().query(Account.CONTENT_URI, Account.ID_PROJECTION,
+                    AccountColumns.EMAIL_ADDRESS + "=?", new String[] { emailAddress }, null);
+            if (c == null) return;
+            try {
+                if (c.moveToNext()) {
+                    long accountId = c.getLong(0);
+                    ContentValues values = new ContentValues();
+                    values.put(AccountColumns.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                    values.put(AccountColumns.SYNC_LOOKBACK, SyncWindow.SYNC_WINDOW_AUTO);
+                    // Say we can push (at least, we'll try)
+                    mResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
+                            values, null, null);
+                    log("Sync interval and lookback set for " + emailAddress);
+                }
+            } finally {
+                c.close();
+            }
+        }
     };
 
     static public IEmailServiceCallback callback() {
@@ -305,11 +330,14 @@ public class Imap2SyncManager extends SyncManager {
         // We must throw here; callers might use the information we provide for reconciliation, etc.
         if (c == null) throw new ProviderUnavailableException();
         try {
+            if (PROTOCOL == null) {
+                PROTOCOL = getString(R.string.protocol_imap);
+            }
             while (c.moveToNext()) {
                 long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 if (hostAuthId > 0) {
                     HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
-                    if (ha != null && ha.mProtocol.equals("imap2")) {
+                    if (ha != null && ha.mProtocol.equals(PROTOCOL)) {
                         Account account = new Account();
                         account.restore(c);
                         account.mHostAuthRecv = ha;
@@ -325,7 +353,7 @@ public class Imap2SyncManager extends SyncManager {
 
     @Override
     public String getAccountManagerType() {
-        return IMAP2_ACCOUNT_TYPE;
+        return getString(R.string.account_manager_type_imap);
     }
 
     @Override
@@ -344,7 +372,8 @@ public class Imap2SyncManager extends SyncManager {
     @Override
     protected void runAccountReconcilerSync(Context context) {
         alwaysLog("Reconciling accounts...");
-        new AccountServiceProxy(context).reconcileAccounts(PROTOCOL, getAccountManagerType());
+        new AccountServiceProxy(context).reconcileAccounts(
+                getString(R.string.protocol_imap), getAccountManagerType());
     }
 
     @Override

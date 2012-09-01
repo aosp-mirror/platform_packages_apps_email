@@ -33,11 +33,17 @@ import com.android.emailcommon.utility.Utility;
 
 public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
-    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
-    public static final Uri ADD_TO_FIELD_URI =
-        Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
-    public static final Uri FROM_ACCOUNT_AND_TYPE_URI =
-        Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdFromAccountAndType");
+
+    public static Uri CONTENT_URI;
+    public static Uri ADD_TO_FIELD_URI;
+    public static Uri FROM_ACCOUNT_AND_TYPE_URI;
+
+    public static void initMailbox() {
+        CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
+        ADD_TO_FIELD_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
+        FROM_ACCOUNT_AND_TYPE_URI = Uri.parse(EmailContent.CONTENT_URI +
+                "/mailboxIdFromAccountAndType");
+    }
 
     public String mDisplayName;
     public String mServerId;

@@ -17,15 +17,15 @@
 
 package com.android.emailsync;
 
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -48,7 +48,6 @@ public abstract class AbstractSyncService implements Runnable {
     public static final int CONNECT_TIMEOUT = 30*SECONDS;
     public static final int NETWORK_WAIT = 15*SECONDS;
 
-    public static final String EAS_PROTOCOL = "eas";
     public static final int EXIT_DONE = 0;
     public static final int EXIT_IO_ERROR = 1;
     public static final int EXIT_LOGIN_FAILURE = 2;
@@ -289,7 +288,9 @@ public abstract class AbstractSyncService implements Runnable {
      */
 
     public void addRequest(Request req) {
-        mRequestQueue.offer(req);
+        if (!mRequestQueue.contains(req)) {
+            mRequestQueue.offer(req);
+        }
     }
 
     public void removeRequest(Request req) {

@@ -105,6 +105,11 @@ public class Pop3Service extends Service {
             // We load attachments during a sync
             startSync(inboxId, true);
         }
+
+        @Override
+        public void serviceUpdated(String emailAddress) throws RemoteException {
+            // Not required for POP3
+        }
     };
 
     @Override

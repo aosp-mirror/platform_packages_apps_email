@@ -40,8 +40,11 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public static final String TAG = "Email/Policy";
 
     public static final String TABLE_NAME = "Policy";
-    @SuppressWarnings("hiding")
-    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/policy");
+    public static Uri CONTENT_URI;
+
+    public static void initPolicy() {
+        CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/policy");
+    }
 
     /* Convert days to mSec (used for password expiration) */
     private static final long DAYS_TO_MSEC = 24 * 60 * 60 * 1000;
