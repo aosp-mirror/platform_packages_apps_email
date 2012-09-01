@@ -30,10 +30,10 @@ import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
-import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
@@ -77,9 +77,6 @@ public class Pop3Store extends Store {
         mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth == null || !HostAuth.LEGACY_SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
-            throw new MessagingException("Unsupported protocol");
-        }
         mTransport = new MailTransport(context, "POP3", recvAuth);
         String[] userInfoParts = recvAuth.getLogin();
         if (userInfoParts != null) {

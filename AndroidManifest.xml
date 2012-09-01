@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="500004"
-    android:versionName="4.2-004" >
+    android:versionCode="500005"
+    android:versionName="4.2-005" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -31,7 +31,9 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -416,7 +418,7 @@
 
         <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
         <service
-            android:name=".service.PopImapAuthenticatorService"
+            android:name=".service.Pop3AuthenticatorService"
             android:exported="true"
             android:enabled="true"
             >
@@ -426,20 +428,35 @@
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/pop_imap_authenticator"
+                android:resource="@xml/authenticator_pop3"
+                />
+        </service>
+        <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
+        <service
+            android:name=".service.ImapAuthenticatorService"
+            android:exported="true"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_imap"
                 />
         </service>
 
         <!--Required stanza to register the PopImapSyncAdapterService with SyncManager -->
         <service
-            android:name="com.android.email.service.PopImapSyncAdapterService"
+            android:name="com.android.email.service.Pop3SyncAdapterService"
             android:exported="true">
             <intent-filter>
                 <action
                     android:name="android.content.SyncAdapter" />
             </intent-filter>
             <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_pop_imap" />
+                       android:resource="@xml/syncadapter_pop3" />
         </service>
 
         <!-- Require provider permission to use our Policy and Account services -->
@@ -499,7 +516,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/eas_authenticator"
+                android:resource="@xml/authenticator_eas"
                 />
         </service>
         <!--Required stanza to register the EasTestAuthenticatorService with AccountManager -->
@@ -536,7 +553,7 @@
                 />
         </service>
         <service
-            android:name=".service.Imap2AuthenticatorService"
+            android:name=".service.ImapAuthenticatorService"
             android:exported="true"
             android:enabled="true"
             >
@@ -546,7 +563,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/imap2_authenticator"
+                android:resource="@xml/authenticator_imap"
                 />
         </service>
 
@@ -558,7 +575,7 @@
                     android:name="android.content.SyncAdapter" />
             </intent-filter>
             <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_imap2" />
+                       android:resource="@xml/syncadapter_imap" />
         </service>
 
         <service
@@ -588,5 +605,40 @@
             android:label="@string/app_name"
             />
 
+        <!-- Legacy authenticators, etc. can be added below. OEMs may remove these -->
+
+        <service
+            android:name=".service.LegacyEmailAuthenticatorService"
+            android:exported="false"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_legacy_email"
+                />
+        </service>
+
+        <service
+            android:name=".service.LegacyEasAuthenticatorService"
+            android:exported="false"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_legacy_eas"
+                />
+        </service>
+
     </application>
+
+    <!-- Legacy permissions, etc. can go here -->
+
 </manifest>

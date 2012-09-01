@@ -56,6 +56,16 @@ public abstract class ServiceProxy {
     private long mStartTime;
     private boolean mDead = false;
 
+    public static Intent getIntentForEmailPackage(Context context, String actionName) {
+        String packageName = context.getPackageName();
+        int lastDot = packageName.lastIndexOf('.');
+        String intentString =
+                packageName.substring(0, lastDot + 1) + "email." + actionName;
+        // STOPSHIP Remove logging
+        Log.d("ServiceProxy", actionName + " -> " + intentString);
+        return new Intent(intentString);
+    }
+
     public abstract void onConnected(IBinder binder);
 
     public ServiceProxy(Context _context, Intent _intent) {

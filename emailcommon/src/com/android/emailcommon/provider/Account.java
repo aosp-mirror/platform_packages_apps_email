@@ -40,15 +40,6 @@ import java.util.UUID;
 
 public final class Account extends EmailContent implements AccountColumns, Parcelable {
     public static final String TABLE_NAME = "Account";
-    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
-    public static final Uri ADD_TO_FIELD_URI =
-        Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
-    public static final Uri RESET_NEW_MESSAGE_COUNT_URI =
-        Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
-    public static final Uri NOTIFIER_URI =
-        Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
-    public static final Uri DEFAULT_ACCOUNT_ID_URI =
-        Uri.parse(EmailContent.CONTENT_URI + "/account/default");
 
     // Define all pseudo account IDs here to avoid conflict with one another.
     /**
@@ -109,6 +100,19 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CHECK_INTERVAL_NEVER = -1;
     public static final int CHECK_INTERVAL_PUSH = -2;
 
+    public static Uri CONTENT_URI;
+    public static Uri ADD_TO_FIELD_URI;
+    public static Uri RESET_NEW_MESSAGE_COUNT_URI;
+    public static Uri NOTIFIER_URI;
+    public static Uri DEFAULT_ACCOUNT_ID_URI;
+
+    public static void initAccount() {
+        CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
+        ADD_TO_FIELD_URI = Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
+        RESET_NEW_MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
+        NOTIFIER_URI = Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
+        DEFAULT_ACCOUNT_ID_URI = Uri.parse(EmailContent.CONTENT_URI + "/account/default");
+    }
     public String mDisplayName;
     public String mEmailAddress;
     public String mSyncKey;
@@ -495,7 +499,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static long getAccountIdFromShortcutSafeUri(Context context, Uri uri) {
         // Make sure the URI is in the correct format.
         if (!"content".equals(uri.getScheme())
-                || !AUTHORITY.equals(uri.getAuthority())) {
+                || !EmailContent.AUTHORITY.equals(uri.getAuthority())) {
             return -1;
         }
 
@@ -699,7 +703,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                     .newUpdate(ContentUris.withAppendedId(CONTENT_URI, mId))
                     .withValues(cv).build());
             try {
-                context.getContentResolver().applyBatch(AUTHORITY, ops);
+                context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
                 return 1;
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning 0
@@ -779,7 +783,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
         try {
             ContentProviderResult[] results =
-                context.getContentResolver().applyBatch(AUTHORITY, ops);
+                context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
             // If saving, set the mId's of the various saved objects
             if (recvIndex >= 0) {
                 long newId = getId(results[recvIndex].uri);

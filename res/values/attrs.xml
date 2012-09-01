@@ -64,5 +64,6 @@
             <enum name="mins60" value="60"/>
         </attr>
         <attr name="inferPrefix" format="string"/>
+        <attr name="requiresAccountUpdate" format="boolean"/>
     </declare-styleable>
 </resources>

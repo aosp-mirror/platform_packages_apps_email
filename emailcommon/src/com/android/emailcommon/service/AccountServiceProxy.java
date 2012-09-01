@@ -24,14 +24,13 @@ import android.os.RemoteException;
 
 public class AccountServiceProxy extends ServiceProxy implements IAccountService {
 
-    public static final String ACCOUNT_INTENT = "com.android.email.ACCOUNT_INTENT";
     public static final int DEFAULT_ACCOUNT_COLOR = 0xFF0000FF;
 
     private IAccountService mService = null;
     private Object mReturn;
 
     public AccountServiceProxy(Context _context) {
-        super(_context, new Intent(ACCOUNT_INTENT));
+        super(_context, getIntentForEmailPackage(_context, "ACCOUNT_INTENT"));
     }
 
     @Override

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /**
- * Copyright (c) 2010, The Android Open Source Project
+ * Copyright (c) 2009, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@
 <!-- The attributes in this XML file provide configuration information -->
 <!-- for the Account Manager. -->
 
-<!-- The only difference from authenticator.xml is android:label. -->
-
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="@string/account_manager_type_exchange"
+    android:accountType="@string/account_manager_type_imap"
     android:icon="@mipmap/ic_launcher_mail"
     android:smallIcon="@drawable/stat_notify_email_generic"
-    android:label="@string/exchange_name_alternate"
+    android:label="@string/imap2_name"
     android:accountPreferences="@xml/account_preferences"
 />

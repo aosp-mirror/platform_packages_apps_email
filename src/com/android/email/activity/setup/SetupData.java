@@ -42,10 +42,6 @@ public class SetupData implements Parcelable {
     public static final int FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT = 7;
     public static final int FLOW_MODE_NO_ACCOUNTS = 8;
 
-    // For debug logging
-    private static final String[] FLOW_MODES = {"normal", "eas", "pop/imap", "edit", "force",
-            "rtc", "rtl"};
-
     // Mode bits for AccountSetupCheckSettings, indicating the type of check requested
     public static final int CHECK_INCOMING = 1;
     public static final int CHECK_OUTGOING = 2;
@@ -271,7 +267,6 @@ public class SetupData implements Parcelable {
     public static String debugString() {
         StringBuilder sb = new StringBuilder("SetupData");
         SetupData data = getInstance();
-        sb.append(":flow=" + FLOW_MODES[data.mFlowMode]);
         sb.append(":acct=" + (data.mAccount == null ? "none" : data.mAccount.mId));
         if (data.mUsername != null) {
             sb.append(":user=" + data.mUsername);
