@@ -2689,7 +2689,7 @@ outer:
                 String protocol = Account.getProtocol(context, mailbox.mAccountKey);
                 EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
                 // All folders support delete
-                if (info != null && !info.offerLookback) {
+                if (info != null && info.offerLoadMore) {
                     // "load more" is valid for protocols not supporting "lookback"
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));

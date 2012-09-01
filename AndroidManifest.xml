@@ -637,6 +637,21 @@
                 />
         </service>
 
+        <service
+            android:name=".service.LegacyImap2AuthenticatorService"
+            android:exported="false"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_legacy_imap2"
+                />
+        </service>
+
     </application>
 
     <!-- Legacy permissions, etc. can go here -->
