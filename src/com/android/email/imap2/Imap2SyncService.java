@@ -2165,6 +2165,14 @@ public class Imap2SyncService extends AbstractSyncService {
                 }
 
             } finally {
+                // Don't kill the connection until mBodyThread is done...
+                if (mBodyThread != null) {
+                    try {
+                        mBodyThread.join();
+                    } catch (InterruptedException e) {
+                        // Just finish...
+                    }
+                }
                 if (mConnection != null) {
                     try {
                         // Try to logout
