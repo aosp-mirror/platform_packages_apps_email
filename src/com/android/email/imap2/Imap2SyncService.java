@@ -1527,7 +1527,6 @@ public class Imap2SyncService extends AbstractSyncService {
                     do {
                         uids[offs++] = c.getInt(0);
                     } while (c.moveToNext());
-                    System.err.println(uids);
                     return uids;
                 }
             } finally {
@@ -2015,7 +2014,7 @@ public class Imap2SyncService extends AbstractSyncService {
     private int[] handleLoadMore(int[] serverList, int howManyMore) throws IOException {
         // User has asked for more; find the oldest message
         Arrays.sort(serverList);
-        int oldest = serverList[serverList.length - 1];
+        int oldest = serverList[0];
         // Get its current sequence number
         String tag = writeCommand(mWriter, "uid fetch " + oldest + " (UID)");
         // IMAP_OK if we want it to work
@@ -2024,8 +2023,7 @@ public class Imap2SyncService extends AbstractSyncService {
             Parser lp = new Parser(line.substring(2));
             // Last one we want is one before this message
             int end = lp.parseInteger() - 1;
-            // First one is end - 9 (we want 10)
-            int start = end - 9;
+            int start = end - howManyMore + 1;
             if (start < 1) {
                 start = 1;
             }
@@ -2033,7 +2031,7 @@ public class Imap2SyncService extends AbstractSyncService {
                 // Get the uid's of the messages to load
                 tag = writeCommand(mWriter, "uid search " + start + ":" + end);
                 // IMAP_OK if we want it to work
-                if (readResponse(mReader, tag, "SEARCH").equals(IMAP_BAD)) {
+                if (readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
                     int[] moreServerList;
 
                     // Parse the list
@@ -2045,6 +2043,7 @@ public class Imap2SyncService extends AbstractSyncService {
                         // Length of "* search"
                         Parser p = new Parser(msgs, 8);
                         moreServerList = p.gatherInts();
+                        userLog("[Load more found " + moreServerList.length + " messages]");
                         int[] completeList = new int[serverList.length + moreServerList.length];
                         System.arraycopy(serverList, 0, completeList, 0, serverList.length);
                         System.arraycopy(moreServerList, 0, completeList, serverList.length,
