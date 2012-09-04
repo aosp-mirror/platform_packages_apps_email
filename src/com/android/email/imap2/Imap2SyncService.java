@@ -26,8 +26,8 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.RemoteException;
+import android.util.Base64;
 import android.util.Log;
 
 import com.android.email.imap2.smtp.SmtpSender;
@@ -915,6 +915,7 @@ public class Imap2SyncService extends AbstractSyncService {
 
         //String charset = getCharset(thisLoc);
         boolean qp = att.mEncoding.equalsIgnoreCase("quoted-printable");
+        boolean b64 = att.mEncoding.equalsIgnoreCase("base64");
 
         int br = res.indexOf('{');
         if (br > 0) {
@@ -931,6 +932,9 @@ public class Imap2SyncService extends AbstractSyncService {
 
             if (qp) {
                 length = QuotedPrintable.decode(buf, length);
+            } else if (b64) {
+                buf = Base64.decode(buf, Base64.DEFAULT);
+                length = buf.length;
             }
 
             if (lastPart) {
