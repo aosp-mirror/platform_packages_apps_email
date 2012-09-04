@@ -2696,7 +2696,7 @@ outer:
                     // "load more" is valid for protocols not supporting "lookback"
                     values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                             uiUriString("uiloadmore", mailboxId));
-                };
+                }
                 values.put(UIProvider.FolderColumns.CAPABILITIES,
                         getFolderCapabilities(info, mailbox.mFlags, mailbox.mType, mailboxId));
              }
@@ -3264,6 +3264,15 @@ outer:
                 if (visible) {
                     NotificationController.getInstance(mContext).cancelNewMessageNotification(
                             mMailboxId);
+                    // Clear the visible limit of the mailbox (if any)
+                    Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                    if (mailbox.mVisibleLimit > 0) {
+                        ContentValues values = new ContentValues();
+                        values.put(MailboxColumns.VISIBLE_LIMIT, 0);
+                        mContext.getContentResolver().update(
+                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
+                                values, null, null);
+                    }
                 }
             }
             // Return success
