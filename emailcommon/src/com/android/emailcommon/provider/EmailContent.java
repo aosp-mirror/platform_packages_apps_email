@@ -146,7 +146,7 @@ public abstract class EmailContent {
             CONTENT_URI = Uri.parse("content://" + AUTHORITY);
             CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
             PICK_TRASH_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickTrashFolder");
-            PICK_SENT_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickSendFolder");
+            PICK_SENT_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickSentFolder");
             MAILBOX_NOTIFICATION_URI = Uri.parse("content://" + AUTHORITY + "/mailboxNotification");
             MAILBOX_MOST_RECENT_MESSAGE_URI = Uri.parse("content://" + AUTHORITY +
                     "/mailboxMostRecentMessage");
