@@ -25,9 +25,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
-import com.android.email.R;
-import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountReconciler;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
@@ -47,22 +46,10 @@ public class MailService extends Service {
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
-            @Override
-            public void run() {
-                reconcilePopAccountsSync(MailService.this);
-            }
-        });
-
+        reconcileLocalAccountsSync(this);
         // Make sure our services are running, if necessary
         MailActivityEmail.setServicesEnabledAsync(this);
-
-        // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
-        // pressure, there will be no explicit restart.  This is OK;  Note that we set a watchdog
-        // alarm before each mailbox check.  If the mailbox check never completes, the watchdog
-        // will fire and get things running again.
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -70,17 +57,14 @@ public class MailService extends Service {
         return null;
     }
 
-    public static ArrayList<Account> getPopAccountList(Context context) {
+    public static ArrayList<Account> getAccountList(Context context, String protocol) {
         ArrayList<Account> providerAccounts = new ArrayList<Account>();
         Cursor c = context.getContentResolver().query(Account.CONTENT_URI, Account.ID_PROJECTION,
                 null, null, null);
         try {
             while (c.moveToNext()) {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
-                String protocol = Account.getProtocol(context, accountId);
-                EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
-                if ((info != null) && info.accountType.equals(
-                        context.getString(R.string.account_manager_type_pop3))) {
+                if (protocol.equals(Account.getProtocol(context, accountId))) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
@@ -93,25 +77,41 @@ public class MailService extends Service {
         return providerAccounts;
     }
 
-    private static final SingleRunningTask<Context> sReconcilePopAccountsSyncExecutor =
-            new SingleRunningTask<Context>("ReconcilePopImapAccountsSync") {
-                @Override
-                protected void runInternal(Context context) {
-                    android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                            .getAccountsByType(
-                                    context.getString(R.string.account_manager_type_pop3));
-                    ArrayList<Account> providerAccounts = getPopAccountList(context);
-                    MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
-                            accountManagerAccounts, context);
-
-                }
-    };
-
     /**
-     * Reconcile POP/IMAP accounts.
+     * Reconcile local (i.e. non-remote) accounts.
      */
-    public static void reconcilePopAccountsSync(Context context) {
-        sReconcilePopAccountsSyncExecutor.run(context);
+    public static void reconcileLocalAccountsSync(Context context) {
+        List<EmailServiceInfo> serviceList = EmailServiceUtils.getServiceInfoList(context);
+        for (EmailServiceInfo info: serviceList) {
+            if (info.klass != null) {
+                new AccountReconcilerTask(context, info).runAsync();
+            }
+        }
+    }
+
+    static class AccountReconcilerTask implements Runnable {
+        private final Context mContext;
+        private final EmailServiceInfo mInfo;
+
+        AccountReconcilerTask(Context context, EmailServiceInfo info) {
+            mContext = context;
+            mInfo = info;
+        }
+
+        public void runAsync() {
+            EmailAsyncTask.runAsyncSerial(this);
+        }
+
+        @Override
+        public void run() {
+            Log.d("MailService", "Reconciling accounts of type " + mInfo.accountType +
+                    ", protocol " + mInfo.protocol);
+            android.accounts.Account[] accountManagerAccounts = AccountManager.get(mContext)
+                    .getAccountsByType(mInfo.accountType);
+            ArrayList<Account> providerAccounts = getAccountList(mContext, mInfo.protocol);
+            reconcileAccountsWithAccountManager(mContext, providerAccounts,
+                    accountManagerAccounts, mContext);
+        }
     }
 
     /**
