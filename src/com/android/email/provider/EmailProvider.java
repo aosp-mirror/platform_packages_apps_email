@@ -1046,10 +1046,7 @@ public class EmailProvider extends ContentProvider {
         @Override
         public boolean onCreate() {
             Context context = getContext();
-            // Initialize Uri's used throughout the app
             EmailContent.init(context);
-            // Open our database(s)
-            getDatabase(context);
             if (INTEGRITY_CHECK_URI == null) {
                 INTEGRITY_CHECK_URI = Uri.parse("content://" + EmailContent.AUTHORITY +
                         "/integrityCheck");
