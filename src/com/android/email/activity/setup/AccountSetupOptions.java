@@ -24,6 +24,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,6 +66,8 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private View mAccountSyncWindowRow;
     private boolean mDonePressed = false;
     private EmailServiceInfo mServiceInfo;
+
+    private ProgressDialog mCreateAccountDialog;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
@@ -153,6 +156,13 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
 
     @Override
     public void finish() {
+
+        // If we're showing "Creating account...", dismiss it
+        if (mCreateAccountDialog != null) {
+            mCreateAccountDialog.dismiss();
+            mCreateAccountDialog = null;
+        }
+
         // If the account manager initiated the creation, and success was not reported,
         // then we assume that we're giving up (for any reason) - report failure.
         AccountAuthenticatorResponse authenticatorResponse =
@@ -245,6 +255,12 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         final boolean email2 = email;
         final boolean calendar2 = calendar;
         final boolean contacts2 = contacts;
+
+        /// Show "Creating account..." dialog
+        mCreateAccountDialog = new ProgressDialog(this);
+        mCreateAccountDialog.setIndeterminate(true);
+        mCreateAccountDialog.setMessage(getString(R.string.account_setup_creating_account_msg));
+        mCreateAccountDialog.show();
 
         Utility.runAsync(new Runnable() {
             @Override
