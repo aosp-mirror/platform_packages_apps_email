@@ -2376,7 +2376,7 @@ outer:
             if (values.containsKey(column)) {
                 String value = values.getAsString(column);
                 if (value == null) {
-                    throw new IllegalArgumentException("Null value in " + column);
+                    val = "NULL AS " + column;
                 } else if (value.startsWith("@")) {
                     val = value.substring(1) + " AS " + column;
                 } else {
