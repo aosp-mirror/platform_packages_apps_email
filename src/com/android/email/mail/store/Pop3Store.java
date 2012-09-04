@@ -607,14 +607,14 @@ public class Pop3Store extends Store {
             int messageId = mUidToMsgNumMap.get(message.getUid());
             if (lines == -1) {
                 // Fetch entire message
-                response = executeSimpleCommand(String.format("RETR %d", messageId));
+                response = executeSimpleCommand("RETR " + messageId);
             } else {
                 // Fetch partial message.  Try "TOP", and fall back to slower "RETR" if necessary
                 try {
-                    response = executeSimpleCommand(String.format("TOP %d %d", messageId,  lines));
+                    response = executeSimpleCommand("TOP " + messageId + ' ' + lines);
                 } catch (MessagingException me) {
                     try {
-                        response = executeSimpleCommand(String.format("RETR %d", messageId));
+                        response = executeSimpleCommand("RETR " + messageId);
                     } catch (MessagingException e) {
                         Log.w(Logging.LOG_TAG, "Can't read message " + messageId);
                     }
@@ -695,7 +695,7 @@ public class Pop3Store extends Store {
                     try {
                         String uid = message.getUid();
                         int msgNum = mUidToMsgNumMap.get(uid);
-                        executeSimpleCommand(String.format("DELE %s", msgNum));
+                        executeSimpleCommand("DELE " + msgNum);
                         // Remove from the maps
                         mMsgNumToMsgMap.remove(msgNum);
                         mUidToMsgNumMap.remove(uid);
