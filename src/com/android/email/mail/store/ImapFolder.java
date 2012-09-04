@@ -60,6 +60,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 
 class ImapFolder extends Folder {
     private final static Flag[] PERMANENT_FLAGS =
@@ -186,7 +187,7 @@ class ImapFolder extends Folder {
             }
         }
         try {
-            connection.executeSimpleCommand(String.format(
+            connection.executeSimpleCommand(String.format(Locale.US,
                     ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UIDVALIDITY + ")",
                     ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             mExists = true;
@@ -232,7 +233,8 @@ class ImapFolder extends Folder {
             }
         }
         try {
-            connection.executeSimpleCommand(String.format(ImapConstants.CREATE + " \"%s\"",
+            connection.executeSimpleCommand(String.format(Locale.US,
+                    ImapConstants.CREATE + " \"%s\"",
                     ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             return true;
 
@@ -256,7 +258,7 @@ class ImapFolder extends Folder {
         checkOpen();
         try {
             List<ImapResponse> responseList = mConnection.executeSimpleCommand(
-                    String.format(ImapConstants.UID_COPY + " %s \"%s\"",
+                    String.format(Locale.US, ImapConstants.UID_COPY + " %s \"%s\"",
                             ImapStore.joinMessageUids(messages),
                             ImapStore.encodeFolderName(folder.getName(), mStore.mPathPrefix)));
             // Build a message map for faster UID matching
@@ -344,7 +346,7 @@ class ImapFolder extends Folder {
         try {
             int unreadMessageCount = 0;
             List<ImapResponse> responses = mConnection.executeSimpleCommand(String.format(
-                    ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
+                    Locale.US, ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
                     ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             // S: * STATUS mboxname (MESSAGES 231 UIDNEXT 44292)
             for (ImapResponse response : responses) {
@@ -478,7 +480,7 @@ class ImapFolder extends Folder {
             throw new MessagingException(String.format("Invalid range: %d %d", start, end));
         }
         return getMessagesInternal(
-                searchForUids(String.format("%d:%d NOT DELETED", start, end)), listener);
+                searchForUids(String.format(Locale.US, "%d:%d NOT DELETED", start, end)), listener);
     }
 
     @Override
@@ -573,7 +575,7 @@ class ImapFolder extends Folder {
         }
 
         try {
-            mConnection.sendCommand(String.format(
+            mConnection.sendCommand(String.format(Locale.US,
                     ImapConstants.UID_FETCH + " %s (%s)", ImapStore.joinMessageUids(messages),
                     Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                     ), false);
@@ -753,7 +755,7 @@ class ImapFolder extends Folder {
 
                 } else {
                     if (e.isString()) {
-                        mp.setSubType(bs.getStringOrEmpty(i).getString().toLowerCase());
+                        mp.setSubType(bs.getStringOrEmpty(i).getString().toLowerCase(Locale.US));
                     }
                     break; // Ignore the rest of the list.
                 }
@@ -778,7 +780,7 @@ class ImapFolder extends Folder {
             final ImapString type = bs.getStringOrEmpty(0);
             final ImapString subType = bs.getStringOrEmpty(1);
             final String mimeType =
-                    (type.getString() + "/" + subType.getString()).toLowerCase();
+                    (type.getString() + "/" + subType.getString()).toLowerCase(Locale.US);
 
             final ImapList bodyParams = bs.getListOrEmpty(2);
             final ImapString cid = bs.getStringOrEmpty(3);
@@ -813,7 +815,7 @@ class ImapFolder extends Folder {
                 // TODO We need to convert " into %22, but
                 // because MimeUtility.getHeaderParameter doesn't recognize it,
                 // we can't fix it for now.
-                contentType.append(String.format(";\n %s=\"%s\"",
+                contentType.append(String.format(Locale.US, ";\n %s=\"%s\"",
                         bodyParams.getStringOrEmpty(i - 1).getString(),
                         bodyParams.getStringOrEmpty(i).getString()));
             }
@@ -836,7 +838,7 @@ class ImapFolder extends Folder {
 
             if (bodyDisposition.size() > 0) {
                 final String bodyDisposition0Str =
-                        bodyDisposition.getStringOrEmpty(0).getString().toLowerCase();
+                        bodyDisposition.getStringOrEmpty(0).getString().toLowerCase(Locale.US);
                 if (!TextUtils.isEmpty(bodyDisposition0Str)) {
                     contentDisposition.append(bodyDisposition0Str);
                 }
@@ -850,9 +852,9 @@ class ImapFolder extends Folder {
                     for (int i = 1, count = bodyDispositionParams.size(); i < count; i += 2) {
 
                         // TODO We need to convert " into %22.  See above.
-                        contentDisposition.append(String.format(";\n %s=\"%s\"",
+                        contentDisposition.append(String.format(Locale.US, ";\n %s=\"%s\"",
                                 bodyDispositionParams.getStringOrEmpty(i - 1)
-                                        .getString().toLowerCase(),
+                                        .getString().toLowerCase(Locale.US),
                                 bodyDispositionParams.getStringOrEmpty(i).getString()));
                     }
                 }
@@ -861,7 +863,7 @@ class ImapFolder extends Folder {
             if ((size > 0)
                     && (MimeUtility.getHeaderParameter(contentDisposition.toString(), "size")
                             == null)) {
-                contentDisposition.append(String.format(";\n size=%d", size));
+                contentDisposition.append(String.format(Locale.US, ";\n size=%d", size));
             }
 
             if (contentDisposition.length() > 0) {
@@ -937,7 +939,7 @@ class ImapFolder extends Folder {
                 }
 
                 mConnection.sendCommand(
-                        String.format(ImapConstants.APPEND + " \"%s\" (%s) {%d}",
+                        String.format(Locale.US, ImapConstants.APPEND + " \"%s\" (%s) {%d}",
                                 ImapStore.encodeFolderName(mName, mStore.mPathPrefix),
                                 flagList,
                                 out.getCount()), false);
@@ -982,13 +984,13 @@ class ImapFolder extends Folder {
                 }
                 // Most servers don't care about parenthesis in the search query [and, some
                 // fail to work if they are used]
-                String[] uids = searchForUids(String.format("HEADER MESSAGE-ID %s", messageId));
+                String[] uids = searchForUids(String.format(Locale.US, "HEADER MESSAGE-ID %s", messageId));
                 if (uids.length > 0) {
                     message.setUid(uids[0]);
                 }
                 // However, there's at least one server [AOL] that fails to work unless there
                 // are parenthesis, so, try this as a last resort
-                uids = searchForUids(String.format("(HEADER MESSAGE-ID %s)", messageId));
+                uids = searchForUids(String.format(Locale.US, "(HEADER MESSAGE-ID %s)", messageId));
                 if (uids.length > 0) {
                     message.setUid(uids[0]);
                 }
@@ -1036,7 +1038,7 @@ class ImapFolder extends Folder {
             allFlags = flagList.substring(1);
         }
         try {
-            mConnection.executeSimpleCommand(String.format(
+            mConnection.executeSimpleCommand(String.format(Locale.US,
                     ImapConstants.UID_STORE + " %s %s" + ImapConstants.FLAGS_SILENT + " (%s)",
                     ImapStore.joinMessageUids(messages),
                     value ? "+" : "-",
@@ -1074,7 +1076,7 @@ class ImapFolder extends Folder {
      */
     private void doSelect() throws IOException, MessagingException {
         List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                String.format(ImapConstants.SELECT + " \"%s\"",
+                String.format(Locale.US, ImapConstants.SELECT + " \"%s\"",
                         ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
 
         // Assume the folder is opened read-write; unless we are notified otherwise
