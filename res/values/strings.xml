@@ -577,6 +577,9 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- Appears on screen while system is checking outgoing server settings -->
     <string name="account_setup_check_settings_check_outgoing_msg">
     Validating smtp settings\u2026</string>
+        <!-- Appears on screen while system is creating the account -->
+    <string name="account_setup_creating_account_msg">
+    Creating account\u2026</string>
 
     <!-- Title of "Set up email" screen after success [CHAR LIMIT=45] -->
     <string name="account_setup_names_title">Account setup</string>
