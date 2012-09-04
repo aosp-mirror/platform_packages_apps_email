@@ -3263,7 +3263,7 @@ outer:
                             mMailboxId);
                     // Clear the visible limit of the mailbox (if any)
                     Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                    if (mailbox.mVisibleLimit > 0) {
+                    if (mailbox != null && mailbox.mVisibleLimit > 0) {
                         ContentValues values = new ContentValues();
                         values.put(MailboxColumns.VISIBLE_LIMIT, 0);
                         mContext.getContentResolver().update(
