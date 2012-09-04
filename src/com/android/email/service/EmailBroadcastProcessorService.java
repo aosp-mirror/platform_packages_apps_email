@@ -33,11 +33,14 @@ import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
+
+import java.util.List;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -129,7 +132,12 @@ public class EmailBroadcastProcessorService extends IntentService {
      */
     private void onBootCompleted() {
         performOneTimeInitialization();
+        reconcileAndStartServices();
+    }
 
+    private void reconcileAndStartServices() {
+        // Reconcile accounts
+        MailService.reconcileLocalAccountsSync(this);
         // Starts remote services, if any
         EmailServiceUtils.startRemoteServices(this);
     }
@@ -203,9 +211,6 @@ public class EmailBroadcastProcessorService extends IntentService {
 
     private void onSystemAccountChanged() {
         Log.i(Logging.LOG_TAG, "System accounts updated.");
-        MailService.reconcilePopAccountsSync(this);
-
-        // Start any remote services
-        EmailServiceUtils.startRemoteServices(this);
+        reconcileAndStartServices();
     }
 }
