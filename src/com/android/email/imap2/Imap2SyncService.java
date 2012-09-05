@@ -2551,6 +2551,14 @@ public class Imap2SyncService extends AbstractSyncService {
 
             return sortedUids.length;
         } finally {
+            if (mBodyThread != null) {
+                try {
+                    mBodyThread.join();
+                } catch (InterruptedException e) {
+                    // It's all good
+                }
+                mBodyThread = null;
+            }
             if (mSocket != null) {
                 try {
                     // Try to logout
