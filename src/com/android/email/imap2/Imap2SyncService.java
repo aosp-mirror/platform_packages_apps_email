@@ -1713,6 +1713,12 @@ public class Imap2SyncService extends AbstractSyncService {
         mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
     }
 
+    public void setMailboxLastSyncResult(long id, int result) {
+        ContentValues values = new ContentValues();
+        values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
+        mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
+    }
+
     /**
      * Reset the sync interval for this mailbox (account if it's Inbox)
      */
@@ -1764,6 +1770,7 @@ public class Imap2SyncService extends AbstractSyncService {
             mSocket.setSoTimeout(IDLE_ASLEEP_MILLIS + (1*MINS));
             // Say we're no longer syncing (turn off indeterminate progress in the UI)
             setMailboxSyncStatus(mMailboxId, UIProvider.SyncStatus.NO_SYNC);
+            setMailboxLastSyncResult(mMailboxId, UIProvider.LastSyncResult.SUCCESS);
             // Set an alarm for one minute before our timeout our expected IDLE time
             Imap2SyncManager.runAsleep(mMailboxId, IDLE_ASLEEP_MILLIS);
 
