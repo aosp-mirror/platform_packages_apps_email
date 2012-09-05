@@ -1046,7 +1046,6 @@ public class EmailProvider extends ContentProvider {
         @Override
         public boolean onCreate() {
             Context context = getContext();
-            // Initialize Uri's used throughout the app
             EmailContent.init(context);
             if (INTEGRITY_CHECK_URI == null) {
                 INTEGRITY_CHECK_URI = Uri.parse("content://" + EmailContent.AUTHORITY +
@@ -1185,8 +1184,6 @@ public class EmailProvider extends ContentProvider {
             matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
             matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
         }
-        // Open our database(s)
-        getDatabase(context);
         return false;
     }
 
