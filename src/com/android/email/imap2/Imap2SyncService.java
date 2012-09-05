@@ -449,7 +449,7 @@ public class Imap2SyncService extends AbstractSyncService {
     }
 
     String parseRecipients (Parser p, Message msg) {
-        msg.mFrom = parseRecipientList(p.parseListOrNil());
+        msg.mFrom = MimeUtility.decode(parseRecipientList(p.parseListOrNil()));
         @SuppressWarnings("unused")
         String senderList = parseRecipientList(p.parseListOrNil());
         msg.mReplyTo = parseRecipientList(p.parseListOrNil());
