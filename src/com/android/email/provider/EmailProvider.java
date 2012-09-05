@@ -1272,7 +1272,8 @@ public class EmailProvider extends ContentProvider {
             switch (match) {
                 // First, dispatch queries from UnfiedEmail
                 case UI_SEARCH:
-                    return uiSearch(uri, projection);
+                    c = uiSearch(uri, projection);
+                    return c;
                 case UI_ACCTS:
                     c = uiAccounts(projection);
                     return c;
@@ -3267,14 +3268,17 @@ outer:
                 if (visible) {
                     NotificationController.getInstance(mContext).cancelNewMessageNotification(
                             mMailboxId);
-                    // Clear the visible limit of the mailbox (if any)
-                    Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                    if (mailbox != null && mailbox.mVisibleLimit > 0) {
-                        ContentValues values = new ContentValues();
-                        values.put(MailboxColumns.VISIBLE_LIMIT, 0);
-                        mContext.getContentResolver().update(
-                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
-                                values, null, null);
+                    // Clear the visible limit of the mailbox (if any) on entry
+                    if (params.containsKey(
+                            UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
+                        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                        if (mailbox != null && mailbox.mVisibleLimit > 0) {
+                            ContentValues values = new ContentValues();
+                            values.put(MailboxColumns.VISIBLE_LIMIT, 0);
+                            mContext.getContentResolver().update(
+                                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
+                                    values, null, null);
+                        }
                     }
                 }
             }
@@ -4272,7 +4276,10 @@ outer:
 
         // TODO: Check the actual mailbox
         Mailbox inbox = Mailbox.restoreMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
-        if (inbox == null) return null;
+        if (inbox == null) {
+            Log.w(Logging.LOG_TAG, "In uiSearch, inbox doesn't exist for account " + accountId);
+            return null;
+        }
 
         String filter = uri.getQueryParameter(UIProvider.SearchQueryParameters.QUERY);
         if (filter == null) {
