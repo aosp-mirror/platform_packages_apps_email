@@ -245,6 +245,8 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在擷取帳戶資訊..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"正在驗證伺服器設定…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"正在驗證 SMTP 設定…"</string>
+    <!-- no translation found for account_setup_creating_account_msg (6235569720466839946) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"帳戶設定"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"您的帳戶已設定完成，可以開始收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"設定帳戶名稱 (選擇性)"</string>
@@ -495,7 +497,10 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"系統會在漫遊時停用這個帳戶的背景同步處理。"</string>
     <string name="confirm_response" msgid="9151965975158906286">"正在傳送回應..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"沒有任何郵件。"</string>
-    <string name="imap2_name" msgid="2742745881421883233">"推送 IMAP"</string>
+    <!-- no translation found for imap2_name (7676967165636670733) -->
+    <skip />
+    <!-- no translation found for pop3_name (4037602724794932807) -->
+    <skip />
     <string name="folder_picker_title" msgid="5213735893918108637">"仔細挑選！"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"選取伺服器垃圾桶資料夾"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"選取伺服器寄件備份資料夾"</string>
