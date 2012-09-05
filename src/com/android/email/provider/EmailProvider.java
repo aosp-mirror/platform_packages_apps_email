@@ -3065,6 +3065,9 @@ outer:
                 }
                 accountCursor.close();
             }
+            if (combinedAccount) {
+                addCombinedAccountRow(mc);
+            }
         } finally {
             accountIdCursor.close();
         }
