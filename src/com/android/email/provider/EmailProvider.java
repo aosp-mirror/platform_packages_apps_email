@@ -2718,17 +2718,35 @@ outer:
                 .appendQueryParameter("account", account).build().toString();
     }
 
+    private String getBits(int bitField) {
+        StringBuilder sb = new StringBuilder(" ");
+        for (int i = 0; i < 32; i++, bitField >>= 1) {
+            if ((bitField & 1) != 0) {
+                sb.append("" + i + " ");
+            }
+        }
+        return sb.toString();
+    }
+
     private int getCapabilities(Context context, long accountId) {
         EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
                 mServiceCallback, accountId);
         int capabilities = 0;
+        Account acct = null;
         try {
             service.setTimeout(10);
-            Account acct = Account.restoreAccountWithId(context, accountId);
-            if (acct == null) return 0;
+            acct = Account.restoreAccountWithId(context, accountId);
+            if (acct == null) {
+                Log.d(TAG, "getCapabilities() for " + accountId + ": returning 0x0 (no account)");
+                return 0;
+            }
             capabilities = service.getCapabilities(acct);
-        } catch (RemoteException e) {
+            // STOPSHIP
+            Log.d(TAG, "getCapabilities() for " + acct.mDisplayName + ": 0x" +
+                    Integer.toHexString(capabilities) + getBits(capabilities));
+       } catch (RemoteException e) {
             // Nothing to do
+           Log.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
         }
         return capabilities;
     }
