@@ -245,6 +245,8 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Učitavanje podataka o računu..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Provjeravanje postavki poslužitelja…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Provjeravanje postavki SMPT-a…"</string>
+    <!-- no translation found for account_setup_creating_account_msg (6235569720466839946) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"Postavljanje računa"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Vaš je račun postavljen, a e-pošta stiže!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dodijelite ovom računu naziv (opcionalno)"</string>
@@ -495,7 +497,10 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Pozadinska sinkronizacija za ovaj račun onemogućena je u roamingu."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Slanje odgovora..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Nema poruka."</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
+    <!-- no translation found for imap2_name (7676967165636670733) -->
+    <skip />
+    <!-- no translation found for pop3_name (4037602724794932807) -->
+    <skip />
     <string name="folder_picker_title" msgid="5213735893918108637">"Birajte, birajte, birajte!"</string>
     <string name="trash_folder_selection_title" msgid="8287461989726013461">"Odaberite mapu za otpad poslužitelja"</string>
     <string name="sent_folder_selection_title" msgid="3868598259968276968">"Odaberite mapu za poslane stavke poslužitelja"</string>
