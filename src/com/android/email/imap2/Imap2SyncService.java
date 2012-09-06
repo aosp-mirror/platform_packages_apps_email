@@ -204,7 +204,7 @@ public class Imap2SyncService extends AbstractSyncService {
         Cursor deletes = getDeletesCursor();
         try {
             if (mRequestQueue.isEmpty() && updates == null && deletes == null) {
-                userLog("Ping: nothing to do");
+                userLog("Alarm: nothing to do");
             } else {
                 int cnt = mRequestQueue.size();
                 if (updates != null) {
@@ -213,7 +213,7 @@ public class Imap2SyncService extends AbstractSyncService {
                 if (deletes != null) {
                     cnt += deletes.getCount();
                 }
-                userLog("Ping: " + cnt + " tasks");
+                userLog("Alarm: " + cnt + " tasks");
                 ping();
             }
         } finally {
@@ -318,6 +318,8 @@ public class Imap2SyncService extends AbstractSyncService {
         String tag = "@@a" + t + ' ';
         if (!cmd.startsWith("login")) {
             userLog(tag + cmd);
+        } else {
+            userLog("login [redacted]");
         }
         out.write(tag);
         out.write(cmd);
@@ -398,7 +400,7 @@ public class Imap2SyncService extends AbstractSyncService {
             mImapResponse = new ArrayList<String>();
         while (true) {
             str = r.readLine();
-            userLog("< " + str);
+            userLog("< " + ((str.length() > 80) ? str.substring(0, 80) + " ..." : str));
             if (caseInsensitiveStartsWith(str, tag)) {
                 // This is the response from the command named 'tag'
                 Parser p = new Parser(str, tag.length() - 1);
@@ -1186,7 +1188,7 @@ public class Imap2SyncService extends AbstractSyncService {
                 if (conn.status == EXIT_DONE) {
                     mBodyThread = new BodyThread(conn, unloaded);
                     mBodyThread.start();
-                    userLog("***** Starting mBodyThread " + mBodyThread.getId());
+                    userLog("Starting mBodyThread " + mBodyThread.getId());
                 } else {
                     // fetchMessageData closes the cursor
                     fetchMessageData(mConnection, unloaded);
@@ -2178,6 +2180,7 @@ public class Imap2SyncService extends AbstractSyncService {
                 // Don't kill the connection until mBodyThread is done...
                 if (mBodyThread != null) {
                     try {
+                        userLog("BodyThread running; wait for finish...");
                         mBodyThread.join();
                     } catch (InterruptedException e) {
                         // Just finish...
