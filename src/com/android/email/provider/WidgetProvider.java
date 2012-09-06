@@ -72,6 +72,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         AccountColumns.COLOR,
         AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
         AccountColumns.MANUAL_SYNC_URI,
+        AccountColumns.VIEW_INTENT_PROXY_URI,
         AccountColumns.SettingsColumns.SIGNATURE,
         AccountColumns.SettingsColumns.AUTO_ADVANCE,
         AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
