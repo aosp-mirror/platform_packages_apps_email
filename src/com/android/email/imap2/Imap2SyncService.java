@@ -1379,6 +1379,17 @@ public class Imap2SyncService extends AbstractSyncService {
             }
 
             applyBatch(ops);
+
+            // Set folder list loaded flag, if it hasn't already been
+            if ((mAccount.mFlags & Account.FLAGS_INITIAL_FOLDER_LIST_LOADED) == 0) {
+                userLog("Notify initial folder list loaded...");
+                mAccount.mFlags |= Account.FLAGS_INITIAL_FOLDER_LIST_LOADED;
+                ContentValues values = new ContentValues();
+                values.put(AccountColumns.FLAGS, mAccount.mFlags);
+                mResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId),
+                        values, null, null);
+            }
+
             // Fixup parent stuff, flags...
             MailboxUtilities.fixupUninitializedParentKeys(mContext,
                     Mailbox.ACCOUNT_KEY + "=" + mAccountId);
@@ -2173,7 +2184,8 @@ public class Imap2SyncService extends AbstractSyncService {
 
                     idle();
                 }
-
+            } catch (Exception e) {
+                userLog("Exception in imap2 sync", e);
             } finally {
                 // Don't kill the connection until mBodyThread is done...
                 if (mBodyThread != null) {
@@ -2253,6 +2265,7 @@ public class Imap2SyncService extends AbstractSyncService {
     public void run() {
         try {
             TAG = Thread.currentThread().getName();
+            userLog("Starting imap sync thread...");
 
             // Check for Outbox (special "sync") and stopped
             if (mMailbox.mType == Mailbox.TYPE_OUTBOX) {

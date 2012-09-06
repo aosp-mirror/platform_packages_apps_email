@@ -20,15 +20,16 @@ package com.android.email.provider;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 
 import com.android.mail.R;
-import com.android.mail.providers.Account;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.ui.FolderSelectorAdapter;
@@ -46,18 +47,18 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
     private final SeparatedFolderListAdapter mAdapter;
     private final FolderPickerCallback mCallback;
 
-    public FolderSelectionDialog(final Context context, Account account,
-            FolderPickerCallback callback, int headerId) {
+    public FolderSelectionDialog(final Context context, Uri uri,
+            FolderPickerCallback callback, String header) {
         mCallback = callback;
         // Mapping of a folder's uri to its checked state
         mCheckedState = new HashMap<Folder, Boolean>();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(headerId);
+        builder.setTitle(header);
         builder.setPositiveButton(R.string.ok, this);
-        builder.setNegativeButton(R.string.create_new_folder, this);
+        builder.setCancelable(false);
+        // TODO: Do this on a background thread
         final Cursor foldersCursor = context.getContentResolver().query(
-                account.fullFolderListUri != null ? account.fullFolderListUri
-                        : account.folderListUri, UIProvider.FOLDERS_PROJECTION, null, null, null);
+                uri, UIProvider.FOLDERS_PROJECTION, null, null, null);
         try {
             mAdapter = new SeparatedFolderListAdapter(context);
             String[] headers = context.getResources()
@@ -134,9 +135,6 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
                     }
                 }
                 mCallback.select(folder);
-                break;
-            case DialogInterface.BUTTON_NEGATIVE:
-                mCallback.create();
                 break;
             default:
                 onClick(dialog, which, true);
