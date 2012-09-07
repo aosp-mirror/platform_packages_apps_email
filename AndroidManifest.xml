@@ -213,12 +213,6 @@
             </intent-filter>
         </activity-alias>
 
-        <activity
-            android:name=".provider.FolderPickerActivity"
-            android:label="@string/folder_picker_title"
-            >
-        </activity>
-
         <!-- Must be exported in order for the AccountManager to launch it -->
         <!-- Also available for continuous test systems to force account creation -->
         <activity
@@ -281,6 +275,21 @@
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".provider.FolderPickerActivity"
+            android:label="@string/folder_picker_title"
+            android:theme="@android:style/Theme.Holo.Light"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="content"
+                    android:host="ui.email.android.com"
+                    android:pathPrefix="/setup"
+                    />
             </intent-filter>
         </activity>
         <activity

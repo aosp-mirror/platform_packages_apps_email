@@ -2838,6 +2838,15 @@ outer:
             // Email doesn't support priority inbox, so always state priority arrows disabled.
             values.put(UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED, "0");
         }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI)) {
+            // Use this if needed
+            long trashId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_TRASH);
+            if (trashId == Mailbox.NO_MAILBOX) {
+                values.put(UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI,
+                        getExternalUriString("setup", id));
+            }
+        }
 
         final StringBuilder sb = genSelect(getAccountListMap(), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
