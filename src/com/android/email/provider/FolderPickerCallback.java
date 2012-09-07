@@ -21,5 +21,4 @@ import com.android.mail.providers.Folder;
 
 public interface FolderPickerCallback {
     public void select(Folder folder);
-    public void create();
 }
