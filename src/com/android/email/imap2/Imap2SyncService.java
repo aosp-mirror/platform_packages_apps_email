@@ -1382,6 +1382,10 @@ public class Imap2SyncService extends AbstractSyncService {
 
             applyBatch(ops);
 
+            // Fixup parent stuff, flags...
+            MailboxUtilities.fixupUninitializedParentKeys(mContext,
+                    Mailbox.ACCOUNT_KEY + "=" + mAccountId);
+
             // Set folder list loaded flag, if it hasn't already been
             if ((mAccount.mFlags & Account.FLAGS_INITIAL_FOLDER_LIST_LOADED) == 0) {
                 userLog("Notify initial folder list loaded...");
@@ -1391,10 +1395,6 @@ public class Imap2SyncService extends AbstractSyncService {
                 mResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId),
                         values, null, null);
             }
-
-            // Fixup parent stuff, flags...
-            MailboxUtilities.fixupUninitializedParentKeys(mContext,
-                    Mailbox.ACCOUNT_KEY + "=" + mAccountId);
         } finally {
             SyncManager.kick("folder list");
         }
