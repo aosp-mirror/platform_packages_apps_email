@@ -2100,112 +2100,112 @@ public class Imap2SyncService extends AbstractSyncService {
                     "ms");
         }
 
-        while (!mStop) {
-            try {
-                while (!mStop) {
-                    mIsServiceRequestPending = false;
+        try {
+            while (!mStop) {
+                mIsServiceRequestPending = false;
 
-                    // Now, handle various requests
-                    processRequests();
+                // Now, handle various requests
+                processRequests();
 
-                    // We'll use 14 days as the "default"
-                    long days = 14;
-                    int lookback = mMailbox.mSyncLookback;
-                    if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-                        lookback = mAccount.mSyncLookback;
-                    }
-                    if (lookback == SyncWindow.SYNC_WINDOW_AUTO) {
-                        if (mLastExists >= 0) {
-                            ContentValues values = new ContentValues();
-                            lookback = getAutoSyncWindow();
-                            Uri uri;
-                            if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-                                values.put(AccountColumns.SYNC_LOOKBACK, lookback);
-                                uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
-                            } else {
-                                values.put(MailboxColumns.SYNC_LOOKBACK, lookback);
-                                uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId);
-                            }
-                            mResolver.update(uri, values, null, null);
+                // We'll use 14 days as the "default"
+                long days = 14;
+                int lookback = mMailbox.mSyncLookback;
+                if (mMailbox.mType == Mailbox.TYPE_INBOX) {
+                    lookback = mAccount.mSyncLookback;
+                }
+                if (lookback == SyncWindow.SYNC_WINDOW_AUTO) {
+                    if (mLastExists >= 0) {
+                        ContentValues values = new ContentValues();
+                        lookback = getAutoSyncWindow();
+                        Uri uri;
+                        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
+                            values.put(AccountColumns.SYNC_LOOKBACK, lookback);
+                            uri = ContentUris.withAppendedId(Account.CONTENT_URI, mAccountId);
+                        } else {
+                            values.put(MailboxColumns.SYNC_LOOKBACK, lookback);
+                            uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId);
                         }
-                    }
-                    if (lookback != SyncWindow.SYNC_WINDOW_UNKNOWN) {
-                        days = SyncWindow.toDays(lookback);
-                    }
-
-                    Date date = new Date(System.currentTimeMillis() - (days*DAYS));
-                    String since = IMAP_DATE_FORMAT.format(date);
-                    int[] serverList = getServerIds(since);
-                    if (serverList == null) {
-                        // Do backoff; hope it works next time.  Should never happen
-                        mExitStatus = EXIT_IO_ERROR;
-                        return;
-                    }
-
-                    // See if we need extra messages; start by restoring the mailbox
-                    mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                    if (mMailbox.mVisibleLimit > 0) {
-                        serverList = handleLoadMore(serverList, mMailbox.mVisibleLimit);
-                    }
-
-                    Arrays.sort(serverList);
-                    int[] deviceList = getUidList(null);
-                    Reconciled r =
-                            reconcile("MESSAGES", deviceList, serverList);
-                    ArrayList<Integer> loadList = r.insert;
-                    ArrayList<Integer> deleteList = r.delete;
-                    serverList = null;
-                    deviceList = null;
-
-                    // We load message headers in batches
-                    loadMessages(loadList, mMailboxId);
-
-                    // Reflect server deletions on device; do them all at once
-                    processServerDeletes(deleteList);
-
-                    handleLocalUpdates();
-
-                    handleLocalDeletes();
-
-                    reconcileState(getUnreadUidList(), since, "UNREAD", "unseen",
-                            MessageColumns.FLAG_READ, true);
-                    reconcileState(getFlaggedUidList(), since, "FLAGGED", "flagged",
-                            MessageColumns.FLAG_FAVORITE, false);
-
-                    processUploads();
-
-                    // We're done if not pushing...
-                    if (mMailbox.mSyncInterval != Mailbox.CHECK_INTERVAL_PUSH) {
-                        mExitStatus = EXIT_DONE;
-                        return;
-                    }
-
-                    // If new requests have come in, process them
-                    if (mIsServiceRequestPending)
-                        continue;
-
-                    idle();
-                }
-            } catch (Exception e) {
-                userLog("Exception in imap2 sync", e);
-            } finally {
-                // Don't kill the connection until mBodyThread is done...
-                if (mBodyThread != null) {
-                    try {
-                        userLog("BodyThread running; wait for finish...");
-                        mBodyThread.join();
-                    } catch (InterruptedException e) {
-                        // Just finish...
+                        mResolver.update(uri, values, null, null);
                     }
                 }
-                if (mConnection != null) {
-                    try {
-                        // Try to logout
-                        readResponse(mReader, writeCommand(mWriter, "logout"));
-                        mConnection.close();
-                    } catch (IOException e) {
-                        // We're leaving anyway
-                    }
+                if (lookback != SyncWindow.SYNC_WINDOW_UNKNOWN) {
+                    days = SyncWindow.toDays(lookback);
+                }
+
+                Date date = new Date(System.currentTimeMillis() - (days*DAYS));
+                String since = IMAP_DATE_FORMAT.format(date);
+                int[] serverList = getServerIds(since);
+                if (serverList == null) {
+                    // Do backoff; hope it works next time.  Should never happen
+                    mExitStatus = EXIT_IO_ERROR;
+                    return;
+                }
+
+                // See if we need extra messages; start by restoring the mailbox
+                mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                if (mMailbox.mVisibleLimit > 0) {
+                    serverList = handleLoadMore(serverList, mMailbox.mVisibleLimit);
+                }
+
+                Arrays.sort(serverList);
+                int[] deviceList = getUidList(null);
+                Reconciled r =
+                        reconcile("MESSAGES", deviceList, serverList);
+                ArrayList<Integer> loadList = r.insert;
+                ArrayList<Integer> deleteList = r.delete;
+                serverList = null;
+                deviceList = null;
+
+                // We load message headers in batches
+                loadMessages(loadList, mMailboxId);
+
+                // Reflect server deletions on device; do them all at once
+                processServerDeletes(deleteList);
+
+                handleLocalUpdates();
+
+                handleLocalDeletes();
+
+                reconcileState(getUnreadUidList(), since, "UNREAD", "unseen",
+                        MessageColumns.FLAG_READ, true);
+                reconcileState(getFlaggedUidList(), since, "FLAGGED", "flagged",
+                        MessageColumns.FLAG_FAVORITE, false);
+
+                processUploads();
+
+                // We're done if not pushing...
+                if (mMailbox.mSyncInterval != Mailbox.CHECK_INTERVAL_PUSH) {
+                    mExitStatus = EXIT_DONE;
+                    return;
+                }
+
+                // If new requests have come in, process them
+                if (mIsServiceRequestPending)
+                    continue;
+
+                idle();
+            }
+        } catch (IOException e) {
+            mExitStatus = EXIT_IO_ERROR;
+        } catch (Exception e) {
+            userLog("Exception in imap2 sync", e);
+        } finally {
+            // Don't kill the connection until mBodyThread is done...
+            if (mBodyThread != null) {
+                try {
+                    userLog("BodyThread running; wait for finish...");
+                    mBodyThread.join();
+                } catch (InterruptedException e) {
+                    // Just finish...
+                }
+            }
+            if (mConnection != null) {
+                try {
+                    // Try to logout
+                    readResponse(mReader, writeCommand(mWriter, "logout"));
+                    mConnection.close();
+                } catch (IOException e) {
+                    // We're leaving anyway
                 }
             }
         }
