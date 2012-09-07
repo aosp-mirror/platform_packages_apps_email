@@ -1317,12 +1317,11 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="imap2_name">IMAP</string>
     <string name="pop3_name">POP3</string>
 
-    <string name="folder_picker_title">Picky, picky, picky!</string>
+    <string name="folder_picker_title">Folder picker</string>
     <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
-    <string name="trash_folder_selection_title">Select server trash folder</string>
+    <string name="trash_folder_selection_title">Select server trash folder for <xliff:g id="account">%s</xliff:g></string>
     <!-- Displayed when the user must pick his server's sent items folder from a list [CHAR LIMIT 30]-->
-    <string name="sent_folder_selection_title">Select server sent items folder</string>
+    <string name="sent_folder_selection_title">Select server sent items folder for <xliff:g id="account">%s</xliff:g></string>
     <string name="create_new_folder">Create folder</string>
-    
+    <string name="account_waiting_for_folders_msg">Loading folder list&#8230;</string>
 </resources>
-

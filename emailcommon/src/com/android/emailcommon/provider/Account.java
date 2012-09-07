@@ -90,6 +90,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     // Whether or not server-side search supports global search (i.e. all mailboxes); only valid
     // if FLAGS_SUPPORTS_SEARCH is true
     public static final int FLAGS_SUPPORTS_GLOBAL_SEARCH = 1<<12;
+    // Whether or not the initial folder list has been loaded
+    public static final int FLAGS_INITIAL_FOLDER_LIST_LOADED = 1<<13;
 
     // Deletion policy (see FLAGS_DELETE_POLICY_MASK, above)
     public static final int DELETE_POLICY_NEVER = 0;
@@ -113,6 +115,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         NOTIFIER_URI = Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
         DEFAULT_ACCOUNT_ID_URI = Uri.parse(EmailContent.CONTENT_URI + "/account/default");
     }
+
     public String mDisplayName;
     public String mEmailAddress;
     public String mSyncKey;
