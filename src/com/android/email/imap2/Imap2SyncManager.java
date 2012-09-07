@@ -274,17 +274,6 @@ public class Imap2SyncManager extends SyncManager {
                 inbox.save(getContext());
                 log("Creating inbox for account: " + acct.mDisplayName);
                 Imap2SyncManager.kick("New account");
-                // Need to sync folder list first; sigh
-                Imap2SyncService svc = new Imap2SyncService(Imap2SyncManager.this, acct);
-                try {
-                    svc.loadFolderList();
-                    mResolver.update(
-                            ContentUris.withAppendedId(EmailContent.PICK_TRASH_FOLDER_URI, acctId),
-                            new ContentValues(), null, null);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
             }
         };
     }
