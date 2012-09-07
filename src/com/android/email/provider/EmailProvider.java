@@ -2843,8 +2843,12 @@ outer:
             // Use this if needed
             long trashId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_TRASH);
             if (trashId == Mailbox.NO_MAILBOX) {
-                values.put(UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI,
-                        getExternalUriString("setup", id));
+                // STOPSHIP Don't hard-code this for imap
+                String protocol = Account.getProtocol(context, Long.parseLong(id));
+                if (protocol.equals("gImap")) {
+                    values.put(UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI,
+                            getExternalUriString("setup", id));
+                }
             }
         }
 
