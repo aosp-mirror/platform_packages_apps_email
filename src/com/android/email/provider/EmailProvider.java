@@ -2487,7 +2487,7 @@ outer:
                 ArrayList<com.android.mail.providers.Attachment> uiAtts =
                         new ArrayList<com.android.mail.providers.Attachment>();
                 for (Attachment att : atts) {
-                    if (att.mContentId != null && att.mContentUri != null) {
+                    if (att.mContentId != null && att.getContentUri() != null) {
                         continue;
                     }
                     com.android.mail.providers.Attachment uiAtt =
@@ -3459,7 +3459,7 @@ outer:
     private Attachment convertUiAttachmentToAttachment(
             com.android.mail.providers.Attachment uiAtt) {
         Attachment att = new Attachment();
-        att.mContentUri = uiAtt.contentUri.toString();
+        att.setContentUri(uiAtt.contentUri.toString());
         att.mFileName = uiAtt.name;
         att.mMimeType = uiAtt.contentType;
         att.mSize = uiAtt.size;
@@ -3629,7 +3629,7 @@ outer:
                     attClone.mMessageKey = 0;
                     // If we're sending this, it's not loaded, and we're not smart forwarding
                     // add the download flag, so that ADS will start up
-                    if (mailbox.mType == Mailbox.TYPE_OUTBOX && att.mContentUri == null &&
+                    if (mailbox.mType == Mailbox.TYPE_OUTBOX && att.getContentUri() == null &&
                             ((account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) == 0)) {
                         attClone.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
                         hasUnloadedAttachments = true;

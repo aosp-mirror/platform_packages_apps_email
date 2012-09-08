@@ -1185,18 +1185,21 @@ public abstract class EmailContent {
         public static Uri CONTENT_URI;
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
         public static Uri MESSAGE_ID_URI;
+        public static String ATTACHMENT_PROVIDER_URI_PREFIX;
 
         public static void initAttachment() {
             CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
             MESSAGE_ID_URI = Uri.parse(
                     EmailContent.CONTENT_URI + "/attachment/message");
+            ATTACHMENT_PROVIDER_URI_PREFIX = "content://" + EmailContent.EMAIL_PACKAGE_NAME +
+                    ".attachmentprovider";
         }
 
         public String mFileName;
         public String mMimeType;
         public long mSize;
         public String mContentId;
-        public String mContentUri;
+        private String mContentUri;
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
@@ -1270,6 +1273,29 @@ public abstract class EmailContent {
          */
         public Attachment() {
             mBaseUri = CONTENT_URI;
+        }
+
+        public void setContentUri(String contentUri) {
+            mContentUri = contentUri;
+        }
+
+        public String getContentUri() {
+            if (mContentUri == null) return null;
+            if (mContentUri.startsWith(ATTACHMENT_PROVIDER_URI_PREFIX)) {
+                return mContentUri;
+            } else {
+                // In an upgrade scenario, we may still have legacy attachment Uri's
+                // Skip past content://
+                int prefix = mContentUri.indexOf('/', 10);
+                if (prefix > 0) {
+                    // Create a proper uri string using the actual provider
+                    return ATTACHMENT_PROVIDER_URI_PREFIX + "/" + mContentUri.substring(prefix);
+                } else {
+                    Log.e("Attachment", "Improper contentUri format: " + mContentUri);
+                    // Belt & suspenders; can't really happen
+                    return mContentUri;
+                }
+            }
         }
 
          /**
