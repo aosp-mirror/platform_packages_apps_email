@@ -193,7 +193,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="content"/>
-                <data android:mimeType="application/email-ls" />
+                <data android:mimeType="@string/application_mime_type" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -348,11 +348,11 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.android.mail.ACTION_NOTIFY_DATASET_CHANGED" />
-                <data android:mimeType="application/email-ls" />
+                <data android:mimeType="@string/application_mime_type" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.android.mail.ACTION_UPDATE_WIDGET" />
-                <data android:mimeType="application/email-ls" />
+                <data android:mimeType="@string/application_mime_type" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_info" />
@@ -380,7 +380,7 @@
             <intent-filter>
                 <action android:name="com.android.mail.action.update_notification"
                         android:priority="-10" />
-                <data android:mimeType="application/email-ls" />
+                <data android:mimeType="@string/application_mime_type" />
             </intent-filter>
             <!-- To handle secret code to activate the debug screen. -->
             <intent-filter>

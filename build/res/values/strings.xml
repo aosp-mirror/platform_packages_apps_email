@@ -15,6 +15,7 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- DO NOT TRANSLATE THESE STRINGS -->
     <string name="account_manager_type_exchange">com.android.exchange</string>
     <string name="account_manager_type_pop3">com.android.pop3</string>
     <string name="account_manager_type_imap">com.android.imap</string>
@@ -22,4 +23,5 @@
     <string name="authority_email_provider">com.android.email.provider</string>
     <string name="protocol_imap">imap</string>
     <string name="protocol_pop3">pop3</string>
+    <string name="application_mime_type">application/email-ls</string>
 </resources>
