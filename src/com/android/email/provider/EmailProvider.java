@@ -2840,12 +2840,13 @@ outer:
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI)) {
-            // Use this if needed
+            // Set the setup intent if needed
+            // TODO We should clarify/document the trash/setup relationship
             long trashId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_TRASH);
             if (trashId == Mailbox.NO_MAILBOX) {
-                // STOPSHIP Don't hard-code this for imap
-                String protocol = Account.getProtocol(context, Long.parseLong(id));
-                if (protocol.equals("gImap")) {
+                EmailServiceInfo info = EmailServiceUtils.getServiceInfoForAccount(context,
+                        accountId);
+                if (info != null && info.requiresSetup) {
                     values.put(UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI,
                             getExternalUriString("setup", id));
                 }

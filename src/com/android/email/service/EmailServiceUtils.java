@@ -177,6 +177,7 @@ public class EmailServiceUtils {
         public String inferPrefix;
         public boolean requiresAccountUpdate;
         public boolean offerLoadMore;
+        public boolean requiresSetup;
 
         public String toString() {
             StringBuilder sb = new StringBuilder("Protocol: ");
@@ -209,6 +210,11 @@ public class EmailServiceUtils {
         } else {
             return new EmailServiceProxy(context, info.intentAction, callback);
         }
+    }
+
+    public static EmailServiceInfo getServiceInfoForAccount(Context context, long accountId) {
+        String protocol = Account.getProtocol(context, accountId);
+        return getServiceInfo(context, protocol);
     }
 
     public static EmailServiceInfo getServiceInfo(Context context, String protocol) {
@@ -529,6 +535,8 @@ public class EmailServiceUtils {
                     info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
                     info.offerLoadMore =
                             ta.getBoolean(R.styleable.EmailServiceInfo_offerLoadMore, false);
+                    info.requiresSetup =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_requiresSetup, false);
 
                     // Must have either "class" (local) or "intent" (remote)
                     if (klass != null) {
