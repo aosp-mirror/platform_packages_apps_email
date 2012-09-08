@@ -183,6 +183,8 @@ public class EmailServiceUtils {
             sb.append(protocol);
             sb.append(", ");
             sb.append(klass != null ? "Local" : "Remote");
+            sb.append(" , Account Type: ");
+            sb.append(accountType);
             return sb.toString();
         }
     }

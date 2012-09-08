@@ -96,6 +96,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -4483,5 +4485,36 @@ outer:
             intent.setType(EMAIL_APP_MIME_TYPE);
             context.sendBroadcast(intent);
          }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        Context context = getContext();
+        writer.println("Installed services:");
+        for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(context)) {
+            writer.println("  " + info);
+        }
+        writer.println();
+        writer.println("Accounts: ");
+        Cursor cursor = query(Account.CONTENT_URI, Account.CONTENT_PROJECTION, null, null, null);
+        if (cursor.getCount() == 0) {
+            writer.println("  None");
+        }
+        try {
+            while (cursor.moveToNext()) {
+                Account account = new Account();
+                account.restore(cursor);
+                writer.println("  Account " + account.mDisplayName);
+                HostAuth hostAuth =
+                        HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+                if (hostAuth != null) {
+                    writer.println("    Protocol = " + hostAuth.mProtocol +
+                            (TextUtils.isEmpty(account.mProtocolVersion) ? "" : " version " +
+                                    account.mProtocolVersion));
+                }
+            }
+        } finally {
+            cursor.close();
+        }
     }
 }
