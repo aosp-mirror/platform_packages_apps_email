@@ -192,7 +192,7 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
                 // Simple mailbox selection
                 setSelection(
                     MessageColumns.ACCOUNT_KEY + "=? AND " +
-                    MessageColumns.MAILBOX_KEY + "=?");
+                    MessageColumns.MAILBOX_KEY + "=? AND " + Message.FLAG_LOADED_SELECTION);
                 setSelectionArgs(
                         new String[] { Long.toString(mAccountId), Long.toString(mMailboxId) });
             } else {
