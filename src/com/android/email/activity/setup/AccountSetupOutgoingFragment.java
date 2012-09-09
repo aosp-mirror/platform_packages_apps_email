@@ -127,13 +127,19 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
-        mSecurityTypeView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                updatePortFromSecurityType();
-            }
+        mSecurityTypeView.post(new Runnable() {
+            public void run() {
+                mSecurityTypeView.setOnItemSelectedListener(
+                        new AdapterView.OnItemSelectedListener() {
+                            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+                                    long arg3) {
+                                updatePortFromSecurityType();
+                            }
 
-            public void onNothingSelected(AdapterView<?> arg0) { }
-        });
+                            public void onNothingSelected(AdapterView<?> arg0) {
+                            }
+                        });
+            }});
 
         // Calls validateFields() which enables or disables the Next button
         TextWatcher validationTextWatcher = new TextWatcher() {
