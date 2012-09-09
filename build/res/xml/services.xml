@@ -84,6 +84,7 @@
         email:syncChanges="true"
         email:inferPrefix="imap"
         email:offerLoadMore="true"
+        email:requiresSetup="true"
          />
     <emailservice
         email:protocol="eas"
