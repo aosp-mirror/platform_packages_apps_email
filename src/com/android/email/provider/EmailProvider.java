@@ -115,7 +115,7 @@ public class EmailProvider extends ContentProvider {
 
     private static final String TAG = "EmailProvider";
 
-    public static final String EMAIL_APP_MIME_TYPE = "application/email-ls";
+    public static String EMAIL_APP_MIME_TYPE;
 
     protected static final String DATABASE_NAME = "EmailProvider.db";
     protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
@@ -1058,6 +1058,7 @@ public class EmailProvider extends ContentProvider {
                         Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
                 FOLDER_REFRESH_URI =
                         Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
+                EMAIL_APP_MIME_TYPE = context.getString(R.string.application_mime_type);
             }
             MailActivityEmail.setServicesEnabledAsync(context);
             checkDatabases();
