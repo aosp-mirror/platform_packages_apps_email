@@ -234,7 +234,7 @@ public class Rfc822Output {
                 inStream = new ByteArrayInputStream(attachment.mContentBytes);
             } else {
                 // try to open the file
-                Uri fileUri = Uri.parse(attachment.mContentUri);
+                Uri fileUri = Uri.parse(attachment.getContentUri());
                 inStream = context.getContentResolver().openInputStream(fileUri);
             }
             // switch to output stream for base64 text output

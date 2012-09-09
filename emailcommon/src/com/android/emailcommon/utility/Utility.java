@@ -745,25 +745,28 @@ public class Utility {
             return false;
         } else if (attachment.mContentBytes != null) {
             return true;
-        } else if (TextUtils.isEmpty(attachment.mContentUri)) {
-            return false;
-        }
-        try {
-            Uri fileUri = Uri.parse(attachment.mContentUri);
-            try {
-                InputStream inStream = context.getContentResolver().openInputStream(fileUri);
-                try {
-                    inStream.close();
-                } catch (IOException e) {
-                    // Nothing to be done if can't close the stream
-                }
-                return true;
-            } catch (FileNotFoundException e) {
+        } else {
+            String contentUri = attachment.getContentUri();
+            if (TextUtils.isEmpty(contentUri)) {
                 return false;
             }
-        } catch (RuntimeException re) {
-            Log.w(Logging.LOG_TAG, "attachmentExists RuntimeException=" + re);
-            return false;
+            try {
+                Uri fileUri = Uri.parse(contentUri);
+                try {
+                    InputStream inStream = context.getContentResolver().openInputStream(fileUri);
+                    try {
+                        inStream.close();
+                    } catch (IOException e) {
+                        // Nothing to be done if can't close the stream
+                    }
+                    return true;
+                } catch (FileNotFoundException e) {
+                    return false;
+                }
+            } catch (RuntimeException re) {
+                Log.w(Logging.LOG_TAG, "attachmentExists RuntimeException=" + re);
+                return false;
+            }
         }
     }
 
@@ -790,7 +793,7 @@ public class Utility {
                     Log.d(Logging.LOG_TAG, "Unloaded attachment isn't marked for download: " +
                             att.mFileName + ", #" + att.mId);
                     Attachment.delete(context, Attachment.CONTENT_URI, att.mId);
-                } else if (att.mContentUri != null) {
+                } else if (att.getContentUri() != null) {
                     // In this case, the attachment file is gone from the cache; let's clear the
                     // contentUri; this should be a very unusual case
                     ContentValues cv = new ContentValues();

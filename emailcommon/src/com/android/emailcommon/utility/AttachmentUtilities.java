@@ -30,7 +30,6 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
@@ -139,8 +138,7 @@ public class AttachmentUtilities {
     private static Uri sUri;
     public static Uri getAttachmentUri(long accountId, long id) {
         if (sUri == null) {
-            sUri = Uri.parse("content://" + EmailContent.EMAIL_PACKAGE_NAME +
-                    ".attachmentprovider");
+            sUri = Uri.parse(Attachment.ATTACHMENT_PROVIDER_URI_PREFIX);
         }
         return sUri.buildUpon()
                 .appendPath(Long.toString(accountId))
