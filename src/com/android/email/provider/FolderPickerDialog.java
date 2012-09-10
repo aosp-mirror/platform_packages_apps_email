@@ -34,28 +34,29 @@ import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.ui.FolderSelectorAdapter;
 import com.android.mail.ui.FolderSelectorAdapter.FolderRow;
-import com.android.mail.ui.HierarchicalFolderSelectorAdapter;
 import com.android.mail.ui.SeparatedFolderListAdapter;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
-public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClickListener {
+public class FolderPickerDialog implements OnClickListener, OnMultiChoiceClickListener,
+        OnCancelListener {
     private final AlertDialog mDialog;
     private final HashMap<Folder, Boolean> mCheckedState;
     private final SeparatedFolderListAdapter mAdapter;
     private final FolderPickerCallback mCallback;
 
-    public FolderSelectionDialog(final Context context, Uri uri,
-            FolderPickerCallback callback, String header) {
+    public FolderPickerDialog(final Context context, Uri uri,
+            FolderPickerCallback callback, String header, boolean cancelable) {
         mCallback = callback;
         // Mapping of a folder's uri to its checked state
         mCheckedState = new HashMap<Folder, Boolean>();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(header);
         builder.setPositiveButton(R.string.ok, this);
-        builder.setCancelable(false);
+        builder.setCancelable(cancelable);
+        builder.setOnCancelListener(this);
         // TODO: Do this on a background thread
         final Cursor foldersCursor = context.getContentResolver().query(
                 uri, UIProvider.FOLDERS_PROJECTION, null, null, null);
@@ -63,7 +64,7 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
             mAdapter = new SeparatedFolderListAdapter(context);
             String[] headers = context.getResources()
                     .getStringArray(R.array.moveto_folder_sections);
-            mAdapter.addSection(new HierarchicalFolderSelectorAdapter(context,
+            mAdapter.addSection(new FolderPickerSelectorAdapter(context,
                     foldersCursor, new HashSet<String>(), true, headers[2]));
             builder.setAdapter(mAdapter, this);
         } finally {
@@ -150,5 +151,10 @@ public class FolderSelectionDialog implements OnClickListener, OnMultiChoiceClic
         isChecked = true;
         mCheckedState.put(row.getFolder(), isChecked);
         mDialog.getListView().setItemChecked(which, false);
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        mCallback.cancel();
     }
 }

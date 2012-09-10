@@ -39,10 +39,13 @@ import com.android.mail.providers.Folder;
 
 public class FolderPickerActivity extends Activity implements FolderPickerCallback {
     private static final String TAG = "FolderPickerActivity";
+    public static final String MAILBOX_TYPE_EXTRA = "mailbox_type";
+
     private long mAccountId;
     private int mMailboxType;
     private AccountObserver mAccountObserver;
     private String mAccountName;
+    private boolean mInSetup = true;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -66,10 +69,12 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
                 finish();
                 return;
             }
-            mMailboxType = Mailbox.TYPE_TRASH;
+            // We act a bit differently if we're coming to set up the trash after account creation
+            mInSetup = !i.hasExtra(MAILBOX_TYPE_EXTRA);
+            mMailboxType = i.getIntExtra(MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
             long trashMailboxId = Mailbox.findMailboxOfType(this, mAccountId, Mailbox.TYPE_TRASH);
-            // If we already have a trash mailbox, we're done (race?)
-            if (trashMailboxId != Mailbox.NO_MAILBOX) {
+            // If we already have a trash mailbox, we're done (if in setup; a race?)
+            if (trashMailboxId != Mailbox.NO_MAILBOX && mInSetup) {
                 Log.w(TAG, "Trash folder already exists");
                 finish();
                 return;
@@ -165,7 +170,8 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
 
     private void startPicker(Uri uri, int headerId) {
         String header = getString(headerId, mAccountName);
-        FolderSelectionDialog dialog = new FolderSelectionDialog(this, uri, this, header);
+        FolderPickerDialog dialog =
+                new FolderPickerDialog(this, uri, this, header, !mInSetup);
         dialog.show();
     }
 
@@ -199,6 +205,10 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
                     ContentUris.withAppendedId(Account.CONTENT_URI, account.mId), values,
                     null, null);
         }
+        finish();
+    }
+
+    public void cancel() {
         finish();
     }
 }
