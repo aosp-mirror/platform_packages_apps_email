@@ -245,8 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"서버 설정 확인 중…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"smtp 설정 확인 중…"</string>
-    <!-- no translation found for account_setup_creating_account_msg (6235569720466839946) -->
-    <skip />
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"계정을 만드는 중..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"계정 설정"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"계정이 설정되었으며 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"계정 이름 지정(선택사항)"</string>
@@ -497,12 +496,15 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"계정 백그라운드 동기화가 로밍하는 동안 사용 중지됩니다."</string>
     <string name="confirm_response" msgid="9151965975158906286">"응답을 보내는 중..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"메시지가 없습니다."</string>
-    <!-- no translation found for imap2_name (7676967165636670733) -->
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <!-- no translation found for folder_picker_title (860241987640527156) -->
     <skip />
-    <!-- no translation found for pop3_name (4037602724794932807) -->
+    <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
     <skip />
-    <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"서버의 휴지통 폴더 선택"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"서버의 전송한 항목 폴더 선택"</string>
+    <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
+    <skip />
     <string name="create_new_folder" msgid="2726544180243210741">"폴더 만들기"</string>
+    <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
+    <skip />
 </resources>
