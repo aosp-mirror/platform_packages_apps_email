@@ -988,6 +988,14 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_policies">Security policies</string>
 
+    <string name="system_folders_title">System folders</string>
+    <string name="system_folders_trash_title">Trash folder</string>
+    <string name="system_folders_trash_summary">Select your server\'s trash folder</string>
+    <string name="system_folders_trash_dlg">Select your server\'s trash folder</string>
+    <string name="system_folders_sent_title">Sent items folder</string>
+    <string name="system_folders_sent_summary">Select your server\'s sent items folder</string>
+    <string name="system_folders_sent_dlg">Select your server\'s sent items folder</string>
+
     <!-- On settings screen, dialog heading informing user to edit a quick response -->
     <string name="edit_quick_response_dialog">Edit quick response</string>
     <!-- On settings screen, edit quick response dialog's "save" button -->
