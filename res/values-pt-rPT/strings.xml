@@ -501,8 +501,13 @@
     <skip />
     <!-- no translation found for pop3_name (4037602724794932807) -->
     <skip />
-    <string name="folder_picker_title" msgid="5213735893918108637">"Exigente, exigente, exigente!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Selec. pasta lixo do servidor"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Sel. pasta itens env. servidor"</string>
+    <!-- no translation found for folder_picker_title (860241987640527156) -->
+    <skip />
+    <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
+    <skip />
+    <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
+    <skip />
     <string name="create_new_folder" msgid="2726544180243210741">"Criar pasta"</string>
+    <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
+    <skip />
 </resources>

@@ -245,8 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Ilanda ulwazi le-akhawunti..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Iqinisekisa izilungiselelo zeseva…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Iqinisekisa amasethingi e-smtp…"</string>
-    <!-- no translation found for account_setup_creating_account_msg (6235569720466839946) -->
-    <skip />
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Idala i-akhawunti…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"I-akhawunti yakho imisiwe, futhi i-imeyli isendleleni!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nike le-akhawunti igama (okokuzikhethela)"</string>
@@ -497,12 +496,15 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Ukuvumelaniswa okungemumva kule-akhawunti ayisebenzi ngesikhathi usazula zula."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Ithumela impendulo..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ayikho imilayezo."</string>
-    <!-- no translation found for imap2_name (7676967165636670733) -->
+    <string name="imap2_name" msgid="7676967165636670733">"I-IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <!-- no translation found for folder_picker_title (860241987640527156) -->
     <skip />
-    <!-- no translation found for pop3_name (4037602724794932807) -->
+    <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
     <skip />
-    <string name="folder_picker_title" msgid="5213735893918108637">"Ukhetho, ukhetho, ukhetho!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Khetha ifolda kadoti wesiphakeli"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Khetha ifolda yezinto ezithunyelwe zesiphakeli"</string>
+    <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
+    <skip />
     <string name="create_new_folder" msgid="2726544180243210741">"Dala ifolda"</string>
+    <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
+    <skip />
 </resources>
