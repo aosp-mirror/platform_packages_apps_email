@@ -18,10 +18,14 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -38,15 +42,19 @@ import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.provider.FolderPickerActivity;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider;
 
 import java.util.ArrayList;
 
@@ -88,6 +96,10 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
     private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
+
+    private static final String PREFERENCE_SYSTEM_FOLDERS = "system_folders";
+    private static final String PREFERENCE_SYSTEM_FOLDERS_TRASH = "system_folders_trash";
+    private static final String PREFERENCE_SYSTEM_FOLDERS_SENT = "system_folders_sent";
 
     // These strings must match account_settings_vibrate_when_* strings in strings.xml
     private static final String PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS = "always";
@@ -526,6 +538,28 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 }
             });
             dataUsageCategory.addPreference(mSyncWindow);
+        }
+
+        PreferenceCategory folderPrefs =
+                (PreferenceCategory) findPreference(PREFERENCE_SYSTEM_FOLDERS);
+        if (info.requiresSetup) {
+            Preference trashPreference =
+                    (Preference) findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
+            Intent i = new Intent(mContext, FolderPickerActivity.class);
+            Uri uri = EmailContent.CONTENT_URI.buildUpon().appendQueryParameter(
+                    "account", Long.toString(mAccount.mId)).build();
+            i.setData(uri);
+            i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
+            trashPreference.setIntent(i);
+
+            Preference sentPreference =
+                    (Preference) findPreference(PREFERENCE_SYSTEM_FOLDERS_SENT);
+            i = new Intent(mContext, FolderPickerActivity.class);
+            i.setData(uri);
+            i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_SENT);
+            sentPreference.setIntent(i);
+        } else {
+            getPreferenceScreen().removePreference(folderPrefs);
         }
 
         mAccountBackgroundAttachments = (CheckBoxPreference)
