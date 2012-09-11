@@ -67,6 +67,13 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
                 return;
             }
             mMailboxType = Mailbox.TYPE_TRASH;
+            long trashMailboxId = Mailbox.findMailboxOfType(this, mAccountId, Mailbox.TYPE_TRASH);
+            // If we already have a trash mailbox, we're done (race?)
+            if (trashMailboxId != Mailbox.NO_MAILBOX) {
+                Log.w(TAG, "Trash folder already exists");
+                finish();
+                return;
+            }
             Account account = Account.restoreAccountWithId(this, mAccountId);
             if (account == null) {
                 Log.w(TAG, "No account?");
@@ -121,8 +128,9 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
         public void onChange(boolean selfChange) {
             Account account = Account.restoreAccountWithId(mContext, mAccountId);
             // All we care about is whether the folder list is now loaded
-            if ((account.mFlags & Account.FLAGS_INITIAL_FOLDER_LIST_LOADED) != 0) {
-                mContext.getContentResolver().unregisterContentObserver(this);
+            if ((account.mFlags & Account.FLAGS_INITIAL_FOLDER_LIST_LOADED) != 0 &&
+                    (mAccountObserver != null)) {
+                mContext.getContentResolver().unregisterContentObserver(mAccountObserver);
                 mAccountObserver = null;
                 // Bring down the ProgressDialog and show the picker
                 if (mWaitingForFoldersDialog != null) {
