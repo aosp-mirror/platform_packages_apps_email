@@ -49,6 +49,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
@@ -88,8 +89,7 @@ public class AccountSettings extends PreferenceActivity {
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
-    private static final String ACTION_ACCOUNT_MANAGER_ENTRY =
-        "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
+    private static String ACTION_ACCOUNT_MANAGER_ENTRY;
     // NOTE: This constant should eventually be defined in android.accounts.Constants
     private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
 
@@ -177,6 +177,11 @@ public class AccountSettings extends PreferenceActivity {
             // If we are not restarting from a previous instance, we need to
             // figure out the initial prefs to show.  (Otherwise, we want to
             // continue showing whatever the user last selected.)
+            if (ACTION_ACCOUNT_MANAGER_ENTRY == null) {
+                ACTION_ACCOUNT_MANAGER_ENTRY =
+                        ServiceProxy.getIntentStringForEmailPackage(this,
+                                getString(R.string.intent_account_manager_entry));
+            }
             if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
                 // This case occurs if we're changing account settings from Settings -> Accounts
                 mGetAccountIdFromAccountTask =
