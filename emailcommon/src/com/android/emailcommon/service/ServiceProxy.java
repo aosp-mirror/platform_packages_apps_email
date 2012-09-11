@@ -57,13 +57,24 @@ public abstract class ServiceProxy {
     private boolean mDead = false;
 
     public static Intent getIntentForEmailPackage(Context context, String actionName) {
+        return new Intent(getIntentStringForEmailPackage(context, actionName));
+    }
+
+    /**
+     * Create Intent action based on the Email package name
+     * Package com.android.email + ACTION -> com.android.email.ACTION
+     * Package com.google.android.email + ACTION -> com.google.android.email.ACTION
+     * Package com.android.exchange + ACTION -> com.android.email.ACTION
+     * Package com.google.exchange + ACTION -> com.google.android.email.ACTION
+     *
+     * @param context the caller's context
+     * @param actionName the Intent action
+     * @return an Intent action based on the package name
+     */
+    public static String getIntentStringForEmailPackage(Context context, String actionName) {
         String packageName = context.getPackageName();
         int lastDot = packageName.lastIndexOf('.');
-        String intentString =
-                packageName.substring(0, lastDot + 1) + "email." + actionName;
-        // STOPSHIP Remove logging
-        Log.d("ServiceProxy", actionName + " -> " + intentString);
-        return new Intent(intentString);
+        return packageName.substring(0, lastDot + 1) + "email." + actionName;
     }
 
     public abstract void onConnected(IBinder binder);
