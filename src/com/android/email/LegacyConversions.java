@@ -220,7 +220,7 @@ public class LegacyConversions {
         localAttachment.mFileName = name;
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();
-        localAttachment.mContentUri = null;     // Will be rewritten by saveAttachmentBody
+        localAttachment.setContentUri(null);     // Will be rewritten by saveAttachmentBody
         localAttachment.mMessageKey = localMessage.mId;
         localAttachment.mLocation = partId;
         localAttachment.mEncoding = "B";        // TODO - convert other known encodings
@@ -314,7 +314,7 @@ public class LegacyConversions {
                     accountId, attachmentId).toString();
 
             localAttachment.mSize = copySize;
-            localAttachment.mContentUri = contentUriString;
+            localAttachment.setContentUri(contentUriString);
 
             // update the attachment in the database as well
             ContentValues cv = new ContentValues();

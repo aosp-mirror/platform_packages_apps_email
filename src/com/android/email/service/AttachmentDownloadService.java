@@ -980,8 +980,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         suffix = fileName.substring(lastDot);
                     }
                     pw.print("      Suffix: " + suffix);
-                    if (att.mContentUri != null) {
-                        pw.print(" ContentUri: " + att.mContentUri);
+                    if (att.getContentUri() != null) {
+                        pw.print(" ContentUri: " + att.getContentUri());
                     }
                     pw.print(" Mime: ");
                     if (att.mMimeType != null) {
