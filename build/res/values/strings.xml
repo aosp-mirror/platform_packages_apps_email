@@ -20,6 +20,7 @@
     <string name="account_manager_type_pop3">com.android.pop3</string>
     <string name="account_manager_type_imap">com.android.imap</string>
     <string name="intent_exchange">com.android.email.EXCHANGE_INTENT</string>
+    <string name="intent_account_manager_entry">com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT</string>
     <string name="authority_email_provider">com.android.email.provider</string>
     <string name="protocol_imap">imap</string>
     <string name="protocol_pop3">pop3</string>
