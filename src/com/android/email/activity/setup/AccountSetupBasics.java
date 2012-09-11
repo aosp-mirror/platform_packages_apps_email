@@ -51,6 +51,7 @@ import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.Utility;
 
 import java.net.URISyntaxException;
@@ -202,7 +203,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
         if (intentData != null) {
             SetupData.init(intentData);
-        } else if (ACTION_CREATE_ACCOUNT.equals(action)) {
+        } else if (ServiceProxy.getIntentStringForEmailPackage(
+                this, ACTION_CREATE_ACCOUNT).equals(action)) {
             SetupData.init(SetupData.FLOW_MODE_FORCE_CREATE);
         } else {
             int intentFlowMode =
