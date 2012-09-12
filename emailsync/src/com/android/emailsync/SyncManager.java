@@ -2077,7 +2077,9 @@ public abstract class SyncManager extends Service implements Runnable {
         synchronized (sSyncLock) {
             AbstractSyncService svc = ssm.mServiceMap.get(mailboxId);
             if (svc == null) {
-                if (reason != SyncManager.SYNC_UPSYNC) {
+                if (ssm.mSyncErrorMap.containsKey(mailboxId) && reason == SyncManager.SYNC_UPSYNC) {
+                    return;
+                } else if (reason != SyncManager.SYNC_UPSYNC) {
                     ssm.mSyncErrorMap.remove(mailboxId);
                 }
                 Mailbox m = Mailbox.restoreMailboxWithId(ssm, mailboxId);
