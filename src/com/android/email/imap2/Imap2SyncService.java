@@ -30,7 +30,7 @@ import android.os.RemoteException;
 import android.util.Base64;
 import android.util.Log;
 
-import com.android.email.imap2.smtp.SmtpSender;
+import com.android.email.mail.transport.SmtpSender;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
@@ -2254,7 +2254,7 @@ public class Imap2SyncService extends AbstractSyncService {
                 return;
             }
 
-            SmtpSender sender = new SmtpSender(mContext, account, mUserLog);
+            SmtpSender sender = new SmtpSender(mContext, account);
 
             // 3.  loop through the available messages and send them
             while (c.moveToNext()) {
