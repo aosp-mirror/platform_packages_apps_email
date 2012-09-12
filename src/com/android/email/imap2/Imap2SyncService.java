@@ -2032,9 +2032,19 @@ public class Imap2SyncService extends AbstractSyncService {
      * @throws IOException
      */
     private int[] handleLoadMore(int[] serverList, int howManyMore) throws IOException {
-        // User has asked for more; find the oldest message
+        // Easiest case; we have no messages.. just start at the last one in the mailbox
+        if (serverList.length == 0) {
+            if (mLastExists > 0) {
+                return loadMoreImpl(serverList, mLastExists, howManyMore);
+            }
+            return serverList;
+        }
+
+        // First, sort the list
         Arrays.sort(serverList);
+        // Oldest is the first in the sorted list
         int oldest = serverList[0];
+
         // Get its current sequence number
         String tag = writeCommand(mWriter, "uid fetch " + oldest + " (UID)");
         // IMAP_OK if we want it to work
@@ -2042,38 +2052,43 @@ public class Imap2SyncService extends AbstractSyncService {
             String line = mImapResponse.get(0);
             Parser lp = new Parser(line.substring(2));
             // Last one we want is one before this message
-            int end = lp.parseInteger() - 1;
-            int start = end - howManyMore + 1;
-            if (start < 1) {
-                start = 1;
-            }
-            if (end > 0) {
-                // Get the uid's of the messages to load
-                tag = writeCommand(mWriter, "uid search " + start + ":" + end);
-                // IMAP_OK if we want it to work
-                if (readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
-                    int[] moreServerList;
+            return loadMoreImpl(serverList, lp.parseInteger() - 1, howManyMore);
+        }
+        // In worst case, just return the original list
+        return serverList;
+    }
 
-                    // Parse the list
-                    if (mImapResponse.isEmpty()) {
-                        // Just return the original list
-                        return serverList;
-                    } else {
-                        String msgs = mImapResponse.get(0);
-                        // Length of "* search"
-                        Parser p = new Parser(msgs, 8);
-                        moreServerList = p.gatherInts();
-                        userLog("[Load more found " + moreServerList.length + " messages]");
-                        int[] completeList = new int[serverList.length + moreServerList.length];
-                        System.arraycopy(serverList, 0, completeList, 0, serverList.length);
-                        System.arraycopy(moreServerList, 0, completeList, serverList.length,
-                                moreServerList.length);
-                        return completeList;
-                    }
+    private int[] loadMoreImpl(int[] serverList, int end, int howManyMore) throws IOException {
+
+        int start = end - howManyMore + 1;
+        if (start < 1) {
+            start = 1;
+        }
+        if (end > 0) {
+            // Get the uid's of the messages to load
+            String tag = writeCommand(mWriter, "uid search " + start + ":" + end);
+            // IMAP_OK if we want it to work
+            if (readResponse(mReader, tag, "SEARCH").equals(IMAP_OK)) {
+                int[] moreServerList;
+
+                // Parse the list
+                if (mImapResponse.isEmpty()) {
+                    // Just return the original list
+                    return serverList;
+                } else {
+                    String msgs = mImapResponse.get(0);
+                    // Length of "* search"
+                    Parser p = new Parser(msgs, 8);
+                    moreServerList = p.gatherInts();
+                    userLog("[Load more found " + moreServerList.length + " messages]");
+                    int[] completeList = new int[serverList.length + moreServerList.length];
+                    System.arraycopy(serverList, 0, completeList, 0, serverList.length);
+                    System.arraycopy(moreServerList, 0, completeList, serverList.length,
+                            moreServerList.length);
+                    return completeList;
                 }
             }
         }
-        // In worst case, just return the original list
         return serverList;
     }
 
