@@ -33,6 +33,7 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -110,6 +111,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
      * @return true if there are any accounts configured.
      */
     public static boolean setServicesEnabledSync(Context context) {
+        // Make sure we're initialized
+        EmailContent.init(context);
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
