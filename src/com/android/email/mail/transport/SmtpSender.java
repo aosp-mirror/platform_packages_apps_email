@@ -61,12 +61,9 @@ public class SmtpSender extends Sender {
     /**
      * Creates a new sender for the given account.
      */
-    private SmtpSender(Context context, Account account) throws MessagingException {
+    public SmtpSender(Context context, Account account) {
         mContext = context;
         HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
-        if (sendAuth == null || !"smtp".equalsIgnoreCase(sendAuth.mProtocol)) {
-            throw new MessagingException("Unsupported protocol");
-        }
         mTransport = new MailTransport(context, "SMTP", sendAuth);
         String[] userInfoParts = sendAuth.getLogin();
         if (userInfoParts != null) {
@@ -185,13 +182,13 @@ public class SmtpSender extends Sender {
         try {
             executeSimpleCommand("MAIL FROM: " + "<" + from.getAddress() + ">");
             for (Address address : to) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress().trim() + ">");
             }
             for (Address address : cc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress().trim() + ">");
             }
             for (Address address : bcc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress().trim() + ">");
             }
             executeSimpleCommand("DATA");
             // TODO byte stuffing
