@@ -1181,11 +1181,14 @@ public abstract class EmailContent {
     public static final class Attachment extends EmailContent
             implements AttachmentColumns, Parcelable {
         public static final String TABLE_NAME = "Attachment";
+        public static final String ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX =
+                "content://com.android.email.attachmentprovider";
 
         public static Uri CONTENT_URI;
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
         public static Uri MESSAGE_ID_URI;
         public static String ATTACHMENT_PROVIDER_URI_PREFIX;
+        public static boolean sUsingLegacyPrefix;
 
         public static void initAttachment() {
             CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
@@ -1193,6 +1196,8 @@ public abstract class EmailContent {
                     EmailContent.CONTENT_URI + "/attachment/message");
             ATTACHMENT_PROVIDER_URI_PREFIX = "content://" + EmailContent.EMAIL_PACKAGE_NAME +
                     ".attachmentprovider";
+            sUsingLegacyPrefix =
+                    ATTACHMENT_PROVIDER_URI_PREFIX.equals(ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX);
         }
 
         public String mFileName;
@@ -1280,10 +1285,10 @@ public abstract class EmailContent {
         }
 
         public String getContentUri() {
-            if (mContentUri == null) return null;
-            if (mContentUri.startsWith(ATTACHMENT_PROVIDER_URI_PREFIX)) {
-                return mContentUri;
-            } else {
+            if (mContentUri == null) return null; //
+            // If we're not using the legacy prefix and the uri IS, we need to modify it
+            if (!Attachment.sUsingLegacyPrefix &&
+                    mContentUri.startsWith(Attachment.ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX)) {
                 // In an upgrade scenario, we may still have legacy attachment Uri's
                 // Skip past content://
                 int prefix = mContentUri.indexOf('/', 10);
@@ -1295,6 +1300,8 @@ public abstract class EmailContent {
                     // Belt & suspenders; can't really happen
                     return mContentUri;
                 }
+            } else {
+                return mContentUri;
             }
         }
 
