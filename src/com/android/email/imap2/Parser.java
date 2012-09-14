@@ -138,17 +138,24 @@ public class Parser {
         boolean string = false;
         while (true) {
             char c = nextChar();
-            if (c == 0)
+            if (c == 0) {
                 return null;
-            else if (quote)
+            } else if (quote) {
                 quote = false;
-            else if (c == '\\' && string)
+            } else if (c == '\\' && string) {
                 quote = true;
-            else if (c == '\"')
+            } else if (c == '\"') {
                 string = !string;
-            else if (c == '(' && !string)
+            } else if (c == '(' && !string) {
                 level++;
-            else if (c == ')' && !string) {
+            } else if (c == '{' && !string) {
+                // Check for string literal
+                Parser p = new Parser(str, pos);
+                int cnt = p.parseInteger();
+                if (cnt > 0 && p.nextChar() == '}') {
+                    pos = p.pos + 2 + cnt;
+                }
+            } else if (c == ')' && !string) {
                 if (level-- == 0)
                     break;
             }
