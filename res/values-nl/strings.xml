@@ -387,20 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Instellingen voor meldingen"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Gegevensgebruik"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Beveiligingsbeleid"</string>
-    <!-- no translation found for system_folders_title (2934406494244347991) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_title (8470058000681188327) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_summary (1258919809198485244) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_dlg (4461220303400833402) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_title (4265722817877075367) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_summary (5529250353569545181) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
-    <skip />
+    <string name="system_folders_title" msgid="2934406494244347991">"Systeemmappen"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Prullenbak"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Prullenbak van uw server selecteren"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Prullenbak van uw server selecteren"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Map \'Verzonden items\'"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Map \'Verzonden items\' van uw server selecteren"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Map \'Verzonden items\' van uw server selecteren"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Snelle reactie bewerken"</string>
     <string name="save_action" msgid="1988862706623227093">"Opslaan"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Contacten synchroniseren"</string>
@@ -453,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bevestigen vóór verwijderen"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Berichten"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Vegen om te verwijderen"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Een bericht uit de lijst verwijderen door middel van vegen"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bevestigen vóór verzenden"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Berichten"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Doorgaan naar"</string>
@@ -513,13 +505,9 @@
     <string name="no_conversations" msgid="5559527390337162819">"Geen berichten."</string>
     <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
-    <!-- no translation found for folder_picker_title (860241987640527156) -->
-    <skip />
-    <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
-    <skip />
+    <string name="folder_picker_title" msgid="860241987640527156">"Mapkiezer"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Prullenbak van server selecteren voor <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Map \'Verzonden items\' van server selecteren voor <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Map maken"</string>
-    <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
-    <skip />
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Mappenlijst laden…"</string>
 </resources>
