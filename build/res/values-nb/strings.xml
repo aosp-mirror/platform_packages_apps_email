@@ -19,11 +19,9 @@
     <string name="account_manager_type_pop3" msgid="8174497360548988962">"com.android.pop3"</string>
     <string name="account_manager_type_imap" msgid="6434501957228470595">"com.android.imap"</string>
     <string name="intent_exchange" msgid="4425264471285375163">"com.android.email.EXCHANGE_INTENT"</string>
-    <!-- no translation found for intent_account_manager_entry (4793371513689260894) -->
-    <skip />
+    <string name="intent_account_manager_entry" msgid="4793371513689260894">"com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT"</string>
     <string name="authority_email_provider" msgid="6455239255042402247">"com.android.email.provider"</string>
     <string name="protocol_imap" msgid="5533297182544773791">"imap"</string>
     <string name="protocol_pop3" msgid="5006920400711584822">"pop3"</string>
-    <!-- no translation found for application_mime_type (1159136363376500335) -->
-    <skip />
+    <string name="application_mime_type" msgid="1159136363376500335">"app- eller epost-ls"</string>
 </resources>
