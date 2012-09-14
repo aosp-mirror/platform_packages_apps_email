@@ -245,7 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando información de la cuenta..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando configuración del servidor…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validando configuración de SMTP…"</string>
-    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Creando cuenta..."</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Creando cuenta…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Se ha configurado tu cuenta y el correo está en camino."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Asigna un nombre a esta cuenta (opcional)"</string>
@@ -387,6 +387,20 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configuración de notificación"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de datos"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Políticas de seguridad"</string>
+    <!-- no translation found for system_folders_title (2934406494244347991) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_title (8470058000681188327) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_summary (1258919809198485244) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_dlg (4461220303400833402) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_title (4265722817877075367) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_summary (5529250353569545181) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editar respuesta rápida"</string>
     <string name="save_action" msgid="1988862706623227093">"Guardar"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contactos"</string>
@@ -439,7 +453,8 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de eliminar"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensajes"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Deslizar para eliminar"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Mensajes"</string>
+    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
+    <skip />
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmar antes de enviar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mensajes"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Avanzar a"</string>
