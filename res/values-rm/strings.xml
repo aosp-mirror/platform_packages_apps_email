@@ -576,6 +576,20 @@
     <skip />
     <!-- no translation found for account_settings_policies (6292833636418641840) -->
     <skip />
+    <!-- no translation found for system_folders_title (2934406494244347991) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_title (8470058000681188327) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_summary (1258919809198485244) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_dlg (4461220303400833402) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_title (4265722817877075367) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_summary (5529250353569545181) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
+    <skip />
     <!-- no translation found for edit_quick_response_dialog (4322494050816995390) -->
     <skip />
     <!-- no translation found for save_action (1988862706623227093) -->
@@ -656,7 +670,7 @@
     <skip />
     <!-- no translation found for general_preference_swipe_delete_label (9056241302035595141) -->
     <skip />
-    <!-- no translation found for general_preference_swipe_delete_summary (8436295841738696770) -->
+    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
     <skip />
     <!-- no translation found for general_preference_confirm_send_label (4548277349553989930) -->
     <skip />
