@@ -387,6 +387,20 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Cài đặt thông báo"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Sử dụng dữ liệu"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Chính sách bảo mật"</string>
+    <!-- no translation found for system_folders_title (2934406494244347991) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_title (8470058000681188327) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_summary (1258919809198485244) -->
+    <skip />
+    <!-- no translation found for system_folders_trash_dlg (4461220303400833402) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_title (4265722817877075367) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_summary (5529250353569545181) -->
+    <skip />
+    <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
+    <skip />
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Chỉnh sửa trả lời nhanh"</string>
     <string name="save_action" msgid="1988862706623227093">"Lưu"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Đồng bộ hóa danh bạ"</string>
@@ -439,7 +453,8 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Xác nhận trước khi xóa"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Thư"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Vuốt để xóa"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Thư"</string>
+    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
+    <skip />
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Xác nhận trước khi gửi"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Thư"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Chuyển sang"</string>
