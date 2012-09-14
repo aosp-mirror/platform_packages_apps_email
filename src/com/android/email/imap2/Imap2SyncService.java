@@ -26,6 +26,7 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.RemoteException;
 import android.util.Base64;
 import android.util.Log;
@@ -465,7 +466,6 @@ public class Imap2SyncService extends AbstractSyncService {
         Parser p = new Parser(str, str.indexOf('(') + 1);
         Date date = null;
         String subject = null;
-        String sender = null;
         boolean read = false;
         int flag = 0;
         String flags = null;
@@ -490,7 +490,7 @@ public class Imap2SyncService extends AbstractSyncService {
                     //date = parseDate(ep.parseString());
                     ep.parseString();
                     subject = ep.parseString();
-                    sender = parseRecipients(ep, msg);
+                    parseRecipients(ep, msg);
                 } else if (atm.equalsIgnoreCase("FLAGS")) {
                     flags = p.parseList().toLowerCase();
                     if (flags.indexOf("\\seen") >=0)
@@ -506,11 +506,9 @@ public class Imap2SyncService extends AbstractSyncService {
         } catch (Exception e) {
             // Parsing error here.  We've got one known one from EON
             // in which BODYSTRUCTURE is ( "MIXED" (....) )
-            if (sender == null)
-                sender = "Unknown sender";
-            if (subject == null)
-                subject = "No subject";
             e.printStackTrace();
+            // We'll skip the message
+            return null;
         }
 
         if (subject != null && subject.startsWith("=?"))
@@ -1075,56 +1073,64 @@ public class Imap2SyncService extends AbstractSyncService {
                 while (c.moveToNext()) {
                     // Parse the message's bodystructure
                     Message msg = new Message();
-                    msg.restore(c);
-                    ArrayList<Attachment> viewables = new ArrayList<Attachment>();
-                    ArrayList<Attachment> attachments = new ArrayList<Attachment>();
-                    parseBodystructure(msg, new Parser(msg.mSyncData), "", 1, viewables,
-                            attachments);
-                    ContentValues values = new ContentValues();
-                    values.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
-                    // Save the attachments...
-                    for (Attachment att: attachments) {
-                        att.mAccountKey = mAccountId;
-                        att.mMessageKey = msg.mId;
-                        att.save(mContext);
-                    }
-                    // Whether or not we have attachments
-                    values.put(MessageColumns.FLAG_ATTACHMENT, !attachments.isEmpty());
-                    // Get the viewables
-                    Attachment textViewable = null;
-                    for (Attachment viewable: viewables) {
-                        String mimeType = viewable.mMimeType;
-                        if ("text/html".equalsIgnoreCase(mimeType)) {
-                            textViewable = viewable;
-                        } else if ("text/plain".equalsIgnoreCase(mimeType) &&
-                                textViewable == null) {
-                            textViewable = viewable;
+                    try {
+                        msg.restore(c);
+                        ArrayList<Attachment> viewables = new ArrayList<Attachment>();
+                        ArrayList<Attachment> attachments = new ArrayList<Attachment>();
+                        parseBodystructure(msg, new Parser(msg.mSyncData), "", 1, viewables,
+                                attachments);
+                        ContentValues values = new ContentValues();
+                        values.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
+                        // Save the attachments...
+                        for (Attachment att: attachments) {
+                            att.mAccountKey = mAccountId;
+                            att.mMessageKey = msg.mId;
+                            att.save(mContext);
                         }
-                    }
-                    if (textViewable != null) {
-                        // For now, just get single viewable
-                        String tag = writeCommand(conn.writer,
-                                "uid fetch " + msg.mServerId + " body.peek[" +
-                                        textViewable.mLocation + "]<0.200000>");
-                        String text = readTextPart(conn.reader, tag, textViewable, true);
-                        userLog("Viewable " + textViewable.mMimeType + ", len = " + text.length());
-                        // Save it away
-                        Body body = new Body();
-                        if (textViewable.mMimeType.equalsIgnoreCase("text/html")) {
-                            body.mHtmlContent = text;
+                        // Whether or not we have attachments
+                        values.put(MessageColumns.FLAG_ATTACHMENT, !attachments.isEmpty());
+                        // Get the viewables
+                        Attachment textViewable = null;
+                        for (Attachment viewable: viewables) {
+                            String mimeType = viewable.mMimeType;
+                            if ("text/html".equalsIgnoreCase(mimeType)) {
+                                textViewable = viewable;
+                            } else if ("text/plain".equalsIgnoreCase(mimeType) &&
+                                    textViewable == null) {
+                                textViewable = viewable;
+                            }
+                        }
+                        if (textViewable != null) {
+                            // For now, just get single viewable
+                            String tag = writeCommand(conn.writer,
+                                    "uid fetch " + msg.mServerId + " body.peek[" +
+                                            textViewable.mLocation + "]<0.200000>");
+                            String text = readTextPart(conn.reader, tag, textViewable, true);
+                            userLog("Viewable " + textViewable.mMimeType + ", len = " +
+                                    text.length());
+                            // Save it away
+                            Body body = new Body();
+                            if (textViewable.mMimeType.equalsIgnoreCase("text/html")) {
+                                body.mHtmlContent = text;
+                            } else {
+                                body.mTextContent = text;
+                            }
+                            body.mMessageKey = msg.mId;
+                            body.save(mContext);
+                            values.put(MessageColumns.SNIPPET,
+                                    TextUtilities.makeSnippetFromHtmlText(text));
                         } else {
-                            body.mTextContent = text;
+                            userLog("No viewable?");
+                            values.putNull(MessageColumns.SNIPPET);
                         }
-                        body.mMessageKey = msg.mId;
-                        body.save(mContext);
-                        values.put(MessageColumns.SNIPPET,
-                                TextUtilities.makeSnippetFromHtmlText(text));
-                    } else {
-                        userLog("No viewable?");
-                        values.putNull(MessageColumns.SNIPPET);
+                        mResolver.update(ContentUris.withAppendedId(
+                                Message.CONTENT_URI, msg.mId), values, null, null);
+                    } catch (Exception e) {
+                        // We can't let the loop continue; log this with stack trace
+                        userLog("Message can't be parsed; skipping...", e);
+                        mResolver.delete(ContentUris.withAppendedId(Message.CONTENT_URI, msg.mId),
+                                null, null);
                     }
-                    mResolver.update(ContentUris.withAppendedId(
-                            Message.CONTENT_URI, msg.mId), values, null, null);
                 }
             } finally {
                 if (c != null) {
@@ -2009,7 +2015,9 @@ public class Imap2SyncService extends AbstractSyncService {
                 // Create message and store
                 for (int j = 0; j < tcnt; j++) {
                     Message msg = createMessage(mImapResponse.get(j), mailboxId);
-                    tmsgList.add(msg);
+                    if (msg != null) {
+                        tmsgList.add(msg);
+                    }
                 }
                 saveNewMessages(tmsgList);
             }
