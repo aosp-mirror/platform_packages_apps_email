@@ -1060,135 +1060,140 @@ public class EmailProvider extends ContentProvider {
                         Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
                 EMAIL_APP_MIME_TYPE = context.getString(R.string.application_mime_type);
             }
-            MailActivityEmail.setServicesEnabledAsync(context);
             checkDatabases();
             if (sURIMatcher == null) {
                 sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-            // Email URI matching table
-            UriMatcher matcher = sURIMatcher;
+                // Email URI matching table
+                UriMatcher matcher = sURIMatcher;
 
-            // All accounts
-            matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
-            // A specific account
-            // insert into this URI causes a mailbox to be added to the account
-            matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
+                // All accounts
+                matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
+                // A specific account
+                // insert into this URI causes a mailbox to be added to the account
+                matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
 
-            // Special URI to reset the new message count.  Only update works, and content values
-            // will be ignored.
-            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
-                    ACCOUNT_RESET_NEW_COUNT);
-            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
-                    ACCOUNT_RESET_NEW_COUNT_ID);
+                // Special URI to reset the new message count.  Only update works, and values
+                // will be ignored.
+                matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
+                        ACCOUNT_RESET_NEW_COUNT);
+                matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
+                        ACCOUNT_RESET_NEW_COUNT_ID);
 
-            // All mailboxes
-            matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
-            // A specific mailbox
-            // insert into this URI causes a message to be added to the mailbox
-            // ** NOTE For now, the accountKey must be set manually in the values!
-            matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
-                    MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
-                    MAILBOX_MOST_RECENT_MESSAGE);
+                // All mailboxes
+                matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
+                // A specific mailbox
+                // insert into this URI causes a message to be added to the mailbox
+                // ** NOTE For now, the accountKey must be set manually in the values!
+                matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
+                        MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
+                matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#",
+                        MAILBOX_NOTIFICATION);
+                matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
+                        MAILBOX_MOST_RECENT_MESSAGE);
 
-            // All messages
-            matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
-            // A specific message
-            // insert into this URI causes an attachment to be added to the message
-            matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
+                // All messages
+                matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
+                // A specific message
+                // insert into this URI causes an attachment to be added to the message
+                matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
 
-            // A specific attachment
-            matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
-            // A specific attachment (the header information)
-            matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
-            // The attachments of a specific message (query only) (insert & delete TBD)
-            matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
-                    ATTACHMENTS_MESSAGE_ID);
+                // A specific attachment
+                matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
+                // A specific attachment (the header information)
+                matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
+                // The attachments of a specific message (query only) (insert & delete TBD)
+                matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
+                        ATTACHMENTS_MESSAGE_ID);
 
-            // All mail bodies
-            matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
-            // A specific mail body
-            matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
+                // All mail bodies
+                matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
+                // A specific mail body
+                matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
 
-            // All hostauth records
-            matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
-            // A specific hostauth
-            matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
+                // All hostauth records
+                matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
+                // A specific hostauth
+                matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
 
-            // Atomically a constant value to a particular field of a mailbox/account
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
-                    MAILBOX_ID_ADD_TO_FIELD);
-            matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
-                    ACCOUNT_ID_ADD_TO_FIELD);
+                // Atomically a constant value to a particular field of a mailbox/account
+                matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
+                        MAILBOX_ID_ADD_TO_FIELD);
+                matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
+                        ACCOUNT_ID_ADD_TO_FIELD);
 
-            /**
-             * THIS URI HAS SPECIAL SEMANTICS
-             * ITS USE IS INTENDED FOR THE UI TO MARK CHANGES THAT NEED TO BE SYNCED BACK
-             * TO A SERVER VIA A SYNC ADAPTER
-             */
-            matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
+                /**
+                 * THIS URI HAS SPECIAL SEMANTICS
+                 * ITS USE IS INTENDED FOR THE UI TO MARK CHANGES THAT NEED TO BE SYNCED BACK
+                 * TO A SERVER VIA A SYNC ADAPTER
+                 */
+                matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
 
-            /**
-             * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
-             * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
-             * BY THE UI APPLICATION
-             */
-            // All deleted messages
-            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
-            // A specific deleted message
-            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
+                /**
+                 * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
+                 * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
+                 * BY THE UI APPLICATION
+                 */
+                // All deleted messages
+                matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
+                // A specific deleted message
+                matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
 
-            // All updated messages
-            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
-            // A specific updated message
-            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
+                // All updated messages
+                matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
+                // A specific updated message
+                matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
 
-            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
-            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
+                CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
+                CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
 
-            matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
-            matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
+                matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
 
-            // All quick responses
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
-            // A specific quick response
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
-            // All quick responses associated with a particular account id
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
-                    QUICK_RESPONSE_ACCOUNT_ID);
+                // All quick responses
+                matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
+                // A specific quick response
+                matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
+                // All quick responses associated with a particular account id
+                matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
+                        QUICK_RESPONSE_ACCOUNT_ID);
 
-            matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
-            matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
-            matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
-            matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
-            matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
-            matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
-            matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
-            matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
-            matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
-            matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
-            matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
-            matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
-            matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
-                    UI_DEFAULT_RECENT_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#", ACCOUNT_PICK_TRASH_FOLDER);
-            matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
+                matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+                matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
+                matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
+                matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
+                matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
+                matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
+                matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
+                matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
+                matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
+                matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
+                matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
+                matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
+                matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
+                matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+                matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
+                matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+                matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
+                matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
+                matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
+                matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
+                matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
+                matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
+                        UI_DEFAULT_RECENT_FOLDERS);
+                matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#",
+                        ACCOUNT_PICK_TRASH_FOLDER);
+                matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#",
+                        ACCOUNT_PICK_SENT_FOLDER);
+
+                // Do this last, so that EmailContent/EmailProvider are initialized
+                MailActivityEmail.setServicesEnabledAsync(context);
+            }
+            return false;
         }
-        return false;
-    }
 
     /**
      * The idea here is that the two databases (EmailProvider.db and EmailProviderBody.db must
