@@ -792,6 +792,16 @@ public class Utility {
                         Attachment.FLAG_DOWNLOAD_USER_REQUEST)) == 0) {
                     Log.d(Logging.LOG_TAG, "Unloaded attachment isn't marked for download: " +
                             att.mFileName + ", #" + att.mId);
+                    Account acct = Account.restoreAccountWithId(context, msg.mAccountKey);
+                    if (acct == null) return true;
+                    // If smart forward is set and the message is a forward, we'll act as though
+                    // the attachment has been loaded
+                    // In Email1 this test wasn't necessary, as the UI handled it...
+                    if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
+                        if ((acct.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0) {
+                            continue;
+                        }
+                    }
                     Attachment.delete(context, Attachment.CONTENT_URI, att.mId);
                 } else if (att.getContentUri() != null) {
                     // In this case, the attachment file is gone from the cache; let's clear the
