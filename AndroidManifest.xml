@@ -593,6 +593,7 @@
 
         <provider
             android:name=".provider.AttachmentProvider"
+            android:exported="true"
             android:authorities="com.android.email.attachmentprovider"
             android:multiprocess="true"
             android:grantUriPermissions="true"
@@ -603,6 +604,7 @@
              it exposes user passwords and other confidential information. -->
         <provider
             android:name=".provider.EmailProvider"
+            android:exported="true"
             android:authorities="com.android.email.provider;com.android.email.notifier"
             android:multiprocess="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
