@@ -387,20 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Cài đặt thông báo"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Sử dụng dữ liệu"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Chính sách bảo mật"</string>
-    <!-- no translation found for system_folders_title (2934406494244347991) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_title (8470058000681188327) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_summary (1258919809198485244) -->
-    <skip />
-    <!-- no translation found for system_folders_trash_dlg (4461220303400833402) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_title (4265722817877075367) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_summary (5529250353569545181) -->
-    <skip />
-    <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
-    <skip />
+    <string name="system_folders_title" msgid="2934406494244347991">"Thư mục hệ thống"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Thư mục thùng rác"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Chọn thư mục thùng rác trên máy chủ của bạn"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Chọn thư mục thùng rác trên máy chủ của bạn"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Thư mục chứa mục được gửi"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Chọn thư mục chứa mục được gửi trên máy chủ của bạn"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Chọn thư mục chứa mục được gửi trên máy chủ của bạn"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Chỉnh sửa trả lời nhanh"</string>
     <string name="save_action" msgid="1988862706623227093">"Lưu"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Đồng bộ hóa danh bạ"</string>
@@ -453,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Xác nhận trước khi xóa"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Thư"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Vuốt để xóa"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Xóa thư trong danh sách bằng cách vuốt"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Xác nhận trước khi gửi"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Thư"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Chuyển sang"</string>
@@ -513,13 +505,9 @@
     <string name="no_conversations" msgid="5559527390337162819">"Không có thư nào."</string>
     <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
-    <!-- no translation found for folder_picker_title (860241987640527156) -->
-    <skip />
-    <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
-    <skip />
-    <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
-    <skip />
+    <string name="folder_picker_title" msgid="860241987640527156">"Công cụ chọn thư mục"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Chọn thư mục thùng rác trên máy chủ cho <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Chọn thư mục chứa mục được gửi trên máy chủ cho <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Tạo thư mục"</string>
-    <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
-    <skip />
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Đang tải danh sách thư mục…"</string>
 </resources>

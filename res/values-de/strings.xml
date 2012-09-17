@@ -165,7 +165,7 @@
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Immer anzeigen"</string>
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Bilder von diesem Absender immer anzeigen"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Bilder von diesem Absender werden automatisch angezeigt."</string>
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Im Kalender anzeigen"</string>
+    <string name="message_view_invite_view" msgid="5521032519960111675">"Im Kalender ansehen"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"Kalendereinladung"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Teilnehmen?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
@@ -446,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Vor dem Löschen bestätigen"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Nachrichten"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Zum Löschen wischen"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Nachricht in der Liste durch Wischen löschen"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Vor dem Senden bestätigen"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Nachrichten"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Weiter zu"</string>
