@@ -446,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"हटाने से पहले पुष्‍टि करें"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"संदेश"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"हटाने के लिए स्वाइप करें"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"स्‍वाइप करके सूची में से संदेश हटाएं"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"भेजने से पहले पुष्‍टि करें"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"संदेश"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"इससे आगे"</string>
