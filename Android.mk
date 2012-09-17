@@ -49,7 +49,7 @@ LOCAL_OVERRIDES_PACKAGES := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
-LOCAL_SDK_VERSION := 16
+LOCAL_SDK_VERSION := current # TODO change this to "17" once the MR1 sdk version is set to 17
 
 include $(BUILD_PACKAGE)
 
