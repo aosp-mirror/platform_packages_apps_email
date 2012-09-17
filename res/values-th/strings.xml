@@ -446,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ยืนยันก่อนลบ"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"ข้อความ"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"กวาดนิ้วเพื่อลบ"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"ลบข้อความในรายการโดยการกวาดนิ้ว"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ยืนยันก่อนส่ง"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"ข้อความ"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"เลื่อนไปที่"</string>

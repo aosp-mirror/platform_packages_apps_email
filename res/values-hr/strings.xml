@@ -446,8 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Potvrdite prije brisanja"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Poruke"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Trznite prstom za brisanje"</string>
-    <!-- no translation found for general_preference_swipe_delete_summary (922880566493325308) -->
-    <skip />
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Brisanje poruke na popisu prijelazom po njima"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Potvrdite prije slanja"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Poruke"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Prijeđi na"</string>
