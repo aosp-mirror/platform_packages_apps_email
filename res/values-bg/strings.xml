@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Извлича се информация за профила..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Настройките на сървъра се потвърждават…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Настройките за SMTP се потвърждават…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Профилът се създава…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Настройка на профила"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Профилът ви е настроен и имейлите са на път!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Именуване на този профил (незадължително)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Настройки за известия"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Използване на данни"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Правила за сигурност"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Системни папки"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Папка „Кошче“"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Изберете папката „Кошче“ на сървъра си"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Изберете папката „Кошче“ на сървъра си"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Папка за изпратените елементи"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Изберете папката за изпратените елементи на сървъра си"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Изберете папката за изпратените елементи на сървъра си"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Редактиране на бърз отговор"</string>
     <string name="save_action" msgid="1988862706623227093">"Запазване"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизиране на контакти"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потвърждаване преди изтриване"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Съобщения"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Прекарайте пръст, за да изтриете"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Съобщения"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Изтриване на съобщение в списъка чрез прекарване на пръст"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потвърждаване преди изпращане"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Съобщения"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Преминаване към"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Синхронизирането на заден план за този профил е деактивирано при роуминг."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Отговорът се изпраща…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Няма съобщения."</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Избор на папка „Кошче“ за сървъра"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Избор на папка за изпратени до сървъра елементи"</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Инструмент за избор на папки"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Изберете папка „Кошче“ на сървъра за <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Изберете папка за изпр. елементи на сървъра за <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Създаване на папка"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Списъкът с папки се зарежда…"</string>
 </resources>

@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Notiek konta informācijas izgūšana..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Notiek servera iestatījumu pārbaude…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Notiek SMTP iestatījumu pārbaude..."</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Notiek konta izveide..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Konta iestatīšana"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Jūsu konts ir izveidots, un ir nosūtīts e-pasta ziņojums."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ievadiet konta nosaukumu (neobligāti)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paziņojumu iestatījumi"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Datu lietojums"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Drošības politikas"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Sistēmas mapes"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Atkritnes mape"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Atlasiet servera atkritnes mapi."</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Atlasiet servera atkritnes mapi."</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Nosūtīto vienumu mape"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Atlasiet no sava servera sūtīto vienumu mapi."</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Atlasiet no sava servera sūtīto vienumu mapi."</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Ātrās atbildes rediģēšana"</string>
     <string name="save_action" msgid="1988862706623227093">"Saglabāt"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sinhronizēt kontaktpersonas"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Apstiprināt pirms dzēšanas"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Ziņojumi"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Vilkt, lai dzēstu"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Ziņojumi"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Dzēst ziņojumu sarakstā, velkot ar pirkstu"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Apstiprināt pirms sūtīšanas"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Ziņojumi"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Pāriet uz"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Viesabonēšanas laikā fona sinhronizācija šajā kontā ir atspējota."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Notiek atbildes sūtīšana..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Nav ziņojumu."</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Izvēlieties!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Atlasiet servera mapi Miskaste"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Atl. serv. mapi Nosūt. vien."</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Mapju atlasītājs"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>: atl. servera atkritnes mapi"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>: atl. no serv. sūt. vien.mapi"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Izveidot mapi"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Notiek mapju saraksta ielāde…"</string>
 </resources>

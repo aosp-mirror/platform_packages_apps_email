@@ -179,14 +179,14 @@
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Maelezo ya kiambatisho"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Inahitaji muunganisho wa Wi-Fi"</string>
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Mipangilio ya mtandao-hewa"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Mipangilio ya prog"</string>
+    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Mipangilio ya programu"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Haiwezi kufungua kiambatisho."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"Hauwezi kuhifadhi au kufungua faili hii kwa sababu ya aina hii ya kiambatisho kinaweza kuwa na programu hasidi."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"KIambatisho hiki hakiwezi kuhifadhiwa au kufunguliwa kwa sababu ya sera za usalama za akaunti hii."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Kiambataisho hiki ni kirefu mno kuweza kupakua kupitia kwa mtandao wa simu. Unaweza kuipakua wakati mwingine ukiunganisha kwa mtandao-hewa."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Hakuna prog zilizosakinishwa ambazo zinaweza kufungua kiambatisho hiki. Jaribu kupakua programu ifaayo kutoka kwa Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Kiambatisho hiki ni prog. Unapaswa kuangalia Vyanzo Visivyojulikana katika Mipangilio &amp;gt, Prog kabla uweze kuisanidi."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Prog haziwezi kusakinishwa moja kwa moja kutoka kwa barua pepe. Kwanza hifadhi programu hii na kisha isakinishe kwa kutumia programu za Upakuzi."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Hakuna programu zilizosakinishwa ambazo zinaweza kufungua kiambatisho hiki. Jaribu kupakua programuramu ifaayo kutoka kwa Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Kiambatisho hiki ni programu. Unapaswa kuangalia Vyanzo Visivyojulikana katika Mipangilio na Programu kabla ya kuisanidi."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Programu haziwezi kusakinishwa moja kwa moja kutoka kwa barua pepe. Kwanza hifadhi programu hii na kisha isakinishe kwa kutumia programu ya Vipakuzi."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Haikuweza kupakia kiambatisho hiki."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Kulikuwa na hitilafu wakati wa usimbuaji wa ujumbe."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Kutazama <xliff:g id="FILENAME">%s</xliff:g>"</string>
@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Inarudisha maelezo ya akaunti"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Uhalalishaji wa mipangilio ya seva…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Inahalalisha mipangilio ya smtp…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Inaunda akaunti…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Usanidi wa akaunti"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Akaunti yako imesanidiwa, na barua pepe iko njiani!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ipe akaunti hii jina (ya hiari)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Mipangilio ya Arifa"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Matumizi ya data"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Sera za kiusalama"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Folda za mfumo"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Folda ya taka"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Chagua folda yako ya taka ya seva"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Chagua folda yako ya taka ya seva"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Folda ya vipengee iliyotumwa"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Chagua fold yako  ya seva ya vipengee vilivyotumwa"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Chagua fold yako  ya seva ya vipengee vilivyotumwa"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Hariri majibu ya haraka"</string>
     <string name="save_action" msgid="1988862706623227093">"Hifadhi"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sawazisha anwani"</string>
@@ -395,7 +403,7 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Landanisha barua pepe"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sawazisha barua pepe za akaunti hii"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Tetema"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Pia tetema baruapepe inapofika"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Pia tetema barua pepe inapofika"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Kila wakati"</string>
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Kukiwa kimya tu"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Katu"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Thibitisha kabla ya kufuta"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Jumbe"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Papasa ili kufuta"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Ujumbe"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Futa ujumbe kwenye orodha kwa kupapasa"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Thibitisha kabla ya kutuma"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Jumbe"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Mahiri katika"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Ulandanishi wa mandharinyuma ya akaunti hii imelemazwa wakati wa kuzurura."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Inatuma mwitikio…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Hakuna ujumbe."</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Shinikiza IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Picky, picky, picky!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Chagua folda taka ya seva"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Chagua folda ya  vipengee vilivyotumwa ya seva"</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Kichukuaji picha"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Chagua folda ya taka ya seva kwa ajili ya <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Chagua fold ya seva ya vipengee vilivyotumwa vya <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Unda folda"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Inapakia orodha ya folda…"</string>
 </resources>
