@@ -64,8 +64,8 @@ public class FolderPickerDialog implements OnClickListener, OnMultiChoiceClickLi
             mAdapter = new SeparatedFolderListAdapter(context);
             String[] headers = context.getResources()
                     .getStringArray(R.array.moveto_folder_sections);
-            mAdapter.addSection(new FolderPickerSelectorAdapter(context,
-                    foldersCursor, new HashSet<String>(), true, headers[2]));
+            mAdapter.addSection(new FolderPickerSelectorAdapter(context, foldersCursor,
+                    new HashSet<String>(), R.layout.radiobutton_single_folders_view, headers[2]));
             builder.setAdapter(mAdapter, this);
         } finally {
             foldersCursor.close();
