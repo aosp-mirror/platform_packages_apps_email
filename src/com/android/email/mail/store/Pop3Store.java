@@ -33,7 +33,6 @@ import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
@@ -90,7 +89,7 @@ public class Pop3Store extends Store {
      * up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
-    /* package */ void setTransport(Transport testTransport) {
+    /* package */ void setTransport(MailTransport testTransport) {
         mTransport = testTransport;
     }
 
@@ -225,7 +224,7 @@ public class Pop3Store extends Store {
                 executeSimpleCommand("UIDL");
                 // drain the entire output, so additional communications don't get confused.
                 String response;
-                while ((response = mTransport.readLine()) != null) {
+                while ((response = mTransport.readLine(false)) != null) {
                     parser.parseMultiLine(response);
                     if (parser.mEndOfMessage) {
                         break;
@@ -446,7 +445,7 @@ public class Pop3Store extends Store {
                 }
             } else {
                 String response = executeSimpleCommand("UIDL");
-                while ((response = mTransport.readLine()) != null) {
+                while ((response = mTransport.readLine(false)) != null) {
                     if (!parser.parseMultiLine(response)) {
                         throw new IOException();
                     }
@@ -722,7 +721,7 @@ public class Pop3Store extends Store {
             Pop3Capabilities capabilities = new Pop3Capabilities();
             try {
                 String response = executeSimpleCommand("CAPA");
-                while ((response = mTransport.readLine()) != null) {
+                while ((response = mTransport.readLine(true)) != null) {
                     if (response.equals(".")) {
                         break;
                     } else if (response.equalsIgnoreCase("STLS")){
@@ -767,7 +766,7 @@ public class Pop3Store extends Store {
                 mTransport.writeLine(command, sensitiveReplacement);
             }
 
-            String response = mTransport.readLine();
+            String response = mTransport.readLine(true);
 
             if (response.length() > 1 && response.charAt(0) == '-') {
                 throw new MessagingException(response);
