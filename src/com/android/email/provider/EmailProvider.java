@@ -3292,6 +3292,7 @@ outer:
             }
         }
 
+        @Override
         public Bundle getExtras() {
             return mExtras;
         }
@@ -3336,6 +3337,7 @@ outer:
             super(cursor);
         }
 
+        @Override
         public void close() {
             super.close();
             Log.d(TAG, "Closing cursor", new Error());
@@ -3594,7 +3596,6 @@ outer:
                 flags |= Message.FLAG_TYPE_ORIGINAL;
                 break;
         }
-        msg.mFlags = flags;
         int draftInfo = 0;
         if (values.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
             draftInfo = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
@@ -3602,7 +3603,12 @@ outer:
                 draftInfo |= Message.DRAFT_INFO_APPEND_REF_MESSAGE;
             }
         }
+        if (!values.containsKey(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT)) {
+            flags |= Message.FLAG_NOT_INCLUDE_QUOTED_TEXT;
+        }
         msg.mDraftInfo = draftInfo;
+        msg.mFlags = flags;
+
         String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
         if (ref != null && msg.mQuotedTextStartPos >= 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
