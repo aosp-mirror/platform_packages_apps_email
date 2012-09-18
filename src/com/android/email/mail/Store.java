@@ -23,11 +23,11 @@ import android.util.Log;
 import com.android.email.R;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.ServiceStore;
+import com.android.email.mail.transport.MailTransport;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
@@ -51,7 +51,7 @@ public abstract class Store {
     static final HashMap<HostAuth, Store> sStores = new HashMap<HostAuth, Store>();
     protected Context mContext;
     protected Account mAccount;
-    protected Transport mTransport;
+    protected MailTransport mTransport;
     protected String mUsername;
     protected String mPassword;
 
