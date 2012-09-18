@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.RemoteException;
 import android.util.Base64;
 import android.util.Log;
@@ -233,6 +232,7 @@ public class Imap2SyncService extends AbstractSyncService {
         // TODO Auto-generated method stub
     }
 
+    @Override
     public void addRequest(Request req) {
         super.addRequest(req);
         if (req instanceof PartRequest) {
@@ -303,6 +303,7 @@ public class Imap2SyncService extends AbstractSyncService {
         }
     }
 
+    @Override
     public void stop () {
         if (mSocket != null)
             try {
@@ -866,14 +867,14 @@ public class Imap2SyncService extends AbstractSyncService {
     private void saveNewMessages (ArrayList<Message> msgList) {
         // Get the ids of updated messages in this mailbox (usually there won't be any)
         Cursor c = getUpdatesCursor();
-        ArrayList<Integer> updatedIds = new ArrayList<Integer>();
+        ArrayList<String> updatedIds = new ArrayList<String>();
         boolean newUpdates = false;
 
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
                     do {
-                        updatedIds.add(c.getInt(UPDATE_DELETE_SERVER_ID_COLUMN));
+                        updatedIds.add(c.getString(UPDATE_DELETE_SERVER_ID_COLUMN));
                         newUpdates = true;
                     } while (c.moveToNext());
                 }
@@ -1154,6 +1155,7 @@ public class Imap2SyncService extends AbstractSyncService {
             mCursor = cursor;
         }
 
+        @Override
         public void run() {
             try {
                 fetchMessageData(mConnection, mCursor);
