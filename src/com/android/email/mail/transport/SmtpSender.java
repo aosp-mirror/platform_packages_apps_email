@@ -28,7 +28,6 @@ import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Transport;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
@@ -42,12 +41,11 @@ import javax.net.ssl.SSLException;
 
 /**
  * This class handles all of the protocol-level aspects of sending messages via SMTP.
- * TODO Remove dependence upon URI; there's no reason why we need it here
  */
 public class SmtpSender extends Sender {
 
     private final Context mContext;
-    private Transport mTransport;
+    private MailTransport mTransport;
     private String mUsername;
     private String mPassword;
 
@@ -77,7 +75,7 @@ public class SmtpSender extends Sender {
      * up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
-    /* package */ void setTransport(Transport testTransport) {
+    /* package */ void setTransport(MailTransport testTransport) {
         mTransport = testTransport;
     }
 
@@ -239,12 +237,12 @@ public class SmtpSender extends Sender {
             mTransport.writeLine(command, sensitiveReplacement);
         }
 
-        String line = mTransport.readLine();
+        String line = mTransport.readLine(true);
 
         String result = line;
 
         while (line.length() >= 4 && line.charAt(3) == '-') {
-            line = mTransport.readLine();
+            line = mTransport.readLine(true);
             result += line.substring(3);
         }
 
