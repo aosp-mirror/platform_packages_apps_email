@@ -30,8 +30,8 @@ import java.util.Set;
 public class FolderPickerSelectorAdapter extends HierarchicalFolderSelectorAdapter {
 
     public FolderPickerSelectorAdapter(Context context, Cursor folders,
-            Set<String> initiallySelected, boolean single, String header) {
-        super(context, folders, initiallySelected, single, header);
+            Set<String> initiallySelected, int layout, String header) {
+        super(context, folders, initiallySelected, layout, header);
     }
 
     /**
