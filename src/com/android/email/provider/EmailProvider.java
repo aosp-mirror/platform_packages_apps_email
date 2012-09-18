@@ -2161,7 +2161,7 @@ outer:
                 .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
                 .add(UIProvider.ConversationColumns.ACCOUNT_URI,
                         uriWithColumn("uiaccount", MessageColumns.ACCOUNT_KEY))
-                .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
+                .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.DISPLAY_NAME)
                 .build();
         }
         return sMessageListMap;
