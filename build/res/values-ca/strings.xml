@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="account_manager_type_pop3" msgid="8174497360548988962">"com.android.pop3"</string>
+    <string name="account_manager_type_imap" msgid="6434501957228470595">"com.android.imap"</string>
+    <string name="intent_exchange" msgid="4425264471285375163">"com.android.email.EXCHANGE_INTENT"</string>
+    <string name="intent_account_manager_entry" msgid="4793371513689260894">"com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT"</string>
+    <string name="authority_email_provider" msgid="6455239255042402247">"com.android.email.provider"</string>
+    <string name="protocol_imap" msgid="5533297182544773791">"IMAP"</string>
+    <string name="protocol_pop3" msgid="5006920400711584822">"pop3"</string>
+    <string name="application_mime_type" msgid="1159136363376500335">"aplicació/correus electrònics"</string>
+</resources>

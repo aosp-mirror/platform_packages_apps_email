@@ -165,7 +165,7 @@
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Immer anzeigen"</string>
     <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Bilder von diesem Absender immer anzeigen"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Bilder von diesem Absender werden automatisch angezeigt."</string>
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Im Kalender anzeigen"</string>
+    <string name="message_view_invite_view" msgid="5521032519960111675">"Im Kalender ansehen"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"Kalendereinladung"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Teilnehmen?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Kontoinformationen werden abgerufen..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Servereinstellungen werden überprüft…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"SMTP-Einstellungen werden überprüft…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Konto wird erstellt…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoeinrichtung"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Das Konto ist jetzt eingerichtet und die E-Mail ist unterwegs."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Benachrichtigungseinstellungen"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Datenverbrauch"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Sicherheitsrichtlinien"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Systemordner"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Papierkorb"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Papierkorb des Servers auswählen"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Papierkorb des Servers auswählen"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Ordner \"Gesendete Elemente\""</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Ordner \"Gesendete Elemente\" des Servers auswählen"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Ordner \"Gesendete Elemente\" des Servers auswählen"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Vor dem Löschen bestätigen"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Nachrichten"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Zum Löschen wischen"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Nachrichten"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Nachricht in der Liste durch Wischen löschen"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Vor dem Senden bestätigen"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Nachrichten"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Weiter zu"</string>
@@ -476,7 +484,7 @@
     <string name="widget_no_accounts" msgid="2412482205591224408">"Sie haben noch kein E-Mail-Konto eingerichtet."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"In E-Mails suchen"</string>
-    <string name="search_mailbox_hint" msgid="7854987729678942790">"<xliff:g id="ID_1">%1$s</xliff:g> durchsuchen"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"In <xliff:g id="ID_1">%1$s</xliff:g> suchen"</string>
     <string name="search_header_text_fmt" msgid="3857004638127418247">"Suchergebnisse für \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Warten auf Ergebnisse"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Bei einigen Servern benötigen Sie möglicherweise etwas mehr Geduld."</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Die Hintergrundsynchronisierung ist für dieses Konto während des Roamings deaktiviert."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Antwort wird gesendet…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Keine Nachrichten"</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Push-IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Ordner auswählen"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Papierkorb des Servers wählen"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Ordner \"Gesendete Elemente\" des Servers wählen"</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Ordnerauswahl"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Papierkorb des Servers für <xliff:g id="ACCOUNT">%s</xliff:g> auswählen"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Ordner \"Gesendete Elemente\" des Servers für <xliff:g id="ACCOUNT">%s</xliff:g> auswählen"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Ordner erstellen"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Ordnerliste wird geladen…"</string>
 </resources>

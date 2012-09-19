@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"የመለያ መረጃ ሰርስሮ በማውጣት ላይ..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"የአገልጋይ ቅንብሮችን በማረጋገጥ ላይ…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"የsmtp ቅንብሮችን በማረጋገጥ ላይ…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"መለያን በመፍጠር ላይ…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"መለያ አዘጋጅ"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"መለያህ ተዋቅሯል፣ ኢሜይልህም መንገድ ላይ ነው!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"ለዚሀመለያ ስም ስጥ(አማራጭ)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"የማሳወቂያ ቅንብሮች"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"የውሂብ አጠቃቀም"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"የደህንነት ቋሚ መመሪያዎች"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"የስርዓት አቃፊዎች"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"የመጣያ አቃፊ"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"የአገልጋይዎ መጣያ አቃፊውን ይምረጡ"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"የአገልጋይዎ መጣያ አቃፊውን ይምረጡ"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"የተላኩ ንጥሎች አቃፊ"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"የአገልጋይዎ የተላኩ ንጥሎች አቃፊውን ይምረጡ"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"የአገልጋይዎ የተላኩ ንጥሎች አቃፊውን ይምረጡ"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"ፈጣን ምላሽ አርትዕ"</string>
     <string name="save_action" msgid="1988862706623227093">"አስቀምጥ"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ዕውቂያዎች አስምር"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"ለመሰረዝ ያንሸራቱ"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"መልእክቶች"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"በማንሸራተት ዝርዝር ላይ ያለ መልዕክት ይሰርዙ"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ከመላክህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልእክቶች"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"ለ የላቀ"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"ውጫዊ አገልግሎት በማድረግ ጊዜ የዳራ ማመሳሰል ለእዚህ መለያ ቦዝኗል፡፡"</string>
     <string name="confirm_response" msgid="9151965975158906286">"ምላሽ በመላክ ላይ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"መልዕክቶች የሉም።"</string>
-    <string name="imap2_name" msgid="2742745881421883233">"IMAPን ገ"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"ጥንቃቄ፣ ጥንቃቄ፣ ጥንቃቄ!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"የአገልጋይ ቆሻሻ መጣያ አቃፊን ይምረጡ"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"የአገልጋይ የተላኩ ንጥሎች አቃፊን ይምረጡ"</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"የአቃፊ መራጭ"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"ለ<xliff:g id="ACCOUNT">%s</xliff:g> የአገልጋይ መጣያ ይምረጡ"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"የተላኩ የ<xliff:g id="ACCOUNT">%s</xliff:g> ንጥሎች አገልጋይን ምረጥ"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"አቃፊ ፍጠር"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"የአቃፊ ዝርዝር በመጫን ላይ…"</string>
 </resources>

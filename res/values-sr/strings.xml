@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Преузимање информација о налогу је у току…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Потврђивање подешавања сервера..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Потврђивање подешавања SMTP сервера…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Отварање налога..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Подешавање налога"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Налог је подешен и е-пошта стиже!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Именујте овај налог (опционално)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Подешавања обавештења"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Коришћење података"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Безбедносне смернице"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Системски директоријуми"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Директоријум за отпад"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Избор директоријума за отпад на серверу"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Избор директоријума за отпад на серверу"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Директоријум послатих ставки"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Избор директоријума послатих ставки на серверу"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Избор директоријума послатих ставки на серверу"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Измена брзог одговора"</string>
     <string name="save_action" msgid="1988862706623227093">"Сачувај"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизација контаката"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потврди пре брисања"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Поруке"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Листај за брисање"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Поруке"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Листајте да бисте избрисали поруку са листе"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потврди пре слања"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Поруке"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Пређи на"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Синхронизација у позадини за овај налог је онемогућена у ромингу."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Слање одговора..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Нема порука."</string>
-    <string name="imap2_name" msgid="2742745881421883233">"Push IMAP"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Бирање, бирање, бирање!"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Изаберите директоријум за отпад на серверу"</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Изаберите директоријум на серверу за послато"</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP приступ"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Бирач директоријума"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Изаберите директоријум за отпад на серверу за <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Изаберите директоријум на серверу за послато за <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Направи директоријум"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Учитавање листе директоријума..."</string>
 </resources>

@@ -245,6 +245,7 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Récupération des informations sur le compte…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validation des paramètres du serveur en cours…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validation des paramètres SMTP en cours…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Création du compte en cours…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuration du compte"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Votre compte est configuré et votre messagerie est activée !"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nom du compte (facultatif)"</string>
@@ -386,6 +387,13 @@
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paramètres de notification"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Consommation des données"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Règles de sécurité"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Dossiers système"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Dossier \"Corbeille\""</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Sélectionner le dossier \"Corbeille\" de votre serveur"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Sélectionnez le dossier \"Corbeille\" de votre serveur."</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Dossier des éléments envoyés"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sélectionner le dossier des éléments envoyés de votre serveur"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sélectionnez le dossier des éléments envoyés de votre serveur."</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Modifier une réponse rapide"</string>
     <string name="save_action" msgid="1988862706623227093">"Enregistrer"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchroniser les contacts"</string>
@@ -438,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmer avant suppression"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Messages"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Faire glisser pour supprimer"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="8436295841738696770">"Messages"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Supprimer un message de la liste en le faisant glisser"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmer avant envoi"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Messages"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Afficher"</string>
@@ -495,9 +503,11 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"La synchronisation en arrière-plan pour ce compte est désactivée en itinérance."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Envoi de la réponse en cours…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Aucun message"</string>
-    <string name="imap2_name" msgid="2742745881421883233">"IMAP par système Push"</string>
-    <string name="folder_picker_title" msgid="5213735893918108637">"Sélection de dossier"</string>
-    <string name="trash_folder_selection_title" msgid="8287461989726013461">"Sélectionnez le dossier \"Corbeille\" du serveur."</string>
-    <string name="sent_folder_selection_title" msgid="3868598259968276968">"Sélectionnez le dossier des éléments envoyés du serveur."</string>
+    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Sélecteur de dossier"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Sélect. dossier \"Corbeille\" du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Sélect. dossier d\'éléments envoyés par serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Créer un dossier"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Chargement de la liste des dossiers en cours…"</string>
 </resources>
