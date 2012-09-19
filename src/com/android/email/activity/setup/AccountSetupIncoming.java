@@ -51,16 +51,35 @@ public class AccountSetupIncoming extends AccountSetupActivity
     private final static String STATE_STARTED_AUTODISCOVERY =
             "AccountSetupExchange.StartedAutoDiscovery";
 
+    // Extras for AccountSetupIncoming intent
+    private final static String FLOW_MODE_EXTRA = "flow-mode-extra";
+    private final static String ACCOUNT_EXTRA = "account-extra";
+
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
         SetupData.setFlowMode(mode);
         SetupData.setAccount(account);
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupIncoming.class));
+
+        final Intent intent = new Intent(fromActivity, AccountSetupIncoming.class);
+        // Add the additional information to the intent, in case the Email process is killed.
+        intent.putExtra(FLOW_MODE_EXTRA, mode);
+        intent.putExtra(ACCOUNT_EXTRA, account);
+
+        fromActivity.startActivity(intent);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
+
+        final Account dataAccount = SetupData.getAccount();
+        if (dataAccount == null) {
+            // The account is not set in the SetupData.  This probably means that the Email
+            // process was killed, and we are in the process of restoring the activity
+            final Bundle extras = getIntent().getExtras();
+            SetupData.setFlowMode(extras.getInt(FLOW_MODE_EXTRA));
+            SetupData.setAccount((Account)extras.getParcelable(ACCOUNT_EXTRA));
+        }
 
         HostAuth hostAuth = SetupData.getAccount().mHostAuthRecv;
         mServiceInfo = EmailServiceUtils.getServiceInfo(this, hostAuth.mProtocol);
