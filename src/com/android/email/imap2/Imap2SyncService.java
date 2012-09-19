@@ -488,10 +488,9 @@ public class Imap2SyncService extends AbstractSyncService {
                     String envelope = p.parseList();
                     Parser ep = new Parser(envelope);
                     ep.skipWhite();
-                    //date = parseDate(ep.parseString());
                     ep.parseString();
                     subject = ep.parseString();
-                    parseRecipients(ep, msg);
+                    msg.mDisplayName = parseRecipients(ep, msg);
                 } else if (atm.equalsIgnoreCase("FLAGS")) {
                     flags = p.parseList().toLowerCase();
                     if (flags.indexOf("\\seen") >=0)
@@ -515,11 +514,7 @@ public class Imap2SyncService extends AbstractSyncService {
         if (subject != null && subject.startsWith("=?"))
             subject = MimeUtility.decode(subject);
         msg.mSubject = subject;
-
-        //msg.bodyId = 0;
-        //msg.parts = parts.toString();
         msg.mAccountKey = mAccountId;
-
         msg.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
         msg.mFlags = flag;
         if (read)
@@ -888,7 +883,7 @@ public class Imap2SyncService extends AbstractSyncService {
             // If the message is updated, make sure it's not deleted (we don't want to reload it)
             if (newUpdates && updatedIds.contains(msg.mServerId)) {
                 Message currentMsg = Message.restoreMessageWithId(mContext, msg.mId);
-                if (currentMsg.mMailboxKey == mTrashMailboxId) {
+                if (currentMsg == null || currentMsg.mMailboxKey == mTrashMailboxId) {
                     userLog("PHEW! Didn't save deleted message with uid: " + msg.mServerId);
                     continue;
                 }
