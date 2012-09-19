@@ -66,6 +66,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         AccountColumns.SYNC_STATUS,
         AccountColumns.HELP_INTENT_URI,
         AccountColumns.SEND_FEEDBACK_INTENT_URI,
+        AccountColumns.REAUTHENTICATION_INTENT_URI,
         AccountColumns.COMPOSE_URI,
         AccountColumns.MIME_TYPE,
         AccountColumns.RECENT_FOLDER_LIST_URI,
@@ -87,7 +88,8 @@ public class WidgetProvider extends BaseWidgetProvider {
         AccountColumns.SettingsColumns.FORCE_REPLY_FROM_DEFAULT,
         AccountColumns.SettingsColumns.MAX_ATTACHMENT_SIZE,
         AccountColumns.SettingsColumns.SWIPE,
-        AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED
+        AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED,
+        AccountColumns.SettingsColumns.SETUP_INTENT_URI
     };
 
 
