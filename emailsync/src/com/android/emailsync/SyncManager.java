@@ -73,7 +73,9 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -179,13 +181,17 @@ public abstract class SyncManager extends Service implements Runnable {
     /*package*/ public ConcurrentHashMap<Long, SyncError> mSyncErrorMap =
         new ConcurrentHashMap<Long, SyncError>();
     // Keeps track of which services require a wake lock (by mailbox id)
-    private final HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
+    private final HashMap<Long, Long> mWakeLocks = new HashMap<Long, Long>();
+    // Keeps track of which services have held a wake lock (by mailbox id)
+    private final HashMap<Long, Long> mWakeLocksHistory = new HashMap<Long, Long>();
     // Keeps track of PendingIntents for mailbox alarms (by mailbox id)
     private final HashMap<Long, PendingIntent> mPendingIntents = new HashMap<Long, PendingIntent>();
     // The actual WakeLock obtained by SyncServiceManager
     private WakeLock mWakeLock = null;
     // Keep our cached list of active Accounts here
     public final AccountList mAccountList = new AccountList();
+    // Keep track of when we started up
+    private long mServiceStartTime;
 
     // Observers that we use to look for changed mail-related data
     private final Handler mHandler = new Handler();
@@ -976,31 +982,40 @@ public abstract class SyncManager extends Service implements Runnable {
 
     private void acquireWakeLock(long id) {
         synchronized (mWakeLocks) {
-            Boolean lock = mWakeLocks.get(id);
+            Long lock = mWakeLocks.get(id);
             if (lock == null) {
                 if (mWakeLock == null) {
                     PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
                     mWakeLock.acquire();
-                    //log("+WAKE LOCK ACQUIRED");
+                    // STOPSHIP Remove
+                    log("+WAKE LOCK ACQUIRED");
                 }
-                mWakeLocks.put(id, true);
+                mWakeLocks.put(id, System.currentTimeMillis());
              }
         }
     }
 
     private void releaseWakeLock(long id) {
         synchronized (mWakeLocks) {
-            Boolean lock = mWakeLocks.get(id);
+            Long lock = mWakeLocks.get(id);
             if (lock != null) {
-                mWakeLocks.remove(id);
+                Long startTime = mWakeLocks.remove(id);
+                Long historicalTime = mWakeLocksHistory.get(id);
+                if (historicalTime == null) {
+                    historicalTime = 0L;
+                }
+                mWakeLocksHistory.put(id,
+                        historicalTime + (System.currentTimeMillis() - startTime));
                 if (mWakeLocks.isEmpty()) {
                     if (mWakeLock != null) {
                         mWakeLock.release();
                     }
                     mWakeLock = null;
-                    //log("+WAKE LOCK RELEASED");
+                    // STOPSHIP Remove
+                    log("+WAKE LOCK RELEASED");
                 } else {
+                    log("Release request for lock not held: " + id);
                 }
             }
         }
@@ -1427,6 +1442,8 @@ public abstract class SyncManager extends Service implements Runnable {
                             } else if (sStop) {
                                 // If we were trying to stop, attempt a restart in 5 secs
                                 setAlarm(SYNC_SERVICE_MAILBOX_ID, 5*SECONDS);
+                            } else {
+                                mServiceStartTime = System.currentTimeMillis();
                             }
                         }
                     } finally {
@@ -2264,5 +2281,46 @@ public abstract class SyncManager extends Service implements Runnable {
 
     static public Context getContext() {
         return INSTANCE;
+    }
+
+    private void writeWakeLockTimes(PrintWriter pw, HashMap<Long, Long> map, boolean historical) {
+        long now = System.currentTimeMillis();
+        for (long mailboxId: map.keySet()) {
+            Long time = map.get(mailboxId);
+            if (time == null) {
+                // Just in case...
+                continue;
+            }
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+            StringBuilder sb = new StringBuilder();
+            if (mailboxId == EXTRA_MAILBOX_ID) {
+                sb.append("    SyncManager");
+            } else if (mailbox == null) {
+                sb.append("    Mailbox " + mailboxId + " (deleted?)");
+            } else {
+                String protocol = Account.getProtocol(this, mailbox.mAccountKey);
+                sb.append("    Mailbox " + mailboxId + " (" + protocol + ", type " +
+                        mailbox.mType + ")");
+            }
+            long logTime = historical ? time : (now - time);
+            sb.append(" held for " + (logTime / 1000) + "s");
+            pw.println(sb.toString());
+        }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+        pw.println("SyncManager: " + TAG + " up for " +
+                ((System.currentTimeMillis() - mServiceStartTime)));
+        if (mWakeLock != null) {
+            pw.println("  Holding WakeLock");
+            writeWakeLockTimes(pw, mWakeLocks, false);
+        } else {
+            pw.println("  Not holding WakeLock");
+        }
+        if (!mWakeLocksHistory.isEmpty()) {
+            pw.println("  Historical times");
+            writeWakeLockTimes(pw, mWakeLocksHistory, true);
+        }
     }
 }
