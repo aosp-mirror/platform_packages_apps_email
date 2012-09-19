@@ -392,8 +392,8 @@
     <string name="system_folders_trash_summary" msgid="1258919809198485244">"Serveri prügikastikausta valimine"</string>
     <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Serveri prügikastikausta valimine"</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Saadetud üksuste kaust"</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Serveri saadetud üksuste kausta valimine"</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Serveri saadetud üksuste kausta valimine"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Serverist saadetud üksuste kausta valimine"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Serverist saadetud üksuste kausta valimine"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kiirvastuse muutmine"</string>
     <string name="save_action" msgid="1988862706623227093">"Salvesta"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sünkrooni kontaktid"</string>
@@ -506,8 +506,8 @@
     <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Kausta valija"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Valige <xliff:g id="ACCOUNT">%s</xliff:g>-le serveri prügik."</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Valige <xliff:g id="ACCOUNT">%s</xliff:g>-le kaust serverist"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Valige <xliff:g id="ACCOUNT">%s</xliff:g> jaoks serveri prügikast"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Valige <xliff:g id="ACCOUNT">%s</xliff:g> jaoks serverikaust"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Loo kaust"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Kaustaloendi laadimine ..."</string>
 </resources>

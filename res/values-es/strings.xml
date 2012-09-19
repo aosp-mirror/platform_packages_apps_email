@@ -388,9 +388,9 @@
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de datos"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Políticas de seguridad"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"Carpetas del sistema"</string>
-    <string name="system_folders_trash_title" msgid="8470058000681188327">"Carpeta de papelera"</string>
-    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Seleccionar tu carpeta de papelera del servidor"</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Seleccionar tu carpeta de papelera del servidor"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Carpeta de la papelera"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Selecciona tu carpeta de papelera del servidor"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Selecciona tu carpeta de papelera del servidor"</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Carpeta de elementos enviados"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Seleccionar tu carpeta de elementos enviados del servidor"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Seleccionar tu carpeta de elementos enviados del servidor"</string>
@@ -506,7 +506,7 @@
     <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Selector de carpetas"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Seleccionar papelera servidor de <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Selecciona la papelera del servidor de <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Seleccionar carpeta servidor de <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Crear carpeta"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Cargando lista de carpetas…"</string>
