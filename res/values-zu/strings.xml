@@ -506,7 +506,7 @@
     <string name="imap2_name" msgid="7676967165636670733">"I-IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Isikhethi sefolda"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Khetha ifolda kadoti yesiphakeli ye-<xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Khetha ifolda kadoti yeseva ye-<xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Khetha ifolda yezinto ezithunyele ye-<xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Dala ifolda"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Ilayisha uhlu lwamafolda…"</string>
