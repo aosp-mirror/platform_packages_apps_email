@@ -2310,8 +2310,8 @@ public abstract class SyncManager extends Service implements Runnable {
 
     @Override
     public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
-        pw.println("SyncManager: " + TAG + " up for " +
-                ((System.currentTimeMillis() - mServiceStartTime)));
+        long uptime = System.currentTimeMillis() - mServiceStartTime;
+        pw.println("SyncManager: " + TAG + " up for " + (uptime / 1000 / 60) + " m");
         if (mWakeLock != null) {
             pw.println("  Holding WakeLock");
             writeWakeLockTimes(pw, mWakeLocks, false);
