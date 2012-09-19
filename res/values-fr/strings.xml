@@ -392,8 +392,8 @@
     <string name="system_folders_trash_summary" msgid="1258919809198485244">"Sélectionner le dossier \"Corbeille\" de votre serveur"</string>
     <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Sélectionnez le dossier \"Corbeille\" de votre serveur."</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Dossier des éléments envoyés"</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sélectionner le dossier des éléments envoyés de votre serveur"</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sélectionnez le dossier des éléments envoyés de votre serveur."</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sélectionnez le dossier des éléments envoyés de votre serveur."</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sélectionner le dossier des éléments envoyés du serveur"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Modifier une réponse rapide"</string>
     <string name="save_action" msgid="1988862706623227093">"Enregistrer"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchroniser les contacts"</string>
@@ -506,8 +506,8 @@
     <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Sélecteur de dossier"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Sélect. dossier \"Corbeille\" du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Sélect. dossier d\'éléments envoyés par serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Sélect. dossier \"Corbeille\" du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Sélect. dossier d\'éléments envoyés du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Créer un dossier"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Chargement de la liste des dossiers en cours…"</string>
 </resources>
