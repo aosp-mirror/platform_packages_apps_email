@@ -16,13 +16,13 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- DO NOT TRANSLATE THESE STRINGS -->
-    <string name="account_manager_type_exchange">com.android.exchange</string>
-    <string name="account_manager_type_pop3">com.android.pop3</string>
-    <string name="account_manager_type_imap">com.android.imap</string>
-    <string name="intent_exchange">com.android.email.EXCHANGE_INTENT</string>
-    <string name="intent_account_manager_entry">com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT</string>
-    <string name="authority_email_provider">com.android.email.provider</string>
-    <string name="protocol_imap">imap</string>
-    <string name="protocol_pop3">pop3</string>
-    <string name="application_mime_type">application/email-ls</string>
+    <string name="account_manager_type_exchange" translatable="false">com.android.exchange</string>
+    <string name="account_manager_type_pop3" translatable="false">com.android.pop3</string>
+    <string name="account_manager_type_imap" translatable="false">com.android.imap</string>
+    <string name="intent_exchange" translatable="false">com.android.email.EXCHANGE_INTENT</string>
+    <string name="intent_account_manager_entry" translatable="false">com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT</string>
+    <string name="authority_email_provider" translatable="false">com.android.email.provider</string>
+    <string name="protocol_imap" translatable="false">imap</string>
+    <string name="protocol_pop3" translatable="false">pop3</string>
+    <string name="application_mime_type" translatable="false">application/email-ls</string>
 </resources>
