@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"هنگام رومینگ، همگام‌سازی پس‌زمینه برای این حساب غیرفعال است."</string>
     <string name="confirm_response" msgid="9151965975158906286">"در حال ارسال پاسخ…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"پیامی موجود نیست."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"انتخابگر پوشه"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"پوشه حذف‌ شده‌های سرور را برای <xliff:g id="ACCOUNT">%s</xliff:g> انتخاب کنید"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"سرور پوشه موارد ارسال‌ شده برای <xliff:g id="ACCOUNT">%s</xliff:g> را انتخاب کنید"</string>
