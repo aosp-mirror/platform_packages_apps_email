@@ -29,6 +29,8 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 
+import com.android.mail.utils.Utils;
+
 public class GeneralPreferences extends EmailPreferenceFragment implements
         OnPreferenceChangeListener {
 
@@ -39,6 +41,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
+    private static final String PREFERNECE_REPLY_ALL = "reply_all";
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
@@ -66,8 +69,14 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
 
+        final PreferenceScreen ps = getPreferenceScreen();
         // Merely hide app pref for font size until we're sure it's unnecessary (b/5287963)
-        getPreferenceScreen().removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
+        ps.removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
+
+        // Disabling reply-all on tablets, as this setting is just for phones
+        if (Utils.useTabletUI(getActivity())) {
+            ps.removePreference(findPreference(PREFERNECE_REPLY_ALL));
+        }
     }
 
     @Override
