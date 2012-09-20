@@ -391,7 +391,7 @@
     <string name="system_folders_trash_title" msgid="8470058000681188327">"Mapa koša"</string>
     <string name="system_folders_trash_summary" msgid="1258919809198485244">"Izberite mapo koša strežnika"</string>
     <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Izberite mapo koša strežnika"</string>
-    <string name="system_folders_sent_title" msgid="4265722817877075367">"Mapa strežnika za poslana sporočila"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Mapa za poslana sporočila"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Izberite mapo strežnika za poslana sporočila"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Izberite mapo strežnika za poslana sporočila"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Uredi hiter odgovor"</string>
@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sinhronizacija v ozadju je za ta račun med gostovanjem onemogočena."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Pošiljanje odgovora ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ni sporočil."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Izbirnik map"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Izberite mapo koša strežnika za račun <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Izberite mapo strežnika za poslana sporočila za račun <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

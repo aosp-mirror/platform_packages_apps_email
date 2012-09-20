@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Hindi pinapagana ang background na pag-sync para sa account na ito habang nagro-roam."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Ipinapadala ang tugon…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Walang mga mensahe."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Picker ng folder"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Piliin server trash folder sa <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Piliin server sent items folder sa <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Ο συγχρονισμός στο παρασκήνιο για αυτόν το λογαριασμό είναι απενεργοποιημένος κατά την περιαγωγή."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Αποστολή απάντησης..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Δεν υπάρχουν μηνύματα."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Επιλογέας φακέλου"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Επιλ.φακέλου απορ.διακομ.για <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Επιλογή φακέλου με απεσταλμένα στοιχεία από τον διακομιστή για τον λογαριασμό <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

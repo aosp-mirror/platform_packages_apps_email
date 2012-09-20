@@ -390,7 +390,7 @@
     <string name="system_folders_title" msgid="2934406494244347991">"Systémové priečinky"</string>
     <string name="system_folders_trash_title" msgid="8470058000681188327">"Priečinok Kôš"</string>
     <string name="system_folders_trash_summary" msgid="1258919809198485244">"Vyberte priečinok Kôš na vašom serveri"</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Vyberte priečinok Kôs na vašom serveri"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Vyberte priečinok Kôš na vašom serveri"</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Priečinok odoslaných položiek"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Vyberte priečinok odoslaných položiek na vašom serveri"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Vyberte priečinok odoslaných položiek na vašom serveri"</string>
@@ -503,11 +503,9 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Synchronizácia na pozadí je pre tento účet v roamingu zakázaná."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Odosiela sa odpoveď..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Žiadne správy."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Výber priečinka"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Vyberte prieč. Kôš na serv. pre účet <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Vyberte prieč. odosl. polož. na serveri pre účet <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Priečinok Kôš servera pre <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Prieč. odosl. polož. servera pre <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Vytvoriť priečinok"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Prebieha načítavanie zoznamu priečinkov..."</string>
 </resources>
