@@ -1689,7 +1689,7 @@ public class Imap2SyncService extends AbstractSyncService {
             }
 
             tag = writeCommand(writer,
-                    "login " + hostAuth.mLogin + ' ' + hostAuth.mPassword);
+                    "login \"" + hostAuth.mLogin + "\" \"" + hostAuth.mPassword + "\"");
             if (!IMAP_OK.equals(readResponse(reader, tag))) {
                 // Fine if the alert is null
                 conn.reason = getAlert();
