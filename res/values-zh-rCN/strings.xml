@@ -446,7 +446,7 @@
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"删除前先确认"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"邮件"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"滑动即可删除"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"以滑动方式删除列表中的邮件"</string>
+    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"以滑动手势删除列表中的邮件"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"发送前先确认"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"邮件"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"跳转至"</string>
