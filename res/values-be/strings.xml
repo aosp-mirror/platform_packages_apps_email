@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Фонавая сінхранізацыя для гэтага ўліковага запісу адключана ў роўмінгу."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Адпраўка адказу..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Паведамленняў няма."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Выбаршчык тэчак"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Выберыце на серверы тэчку са смеццем для запiсу: <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Выберыце на серверы тэчку з адпраўленымi элементамi для ўлiковага запiсу <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

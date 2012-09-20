@@ -391,9 +391,9 @@
     <string name="system_folders_trash_title" msgid="8470058000681188327">"Asblikvouer"</string>
     <string name="system_folders_trash_summary" msgid="1258919809198485244">"Kies jou bediener se asblikvouer"</string>
     <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Kies jou bediener se asblikvouer"</string>
-    <string name="system_folders_sent_title" msgid="4265722817877075367">"Gestuurde items se vouer"</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Kies jou bedienergestuur items se vouer"</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Kies jou bedienergestuur items se vouer"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Gestuurdeitemsvouer"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Kies jou bediener se gestuurdeitemsvouer"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Kies jou bediener se gestuurdeitemsvouer"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Redigeer vinnige antwoord"</string>
     <string name="save_action" msgid="1988862706623227093">"Stoor"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sinkroniseer kontakte"</string>
@@ -503,8 +503,6 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Agtergrond-sinkronisasie vir hierdie rekening is gedeaktiveer tydens swerwing."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Stuur tans antwoord..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Geen boodskappe nie."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Vouerkieser"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Kies bediener se asblikvouer vir <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Kies bedienergestuurde items se vouer vir <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
