@@ -358,6 +358,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         }
         HostAuth that = (HostAuth)o;
         return mPort == that.mPort
+                && mId == that.mId
                 && mFlags == that.mFlags
                 && Utility.areStringsEqual(mProtocol, that.mProtocol)
                 && Utility.areStringsEqual(mAddress, that.mAddress)
