@@ -503,6 +503,9 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"계정 백그라운드 동기화가 로밍하는 동안 사용 중지됩니다."</string>
     <string name="confirm_response" msgid="9151965975158906286">"응답을 보내는 중..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"메시지가 없습니다."</string>
+    <!-- no translation found for imap_name (5030473997603483793) -->
+    <skip />
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"폴더 선택기"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"서버의 <xliff:g id="ACCOUNT">%s</xliff:g>용 휴지통 폴더 선택"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"서버의 <xliff:g id="ACCOUNT">%s</xliff:g>용 전송 항목 폴더 선택"</string>
