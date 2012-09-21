@@ -80,7 +80,8 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
             if (EmailServiceUtils.isServiceAvailable(this, info.protocol)) {
                 // If we're looking for a specific account type, reject others
-                if (accountType != null && !accountType.equals(info.accountType)) {
+                // Don't show types with "hide" set
+                if (info.hide || (accountType != null && !accountType.equals(info.accountType))) {
                     continue;
                 }
                 LayoutInflater.from(this).inflate(R.layout.account_type, parent);

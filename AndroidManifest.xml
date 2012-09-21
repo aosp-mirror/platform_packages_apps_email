@@ -468,6 +468,17 @@
                        android:resource="@xml/syncadapter_pop3" />
         </service>
 
+        <service
+            android:name="com.android.email.service.LegacyImapSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_legacy_imap" />
+        </service>
+
         <!-- Require provider permission to use our Policy and Account services -->
         <service
             android:name=".service.PolicyService"
@@ -576,15 +587,19 @@
                 />
         </service>
 
-         <service
-            android:name=".imap2.EmailSyncAdapterService"
-            android:exported="true">
+        <service
+            android:name=".service.LegacyImapAuthenticatorService"
+            android:exported="false"
+            android:enabled="true"
+            >
             <intent-filter>
                 <action
-                    android:name="android.content.SyncAdapter" />
+                    android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_imap" />
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_legacy_imap"
+                />
         </service>
 
         <service
@@ -643,21 +658,6 @@
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator_legacy_eas"
-                />
-        </service>
-
-        <service
-            android:name=".service.LegacyImap2AuthenticatorService"
-            android:exported="false"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action
-                    android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_legacy_imap2"
                 />
         </service>
 

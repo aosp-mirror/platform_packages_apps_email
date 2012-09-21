@@ -50,8 +50,8 @@
 <emailservices xmlns:email="http://schemas.android.com/apk/res/com.android.email">
     <emailservice
         email:protocol="pop3"
-        email:name="POP3"
-        email:accountType="com.android.email"
+        email:name="@string/pop3_name"
+        email:accountType="@string/account_manager_type_pop3"
         email:serviceClass="com.android.email.service.Pop3Service"
         email:port="110"
         email:portSsl="995"
@@ -66,17 +66,16 @@
         email:offerLoadMore="true"
          />
     <emailservice
-        email:protocol="imap2"
-        email:name="IMAP"
-        email:accountType="com.android.imap2"
-        email:serviceClass="com.android.email.imap2.Imap2SyncManager"
+        email:protocol="imap"
+        email:name="@string/imap_name"
+        email:accountType="@string/account_manager_type_imap"
+        email:serviceClass="com.android.email.service.ImapService"
         email:port="143"
         email:portSsl="993"
-        email:syncIntervalStrings="@array/account_settings_check_frequency_entries_push"
-        email:syncIntervals="@array/account_settings_check_frequency_values_push"
-        email:defaultSyncInterval="push"
+        email:syncIntervalStrings="@array/account_settings_check_frequency_entries"
+        email:syncIntervals="@array/account_settings_check_frequency_values"
+        email:defaultSyncInterval="mins15"
 
-        email:offerLookback="true"
         email:offerTls="true"
         email:usesSmtp="true"
         email:offerAttachmentPreload="true"
@@ -84,12 +83,11 @@
         email:syncChanges="true"
         email:inferPrefix="imap"
         email:offerLoadMore="true"
-        email:requiresSetup="true"
          />
     <emailservice
-        email:protocol="eas"
+        email:protocol="@string/protocol_eas"
         email:name="Exchange"
-        email:accountType="com.android.exchange"
+        email:accountType="@string/account_manager_type_exchange"
         email:intent="com.android.email.EXCHANGE_INTENT"
         email:port="80"
         email:portSsl="443"
@@ -106,10 +104,5 @@
         email:defaultLookback="auto"
         email:syncContacts="true"
         email:syncCalendar="true"
-         />
-    <emailservice
-        email:protocol="imap"
-        email:accountType="com.android.email"
-        email:replaceWith="imap2"
          />
 </emailservices>

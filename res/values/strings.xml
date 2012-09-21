@@ -1322,8 +1322,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="no_conversations">No messages.</string>
 
     <!-- Used by AccountManager -->
-    <string name="imap2_name" translatable="false">IMAP</string>
-    <string name="pop3_name" translatable="false">POP3</string>
+    <string name="imap_name">IMAP</string>
+    <string name="pop3_name">POP3</string>
 
     <string name="folder_picker_title">Folder picker</string>
     <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
