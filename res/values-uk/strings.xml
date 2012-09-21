@@ -503,6 +503,9 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"У роумінгу фонову синхронізацію для цього облікового запису вимкнено."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Надсилання відповіді…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Немає повідомлень."</string>
+    <!-- no translation found for imap_name (5030473997603483793) -->
+    <skip />
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Засіб вибору папки"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>: виберіть \"Кошик\" на сервері"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>: виберіть папку на сервері"</string>
