@@ -503,9 +503,12 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Đồng bộ hóa nền cho tài khoản này bị tắt trong khi chuyển vùng."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Đang gửi trả lời..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Không có thư nào."</string>
+    <!-- no translation found for imap_name (5030473997603483793) -->
+    <skip />
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Công cụ chọn thư mục"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Chọn thư mục thùng rác trên máy chủ cho <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Chọn thư mục chứa mục được gửi trên máy chủ cho <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Chọn thư mục chứa mục đã gửi trên máy chủ cho <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Tạo thư mục"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Đang tải danh sách thư mục…"</string>
 </resources>
