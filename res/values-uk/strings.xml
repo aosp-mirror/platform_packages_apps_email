@@ -389,11 +389,11 @@
     <string name="account_settings_policies" msgid="6292833636418641840">"Правила безпеки"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"Системні папки"</string>
     <string name="system_folders_trash_title" msgid="8470058000681188327">"Папка \"Кошик\""</string>
-    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Виберіть папку \"Кошик\" свого сервера"</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Виберіть папку \"Кошик\" свого сервера"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Виберіть \"Кошик\" на сервері"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Виберіть \"Кошик\" на сервері"</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Папка \"Надіслані\""</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Виберіть папку \"Надіслані\" свого сервера"</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Виберіть папку \"Надіслані\" свого сервера"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Виберіть папку надісланих на сервері"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Виберіть папку надісланих на сервері"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Редагувати швидку відповідь"</string>
     <string name="save_action" msgid="1988862706623227093">"Зберегти"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхрон. контакти"</string>
@@ -503,11 +503,9 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"У роумінгу фонову синхронізацію для цього облікового запису вимкнено."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Надсилання відповіді…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Немає повідомлень."</string>
-    <string name="imap2_name" msgid="7676967165636670733">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Засіб вибору папки"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Виберіть \"Кошик\" сервера для <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Виберіть \"Надіслані\" сервера для <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>: виберіть \"Кошик\" на сервері"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>: виберіть папку на сервері"</string>
     <string name="create_new_folder" msgid="2726544180243210741">"Створити папку"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Завантаження списку папок…"</string>
 </resources>
