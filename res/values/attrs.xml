@@ -24,6 +24,7 @@
     <declare-styleable name="EmailServiceInfo">
         <attr name="protocol" format="string"/>
         <attr name="name" format="string"/>
+        <attr name="hide" format="boolean"/>
         <attr name="accountType" format="string"/>
         <attr name="replaceWith" format="string"/>
         <attr name="serviceClass" format="string"/>
