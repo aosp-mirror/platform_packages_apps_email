@@ -3154,8 +3154,13 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAttachment(String[] uiProjection) {
-        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection);
+    private String genQueryAttachment(String[] uiProjection, String idString) {
+        Long id = Long.parseLong(idString);
+        Attachment att = Attachment.restoreAttachmentWithId(getContext(), id);
+        ContentValues values = new ContentValues();
+        values.put(AttachmentColumns.CONTENT_URI,
+                AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
+        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.ID + " =? ");
         return sb.toString();
     }
@@ -3328,6 +3333,32 @@ outer:
         }
     }
 
+    static class AttachmentsCursor extends CursorWrapper {
+        private final int mContentUriIndex;
+        private final int mUriIndex;
+        private final Context mContext;
+
+        public AttachmentsCursor(Context context, Cursor cursor) {
+            super(cursor);
+            mContentUriIndex = cursor.getColumnIndex(UIProvider.AttachmentColumns.CONTENT_URI);
+            mUriIndex = cursor.getColumnIndex(UIProvider.AttachmentColumns.URI);
+            mContext = context;
+        }
+
+        @Override
+        public String getString(int column) {
+            if (column == mContentUriIndex) {
+                Uri uri = Uri.parse(getString(mUriIndex));
+                long id = Long.parseLong(uri.getLastPathSegment());
+                Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
+                if (att == null) return "";
+                return AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString();
+            } else {
+                return super.getString(column);
+            }
+        }
+    }
+
     /**
      * For debugging purposes; shouldn't be used in production code
      */
@@ -3426,10 +3457,11 @@ outer:
                         uri.getQueryParameters(PhotoContract.ContentTypeParameters.CONTENT_TYPE);
                 c = db.rawQuery(genQueryAttachments(uiProjection, contentTypeQueryParameters),
                         new String[] {id});
+                c = new AttachmentsCursor(context, c);
                 notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ATTACHMENT:
-                c = db.rawQuery(genQueryAttachment(uiProjection), new String[] {id});
+                c = db.rawQuery(genQueryAttachment(uiProjection, id), new String[] {id});
                 notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
