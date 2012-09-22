@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 public class PopImapSyncAdapterService extends Service {
     private static final String TAG = "PopImapSyncAdapterService";
-    private SyncAdapterImpl mSyncAdapter = null;
+    private static SyncAdapterImpl sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();
 
     public PopImapSyncAdapterService() {
@@ -77,13 +77,15 @@ public class PopImapSyncAdapterService extends Service {
     public void onCreate() {
         super.onCreate();
         synchronized (sSyncAdapterLock) {
-            mSyncAdapter = new SyncAdapterImpl(getApplicationContext());
+            if (sSyncAdapter == null) {
+                sSyncAdapter = new SyncAdapterImpl(getApplicationContext());
+            }
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mSyncAdapter.getSyncAdapterBinder();
+        return sSyncAdapter.getSyncAdapterBinder();
     }
 
     /**
