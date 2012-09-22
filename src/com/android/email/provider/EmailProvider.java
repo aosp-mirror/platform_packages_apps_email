@@ -3088,9 +3088,6 @@ outer:
                 new MatrixCursorWithExtra(uiProjection, accountIdCursor.getCount(), extras);
         Object[] values = new Object[uiProjection.length];
         try {
-            if (combinedAccount) {
-                addCombinedAccountRow(mc);
-            }
             while (accountIdCursor.moveToNext()) {
                 String id = accountIdCursor.getString(0);
                 Cursor accountCursor =
