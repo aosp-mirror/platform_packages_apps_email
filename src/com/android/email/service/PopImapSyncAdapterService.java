@@ -39,7 +39,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 
@@ -94,6 +93,7 @@ public class PopImapSyncAdapterService extends Service {
      */
     private static boolean loadsFromServer(Context context, Mailbox m, String protocol) {
         String legacyImapProtocol = context.getString(R.string.protocol_legacy_imap);
+        String pop3Protocol = context.getString(R.string.protocol_pop3);
         if (legacyImapProtocol.equals(protocol)) {
             // TODO: actually use a sync flag when creating the mailboxes. Right now we use an
             // approximation for IMAP.
@@ -101,7 +101,7 @@ public class PopImapSyncAdapterService extends Service {
                     && m.mType != Mailbox.TYPE_OUTBOX
                     && m.mType != Mailbox.TYPE_SEARCH;
 
-        } else if (HostAuth.LEGACY_SCHEME_POP3.equals(protocol)) {
+        } else if (pop3Protocol.equals(protocol)) {
             return Mailbox.TYPE_INBOX == m.mType;
         }
 

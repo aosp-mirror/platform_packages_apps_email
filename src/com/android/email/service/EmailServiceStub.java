@@ -28,10 +28,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.email.NotificationController;
-import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
@@ -107,8 +107,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         if (mailbox == null) return;
         Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
         if (account == null) return;
+        EmailServiceInfo info = EmailServiceUtils.getServiceInfoForAccount(mContext, account.mId);
         android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
-                mContext.getString(R.string.account_manager_type_pop3));
+                info.accountType);
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
