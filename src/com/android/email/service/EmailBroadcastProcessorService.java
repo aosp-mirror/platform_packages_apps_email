@@ -31,16 +31,14 @@ import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
+import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSettings;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
-
-import java.util.List;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -185,7 +183,8 @@ public class EmailBroadcastProcessorService extends IntentService {
             while (c.moveToNext()) {
                 long recvAuthKey = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 HostAuth recvAuth = HostAuth.restoreHostAuthWithId(context, recvAuthKey);
-                if (HostAuth.LEGACY_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+                String legacyImapProtocol = context.getString(R.string.protocol_legacy_imap);
+                if (legacyImapProtocol.equals(recvAuth.mProtocol)) {
                     int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
                     flags &= ~Account.FLAGS_DELETE_POLICY_MASK;
                     flags |= Account.DELETE_POLICY_ON_DELETE << Account.FLAGS_DELETE_POLICY_SHIFT;

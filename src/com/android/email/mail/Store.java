@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.android.email.R;
+import com.android.email.mail.store.ImapStore;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.ServiceStore;
 import com.android.email.mail.transport.MailTransport;
@@ -84,6 +85,7 @@ public abstract class Store {
             throws MessagingException {
         if (sStores.isEmpty()) {
             sStoreClasses.put(context.getString(R.string.protocol_pop3), Pop3Store.class);
+            sStoreClasses.put(context.getString(R.string.protocol_legacy_imap), ImapStore.class);
         }
         HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
         // An existing account might have been deleted

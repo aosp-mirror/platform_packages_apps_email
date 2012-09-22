@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.CalendarContract;
@@ -178,7 +177,9 @@ public class EmailServiceUtils {
         public boolean requiresAccountUpdate;
         public boolean offerLoadMore;
         public boolean requiresSetup;
+        public boolean hide;
 
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder("Protocol: ");
             sb.append(protocol);
@@ -288,7 +289,6 @@ public class EmailServiceUtils {
         protected Void doInBackground(Void... params) {
             disableComponent(mContext, LegacyEmailAuthenticatorService.class);
             disableComponent(mContext, LegacyEasAuthenticatorService.class);
-            disableComponent(mContext, LegacyImap2AuthenticatorService.class);
             return null;
         }
     }
@@ -498,6 +498,7 @@ public class EmailServiceUtils {
                         continue;
                     }
                     info.name = ta.getString(R.styleable.EmailServiceInfo_name);
+                    info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
                     String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
                     info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
                     info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
