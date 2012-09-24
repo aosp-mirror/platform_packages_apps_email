@@ -500,11 +500,10 @@
     <string name="quick_2" msgid="4188036352885736617">"Em sembla molt bé."</string>
     <string name="quick_3" msgid="8061819976353395585">"Ho llegiré més tard i et respondré."</string>
     <string name="quick_4" msgid="3988974084396883051">"Organitzem una reunió per parlar-ne."</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"La sincronització de fons per a aquest compte està desactivada en itinerància."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"La sincronització en segon pla d\'aquest compte s\'ha desactivat en itinerància."</string>
     <string name="confirm_response" msgid="9151965975158906286">"S\'està enviant la resposta..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"No hi ha missatges."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Selector de carpeta"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Selecciona la carpeta de la paperera del servidor per a: <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

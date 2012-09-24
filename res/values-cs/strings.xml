@@ -503,8 +503,7 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Synchronizace na pozadí je v tomto účtu při roamingu zakázána."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Odesílání odpovědi..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Žádné zprávy."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Výběr složky"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Vyberte Koš serveru pro účet <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

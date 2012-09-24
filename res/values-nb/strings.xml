@@ -503,8 +503,7 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under streifing."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Sender svaret ditt ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ingen e-poster."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Mappevelger"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Velg tjenerens papirkurvmappe for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
