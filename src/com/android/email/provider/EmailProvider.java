@@ -768,6 +768,7 @@ public class EmailProvider extends ContentProvider {
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
+                        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, id);
                     } else if (match == ATTACHMENT_ID) {
                         notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
                     }
@@ -897,6 +898,8 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
     private static final Uri UIPROVIDER_FOLDER_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
+    private static final Uri UIPROVIDER_FOLDERLIST_NOTIFIER =
+            Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolders");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
             Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
     public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
@@ -1829,6 +1832,7 @@ outer:
                         }
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
                         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
+                        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, id);
                     } else if (match == ACCOUNT_ID) {
                         // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
@@ -4109,6 +4113,7 @@ outer:
             // We actually delete these, including attachments
             AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
             notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
+            notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, mailbox.mAccountKey);
             return context.getContentResolver().delete(
                     ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg.mId), null, null);
         }
@@ -4120,6 +4125,7 @@ outer:
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
+        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, mailbox.mId);
         return uiUpdateMessage(uri, values, true);
     }
 
@@ -4176,6 +4182,7 @@ outer:
                 ContentResolver resolver = getContext().getContentResolver();
                 resolver.notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER, null);
                 resolver.notifyChange(UIPROVIDER_FOLDER_NOTIFIER, null);
+                resolver.notifyChange(UIPROVIDER_FOLDERLIST_NOTIFIER, null);
                 return c;
             } catch (OperationApplicationException e) {
             }
@@ -4339,6 +4346,7 @@ outer:
                                     mSearchParams, searchMailboxId);
                             //Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
                             notifyUI(UIPROVIDER_FOLDER_NOTIFIER, searchMailboxId);
+                            notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
                         } catch (RemoteException e) {
                             Log.e("searchMessages", "RemoteException", e);
                         }
