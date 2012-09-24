@@ -29,13 +29,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.android.email.NotificationController;
+import com.android.email.Email;
 import com.android.email.Preferences;
-import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
@@ -64,10 +63,6 @@ public class EmailBroadcastProcessorService extends IntentService {
     // This is a helper used to process DeviceAdminReceiver messages
     private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
     private static final String EXTRA_DEVICE_POLICY_ADMIN = "message_code";
-
-    // Broadcast received to initiate new message notification updates
-    public static final String ACTION_NOTIFY_NEW_MAIL =
-            "com.android.mail.action.update_notification";
 
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
@@ -111,17 +106,31 @@ public class EmailBroadcastProcessorService extends IntentService {
 
             if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
                 onBootCompleted();
+
+            // TODO: Do a better job when we get ACTION_DEVICE_STORAGE_LOW.
+            //       The code below came from very old code....
+            } else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(broadcastAction)) {
+                // Stop IMAP/POP3 poll.
+                MailService.actionCancel(this);
+            } else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(broadcastAction)) {
+                enableComponentsIfNecessary();
             } else if (ACTION_SECRET_CODE.equals(broadcastAction)
                     && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
-            } else if (ACTION_NOTIFY_NEW_MAIL.equals(broadcastAction)) {
-                NotificationController.notifyNewMail(this, broadcastIntent);
             }
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);
             SecurityPolicy.onDeviceAdminReceiverMessage(this, message);
+        }
+    }
+
+    private void enableComponentsIfNecessary() {
+        if (Email.setServicesEnabledSync(this)) {
+            // At least one account exists.
+            // TODO probably we should check if it's a POP/IMAP account.
+            MailService.actionReschedule(this);
         }
     }
 
@@ -130,14 +139,11 @@ public class EmailBroadcastProcessorService extends IntentService {
      */
     private void onBootCompleted() {
         performOneTimeInitialization();
-        reconcileAndStartServices();
-    }
 
-    private void reconcileAndStartServices() {
-        // Reconcile accounts
-        MailService.reconcileLocalAccountsSync(this);
-        // Starts remote services, if any
-        EmailServiceUtils.startRemoteServices(this);
+        enableComponentsIfNecessary();
+
+        // Starts the service for Exchange, if supported.
+        EmailServiceUtils.startExchangeService(this);
     }
 
     private void performOneTimeInitialization() {
@@ -183,8 +189,7 @@ public class EmailBroadcastProcessorService extends IntentService {
             while (c.moveToNext()) {
                 long recvAuthKey = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
                 HostAuth recvAuth = HostAuth.restoreHostAuthWithId(context, recvAuthKey);
-                String legacyImapProtocol = context.getString(R.string.protocol_legacy_imap);
-                if (legacyImapProtocol.equals(recvAuth.mProtocol)) {
+                if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
                     int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
                     flags &= ~Account.FLAGS_DELETE_POLICY_MASK;
                     flags |= Account.DELETE_POLICY_ON_DELETE << Account.FLAGS_DELETE_POLICY_SHIFT;
@@ -210,6 +215,10 @@ public class EmailBroadcastProcessorService extends IntentService {
 
     private void onSystemAccountChanged() {
         Log.i(Logging.LOG_TAG, "System accounts updated.");
-        reconcileAndStartServices();
+        MailService.reconcilePopImapAccountsSync(this);
+
+        // If the exchange service wasn't already running, starting it will cause exchange account
+        // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
+        EmailServiceUtils.startExchangeService(this);
     }
 }

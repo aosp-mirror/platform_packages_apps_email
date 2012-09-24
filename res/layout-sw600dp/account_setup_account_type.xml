@@ -38,13 +38,13 @@
         android:layout_below="@+id/headline"
         android:layout_marginBottom="16dip"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="1px"
         android:background="@color/account_setup_divider_color" />
 
     <!-- Layout on the left containing the setup info -->
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/accountTypes"
+        android:id="@+id/main_content"
         android:layout_below="@+id/top_divider"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="64dip"
@@ -60,6 +60,30 @@
             android:layout_marginLeft="16dip"
             android:text="@string/account_setup_account_type_instructions"
             android:textAppearance="@style/accountSetupInfoText" />
+        <Button
+            android:id="@+id/pop"
+            android:layout_below="@+id/instructions"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="@dimen/setup_buttons_vertical_spacing"
+            android:layout_marginLeft="48dip"
+            style="@style/accountSetupButton"
+            android:text="@string/account_setup_account_type_pop_action" />
+        <Button
+            android:id="@+id/imap"
+            android:layout_below="@+id/pop"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="@dimen/setup_buttons_vertical_spacing"
+            android:layout_marginLeft="48dip"
+            style="@style/accountSetupButton"
+            android:text="@string/account_setup_account_type_imap_action" />
+        <Button
+            android:id="@+id/exchange"
+            android:layout_below="@+id/imap"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="@dimen/setup_buttons_vertical_spacing"
+            android:layout_marginLeft="48dip"
+            style="@style/accountSetupButton"
+            android:text="@string/account_setup_account_type_exchange_action" />
     </RelativeLayout>
 
     <!-- Previous button (can be below or to the right) -->

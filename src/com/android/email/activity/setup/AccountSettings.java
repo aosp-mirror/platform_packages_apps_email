@@ -32,28 +32,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
+import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
-import com.android.email.provider.EmailProvider;
+import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.android.mail.providers.Folder;
-import com.android.mail.providers.UIProvider.EditSettingsExtras;
 
 import java.util.List;
 
@@ -62,7 +54,7 @@ import java.util.List;
  *
  * This activity uses the following fragments:
  *   AccountSettingsFragment
- *   Account{Incoming/Outgoing}Fragment
+ *   Account{Incoming/Outgoing/Exchange}Fragment
  *   AccountCheckSettingsFragment
  *   GeneralPreferences
  *   DebugFragment
@@ -82,16 +74,7 @@ public class AccountSettings extends PreferenceActivity {
     // Intent extras for our internal activity launch
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
-    private static final String EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT =
-            "AccountSettings.for_account_reason";
     private static final String EXTRA_TITLE = "AccountSettings.title";
-    public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
-
-    // Intent extras for launch directly from system account manager
-    // NOTE: This string must match the one in res/xml/account_preferences.xml
-    private static String ACTION_ACCOUNT_MANAGER_ENTRY;
-    // NOTE: This constant should eventually be defined in android.accounts.Constants
-    private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
 
     // Key for arguments bundle for QuickResponse editing
     private static final String QUICK_RESPONSE_ACCOUNT_KEY = "account";
@@ -102,10 +85,6 @@ public class AccountSettings extends PreferenceActivity {
             KeyEvent.KEYCODE_G
             };
     private int mSecretKeyCodeIndex = 0;
-
-    // Support for account-by-name lookup
-    private static final String SELECTION_ACCOUNT_EMAIL_ADDRESS =
-        AccountColumns.EMAIL_ADDRESS + "=?";
 
     // When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
     private int mNumGeneralHeaderClicked = 0;
@@ -121,7 +100,6 @@ public class AccountSettings extends PreferenceActivity {
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
-    private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
     private ContentObserver mAccountObserver;
 
     // Specific callbacks used by settings fragments
@@ -134,8 +112,7 @@ public class AccountSettings extends PreferenceActivity {
      * Display (and edit) settings for a specific account, or -1 for any/all accounts
      */
     public static void actionSettings(Activity fromActivity, long accountId) {
-        fromActivity.startActivity(
-                createAccountSettingsIntent(fromActivity, accountId, null, null));
+        fromActivity.startActivity(createAccountSettingsIntent(fromActivity, accountId, null));
     }
 
     /**
@@ -144,15 +121,12 @@ public class AccountSettings extends PreferenceActivity {
      * displayed as well.
      */
     public static Intent createAccountSettingsIntent(Context context, long accountId,
-            String loginWarningAccountName, String loginWarningReason) {
+            String loginWarningAccountName) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
         IntentUtilities.setAccountId(b, accountId);
         Intent i = new Intent(Intent.ACTION_EDIT, b.build());
         if (loginWarningAccountName != null) {
             i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
-        }
-        if (loginWarningReason != null) {
-            i.putExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT, loginWarningReason);
         }
         return i;
     }
@@ -172,40 +146,16 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
-        final Intent i = getIntent();
+        Intent i = getIntent();
         if (savedInstanceState == null) {
-            // If we are not restarting from a previous instance, we need to
-            // figure out the initial prefs to show.  (Otherwise, we want to
-            // continue showing whatever the user last selected.)
-            if (ACTION_ACCOUNT_MANAGER_ENTRY == null) {
-                ACTION_ACCOUNT_MANAGER_ENTRY =
-                        ServiceProxy.getIntentStringForEmailPackage(this,
-                                getString(R.string.intent_account_manager_entry));
-            }
-            if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
-                // This case occurs if we're changing account settings from Settings -> Accounts
-                mGetAccountIdFromAccountTask =
-                        (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
-                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
-            } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
-                launchMailboxSettings(i);
-                return;
-            } else if (i.hasExtra(EXTRA_NO_ACCOUNTS)) {
-                AccountSetupBasics.actionNewAccountWithResult(this);
-                finish();
-                return;
-            } else {
-                // Otherwise, we're called from within the Email app and look for our extras
-                mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
-                String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
-                String loginWarningReason =
-                        i.getStringExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT);
-                if (loginWarningAccount != null) {
-                    // Show dialog (first time only - don't re-show on a rotation)
-                    LoginWarningDialog dialog =
-                            LoginWarningDialog.newInstance(loginWarningAccount, loginWarningReason);
-                    dialog.show(getFragmentManager(), "loginwarning");
-                }
+            // This will be -1 if not included in the intent, which is safe as onBuildHeaders
+            // will never find an account with that id
+            mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
+            String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
+            if (loginWarningAccount != null) {
+                // Show dialog (first time only - don't re-show on a rotation)
+                LoginWarningDialog dialog = LoginWarningDialog.newInstance(loginWarningAccount);
+                dialog.show(getFragmentManager(), "loginwarning");
             }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
@@ -244,8 +194,6 @@ public class AccountSettings extends PreferenceActivity {
         super.onDestroy();
         Utility.cancelTaskInterrupt(mLoadAccountListTask);
         mLoadAccountListTask = null;
-        Utility.cancelTaskInterrupt(mGetAccountIdFromAccountTask);
-        mGetAccountIdFromAccountTask = null;
     }
 
     /**
@@ -270,6 +218,11 @@ public class AccountSettings extends PreferenceActivity {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.account_settings_add_account_option, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return shouldShowNewAccount();
     }
 
     @Override
@@ -330,23 +283,38 @@ public class AccountSettings extends PreferenceActivity {
         super.onBackPressed();
     }
 
-    private void launchMailboxSettings(Intent intent) {
-        final Folder folder = (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
-
-        // TODO: determine from the account if we should navigate to the mailbox settings.
-        // See bug 6242668
-
-        // Get the mailbox id from the folder
-        final long mailboxId = Long.parseLong(folder.uri.getPathSegments().get(1));
-
-        MailboxSettings.start(this, mailboxId);
-        finish();
+    /**
+     * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
+     * so the user is free to edit another account as well.
+     */
+    @Override
+    public Header onGetNewHeader() {
+        Header result = mRequestedAccountHeader;
+        mRequestedAccountHeader = null;
+        return result;
     }
-
 
     private void enableDebugMenu() {
         mShowDebugMenu = true;
         invalidateHeaders();
+    }
+
+    /**
+     * Decide if "add account" should be shown
+     */
+    private boolean shouldShowNewAccount() {
+        // If in single pane mode, only add accounts at top level
+        if (!onIsMultiPane()) {
+            return hasHeaders();
+        } else {
+            // If in multi pane mode, only add accounts when showing a top level fragment
+            // Note: null is OK; This is the case when we first launch the activity
+            if ((mCurrentFragment != null)
+                && !(mCurrentFragment instanceof GeneralPreferences)
+                && !(mCurrentFragment instanceof DebugFragment)
+                && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
+        }
+        return true;
     }
 
     private void onAddNewAccount() {
@@ -597,6 +565,10 @@ public class AccountSettings extends PreferenceActivity {
         public void abandonEdit() {
             finish();
         }
+        @Override
+        public void deleteAccount(Account account) {
+            AccountSettings.this.deleteAccount(account);
+        }
     }
 
     /**
@@ -663,13 +635,27 @@ public class AccountSettings extends PreferenceActivity {
 
     /**
      * Dispatch to edit incoming settings.
+     *
+     * TODO: Make things less hardwired
      */
     public void onIncomingSettings(Account account) {
         try {
-            SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-            startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
-                    AccountSetupIncomingFragment.getSettingsModeArgs(),
-                    R.string.account_settings_incoming_label, null, null, 0);
+            Store store = Store.getInstance(account, getApplication());
+            if (store != null) {
+                Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
+                if (setting != null) {
+                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
+                    if (setting.equals(AccountSetupIncoming.class)) {
+                        startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
+                                AccountSetupIncomingFragment.getSettingsModeArgs(),
+                                R.string.account_settings_incoming_label, null, null, 0);
+                    } else if (setting.equals(AccountSetupExchange.class)) {
+                        startPreferencePanel(AccountSetupExchangeFragment.class.getName(),
+                                AccountSetupExchangeFragment.getSettingsModeArgs(),
+                                R.string.account_settings_incoming_label, null, null, 0);
+                    }
+                }
+            }
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
@@ -702,16 +688,11 @@ public class AccountSettings extends PreferenceActivity {
     /**
      * Delete the selected account
      */
-    public void deleteAccount(final Account account) {
+    public void deleteAccount(Account account) {
         // Kick off the work to actually delete the account
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
-                getContentResolver().delete(uri, null, null);
-            }}).start();
+        // Delete the account (note, this is async.  Would be nice to get a callback.
+        Controller.getInstance(this).deleteAccount(account.mId);
 
-        // TODO: Remove ui glue for unified
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
         if (onIsMultiPane()) {
@@ -727,36 +708,10 @@ public class AccountSettings extends PreferenceActivity {
     }
 
     /**
-     * This AsyncTask looks up an account based on its email address (which is what we get from
-     * the Account Manager).  When the account id is determined, we refresh the header list,
-     * which will select the preferences for that account.
-     */
-    private class GetAccountIdFromAccountTask extends AsyncTask<Intent, Void, Long> {
-
-        @Override
-        protected Long doInBackground(Intent... params) {
-            Intent intent = params[0];
-            android.accounts.Account acct =
-                (android.accounts.Account) intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
-            return Utility.getFirstRowLong(AccountSettings.this, Account.CONTENT_URI,
-                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS,
-                    new String[] {acct.name}, null, Account.ID_PROJECTION_COLUMN, -1L);
-        }
-
-        @Override
-        protected void onPostExecute(Long accountId) {
-            if (accountId != -1 && !isCancelled()) {
-                mRequestedAccountId = accountId;
-                invalidateHeaders();
-            }
-        }
-    }
-
-    /**
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
     /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
-        final static String TAG = "UnsavedChangesDialogFragment";
+        private final static String TAG = "UnsavedChangesDialogFragment";
 
         // Argument bundle keys
         private final static String BUNDLE_KEY_HEADER = "UnsavedChangesDialogFragment.Header";
@@ -828,17 +783,15 @@ public class AccountSettings extends PreferenceActivity {
     public static class LoginWarningDialog extends DialogFragment
             implements DialogInterface.OnClickListener {
         private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
-        private String mReason;
 
         /**
          * Create a new dialog.
          */
-        public static LoginWarningDialog newInstance(String accountName, String reason) {
+        public static LoginWarningDialog newInstance(String accountName) {
             final LoginWarningDialog dialog = new LoginWarningDialog();
             Bundle b = new Bundle();
             b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
             dialog.setArguments(b);
-            dialog.mReason = reason;
             return dialog;
         }
 
@@ -851,26 +804,8 @@ public class AccountSettings extends PreferenceActivity {
             final AlertDialog.Builder b = new AlertDialog.Builder(context);
             b.setTitle(R.string.account_settings_login_dialog_title);
             b.setIconAttribute(android.R.attr.alertDialogIcon);
-            if (mReason != null) {
-                final TextView message = new TextView(context);
-                String alert = res.getString(
-                        R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
-                SpannableString spannableAlertString = new SpannableString(alert);
-                Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
-                message.setText(spannableAlertString);
-                // There must be a better way than specifying size/padding this way
-                // It does work and look right, though
-                int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
-                message.setTextSize(textSize);
-                int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
-                int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
-                message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
-                message.setMovementMethod(LinkMovementMethod.getInstance());
-                b.setView(message);
-            } else {
-                b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
-                        accountName));
-            }
+            b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
+                    accountName));
             b.setPositiveButton(R.string.okay_action, this);
             b.setNegativeButton(R.string.cancel_action, this);
             return b.create();

@@ -56,27 +56,6 @@ public abstract class ServiceProxy {
     private long mStartTime;
     private boolean mDead = false;
 
-    public static Intent getIntentForEmailPackage(Context context, String actionName) {
-        return new Intent(getIntentStringForEmailPackage(context, actionName));
-    }
-
-    /**
-     * Create Intent action based on the Email package name
-     * Package com.android.email + ACTION -> com.android.email.ACTION
-     * Package com.google.android.email + ACTION -> com.google.android.email.ACTION
-     * Package com.android.exchange + ACTION -> com.android.email.ACTION
-     * Package com.google.exchange + ACTION -> com.google.android.email.ACTION
-     *
-     * @param context the caller's context
-     * @param actionName the Intent action
-     * @return an Intent action based on the package name
-     */
-    public static String getIntentStringForEmailPackage(Context context, String actionName) {
-        String packageName = context.getPackageName();
-        int lastDot = packageName.lastIndexOf('.');
-        return packageName.substring(0, lastDot + 1) + "email." + actionName;
-    }
-
     public abstract void onConnected(IBinder binder);
 
     public ServiceProxy(Context _context, Intent _intent) {
@@ -92,8 +71,7 @@ public abstract class ServiceProxy {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             onConnected(binder);
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Connected: " + name.getShortClassName() + " at " +
-                        (System.currentTimeMillis() - mStartTime) + "ms");
+                Log.v(mTag, "Connected: " + name.getShortClassName());
             }
             // Run our task on a new thread
             new Thread(new Runnable() {
@@ -108,8 +86,7 @@ public abstract class ServiceProxy {
 
         public void onServiceDisconnected(ComponentName name) {
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Disconnected: " + name.getShortClassName() + " at " +
-                        (System.currentTimeMillis() - mStartTime) + "ms");
+                Log.v(mTag, "Disconnected: " + name.getShortClassName());
             }
         }
     }
@@ -192,9 +169,8 @@ public abstract class ServiceProxy {
                 // Can be ignored safely
             }
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Wait for " + mName + (mDead ? " finished in " : " timed out in ") +
+                Log.v(mTag, "Wait for " + mName + " finished in " +
                         (System.currentTimeMillis() - time) + "ms");
-                mDead = true;
             }
         }
     }

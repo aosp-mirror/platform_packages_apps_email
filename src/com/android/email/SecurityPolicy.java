@@ -28,13 +28,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -137,7 +134,7 @@ public class SecurityPolicy {
         try {
             while (c.moveToNext()) {
                 policy.restore(c);
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, "Aggregate from: " + policy);
                 }
                 aggregate.mPasswordMinLength =
@@ -182,12 +179,12 @@ public class SecurityPolicy {
                 aggregate.mPasswordExpirationDays = 0;
             if (aggregate.mPasswordComplexChars == Integer.MIN_VALUE)
                 aggregate.mPasswordComplexChars = 0;
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, "Calculated Aggregate: " + aggregate);
             }
             return aggregate;
         }
-        if (MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(TAG, "Calculated Aggregate: no policy");
         }
         return Policy.NO_POLICY;
@@ -214,12 +211,11 @@ public class SecurityPolicy {
     }
 
     /**
-     * API: Report that policies may have been updated due to rewriting values in an Account; we
-     * clear the aggregate policy (so it can be recomputed) and set the policies in the DPM
+     * API: Report that policies may have been updated due to rewriting values in an Account.
+     * @param accountId the account that has been updated, -1 if unknown/deleted
      */
-    public synchronized void policiesUpdated() {
+    public synchronized void policiesUpdated(long accountId) {
         mAggregatePolicy = null;
-        setActivePolicies();
     }
 
     /**
@@ -229,10 +225,61 @@ public class SecurityPolicy {
      * rollbacks.
      */
     public void reducePolicies() {
-        if (MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(TAG, "reducePolicies");
         }
-        policiesUpdated();
+        policiesUpdated(-1);
+        setActivePolicies();
+    }
+
+    /**
+     * API: Query if the proposed set of policies are supported on the device.
+     *
+     * @param policy the polices that were requested
+     * @return boolean if supported
+     */
+    public boolean isSupported(Policy policy) {
+        // IMPLEMENTATION:  At this time, the only policy which might not be supported is
+        // encryption (which requires low-level systems support).  Other policies are fully
+        // supported by the framework and do not need to be checked.
+        if (policy.mRequireEncryption) {
+            int encryptionStatus = getDPM().getStorageEncryptionStatus();
+            if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
+                return false;
+            }
+        }
+
+        // If we ever support devices that can't disable cameras for any reason, we should
+        // indicate as such in the mDontAllowCamera policy
+
+        return true;
+    }
+
+    /**
+     * API: Remove any unsupported policies
+     *
+     * This is used when we have a set of polices that have been requested, but the server
+     * is willing to allow unsupported policies to be considered optional.
+     *
+     * @param policy the polices that were requested
+     * @return the same PolicySet if all are supported;  A replacement PolicySet if any
+     *   unsupported policies were removed
+     */
+    public Policy clearUnsupportedPolicies(Policy policy) {
+        // IMPLEMENTATION:  At this time, the only policy which might not be supported is
+        // encryption (which requires low-level systems support).  Other policies are fully
+        // supported by the framework and do not need to be checked.
+        if (policy.mRequireEncryption) {
+            int encryptionStatus = getDPM().getStorageEncryptionStatus();
+            if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
+                policy.mRequireEncryption = false;
+            }
+        }
+
+        // If we ever support devices that can't disable cameras for any reason, we should
+        // clear the mDontAllowCamera policy
+
+        return policy;
     }
 
     /**
@@ -244,7 +291,7 @@ public class SecurityPolicy {
      */
     public boolean isActive(Policy policy) {
         int reasons = getInactiveReasons(policy);
-        if (MailActivityEmail.DEBUG && (reasons != 0)) {
+        if (Email.DEBUG && (reasons != 0)) {
             StringBuilder sb = new StringBuilder("isActive for " + policy + ": ");
             if (reasons == 0) {
                 sb.append("true");
@@ -262,9 +309,6 @@ public class SecurityPolicy {
             }
             if ((reasons & INACTIVE_NEED_ENCRYPTION) != 0) {
                 sb.append("encryption ");
-            }
-            if ((reasons & INACTIVE_PROTOCOL_POLICIES) != 0) {
-                sb.append("protocol ");
             }
             Log.d(TAG, sb.toString());
         }
@@ -290,11 +334,6 @@ public class SecurityPolicy {
      * Return bits from isActive:  Encryption has not be enabled
      */
     public final static int INACTIVE_NEED_ENCRYPTION = 8;
-
-    /**
-     * Return bits from isActive:  Protocol-specific policies cannot be enforced
-     */
-    public final static int INACTIVE_PROTOCOL_POLICIES = 16;
 
     /**
      * API: Query used to determine if a given policy is "active" (the device is operating at
@@ -386,10 +425,6 @@ public class SecurityPolicy {
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
-            if (policy.mProtocolPoliciesUnsupported != null) {
-                reasons |= INACTIVE_PROTOCOL_POLICIES;
-            }
-
             // If we made it all the way, reasons == 0 here.  Otherwise it's a list of grievances.
             return reasons;
         }
@@ -408,12 +443,12 @@ public class SecurityPolicy {
         Policy aggregatePolicy = getAggregatePolicy();
         // if empty set, detach from policy manager
         if (aggregatePolicy == Policy.NO_POLICY) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, "setActivePolicies: none, remove admin");
             }
             dpm.removeActiveAdmin(mAdminName);
         } else if (isActiveAdmin()) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, "setActivePolicies: " + aggregatePolicy);
             }
             // set each policy in the policy manager
@@ -457,10 +492,6 @@ public class SecurityPolicy {
         Account account = Account.restoreAccountWithId(context, accountId);
         if (account != null) {
             setAccountHoldFlag(context, account, newState);
-            if (newState) {
-                // Make sure there's a notification up
-                NotificationController.getInstance(context).showSecurityNeededNotification(account);
-            }
         }
     }
 
@@ -481,37 +512,6 @@ public class SecurityPolicy {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.FLAGS, account.mFlags);
         account.update(context, cv);
-    }
-
-    /**
-     * API: Sync service should call this any time a sync fails due to isActive() returning false.
-     * This will kick off the notify-acquire-admin-state process and/or increase the security level.
-     * The caller needs to write the required policies into this account before making this call.
-     * Should not be called from UI thread - uses DB lookups to prepare new notifications
-     *
-     * @param accountId the account for which sync cannot proceed
-     */
-    public void policiesRequired(long accountId) {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
-        // In case the account has been deleted, just return
-        if (account == null) return;
-        if (account.mPolicyKey == 0) return;
-        Policy policy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
-        if (policy == null) return;
-        if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
-        }
-
-        // Mark the account as "on hold".
-        setAccountHoldFlag(mContext, account, true);
-
-        // Put up an appropriate notification
-        if (policy.mProtocolPoliciesUnsupported == null) {
-            NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
-        } else {
-            NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
-                    account);
-        }
     }
 
     public static void clearAccountPolicy(Context context, Account account) {
@@ -570,6 +570,15 @@ public class SecurityPolicy {
         }
     }
 
+    /**
+     * API: Report that policies may have been updated due to rewriting values in an Account; we
+     * clear the aggregate policy (so it can be recomputed) and set the policies in the DPM
+     */
+    public synchronized void policiesUpdated() {
+        mAggregatePolicy = null;
+        setActivePolicies();
+    }
+
     public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         Policy oldPolicy = null;
@@ -586,25 +595,8 @@ public class SecurityPolicy {
         }
 
         boolean setHold = false;
-        if (policy.mProtocolPoliciesUnsupported != null) {
-            // We can't support this, reasons in unsupportedRemotePolicies
-            Log.d(Logging.LOG_TAG,
-                    "Notify policies for " + account.mDisplayName + " not supported.");
-            setHold = true;
-            NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
-                    account);
-            // Erase data
-            Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
-            mContext.getContentResolver().delete(uri, null, null);
-        } else if (isActive(policy)) {
-            if (policyChanged) {
-                Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName + " changed.");
-                // Notify that policies changed
-                NotificationController.getInstance(mContext).showSecurityChangedNotification(
-                        account);
-            } else {
-                Log.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
-            }
+        if (isActive(policy)) {
+            // For Email1, ignore; it's really just a courtesy notification
         } else {
             setHold = true;
             Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName +
@@ -614,6 +606,38 @@ public class SecurityPolicy {
         }
         // Set/clear the account hold.
         setAccountHoldFlag(mContext, account, setHold);
+    }
+
+    /**
+     * API: Sync service should call this any time a sync fails due to isActive() returning false.
+     * This will kick off the notify-acquire-admin-state process and/or increase the security level.
+     * The caller needs to write the required policies into this account before making this call.
+     * Should not be called from UI thread - uses DB lookups to prepare new notifications
+     *
+     * @param accountId the account for which sync cannot proceed
+     */
+    public void policiesRequired(long accountId) {
+        Account account = Account.restoreAccountWithId(mContext, accountId);
+        // In case the account has been deleted, just return
+        if (account == null) return;
+        if (Email.DEBUG) {
+            if (account.mPolicyKey == 0) {
+                Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": none");
+            } else {
+                Policy policy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
+                if (policy == null) {
+                    Log.w(TAG, "No policy??");
+                } else {
+                    Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
+                }
+            }
+        }
+
+        // Mark the account as "on hold".
+        setAccountHoldFlag(mContext, account, true);
+
+        // Put up a notification
+        NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
     }
 
     /**
@@ -676,14 +700,13 @@ public class SecurityPolicy {
             Log.w(TAG, "Email administration disabled; deleting " + c.getCount() +
                     " secured account(s)");
             while (c.moveToNext()) {
-                long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
-                cr.delete(uri, null, null);
+                Controller.getInstance(context).deleteAccountSync(
+                        c.getLong(EmailContent.ID_PROJECTION_COLUMN), context);
             }
         } finally {
             c.close();
         }
-        policiesUpdated();
+        policiesUpdated(-1);
     }
 
     /**
@@ -726,7 +749,7 @@ public class SecurityPolicy {
                     nextExpiringAccountId);
         } else {
             // 5.  Actually expired - find all accounts that expire passwords, and wipe them
-            boolean wiped = wipeExpiredAccounts(context);
+            boolean wiped = wipeExpiredAccounts(context, Controller.getInstance(context));
             if (wiped) {
                 NotificationController.getInstance(mContext).showPasswordExpiredNotification(
                         nextExpiringAccountId);
@@ -756,7 +779,7 @@ public class SecurityPolicy {
      * @return true if one or more accounts were wiped
      */
     @VisibleForTesting
-    /*package*/ static boolean wipeExpiredAccounts(Context context) {
+    /*package*/ static boolean wipeExpiredAccounts(Context context, Controller controller) {
         boolean result = false;
         Cursor c = context.getContentResolver().query(Policy.CONTENT_URI,
                 Policy.ID_PROJECTION, HAS_PASSWORD_EXPIRATION, null, null);
@@ -770,8 +793,7 @@ public class SecurityPolicy {
                     // Mark the account as "on hold".
                     setAccountHoldFlag(context, account, true);
                     // Erase data
-                    Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
-                    context.getContentResolver().delete(uri, null, null);
+                    controller.deleteSyncedDataSync(accountId);
                     // Report one or more were found
                     result = true;
                 }

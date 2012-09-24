@@ -19,6 +19,8 @@ package com.android.email.mail.store;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.email.Email;
+import com.android.email.mail.Transport;
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.store.imap.ImapList;
@@ -27,7 +29,6 @@ import com.android.email.mail.store.imap.ImapResponseParser;
 import com.android.email.mail.store.imap.ImapUtility;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.MailTransport;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
@@ -60,7 +61,7 @@ class ImapConnection {
     /** The capabilities supported; a set of CAPABILITY_* values. */
     private int mCapabilities;
     private static final String IMAP_REDACTED_LOG = "[IMAP command redacted]";
-    MailTransport mTransport;
+    Transport mTransport;
     private ImapResponseParser mParser;
     private ImapStore mImapStore;
     private String mUsername;
@@ -145,7 +146,7 @@ class ImapConnection {
 
             mImapStore.ensurePrefixIsValid();
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
@@ -153,7 +154,7 @@ class ImapConnection {
             // NOTE:  Unlike similar code in POP3, I'm going to rethrow as-is.  There is a lot
             // of other code here that catches IOException and I don't want to break it.
             // This catch is only here to enhance logging of connection-time issues.
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw ioe;
@@ -390,7 +391,7 @@ class ImapConnection {
                 executeSimpleCommand(mIdPhrase);
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
@@ -415,7 +416,7 @@ class ImapConnection {
                 responseList = executeSimpleCommand(ImapConstants.NAMESPACE);
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
@@ -446,7 +447,7 @@ class ImapConnection {
             // options such as SASL
             executeSimpleCommand(mLoginPhrase, true);
         } catch (ImapException ie) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, ie.toString());
             }
             throw new AuthenticationFailedException(ie.getAlertText(), ie);
@@ -470,7 +471,7 @@ class ImapConnection {
                 responseList = executeSimpleCommand(ImapConstants.LIST + " \"\" \"\"");
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
@@ -503,7 +504,7 @@ class ImapConnection {
                 // Per RFC requirement (3501-6.2.1) gather new capabilities
                 return(queryCapabilities());
             } else {
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Logging.LOG_TAG, "TLS not supported but required");
                 }
                 throw new MessagingException(MessagingException.TLS_REQUIRED);

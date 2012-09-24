@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Citiţi ataşamentele e-mailurilor"</string>
-    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Permite aplicaţiei citirea ataşamentelor de e-mail."</string>
+    <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Permite aplicaţiei citirea ataşamentelor de e-mail."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Accesaţi datele furnizorului de e-mail"</string>
-    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Permite aplicaţiei să acceseze baza de date a adresei de e-mail, incluzând mesajele primite, mesajele trimise, numele de utilizator şi parolele."</string>
+    <string name="permission_access_provider_desc" msgid="2221907862438022705">"Permite acestei aplicaţii accesul la baza de date a adresei de e-mail, incluzând mesajele primite, mesajele trimise, numele de utilizatori şi parolele."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Scrieţi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Remediaţi erorile"</string>
@@ -36,7 +36,7 @@
     <string name="done_action" msgid="7497990549515580249">"Terminat"</string>
     <string name="create_action" msgid="3062715563215392251">"Creaţi unul nou"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Ştergeţi"</string>
-    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Nu există răspunsuri rapide."</string>
+    <string name="quick_responses_empty_view" msgid="1693308598242828422">"Nu există răspunsuri rapide"</string>
     <string name="discard_action" msgid="6532206074859505968">"Renunţaţi"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Salvaţi m. nef."</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Introd. un răspuns rapid"</string>
@@ -50,7 +50,7 @@
     <string name="search_action" msgid="6325101454876682308">"Căutaţi"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Setările contului"</string>
     <string name="settings_action" msgid="6334807007967459412">"Setări"</string>
-    <string name="menu_folder_options" msgid="2871906096248843471">"Opţiuni de sincronizare"</string>
+    <string name="mailbox_settings_action" msgid="8008375875310554776">"Opţiuni de sincronizare"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcaţi drept necitit"</string>
     <string name="move_action" msgid="3059189775933985898">"Mutaţi"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
@@ -133,7 +133,7 @@
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a scris:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Includeţi textul citat"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Includeţi textul"</string>
-    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Adăugaţi cel puţin un destinatar."</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Trebuie să adăugaţi cel puţin un destinatar."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Unele adrese de e-mail sunt nevalide."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Fişierul este prea mare pentru a fi ataşat."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Introduceţi un răspuns rapid"</string>
@@ -153,8 +153,8 @@
     <string name="message_view_attachment_saved" msgid="3432810414785232025">"Salvat"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Opriţi"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ataşament salvat ca <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Ataşamentul nu s-a salvat."</string>
-    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Unul sau mai multe ataşamente din mesajul dvs. redirecţionat vor fi descărcate înainte de a fi trimise."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2433097334272991035">"Nu s-a salvat ataşamentul."</string>
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Notă: unul sau mai multe ataşamente din mesajul dvs. redirecţionat vor fi descărcate înainte de a fi trimise."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Mesaj"</string>
     <string name="message_view_show_invite_action" msgid="8862797393776226777">"Invitaţi"</string>
   <plurals name="message_view_show_attachments_action">
@@ -210,7 +210,7 @@
   </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nu se pot redirecţiona unul sau mai multe ataşamente."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Ataşamentul nu a fost trimis"</string>
-    <string name="login_failed_ticker" msgid="2169365211566829350">"Conectare eşuată pentru <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
+    <string name="login_failed_ticker" msgid="5749227022559285302">"Conectare eşuată la <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
     <string name="login_failed_title" msgid="7624349996212476176">"Nu s-a putut conecta"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> O"</item>
@@ -232,22 +232,25 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Mai vechi"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurare cont"</string>
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Adăugaţi un cont Exchange"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Adăugaţi un cont Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cont de e-mail"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"Puteţi configura contul dvs. în doar câţiva paşi."</string>
+    <string name="accounts_welcome" msgid="1491126253077950685">"Puteţi configura e-mailul pentru cele mai multe conturi, urmând doar câţiva paşi."</string>
+    <string name="accounts_welcome_exchange" msgid="4432917203403596617">"Puteţi să configuraţi un cont Exchange urmând doar câţiva paşi."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1319376442032224845">"Puteţi să configuraţi un cont Exchange ActiveSync urmând doar câţiva paşi."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresă de e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Parolă"</string>
-    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Trimiteţi e-mailuri de pe acest cont în mod prestabilit"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Trimiteţi e-mailuri din acest cont în mod prestabilit."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configurare manuală"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Introduceţi o adresă de e-mail şi o parolă valide."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Cont duplicat"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizaţi deja acest nume de utilizator pentru contul „<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Această parolă începe sau se termină cu unul sau mai multe spaţii. Numeroase servere nu acceptă parole cu spaţii."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Se preiau informaţiile despre cont..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Se validează setările serverului..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Se validează setările SMTP..."</string>
-    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Se creează contul…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Se verifică setările pentru serverul mesajelor de intrare..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Se verifică setările serverului de mesaje de ieşire..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configurare cont"</string>
-    <string name="account_setup_names_headline" msgid="914858472109729140">"Contul este configurat, iar e-mailul funcţionează corect!"</string>
+    <string name="account_setup_names_headline" msgid="2413440250372658881">"Contul este configurat, iar e-mailul funcţionează corect!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Daţi un nume acestui cont (opţional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Numele dvs. (afişat în mesajele de trimitere)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Acest câmp nu poate rămâne necompletat."</string>
@@ -258,7 +261,8 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Setări pentru serverul de mesaje de intrare"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nume de utilizator"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Parolă"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP3"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipul de securitate"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Niciunul"</string>
@@ -276,7 +280,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipul de securitate"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Necesită conectare"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Solicitaţi conectarea."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nume de utilizator"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Parolă"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Configurare cont"</string>
@@ -301,11 +305,11 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"La fiecare 15 minute"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"La fiecare 30 de minute"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"La fiecare oră"</string>
-    <string name="account_setup_options_default_label" msgid="2617227194283720914">"Trimiteţi e-mailuri de pe acest cont în mod prestabilit"</string>
-    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Doresc să fiu notificat(ă) la primirea de e-mailuri"</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Doresc sincronizarea agendei acestui cont"</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Doresc sincronizarea calendarului acestui cont"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Doresc sincronizarea mesajelor de e-mail din acest cont"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Trimiteţi e-mailuri din acest cont"</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Doresc să primesc notificare la primirea de e-mailuri."</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Doresc sincronizarea agendei acestui cont."</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincronizaţi calendarul acestui cont."</string>
+    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincron. e-mail din acest cont."</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Doresc să se descarce automat ataşamentele când sunt conectat(ă) la Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nu s-a putut finaliza"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Zile pentru sincronizare"</string>
@@ -317,13 +321,13 @@
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"O lună"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Toate"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Setări prestabilite cont"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Numele de utilizator sau parola sunt incorecte."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Conectarea a eşuat."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nume de utilizator sau parolă incorectă."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nume de utilizator sau parolă incorectă."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nu se poate conecta în siguranţă la server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nu se poate conecta în siguranţă la server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Este necesar un certificat de client. Doriţi să vă conectaţi la server cu un certificat de client?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certificat nevalid sau inaccesibil."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serverul a răspuns cu o eroare. Verificaţi numele de utilizator şi parola şi încercaţi din nou."</string>
+    <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Este necesar un certificat de client. Vă conectaţi la server cu un certificat de client?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificat nevalid sau inaccesibil."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Serverul a răspuns cu o eroare. Verificaţi numele de utilizator şi parola şi încercaţi din nou."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nu se poate conecta la server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nu se poate conecta la server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS solicitat, dar neacceptat de către server."</string>
@@ -339,12 +343,8 @@
     <string name="disable_admin_warning" msgid="6196985268695592382">"AVERTISMENT: dacă dezactivaţi autoritatea aplicaţiei E-mail de administrare a dispozitivului dvs. se şterg toate conturile de e-mail care au nevoie de aceasta, împreună cu e-mailurile, agenda, evenimentele din calendar şi alte date pe care aceste conturi le conţin."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Actualizare de securitate"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> vă solicită actualizarea setărilor dvs. de securitate."</string>
-    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"Contul „<xliff:g id="ACCOUNT">%s</xliff:g>” nu poate fi sincronizat din cauza cerinţelor de securitate."</string>
-    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"Contul „<xliff:g id="ACCOUNT">%s</xliff:g>” necesită actualizarea setărilor de securitate."</string>
-    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"Contul „<xliff:g id="ACCOUNT">%s</xliff:g>” şi-a schimbat setările de securitate. Nu este necesară nicio acţiune din partea utilizatorului."</string>
-    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Actualizare de securitate obligatorie"</string>
-    <string name="security_notification_content_change_title" msgid="443490921895642130">"Pol. securitate s-au schimbat"</string>
-    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Politici securitate nerespect."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Contul „<xliff:g id="ACCOUNT">%s</xliff:g>” necesită actualizarea setărilor de securitate."</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Actual. de securitate necesară"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Securitatea dispozitivului"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serverul <xliff:g id="SERVER">%s</xliff:g> vă solicită permisiunea de a controla de la distanţă unele caracteristici de securitate ale dispozitivului dvs. Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modificaţi detaliile"</string>
@@ -353,53 +353,38 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"Codul PIN sau parola de blocare a ecranului a expirat."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Parolă bloc. ecran. expirată"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Parola de blocare ecran expiră în curând"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Este necesar să modificaţi curând codul PIN sau parola ecranului de blocare; în caz contrar datele pentru <xliff:g id="ACCOUNT">%s</xliff:g> vor fi şterse. Modificaţi acum?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Este necesar să modificaţi în curând codul PIN sau parola de blocare a ecranului. În caz contrar, datele pentru <xliff:g id="ACCOUNT">%s</xliff:g> vor fi şterse. Modificaţi acum?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Parola de blocare ecran expirată"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Datele pentru <xliff:g id="ACCOUNT">%s</xliff:g> sunt şterse de pe dispozitiv, dar le puteţi restabili modificând codul PIN sau parola de blocare a ecranului. Modificaţi acum?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Datele pentru <xliff:g id="ACCOUNT">%s</xliff:g> sunt şterse de pe dispozitiv, dar le puteţi restabili modificând codul PIN sau parola de blocare a ecranului. Modificaţi acum?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Renunţaţi la modificările nesalvate?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Nu s-a putut conecta"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Numele de utilizator sau parola pentru <xliff:g id="ACCOUNT">%s</xliff:g> sunt incorecte. Doriţi să le actualizaţi acum?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Conectarea dvs. la <xliff:g id="ACCOUNT">%s</xliff:g> a eşuat; motivul invocat de server a fost: <xliff:g id="REASON">%s</xliff:g> Doriţi să actualizaţi numele de utilizator şi/sau parola?"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Numele de utilizator sau parola pentru <xliff:g id="ACCOUNT">%s</xliff:g> este incorectă. Le actualizaţi acum?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cont prestabilit"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Trimiteţi e-mailuri de pe acest cont în mod prestabilit"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Descărcaţi ataşamentele"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Descărcaţi în mod automat prin Wi-Fi ataşam. mesaj. recente"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificările de e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frecvenţa sincronizării, notificări etc."</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Trimiteţi notificare la primire e-mail"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Doresc să fiu notificat(ă) în bara de sistem la primirea e-mailurilor"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frecvenţa verificării mesajelor primite"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Setări pentru mesajele primite"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nume utilizator, parolă şi alte setări pt. serverul de primire"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Setări pentru mesajele de trimitere"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nume utilizator, parolă şi alte setări pt. server de trimitere"</string>
-    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Politicile puse în aplicare"</string>
-    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Niciunul"</string>
-    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Politici neacceptate"</string>
-    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Niciunul"</string>
-    <string name="account_settings_retry_label" msgid="1104680719299842829">"Încercaţi sincronizarea"</string>
-    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Atingeţi aici pentru a sincroniza acest cont"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Numele contului"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Numele dvs."</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Semnătura"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Răspunsuri rapide"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Editaţi textul introdus frecvent când scrieţi e-mailuri"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Editaţi textul introdus frecvent când scrieţi e-mailuri"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Adăugaţi text la mesajele trimise"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Setări pentru notificări"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Utilizarea datelor"</string>
-    <string name="account_settings_policies" msgid="6292833636418641840">"Politici de securitate"</string>
-    <string name="system_folders_title" msgid="2934406494244347991">"Dosare sistem"</string>
-    <string name="system_folders_trash_title" msgid="8470058000681188327">"Dosarul coş de gunoi"</string>
-    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Selectaţi dosarul coş de gunoi al serverului dvs."</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Selectaţi dosarul coş de gunoi al serverului dvs."</string>
-    <string name="system_folders_sent_title" msgid="4265722817877075367">"Dosar articole trimise"</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editaţi răspunsul rapid"</string>
     <string name="save_action" msgid="1988862706623227093">"Salvaţi"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizaţi persoanele din agendă"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincron. agenda pt. acest cont"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizaţi calendarul"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincron. evenim. calendar pt. cont"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sincron. Calendar"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Sincron. calendarul pt. acest cont"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincroniz. e-mailul"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincron. e-mail pt. acest cont"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrare"</string>
@@ -437,18 +422,10 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> (de) rezultate din <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Setări"</string>
-    <string name="header_label_general_preferences" msgid="8243724566056800991">"Setări generale"</string>
+    <string name="header_label_general_preferences" msgid="9204600297009680176">"Generale"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicaţie"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Înaintare automată"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Alegeţi ce ecran se afişează după ştergerea unui mesaj"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ascundeţi casetele de validare"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"În listele de mesaje, atingeţi şi ţineţi apăsat pentru a selecta"</string>
-    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmaţi înainte de a şterge"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mesaje"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Glisaţi pentru a şterge"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Ştergeţi un mesaj din listă prin glisare"</string>
-    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmaţi înainte de a trimite"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mesaje"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Înaintaţi la"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mesaje mai noi"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mesaj mai vechi"</string>
@@ -482,33 +459,13 @@
     <string name="widget_loading" msgid="2340962056927255554">"Se încarcă..."</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Atingeţi pentru a configura."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Nu aţi configurat niciun cont de e-mail."</string>
+    <string name="widget_no_mailboxes" msgid="5222354534538852579">"Acest cont nu este sincronizat. Încercaţi din nou mai târziu."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Căutaţi în e-mail"</string>
     <string name="search_mailbox_hint" msgid="7854987729678942790">"Căutaţi în <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="search_header_text_fmt" msgid="3857004638127418247">"Rezultatele căutării pentru „<xliff:g id="ID_1">%1$s</xliff:g>”"</string>
+    <string name="search_header_text_fmt" msgid="2638602588841231811">"Rezultate"</string>
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Se aşteaptă rezultatele"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Pentru unele servere poate fi necesar un interval mare de timp."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Dosare"</string>
-    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Nu permiteţi utilizarea camerei foto"</string>
-    <string name="policy_require_password" msgid="7177274900480984702">"Solicitaţi parola dispozitivului"</string>
-    <string name="policy_password_history" msgid="5743544498302303181">"Limitaţi reutilizarea parolelor recente"</string>
-    <string name="policy_password_expiration" msgid="1248123255253649199">"Solicitaţi expirarea parolelor"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"Disp. inactiv necesar pt. blocare ecran"</string>
-    <string name="policy_calendar_age" msgid="627405158087482302">"Limitare număr evenimente de calendar sincronizate"</string>
-    <string name="policy_email_age" msgid="7144148367145424963">"Limitare număr de e-mailuri sincronizate"</string>
-    <string name="quick_1" msgid="3426057697353380951">"Vă mulţumim!"</string>
-    <string name="quick_2" msgid="4188036352885736617">"Sună bine!"</string>
-    <string name="quick_3" msgid="8061819976353395585">"Voi citi mai târziu acest mesaj şi vă voi contacta."</string>
-    <string name="quick_4" msgid="3988974084396883051">"Să stabilim o întâlnire pentru a discuta această acţiune."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sincronizarea în fundal pentru acest cont este dezactivată în roaming."</string>
-    <string name="confirm_response" msgid="9151965975158906286">"Se trimite răspunsul…"</string>
-    <string name="no_conversations" msgid="5559527390337162819">"Niciun mesaj."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
-    <string name="folder_picker_title" msgid="860241987640527156">"Selector dosare"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Dosarul coş de gunoi pentru <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Dosar articole trimise pentru <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="create_new_folder" msgid="2726544180243210741">"Creaţi un dosar"</string>
-    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Se încarcă lista cu dosare…"</string>
 </resources>

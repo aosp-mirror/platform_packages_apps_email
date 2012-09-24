@@ -121,28 +121,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="system_folders"
-        android:title="@string/system_folders_title">
-
-        <Preference
-            android:key="system_folders_trash"
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:title="@string/system_folders_trash_title"
-            android:summary="@string/system_folders_trash_summary"
-            android:dialogTitle="@string/system_folders_trash_dlg"
-            />
-
-        <Preference
-            android:key="system_folders_sent"
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:title="@string/system_folders_sent_title"
-            android:summary="@string/system_folders_sent_summary"
-            android:dialogTitle="@string/system_folders_sent_dlg"
-            />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
         android:key="account_servers"
         android:title="@string/account_settings_servers">
 
@@ -158,23 +136,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="account_policies"
-        android:title="@string/account_settings_policies">
+        android:title="@string/account_settings_category_delete_account">
 
-        <com.android.email.activity.setup.PolicyListPreference
-            android:key="policies_enforced"
-            android:title="@string/account_settings_enforced_label"
-            android:summary="@string/account_settings_enforced_summary" />
-
-        <com.android.email.activity.setup.PolicyListPreference
-            android:key="policies_unsupported"
-            android:title="@string/account_settings_unsupported_label"
-            android:summary="@string/account_settings_unsupported_summary" />
-
-        <Preference
-            android:key="policies_retry_account"
-            android:title="@string/account_settings_retry_label"
-            android:summary="@string/account_settings_retry_summary" />
+        <PreferenceScreen
+            android:key="delete_account"
+            android:title="@string/account_settings_delete_account_label" />
     </PreferenceCategory>
 
 </PreferenceScreen>

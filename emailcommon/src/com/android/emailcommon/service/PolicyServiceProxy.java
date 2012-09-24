@@ -17,6 +17,7 @@
 package com.android.emailcommon.service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -28,11 +29,14 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
     private static final String TAG = "PolicyServiceProxy";
 
+    // The intent used by sync adapter services to connect to the PolicyService
+    public static final String POLICY_INTENT = "com.android.email.POLICY_INTENT";
+
     private IPolicyService mService = null;
     private Object mReturn = null;
 
     public PolicyServiceProxy(Context _context) {
-        super(_context, getIntentForEmailPackage(_context, "POLICY_INTENT"));
+        super(_context, new Intent(POLICY_INTENT));
     }
 
     @Override

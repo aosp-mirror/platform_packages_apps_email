@@ -25,8 +25,8 @@
         android:title="@string/account_settings_action"
         android:summary="@string/account_settings_summary">
         <intent
-            android:action="@string/intent_account_manager_entry"
-        />
+            android:action="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY"
+            />
     </PreferenceScreen>
 
 </PreferenceScreen>

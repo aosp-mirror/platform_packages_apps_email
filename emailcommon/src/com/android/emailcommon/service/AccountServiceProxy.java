@@ -24,13 +24,14 @@ import android.os.RemoteException;
 
 public class AccountServiceProxy extends ServiceProxy implements IAccountService {
 
+    public static final String ACCOUNT_INTENT = "com.android.email.ACCOUNT_INTENT";
     public static final int DEFAULT_ACCOUNT_COLOR = 0xFF0000FF;
 
     private IAccountService mService = null;
     private Object mReturn;
 
     public AccountServiceProxy(Context _context) {
-        super(_context, getIntentForEmailPackage(_context, "ACCOUNT_INTENT"));
+        super(_context, new Intent(ACCOUNT_INTENT));
     }
 
     @Override
@@ -44,11 +45,11 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void notifyLoginFailed(final long accountId, final String reason) {
+    public void notifyLoginFailed(final long accountId) {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.notifyLoginFailed(accountId, reason);
+                mService.notifyLoginFailed(accountId);
             }
         }, "notifyLoginFailed");
     }

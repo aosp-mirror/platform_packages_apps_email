@@ -16,16 +16,16 @@
 
 package com.android.email.mail.store.imap;
 
-import android.text.TextUtils;
-import android.util.Log;
-
+import com.android.email.Email;
 import com.android.email.FixedLengthInputStream;
 import com.android.email.PeekableInputStream;
 import com.android.email.mail.transport.DiscourseLogger;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.LoggingInputStream;
+
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ public class ImapResponseParser {
     /**
      * Literal larger than this will be stored in temp file.
      */
-    public static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 2 * 1024 * 1024;
+    private static final int LITERAL_KEEP_IN_MEMORY_THRESHOLD = 2 * 1024 * 1024;
 
     /** Input stream */
     private final PeekableInputStream mIn;
@@ -89,7 +89,7 @@ public class ImapResponseParser {
      */
     /* package for test */ ImapResponseParser(InputStream in, DiscourseLogger discourseLogger,
             int literalKeepInMemoryThreshold) {
-        if (DEBUG_LOG_RAW_STREAM && MailActivityEmail.DEBUG) {
+        if (DEBUG_LOG_RAW_STREAM && Email.DEBUG) {
             in = new LoggingInputStream(in);
         }
         mIn = new PeekableInputStream(in);
@@ -99,7 +99,7 @@ public class ImapResponseParser {
 
     private static IOException newEOSException() {
         final String message = "End of stream reached";
-        if (MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(Logging.LOG_TAG, message);
         }
         return new IOException(message);
@@ -161,7 +161,7 @@ public class ImapResponseParser {
         ImapResponse response = null;
         try {
             response = parseResponse();
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "<<< " + response.toString());
             }
 

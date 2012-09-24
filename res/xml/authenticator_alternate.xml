@@ -23,9 +23,9 @@
 <!-- The only difference from authenticator.xml is android:label. -->
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="@string/account_manager_type_exchange"
-    android:icon="@mipmap/ic_launcher_mail"
-    android:smallIcon="@drawable/stat_notify_email_generic"
+    android:accountType="com.android.exchange"
+    android:icon="@drawable/ic_exchange_selected"
+    android:smallIcon="@drawable/ic_exchange_minitab_selected"
     android:label="@string/exchange_name_alternate"
     android:accountPreferences="@xml/account_preferences"
 />

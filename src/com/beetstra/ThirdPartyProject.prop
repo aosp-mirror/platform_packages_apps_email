@@ -1,0 +1,9 @@
+# Copyright 2010 Google Inc. All Rights Reserved.
+#Fri Jul 16 10:03:09 PDT 2010
+currentVersion=1.0.0
+version=1.0.0
+isNative=false
+name=utf7_support
+keywords=utf7 support
+onDevice=true
+homepage=http\://sourceforge.net/projects/jutf7/

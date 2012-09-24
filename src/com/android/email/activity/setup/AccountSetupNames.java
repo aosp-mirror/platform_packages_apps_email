@@ -37,11 +37,11 @@ import android.widget.EditText;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
+import com.android.email.activity.Welcome;
 import com.android.email.provider.AccountBackupRestore;
-import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
@@ -56,10 +56,10 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private EditText mDescription;
     private EditText mName;
     private Button mNextButton;
-    private boolean mRequiresName = true;
+    private boolean mEasAccount = false;
 
     public static void actionSetNames(Activity fromActivity) {
-        fromActivity.startActivity(new ForwardingIntent(fromActivity, AccountSetupNames.class));
+        fromActivity.startActivity(new Intent(fromActivity, AccountSetupNames.class));
     }
 
     @Override
@@ -109,10 +109,8 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         }
 
         // Remember whether we're an EAS account, since it doesn't require the user name field
-        EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(this, account.mHostAuthRecv.mProtocol);
-        if (!info.usesSmtp) {
-            mRequiresName = false;
+        mEasAccount = HostAuth.SCHEME_EAS.equals(account.mHostAuthRecv.mProtocol);
+        if (mEasAccount) {
             mName.setVisibility(View.GONE);
             accountNameLabel.setVisibility(View.GONE);
         } else {
@@ -169,7 +167,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private void validateFields() {
         boolean enableNextButton = true;
         // Validation is based only on the "user name" field, not shown for EAS accounts
-        if (mRequiresName) {
+        if (!mEasAccount) {
             String userName = mName.getText().toString().trim();
             if (TextUtils.isEmpty(userName)) {
                 enableNextButton = false;
@@ -192,9 +190,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     private void finishActivity() {
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_NO_ACCOUNTS) {
-            AccountSetupBasics.actionAccountCreateFinishedWithResult(this);
-        } else if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
+        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
             AccountSetupBasics.actionAccountCreateFinishedAccountFlow(this);
         } else {
             Account account = SetupData.getAccount();
@@ -203,8 +199,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
             } else {
                 // Safety check here;  If mAccount is null (due to external issues or bugs)
                 // just rewind back to Welcome, which can handle any configuration of accounts
-                //***
-               //Welcome.actionStart(this);
+                Welcome.actionStart(this);
             }
         }
         finish();
