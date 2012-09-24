@@ -41,9 +41,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     }
 
     // These legacy constants should be used in code created prior to Email2
-    public static final String LEGACY_SCHEME_IMAP = "imap";
-    public static final String LEGACY_SCHEME_POP3 = "pop3";
-    public static final String LEGACY_SCHEME_EAS = "eas";
     public static final String LEGACY_SCHEME_SMTP = "smtp";
 
     public static final String SCHEME_TRUST_ALL_CERTS = "trustallcerts";
