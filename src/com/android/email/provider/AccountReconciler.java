@@ -26,6 +26,8 @@ import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Mailbox;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
@@ -108,9 +110,20 @@ public class AccountReconciler {
             }
             if (!found) {
                 if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                    Log.w(Logging.LOG_TAG,
-                            "Account reconciler noticed incomplete account; ignoring");
-                    continue;
+                    // Do another test before giving up; an incomplete account shouldn't have
+                    // any mailboxes (the incomplete flag is used to prevent reconciliation
+                    // between the time the EP account is created and when the AM account is
+                    // asynchronously created)
+                    if (EmailContent.count(providerContext, Mailbox.CONTENT_URI,
+                            Mailbox.ACCOUNT_KEY + "=?",
+                            new String[] { Long.toString(providerAccount.mId) } ) > 0) {
+                        Log.w(Logging.LOG_TAG,
+                                "Account reconciler found wrongly incomplete account");
+                    } else {
+                        Log.w(Logging.LOG_TAG,
+                                "Account reconciler noticed incomplete account; ignoring");
+                        continue;
+                    }
                 }
 
                 needsReconciling = true;
