@@ -403,6 +403,18 @@ public class NotificationController {
         return intent;
     }
 
+    private Intent createViewMailboxIntent(com.android.mail.providers.Account account,
+            Folder folder) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(EXTRA_ACCOUNT, account.serialize());
+        if (folder != null) {
+            intent.setDataAndType(folder.uri, account.mimeType);
+            intent.putExtra(EXTRA_FOLDER, Folder.toString(folder));
+        }
+        return intent;
+    }
+
     private Cursor getUiCursor(Uri uri, String[] projection) {
         Cursor c = mContext.getContentResolver().query(uri, projection, null, null, null);
         if (c == null) return null;
@@ -442,7 +454,44 @@ public class NotificationController {
         c.close();
         return createViewConversationIntent(conv, folder, acct);
     }
-    
+
+    private Intent createViewMailboxIntentForMessage(Message message) {
+        Cursor c = null;
+        com.android.mail.providers.Account acct = null;
+        try {
+            c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
+                    UIProvider.ACCOUNTS_PROJECTION);
+            if (c == null) {
+                Log.w(TAG, "Can't find account for message " + message.mId);
+                return null;
+            }
+            acct = new com.android.mail.providers.Account(c);
+        } finally {
+            if (c != null) {
+                c.close();
+                c = null;
+            }
+        }
+
+        Folder folder = null;
+        try {
+            c = getUiCursor(EmailProvider.uiUri("uifolder", message.mMailboxKey),
+                    UIProvider.FOLDERS_PROJECTION);
+            if (c == null) {
+                Log.w(TAG, "Can't find folder for message " + message.mId + ", folder " +
+                        message.mMailboxKey);
+                return null;
+            }
+            folder = new Folder(c);
+        } finally {
+            if (c != null) {
+                c.close();
+                c = null;
+            }
+        }
+        return createViewMailboxIntent(acct, folder);
+    }
+
     /**
      * Returns a "new message" notification for the given account.
      *
@@ -483,7 +532,12 @@ public class NotificationController {
                 : message.mSubject;
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unreadCount > 1 ? unreadCount : null;
-        Intent intent = createViewConversationIntent(message);
+        final Intent intent;
+        if (multipleUnseen) {
+            intent = createViewMailboxIntentForMessage(message);
+        } else {
+            intent = createViewConversationIntent(message);
+        }
         if (intent == null) {
             return null;
         }
