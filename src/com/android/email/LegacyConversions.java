@@ -41,7 +41,6 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.mail.providers.UIProvider;
 
 import org.apache.commons.io.IOUtils;
 
@@ -185,7 +184,7 @@ public class LegacyConversions {
      * @param part a single attachment part from POP or IMAP
      * @throws IOException
      */
-    public static void addOneAttachment(Context context, EmailContent.Message localMessage,
+    private static void addOneAttachment(Context context, EmailContent.Message localMessage,
             Part part) throws MessagingException, IOException {
 
         Attachment localAttachment = new Attachment();
@@ -213,14 +212,11 @@ public class LegacyConversions {
         String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
         String partId = partIds != null ? partIds[0] : null;
 
-        // Run the mime type through inferMimeType in case we have something generic and can do
-        // better using the filename extension
-        String mimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
-        localAttachment.mMimeType = mimeType;
         localAttachment.mFileName = name;
+        localAttachment.mMimeType = part.getMimeType();
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();
-        localAttachment.setContentUri(null);     // Will be rewritten by saveAttachmentBody
+        localAttachment.mContentUri = null;     // Will be rewritten by saveAttachmentBody
         localAttachment.mMessageKey = localMessage.mId;
         localAttachment.mLocation = partId;
         localAttachment.mEncoding = "B";        // TODO - convert other known encodings
@@ -314,13 +310,12 @@ public class LegacyConversions {
                     accountId, attachmentId).toString();
 
             localAttachment.mSize = copySize;
-            localAttachment.setContentUri(contentUriString);
+            localAttachment.mContentUri = contentUriString;
 
             // update the attachment in the database as well
             ContentValues cv = new ContentValues();
             cv.put(AttachmentColumns.SIZE, copySize);
             cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
-            cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
             Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             context.getContentResolver().update(uri, cv, null, null);
         }

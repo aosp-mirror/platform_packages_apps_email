@@ -19,16 +19,28 @@ package com.android.emailcommon;
 import android.content.Context;
 
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Constants for tagging threads for traffic stats, and associated utilities
  *
  * Example usage:
- *  TrafficStats.setThreadStatsTag(accountId | DATA_EMAIL | REASON_SYNC);
+ *  TrafficStats.setThreadStatsTag(accountId | PROTOCOL_IMAP | DATA_EMAIL | REASON_SYNC);
  */
 public class TrafficFlags {
     // Bits 0->15, account id
     private static final int ACCOUNT_MASK = 0x0000FFFF;
+
+    // Bits 16&17, protocol (0 = POP3)
+    private static final int PROTOCOL_SHIFT = 16;
+    private static final int PROTOCOL_MASK = 3 << PROTOCOL_SHIFT;
+    public static final int PROTOCOL_POP3 = 0 << PROTOCOL_SHIFT;
+    public static final int PROTOCOL_IMAP = 1 << PROTOCOL_SHIFT;
+    public static final int PROTOCOL_EAS = 2 << PROTOCOL_SHIFT;
+    public static final int PROTOCOL_SMTP = 3 << PROTOCOL_SHIFT;
+    private static final String[] PROTOCOLS = new String[] {HostAuth.SCHEME_POP3,
+        HostAuth.SCHEME_IMAP, HostAuth.SCHEME_EAS, HostAuth.SCHEME_SMTP};
 
     // Bits 18&19, type (0 = EMAIL)
     private static final int DATA_SHIFT = 18;
@@ -56,7 +68,8 @@ public class TrafficFlags {
      * @return flags for syncing this account
      */
     public static int getSyncFlags(Context context, Account account) {
-        return (int)account.mId | REASON_SYNC;
+        int protocolIndex = Utility.arrayIndex(PROTOCOLS, account.getProtocol(context));
+        return (int)account.mId | REASON_SYNC | (protocolIndex << PROTOCOL_SHIFT);
     }
 
     /**
@@ -67,7 +80,8 @@ public class TrafficFlags {
      * @return flags for loading an attachment in this account
      */
     public static int getAttachmentFlags(Context context, Account account) {
-        return (int)account.mId | REASON_ATTACHMENT_USER;
+        int protocolIndex = Utility.arrayIndex(PROTOCOLS, account.getProtocol(context));
+        return (int)account.mId | REASON_ATTACHMENT_USER | (protocolIndex << PROTOCOL_SHIFT);
     }
 
     /**
@@ -78,7 +92,7 @@ public class TrafficFlags {
      * @return flags for sending SMTP email from this account
      */
     public static int getSmtpFlags(Context context, Account account) {
-        return (int)account.mId | REASON_SYNC;
+        return (int)account.mId | REASON_SYNC | PROTOCOL_SMTP;
     }
 
     public static String toString(int flags) {
@@ -87,6 +101,8 @@ public class TrafficFlags {
         sb.append(flags & ACCOUNT_MASK);
         sb.append(',');
         sb.append(REASONS[(flags & REASON_MASK) >> REASON_SHIFT]);
+        sb.append(',');
+        sb.append(PROTOCOLS[(flags & PROTOCOL_MASK) >> PROTOCOL_SHIFT]);
         int maskedData = flags & DATA_MASK;
         if (maskedData != 0) {
             sb.append(',');

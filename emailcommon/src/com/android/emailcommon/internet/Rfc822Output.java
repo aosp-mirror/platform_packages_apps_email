@@ -16,8 +16,12 @@
 
 package com.android.emailcommon.internet;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 
@@ -38,9 +42,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,10 +52,16 @@ import java.util.regex.Pattern;
  */
 public class Rfc822Output {
 
+    private static final Pattern PATTERN_START_OF_LINE = Pattern.compile("(?m)^");
+    private static final Pattern PATTERN_ENDLINE_CRLF = Pattern.compile("\r\n");
+
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     private static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+
+    private static final String WHERE_NOT_SMART_FORWARD = "(" + Attachment.FLAGS + "&" +
+        Attachment.FLAG_SMART_FORWARD + ")=0";
 
     /** A less-than-perfect pattern to pull out <body> content */
     private static final Pattern BODY_PATTERN = Pattern.compile(
@@ -61,6 +69,11 @@ public class Rfc822Output {
                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     /** Match group in {@code BODDY_PATTERN} for the body HTML */ 
     private static final int BODY_PATTERN_GROUP = 1;
+    /** Pattern to find both dos and unix newlines */
+    private static final Pattern NEWLINE_PATTERN =
+        Pattern.compile("\\r?\\n");
+    /** HTML string to use when replacing text newlines */
+    private static final String NEWLINE_HTML = "<br>";
     /** Index of the plain text version of the message body */
     private final static int INDEX_BODY_TEXT = 0;
     /** Index of the HTML version of the message body */
@@ -83,19 +96,77 @@ public class Rfc822Output {
     }
 
     /**
+     * Returns an HTML encoded message alternate
+     */
+    /*package*/ static String getHtmlAlternate(Body body, boolean useSmartReply) {
+        if (body.mHtmlReply == null) {
+            return null;
+        }
+        StringBuffer altMessage = new StringBuffer();
+        String htmlContent = TextUtils.htmlEncode(body.mTextContent); // Escape HTML reserved chars
+        htmlContent = NEWLINE_PATTERN.matcher(htmlContent).replaceAll(NEWLINE_HTML);
+        altMessage.append(htmlContent);
+        if (body.mIntroText != null) {
+            String htmlIntro = TextUtils.htmlEncode(body.mIntroText);
+            htmlIntro = NEWLINE_PATTERN.matcher(htmlIntro).replaceAll(NEWLINE_HTML);
+            altMessage.append(htmlIntro);
+        }
+        if (!useSmartReply) {
+            String htmlBody = getHtmlBody(body.mHtmlReply);
+            altMessage.append(htmlBody);
+        }
+        return altMessage.toString();
+    }
+
+    /**
      * Gets both the plain text and HTML versions of the message body.
      */
     /*package*/ static String[] buildBodyText(Body body, int flags, boolean useSmartReply) {
+        String[] messageBody = new String[] { null, null };
         if (body == null) {
-            return new String[2];
+            return messageBody;
         }
-        String[] messageBody = new String[] { body.mTextContent, body.mHtmlContent };
-        if (useSmartReply && body.mQuotedTextStartPos > 0) {
-            if (messageBody[0] != null) {
-                messageBody[0] = messageBody[0].substring(0, body.mQuotedTextStartPos);
-            } else if (messageBody[1] != null) {
-                messageBody[1] = messageBody[1].substring(0, body.mQuotedTextStartPos);
+        String text = body.mTextContent;
+        boolean isReply = (flags & Message.FLAG_TYPE_REPLY) != 0;
+        boolean isForward = (flags & Message.FLAG_TYPE_FORWARD) != 0;
+        // For all forwards/replies, we add the intro text
+        if (isReply || isForward) {
+            String intro = body.mIntroText == null ? "" : body.mIntroText;
+            text += intro;
+        }
+        if (useSmartReply) {
+            // useSmartReply is set to true for use by SmartReply/SmartForward in EAS.
+            // SmartForward doesn't put a break between the original and new text, so we add an LF
+            if (isForward) {
+                text += "\n";
             }
+        } else {
+            String quotedText = body.mTextReply;
+            // If there is no plain-text body, use de-tagified HTML as the text body
+            if (quotedText == null && body.mHtmlReply != null) {
+                quotedText = Html.fromHtml(body.mHtmlReply).toString();
+            }
+            if (quotedText != null) {
+                // fix CR-LF line endings to LF-only needed by EditText.
+                Matcher matcher = PATTERN_ENDLINE_CRLF.matcher(quotedText);
+                quotedText = matcher.replaceAll("\n");
+            }
+            if (isReply) {
+                if (quotedText != null) {
+                    Matcher matcher = PATTERN_START_OF_LINE.matcher(quotedText);
+                    text += matcher.replaceAll(">");
+                }
+            } else if (isForward) {
+                if (quotedText != null) {
+                    text += quotedText;
+                }
+            }
+        }
+        messageBody[INDEX_BODY_TEXT] = text;
+        // Exchange 2003 doesn't seem to support multipart w/SmartReply and SmartForward, so
+        // we'll skip this.  Really, it would only matter if we could compose HTML replies
+        if (!useSmartReply) {
+            messageBody[INDEX_BODY_HTML] = getHtmlAlternate(body, useSmartReply);
         }
         return messageBody;
     }
@@ -108,16 +179,9 @@ public class Rfc822Output {
      * @param messageId the message to write out
      * @param out the output stream to write the message to
      * @param useSmartReply whether or not quoted text is appended to a reply/forward
-     * @param a list of attachments to send (or null if retrieved from the message itself)
      */
     public static void writeTo(Context context, long messageId, OutputStream out,
             boolean useSmartReply, boolean sendBcc) throws IOException, MessagingException {
-        writeTo(context, messageId, out, useSmartReply, sendBcc, null);
-    }
-
-    public static void writeTo(Context context, long messageId, OutputStream out,
-            boolean useSmartReply, boolean sendBcc, List<Attachment> attachments)
-                    throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -152,53 +216,59 @@ public class Rfc822Output {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
         String[] bodyText = buildBodyText(body, message.mFlags, useSmartReply);
 
-        // If a list of attachments hasn't been passed in, build one from the message
-        if (attachments == null) {
-            attachments =
-                    Arrays.asList(Attachment.restoreAttachmentsWithMessageId(context, messageId));
-        }
+        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
+        Cursor attachmentsCursor = context.getContentResolver().query(uri,
+                Attachment.CONTENT_PROJECTION, WHERE_NOT_SMART_FORWARD, null, null);
 
-        boolean multipart = attachments.size() > 0;
-        String multipartBoundary = null;
-        String multipartType = "mixed";
+        try {
+            int attachmentCount = attachmentsCursor.getCount();
+            boolean multipart = attachmentCount > 0;
+            String multipartBoundary = null;
+            String multipartType = "mixed";
 
-        // Simplified case for no multipart - just emit text and be done.
-        if (!multipart) {
-            writeTextWithHeaders(writer, stream, bodyText);
-        } else {
-            // continue with multipart headers, then into multipart body
-            multipartBoundary = getNextBoundary();
-
-            // Move to the first attachment; this must succeed because multipart is true
-            if (attachments.size() == 1) {
-                // If we've got one attachment and it's an ics "attachment", we want to send
-                // this as multipart/alternative instead of multipart/mixed
-                int flags = attachments.get(0).mFlags;
-                if ((flags & Attachment.FLAG_ICS_ALTERNATIVE_PART) != 0) {
-                    multipartType = "alternative";
-                }
-            }
-
-            writeHeader(writer, "Content-Type",
-                    "multipart/" + multipartType + "; boundary=\"" + multipartBoundary + "\"");
-            // Finish headers and prepare for body section(s)
-            writer.write("\r\n");
-
-            // first multipart element is the body
-            if (bodyText[INDEX_BODY_TEXT] != null || bodyText[INDEX_BODY_HTML] != null) {
-                writeBoundary(writer, multipartBoundary, false);
+            // Simplified case for no multipart - just emit text and be done.
+            if (!multipart) {
                 writeTextWithHeaders(writer, stream, bodyText);
-            }
+            } else {
+                // continue with multipart headers, then into multipart body
+                multipartBoundary = getNextBoundary();
 
-            // Write out the attachments until we run out
-            for (Attachment att: attachments) {
-                writeBoundary(writer, multipartBoundary, false);
-                writeOneAttachment(context, writer, stream, att);
+                // Move to the first attachment; this must succeed because multipart is true
+                attachmentsCursor.moveToFirst();
+                if (attachmentCount == 1) {
+                    // If we've got one attachment and it's an ics "attachment", we want to send
+                    // this as multipart/alternative instead of multipart/mixed
+                    int flags = attachmentsCursor.getInt(Attachment.CONTENT_FLAGS_COLUMN);
+                    if ((flags & Attachment.FLAG_ICS_ALTERNATIVE_PART) != 0) {
+                        multipartType = "alternative";
+                    }
+                }
+
+                writeHeader(writer, "Content-Type",
+                        "multipart/" + multipartType + "; boundary=\"" + multipartBoundary + "\"");
+                // Finish headers and prepare for body section(s)
                 writer.write("\r\n");
-            }
 
-            // end of multipart section
-            writeBoundary(writer, multipartBoundary, true);
+                // first multipart element is the body
+                if (bodyText[INDEX_BODY_TEXT] != null) {
+                    writeBoundary(writer, multipartBoundary, false);
+                    writeTextWithHeaders(writer, stream, bodyText);
+                }
+
+                // Write out the attachments until we run out
+                do {
+                    writeBoundary(writer, multipartBoundary, false);
+                    Attachment attachment =
+                        Attachment.getContent(attachmentsCursor, Attachment.class);
+                    writeOneAttachment(context, writer, stream, attachment);
+                    writer.write("\r\n");
+                } while (attachmentsCursor.moveToNext());
+
+                // end of multipart section
+                writeBoundary(writer, multipartBoundary, true);
+            }
+        } finally {
+            attachmentsCursor.close();
         }
 
         writer.flush();
@@ -234,7 +304,7 @@ public class Rfc822Output {
                 inStream = new ByteArrayInputStream(attachment.mContentBytes);
             } else {
                 // try to open the file
-                Uri fileUri = Uri.parse(attachment.getContentUri());
+                Uri fileUri = Uri.parse(attachment.mContentUri);
                 inStream = context.getContentResolver().openInputStream(fileUri);
             }
             // switch to output stream for base64 text output
@@ -328,7 +398,9 @@ public class Rfc822Output {
     }
 
     /**
-     * Write the body text.
+     * Write the body text. If only one version of the body is specified (either plain text
+     * or HTML), the text is written directly. Otherwise, the plain text and HTML bodies
+     * are both written with the appropriate headers.
      *
      * Note this always uses base64, even when not required.  Slightly less efficient for
      * US-ASCII text, but handles all formats even when non-ascii chars are involved.  A small
@@ -340,23 +412,49 @@ public class Rfc822Output {
      */
     private static void writeTextWithHeaders(Writer writer, OutputStream out, String[] bodyText)
             throws IOException {
-        boolean html = false;
         String text = bodyText[INDEX_BODY_TEXT];
-        if (text == null) {
-            text = bodyText[INDEX_BODY_HTML];
-            html = true;
-        }
+        String html = bodyText[INDEX_BODY_HTML];
+
         if (text == null) {
             writer.write("\r\n");       // a truly empty message
         } else {
+            String multipartBoundary = null;
+            boolean multipart = html != null;
+
+            // Simplified case for no multipart - just emit text and be done.
+            if (multipart) {
+                // continue with multipart headers, then into multipart body
+                multipartBoundary = getNextBoundary();
+
+                writeHeader(writer, "Content-Type",
+                        "multipart/alternative; boundary=\"" + multipartBoundary + "\"");
+                // Finish headers and prepare for body section(s)
+                writer.write("\r\n");
+                writeBoundary(writer, multipartBoundary, false);
+            }
+
             // first multipart element is the body
-            String mimeType = "text/" + (html ? "html" : "plain");
-            writeHeader(writer, "Content-Type", mimeType + "; charset=utf-8");
+            writeHeader(writer, "Content-Type", "text/plain; charset=utf-8");
             writeHeader(writer, "Content-Transfer-Encoding", "base64");
             writer.write("\r\n");
             byte[] textBytes = text.getBytes("UTF-8");
             writer.flush();
             out.write(Base64.encode(textBytes, Base64.CRLF));
+
+            if (multipart) {
+                // next multipart section
+                writeBoundary(writer, multipartBoundary, false);
+
+                writeHeader(writer, "Content-Type", "text/html; charset=utf-8");
+                writeHeader(writer, "Content-Transfer-Encoding", "base64");
+                writer.write("\r\n");
+                byte[] htmlBytes = html.getBytes("UTF-8");
+                writer.flush();
+                out.write(Base64.encode(htmlBytes, Base64.CRLF));
+
+                // end of multipart section
+                writeBoundary(writer, multipartBoundary, true);
+            }
         }
     }
 

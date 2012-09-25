@@ -32,8 +32,6 @@ import android.webkit.MimeTypeMap;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.mail.providers.UIProvider;
@@ -44,9 +42,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 public class AttachmentUtilities {
+    public static final String AUTHORITY = "com.android.email.attachmentprovider";
+    public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY);
 
     public static final String FORMAT_RAW = "RAW";
     public static final String FORMAT_THUMBNAIL = "THUMBNAIL";
@@ -135,16 +134,23 @@ public class AttachmentUtilities {
      */
     public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
-    private static Uri sUri;
     public static Uri getAttachmentUri(long accountId, long id) {
-        if (sUri == null) {
-            sUri = Uri.parse(Attachment.ATTACHMENT_PROVIDER_URI_PREFIX);
-        }
-        return sUri.buildUpon()
-                .appendPath(Long.toString(accountId))
-                .appendPath(Long.toString(id))
-                .appendPath(FORMAT_RAW)
-                .build();
+        return CONTENT_URI.buildUpon()
+        .appendPath(Long.toString(accountId))
+        .appendPath(Long.toString(id))
+        .appendPath(FORMAT_RAW)
+        .build();
+    }
+
+    public static Uri getAttachmentThumbnailUri(long accountId, long id,
+            int width, int height) {
+        return CONTENT_URI.buildUpon()
+        .appendPath(Long.toString(accountId))
+        .appendPath(Long.toString(id))
+        .appendPath(FORMAT_THUMBNAIL)
+        .appendPath(Integer.toString(width))
+        .appendPath(Integer.toString(height))
+        .build();
     }
 
     /**
@@ -227,6 +233,24 @@ public class AttachmentUtilities {
             resultType = isTextPlain ? "text/plain" : "application/octet-stream";
         }
         return resultType.toLowerCase();
+    }
+
+    /**
+     * @return mime-type for a {@link Uri}.
+     *    - Use {@link ContentResolver#getType} for a content: URI.
+     *    - Use {@link #inferMimeType} for a file: URI.
+     *    - Otherwise returns null.
+     */
+    public static String inferMimeTypeForUri(Context context, Uri uri) {
+        final String scheme = uri.getScheme();
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            return context.getContentResolver().getType(uri);
+        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            return inferMimeType(uri.getLastPathSegment(), "");
+        } else {
+            Log.e(Logging.LOG_TAG, "Unable to determine MIME type for uri=" + uri, new Error());
+            return null;
+        }
     }
 
     /**
@@ -338,7 +362,8 @@ public class AttachmentUtilities {
         }
     }
 
-    private static long copyFile(InputStream in, OutputStream out) throws IOException {
+    private static long copyFile(InputStream in, File file) throws IOException {
+        FileOutputStream out = new FileOutputStream(file);
         long size = IOUtils.copy(in, out);
         in.close();
         out.flush();
@@ -354,20 +379,24 @@ public class AttachmentUtilities {
         ContentValues cv = new ContentValues();
         long attachmentId = attachment.mId;
         long accountId = attachment.mAccountKey;
-        String contentUri = null;
+        String contentUri;
         long size;
         try {
-            ContentResolver resolver = context.getContentResolver();
             if (attachment.mUiDestination == UIProvider.AttachmentDestination.CACHE) {
-                Uri attUri = getAttachmentUri(accountId, attachmentId);
-                size = copyFile(in, resolver.openOutputStream(attUri));
-                contentUri = attUri.toString();
+                File saveIn = getAttachmentDirectory(context, accountId);
+                if (!saveIn.exists()) {
+                    saveIn.mkdirs();
+                }
+                File file = getAttachmentFilename(context, accountId, attachmentId);
+                file.createNewFile();
+                size = copyFile(in, file);
+                contentUri = getAttachmentUri(accountId, attachmentId).toString();
             } else if (Utility.isExternalStorageMounted()) {
                 File downloads = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 downloads.mkdirs();
                 File file = Utility.createUniqueFile(downloads, attachment.mFileName);
-                size = copyFile(in, new FileOutputStream(file));
+                size = copyFile(in, file);
                 String absolutePath = file.getAbsolutePath();
 
                 // Although the download manager can scan media files, scanning only happens
@@ -400,20 +429,5 @@ public class AttachmentUtilities {
         }
         context.getContentResolver().update(uri, cv, null, null);
 
-        // If this is an inline attachment, update the body
-        if (contentUri != null && attachment.mContentId != null) {
-            Body body = Body.restoreBodyWithMessageId(context, attachment.mMessageKey);
-            if (body != null && body.mHtmlContent != null) {
-                cv.clear();
-                String html = body.mHtmlContent;
-                String contentIdRe =
-                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
-                String srcContentUri = " src=\"" + contentUri + "\"";
-                html = html.replaceAll(contentIdRe, srcContentUri);
-                cv.put(BodyColumns.HTML_CONTENT, html);
-                context.getContentResolver().update(
-                        ContentUris.withAppendedId(Body.CONTENT_URI, body.mId), cv, null, null);
-            }
-        }
     }
 }

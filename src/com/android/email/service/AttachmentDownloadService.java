@@ -33,13 +33,13 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.android.email.AttachmentInfo;
+import com.android.email.Controller.ControllerService;
+import com.android.email.Email;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.NotificationController;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
@@ -256,14 +256,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
             DownloadRequest req = findDownloadRequest(att.mId);
             long priority = getPriority(att);
             if (priority == PRIORITY_NONE) {
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, "== Attachment changed: " + att.mId);
                 }
                 // In this case, there is no download priority for this attachment
                 if (req != null) {
                     // If it exists in the map, remove it
                     // NOTE: We don't yet support deleting downloads in progress
-                    if (MailActivityEmail.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(TAG, "== Attachment " + att.mId + " was in queue, removing");
                     }
                     remove(req);
@@ -278,7 +278,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
                 // If the request already existed, we'll update the priority (so that the time is
                 // up-to-date); otherwise, we create a new request
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, "== Download queued for attachment " + att.mId + ", class " +
                             req.priority + ", priority time " + req.time);
                 }
@@ -313,7 +313,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * the limit on maximum downloads
          */
         /*package*/ synchronized void processQueue() {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, "== Checking attachment queue, " + mDownloadSet.size() + " entries");
             }
 
@@ -324,14 +324,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 DownloadRequest req = iterator.next();
                  // Enforce per-account limit here
                 if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
-                    if (MailActivityEmail.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(TAG, "== Skip #" + req.attachmentId + "; maxed for acct #" +
                                 req.accountId);
                     }
                     continue;
-                } else if (Attachment.restoreAttachmentWithId(mContext, req.attachmentId) == null) {
-                    continue;
                 }
+
                 if (!req.inProgress) {
                     mDownloadSet.tryStartDownload(req);
                 }
@@ -352,28 +351,25 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 // We'll load up the newest 25 attachments that aren't loaded or queued
                 Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
                         MAX_ATTACHMENTS_TO_CHECK);
-                Cursor c = mContext.getContentResolver().query(lookupUri,
-                        Attachment.CONTENT_PROJECTION,
+                Cursor c = mContext.getContentResolver().query(lookupUri, AttachmentInfo.PROJECTION,
                         EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
                         null, Attachment.RECORD_ID + " DESC");
                 File cacheDir = mContext.getCacheDir();
                 try {
                     while (c.moveToNext()) {
-                        Attachment att = new Attachment();
-                        att.restore(c);
-                        Account account = Account.restoreAccountWithId(mContext, att.mAccountKey);
+                        long accountKey = c.getLong(AttachmentInfo.COLUMN_ACCOUNT_KEY);
+                        long id = c.getLong(AttachmentInfo.COLUMN_ID);
+                        Account account = Account.restoreAccountWithId(mContext, accountKey);
                         if (account == null) {
                             // Clean up this orphaned attachment; there's no point in keeping it
                             // around; then try to find another one
-                            EmailContent.delete(mContext, Attachment.CONTENT_URI, att.mId);
-                        } else {
+                            EmailContent.delete(mContext, Attachment.CONTENT_URI, id);
+                        } else if (canPrefetchForAccount(account, cacheDir)) {
                             // Check that the attachment meets system requirements for download
-                            AttachmentInfo info = new AttachmentInfo(mContext, att);
+                            AttachmentInfo info = new AttachmentInfo(mContext, c);
                             if (info.isEligibleForDownload()) {
-                                // Either the account must be able to prefetch or this must be
-                                // an inline attachment
-                                if (att.mContentId != null ||
-                                        (canPrefetchForAccount(account, cacheDir))) {
+                                Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
+                                if (att != null) {
                                     Integer tryCount;
                                     tryCount = mAttachmentFailureMap.get(att.mId);
                                     if (tryCount != null && tryCount > MAX_DOWNLOAD_RETRIES) {
@@ -423,7 +419,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 // Check how long it's been since receiving a callback
                 long timeSinceCallback = now - req.lastCallbackTime;
                 if (timeSinceCallback > CALLBACK_TIMEOUT) {
-                    if (MailActivityEmail.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(TAG, "== Download of " + req.attachmentId + " timed out");
                     }
                    cancelDownload(req);
@@ -435,7 +431,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }
             // If there are downloads in progress, reset alarm
             if (!mDownloadsInProgress.isEmpty()) {
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, "Reschedule watchdog...");
                 }
                 setWatchdogAlarm();
@@ -449,18 +445,18 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @return whether or not the download was started
          */
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                    AttachmentDownloadService.this, mServiceCallback, req.accountId);
+            Intent intent = getServiceIntentForAccount(req.accountId);
+            if (intent == null) return false;
 
             // Do not download the same attachment multiple times
             boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
             if (alreadyInProgress) return false;
 
             try {
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
                 }
-                startDownload(service, req);
+                startDownload(intent, req);
             } catch (RemoteException e) {
                 // TODO: Consider whether we need to do more in this case...
                 // For now, fix up our data to reflect the failure
@@ -490,16 +486,18 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * Do the work of starting an attachment download using the EmailService interface, and
          * set our watchdog alarm
          *
-         * @param serviceClass the service handling the download
+         * @param serviceClass the class that will attempt the download
          * @param req the DownloadRequest
          * @throws RemoteException
          */
-        private void startDownload(EmailServiceProxy service, DownloadRequest req)
+        private void startDownload(Intent intent, DownloadRequest req)
                 throws RemoteException {
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
-            service.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
+            EmailServiceProxy proxy =
+                new EmailServiceProxy(mContext, intent, mServiceCallback);
+            proxy.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
             setWatchdogAlarm();
         }
 
@@ -536,7 +534,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
             if (statusCode == EmailServiceStatus.CONNECTION_ERROR) {
                 // If this needs to be retried, just process the queue again
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(TAG, "== The download for attachment #" + attachmentId +
                             " will be retried");
                 }
@@ -551,7 +549,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (req != null) {
                 remove(req);
             }
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 long secs = 0;
                 if (req != null) {
                     secs = (System.currentTimeMillis() - req.time) / 1000;
@@ -587,16 +585,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     // try to send pending mail now (as mediated by MailService)
                     if ((req != null) &&
                             !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
-                        if (MailActivityEmail.DEBUG) {
+                        if (Email.DEBUG) {
                             Log.d(TAG, "== Downloads finished for outgoing msg #" + req.messageId);
                         }
-                        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                                mContext, null, accountId);
-                        try {
-                            service.sendMail(accountId);
-                        } catch (RemoteException e) {
-                            // We tried
-                        }
+                        MailService.actionSendPendingMail(mContext, req.accountId);
                     }
                 }
                 if (statusCode == EmailServiceStatus.MESSAGE_NOT_FOUND) {
@@ -662,7 +654,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             // Record status and progress
             DownloadRequest req = mDownloadSet.getDownloadInProgress(attachmentId);
             if (req != null) {
-                if (MailActivityEmail.DEBUG) {
+                if (Email.DEBUG) {
                     String code;
                     switch(statusCode) {
                         case EmailServiceStatus.SUCCESS: code = "Success"; break;
@@ -678,15 +670,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 req.lastStatusCode = statusCode;
                 req.lastProgress = progress;
                 req.lastCallbackTime = System.currentTimeMillis();
-                Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
-                 if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
-                    ContentValues values = new ContentValues();
-                    values.put(AttachmentColumns.UI_DOWNLOADED_SIZE,
-                            attachment.mSize * progress / 100);
-                    // Update UIProvider with updated download size
-                    // Individual services will set contentUri and state when finished
-                    attachment.update(mContext, values);
-                }
             }
             switch (statusCode) {
                 case EmailServiceStatus.IN_PROGRESS:
@@ -695,6 +678,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     mDownloadSet.endDownload(attachmentId, statusCode);
                     break;
             }
+        }
+
+        @Override
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
+                throws RemoteException {
         }
 
         @Override
@@ -708,14 +696,30 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
         public void loadMessageStatus(long messageId, int statusCode, int progress)
                 throws RemoteException {
         }
+    }
+
+    /**
+     * Return an Intent to be used used based on the account type of the provided account id.  We
+     * cache the results to avoid repeated database access
+     * @param accountId the id of the account
+     * @return the Intent to be used for the account or null (if the account no longer exists)
+     */
+    private synchronized Intent getServiceIntentForAccount(long accountId) {
+        // TODO: We should have some more data-driven way of determining the service intent.
+        Intent serviceIntent = mAccountServiceMap.get(accountId);
+        if (serviceIntent == null) {
+            String protocol = Account.getProtocol(mContext, accountId);
+            if (protocol == null) return null;
+            serviceIntent = new Intent(mContext, ControllerService.class);
+            if (protocol.equals("eas")) {
+                serviceIntent = new Intent(EmailServiceProxy.EXCHANGE_INTENT);
+            }
+            mAccountServiceMap.put(accountId, serviceIntent);
+        }
+        return serviceIntent;
     }
 
     /*package*/ void addServiceIntentForTest(long accountId, Intent intent) {
@@ -737,7 +741,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ boolean dequeue(long attachmentId) {
         DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
         if (req != null) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, "Dequeued attachmentId:  " + attachmentId);
             }
             mDownloadSet.remove(req);
@@ -858,7 +862,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         if (accountStorage < perAccountMaxStorage) {
             return true;
         } else {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(TAG, ">> Prefetch not allowed for account " + account.mId + "; used " +
                         accountStorage + ", limit " + perAccountMaxStorage);
             }
@@ -980,8 +984,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         suffix = fileName.substring(lastDot);
                     }
                     pw.print("      Suffix: " + suffix);
-                    if (att.getContentUri() != null) {
-                        pw.print(" ContentUri: " + att.getContentUri());
+                    if (att.mContentUri != null) {
+                        pw.print(" ContentUri: " + att.mContentUri);
                     }
                     pw.print(" Mime: ");
                     if (att.mMimeType != null) {

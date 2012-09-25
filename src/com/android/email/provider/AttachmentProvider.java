@@ -49,10 +49,10 @@ import java.util.List;
  * A simple ContentProvider that allows file access to Email's attachments.
  *
  * The URI scheme is as follows.  For raw file access:
- *   content://com.android.mail.attachmentprovider/acct#/attach#/RAW
+ *   content://com.android.email.attachmentprovider/acct#/attach#/RAW
  *
  * And for access to thumbnails:
- *   content://com.android.mail.attachmentprovider/acct#/attach#/THUMBNAIL/width#/height#
+ *   content://com.android.email.attachmentprovider/acct#/attach#/THUMBNAIL/width#/height#
  *
  * The on-disk (storage) schema is as follows.
  *
@@ -142,7 +142,7 @@ public class AttachmentProvider extends ContentProvider {
         // based on signature only
         if (mode.equals("w")) {
             Context context = getContext();
-            if (context.checkCallingOrSelfPermission(EmailContent.PROVIDER_PERMISSION)
+            if (context.checkCallingPermission(EmailContent.PROVIDER_PERMISSION)
                     != PackageManager.PERMISSION_GRANTED) {
                 throw new FileNotFoundException();
             }

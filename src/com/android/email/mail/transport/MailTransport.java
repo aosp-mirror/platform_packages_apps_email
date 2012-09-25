@@ -16,15 +16,14 @@
 
 package com.android.email.mail.transport;
 
-import android.content.Context;
-import android.util.Log;
-
-import com.android.email2.ui.MailActivityEmail;
+import com.android.email.Email;
+import com.android.email.mail.Transport;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.SSLUtils;
+
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -44,7 +43,11 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
-public class MailTransport {
+/**
+ * This class implements the common aspects of "transport", one layer below the
+ * specific wire protocols such as POP3, IMAP, or SMTP.
+ */
+public class MailTransport implements Transport {
 
     // TODO protected eventually
     /*protected*/ public static final int SOCKET_CONNECT_TIMEOUT = 10000;
@@ -53,57 +56,110 @@ public class MailTransport {
     private static final HostnameVerifier HOSTNAME_VERIFIER =
             HttpsURLConnection.getDefaultHostnameVerifier();
 
-    private final String mDebugLabel;
-    private final Context mContext;
-    private final HostAuth mHostAuth;
+    private String mDebugLabel;
+
+    private String mHost;
+    private int mPort;
+    private String[] mUserInfoParts;
+
+    /**
+     * One of the {@code Transport.CONNECTION_SECURITY_*} values.
+     */
+    private int mConnectionSecurity;
+
+    /**
+     * Whether or not to trust all server certificates (i.e. skip host verification) in SSL
+     * handshakes
+     */
+    private boolean mTrustCertificates;
 
     private Socket mSocket;
     private InputStream mIn;
     private OutputStream mOut;
 
-    public MailTransport(Context context, String debugLabel, HostAuth hostAuth) {
+    /**
+     * Simple constructor for starting from scratch.  Call setUri() and setSecurity() to
+     * complete the configuration.
+     * @param debugLabel Label used for Log.d calls
+     */
+    public MailTransport(String debugLabel) {
         super();
-        mContext = context;
         mDebugLabel = debugLabel;
-        mHostAuth = hostAuth;
     }
 
-   /**
+    /**
      * Returns a new transport, using the current transport as a model. The new transport is
      * configured identically (as if {@link #setSecurity(int, boolean)}, {@link #setPort(int)}
      * and {@link #setHost(String)} were invoked), but not opened or connected in any way.
      */
     @Override
-    public MailTransport clone() {
-        return new MailTransport(mContext, mDebugLabel, mHostAuth);
+    public Transport clone() {
+        MailTransport newObject = new MailTransport(mDebugLabel);
+
+        newObject.mDebugLabel = mDebugLabel;
+        newObject.mHost = mHost;
+        newObject.mPort = mPort;
+        if (mUserInfoParts != null) {
+            newObject.mUserInfoParts = mUserInfoParts.clone();
+        }
+        newObject.mConnectionSecurity = mConnectionSecurity;
+        newObject.mTrustCertificates = mTrustCertificates;
+        return newObject;
     }
 
+    @Override
+    public void setHost(String host) {
+        mHost = host;
+    }
+
+    @Override
+    public void setPort(int port) {
+        mPort = port;
+    }
+
+    @Override
     public String getHost() {
-        return mHostAuth.mAddress;
+        return mHost;
     }
 
+    @Override
     public int getPort() {
-        return mHostAuth.mPort;
+        return mPort;
     }
 
+    @Override
+    public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
+        mConnectionSecurity = connectionSecurity;
+        mTrustCertificates = trustAllCertificates;
+    }
+
+    @Override
+    public int getSecurity() {
+        return mConnectionSecurity;
+    }
+
+    @Override
     public boolean canTrySslSecurity() {
-        return (mHostAuth.mFlags & HostAuth.FLAG_SSL) != 0;
+        return mConnectionSecurity == Transport.CONNECTION_SECURITY_SSL;
     }
 
+    @Override
     public boolean canTryTlsSecurity() {
-        return (mHostAuth.mFlags & HostAuth.FLAG_TLS) != 0;
+        return mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS;
     }
 
+    @Override
     public boolean canTrustAllCertificates() {
-        return (mHostAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
+        return mTrustCertificates;
     }
 
     /**
      * Attempts to open a connection using the Uri supplied for connection parameters.  Will attempt
      * an SSL connection if indicated.
      */
+    @Override
     public void open() throws MessagingException, CertificateValidationException {
-        if (MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "*** " + mDebugLabel + " open " +
                     getHost() + ":" + String.valueOf(getPort()));
         }
@@ -111,8 +167,7 @@ public class MailTransport {
         try {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
-                mSocket = SSLUtils.getSSLSocketFactory(
-                        mContext, mHostAuth, canTrustAllCertificates()).createSocket();
+                mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates()).createSocket();
             } else {
                 mSocket = new Socket();
             }
@@ -125,20 +180,15 @@ public class MailTransport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
-        } catch (IllegalArgumentException iae) {
-            if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, iae.toString());
-            }
-            throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION, iae.toString());
         }
     }
 
@@ -150,21 +200,22 @@ public class MailTransport {
      *
      * TODO should we explicitly close the old socket?  This seems funky to abandon it.
      */
+    @Override
     public void reopenTls() throws MessagingException {
         try {
-            mSocket = SSLUtils.getSSLSocketFactory(mContext, mHostAuth, canTrustAllCertificates())
+            mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates())
                     .createSocket(mSocket, getHost(), getPort(), true);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -214,10 +265,12 @@ public class MailTransport {
      * @param timeoutMilliseconds the read timeout value if greater than {@code 0}, or
      *            {@code 0} for an infinite timeout.
      */
+    @Override
     public void setSoTimeout(int timeoutMilliseconds) throws SocketException {
         mSocket.setSoTimeout(timeoutMilliseconds);
     }
 
+    @Override
     public boolean isOpen() {
         return (mIn != null && mOut != null &&
                 mSocket != null && mSocket.isConnected() && !mSocket.isClosed());
@@ -226,6 +279,7 @@ public class MailTransport {
     /**
      * Close the connection.  MUST NOT return any exceptions - must be "best effort" and safe.
      */
+    @Override
     public void close() {
         try {
             mIn.close();
@@ -247,10 +301,12 @@ public class MailTransport {
         mSocket = null;
     }
 
+    @Override
     public InputStream getInputStream() {
         return mIn;
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return mOut;
     }
@@ -258,8 +314,9 @@ public class MailTransport {
     /**
      * Writes a single line to the server using \r\n termination.
      */
+    @Override
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
-        if (MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             if (sensitiveReplacement != null && !Logging.DEBUG_SENSITIVE) {
                 Log.d(Logging.LOG_TAG, ">>> " + sensitiveReplacement);
             } else {
@@ -278,7 +335,8 @@ public class MailTransport {
      * Reads a single line from the server, using either \r\n or \n as the delimiter.  The
      * delimiter char(s) are not included in the result.
      */
-    public String readLine(boolean loggable) throws IOException {
+    @Override
+    public String readLine() throws IOException {
         StringBuffer sb = new StringBuffer();
         InputStream in = getInputStream();
         int d;
@@ -291,16 +349,17 @@ public class MailTransport {
                 sb.append((char)d);
             }
         }
-        if (d == -1 && MailActivityEmail.DEBUG) {
+        if (d == -1 && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "End of stream reached while trying to read line.");
         }
         String ret = sb.toString();
-        if (loggable && MailActivityEmail.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "<<< " + ret);
         }
         return ret;
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         if (isOpen()) {
             return mSocket.getLocalAddress();

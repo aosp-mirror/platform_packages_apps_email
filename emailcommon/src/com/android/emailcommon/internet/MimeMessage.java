@@ -67,7 +67,6 @@ public class MimeMessage extends Message {
     private Body mBody;
     protected int mSize;
     private boolean mInhibitLocalMessageId = false;
-    private boolean mComplete = true;
 
     // Shared random source for generating local message-id values
     private static final java.util.Random sRandom = new java.util.Random();
@@ -120,7 +119,7 @@ public class MimeMessage extends Message {
         parse(in);
     }
 
-    private MimeStreamParser init() {
+    protected void parse(InputStream in) throws IOException, MessagingException {
         // Before parsing the input stream, clear all local fields that may be superceded by
         // the new incoming message.
         getMimeHeaders().clear();
@@ -135,20 +134,7 @@ public class MimeMessage extends Message {
 
         MimeStreamParser parser = new MimeStreamParser();
         parser.setContentHandler(new MimeMessageBuilder());
-        return parser;
-    }
-
-    protected void parse(InputStream in) throws IOException, MessagingException {
-        MimeStreamParser parser = init();
         parser.parse(new EOLConvertingInputStream(in));
-        mComplete = !parser.getPrematureEof();
-    }
-
-    public void parse(InputStream in, EOLConvertingInputStream.Callback callback)
-            throws IOException, MessagingException {
-        MimeStreamParser parser = init();
-        parser.parse(new EOLConvertingInputStream(in, getSize(), callback));
-        mComplete = !parser.getPrematureEof();
     }
 
     /**
@@ -214,10 +200,6 @@ public class MimeMessage extends Message {
             // remove optionally surrounding brackets.
             return REMOVE_OPTIONAL_BRACKETS.matcher(contentId).replaceAll("$1");
         }
-    }
-
-    public boolean isComplete() {
-        return mComplete;
     }
 
     public String getMimeType() throws MessagingException {
