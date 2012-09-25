@@ -60,7 +60,7 @@
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"傳送所有郵件"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"移至"</string>
-    <string name="status_loading_messages" msgid="6552307237621292344">"正在載入郵件..."</string>
+    <string name="status_loading_messages" msgid="6552307237621292344">"正在載入郵件…"</string>
     <string name="status_network_error" msgid="2611654064403817391">"連線問題。"</string>
     <string name="error_loading_message_body" msgid="6775234299515596760">"無法載入郵件文字，郵件可能過大以致於無法檢視。"</string>
   <plurals name="move_messages">
@@ -246,9 +246,9 @@
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"複製帳戶"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"您的「<xliff:g id="DUPLICATE">%s</xliff:g>」帳戶已經使用這個使用者名稱。"</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"這組密碼的開頭或結尾為一或多個空白字元，許多伺服器都不支援包含空白字元的密碼。"</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在擷取帳戶資訊..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"正在檢查收信伺服器設定..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在檢查外寄伺服器設定..."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在擷取帳戶資訊…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"正在檢查收信伺服器設定…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在檢查外寄伺服器設定…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"帳戶設定"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"您的帳戶已設定完成，可以收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"設定帳戶名稱 (選擇性)"</string>
@@ -456,7 +456,7 @@
     <string name="widget_all_mail" msgid="4352573990283094963">"整合式收件匣"</string>
     <string name="widget_unread" msgid="4404711399009077833">"未讀取"</string>
     <string name="widget_starred" msgid="8290352707134011791">"已加星號"</string>
-    <string name="widget_loading" msgid="2340962056927255554">"載入中..."</string>
+    <string name="widget_loading" msgid="2340962056927255554">"載入中…"</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"輕觸即可設定。"</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"您尚未設定電子郵件帳戶。"</string>
     <string name="widget_no_mailboxes" msgid="5222354534538852579">"這個帳戶尚未同步處理，請稍後再試。"</string>

@@ -316,7 +316,7 @@
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatic"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"One day"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Three days"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"one week"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"One week"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Two weeks"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"One month"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"All"</string>

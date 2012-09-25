@@ -467,5 +467,5 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"S\'estan esperant els resultats"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Alguns servidors poden trigar molt."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Carpetes"</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"La sincronització de fons per a aquest compte està desactivada en itinerància."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"La sincronització en segon pla d\'aquest compte s\'ha desactivat en itinerància."</string>
 </resources>
