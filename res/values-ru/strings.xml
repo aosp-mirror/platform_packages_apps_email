@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Открывать прикрепленные файлы"</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Просмотр пересылаемых файлов"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Приложение получит доступ к прикрепленным файлам в сообщениях эл. почты."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Доступ к данным сервиса эл. почты"</string>
     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Приложение получит доступ к базе данных программы электронной почты, которая включает полученные и отправленные письма, имена пользователей и пароли."</string>
@@ -54,7 +54,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Отметить как непрочитанное"</string>
     <string name="move_action" msgid="3059189775933985898">"Переместить"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"Добавить копию"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Копия/скрытая копия"</string>
+    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Копия/скрытая"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Прикрепить файл"</string>
     <string name="close_action" msgid="533058985745238100">"Закрыть"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Отправить все сообщ."</string>
