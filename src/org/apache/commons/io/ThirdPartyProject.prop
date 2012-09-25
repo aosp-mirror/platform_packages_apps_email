@@ -1,0 +1,9 @@
+# Copyright 2010 Google Inc. All Rights Reserved.
+#Fri Jul 16 10:03:08 PDT 2010
+currentVersion=1.4
+version=1.4
+isNative=false
+name=apache_commons_io
+keywords=apache commons io
+onDevice=true
+homepage=http\://commons.apache.org/io/

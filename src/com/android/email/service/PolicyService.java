@@ -16,14 +16,14 @@
 
 package com.android.email.service;
 
+import com.android.email.SecurityPolicy;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.service.IPolicyService;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-
-import com.android.email.SecurityPolicy;
-import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.service.IPolicyService;
 
 public class PolicyService extends Service {
 
@@ -35,12 +35,32 @@ public class PolicyService extends Service {
             return mSecurityPolicy.isActive(policy);
         }
 
+        public void policiesRequired(long accountId) {
+            mSecurityPolicy.policiesRequired(accountId);
+        }
+
+        public void policiesUpdated(long accountId) {
+            mSecurityPolicy.policiesUpdated(accountId);
+        }
+
         public void setAccountHoldFlag(long accountId, boolean newState) {
             SecurityPolicy.setAccountHoldFlag(mContext, accountId, newState);
         }
 
+        public boolean isActiveAdmin() {
+            return mSecurityPolicy.isActiveAdmin();
+        }
+
         public void remoteWipe() {
             mSecurityPolicy.remoteWipe();
+        }
+
+        public boolean isSupported(Policy policy) {
+            return mSecurityPolicy.isSupported(policy);
+        }
+
+        public Policy clearUnsupportedPolicies(Policy policy) {
+            return mSecurityPolicy.clearUnsupportedPolicies(policy);
         }
 
         public void setAccountPolicy(long accountId, Policy policy, String securityKey) {

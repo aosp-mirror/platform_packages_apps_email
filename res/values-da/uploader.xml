@@ -26,7 +26,7 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Skjul detaljer"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Indstillinger"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Uploadet %s"</string>
-    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Konto"</string>
     <string name="upload" msgid="2615541458361216022">"Upload"</string>
     <string name="ok" msgid="2516349681897895312">"OK"</string>
@@ -105,7 +105,7 @@
     <string name="preference_title_videos_upload_connectivity" msgid="4029897303763182477">"Betingelser for upload"</string>
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"Billedernes forbindelsesindstillinger bruges i øjeblikket."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Kun billeder via mobilnetværk"</string>
-    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Fotos og videoer via mobilnetværk"</string>
+    <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Billeder og videoer via mobilnetværk"</string>
     <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Kun billeder og videoer via Wi-Fi"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Om"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Øjebl. upload-v."</string>

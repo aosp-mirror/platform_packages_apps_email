@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 
 import com.android.email.mail.Store;
-import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -31,8 +30,10 @@ import com.android.emailcommon.service.IEmailService;
 /**
  * Base class for service-based stores
  */
-public class ServiceStore extends Store {
+public abstract class ServiceStore extends Store {
     protected final HostAuth mHostAuth;
+
+    protected abstract IEmailService getService();
 
     /**
      * Creates a new store for the given account.
@@ -40,17 +41,6 @@ public class ServiceStore extends Store {
     public ServiceStore(Account account, Context context) throws MessagingException {
         mContext = context;
         mHostAuth = account.getOrCreateHostAuthRecv(mContext);
-    }
-
-    /**
-     * Static named constructor.
-     */
-    public static Store newInstance(Account account, Context context) throws MessagingException {
-        return new ServiceStore(account, context);
-    }
-
-    private IEmailService getService() {
-        return EmailServiceUtils.getService(mContext, null, mHostAuth.mProtocol);
     }
 
     @Override

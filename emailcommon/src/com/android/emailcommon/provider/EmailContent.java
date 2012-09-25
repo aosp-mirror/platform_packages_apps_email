@@ -29,7 +29,6 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -60,11 +59,30 @@ import java.util.ArrayList;
  *
  */
 public abstract class EmailContent {
+
+    public static final String AUTHORITY = "com.android.email.provider";
+    // The notifier authority is used to send notifications regarding changes to messages (insert,
+    // delete, or update) and is intended as an optimization for use by clients of message list
+    // cursors (initially, the email AppWidget).
+    public static final String NOTIFIER_AUTHORITY = "com.android.email.notifier";
+
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final String PARAMETER_LIMIT = "limit";
+
+    public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
+
+    public static final Uri MAILBOX_NOTIFICATION_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxNotification");
     public static final String[] NOTIFICATION_PROJECTION =
         new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
     public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
     public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
     public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
+
+    public static final Uri MAILBOX_MOST_RECENT_MESSAGE_URI =
+            Uri.parse("content://" + EmailContent.AUTHORITY + "/mailboxMostRecentMessage");
+
+    public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
 
     // All classes share this
     public static final String RECORD_ID = "_id";
@@ -112,57 +130,6 @@ public abstract class EmailContent {
     public abstract ContentValues toContentValues();
     // Read the Content from a ContentCursor
     public abstract void restore (Cursor cursor);
-
-
-    public static String PACKAGE_NAME;
-    public static String EMAIL_PACKAGE_NAME;
-    public static String AUTHORITY;
-    // The notifier authority is used to send notifications regarding changes to messages (insert,
-    // delete, or update) and is intended as an optimization for use by clients of message list
-    // cursors (initially, the email AppWidget).
-    public static String NOTIFIER_AUTHORITY;
-    public static Uri CONTENT_URI;
-    public static final String PARAMETER_LIMIT = "limit";
-    public static Uri CONTENT_NOTIFIER_URI;
-    public static Uri PICK_TRASH_FOLDER_URI;
-    public static Uri PICK_SENT_FOLDER_URI;
-    public static Uri MAILBOX_NOTIFICATION_URI;
-    public static Uri MAILBOX_MOST_RECENT_MESSAGE_URI;
-    public static Uri ACCOUNT_CHECK_URI;
-    public static String PROVIDER_PERMISSION;
-
-    public static void init(Context context) {
-        if (AUTHORITY == null) {
-            PACKAGE_NAME = context.getPackageName();
-            EMAIL_PACKAGE_NAME = PACKAGE_NAME;
-            // If our package is com...exchange, the provider is com...email.provider
-            if (PACKAGE_NAME.endsWith("exchange")) {
-                int lastDot = EMAIL_PACKAGE_NAME.lastIndexOf('.');
-                EMAIL_PACKAGE_NAME = PACKAGE_NAME.substring(0, lastDot + 1) + "email";
-            }
-            AUTHORITY = EMAIL_PACKAGE_NAME + ".provider";
-            Log.d("EmailContent", "init for " + AUTHORITY);
-            NOTIFIER_AUTHORITY = EMAIL_PACKAGE_NAME + ".notifier";
-            CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-            CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
-            PICK_TRASH_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickTrashFolder");
-            PICK_SENT_FOLDER_URI = Uri.parse("content://" + AUTHORITY + "/pickSentFolder");
-            MAILBOX_NOTIFICATION_URI = Uri.parse("content://" + AUTHORITY + "/mailboxNotification");
-            MAILBOX_MOST_RECENT_MESSAGE_URI = Uri.parse("content://" + AUTHORITY +
-                    "/mailboxMostRecentMessage");
-            ACCOUNT_CHECK_URI = Uri.parse("content://" + AUTHORITY + "/accountCheck");
-            PROVIDER_PERMISSION = EMAIL_PACKAGE_NAME + ".permission.ACCESS_PROVIDER";
-            // Initialize subclasses
-            Account.initAccount();
-            Mailbox.initMailbox();
-            QuickResponse.initQuickResponse();
-            HostAuth.initHostAuth();
-            Policy.initPolicy();
-            Message.initMessage();
-            Body.initBody();
-            Attachment.initAttachment();
-        }
-    }
 
     // The Uri is lazily initialized
     public Uri getUri() {
@@ -293,17 +260,14 @@ public abstract class EmailContent {
         // The plain text content itself
         public static final String TEXT_CONTENT = "textContent";
         // Replied-to or forwarded body (in html form)
-        @Deprecated
         public static final String HTML_REPLY = "htmlReply";
         // Replied-to or forwarded body (in text form)
-        @Deprecated
         public static final String TEXT_REPLY = "textReply";
         // A reference to a message's unique id used in reply/forward.
         // Protocol code can be expected to use this column in determining whether a message can be
         // deleted safely (i.e. isn't referenced by other messages)
         public static final String SOURCE_MESSAGE_KEY = "sourceMessageKey";
         // The text to be placed between a reply/forward response and the original message
-        @Deprecated
         public static final String INTRO_TEXT = "introText";
         // The start of quoted text within our text content
         public static final String QUOTED_TEXT_START_POS = "quotedTextStartPos";
@@ -312,22 +276,16 @@ public abstract class EmailContent {
     public static final class Body extends EmailContent implements BodyColumns {
         public static final String TABLE_NAME = "Body";
 
-        public static Uri CONTENT_URI;
-
-        public static void initBody() {
-            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
-        }
+        @SuppressWarnings("hiding")
+        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
         public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
         public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
-        @Deprecated
         public static final int CONTENT_HTML_REPLY_COLUMN = 4;
-        @Deprecated
         public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
-        @Deprecated
         public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
 
@@ -343,22 +301,19 @@ public abstract class EmailContent {
         public static final String[] COMMON_PROJECTION_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_CONTENT
         };
-        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_TEXT = new String[] {
             RECORD_ID, BodyColumns.TEXT_REPLY
         };
-        @Deprecated
         public static final String[] COMMON_PROJECTION_REPLY_HTML = new String[] {
             RECORD_ID, BodyColumns.HTML_REPLY
         };
-        @Deprecated
         public static final String[] COMMON_PROJECTION_INTRO = new String[] {
             RECORD_ID, BodyColumns.INTRO_TEXT
         };
         public static final String[] COMMON_PROJECTION_SOURCE = new String[] {
             RECORD_ID, BodyColumns.SOURCE_MESSAGE_KEY
         };
-        public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
+         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         private static final String[] PROJECTION_SOURCE_KEY =
             new String[] { BodyColumns.SOURCE_MESSAGE_KEY };
@@ -366,9 +321,7 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
-        @Deprecated
         public String mHtmlReply;
-        @Deprecated
         public String mTextReply;
         public int mQuotedTextStartPos;
 
@@ -378,7 +331,6 @@ public abstract class EmailContent {
          * want to include quoted text.
          */
         public long mSourceKey;
-        @Deprecated
         public String mIntroText;
 
         public Body() {
@@ -493,17 +445,14 @@ public abstract class EmailContent {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
         }
 
-        @Deprecated
         public static String restoreReplyTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_TEXT);
         }
 
-        @Deprecated
         public static String restoreReplyHtmlWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_HTML);
         }
 
-        @Deprecated
         public static String restoreIntroTextWithMessageId(Context context, long messageId) {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
         }
@@ -548,8 +497,8 @@ public abstract class EmailContent {
         public static final String FLAGS = "flags";
 
         // Sync related identifiers
-        // Saved draft info (reusing the never-used "clientId" column)
-        public static final String DRAFT_INFO = "clientId";
+        // Any client-required identifier
+        public static final String CLIENT_ID = "clientId";
         // The message-id in the message's header
         public static final String MESSAGE_ID = "messageId";
 
@@ -576,8 +525,6 @@ public abstract class EmailContent {
         public static final String PROTOCOL_SEARCH_INFO = "protocolSearchInfo";
         // Simple thread topic
         public static final String THREAD_TOPIC = "threadTopic";
-        // For sync adapter use
-        public static final String SYNC_DATA = "syncData";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -586,28 +533,17 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
-        public static Uri CONTENT_URI;
-        public static Uri CONTENT_URI_LIMIT_1;
-        public static Uri SYNCED_CONTENT_URI;
-        public static Uri SELECTED_MESSAGE_CONTENT_URI ;
-        public static Uri DELETED_CONTENT_URI;
-        public static Uri UPDATED_CONTENT_URI;
-        public static Uri NOTIFIER_URI;
-
-        public static void initMessage() {
-            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
-            CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
-            SYNCED_CONTENT_URI =
-                    Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
-            SELECTED_MESSAGE_CONTENT_URI =
-                    Uri.parse(EmailContent.CONTENT_URI + "/messageBySelection");
-            DELETED_CONTENT_URI =
-                    Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
-            UPDATED_CONTENT_URI =
-                    Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
-            NOTIFIER_URI =
-                    Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
-        }
+        @SuppressWarnings("hiding")
+        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+        public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
+        public static final Uri SYNCED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
+        public static final Uri DELETED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
+        public static final Uri UPDATED_CONTENT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
+        public static final Uri NOTIFIER_URI =
+            Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
 
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
@@ -621,7 +557,7 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAG_ATTACHMENT_COLUMN = 7;
         public static final int CONTENT_FLAGS_COLUMN = 8;
         public static final int CONTENT_SERVER_ID_COLUMN = 9;
-        public static final int CONTENT_DRAFT_INFO_COLUMN = 10;
+        public static final int CONTENT_CLIENT_ID_COLUMN = 10;
         public static final int CONTENT_MESSAGE_ID_COLUMN = 11;
         public static final int CONTENT_MAILBOX_KEY_COLUMN = 12;
         public static final int CONTENT_ACCOUNT_KEY_COLUMN = 13;
@@ -635,7 +571,6 @@ public abstract class EmailContent {
         public static final int CONTENT_SNIPPET_COLUMN = 21;
         public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
         public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
-        public static final int CONTENT_SYNC_DATA_COLUMN = 24;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -643,14 +578,14 @@ public abstract class EmailContent {
             MessageColumns.SUBJECT, MessageColumns.FLAG_READ,
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
-            SyncColumns.SERVER_ID, MessageColumns.DRAFT_INFO,
+            SyncColumns.SERVER_ID, MessageColumns.CLIENT_ID,
             MessageColumns.MESSAGE_ID, MessageColumns.MAILBOX_KEY,
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
             MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
-            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA
+            MessageColumns.THREAD_TOPIC
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -766,7 +701,7 @@ public abstract class EmailContent {
 
         public String mServerId;
         public long mServerTimeStamp;
-        public int mDraftInfo;
+        public String mClientId;
         public String mMessageId;
 
         public long mMailboxKey;
@@ -786,8 +721,6 @@ public abstract class EmailContent {
         public String mProtocolSearchInfo;
 
         public String mThreadTopic;
-
-        public String mSyncData;
 
         /**
          * Base64-encoded representation of the byte array provided by servers for identifying
@@ -817,7 +750,6 @@ public abstract class EmailContent {
         public static final int FLAG_LOADED_COMPLETE = 1;
         public static final int FLAG_LOADED_PARTIAL = 2;
         public static final int FLAG_LOADED_DELETED = 3;
-        public static final int FLAG_LOADED_UNKNOWN = 4;
 
         // Bits used in mFlags
         // The following three states are mutually exclusive, and indicate whether the message is an
@@ -858,10 +790,6 @@ public abstract class EmailContent {
         // compatibility
         public static final int FLAG_TYPE_REPLY_ALL = 1 << 21;
 
-        // Flag used in draftInfo to indicate that the reference message should be appended
-        public static final int DRAFT_INFO_APPEND_REF_MESSAGE = 1 << 24;
-        public static final int DRAFT_INFO_QUOTE_POS_MASK = 0xFFFFFF;
-
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
 
@@ -882,22 +810,28 @@ public abstract class EmailContent {
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite);
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
             values.put(MessageColumns.FLAGS, mFlags);
+
             values.put(SyncColumns.SERVER_ID, mServerId);
             values.put(SyncColumns.SERVER_TIMESTAMP, mServerTimeStamp);
-            values.put(MessageColumns.DRAFT_INFO, mDraftInfo);
+            values.put(MessageColumns.CLIENT_ID, mClientId);
             values.put(MessageColumns.MESSAGE_ID, mMessageId);
+
             values.put(MessageColumns.MAILBOX_KEY, mMailboxKey);
             values.put(MessageColumns.ACCOUNT_KEY, mAccountKey);
+
             values.put(MessageColumns.FROM_LIST, mFrom);
             values.put(MessageColumns.TO_LIST, mTo);
             values.put(MessageColumns.CC_LIST, mCc);
             values.put(MessageColumns.BCC_LIST, mBcc);
             values.put(MessageColumns.REPLY_TO_LIST, mReplyTo);
+
             values.put(MessageColumns.MEETING_INFO, mMeetingInfo);
+
             values.put(MessageColumns.SNIPPET, mSnippet);
+
             values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
+
             values.put(MessageColumns.THREAD_TOPIC, mThreadTopic);
-            values.put(MessageColumns.SYNC_DATA, mSyncData);
             return values;
         }
 
@@ -920,7 +854,7 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mServerTimeStamp = cursor.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
-            mDraftInfo = cursor.getInt(CONTENT_DRAFT_INFO_COLUMN);
+            mClientId = cursor.getString(CONTENT_CLIENT_ID_COLUMN);
             mMessageId = cursor.getString(CONTENT_MESSAGE_ID_COLUMN);
             mMailboxKey = cursor.getLong(CONTENT_MAILBOX_KEY_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
@@ -933,7 +867,6 @@ public abstract class EmailContent {
             mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
             mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
             mThreadTopic = cursor.getString(CONTENT_THREAD_TOPIC_COLUMN);
-            mSyncData = cursor.getString(CONTENT_SYNC_DATA_COLUMN);
         }
 
         public boolean update() {
@@ -1030,31 +963,37 @@ public abstract class EmailContent {
             if (mHtml != null) {
                 cv.put(Body.HTML_CONTENT, mHtml);
             }
+            if (mTextReply != null) {
+                cv.put(Body.TEXT_REPLY, mTextReply);
+            }
+            if (mHtmlReply != null) {
+                cv.put(Body.HTML_REPLY, mHtmlReply);
+            }
             if (mSourceKey != 0) {
                 cv.put(Body.SOURCE_MESSAGE_KEY, mSourceKey);
+            }
+            if (mIntroText != null) {
+                cv.put(Body.INTRO_TEXT, mIntroText);
             }
             if (mQuotedTextStartPos != 0) {
                 cv.put(Body.QUOTED_TEXT_START_POS, mQuotedTextStartPos);
             }
+            b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
+            // Put our message id in the Body
+            if (!isNew) {
+                cv.put(Body.MESSAGE_KEY, mId);
+            }
+            b.withValues(cv);
             // We'll need this if we're new
             int messageBackValue = ops.size() - 1;
-            // Only create a body if we've got some data
-            if (!cv.keySet().isEmpty()) {
-                b = ContentProviderOperation.newInsert(Body.CONTENT_URI);
-                // Put our message id in the Body
-                if (!isNew) {
-                    cv.put(Body.MESSAGE_KEY, mId);
-                }
-                b.withValues(cv);
-                // If we're new, create a back value entry
-                if (isNew) {
-                    ContentValues backValues = new ContentValues();
-                    backValues.put(Body.MESSAGE_KEY, messageBackValue);
-                    b.withValueBackReferences(backValues);
-                }
-                // And add the Body operation
-                ops.add(b.build());
+            // If we're new, create a back value entry
+            if (isNew) {
+                ContentValues backValues = new ContentValues();
+                backValues.put(Body.MESSAGE_KEY, messageBackValue);
+                b.withValueBackReferences(backValues);
             }
+            // And add the Body operation
+            ops.add(b.build());
 
             // Create the attaachments, if any
             if (mAttachments != null) {
@@ -1181,30 +1120,17 @@ public abstract class EmailContent {
     public static final class Attachment extends EmailContent
             implements AttachmentColumns, Parcelable {
         public static final String TABLE_NAME = "Attachment";
-        public static final String ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX =
-                "content://com.android.email.attachmentprovider";
-
-        public static Uri CONTENT_URI;
+        @SuppressWarnings("hiding")
+        public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
-        public static Uri MESSAGE_ID_URI;
-        public static String ATTACHMENT_PROVIDER_URI_PREFIX;
-        public static boolean sUsingLegacyPrefix;
-
-        public static void initAttachment() {
-            CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
-            MESSAGE_ID_URI = Uri.parse(
-                    EmailContent.CONTENT_URI + "/attachment/message");
-            ATTACHMENT_PROVIDER_URI_PREFIX = "content://" + EmailContent.EMAIL_PACKAGE_NAME +
-                    ".attachmentprovider";
-            sUsingLegacyPrefix =
-                    ATTACHMENT_PROVIDER_URI_PREFIX.equals(ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX);
-        }
+        public static final Uri MESSAGE_ID_URI = Uri.parse(
+                EmailContent.CONTENT_URI + "/attachment/message");
 
         public String mFileName;
         public String mMimeType;
         public long mSize;
         public String mContentId;
-        private String mContentUri;
+        public String mContentUri;
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
@@ -1278,31 +1204,6 @@ public abstract class EmailContent {
          */
         public Attachment() {
             mBaseUri = CONTENT_URI;
-        }
-
-        public void setContentUri(String contentUri) {
-            mContentUri = contentUri;
-        }
-
-        public String getContentUri() {
-            if (mContentUri == null) return null; //
-            // If we're not using the legacy prefix and the uri IS, we need to modify it
-            if (!Attachment.sUsingLegacyPrefix &&
-                    mContentUri.startsWith(Attachment.ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX)) {
-                // In an upgrade scenario, we may still have legacy attachment Uri's
-                // Skip past content://
-                int prefix = mContentUri.indexOf('/', 10);
-                if (prefix > 0) {
-                    // Create a proper uri string using the actual provider
-                    return ATTACHMENT_PROVIDER_URI_PREFIX + "/" + mContentUri.substring(prefix);
-                } else {
-                    Log.e("Attachment", "Improper contentUri format: " + mContentUri);
-                    // Belt & suspenders; can't really happen
-                    return mContentUri;
-                }
-            } else {
-                return mContentUri;
-            }
         }
 
          /**
@@ -1534,6 +1435,10 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
+        // For compatibility w/ Email1
+        public static final String NOTIFIED_MESSAGE_ID = "notifiedMessageId";
+        // For compatibility w/ Email1
+        public static final String NOTIFIED_MESSAGE_COUNT = "notifiedMessageCount";
     }
 
     public interface QuickResponseColumns {
@@ -1591,8 +1496,8 @@ public abstract class EmailContent {
         public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
         // The total number of messages in the remote mailbox
         public static final String TOTAL_COUNT = "totalCount";
-        // The full hierarchical name of this folder, in the form a/b/c
-        public static final String HIERARCHICAL_NAME = "hierarchicalName";
+        // For compatibility with Email1
+        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
     }
 
     public interface HostAuthColumns {
@@ -1615,8 +1520,6 @@ public abstract class EmailContent {
         static final String CLIENT_CERT_ALIAS = "certAlias";
         // DEPRECATED - Will not be set or stored
         static final String ACCOUNT_KEY = "accountKey";
-        // A blob containing an X509 server certificate
-        static final String SERVER_CERT = "serverCert";
     }
 
     public interface PolicyColumns {

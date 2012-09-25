@@ -26,14 +26,14 @@ import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
-import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
+import com.android.email.mail.Transport;
 import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.transport.MailTransport;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.Flag;
@@ -106,10 +106,29 @@ public class ImapStore extends Store {
         mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth == null) {
-            throw new MessagingException("No HostAuth in ImapStore?");
+        if (recvAuth == null || !HostAuth.SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
+            throw new MessagingException("Unsupported protocol");
         }
-        mTransport = new MailTransport(context, "IMAP", recvAuth);
+        // defaults, which can be changed by security modifiers
+        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
+        int defaultPort = 143;
+
+        // check for security flags and apply changes
+        if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
+            defaultPort = 993;
+        } else if ((recvAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
+            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
+        }
+        boolean trustCertificates = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
+        int port = defaultPort;
+        if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
+            port = recvAuth.mPort;
+        }
+        mTransport = new MailTransport("IMAP");
+        mTransport.setHost(recvAuth.mAddress);
+        mTransport.setPort(port);
+        mTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfo = recvAuth.getLogin();
         if (userInfo != null) {
@@ -134,7 +153,7 @@ public class ImapStore extends Store {
      * @param testTransport The Transport to inject and use for all future communication.
      */
     @VisibleForTesting
-    void setTransportForTest(MailTransport testTransport) {
+    void setTransportForTest(Transport testTransport) {
         mTransport = testTransport;
     }
 
@@ -162,8 +181,8 @@ public class ImapStore extends Store {
      * @param capabilities a list of the capabilities from the server
      * @return a String for use in an IMAP ID message.
      */
-    public static String getImapId(Context context, String userName, String host,
-            String capabilities) {
+    @VisibleForTesting
+    static String getImapId(Context context, String userName, String host, String capabilities) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -399,9 +418,8 @@ public class ImapStore extends Store {
                     mailboxes.put(folderName, folder);
                 }
             }
-            String inboxName = mContext.getString(R.string.mailbox_name_display_inbox);
             Folder newFolder =
-                addMailbox(mContext, mAccount.mId, inboxName, '\0', true /*selectable*/);
+                addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, '\0', true /*selectable*/);
             mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);
@@ -464,7 +482,7 @@ public class ImapStore extends Store {
     }
 
     /** Returns a clone of the transport associated with this store. */
-    MailTransport cloneTransport() {
+    Transport cloneTransport() {
         return mTransport.clone();
     }
 

@@ -15,7 +15,6 @@
 -->
 
 <!-- See also values-xlarge for specializations for xlarge screens -->
-<!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
     <!-- Account setup screens -->
     <color name="account_setup_headline_color">#5E802B</color>
@@ -24,11 +23,25 @@
     <color name="account_setup_divider_color">#CCCCCC</color>
 
     <!-- Main UI -->
+    <color name="message_list_item_background_unread">#404040</color>
+    <color name="message_list_item_background_read">#000000</color>
+    <color name="account_folder_list_item_separator">#303030</color>
     <color name="connection_error_banner">#fffff1a8</color>
 
     <!-- Standard text colors -->
+    <color name="text_primary_color">#000000</color>
     <color name="text_secondary_color">#666666</color>
     <color name="text_ternary_color">#aaaaaa</color>
+    <color name="text_disabled_color">#888888</color>
+
+    <color name="button_text_color">#777777</color>
+    <color name="button_text_disabled_color">#cccccc</color>
+
+    <!-- TODO: properly put these text colors in the theme and use selectors -->
+    <color name="text_primary_color_inverse">#ffffff</color>
+    <color name="text_secondary_color_inverse">#eeeeee</color>
+
+    <color name="divider_color">#ff808080</color>
 
     <!-- Account color chips on combined view -->
     <color name="combined_view_account_color_1">#ff71aea7</color>
@@ -41,6 +54,23 @@
     <color name="combined_view_account_color_8">#ff738359</color>
     <color name="combined_view_account_color_9">#ff9d50a4</color>
 
-    <color name="button_text_color">#777777</color>
-    <color name="button_text_disabled_color">#cccccc</color>
+    <!-- Drop target colors -->
+    <color name="mailbox_drop_unavailable_fg_color">#ff999999</color>
+    <color name="mailbox_drop_available_bg_color">#00ffffff</color>
+    <color name="mailbox_drop_destructive_bg_color">#fff10000</color>
+
+    <!--  Widget colors -->
+    <color name="widget_default_text_color">#ff000000</color>
+    <color name="widget_light_text_color">#ff666666</color>
+    <color name="widget_title_color">#333333</color>
+    <color name="widget_unread_color">#777777</color>
+
+    <color name="message_view_info_back_color">#deecfa</color>
+    <color name="message_view_header_color">#3cb8e6</color>
+    <color name="message_activated_color">#3cb8e6</color>
+
+    <color name="error_bar_background">#ffff66</color>
+
+    <!-- Compose colors -->
+    <color name="compose_label_text">#aaaaaa</color>
 </resources>

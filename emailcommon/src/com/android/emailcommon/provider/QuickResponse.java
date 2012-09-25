@@ -17,6 +17,10 @@
 
 package com.android.emailcommon.provider;
 
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
+import com.google.common.base.Objects;
+
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,9 +29,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
-import com.google.common.base.Objects;
-
 /**
  * A user-modifiable message that may be quickly inserted into the body while user is composing
  * a message. Tied to a specific account.
@@ -35,13 +36,11 @@ import com.google.common.base.Objects;
 public final class QuickResponse extends EmailContent
         implements QuickResponseColumns, Parcelable {
     public static final String TABLE_NAME = "QuickResponse";
-    public static Uri CONTENT_URI;
-    public static Uri ACCOUNT_ID_URI;
-
-    public static void initQuickResponse() {
-        CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse");
-        ACCOUNT_ID_URI = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse/account");
-    }
+    @SuppressWarnings("hiding")
+    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI
+            + "/quickresponse");
+    public static final Uri ACCOUNT_ID_URI = Uri.parse(
+            EmailContent.CONTENT_URI + "/quickresponse/account");
 
     private String mText;
     private long mAccountKey;

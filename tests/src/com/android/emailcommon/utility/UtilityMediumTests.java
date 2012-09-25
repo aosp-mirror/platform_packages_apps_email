@@ -134,12 +134,12 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
 
     public void testBuildLimitOneUri() {
         // EmailProvider supports "?limit="
-        assertEquals(Uri.parse("content://com.android.mail.provider?limit=1"),
-                Utility.buildLimitOneUri(Uri.parse("content://com.android.mail.provider")));
+        assertEquals(Uri.parse("content://com.android.email.provider?limit=1"),
+                Utility.buildLimitOneUri(Uri.parse("content://com.android.email.provider")));
 
         // Others don't -- so don't add it.
-        assertEquals(Uri.parse("content://com.android.mail.attachmentprovider"),
-                Utility.buildLimitOneUri(Uri.parse("content://com.android.mail.attachmentprovider"
+        assertEquals(Uri.parse("content://com.android.email.attachmentprovider"),
+                Utility.buildLimitOneUri(Uri.parse("content://com.android.email.attachmentprovider"
                         )));
         assertEquals(Uri.parse("content://gmail-ls/android@gmail.com"),
                 Utility.buildLimitOneUri(Uri.parse("content://gmail-ls/android@gmail.com"
