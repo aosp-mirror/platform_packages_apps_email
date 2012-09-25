@@ -21,9 +21,8 @@ package com.android.emailcommon;
  *
  * Level 1: As shipped in HC/MR1
  * Level 2: Adds searchMessages to EmailService
- * Level 3: Adds capabilities query
  *
  */
 public class Api {
-    public static final int LEVEL = 3;
+    public static final int LEVEL = 2;
 }

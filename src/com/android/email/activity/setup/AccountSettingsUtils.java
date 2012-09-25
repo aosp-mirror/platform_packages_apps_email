@@ -16,25 +16,19 @@
 
 package com.android.email.activity.setup;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
 
 import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.VendorPolicyLoader;
-import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.Serializable;
@@ -57,26 +51,10 @@ public class AccountSettingsUtils {
     public static void commitSettings(Context context, Account account) {
         if (!account.isSaved()) {
             account.save(context);
-
-            // Set up default quick responses here...
-            String[] defaultQuickResponses =
-                context.getResources().getStringArray(R.array.default_quick_responses);
-            ContentValues cv = new ContentValues();
-            cv.put(QuickResponse.ACCOUNT_KEY, account.mId);
-            ContentResolver resolver = context.getContentResolver();
-            for (String quickResponse: defaultQuickResponses) {
-                // Allow empty entries (some localizations may not want to have the maximum
-                // number)
-                if (!TextUtils.isEmpty(quickResponse)) {
-                    cv.put(QuickResponse.TEXT, quickResponse);
-                    resolver.insert(QuickResponse.CONTENT_URI, cv);
-                }
-            }
         } else {
             ContentValues cv = getAccountContentValues(account);
             account.update(context, cv);
         }
-
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backup(context);
     }
@@ -232,40 +210,84 @@ public class AccountSettingsUtils {
         }
     }
 
+    public static class Provider implements Serializable {
+        private static final long serialVersionUID = 8511656164616538989L;
+
+        public String id;
+        public String label;
+        public String domain;
+        public String incomingUriTemplate;
+        public String incomingUsernameTemplate;
+        public String outgoingUriTemplate;
+        public String outgoingUsernameTemplate;
+        public String incomingUri;
+        public String incomingUsername;
+        public String outgoingUri;
+        public String outgoingUsername;
+        public String note;
+
+        /**
+         * Expands templates in all of the  provider fields that support them. Currently,
+         * templates are used in 4 fields -- incoming and outgoing URI and user name.
+         * @param email user-specified data used to replace template values
+         */
+        public void expandTemplates(String email) {
+            String[] emailParts = email.split("@");
+            String user = emailParts[0];
+
+            incomingUri = expandTemplate(incomingUriTemplate, email, user);
+            incomingUsername = expandTemplate(incomingUsernameTemplate, email, user);
+            outgoingUri = expandTemplate(outgoingUriTemplate, email, user);
+            outgoingUsername = expandTemplate(outgoingUsernameTemplate, email, user);
+        }
+
+        /**
+         * Replaces all parameterized values in the given template. The values replaced are
+         * $domain, $user and $email.
+         */
+        private String expandTemplate(String template, String email, String user) {
+            String returnString = template;
+            returnString = returnString.replaceAll("\\$email", email);
+            returnString = returnString.replaceAll("\\$user", user);
+            returnString = returnString.replaceAll("\\$domain", domain);
+            return returnString;
+        }
+    }
+
     /**
      * Infer potential email server addresses from domain names
      *
      * Incoming: Prepend "imap" or "pop3" to domain, unless "pop", "pop3",
      *          "imap", or "mail" are found.
-     * Outgoing: Prepend "smtp" if domain starts with any in the host prefix array
+     * Outgoing: Prepend "smtp" if "pop", "pop3", "imap" are found.
+     *          Leave "mail" as-is.
+     * TBD: Are there any useful defaults for exchange?
      *
      * @param server name as we know it so far
      * @param incoming "pop3" or "imap" (or null)
      * @param outgoing "smtp" or null
      * @return the post-processed name for use in the UI
      */
-    public static String inferServerName(Context context, String server, String incoming,
-            String outgoing) {
+    public static String inferServerName(String server, String incoming, String outgoing) {
         // Default values cause entire string to be kept, with prepended server string
         int keepFirstChar = 0;
         int firstDotIndex = server.indexOf('.');
         if (firstDotIndex != -1) {
             // look at first word and decide what to do
             String firstWord = server.substring(0, firstDotIndex).toLowerCase();
-            String[] hostPrefixes =
-                    context.getResources().getStringArray(R.array.smtp_host_prefixes);
-            boolean canSubstituteSmtp = Utility.arrayContains(hostPrefixes, firstWord);
+            boolean isImapOrPop = "imap".equals(firstWord)
+                    || "pop3".equals(firstWord) || "pop".equals(firstWord);
             boolean isMail = "mail".equals(firstWord);
             // Now decide what to do
             if (incoming != null) {
                 // For incoming, we leave imap/pop/pop3/mail alone, or prepend incoming
-                if (canSubstituteSmtp || isMail) {
+                if (isImapOrPop || isMail) {
                     return server;
                 }
             } else {
                 // For outgoing, replace imap/pop/pop3 with outgoing, leave mail alone, or
                 // prepend outgoing
-                if (canSubstituteSmtp) {
+                if (isImapOrPop) {
                     keepFirstChar = firstDotIndex + 1;
                 } else if (isMail) {
                     return server;

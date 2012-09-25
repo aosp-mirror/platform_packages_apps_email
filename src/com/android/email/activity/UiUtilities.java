@@ -16,12 +16,13 @@
 
 package com.android.email.activity;
 
+import com.android.email.R;
+
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
-
-import com.android.email.R;
 
 public class UiUtilities {
     private UiUtilities() {
@@ -124,6 +125,30 @@ public class UiUtilities {
         setVisibilitySafe(parent.findViewById(viewId), visibility);
     }
 
+    /**
+     * Used by an {@link Fragment} to install itself to the host activity.
+     *
+     * @see FragmentInstallable
+     */
+    public static void installFragment(Fragment fragment) {
+        final Activity a = fragment.getActivity();
+        if (a instanceof FragmentInstallable) {
+            ((FragmentInstallable) a).onInstallFragment(fragment);
+        }
+    }
+
+    /**
+     * Used by an {@link Fragment} to uninstall itself from the host activity.
+     *
+     * @see FragmentInstallable
+     */
+    public static void uninstallFragment(Fragment fragment) {
+        final Activity a = fragment.getActivity();
+        if (a instanceof FragmentInstallable) {
+            ((FragmentInstallable) a).onUninstallFragment(fragment);
+        }
+    }
+
     private static int sDebugForcedPaneMode = 0;
 
     /**
@@ -134,5 +159,25 @@ public class UiUtilities {
      */
     static void setDebugPaneMode(int paneMode) {
         sDebugForcedPaneMode = paneMode;
+    }
+
+    /**
+     * @return {@code true} if 2-pane UI should be used.  {@code false} otherwise.
+     */
+    public static boolean useTwoPane(Context context) {
+        if (sDebugForcedPaneMode == 1) {
+            return false;
+        }
+        if (sDebugForcedPaneMode == 2) {
+            return true;
+        }
+        return context.getResources().getBoolean(R.bool.use_two_pane);
+    }
+
+    /**
+     * Return whether to show search results in a split pane.
+     */
+    public static boolean showTwoPaneSearchResults(Context context) {
+        return context.getResources().getBoolean(R.bool.show_two_pane_search_result);
     }
 }

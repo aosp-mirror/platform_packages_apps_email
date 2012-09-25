@@ -142,7 +142,6 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
-        setHasOptionsMenu(true);
     }
 
     /**
@@ -409,11 +408,6 @@ public abstract class AccountServerBaseFragment extends Fragment
         boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
         return sendChanged || recvChanged;
-    }
-
-    public boolean setHostAuthFromAutodiscover(HostAuth hostAuth) {
-        // This is overridden, if necessary
-        return true;
     }
 
     /**

@@ -33,8 +33,6 @@ import android.util.Log;
 import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
@@ -172,7 +170,6 @@ public class AccountCheckSettingsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mPaused = false;
-
         if (mState != STATE_START) {
             reportProgress(mState, mProgressException);
         }
@@ -475,21 +472,14 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (bundle != null) {
                         resultCode = bundle.getInt(
                                 EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
-                        // Only show "policies required" if this is a new account setup
-                        if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED &&
-                                mAccount.isSaved()) {
-                            resultCode = MessagingException.NO_ERROR;
-                        }
                     }
                     if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
                         SetupData.setPolicy((Policy)bundle.getParcelable(
                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
                         return new MessagingException(resultCode, mStoreHost);
                     } else if (resultCode == MessagingException.SECURITY_POLICIES_UNSUPPORTED) {
-                        Policy policy = (Policy)bundle.getParcelable(
-                                EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET);
-                        String unsupported = policy.mProtocolPoliciesUnsupported;
-                        String[] data = unsupported.split("" + Policy.POLICY_STRING_DELIMITER);
+                        String[] data = bundle.getStringArray(
+                                EmailServiceProxy.VALIDATE_BUNDLE_UNSUPPORTED_POLICIES);
                         return new MessagingException(resultCode, mStoreHost, data);
                     } else if (resultCode != MessagingException.NO_ERROR) {
                         String errorMessage =
@@ -498,11 +488,8 @@ public class AccountCheckSettingsFragment extends Fragment {
                     }
                 }
 
-                String protocol = mAccount.mHostAuthRecv.mProtocol;
-                EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
-
                 // Check Outgoing Settings
-                if (info.usesSmtp && (mMode & SetupData.CHECK_OUTGOING) != 0) {
+                if ((mMode & SetupData.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
                     Log.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);
@@ -540,7 +527,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Return "real" AD results
                 HostAuth auth = new HostAuth();
                 auth.setLogin("user", "password");
-                auth.setConnection("eas", "testserver.com", 0);
+                auth.setConnection(HostAuth.SCHEME_EAS, "testserver.com", 0);
                 return new AutoDiscoverResults(false, auth);
             }
             if (isCancelled()) return null;

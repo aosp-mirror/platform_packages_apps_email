@@ -27,7 +27,6 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 
@@ -50,6 +49,10 @@ import java.io.IOException;
 
 public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     private static final String TAG = "EmailServiceProxy";
+
+    // Private intent that will be used to connect to an independent Exchange service
+    public static final String EXCHANGE_INTENT = "com.android.email.EXCHANGE_INTENT";
+    public static final String IMAP_INTENT = "com.android.email.IMAP_INTENT";
 
     public static final String AUTO_DISCOVER_BUNDLE_ERROR_CODE = "autodiscover_error_code";
     public static final String AUTO_DISCOVER_BUNDLE_HOST_AUTH = "autodiscover_host_auth";
@@ -411,7 +414,9 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "deleteAccountPIMData");
     }
 
+
     /**
+     * PRELIMINARY
      * Search for messages given a query string.  The string is interpreted as the logical AND of
      * terms separated by white space.  The search is performed on the specified mailbox in the
      * specified account (including subfolders, as specified by the includeSubfolders parameter).
@@ -458,40 +463,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             }
         }, "sendMail");
     }
-
-    @Override
-    public int getCapabilities(final Account acct) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
-                mReturn = mService.getCapabilities(acct);
-            }
-        }, "getCapabilities");
-        waitForCompletion();
-        if (mReturn == null) {
-            return 0;
-        } else {
-            return (Integer)mReturn;
-        }
-    }
-    /**
-     * Request that the account be updated for this service; this call is synchronous
-     *
-     * @param the email address of the account to be updated
-     */
-    @Override
-    public void serviceUpdated(final String emailAddress) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
-                mService.serviceUpdated(emailAddress);
-            }
-        }, "settingsUpdate");
-        waitForCompletion();
-    }
-
 
     @Override
     public IBinder asBinder() {
