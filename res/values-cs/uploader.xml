@@ -26,7 +26,7 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Skrýt podrobnosti"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Nastavení"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Nahráno: %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Účet"</string>
     <string name="upload" msgid="2615541458361216022">"Nahrát"</string>
     <string name="ok" msgid="2516349681897895312">"OK"</string>
@@ -127,7 +127,7 @@
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Nahrát všechny existující fotky a videa z telefonu"</string>
     <string name="summary_subtitle_disabled" msgid="8964378166312900703">"Vypnuto"</string>
     <string name="preference_summary_header_format" msgid="8850267704647137239">"%1$s: %2$s"</string>
-    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Nahrávání (%1$d%%)"</string>
+    <string name="preference_summary_uploading_percent" msgid="3266958005329832043">"Nahrávání (%1$d %%)"</string>
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d z celkem %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Pozastaveno. Nahrávání obnovíte dotykem."</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Nahrát existující fotky"</string>

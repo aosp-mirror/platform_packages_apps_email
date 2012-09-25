@@ -26,7 +26,7 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"隐藏详情"</string>
     <string name="menu_settings" msgid="5088116127086866634">"设置"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"上传时间：%s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"帐户"</string>
     <string name="upload" msgid="2615541458361216022">"上传"</string>
     <string name="ok" msgid="2516349681897895312">"确定"</string>
@@ -120,7 +120,7 @@
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"高级"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"使用移动网络时的上传设置"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"漫游时的上传设置"</string>
-    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"在数据网络中漫游时上传照片和视频"</string>
+    <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"在移动数据网络中漫游时上传照片和视频"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"充电时上传"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"仅在充电时上传照片和视频"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"上传现有照片"</string>

@@ -26,7 +26,7 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Skjul detaljer"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Innstillinger"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Lastet opp %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g><xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Konto"</string>
     <string name="upload" msgid="2615541458361216022">"Last opp"</string>
     <string name="ok" msgid="2516349681897895312">"OK"</string>
@@ -54,8 +54,8 @@
     <string name="pause_state_roaming" msgid="1811348200068311099">"satt på pause – roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"venter på å prøve på nytt"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"Ett minutt"</string>
-    <string name="retry_in_2min" msgid="5845688527405283031">"To minutter"</string>
-    <string name="retry_in_5min" msgid="3153220715959570358">"Fem minutter"</string>
+    <string name="retry_in_2min" msgid="5845688527405283031">"2 minutter"</string>
+    <string name="retry_in_5min" msgid="3153220715959570358">"5 minutter"</string>
     <string name="retry_no_data" msgid="630347885498641534">"Ingen datatilkobling"</string>
     <string name="account_out_of_quota" msgid="1849612079678906607">"Kontoen har ingen tilgjengelig diskkvote"</string>
     <string name="completed_no_file" msgid="6719715000947601844">"Finner ikke filen"</string>

@@ -5,7 +5,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="application_name" msgid="7812006268714926951">"Sofort-Upload"</string>
     <string name="picasa_default_destination" msgid="2052406684123992574">"Sofort-Upload-Album"</string>
-    <string name="summary_title_uploading" msgid="3357617474017589370">"Upload wird durchgeführt"</string>
+    <string name="summary_title_uploading" msgid="3357617474017589370">"Wird hochgeladen..."</string>
     <string name="summary_title_finished" msgid="7775292294989807025">"Abgeschlossen"</string>
     <string name="summary_title_paused" msgid="8936561302881926595">"Angehalten"</string>
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • %2$d Fotos • %3$d Videos"</string>
@@ -26,7 +26,7 @@
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Details ausblenden"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Einstellungen"</string>
     <string name="format_date_uploaded" msgid="803752037646090928">"Hochgeladen: %s"</string>
-    <string name="format_progress_percent" msgid="1420459750508777491">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
+    <string name="format_progress_percent" msgid="4347398038122210157">"<xliff:g id="NUMBER">%d</xliff:g> <xliff:g id="PERCENTSIGN">%%</xliff:g>"</string>
     <string name="account" msgid="5199161365824352613">"Konto"</string>
     <string name="upload" msgid="2615541458361216022">"Hochladen"</string>
     <string name="ok" msgid="2516349681897895312">"OK"</string>
@@ -41,10 +41,10 @@
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"Warten auf erneuten Versuch"</string>
     <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Warten auf WLAN"</string>
-    <string name="upload_state_uploading" msgid="82854465974176047">"Upload wird durchgeführt"</string>
+    <string name="upload_state_uploading" msgid="82854465974176047">"Wird hochgeladen..."</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Fehlgeschlagen"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Abgeschlossen"</string>
-    <string name="pause_state_running" msgid="711411177620353982">"Hochladen"</string>
+    <string name="pause_state_running" msgid="711411177620353982">"Wird hochgeladen..."</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"Manuell ausgesetzt"</string>
     <string name="pause_state_low_battery" msgid="3154677586511229063">"Ausgesetzt - Akku schwach"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"Ausgesetzt - zuerst Akku laden"</string>
