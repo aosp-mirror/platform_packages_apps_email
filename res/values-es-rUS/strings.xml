@@ -102,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Bandeja de entrada"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado con asterisco"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Destacados"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Bandeja de salida"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vista combinada"</string>
