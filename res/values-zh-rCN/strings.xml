@@ -375,7 +375,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"签名"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"快速回复"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"编辑撰写电子邮件时经常插入的文本"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"编辑您在写电子邮件时经常插入的文本"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在您发送的邮件中附加文本"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知设置"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"数据使用"</string>
