@@ -45,7 +45,7 @@ public class UIProvider {
         // A user-requested sync/refresh is in progress
         public static final int USER_REFRESH = 1<<0;
         // A user-requested query is in progress
-        public static final int USER_QUERY = 1<<1;
+        public static final int LIVE_QUERY = 1<<1;
         // A user request for additional results is in progress
         public static final int USER_MORE_RESULTS = 1<<2;
         // A background sync is in progress
