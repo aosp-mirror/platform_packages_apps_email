@@ -457,7 +457,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"No leídos"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacados"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
-    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Toca para configurar."</string>
+    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Toca para configurar"</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Aún no se ha configurado una cuenta de correo electrónico."</string>
     <string name="widget_no_mailboxes" msgid="5222354534538852579">"Esta cuenta no está sincronizada. Inténtalo de nuevo más tarde."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
