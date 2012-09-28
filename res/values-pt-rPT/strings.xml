@@ -44,7 +44,7 @@
     <string name="unread_action" msgid="6280399049357552826">"Marcar como não lida"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Adicionar estrela"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Remover estrela"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"Actualizar"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"Atualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Adicionar conta"</string>
     <string name="compose_action" msgid="4045702519637388045">"Redigir"</string>
     <string name="search_action" msgid="6325101454876682308">"Pesquisar"</string>
@@ -503,8 +503,7 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"A sincronização em segundo plano desta conta está desativada quando está em roaming."</string>
     <string name="confirm_response" msgid="9151965975158906286">"A enviar resposta..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Não tem mensagens."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Seletor de pastas"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Selecionar a pasta de lixo do servidor para <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

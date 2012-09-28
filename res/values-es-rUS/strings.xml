@@ -41,9 +41,9 @@
     <string name="save_draft_action" msgid="6413714270991417223">"Guardar borrador"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Insertar respuesta rápida"</string>
     <string name="read_action" msgid="4701484794504781686">"Marcar leída"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Marcar no leída"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Agregar asterisco"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Eliminar asterisco"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Marcar como no leída"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Destacar"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Eliminar estrella"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Agregar cuenta"</string>
     <string name="compose_action" msgid="4045702519637388045">"Redactar"</string>
@@ -102,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Bandeja de entrada"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado con asterisco"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Destacados"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Bandeja de salida"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vista combinada"</string>
@@ -503,8 +503,7 @@
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Se ha inhabilitado la sincronización en segundo plano de esta cuenta en itinerancia."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Enviando respuesta…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"No hay mensajes."</string>
-    <!-- no translation found for imap_name (5030473997603483793) -->
-    <skip />
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"Selector de carpeta"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Selecciona la carpeta de papelera del servidor para <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
