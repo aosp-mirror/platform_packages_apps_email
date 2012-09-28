@@ -41,9 +41,9 @@
     <string name="save_draft_action" msgid="6413714270991417223">"Guardar borrador"</string>
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Insertar respuesta rápida"</string>
     <string name="read_action" msgid="4701484794504781686">"Marcar leída"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Marcar no leída"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Agregar asterisco"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Eliminar asterisco"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Marcar como no leída"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Destacar"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Eliminar estrella"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Agregar cuenta"</string>
     <string name="compose_action" msgid="4045702519637388045">"Redactar"</string>

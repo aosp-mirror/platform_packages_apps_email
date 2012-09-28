@@ -44,7 +44,7 @@
     <string name="unread_action" msgid="6280399049357552826">"Marcar como não lida"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Adicionar estrela"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Remover estrela"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"Actualizar"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"Atualizar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Adicionar conta"</string>
     <string name="compose_action" msgid="4045702519637388045">"Redigir"</string>
     <string name="search_action" msgid="6325101454876682308">"Pesquisar"</string>
