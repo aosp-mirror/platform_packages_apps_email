@@ -352,7 +352,7 @@
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Sperr-Passwort läuft ab"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms ist abgelaufen."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Sperr-Passwort abgelaufen"</string>
-    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Bildschirmsperre läuft ab"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Display-Sperre läuft ab"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Sie müssen Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms bald ändern, sonst werden die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht. Jetzt ändern?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Sperr-Passwort abgelaufen"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können sie wiederherstellen, indem Sie Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms ändern. Jetzt ändern?"</string>
