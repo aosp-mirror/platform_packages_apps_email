@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -63,7 +64,7 @@ public class SecurityPolicy {
     private static final int DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING = 4;
 
     private static final String HAS_PASSWORD_EXPIRATION =
-        PolicyColumns.PASSWORD_EXPIRATION_DAYS + ">0";
+            PolicyColumns.PASSWORD_EXPIRATION_DAYS + ">0";
 
     /**
      * Get the security policy instance
@@ -112,21 +113,21 @@ public class SecurityPolicy {
     @VisibleForTesting
     Policy computeAggregatePolicy() {
         boolean policiesFound = false;
-        Policy aggregate = new Policy();
-        aggregate.mPasswordMinLength = Integer.MIN_VALUE;
-        aggregate.mPasswordMode = Integer.MIN_VALUE;
-        aggregate.mPasswordMaxFails = Integer.MAX_VALUE;
-        aggregate.mPasswordHistory = Integer.MIN_VALUE;
-        aggregate.mPasswordExpirationDays = Integer.MAX_VALUE;
-        aggregate.mPasswordComplexChars = Integer.MIN_VALUE;
-        aggregate.mMaxScreenLockTime = Integer.MAX_VALUE;
-        aggregate.mRequireRemoteWipe = false;
-        aggregate.mRequireEncryption = false;
+        Policy ap = new Policy();
+        ap.mPasswordMinLength = Integer.MIN_VALUE;
+        ap.mPasswordMode = Integer.MIN_VALUE;
+        ap.mPasswordMaxFails = Integer.MAX_VALUE;
+        ap.mPasswordHistory = Integer.MIN_VALUE;
+        ap.mPasswordExpirationDays = Integer.MAX_VALUE;
+        ap.mPasswordComplexChars = Integer.MIN_VALUE;
+        ap.mMaxScreenLockTime = Integer.MAX_VALUE;
+        ap.mRequireRemoteWipe = false;
+        ap.mRequireEncryption = false;
 
         // This can never be supported at this time. It exists only for historic reasons where
         // this was able to be supported prior to the introduction of proper removable storage
         // support for external storage.
-        aggregate.mRequireEncryptionExternal = false;
+        ap.mRequireEncryptionExternal = false;
 
         Cursor c = mContext.getContentResolver().query(Policy.CONTENT_URI,
                 Policy.CONTENT_PROJECTION, null, null, null);
@@ -137,32 +138,31 @@ public class SecurityPolicy {
                 if (Email.DEBUG) {
                     Log.d(TAG, "Aggregate from: " + policy);
                 }
-                aggregate.mPasswordMinLength =
-                    Math.max(policy.mPasswordMinLength, aggregate.mPasswordMinLength);
-                aggregate.mPasswordMode  = Math.max(policy.mPasswordMode, aggregate.mPasswordMode);
+                ap.mPasswordMinLength = Math.max(policy.mPasswordMinLength, ap.mPasswordMinLength);
+                ap.mPasswordMode  = Math.max(policy.mPasswordMode, ap.mPasswordMode);
                 if (policy.mPasswordMaxFails > 0) {
-                    aggregate.mPasswordMaxFails =
-                        Math.min(policy.mPasswordMaxFails, aggregate.mPasswordMaxFails);
+                    ap.mPasswordMaxFails =
+                            Math.min(policy.mPasswordMaxFails, ap.mPasswordMaxFails);
                 }
                 if (policy.mMaxScreenLockTime > 0) {
-                    aggregate.mMaxScreenLockTime = Math.min(policy.mMaxScreenLockTime,
-                            aggregate.mMaxScreenLockTime);
+                    ap.mMaxScreenLockTime =
+                            Math.min(policy.mMaxScreenLockTime, ap.mMaxScreenLockTime);
                 }
                 if (policy.mPasswordHistory > 0) {
-                    aggregate.mPasswordHistory =
-                        Math.max(policy.mPasswordHistory, aggregate.mPasswordHistory);
+                    ap.mPasswordHistory =
+                            Math.max(policy.mPasswordHistory, ap.mPasswordHistory);
                 }
                 if (policy.mPasswordExpirationDays > 0) {
-                    aggregate.mPasswordExpirationDays =
-                        Math.min(policy.mPasswordExpirationDays, aggregate.mPasswordExpirationDays);
+                    ap.mPasswordExpirationDays =
+                            Math.min(policy.mPasswordExpirationDays, ap.mPasswordExpirationDays);
                 }
                 if (policy.mPasswordComplexChars > 0) {
-                    aggregate.mPasswordComplexChars = Math.max(policy.mPasswordComplexChars,
-                            aggregate.mPasswordComplexChars);
+                    ap.mPasswordComplexChars =
+                            Math.max(policy.mPasswordComplexChars, ap.mPasswordComplexChars);
                 }
-                aggregate.mRequireRemoteWipe |= policy.mRequireRemoteWipe;
-                aggregate.mRequireEncryption |= policy.mRequireEncryption;
-                aggregate.mDontAllowCamera |= policy.mDontAllowCamera;
+                ap.mRequireRemoteWipe |= policy.mRequireRemoteWipe;
+                ap.mRequireEncryption |= policy.mRequireEncryption;
+                ap.mDontAllowCamera |= policy.mDontAllowCamera;
                 policiesFound = true;
             }
         } finally {
@@ -170,19 +170,19 @@ public class SecurityPolicy {
         }
         if (policiesFound) {
             // final cleanup pass converts any untouched min/max values to zero (not specified)
-            if (aggregate.mPasswordMinLength == Integer.MIN_VALUE) aggregate.mPasswordMinLength = 0;
-            if (aggregate.mPasswordMode == Integer.MIN_VALUE) aggregate.mPasswordMode = 0;
-            if (aggregate.mPasswordMaxFails == Integer.MAX_VALUE) aggregate.mPasswordMaxFails = 0;
-            if (aggregate.mMaxScreenLockTime == Integer.MAX_VALUE) aggregate.mMaxScreenLockTime = 0;
-            if (aggregate.mPasswordHistory == Integer.MIN_VALUE) aggregate.mPasswordHistory = 0;
-            if (aggregate.mPasswordExpirationDays == Integer.MAX_VALUE)
-                aggregate.mPasswordExpirationDays = 0;
-            if (aggregate.mPasswordComplexChars == Integer.MIN_VALUE)
-                aggregate.mPasswordComplexChars = 0;
+            if (ap.mPasswordMinLength == Integer.MIN_VALUE) ap.mPasswordMinLength = 0;
+            if (ap.mPasswordMode == Integer.MIN_VALUE) ap.mPasswordMode = 0;
+            if (ap.mPasswordMaxFails == Integer.MAX_VALUE) ap.mPasswordMaxFails = 0;
+            if (ap.mMaxScreenLockTime == Integer.MAX_VALUE) ap.mMaxScreenLockTime = 0;
+            if (ap.mPasswordHistory == Integer.MIN_VALUE) ap.mPasswordHistory = 0;
+            if (ap.mPasswordExpirationDays == Integer.MAX_VALUE)
+                ap.mPasswordExpirationDays = 0;
+            if (ap.mPasswordComplexChars == Integer.MIN_VALUE)
+                ap.mPasswordComplexChars = 0;
             if (Email.DEBUG) {
-                Log.d(TAG, "Calculated Aggregate: " + aggregate);
+                Log.d(TAG, "Calculated Aggregate: " + ap);
             }
-            return aggregate;
+            return ap;
         }
         if (Email.DEBUG) {
             Log.d(TAG, "Calculated Aggregate: no policy");
@@ -482,6 +482,15 @@ public class SecurityPolicy {
 
             // encryption required
             dpm.setStorageEncryption(mAdminName, aggregatePolicy.mRequireEncryption);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                // Disable/re-enable keyguard features as required
+                boolean noKeyguardFeatures =
+                        aggregatePolicy.mPasswordMode != Policy.PASSWORD_MODE_NONE;
+                dpm.setKeyguardDisabledFeatures(mAdminName,
+                        (noKeyguardFeatures ? DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_ALL :
+                            DevicePolicyManager.KEYGUARD_DISABLE_FEATURES_NONE));
+            }
+
         }
     }
 
@@ -563,7 +572,7 @@ public class SecurityPolicy {
             context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
             account.refresh(context);
         } catch (RemoteException e) {
-           // This is fatal to a remote process
+            // This is fatal to a remote process
             throw new IllegalStateException("Exception setting account policy.");
         } catch (OperationApplicationException e) {
             // Can't happen; our provider doesn't throw this exception
@@ -674,7 +683,9 @@ public class SecurityPolicy {
         return dpm.isAdminActive(mAdminName)
                 && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_EXPIRE_PASSWORD)
                 && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_ENCRYPTED_STORAGE)
-                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_DISABLE_CAMERA);
+                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_DISABLE_CAMERA)
+                && dpm.hasGrantedPolicy(mAdminName,
+                        DeviceAdminInfo.USES_POLICY_DISABLE_KEYGUARD_FEATURES);
     }
 
     /**
