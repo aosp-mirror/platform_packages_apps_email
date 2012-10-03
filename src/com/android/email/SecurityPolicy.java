@@ -683,9 +683,7 @@ public class SecurityPolicy {
         return dpm.isAdminActive(mAdminName)
                 && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_EXPIRE_PASSWORD)
                 && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_ENCRYPTED_STORAGE)
-                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_DISABLE_CAMERA)
-                && dpm.hasGrantedPolicy(mAdminName,
-                        DeviceAdminInfo.USES_POLICY_DISABLE_KEYGUARD_FEATURES);
+                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_DISABLE_CAMERA);
     }
 
     /**
