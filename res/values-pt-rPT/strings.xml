@@ -20,7 +20,7 @@
     <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Permite à aplicação ler os anexos de e-mail."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Aceder a dados do fornecedor de e-mail"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"Permite que a aplicação aceda à base de dados do e-mail, incluindo às mensagens recebidas, mensagens enviadas, nomes de utilizadores e palavras-passe."</string>
-    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Redigir"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depuração"</string>
     <string name="next_action" msgid="3931301986364184415">"Seguinte"</string>
@@ -128,7 +128,7 @@
     <string name="cc" msgid="7017720927911078193">"Cc"</string>
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Assunto"</string>
-    <string name="body_hint" msgid="4279864165439577668">"Escrever e-mail"</string>
+    <string name="body_hint" msgid="4279864165439577668">"Escrever email"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem original --------"\n"Assunto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escreveu:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Incluir texto citado"</string>
@@ -232,9 +232,9 @@
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Mais antigas"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuração da conta"</string>
-    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Conta de e-mail"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Conta de email"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"É possível configurar a sua conta em apenas alguns passos."</string>
-    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de e-mail"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de email"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Palavra-passe"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Enviar e-mail a partir desta conta por predefinição"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
@@ -355,7 +355,7 @@
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Palavra-passe de bloq. do ecrã a expirar"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Tem de alterar o PIN ou a palavra-passe de bloqueio do ecrã ou os dados de <xliff:g id="ACCOUNT">%s</xliff:g> serão apagados. Pretende alterar agora?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"A palavra-passe de bloq. do ecrã expirou"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Os dados de <xliff:g id="ACCOUNT">%s</xliff:g> estão a ser apagados do aparelho. Pode restaurá-los alterando o PIN ou a palavra-passe de bloqueio do ecrã. Pretende alterar agora?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Os dados de <xliff:g id="ACCOUNT">%s</xliff:g> estão a ser apagados do dispositivo. Pode restaurá-los alterando o PIN ou a palavra-passe de bloqueio do ecrã. Pretende alterar agora?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Rejeitar alterações não guardadas?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Não foi possível iniciar sessão."</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"O nome de utilizador ou a palavra-passe para <xliff:g id="ACCOUNT">%s</xliff:g> estão incorretos. Pretende atualizá-los agora?"</string>
@@ -429,7 +429,7 @@
     <string name="exchange_name" msgid="1190783774800310346">"Empresa"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Não foi possível criar a conta. Tente novamente."</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"Email"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Activa as políticas de segurança especificadas pelo servidor"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"A pesquisar <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
