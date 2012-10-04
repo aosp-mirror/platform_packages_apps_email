@@ -106,7 +106,8 @@ public class EmailBroadcastProcessorService extends IntentService {
 
             if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
                 onBootCompleted();
-
+                // Force policies to be set in DPM
+                SecurityPolicy.getInstance(this);
             // TODO: Do a better job when we get ACTION_DEVICE_STORAGE_LOW.
             //       The code below came from very old code....
             } else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(broadcastAction)) {
