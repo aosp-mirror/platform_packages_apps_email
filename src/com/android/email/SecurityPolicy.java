@@ -84,6 +84,7 @@ public class SecurityPolicy {
         mDPM = null;
         mAdminName = new ComponentName(context, PolicyAdmin.class);
         mAggregatePolicy = null;
+        setActivePolicies();
     }
 
     /**
