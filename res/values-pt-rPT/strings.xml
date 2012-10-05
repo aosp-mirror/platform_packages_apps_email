@@ -409,7 +409,7 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Selecione uma pasta"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Não foi possível localizar a conta. Pode ter sido removida."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Não foi possível localizar a pasta. Pode ter sido removida."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Apenas algumas contas “Plus” incluem acesso POP, permitindo a ligação deste programa. Se não conseguir iniciar sessão com o endereço de e-mail e palavra-passe corretos, é possível que não tenha uma conta “Plus” paga. Inicie o navegador de internet para obter acesso a essas contas de e-mail."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Apenas algumas contas “Plus” incluem acesso POP, permitindo a ligação deste programa. Se não conseguir iniciar sessão com o endereço de email e palavra-passe corretos, é possível que não tenha uma conta “Plus” paga. Inicie o navegador de Internet para obter acesso a essas contas de email."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Antes de configurar esta conta de e-mail, visite o Web site T-Online e crie uma palavra-passe de acesso a e-mail POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Empresa"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
