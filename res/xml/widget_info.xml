@@ -24,4 +24,4 @@
     android:initialLayout="@layout/widget"
     android:resizeMode="horizontal|vertical"
     android:configure="com.android.email2.ui.MailboxSelectionActivityEmail"
-    />
+    android:widgetCategory="home_screen|keyguard" />
