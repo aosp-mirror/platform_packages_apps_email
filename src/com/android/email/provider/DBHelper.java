@@ -531,6 +531,16 @@ public final class DBHelper {
 
         @Override
         public void onOpen(SQLiteDatabase db) {
+            try {
+                // Cleanup some nasty records
+                db.execSQL("delete from " + Account.TABLE_NAME
+                         + " WHERE " + AccountColumns.DISPLAY_NAME + " ISNULL;");
+                db.execSQL("delete from " + HostAuth.TABLE_NAME
+                         + " WHERE " + HostAuthColumns.PROTOCOL + " ISNULL;");
+            } catch (SQLException e) {
+                // Shouldn't be needed unless we're debugging and interrupt the process
+                Log.w(TAG, "Exception cleaning EmailProvider.db" + e);
+            }
         }
     }
 
