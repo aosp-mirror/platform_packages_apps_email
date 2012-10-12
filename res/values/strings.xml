@@ -1122,15 +1122,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application</string>
 
-    <!-- General preference: Label of the setting for the direction to move to
-         when deleting the current message.
-         Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->
-    <string name="general_preference_auto_advance_label">Auto-advance</string>
-    <!-- General preference: Description of the setting for the direction to move to
-         when deleting the current message.
-         Options contain "newer message","older message", etc. [CHAR LIMIT=64] -->
-    <string name="general_preference_auto_advance_summary">Choose which screen to show after you
-         delete a message</string>
     <!-- General preference: Label of the setting for hiding checkboxes in the
          message list [CHAR LIMIT=32] -->
     <string name="general_preference_hide_checkboxes_label">Hide checkboxes</string>
@@ -1154,22 +1145,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_send_summary">Messages</string>
-    <!-- General preference: Title of the dialog box containing options for setting for
-         the direction to move to when deleting the current message.
-         Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->
-    <string name="general_preference_auto_advance_dialog_title">Advance to</string>
-    <!-- General preference: Option for the setting for
-         the direction to move to when deleting the current message.
-         This option is for "move to the newer message" [CHAR LIMIT=32] -->
-    <string name="general_preference_auto_advance_newer">Newer message</string>
-    <!-- General preference: Option for the setting for
-         the direction to move to when deleting the current message.
-         This option is for "move to the older message" [CHAR LIMIT=32] -->
-    <string name="general_preference_auto_advance_older">Older message</string>
-    <!-- General preference: Option for the setting for
-         the direction to move to when deleting the current message.
-         This option is for "move back to the message list" [CHAR LIMIT=32] -->
-    <string name="general_preference_auto_advance_message_list">Message list</string>
 
     <!-- General preference: Label of the setting for the text zoom.  [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_label">Message text size</string>
