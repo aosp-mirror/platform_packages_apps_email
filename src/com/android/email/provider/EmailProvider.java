@@ -2319,6 +2319,8 @@ outer:
                 .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
                         Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
                 .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
+                .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
+                        Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
                 .build();
         }
         return sAccountListMap;
