@@ -32,7 +32,7 @@
     <string name="reply_all_action" msgid="6192179825726332152">"Balas ke semua"</string>
     <string name="delete_action" msgid="8421026208288857155">"Hapus"</string>
     <string name="forward_action" msgid="669174181042344116">"Teruskan"</string>
-    <string name="favorite_action" msgid="4664259801498253756">"Kilaukan Bintang"</string>
+    <string name="favorite_action" msgid="4664259801498253756">"Bintangi"</string>
     <string name="done_action" msgid="7497990549515580249">"Selesai"</string>
     <string name="create_action" msgid="3062715563215392251">"Buat baru"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Hapus"</string>
@@ -42,8 +42,8 @@
     <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Masukkan tanggapan cepat"</string>
     <string name="read_action" msgid="4701484794504781686">"Tandai sudah dibaca"</string>
     <string name="unread_action" msgid="6280399049357552826">"Tandai belum dibaca"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Kilaukan bintang"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Redupkan bintang"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Bintangi"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Hapus bintang"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Segarkan"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Tambahkan akun"</string>
     <string name="compose_action" msgid="4045702519637388045">"Tulis"</string>
@@ -102,7 +102,7 @@
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versi: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Kotak Masuk"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Yang berkilau bintangnya"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Yang berbintang"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Draf"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Kotak Keluar"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Tampilan kombinasi"</string>
@@ -455,7 +455,7 @@
     <string name="widget_other_views" msgid="4988574907386539499">"Snth ikon utk mngubah."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kotak Masuk Gabungan"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Belum Dibaca"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"Yang berkilau bintangnya"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"Yang berbintang"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Memuat…"</string>
     <string name="widget_touch_to_configure" msgid="7062039013915225323">"Sentuh untuk menyiapkan."</string>
     <string name="widget_no_accounts" msgid="2412482205591224408">"Anda belum menyiapkan akun email."</string>
