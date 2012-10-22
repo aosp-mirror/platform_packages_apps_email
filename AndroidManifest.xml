@@ -64,6 +64,9 @@
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"/>
 
+    <!-- Required for sending images from Gallery -->
+    <uses-permission android:name="com.google.android.gallery3d.permission.GALLERY_PROVIDER" />
+
     <!-- Grant permission to other apps to view attachments -->
     <permission
         android:name="com.android.email.permission.READ_ATTACHMENT"
