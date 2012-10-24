@@ -49,7 +49,7 @@
     <string name="pause_state_low_battery" msgid="3154677586511229063">"паузирано – слаба батерија"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"паузирано – одложено до пуњења"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"паузирано – чека се веза"</string>
-    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"паузирано – премашена је квота Picasa веб албума"</string>
+    <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"паузирано – премашена је квота Picasa веб-албума"</string>
     <string name="pause_state_need_wifi" msgid="231858819136516913">"паузирано – чека се wifi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"паузирано – роминг"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"чека се поновни покушај"</string>
@@ -115,7 +115,7 @@
     <string name="summary_subtitle_paused_need_media" msgid="8674787576306211689">"SD картица је недоступна"</string>
     <string name="preference_plus_title" msgid="8505499389432915393">"Подешавања Инстант отпремања"</string>
     <string name="preference_plus_enable_cs" msgid="8946492352805623630">"Инстант отпремање"</string>
-    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Аутоматско отпремање нових фотографија и видео снимака у приватни веб албум"</string>
+    <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Аутоматско отпремање нових фотографија и видео снимака у приватни веб-албум"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Статус отпремања"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Напредна подешавања"</string>
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Отпремања са мобилног уређаја"</string>
