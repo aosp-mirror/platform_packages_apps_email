@@ -574,7 +574,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                 return c.getLong(Account.ID_PROJECTION_COLUMN);
             }
         } finally {
-            c.close();
+            if (c != null && !c.isClosed()) c.close();
         }
         return Account.NO_ACCOUNT;
     }
