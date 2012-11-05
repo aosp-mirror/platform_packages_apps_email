@@ -3974,7 +3974,8 @@ outer:
                     String email = sender.getAddress();
                     prefs.setSenderAsTrusted(email);
                 }
-            } else if (columnName.equals(UIProvider.ConversationColumns.VIEWED)) {
+            } else if (columnName.equals(UIProvider.ConversationColumns.VIEWED) ||
+                    columnName.equals(UIProvider.ConversationOperations.Parameters.SUPPRESS_UNDO)) {
                 // Ignore for now
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
