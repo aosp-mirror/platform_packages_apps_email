@@ -4080,12 +4080,16 @@ outer:
         if (undoValues == null || undoValues.size() == 0) {
             return -1;
         }
-        ContentProviderOperation op =
-                ContentProviderOperation.newUpdate(convertToEmailProviderUri(
-                        uri, ourBaseUri, false))
-                        .withValues(undoValues)
-                        .build();
-        addToSequence(uri, op);
+        final Boolean suppressUndo =
+                values.getAsBoolean(UIProvider.ConversationOperations.Parameters.SUPPRESS_UNDO);
+        if (suppressUndo == null || !suppressUndo.booleanValue()) {
+            final ContentProviderOperation op =
+                    ContentProviderOperation.newUpdate(convertToEmailProviderUri(
+                            uri, ourBaseUri, false))
+                            .withValues(undoValues)
+                            .build();
+            addToSequence(uri, op);
+        }
         return update(ourUri, ourValues, null, null);
     }
 
