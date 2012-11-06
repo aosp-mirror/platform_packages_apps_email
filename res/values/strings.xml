@@ -100,6 +100,10 @@
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
     <string name="move_action">Move</string>
+    <!-- Menu item for navigating to an newer message [CHAR LIMIT=10] -->
+    <string name="newer_action">Newer</string>
+    <!-- Menu item for navigating to an older message [CHAR LIMIT=10] -->
+    <string name="older_action">Older</string>
     <!-- Button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
     <string name="plus_cc_label">+ Cc/Bcc</string>
     <!-- Menu item label for adding CC/BCC fields on message compose. [CHAR LIMIT=20] -->
