@@ -53,7 +53,7 @@
     />
     <item
         android:id="@+id/older"
-        android:title="@string/newer_action"
+        android:title="@string/older_action"
         android:visible="false"
     />
     <item
