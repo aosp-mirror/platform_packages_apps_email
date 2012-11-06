@@ -61,7 +61,7 @@
     <string name="completed_no_file" msgid="6719715000947601844">"Datei nicht gefunden"</string>
     <string name="failed_bad_response" msgid="8357723053952213242">"Dienstfehler"</string>
     <string name="failed_network_error" msgid="2531660472217573602">"Netzwerkfehler"</string>
-    <string name="failed_server_auth" msgid="2428208784689362254">"Authentifizierung fehlgeschlagen"</string>
+    <string name="failed_server_auth" msgid="2428208784689362254">"Fehler bei Authentifizierung"</string>
     <string name="manager_list_switcher_pending_format" msgid="3517166351274747172">"Ausstehende Uploads [%d]"</string>
     <string name="manager_list_switcher_completed_format" msgid="4700366545949687846">"Abgeschlossene Uploads [%d]"</string>
     <string name="manager_pause" msgid="7046645023617816964">"Uploads anhalten"</string>

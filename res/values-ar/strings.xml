@@ -414,7 +414,7 @@
     <string name="exchange_name" msgid="1190783774800310346">"الشركة"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"تعذر إنشاء الحساب. أعد المحاولة."</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"إرسال رسالة إلكترونية"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"بريد إلكتروني"</string>
     <string name="device_admin_description" msgid="426727923791430306">"لتمكين سياسات الأمان الخاصة بالخادم"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"جارِ البحث <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
