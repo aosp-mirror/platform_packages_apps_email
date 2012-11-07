@@ -143,7 +143,7 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
             // TODO if we add meta-mailboxes/accounts to the database, remove this special case
             if (account.mId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                 shortcutIntent = Welcome.createOpenMessageIntent(
-                        myActivity, account.mId, mailboxId, Message.NO_MESSAGE);
+                        myActivity, account.mId, mailboxId, Message.NO_MESSAGE, false);
             } else {
                 String uuid = account.mCompatibilityUuid;
                 shortcutIntent = Welcome.createAccountShortcutIntent(myActivity, uuid, mailboxId);
