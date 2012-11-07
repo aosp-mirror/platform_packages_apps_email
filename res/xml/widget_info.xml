@@ -21,5 +21,4 @@
     android:previewImage="@drawable/email_widget_preview"
     android:initialLayout="@layout/widget"
     android:resizeMode="horizontal|vertical"
-    android:configure="com.android.email.widget.WidgetConfiguration"
-    android:widgetCategory="home_screen|keyguard" />
+    android:configure="com.android.email.widget.WidgetConfiguration" />
