@@ -33,11 +33,11 @@
 
     <ListPreference
         android:key="auto_advance"
-        android:title="@string/general_preference_auto_advance_label"
-        android:summary="@string/general_preference_auto_advance_summary"
-        android:entries="@array/general_preference_auto_advance_entries"
-        android:entryValues="@array/general_preference_auto_advance_values"
-        android:dialogTitle="@string/general_preference_auto_advance_dialog_title" />
+        android:title="@string/auto_advance_label"
+        android:summary="@string/auto_advance_summary"
+        android:entries="@array/prefEntries_autoAdvance"
+        android:entryValues="@array/prefValues_autoAdvance"
+        android:dialogTitle="@string/auto_advance_help_title" />
 
     <!-- Note, summary is set dynamically in GeneralPreferences.java -->
     <ListPreference
