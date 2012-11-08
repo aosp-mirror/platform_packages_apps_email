@@ -269,7 +269,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
                 Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
                 if (mailbox == null) return;
                 context.startActivity(Welcome.createOpenMessageIntent(context, mailbox.mAccountKey,
-                        mailboxId, messageId));
+                        mailboxId, messageId, true));
             }
         });
     }
