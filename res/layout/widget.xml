@@ -76,7 +76,8 @@
             android:id="@+id/widget_compose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_compose_normal_holo_light" />
+            android:src="@drawable/ic_menu_compose_normal_holo_light"
+            android:contentDescription="@string/compose_action" />
     </LinearLayout>
     <ListView
         android:id="@+id/message_list"
