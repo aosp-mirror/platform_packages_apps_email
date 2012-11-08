@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.android.email.Controller;
@@ -189,7 +188,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mUIController.getLayoutId());
 
         mUIController.onActivityViewReady();
