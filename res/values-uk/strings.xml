@@ -53,6 +53,10 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Параметри синхронізації"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Позн. як непрочит."</string>
     <string name="move_action" msgid="3059189775933985898">"Переміст."</string>
+    <!-- no translation found for newer_action (8950909456802330593) -->
+    <skip />
+    <!-- no translation found for older_action (4504015635360605471) -->
+    <skip />
     <string name="plus_cc_label" msgid="3365150001259912183">"+Копія/прихована"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Копія/прихов. копія"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Вкласти файл"</string>

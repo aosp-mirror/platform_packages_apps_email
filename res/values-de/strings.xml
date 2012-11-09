@@ -53,6 +53,8 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"Synchronisierungsoptionen"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
     <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
+    <string name="newer_action" msgid="8950909456802330593">"Neuere"</string>
+    <string name="older_action" msgid="4504015635360605471">"Ältere"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc hinzufügen"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Datei anhängen"</string>
