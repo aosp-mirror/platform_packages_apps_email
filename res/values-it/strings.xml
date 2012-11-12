@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Impostazioni"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Impostazioni generali"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Applicazione"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avanzamento automatico"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Seleziona schermata da visualizzare dopo eliminazione messaggio"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Nascondi caselle di controllo"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Negli elenchi di messaggi, tocca e tieni premuto per selezionare"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Conferma prima di eliminare"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Elimina un messaggio nell\'elenco scorrendo"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Conferma prima di inviare"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Messaggi"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Passa a"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Messaggio successivo"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Messaggio precedente"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Elenco messaggi"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Dimensioni testo messaggio"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Testo molto piccolo"</item>
