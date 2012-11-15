@@ -86,7 +86,7 @@ public class Welcome extends Activity {
      */
     private static final String EXTRA_DEBUG_PANE_MODE = "DEBUG_PANE_MODE";
 
-    private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
+    public static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -95,7 +95,6 @@ public class Welcome extends Activity {
     private long mAccountId;
     private long mMailboxId;
     private long mMessageId;
-    private boolean mFromKeyguard;
     private String mAccountUuid;
 
     private MailboxFinder mInboxFinder;
@@ -125,15 +124,13 @@ public class Welcome extends Activity {
      * Create an Intent to open a message.
      */
     public static Intent createOpenMessageIntent(Context context, long accountId,
-            long mailboxId, long messageId, boolean fromKeyguard) {
+            long mailboxId, long messageId) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
                 VIEW_MAILBOX_INTENT_URL_PATH);
         IntentUtilities.setAccountId(b, accountId);
         IntentUtilities.setMailboxId(b, mailboxId);
         IntentUtilities.setMessageId(b, messageId);
-        Intent i = IntentUtilities.createRestartAppIntent(b.build());
-        i.putExtra(EmailActivity.EXTRA_FROM_KEYGUARD, fromKeyguard);
-        return i;
+        return IntentUtilities.createRestartAppIntent(b.build());
     }
 
     /**
@@ -192,7 +189,6 @@ public class Welcome extends Activity {
         mAccountId = IntentUtilities.getAccountIdFromIntent(intent);
         mMailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
         mMessageId = IntentUtilities.getMessageIdFromIntent(intent);
-        mFromKeyguard = intent.getBooleanExtra(EmailActivity.EXTRA_FROM_KEYGUARD, false);
         mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
         UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
 
@@ -380,12 +376,11 @@ public class Welcome extends Activity {
     private void startEmailActivity() {
         final Intent i;
         if (mMessageId != Message.NO_MESSAGE) {
-            i = EmailActivity.createOpenMessageIntent(this, mAccountId, mMailboxId, mMessageId,
-                mFromKeyguard);
+            i = EmailActivity.createOpenMessageIntent(this, mAccountId, mMailboxId, mMessageId);
         } else if (mMailboxId != Mailbox.NO_MAILBOX) {
-            i = EmailActivity.createOpenMailboxIntent(this, mAccountId, mMailboxId, mFromKeyguard);
+            i = EmailActivity.createOpenMailboxIntent(this, mAccountId, mMailboxId);
         } else {
-            i = EmailActivity.createOpenAccountIntent(this, mAccountId, mFromKeyguard);
+            i = EmailActivity.createOpenAccountIntent(this, mAccountId);
         }
         startActivity(i);
         finish();

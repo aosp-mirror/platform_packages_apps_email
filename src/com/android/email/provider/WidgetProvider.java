@@ -110,10 +110,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            if (intent.getData() != null) {
-                // EmailWidget creates intents, so it knows how to handle them.
-                EmailWidget.processIntent(this, intent);
-            }
             return Service.START_NOT_STICKY;
         }
 

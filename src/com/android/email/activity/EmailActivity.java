@@ -57,7 +57,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     public static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     public static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     public static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
-    public static final String EXTRA_FROM_KEYGUARD = "FROM_KEYGUARD";
     public static final String EXTRA_QUERY_STRING = "QUERY_STRING";
 
     /** Loader IDs starting with this is safe to use from UIControllers. */
@@ -85,12 +84,10 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      *
      * @param accountId If -1, default account will be used.
      */
-    public static Intent createOpenAccountIntent(Activity fromActivity, long accountId,
-            boolean fromKeyguard) {
+    public static Intent createOpenAccountIntent(Activity fromActivity, long accountId) {
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-            i.putExtra(EXTRA_FROM_KEYGUARD, fromKeyguard);
         }
         return i;
     }
@@ -103,14 +100,13 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
      */
     public static Intent createOpenMailboxIntent(Activity fromActivity, long accountId,
-            long mailboxId, boolean fromKeyguard) {
+            long mailboxId) {
         if (accountId == -1 || mailboxId == -1) {
             throw new IllegalArgumentException();
         }
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-        i.putExtra(EXTRA_FROM_KEYGUARD, fromKeyguard);
         return i;
     }
 
@@ -123,7 +119,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      * @param messageId must not be -1.
      */
     public static Intent createOpenMessageIntent(Activity fromActivity, long accountId,
-            long mailboxId, long messageId, boolean fromKeyguard) {
+            long mailboxId, long messageId) {
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
             throw new IllegalArgumentException();
         }
@@ -131,7 +127,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        i.putExtra(EXTRA_FROM_KEYGUARD, fromKeyguard);
         return i;
     }
 
@@ -194,16 +189,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-
-        final Intent intent = getIntent();
-        boolean fromKeyguard = intent.getBooleanExtra(EXTRA_FROM_KEYGUARD, false);
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "FLAG_DISMISS_KEYGUARD " + fromKeyguard);
-        }
-        if (fromKeyguard) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        }
-
         setContentView(mUIController.getLayoutId());
 
         mUIController.onActivityViewReady();
@@ -224,6 +209,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         if (savedInstanceState != null) {
             mUIController.onRestoreInstanceState(savedInstanceState);
         } else {
+            final Intent intent = getIntent();
             final MessageListContext viewContext = MessageListContext.forIntent(this, intent);
             if (viewContext == null) {
                 // This might happen if accounts were deleted on another thread, and there aren't
@@ -326,16 +312,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
             case R.id.error_message:
                 dismissErrorMessage();
                 break;
-        }
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "FLAG_DISMISS_KEYGUARD onWindowFocusChanged " + hasFocus);
-        }
-        if (hasFocus) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         }
     }
 
