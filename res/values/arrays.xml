@@ -126,16 +126,6 @@
         <item>never</item>
     </string-array>
 
-    <!-- Auto-advance options (DO NOT change the order.  Code assumes this order)-->
-    <string-array name="general_preference_auto_advance_entries">
-        <!-- Move to newer -->
-        <item>@string/general_preference_auto_advance_newer</item>
-        <!-- Move to older -->
-        <item>@string/general_preference_auto_advance_older</item>
-        <!-- Move to message list -->
-        <item>@string/general_preference_auto_advance_message_list</item>
-    </string-array>
-
     <!-- Auto-advance option values (DO NOT change the order.  Code assumes this order)-->
     <string-array translatable="false" name="general_preference_auto_advance_values">
         <!-- Move to newer -->
