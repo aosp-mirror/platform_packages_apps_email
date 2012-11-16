@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -155,6 +156,7 @@ public abstract class EmailContent {
      */
     public static <T extends EmailContent> T restoreContentWithId(Context context,
             Class<T> klass, Uri contentUri, String[] contentProjection, long id) {
+        long token = Binder.clearCallingIdentity();
         Uri u = ContentUris.withAppendedId(contentUri, id);
         Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
         if (c == null) throw new ProviderUnavailableException();
@@ -166,6 +168,7 @@ public abstract class EmailContent {
             }
         } finally {
             c.close();
+            Binder.restoreCallingIdentity(token);
         }
     }
 
