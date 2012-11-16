@@ -463,7 +463,7 @@ public class NotificationController {
             intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
         } else {
             intent = Welcome.createOpenMessageIntent(
-                    mContext, accountId, mailboxId, newestMessageId, false);
+                    mContext, accountId, mailboxId, newestMessageId);
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |
                 Intent.FLAG_ACTIVITY_TASK_ON_HOME);
