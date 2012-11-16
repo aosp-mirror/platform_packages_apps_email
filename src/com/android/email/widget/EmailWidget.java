@@ -229,8 +229,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
                 Long.parseLong(mailboxId));
         } catch (NumberFormatException e) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(TAG, "#setFillInIntent(); invalid messageId: %s or mailboxId: %s",
-                    messageId, mailboxId);
+                Log.d(TAG, "#setFillInIntent(); invalid messageId: " + messageId +
+                    " or mailboxId: " + mailboxId);
             }
         }
         views.setOnClickFillInIntent(viewId, intent);
