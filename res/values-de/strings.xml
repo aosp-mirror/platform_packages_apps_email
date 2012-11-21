@@ -70,7 +70,7 @@
     <item quantity="other" msgid="371256717624461324">"Nachrichten verschieben"</item>
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Verschieben wird für POP3-Konten nicht unterstützt."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verschieben nicht möglich, da mehrere Konten ausgewählt wurden."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verschieben nicht möglich, weil mehrere Konten ausgewählt wurden."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Nachrichten im Postausgang und den Ordnern \"Entwürfe\" und \"Gesendet\" können nicht verschoben werden."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -183,7 +183,7 @@
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"WLAN-Einstellungen"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"App-Einstellungen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Anhang kann nicht geöffnet werden."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Sie können diese Datei nicht öffnen oder speichern, da diese Art von Anhang möglicherweise schädliche Software enthält."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Sie können diese Datei nicht öffnen oder speichern, weil diese Art von Anhang möglicherweise schädliche Software enthält."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Dieser Anhang kann aufgrund der Sicherheitsrichtlinien dieses Kontos nicht gespeichert oder geöffnet werden."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Dieser Anhang ist zu groß, um ihn über ein Mobilfunknetz herunterzuladen. Sie können ihn herunterladen, sobald Sie das nächste Mal mit einem WLAN-Netzwerk verbunden sind."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Sie verfügen über keine App, mit der Sie diesen Anhang öffnen können. Laden Sie eine entsprechende App von Android Market herunter."</string>
