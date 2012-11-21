@@ -30,7 +30,7 @@
         android:id="@+id/account_username"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_incoming_username_label"
+        android:hint="@string/account_setup_incoming_username_label"
         android:inputType="textEmailAddress"
         android:imeOptions="actionNext" />
     <TextView
@@ -43,7 +43,7 @@
         android:id="@+id/account_password"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_incoming_password_label"
+        android:hint="@string/account_setup_incoming_password_label"
         android:inputType="textPassword"
         android:imeOptions="actionNext" />
     <!-- This text may be changed in code if the server is IMAP, etc. -->
@@ -60,7 +60,7 @@
         android:id="@+id/account_server"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_incoming_server_label"
+        android:hint="@string/account_setup_incoming_server_label"
         android:inputType="textUri"
         android:imeOptions="actionNext" />
     <TextView
@@ -73,7 +73,7 @@
         android:id="@+id/account_port"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_incoming_port_label"
+        android:hint="@string/account_setup_incoming_port_label"
         android:inputType="number"
         android:imeOptions="actionDone" />
     <TextView
@@ -118,7 +118,6 @@
             android:id="@+id/imap_path_prefix"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:contentDescription="@string/account_setup_incoming_imap_path_prefix_label"
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
             android:inputType="text"
             android:imeOptions="actionDone" />
