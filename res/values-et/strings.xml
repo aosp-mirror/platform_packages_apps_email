@@ -53,7 +53,6 @@
     <string name="menu_folder_options" msgid="2871906096248843471">"Sünkroonimisvalikud"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Märgi mitteloetuks"</string>
     <string name="move_action" msgid="3059189775933985898">"Teisalda"</string>
-    <string name="plus_cc_label" msgid="3365150001259912183">"+ koopia/pimek."</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Lisa koopia/pimekoopia väli"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Manusta fail"</string>
     <string name="close_action" msgid="533058985745238100">"Sule"</string>
@@ -439,8 +438,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Seaded"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Üldseaded"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Rakendus"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automaatne edasiminek"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Valige, millist ekraani pärast sõnumi kustutamist kuvada"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Peida märkeruudud"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Sõnumite loendis peab valimiseks üksust puudutama ja all hoidma"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Kinnitamine enne kustutamist"</string>
@@ -449,10 +446,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Kustutage sõnum loendist pühkides"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Kinnitamine enne saatmist"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Sõnumid"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Edasiminek"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Uuem sõnum"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Vanem sõnum"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Sõnumite loend"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Sõnumi teksti suurus"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Väga väike tekst"</item>

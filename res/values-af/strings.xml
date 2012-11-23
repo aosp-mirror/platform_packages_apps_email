@@ -53,7 +53,6 @@
     <string name="menu_folder_options" msgid="2871906096248843471">"Sinkroniseeropsies"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Merk as ongelees"</string>
     <string name="move_action" msgid="3059189775933985898">"Skuif"</string>
-    <string name="plus_cc_label" msgid="3365150001259912183">"+ Cc/Bcc"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Voeg Cc/Bcc by"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"Heg lêer aan"</string>
     <string name="close_action" msgid="533058985745238100">"Maak toe"</string>
@@ -439,8 +438,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Instellings"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Algemene instellings"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Program"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Outovoortgaan"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Kies watter skerm moet wys nadat jy \'n boodskap uitgevee het"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Versteek merkblokkies"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Raak aan en hou om boodskappe uit lys te kies"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bevestig voor uitvee"</string>
@@ -449,10 +446,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Vee \'n boodskap in die lys uit deur te sleep"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bevestig voor stuur"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Boodskappe"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gaan voort na"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nuwer boodskap"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ouer boodskap"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Boodskaplys"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Grootte van boodskapteks"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Piepklein teks"</item>
