@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Innstillinger"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Generelle innstillinger"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Velg hvilken skjerm som skal vises når du sletter en melding"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Skjul avmerkingsruter"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Trykk og hold nede for å merke i e-postlister"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekreft før sletting"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Slett en melding i listen ved å sveipe"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekreft før sending"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"E-poster"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå til"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nyere melding"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Eldre melding"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Meldingsliste"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Skriftstørrelse på meldingstekst"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Bitteliten tekst"</item>

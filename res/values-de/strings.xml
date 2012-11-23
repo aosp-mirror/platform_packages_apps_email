@@ -68,7 +68,7 @@
     <item quantity="other" msgid="371256717624461324">"Nachrichten verschieben"</item>
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Verschieben wird für POP3-Konten nicht unterstützt."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verschieben nicht möglich, da mehrere Konten ausgewählt wurden."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Verschieben nicht möglich, weil mehrere Konten ausgewählt wurden."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Nachrichten im Postausgang und den Ordnern \"Entwürfe\" und \"Gesendet\" können nicht verschoben werden."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -181,7 +181,7 @@
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"WLAN-Einstellungen"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"App-Einstellungen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Anhang kann nicht geöffnet werden."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Sie können diese Datei nicht öffnen oder speichern, da diese Art von Anhang möglicherweise schädliche Software enthält."</string>
+    <string name="attachment_info_malware" msgid="6576029010855055528">"Sie können diese Datei nicht öffnen oder speichern, weil diese Art von Anhang möglicherweise schädliche Software enthält."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Dieser Anhang kann aufgrund der Sicherheitsrichtlinien dieses Kontos nicht gespeichert oder geöffnet werden."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Dieser Anhang ist zu groß, um ihn über ein Mobilfunknetz herunterzuladen. Sie können ihn herunterladen, sobald Sie das nächste Mal mit einem WLAN-Netzwerk verbunden sind."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Sie verfügen über keine App, mit der Sie diesen Anhang öffnen können. Laden Sie eine entsprechende App von Android Market herunter."</string>
@@ -353,7 +353,7 @@
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms ist abgelaufen."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Sperr-Passwort abgelaufen"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Display-Sperre läuft ab"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Display-Sperre bald ändern, da sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Display-Sperre bald ändern, weil sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Sperr-Passwort abgelaufen"</string>
     <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können die Daten wiederherstellen, indem Sie Ihre PIN für die Display-Sperre oder Ihr Passwort ändern. Möchten Sie die PIN oder das Passwort jetzt ändern?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Einstellungen"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Allgemeine Einstellungen"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatisch fortfahren"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Was soll nach dem Löschen einer Nachricht angezeigt werden?"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Kontrollkästchen ausblenden"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"In Nachrichtenlisten zum Auswählen berühren und halten"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Vor dem Löschen bestätigen"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Nachricht in der Liste durch Wischen löschen"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Vor dem Senden bestätigen"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Nachrichten"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Weiter zu"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"neuerer Nachricht"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"älterer Nachricht"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Nachrichtenliste"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Nachrichtentextgröße"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Sehr kleiner Text"</item>

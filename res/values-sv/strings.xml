@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Inställningar"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Allmänna inställningar"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Flytta automatiskt"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Välj vilken skärm som ska visas när du tar bort ett meddelande"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Dölj kryssrutor"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"I samtalslistan trycker du länge om du vill markera"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekräfta innan du tar bort"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Ta bort ett meddelande i listan genom att dra"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekräfta innan du skickar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Meddelanden"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Flytta till"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nyare meddelande"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Äldre meddelande"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Meddelandelista"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Storlek på text i meddelande"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Pytteliten text"</item>
