@@ -53,7 +53,6 @@
     <string name="menu_folder_options" msgid="2871906096248843471">"אפשרויות סנכרון"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"סמן כלא נקרא"</string>
     <string name="move_action" msgid="3059189775933985898">"העבר"</string>
-    <string name="plus_cc_label" msgid="3365150001259912183">"+ עותק/עותק מוסתר"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"הוסף עותק/עותק מוסתר"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"צרף קובץ"</string>
     <string name="close_action" msgid="533058985745238100">"סגור"</string>
@@ -62,7 +61,7 @@
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"העבר אל"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"טוען הודעות..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"בעיה בחיבור."</string>
-    <string name="error_loading_message_body" msgid="6775234299515596760">"לא ניתן לטעון את טקסט ההודעה. ייתכן שההודעה גדולה מדי להצגה."</string>
+    <string name="error_loading_message_body" msgid="6775234299515596760">"לא ניתן להעלות את טקסט ההודעה. ייתכן שההודעה גדולה מדי להצגה."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"העבר הודעה"</item>
     <item quantity="other" msgid="371256717624461324">"העבר הודעות"</item>
@@ -439,8 +438,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"הגדרות"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"הגדרות כלליות"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"יישום"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"התקדמות אוטומטית"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"בחר איזה מסך יוצג לאחר מחיקת הודעה"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"הסתר תיבות סימון"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"ברשימות של הודעות, גע והחזק כדי לבחור"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"אשר לפני מחיקה"</string>
@@ -449,10 +446,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"מחק הודעה ברשימה על ידי החלקה"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"אשר לפני שליחה"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"הודעות"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"התקדם אל"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"הודעה חדשה יותר"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"הודעה ישנה יותר"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"רשימת הודעות"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"גודל טקסט בהודעה"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"טקסט קטנטן"</item>
