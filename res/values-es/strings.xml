@@ -439,6 +439,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Ajustes"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Ajustes generales"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicación"</string>
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avance automático"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecciona la pantalla que se mostrará después de eliminar el mensaje"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar casillas de verificación"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"En las listas de mensajes, mantener pulsado para seleccionar"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar para eliminar"</string>
@@ -447,6 +449,10 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Deslizar un mensaje de la lista para eliminarlo"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmar para enviar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mensajes"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Ir a"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mensaje más reciente"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje anterior"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensajes"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamaño de texto del mensaje"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Texto muy pequeño"</item>

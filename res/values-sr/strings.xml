@@ -439,6 +439,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Подешавања"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Општа подешавања"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Апликација"</string>
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Аутоматски пређи"</string>
+    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Избор екрана који желите да прикажете након брисања поруке"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Сакриј поља за потврду"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"На листама порука додирните и задржите да бисте изабрали"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потврди пре брисања"</string>
@@ -447,6 +449,10 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Листајте да бисте избрисали поруку са листе"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потврди пре слања"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Поруке"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Пређи на"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Новија порука"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Старија порука"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Листа порука"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Величина текста поруке"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Сићушан текст"</item>
