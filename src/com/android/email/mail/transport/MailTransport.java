@@ -167,7 +167,8 @@ public class MailTransport implements Transport {
         try {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
-                mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates()).createSocket();
+                mSocket = SSLUtils.getSSLSocketFactory(
+                        canTrustAllCertificates(), SOCKET_CONNECT_TIMEOUT).createSocket();
             } else {
                 mSocket = new Socket();
             }
@@ -203,8 +204,9 @@ public class MailTransport implements Transport {
     @Override
     public void reopenTls() throws MessagingException {
         try {
-            mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates())
-                    .createSocket(mSocket, getHost(), getPort(), true);
+            mSocket =
+                    SSLUtils.getSSLSocketFactory(canTrustAllCertificates(), SOCKET_CONNECT_TIMEOUT)
+                            .createSocket(mSocket, getHost(), getPort(), true);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
@@ -281,20 +283,34 @@ public class MailTransport implements Transport {
      */
     @Override
     public void close() {
+        if (Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "*** " + mDebugLabel + " close " +
+                    getHost() + ":" + String.valueOf(getPort()));
+        }
+
         try {
             mIn.close();
         } catch (Exception e) {
             // May fail if the connection is already closed.
+            if (Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, e.toString());
+            }
         }
         try {
             mOut.close();
         } catch (Exception e) {
             // May fail if the connection is already closed.
+            if (Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, e.toString());
+            }
         }
         try {
             mSocket.close();
         } catch (Exception e) {
             // May fail if the connection is already closed.
+            if (Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, e.toString());
+            }
         }
         mIn = null;
         mOut = null;

@@ -47,19 +47,20 @@ public class SSLUtils {
      * Optionally bypass all SSL certificate checks.
      *
      * @param insecure if true, bypass all SSL certificate checks
+     * @param timeout the timeout value in milliseconds or {@code 0} for an infinite timeout.
      */
     public synchronized static SSLCertificateSocketFactory getSSLSocketFactory(
-            boolean insecure) {
+            boolean insecure, int timeout) {
         if (insecure) {
             if (sInsecureFactory == null) {
                 sInsecureFactory = (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getInsecure(0, null);
+                        SSLCertificateSocketFactory.getInsecure(timeout, null);
             }
             return sInsecureFactory;
         } else {
             if (sSecureFactory == null) {
                 sSecureFactory = (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getDefault(0, null);
+                        SSLCertificateSocketFactory.getDefault(timeout, null);
             }
             return sSecureFactory;
         }
@@ -70,7 +71,7 @@ public class SSLUtils {
      * Apache HTTP stack.
      */
     public static SSLSocketFactory getHttpSocketFactory(boolean insecure, KeyManager keyManager) {
-        SSLCertificateSocketFactory underlying = getSSLSocketFactory(insecure);
+        SSLCertificateSocketFactory underlying = getSSLSocketFactory(insecure, 0 /* no timeout */);
         if (keyManager != null) {
             underlying.setKeyManagers(new KeyManager[] { keyManager });
         }
