@@ -677,7 +677,7 @@ public class NotificationController {
             defaults |= Notification.DEFAULT_VIBRATE;
         }
 
-        builder.setSound((ringtoneUri == null) ? null : Uri.parse(ringtoneUri))
+        builder.setSound(TextUtils.isEmpty(ringtoneUri) ? null : Uri.parse(ringtoneUri))
             .setDefaults(defaults);
     }
 
