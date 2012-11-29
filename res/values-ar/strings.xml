@@ -429,7 +429,7 @@
     <string name="exchange_name" msgid="1190783774800310346">"الشركة"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"تعذر إنشاء الحساب. أعد المحاولة."</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"إرسال رسالة إلكترونية"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"بريد إلكتروني"</string>
     <string name="device_admin_description" msgid="426727923791430306">"لتمكين سياسات الأمان الخاصة بالخادم"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"جارِ البحث <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"الإعدادات"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"الإعدادات العامة"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"التطبيق"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"التقدم التلقائي"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"اختيار الشاشة التي تظهر بعد حذف رسالة"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"إخفاء مربعات الاختيار"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"في قوائم الرسائل، المس مع الاستمرار للتحديد"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"تأكيد قبل الحذف"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"يمكنك حذف رسالة في القائمة عن طريق التمرير السريع"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"تأكيد قبل الإرسال"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"الرسائل"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"التوجه إلى"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"رسالة أحدث"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"رسائل أقدم"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"قائمة الرسائل"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"حجم نص الرسالة"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"نص صغير جدًا"</item>

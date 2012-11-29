@@ -656,10 +656,6 @@
     <skip />
     <!-- no translation found for category_general_preferences (2742423840964045801) -->
     <skip />
-    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_summary (6483439980032715119) -->
-    <skip />
     <!-- no translation found for general_preference_hide_checkboxes_label (2054599123778503930) -->
     <skip />
     <!-- no translation found for general_preference_hide_checkboxes_summary (141341137898712712) -->
@@ -675,14 +671,6 @@
     <!-- no translation found for general_preference_confirm_send_label (4548277349553989930) -->
     <skip />
     <!-- no translation found for general_preference_confirm_send_summary (2695471027185506093) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
     <skip />

@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"การตั้งค่า"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"การตั้งค่าทั่วไป"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"แอปพลิเคชัน"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"เลื่อนไปข้างหน้าโดยอัตโนมัติ"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"เลือกหน้าจอที่จะแสดงขึ้นหลังจากที่คุณลบข้อความ"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"ซ่อนช่องทำเครื่องหมาย"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"แตะข้อความในรายการค้างไว้เพื่อเลือก"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ยืนยันก่อนลบ"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"ลบข้อความในรายการโดยการกวาดนิ้ว"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ยืนยันก่อนส่ง"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"ข้อความ"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"เลื่อนไปที่"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"ข้อความที่ใหม่กว่า"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"ข้อความที่เก่ากว่า"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"รายการข้อความ"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"ขนาดตัวอักษรข้อความ"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"ข้อความขนาดเล็กมาก"</item>

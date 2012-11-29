@@ -183,7 +183,7 @@
     <string name="attachment_info_unknown" msgid="8342655396805943320">"پیوست باز نمی‌شود."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"شما نمی‌توانید این فایل را ذخیره یا باز کنید زیرا این نوع پیوست ممکن است حاوی نرم‌افزار مخرب باشد."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"به دلیل خط‌مشی‌های امنیتی، این حساب را نمی‌توان ذخیره یا باز کرد."</string>
-    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می‌توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می‌شوید، آنرا دانلود کنید."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"این پیوست برای دانلود از طریق شبکهٔ تلفن همراه خیلی بزرگ است. می‌توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می‌شوید، آنرا دانلود کنید."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"هیچ برنامه نصب شده‌ای برای باز کردن این پیوست وجود ندارد. یک برنامه مناسب از Android Market نصب کنید."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"این پیوست یک برنامه است. باید قبل از نصب آن، منبع‌های ناشناس را در تنظیمات &gt; برنامه‌ها بررسی کنید."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"نمی‌توان برنامه‎ها را به طور مستقیم از ایمیل نصب کرد. ابتدا این برنامه را ذخیره کنید و سپس آنرا با استفاده از برنامه \"دانلودها\" نصب کنید."</string>
@@ -439,8 +439,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"تنظیمات"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"تنظیمات کلی"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"برنامهٔ کاربردی"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"پیشرفته خودکار"</string>
-    <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"انتخاب کنید بعد از حذف یک پیام، چه صفحه‌ای نشان داده شود"</string>
     <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"پنهان کردن کادرهای تأیید"</string>
     <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"در لیست پیام‌ها، برای انتخاب کردن، لمس کرده و نگهدارید"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"تأیید قبل از حذف"</string>
@@ -449,10 +447,6 @@
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"حذف یک پیام در لیست با کشیدن انگشت روی صفحه"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"تأیید قبل از ارسال"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"پیام‌ها"</string>
-    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"پیشروی به"</string>
-    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"پیام جدیدتر"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"پیام قدیمی تر"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"لیست پیام"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"اندازه متن پیام"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"نوشتار بسیار کوچک"</item>
