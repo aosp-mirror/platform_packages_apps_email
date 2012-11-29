@@ -78,7 +78,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_CATEGORY_DATA_USAGE = "data_usage";
     private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
     private static final String PREFERENCE_NOTIFY = "account_notify";
-    private static final String PREFERENCE_VIBRATE_WHEN = "account_settings_vibrate_when";
+    private static final String PREFERENCE_VIBRATE = "account_settings_vibrate";
+    private static final String PREFERENCE_VIBRATE_OLD = "account_settings_vibrate_when";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
     private static final String PREFERENCE_CATEGORY_SERVER = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
@@ -88,11 +89,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
     private static final String PREFERENCE_DELETE_ACCOUNT = "delete_account";
 
-    // These strings must match account_settings_vibrate_when_* strings in strings.xml
-    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS = "always";
-    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_SILENT = "silent";
-    private static final String PREFERENCE_VALUE_VIBRATE_WHEN_NEVER = "never";
-
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
     private EditTextPreference mAccountSignature;
@@ -101,7 +97,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private CheckBoxPreference mAccountBackgroundAttachments;
     private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mAccountNotify;
-    private ListPreference mAccountVibrateWhen;
+    private CheckBoxPreference mAccountVibrate;
     private RingtonePreference mAccountRingtone;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
@@ -175,6 +171,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
         }
         super.onCreate(savedInstanceState);
 
+        upgradeVibrateSetting();
+
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
@@ -190,6 +188,20 @@ public class AccountSettingsFragment extends PreferenceFragment {
         }
 
         mAccountDirty = false;
+    }
+
+    /**
+     * Upgrades the old tri-state vibrate setting to the new boolean value.
+     */
+    private void upgradeVibrateSetting() {
+        final SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
+
+        if (!sharedPreferences.contains(PREFERENCE_VIBRATE)) {
+            // Try to migrate the old one
+            final boolean vibrate =
+                    "always".equals(sharedPreferences.getString(PREFERENCE_VIBRATE_OLD, ""));
+            sharedPreferences.edit().putBoolean(PREFERENCE_VIBRATE, vibrate);
+        }
     }
 
     @Override
@@ -502,33 +514,21 @@ public class AccountSettingsFragment extends PreferenceFragment {
         prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).apply();
 
         // Set the vibrator value, or hide it on devices w/o a vibrator
-        mAccountVibrateWhen = (ListPreference) findPreference(PREFERENCE_VIBRATE_WHEN);
+        mAccountVibrate = (CheckBoxPreference) findPreference(PREFERENCE_VIBRATE);
         Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator.hasVibrator()) {
             // Calculate the value to set based on the choices, and set the value.
-            final boolean vibrateAlways = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
-            final boolean vibrateWhenSilent =
-                    0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_WHEN_SILENT);
-            final String vibrateSetting =
-                    vibrateAlways ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
-                        vibrateWhenSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
-                            PREFERENCE_VALUE_VIBRATE_WHEN_NEVER;
-            mAccountVibrateWhen.setValue(vibrateSetting);
+            final boolean vibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE);
+            mAccountVibrate.setChecked(vibrate);
 
-            // Update the summary string.
-            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
-            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
-
-            // When the value is changed, update the summary in addition to the setting.
-            mAccountVibrateWhen.setOnPreferenceChangeListener(
+            // When the value is changed, update the setting.
+            mAccountVibrate.setOnPreferenceChangeListener(
                     new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            final String vibrateSetting = newValue.toString();
-                            final int index = mAccountVibrateWhen.findIndexOfValue(vibrateSetting);
-                            mAccountVibrateWhen.setSummary(mAccountVibrateWhen.getEntries()[index]);
-                            mAccountVibrateWhen.setValue(vibrateSetting);
-                            onPreferenceChanged(PREFERENCE_VIBRATE_WHEN, newValue);
+                            final boolean vibrateSetting = (Boolean) newValue;
+                            mAccountVibrate.setChecked(vibrateSetting);
+                            onPreferenceChanged(PREFERENCE_VIBRATE, newValue);
                             return false;
                         }
                     });
@@ -536,7 +536,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
             // No vibrator present. Remove the preference altogether.
             PreferenceCategory notificationsCategory = (PreferenceCategory)
                     findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
-            notificationsCategory.removePreference(mAccountVibrateWhen);
+            notificationsCategory.removePreference(mAccountVibrate);
         }
 
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
@@ -639,7 +639,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         // Turn off all controlled flags - will turn them back on while checking UI elements
         int newFlags = mAccount.getFlags() &
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL |
-                        Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT |
+                        Account.FLAGS_VIBRATE |
                         Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
         newFlags |= mAccountBackgroundAttachments.isChecked() ?
@@ -655,10 +655,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
         if (mSyncWindow != null) {
             mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
-        if (mAccountVibrateWhen.getValue().equals(PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS)) {
-            newFlags |= Account.FLAGS_VIBRATE_ALWAYS;
-        } else if (mAccountVibrateWhen.getValue().equals(PREFERENCE_VALUE_VIBRATE_WHEN_SILENT)) {
-            newFlags |= Account.FLAGS_VIBRATE_WHEN_SILENT;
+        if (mAccountVibrate.isChecked()) {
+            newFlags |= Account.FLAGS_VIBRATE;
         }
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));

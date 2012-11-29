@@ -668,12 +668,10 @@ public class NotificationController {
     void setupSoundAndVibration(Notification.Builder builder, Account account) {
         final int flags = account.mFlags;
         final String ringtoneUri = account.mRingtoneUri;
-        final boolean vibrate = (flags & Account.FLAGS_VIBRATE_ALWAYS) != 0;
-        final boolean vibrateWhenSilent = (flags & Account.FLAGS_VIBRATE_WHEN_SILENT) != 0;
-        final boolean isRingerSilent = getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
+        final boolean vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
 
         int defaults = Notification.DEFAULT_LIGHTS;
-        if (vibrate || (vibrateWhenSilent && isRingerSilent)) {
+        if (vibrate) {
             defaults |= Notification.DEFAULT_VIBRATE;
         }
 

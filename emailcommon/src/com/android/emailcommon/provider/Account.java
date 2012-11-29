@@ -70,7 +70,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     // Whether or not the user has asked for notifications of new mail in this account
     public final static int FLAGS_NOTIFY_NEW_MAIL = 1<<0;
     // Whether or not the user has asked for vibration notifications with all new mail
-    public final static int FLAGS_VIBRATE_ALWAYS = 1<<1;
+    public final static int FLAGS_VIBRATE = 1<<1;
     // Bit mask for the account's deletion policy (see DELETE_POLICY_x below)
     public static final int FLAGS_DELETE_POLICY_MASK = 1<<2 | 1<<3;
     public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
@@ -82,8 +82,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     // required by the server; in this state, the user MUST be alerted to the need to update
     // security settings.  Sync adapters SHOULD NOT attempt to sync when this flag is set.
     public static final int FLAGS_SECURITY_HOLD = 1<<5;
-    // Whether or not the user has asked for vibration notifications when the ringer is silent
-    public static final int FLAGS_VIBRATE_WHEN_SILENT = 1<<6;
     // Whether the account supports "smart forward" (i.e. the server appends the original
     // message along with any attachments to the outgoing message)
     public static final int FLAGS_SUPPORTS_SMART_FORWARD = 1<<7;
@@ -373,8 +371,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     /**
      * @return the flags for this account
      * @see #FLAGS_NOTIFY_NEW_MAIL
-     * @see #FLAGS_VIBRATE_ALWAYS
-     * @see #FLAGS_VIBRATE_WHEN_SILENT
+     * @see #FLAGS_VIBRATE
      */
     public int getFlags() {
         return mFlags;
@@ -383,8 +380,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     /**
      * Set the flags for this account
      * @see #FLAGS_NOTIFY_NEW_MAIL
-     * @see #FLAGS_VIBRATE_ALWAYS
-     * @see #FLAGS_VIBRATE_WHEN_SILENT
+     * @see #FLAGS_VIBRATE
      * @param newFlags the new value for the flags
      */
     public void setFlags(int newFlags) {
