@@ -70,8 +70,8 @@ public class NotificationControllerTest extends AndroidTestCase {
         // === Ringer mode change ===
         mRingerMode = AudioManager.RINGER_MODE_NORMAL;
 
-        // VIBRATE_ALWAYS, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
+        // VIBRATE, with a ringer tone
+        a1.mFlags = Account.FLAGS_VIBRATE;
 
         nb.setDefaults(0);
         nb.setSound(null);
@@ -80,19 +80,6 @@ public class NotificationControllerTest extends AndroidTestCase {
 
         assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
-        assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
-        assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
-
-        // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
-
-        nb.setDefaults(0);
-        nb.setSound(null);
-        mTarget.setupSoundAndVibration(nb, a1);
-        n = nb.getNotification();
-
-        assertEquals(expectedRingtone, n.sound);
-        assertFalse((n.defaults & Notification.DEFAULT_VIBRATE) != 0); // no vibe
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
 
@@ -112,21 +99,8 @@ public class NotificationControllerTest extends AndroidTestCase {
         // === Ringer mode change ===
         mRingerMode = AudioManager.RINGER_MODE_VIBRATE;
 
-        // VIBRATE_ALWAYS, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
-
-        nb.setDefaults(0);
-        nb.setSound(null);
-        mTarget.setupSoundAndVibration(nb, a1);
-        n = nb.getNotification();
-
-        assertEquals(expectedRingtone, n.sound);
-        assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
-        assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
-        assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
-
-        // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
+        // VIBRATE, with a ringer tone
+        a1.mFlags = Account.FLAGS_VIBRATE;
 
         nb.setDefaults(0);
         nb.setSound(null);
@@ -154,21 +128,8 @@ public class NotificationControllerTest extends AndroidTestCase {
         // === Ringer mode change ===
         mRingerMode = AudioManager.RINGER_MODE_SILENT;
 
-        // VIBRATE_ALWAYS, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
-
-        nb.setDefaults(0);
-        nb.setSound(null);
-        mTarget.setupSoundAndVibration(nb, a1);
-        n = nb.getNotification();
-
-        assertEquals(expectedRingtone, n.sound);
-        assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
-        assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
-        assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
-
-        // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
-        a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
+        // VIBRATE, with a ringer tone
+        a1.mFlags = Account.FLAGS_VIBRATE;
 
         nb.setDefaults(0);
         nb.setSound(null);
