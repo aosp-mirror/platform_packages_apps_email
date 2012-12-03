@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronizar correo"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronizar el correo de esta cuenta"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibrar también cuando llegue un correo"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Siempre"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Solo en modo silencioso"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nunca"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrar"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Seleccionar tono"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuración del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Eliminar cuenta"</string>
