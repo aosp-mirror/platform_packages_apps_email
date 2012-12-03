@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"이메일 동기화"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"이 계정의 이메일을 동기화합니다."</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"진동"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"이메일이 오면 진동도 함께 울림"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"항상"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"무음 시에만"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"안함"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"진동"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"벨소리 선택"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"서버 설정"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"계정 삭제"</string>
