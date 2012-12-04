@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronitza el correu electrònic"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincr. miss. correu d\'aquest compte"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibra"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibra també quan arribi correu electrònic"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Sempre"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Només quan està en silenci"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Mai"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibra"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Tria un to"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuració del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Elimina el compte"</string>

@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"同步處理電子郵件"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"同步處理此帳戶的電子郵件"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"震動"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"收到電子郵件時震動提醒"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"一律"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"靜音時才啟用"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"永遠不要"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"震動"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"選擇鈴聲"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"伺服器設定"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"移除帳戶"</string>
