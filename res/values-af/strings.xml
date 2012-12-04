@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinkroniseer e-pos"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sinkroniseer e-pos vir hierdie rekening"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibreer"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibreer ook wanneer e-pos aankom"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Altyd"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Net wanneer stil"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nooit"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibreer"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Kies \'n luitoon"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Bedienerinstellings"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Verwyder rekening"</string>

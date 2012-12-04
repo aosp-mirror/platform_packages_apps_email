@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"סנכרן דוא\"ל"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"סנכרן דוא\"ל בחשבון זה"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"רטט"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"הוסף גם רטט כשמגיע דוא\"ל"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"תמיד"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"במצב שקט בלבד"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"אף פעם"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"רטט"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"בחר רינגטון"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"הגדרות שרת"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"הסר חשבון"</string>

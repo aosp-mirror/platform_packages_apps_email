@@ -390,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Synkronisera e-post"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Synkronisera e-post för det här kontot"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrera"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibrerar även vid inkommande e-post"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Alltid"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Bara vid tyst"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Aldrig"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrera"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Välj ringsignal"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinställningar"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Ta bort konto"</string>
