@@ -79,6 +79,7 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.providers.Folder;
+import com.android.mail.providers.FolderList;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
@@ -577,7 +578,7 @@ public class EmailProvider extends ContentProvider {
         } finally {
             c.close();
         }
-        
+
         restoreAccounts(context, mainDatabase);
     }
 
@@ -3960,15 +3961,15 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
                 // Convert from folder list uri to mailbox key
-                ArrayList<Folder> folders = Folder.getFoldersArray((String) val);
-                if (folders == null || folders.size() == 0 || folders.size() > 1) {
-                    LogUtils.d(TAG,
+                final FolderList flist = FolderList.fromBlob(values.getAsByteArray(columnName));
+                if (flist.folders.size() != 1) {
+                    LogUtils.e(TAG,
                             "Incorrect number of folders for this message: Message is %s",
                             message.mId);
                 } else {
-                    Folder f = folders.get(0);
-                    Uri uri = f.uri;
-                    Long mailboxId = Long.parseLong(uri.getLastPathSegment());
+                    final Folder f = flist.folders.get(0);
+                    final Uri uri = f.uri;
+                    final Long mailboxId = Long.parseLong(uri.getLastPathSegment());
                     putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
                 }
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
