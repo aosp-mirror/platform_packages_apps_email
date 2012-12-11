@@ -56,8 +56,8 @@
 
     <!-- This may be removed in GeneralPreferences.java -->
     <CheckBoxPreference
-        android:key="reply_all"
-        android:persistent="true"
+        android:key="default-reply-all"
+        android:persistent="false"
         android:defaultValue="false"
         android:title="@string/general_preference_reply_all_label"
         android:summary="@string/general_preference_reply_all_summary" />

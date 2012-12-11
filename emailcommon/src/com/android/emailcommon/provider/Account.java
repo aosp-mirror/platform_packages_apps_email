@@ -57,10 +57,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     public static final long NO_ACCOUNT = -1L;
 
-    // Whether or not the user has asked for notifications of new mail in this account
-    public final static int FLAGS_NOTIFY_NEW_MAIL = 1<<0;
-    // Whether or not the user has asked for vibration notifications with all new mail
-    public final static int FLAGS_VIBRATE = 1<<1;
     // Bit mask for the account's deletion policy (see DELETE_POLICY_x below)
     public static final int FLAGS_DELETE_POLICY_MASK = 1<<2 | 1<<3;
     public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
@@ -125,7 +121,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public boolean mIsDefault;          // note: callers should use getDefaultAccountId()
     public String mCompatibilityUuid;
     public String mSenderName;
-    public String mRingtoneUri;
     public String mProtocolVersion;
     public int mNewMessageCount;
     public String mSecuritySyncKey;
@@ -151,12 +146,11 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_IS_DEFAULT_COLUMN = 9;
     public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 10;
     public static final int CONTENT_SENDER_NAME_COLUMN = 11;
-    public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
-    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 13;
-    public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 14;
-    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 15;
-    public static final int CONTENT_SIGNATURE_COLUMN = 16;
-    public static final int CONTENT_POLICY_KEY = 17;
+    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 12;
+    public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 13;
+    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 14;
+    public static final int CONTENT_SIGNATURE_COLUMN = 15;
+    public static final int CONTENT_POLICY_KEY = 16;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -164,7 +158,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
         AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
-        AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
+        AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
         AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY
     };
@@ -205,10 +199,9 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mBaseUri = CONTENT_URI;
 
         // other defaults (policy)
-        mRingtoneUri = "content://settings/system/notification_sound";
         mSyncInterval = -1;
         mSyncLookback = -1;
-        mFlags = FLAGS_NOTIFY_NEW_MAIL;
+        mFlags = 0;
         mCompatibilityUuid = UUID.randomUUID().toString();
     }
 
@@ -258,7 +251,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mIsDefault = cursor.getInt(CONTENT_IS_DEFAULT_COLUMN) == 1;
         mCompatibilityUuid = cursor.getString(CONTENT_COMPATIBILITY_UUID_COLUMN);
         mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
-        mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
         mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
         mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
         mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
@@ -360,8 +352,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
     /**
      * @return the flags for this account
-     * @see #FLAGS_NOTIFY_NEW_MAIL
-     * @see #FLAGS_VIBRATE
      */
     public int getFlags() {
         return mFlags;
@@ -369,27 +359,10 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
     /**
      * Set the flags for this account
-     * @see #FLAGS_NOTIFY_NEW_MAIL
-     * @see #FLAGS_VIBRATE
      * @param newFlags the new value for the flags
      */
     public void setFlags(int newFlags) {
         mFlags = newFlags;
-    }
-
-    /**
-     * @return the ringtone Uri for this account
-     */
-    public String getRingtone() {
-        return mRingtoneUri;
-    }
-
-    /**
-     * Set the ringtone Uri for this account
-     * @param newUri the new URI string for the ringtone for this account
-     */
-    public void setRingtone(String newUri) {
-        mRingtoneUri = newUri;
     }
 
     /**
@@ -819,7 +792,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         values.put(AccountColumns.IS_DEFAULT, mIsDefault);
         values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
         values.put(AccountColumns.SENDER_NAME, mSenderName);
-        values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
         values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
         values.put(AccountColumns.NEW_MESSAGE_COUNT, mNewMessageCount);
         values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
@@ -870,7 +842,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         dest.writeByte(mIsDefault ? (byte)1 : (byte)0);
         dest.writeString(mCompatibilityUuid);
         dest.writeString(mSenderName);
-        dest.writeString(mRingtoneUri);
         dest.writeString(mProtocolVersion);
         dest.writeInt(mNewMessageCount);
         dest.writeString(mSecuritySyncKey);
@@ -909,7 +880,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mIsDefault = in.readByte() == 1;
         mCompatibilityUuid = in.readString();
         mSenderName = in.readString();
-        mRingtoneUri = in.readString();
         mProtocolVersion = in.readString();
         mNewMessageCount = in.readInt();
         mSecuritySyncKey = in.readString();

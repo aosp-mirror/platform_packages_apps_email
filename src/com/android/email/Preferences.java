@@ -75,13 +75,6 @@ public class Preferences {
     // "normal" will be the default
     public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
 
-    // Starting something new here:
-    // REPLY_ALL is saved by the framework (CheckBoxPreference's parent, Preference).
-    // i.e. android:persistent=true in general_preferences.xml
-    public static final String REPLY_ALL = "reply_all";
-    // Reply All Default - when changing this, be sure to update general_preferences.xml
-    public static final boolean REPLY_ALL_DEFAULT = false;
-
     private static Preferences sPreferences;
 
     private final SharedPreferences mSharedPreferences;

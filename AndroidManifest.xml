@@ -294,7 +294,7 @@
         </activity>
         <activity
             android:name=".activity.setup.AccountSecurity"
-            android.label="@string/account_security_title"
+            android:label="@string/account_security_title"
             >
         </activity>
 
@@ -339,7 +339,6 @@
         <receiver android:name="com.android.mail.providers.protos.boot.AccountReceiver">
           <intent-filter>
               <action android:name="com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
-              <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
           </intent-filter>
         </receiver>
 
@@ -659,6 +658,30 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator_legacy_eas"
                 />
+        </service>
+
+        <service android:name="com.android.email.EmailIntentService"
+                 android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+                <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
+                <action android:name="com.android.mail.action.CLEAR_NEW_MAIL_NOTIFICATIONS" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.mail.NotificationActionIntentService"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="com.android.mail.action.NOTIF_MARK_READ" />
+                <action android:name="com.android.mail.action.NOTIF_ARCHIVE" />
+                <action android:name="com.android.mail.action.NOTIF_DELETE" />
+                <action android:name="com.android.mail.action.NOTIF_UNDO" />
+                <action android:name="com.android.mail.action.NOTIF_DESTRUCT" />
+                <action android:name="com.android.mail.action.NOTIF_UNDO_TIMEOUT" />
+                <action android:name="com.android.mail.action.NOTIF_REPLY" />
+                <action android:name="com.android.mail.action.NOTIF_REPLY_ALL" />
+                <action android:name="com.android.mail.action.NOTIF_FORWARD" />
+            </intent-filter>
         </service>
 
     </application>

@@ -22,54 +22,45 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.text.SpannableString;
+import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
-import android.text.style.TextAppearanceSpan;
-import android.util.Log;
 
-import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.provider.EmailProvider;
-import com.android.email.service.EmailBroadcastProcessorService;
-import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
-import com.android.mail.providers.Conversation;
+import com.android.mail.preferences.FolderPreferences;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
-import com.android.mail.utils.Utils;
-import com.google.common.annotations.VisibleForTesting;
+import com.android.mail.utils.LogTag;
+import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.NotificationUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class that manages notifications.
  */
 public class NotificationController {
-    private static final String TAG = "NotificationController";
+    private static final String LOG_TAG = LogTag.getLogTag();
 
     /** Reserved for {@link com.android.exchange.CalendarSyncEnabler} */
     @SuppressWarnings("unused")
@@ -84,56 +75,24 @@ public class NotificationController {
     private static final int NOTIFICATION_ID_BASE_SECURITY_NEEDED = 0x30000000;
     private static final int NOTIFICATION_ID_BASE_SECURITY_CHANGED = 0x40000000;
 
-    /** Selection to retrieve accounts that should we notify user for changes */
-    private final static String NOTIFIED_ACCOUNT_SELECTION =
-        Account.FLAGS + "&" + Account.FLAGS_NOTIFY_NEW_MAIL + " != 0";
-
-    private static final String NEW_MAIL_MAILBOX_ID = "com.android.email.new_mail.mailboxId";
-    private static final String NEW_MAIL_MESSAGE_ID = "com.android.email.new_mail.messageId";
-    private static final String NEW_MAIL_MESSAGE_COUNT = "com.android.email.new_mail.messageCount";
-    private static final String NEW_MAIL_UNREAD_COUNT = "com.android.email.new_mail.unreadCount";
-
     private static NotificationThread sNotificationThread;
     private static Handler sNotificationHandler;
     private static NotificationController sInstance;
     private final Context mContext;
     private final NotificationManager mNotificationManager;
-    private final AudioManager mAudioManager;
-    private final Bitmap mGenericSenderIcon;
-    private final Bitmap mGenericMultipleSenderIcon;
     private final Clock mClock;
     /** Maps account id to its observer */
-    private final HashMap<Long, ContentObserver> mNotificationMap;
+    private final Map<Long, ContentObserver> mNotificationMap =
+            new HashMap<Long, ContentObserver>();
     private ContentObserver mAccountObserver;
 
-    /**
-     * Timestamp indicating when the last message notification sound was played.
-     * Used for throttling.
-     */
-    private long mLastMessageNotifyTime;
-
-    /**
-     * Minimum interval between notification sounds.
-     * Since a long sync (either on account setup or after a long period of being offline) can cause
-     * several notifications consecutively, it can be pretty overwhelming to get a barrage of
-     * notification sounds. Throttle them using this value.
-     */
-    private static final long MIN_SOUND_INTERVAL_MS = 15 * 1000; // 15 seconds
-
     /** Constructor */
-    @VisibleForTesting
-    NotificationController(Context context, Clock clock) {
+    private NotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
         EmailContent.init(context);
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mGenericSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
-                R.drawable.ic_contact_picture);
-        mGenericMultipleSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
-                R.drawable.ic_notification_multiple_mail_holo_dark);
         mClock = clock;
-        mNotificationMap = new HashMap<Long, ContentObserver>();
     }
 
     /** Singleton access */
@@ -149,16 +108,16 @@ public class NotificationController {
      * @param notificationId the notification id to check
      * @return whether or not the notification must be "ongoing"
      */
-    private boolean needsOngoingNotification(int notificationId) {
+    private static boolean needsOngoingNotification(int notificationId) {
         // "Security needed" must be ongoing so that the user doesn't close it; otherwise, sync will
         // be prevented until a reboot.  Consider also doing this for password expired.
         return (notificationId & NOTIFICATION_ID_BASE_MASK) == NOTIFICATION_ID_BASE_SECURITY_NEEDED;
     }
 
     /**
-     * Returns a {@link Notification.Builder}} for an event with the given account. The account
-     * contains specific rules on ring tone usage and these will be used to modify the notification
-     * behaviour.
+     * Returns a {@link android.support.v4.app.NotificationCompat.Builder} for an event with the
+     * given account. The account contains specific rules on ring tone usage and these will be used
+     * to modify the notification behaviour.
      *
      * @param accountId The id of the account this notification is being built for.
      * @param ticker Text displayed when the notification is first shown. May be {@code null}.
@@ -166,14 +125,13 @@ public class NotificationController {
      * @param contentText The second line of text. May NOT be {@code null}.
      * @param intent The intent to start if the user clicks on the notification.
      * @param largeIcon A large icon. May be {@code null}
-     * @param number A number to display using {@link Builder#setNumber(int)}. May
-     *        be {@code null}.
+     * @param number A number to display using {@link Builder#setNumber(int)}. May be {@code null}.
      * @param enableAudio If {@code false}, do not play any sound. Otherwise, play sound according
      *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
-    private Notification.Builder createBaseAccountNotificationBuilder(long accountId, String ticker,
-            CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
+    private NotificationCompat.Builder createBaseAccountNotificationBuilder(long accountId,
+            String ticker, CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
             Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
         PendingIntent pending = null;
@@ -183,13 +141,13 @@ public class NotificationController {
         }
 
         // NOTE: the ticker is not shown for notifications in the Holo UX
-        final Notification.Builder builder = new Notification.Builder(mContext)
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setContentIntent(pending)
                 .setLargeIcon(largeIcon)
                 .setNumber(number == null ? 0 : number)
-                .setSmallIcon(R.drawable.stat_notify_email_generic)
+                .setSmallIcon(R.drawable.stat_notify_email)
                 .setWhen(mClock.getTime())
                 .setTicker(ticker)
                 .setOngoing(ongoing);
@@ -214,16 +172,16 @@ public class NotificationController {
      */
     private void showNotification(long accountId, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
-        final Notification.Builder builder = createBaseAccountNotificationBuilder(accountId, ticker,
-                title, contentText, intent, null, null, true,
+        final NotificationCompat.Builder builder = createBaseAccountNotificationBuilder(accountId,
+                ticker, title, contentText, intent, null, null, true,
                 needsOngoingNotification(notificationId));
-        mNotificationManager.notify(notificationId, builder.getNotification());
+        mNotificationManager.notify(notificationId, builder.build());
     }
 
     /**
      * Returns a notification ID for new message notifications for the given account.
      */
-    private int getNewMessageNotificationId(long mailboxId) {
+    private static int getNewMessageNotificationId(long mailboxId) {
         // We assume accountId will always be less than 0x0FFFFFFF; is there a better way?
         return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + mailboxId);
     }
@@ -234,42 +192,20 @@ public class NotificationController {
      * database changes, we save the state [e.g. message ID and count] of the most recent
      * notification shown to the user. And, when we start observing database changes, we restore
      * the saved state.
-     * @param watch If {@code true}, we register observers for all accounts whose settings have
-     *              notifications enabled. Otherwise, all observers are unregistered.
      */
-    public void watchForMessages(final boolean watch) {
-        if (MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "Notifications being toggled: " + watch);
-        }
-        // Don't create the thread if we're only going to stop watching
-        if (!watch && sNotificationThread == null) return;
-
+    public void watchForMessages() {
         ensureHandlerExists();
         // Run this on the message notification handler
         sNotificationHandler.post(new Runnable() {
             @Override
             public void run() {
                 ContentResolver resolver = mContext.getContentResolver();
-                if (!watch) {
-                    unregisterMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
-                    if (mAccountObserver != null) {
-                        resolver.unregisterContentObserver(mAccountObserver);
-                        mAccountObserver = null;
-                    }
-
-                    // tear down the event loop
-                    sNotificationThread.quit();
-                    sNotificationThread = null;
-                    return;
-                }
 
                 // otherwise, start new observers for all notified accounts
                 registerMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                 // If we're already observing account changes, don't do anything else
                 if (mAccountObserver == null) {
-                    if (MailActivityEmail.DEBUG) {
-                        Log.i(Logging.LOG_TAG, "Observing account changes for notifications");
-                    }
+                    LogUtils.i(LOG_TAG, "Observing account changes for notifications");
                     mAccountObserver = new AccountContentObserver(sNotificationHandler, mContext);
                     resolver.registerContentObserver(Account.NOTIFIER_URI, true, mAccountObserver);
                 }
@@ -294,12 +230,12 @@ public class NotificationController {
      *                  {@link Account#ACCOUNT_ID_COMBINED_VIEW} to register observers for all
      *                  accounts that allow for user notification.
      */
-    private void registerMessageNotification(long accountId) {
+    private void registerMessageNotification(final long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             Cursor c = resolver.query(
                     Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                    NOTIFIED_ACCOUNT_SELECTION, null, null);
+                    null, null, null);
             try {
                 while (c.moveToNext()) {
                     long id = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
@@ -311,9 +247,7 @@ public class NotificationController {
         } else {
             ContentObserver obs = mNotificationMap.get(accountId);
             if (obs != null) return;  // we're already observing; nothing to do
-            if (MailActivityEmail.DEBUG) {
-                Log.i(Logging.LOG_TAG, "Registering for notifications for account " + accountId);
-            }
+            LogUtils.i(LOG_TAG, "Registering for notifications for account " + accountId);
             ContentObserver observer = new MessageContentObserver(
                     sNotificationHandler, mContext, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
@@ -331,21 +265,17 @@ public class NotificationController {
      * @param accountId The ID of the account to unregister from. To unregister all accounts that
      *                  have observers, specify an ID of {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      */
-    private void unregisterMessageNotification(long accountId) {
+    private void unregisterMessageNotification(final long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-            if (MailActivityEmail.DEBUG) {
-                Log.i(Logging.LOG_TAG, "Unregistering notifications for all accounts");
-            }
+            LogUtils.i(LOG_TAG, "Unregistering notifications for all accounts");
             // cancel all existing message observers
             for (ContentObserver observer : mNotificationMap.values()) {
                 resolver.unregisterContentObserver(observer);
             }
             mNotificationMap.clear();
         } else {
-            if (MailActivityEmail.DEBUG) {
-                Log.i(Logging.LOG_TAG, "Unregistering notifications for account " + accountId);
-            }
+            LogUtils.i(LOG_TAG, "Unregistering notifications for account " + accountId);
             ContentObserver observer = mNotificationMap.remove(accountId);
             if (observer != null) {
                 resolver.unregisterContentObserver(observer);
@@ -353,411 +283,60 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Returns a picture of the sender of the given message. If no picture is available, returns
-     * {@code null}.
-     *
-     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
-     */
-    private Bitmap getSenderPhoto(Message message) {
-        Address sender = Address.unpackFirst(message.mFrom);
-        if (sender == null) {
-            return null;
-        }
-        String email = sender.getAddress();
-        if (TextUtils.isEmpty(email)) {
-            return null;
-        }
-        Bitmap photo = ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
-
-        if (photo != null) {
-            final Resources res = mContext.getResources();
-            final int idealIconHeight =
-                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-            final int idealIconWidth =
-                    res.getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-
-            if (photo.getHeight() < idealIconHeight) {
-                // We should scale this image to fit the intended size
-                photo = Bitmap.createScaledBitmap(
-                        photo, idealIconWidth, idealIconHeight, true);
-            }
-        }
-        return photo;
-    }
-
     public static final String EXTRA_ACCOUNT = "account";
     public static final String EXTRA_CONVERSATION = "conversationUri";
     public static final String EXTRA_FOLDER = "folder";
 
-    private Intent createViewConversationIntent(Conversation conversation, Folder folder,
-            com.android.mail.providers.Account account) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra(EXTRA_ACCOUNT, account.serialize());
-        if (folder != null) {
-            intent.setDataAndType(folder.uri, account.mimeType);
-            intent.putExtra(EXTRA_FOLDER, Folder.toString(folder));
-        }
-        intent.putExtra(EXTRA_CONVERSATION, conversation);
-        return intent;
-    }
-
-    private Intent createViewMailboxIntent(com.android.mail.providers.Account account,
-            Folder folder) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra(EXTRA_ACCOUNT, account.serialize());
-        if (folder != null) {
-            intent.setDataAndType(folder.uri, account.mimeType);
-            intent.putExtra(EXTRA_FOLDER, Folder.toString(folder));
-        }
-        return intent;
-    }
-
-    private Cursor getUiCursor(Uri uri, String[] projection) {
-        Cursor c = mContext.getContentResolver().query(uri, projection, null, null, null);
-        if (c == null) return null;
-        if (c.moveToFirst()) {
-            return c;
-        } else {
-            c.close();
-            return null;
-        }
-    }
-
-    private Intent createViewConversationIntent(Message message) {
-        Cursor c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
-                UIProvider.ACCOUNTS_PROJECTION);
-        if (c == null) {
-            Log.w(TAG, "Can't find account for message " + message.mId);
-            return null;
-        }
-        com.android.mail.providers.Account acct = new com.android.mail.providers.Account(c);
-        c.close();
-        c = getUiCursor(EmailProvider.uiUri("uifolder", message.mMailboxKey),
-                UIProvider.FOLDERS_PROJECTION);
-        if (c == null) {
-            Log.w(TAG, "Can't find folder for message " + message.mId + ", folder " +
-                    message.mMailboxKey);
-            return null;
-        }
-        Folder folder = new Folder(c);
-        c.close();
-        c = getUiCursor(EmailProvider.uiUri("uiconversation", message.mId),
-                UIProvider.CONVERSATION_PROJECTION);
-        if (c == null) {
-            Log.w(TAG, "Can't find conversation for message " + message.mId);
-            return null;
-        }
-        Conversation conv = new Conversation(c);
-        c.close();
-        return createViewConversationIntent(conv, folder, acct);
-    }
-
-    private Intent createViewMailboxIntentForMessage(Message message) {
-        Cursor c = null;
-        com.android.mail.providers.Account acct = null;
-        try {
-            c = getUiCursor(EmailProvider.uiUri("uiaccount", message.mAccountKey),
-                    UIProvider.ACCOUNTS_PROJECTION);
-            if (c == null) {
-                Log.w(TAG, "Can't find account for message " + message.mId);
-                return null;
-            }
-            acct = new com.android.mail.providers.Account(c);
-        } finally {
-            if (c != null) {
-                c.close();
-                c = null;
-            }
-        }
-
-        Folder folder = null;
-        try {
-            c = getUiCursor(EmailProvider.uiUri("uifolder", message.mMailboxKey),
-                    UIProvider.FOLDERS_PROJECTION);
-            if (c == null) {
-                Log.w(TAG, "Can't find folder for message " + message.mId + ", folder " +
-                        message.mMailboxKey);
-                return null;
-            }
-            folder = new Folder(c);
-        } finally {
-            if (c != null) {
-                c.close();
-                c = null;
-            }
-        }
-        return createViewMailboxIntent(acct, folder);
-    }
-
-    /**
-     * Returns a "new message" notification for the given account.
-     *
-     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
-     */
-    @VisibleForTesting
-    Notification createNewMessageNotification(long mailboxId, long newMessageId,
-            int unseenMessageCount, int unreadCount) {
-        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
-        if (mailbox == null) {
-            return null;
-        }
-        final Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
-        if (account == null) {
-            return null;
-        }
-        // Get the latest message
-        final Message message = Message.restoreMessageWithId(mContext, newMessageId);
-        if (message == null) {
-            return null; // no message found???
-        }
-
-        String senderName = Address.toFriendly(Address.unpack(message.mFrom));
-        if (senderName == null) {
-            senderName = ""; // Happens when a message has no from.
-        }
-        final boolean multipleUnseen = unseenMessageCount > 1;
-        final Bitmap senderPhoto = multipleUnseen
-                ? mGenericMultipleSenderIcon
-                : getSenderPhoto(message);
-        final SpannableString title = getNewMessageTitle(senderName, unseenMessageCount);
-        // TODO: add in display name on the second line for the text, once framework supports
-        // multiline texts.
-        // Show account name if an inbox; otherwise mailbox name
-        final String text = multipleUnseen
-                ? ((mailbox.mType == Mailbox.TYPE_INBOX) ? account.mDisplayName :
-                    mailbox.mDisplayName)
-                : message.mSubject;
-        final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
-        final Integer number = unreadCount > 1 ? unreadCount : null;
-        final Intent intent;
-        if (multipleUnseen) {
-            intent = createViewMailboxIntentForMessage(message);
-        } else {
-            intent = createViewConversationIntent(message);
-        }
-        if (intent == null) {
-            return null;
-        }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        long now = mClock.getTime();
-        boolean enableAudio = (now - mLastMessageNotifyTime) > MIN_SOUND_INTERVAL_MS;
-        final Notification.Builder builder = createBaseAccountNotificationBuilder(
-                mailbox.mAccountKey, title.toString(), title, text,
-                intent, largeIcon, number, enableAudio, false);
-        if (Utils.isRunningJellybeanOrLater()) {
-            // For a new-style notification
-            if (multipleUnseen) {
-                final Cursor messageCursor =
-                        mContext.getContentResolver().query(ContentUris.withAppendedId(
-                                EmailContent.MAILBOX_NOTIFICATION_URI, mailbox.mAccountKey),
-                                EmailContent.NOTIFICATION_PROJECTION, null, null, null);
-
-                try {
-                    if (messageCursor != null && messageCursor.getCount() > 0) {
-                        final int maxNumDigestItems = mContext.getResources().getInteger(
-                                R.integer.max_num_notification_digest_items);
-                        // The body of the notification is the account name, or the label name.
-                        builder.setSubText(text);
-
-                        Notification.InboxStyle digest = new Notification.InboxStyle(builder);
-
-                        digest.setBigContentTitle(title);
-
-                        int numDigestItems = 0;
-                        // We can assume that the current position of the cursor is on the
-                        // newest message
-                        messageCursor.moveToFirst();
-                        do {
-                            final long messageId =
-                                    messageCursor.getLong(EmailContent.ID_PROJECTION_COLUMN);
-
-                            // Get the latest message
-                            final Message digestMessage =
-                                    Message.restoreMessageWithId(mContext, messageId);
-                            if (digestMessage != null) {
-                                final CharSequence digestLine =
-                                        getSingleMessageInboxLine(mContext, digestMessage);
-                                digest.addLine(digestLine);
-                                numDigestItems++;
-                            }
-                        } while (numDigestItems <= maxNumDigestItems && messageCursor.moveToNext());
-
-                        // We want to clear the content text in this case. The content text would
-                        // have been set in createBaseAccountNotificationBuilder, but since the
-                        // same string was set in as the subtext, we don't want to show a
-                        // duplicate string.
-                        builder.setContentText(null);
-                    }
-                } finally {
-                    if (messageCursor != null) {
-                        messageCursor.close();
-                    }
-                }
-            } else {
-                // The notification content will be the subject of the conversation.
-                builder.setContentText(getSingleMessageLittleText(mContext, message.mSubject));
-
-                // The notification subtext will be the subject of the conversation for inbox
-                // notifications, or will based on the the label name for user label notifications.
-                builder.setSubText(account.mDisplayName);
-
-                final Notification.BigTextStyle bigText = new Notification.BigTextStyle(builder);
-                bigText.bigText(getSingleMessageBigText(mContext, message));
-            }
-        }
-
-        mLastMessageNotifyTime = now;
-        return builder.getNotification();
-    }
-
-    /**
-     * Sets the bigtext for a notification for a single new conversation
-     * @param context
-     * @param message New message that triggered the notification.
-     * @return a {@link CharSequence} suitable for use in {@link Notification.BigTextStyle}
-     */
-    private static CharSequence getSingleMessageInboxLine(Context context, Message message) {
-        final String subject = message.mSubject;
-        final String snippet = message.mSnippet;
-        final String senders = Address.toFriendly(Address.unpack(message.mFrom));
-
-        final String subjectSnippet = !TextUtils.isEmpty(subject) ? subject : snippet;
-
-        final TextAppearanceSpan notificationPrimarySpan =
-                new TextAppearanceSpan(context, R.style.NotificationPrimaryText);
-
-        if (TextUtils.isEmpty(senders)) {
-            // If the senders are empty, just use the subject/snippet.
-            return subjectSnippet;
-        }
-        else if (TextUtils.isEmpty(subjectSnippet)) {
-            // If the subject/snippet is empty, just use the senders.
-            final SpannableString spannableString = new SpannableString(senders);
-            spannableString.setSpan(notificationPrimarySpan, 0, senders.length(), 0);
-
-            return spannableString;
-        } else {
-            final String formatString = context.getResources().getString(
-                    R.string.multiple_new_message_notification_item);
-            final TextAppearanceSpan notificationSecondarySpan =
-                    new TextAppearanceSpan(context, R.style.NotificationSecondaryText);
-
-            final String instantiatedString = String.format(formatString, senders, subjectSnippet);
-
-            final SpannableString spannableString = new SpannableString(instantiatedString);
-
-            final boolean isOrderReversed = formatString.indexOf("%2$s") <
-                    formatString.indexOf("%1$s");
-            final int primaryOffset =
-                    (isOrderReversed ? instantiatedString.lastIndexOf(senders) :
-                     instantiatedString.indexOf(senders));
-            final int secondaryOffset =
-                    (isOrderReversed ? instantiatedString.lastIndexOf(subjectSnippet) :
-                     instantiatedString.indexOf(subjectSnippet));
-            spannableString.setSpan(notificationPrimarySpan,
-                    primaryOffset, primaryOffset + senders.length(), 0);
-            spannableString.setSpan(notificationSecondarySpan,
-                    secondaryOffset, secondaryOffset + subjectSnippet.length(), 0);
-            return spannableString;
-        }
-    }
-
-    /**
-     * Sets the bigtext for a notification for a single new conversation
-     * @param context
-     * @param subject Subject of the new message that triggered the notification
-     * @return a {@link CharSequence} suitable for use in {@link Notification.ContentText}
-     */
-    private static CharSequence getSingleMessageLittleText(Context context, String subject) {
-        if (subject == null) {
-            return null;
-        }
-        final TextAppearanceSpan notificationSubjectSpan = new TextAppearanceSpan(
-                context, R.style.NotificationPrimaryText);
-
-        final SpannableString spannableString = new SpannableString(subject);
-        spannableString.setSpan(notificationSubjectSpan, 0, subject.length(), 0);
-
-        return spannableString;
-    }
-
-
-    /**
-     * Sets the bigtext for a notification for a single new conversation
-     * @param context
-     * @param message New message that triggered the notification
-     * @return a {@link CharSequence} suitable for use in {@link Notification.BigTextStyle}
-     */
-    private static CharSequence getSingleMessageBigText(Context context, Message message) {
-        final TextAppearanceSpan notificationSubjectSpan = new TextAppearanceSpan(
-                context, R.style.NotificationPrimaryText);
-
-        final String subject = message.mSubject;
-        final String snippet = message.mSnippet;
-
-        if (TextUtils.isEmpty(subject)) {
-            // If the subject is empty, just use the snippet.
-            return snippet;
-        }
-        else if (TextUtils.isEmpty(snippet)) {
-            // If the snippet is empty, just use the subject.
-            final SpannableString spannableString = new SpannableString(subject);
-            spannableString.setSpan(notificationSubjectSpan, 0, subject.length(), 0);
-
-            return spannableString;
-        } else {
-            final String notificationBigTextFormat = context.getResources().getString(
-                    R.string.single_new_message_notification_big_text);
-
-            // Localizers may change the order of the parameters, look at how the format
-            // string is structured.
-            final boolean isSubjectFirst = notificationBigTextFormat.indexOf("%2$s") >
-                    notificationBigTextFormat.indexOf("%1$s");
-            final String bigText = String.format(notificationBigTextFormat, subject, snippet);
-            final SpannableString spannableString = new SpannableString(bigText);
-
-            final int subjectOffset =
-                    (isSubjectFirst ? bigText.indexOf(subject) : bigText.lastIndexOf(subject));
-            spannableString.setSpan(notificationSubjectSpan,
-                    subjectOffset, subjectOffset + subject.length(), 0);
-
-            return spannableString;
-        }
-    }
-
-    /**
-     * Creates a notification title for a new message. If there is only a single message,
-     * show the sender name. Otherwise, show "X new messages".
-     */
-    @VisibleForTesting
-    SpannableString getNewMessageTitle(String sender, int unseenCount) {
-        String title;
-        if (unseenCount > 1) {
-            title = String.format(
-                    mContext.getString(R.string.notification_multiple_new_messages_fmt),
-                    unseenCount);
-        } else {
-            title = sender;
-        }
-        return new SpannableString(title);
-    }
-
-    /** Returns the system's current ringer mode */
-    @VisibleForTesting
-    int getRingerMode() {
-        return mAudioManager.getRingerMode();
-    }
-
     /** Sets up the notification's sound and vibration based upon account details. */
-    @VisibleForTesting
-    void setupSoundAndVibration(Notification.Builder builder, Account account) {
-        final int flags = account.mFlags;
-        final String ringtoneUri = account.mRingtoneUri;
-        final boolean vibrate = (flags & Account.FLAGS_VIBRATE) != 0;
+    private void setupSoundAndVibration(
+            NotificationCompat.Builder builder, Account account) {
+        String ringtoneUri = Settings.System.DEFAULT_NOTIFICATION_URI.toString();
+        boolean vibrate = false;
+
+        // Use the Inbox notification preferences
+        final Cursor accountCursor = mContext.getContentResolver().query(EmailProvider.uiUri(
+                "uiaccount", account.mId), UIProvider.ACCOUNTS_PROJECTION, null, null, null);
+
+        com.android.mail.providers.Account uiAccount = null;
+        try {
+            if (accountCursor.moveToFirst()) {
+                uiAccount = new com.android.mail.providers.Account(accountCursor);
+            }
+        } finally {
+            accountCursor.close();
+        }
+
+        if (uiAccount != null) {
+            final Cursor folderCursor =
+                    mContext.getContentResolver().query(uiAccount.settings.defaultInbox,
+                            UIProvider.FOLDERS_PROJECTION, null, null, null);
+
+            if (folderCursor == null) {
+                LogUtils.e(LOG_TAG, "Null folder cursor for mailbox %s",
+                        uiAccount.settings.defaultInbox);
+            }
+
+            Folder folder = null;
+            try {
+                if (folderCursor.moveToFirst()) {
+                    folder = new Folder(folderCursor);
+                }
+            } finally {
+                folderCursor.close();
+            }
+
+            if (folder != null) {
+                final FolderPreferences folderPreferences =
+                        new FolderPreferences(mContext, uiAccount.name, folder, true /* inbox */);
+
+                ringtoneUri = folderPreferences.getNotificationRingtoneUri();
+                vibrate = folderPreferences.isNotificationVibrateEnabled();
+            } else {
+                LogUtils.e(LOG_TAG, "Null folder for mailbox %s", uiAccount.settings.defaultInbox);
+            }
+        } else {
+            LogUtils.e(LOG_TAG, "Null uiAccount for account id %d", account.mId);
+        }
 
         int defaults = Notification.DEFAULT_LIGHTS;
         if (vibrate) {
@@ -790,7 +369,7 @@ public class NotificationController {
     /**
      * Returns a notification ID for login failed notifications for the given account account.
      */
-    private int getLoginFailedNotificationId(long accountId) {
+    private static int getLoginFailedNotificationId(long accountId) {
         return NOTIFICATION_ID_BASE_LOGIN_WARNING + (int)accountId;
     }
 
@@ -953,86 +532,77 @@ public class NotificationController {
         private final long mAccountId;
 
         public MessageContentObserver(
-                Handler handler, Context context, long accountId) {
+                final Handler handler, final Context context, final long accountId) {
             super(handler);
             mContext = context;
             mAccountId = accountId;
         }
 
         @Override
-        public void onChange(boolean selfChange) {
-            ContentObserver observer = sInstance.mNotificationMap.get(mAccountId);
-            Account account = Account.restoreAccountWithId(mContext, mAccountId);
-            if (observer == null || account == null) {
-                Log.w(Logging.LOG_TAG, "Couldn't find account for changed message notification");
+        public void onChange(final boolean selfChange) {
+            final ContentResolver contentResolver = mContext.getContentResolver();
+
+            final Cursor accountCursor = contentResolver.query(
+                    EmailProvider.uiUri("uiaccount", mAccountId), UIProvider.ACCOUNTS_PROJECTION,
+                    null, null, null);
+
+            if (accountCursor == null) {
+                LogUtils.e(LOG_TAG, "Null account cursor for mAccountId %d", mAccountId);
                 return;
             }
 
-            ContentResolver resolver = mContext.getContentResolver();
-            Cursor c = resolver.query(ContentUris.withAppendedId(
-                    EmailContent.MAILBOX_NOTIFICATION_URI, mAccountId),
-                    EmailContent.NOTIFICATION_PROJECTION, null, null, null);
+            com.android.mail.providers.Account account = null;
             try {
-                while (c.moveToNext()) {
-                    long mailboxId = c.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
-                    if (mailboxId == 0) continue;
-                    int messageCount =
-                            c.getInt(EmailContent.NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN);
-                    int unreadCount =
-                            c.getInt(EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
-
-                    Mailbox m = Mailbox.restoreMailboxWithId(mContext, mailboxId);
-                    long newMessageId = Utility.getFirstRowLong(mContext,
-                            ContentUris.withAppendedId(
-                                    EmailContent.MAILBOX_MOST_RECENT_MESSAGE_URI, mailboxId),
-                            Message.ID_COLUMN_PROJECTION, null, null, null,
-                            Message.ID_MAILBOX_COLUMN_ID, -1L);
-                    Log.d(Logging.LOG_TAG, "Changes to " + account.mDisplayName + "/" +
-                            m.mDisplayName + ", count: " + messageCount + ", lastNotified: " +
-                            m.mLastNotifiedMessageKey + ", mostRecent: " + newMessageId);
-                    // Broadcast intent here
-                    Intent i = new Intent(EmailBroadcastProcessorService.ACTION_NOTIFY_NEW_MAIL);
-                    // Required by UIProvider
-                    i.setType(EmailProvider.EMAIL_APP_MIME_TYPE);
-                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_FOLDER,
-                            Uri.parse(EmailProvider.uiUriString("uifolder", mailboxId)));
-                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT,
-                            Uri.parse(EmailProvider.uiUriString("uiaccount", m.mAccountKey)));
-                    i.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNREAD_COUNT,
-                            unreadCount);
-                    // Required by our notification controller
-                    i.putExtra(NEW_MAIL_MAILBOX_ID, mailboxId);
-                    i.putExtra(NEW_MAIL_MESSAGE_ID, newMessageId);
-                    i.putExtra(NEW_MAIL_MESSAGE_COUNT, messageCount);
-                    i.putExtra(NEW_MAIL_UNREAD_COUNT, unreadCount);
-                    mContext.sendOrderedBroadcast(i, null);
+                if (accountCursor.moveToFirst()) {
+                    account = new com.android.mail.providers.Account(accountCursor);
                 }
             } finally {
-                c.close();
+                accountCursor.close();
+            }
+
+            final Cursor mailboxCursor = contentResolver.query(
+                    ContentUris.withAppendedId(EmailContent.MAILBOX_NOTIFICATION_URI, mAccountId),
+                    null, null, null, null);
+            try {
+                while (mailboxCursor.moveToNext()) {
+                    final long mailboxId =
+                            mailboxCursor.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
+                    if (mailboxId == 0) continue;
+
+                    final int unreadCount = mailboxCursor.getInt(
+                            EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
+                    final int unseenCount = mailboxCursor.getInt(
+                            EmailContent.NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN);
+
+                    final Cursor folderCursor = contentResolver.query(
+                            EmailProvider.uiUri("uifolder", mailboxId),
+                            UIProvider.FOLDERS_PROJECTION, null, null, null);
+
+                    if (folderCursor == null) {
+                        LogUtils.e(LOG_TAG, "Null folder cursor for mMailboxId %d", mailboxId);
+                        return;
+                    }
+
+                    Folder folder = null;
+                    try {
+                        if (folderCursor.moveToFirst()) {
+                            folder = new Folder(folderCursor);
+                        }
+                    } finally {
+                        folderCursor.close();
+                    }
+
+                    LogUtils.d(LOG_TAG, "Changes to account " + account.name + ", folder: "
+                            + folder.name + ", unreadCount: " + unreadCount + ", unseenCount: "
+                            + unseenCount);
+
+                    NotificationUtils.setNewEmailIndicator(mContext, unreadCount, unseenCount,
+                            account, folder, true);
+                }
+            } finally {
+                mailboxCursor.close();
             }
         }
-    }
-
-    public static void notifyNewMail(Context context, Intent i) {
-        Log.d(Logging.LOG_TAG, "Sending notification to system...");
-        NotificationController nc = NotificationController.getInstance(context);
-        ContentResolver resolver = context.getContentResolver();
-        long mailboxId = i.getLongExtra(NEW_MAIL_MAILBOX_ID, -1);
-        long newMessageId = i.getLongExtra(NEW_MAIL_MESSAGE_ID, -1);
-        int messageCount = i.getIntExtra(NEW_MAIL_MESSAGE_COUNT, 0);
-        int unreadCount = i.getIntExtra(NEW_MAIL_UNREAD_COUNT, 0);
-        Notification n = nc.createNewMessageNotification(mailboxId, newMessageId,
-                messageCount, unreadCount);
-        if (n != null) {
-            // Make the notification visible
-            nc.mNotificationManager.notify(nc.getNewMessageNotificationId(mailboxId), n);
-        }
-        // Save away the new values
-        ContentValues cv = new ContentValues();
-        cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, newMessageId);
-        cv.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, messageCount);
-        resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId), cv,
-                null, null);
     }
 
     /**
@@ -1041,21 +611,21 @@ public class NotificationController {
      */
     private static class AccountContentObserver extends ContentObserver {
         private final Context mContext;
-        public AccountContentObserver(Handler handler, Context context) {
+        public AccountContentObserver(final Handler handler, final Context context) {
             super(handler);
             mContext = context;
         }
 
         @Override
-        public void onChange(boolean selfChange) {
+        public void onChange(final boolean selfChange) {
             final ContentResolver resolver = mContext.getContentResolver();
             final Cursor c = resolver.query(Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                NOTIFIED_ACCOUNT_SELECTION, null, null);
-            final HashSet<Long> newAccountList = new HashSet<Long>();
-            final HashSet<Long> removedAccountList = new HashSet<Long>();
+                null, null, null);
+            final Set<Long> newAccountList = new HashSet<Long>();
+            final Set<Long> removedAccountList = new HashSet<Long>();
             if (c == null) {
                 // Suspender time ... theoretically, this will never happen
-                Log.wtf(Logging.LOG_TAG, "#onChange(); NULL response for account id query");
+                LogUtils.wtf(LOG_TAG, "#onChange(); NULL response for account id query");
                 return;
             }
             try {
@@ -1071,22 +641,22 @@ public class NotificationController {
             // NOTE: Looping over three lists is not necessarily the most efficient. However, the
             // account lists are going to be very small, so, this will not be necessarily bad.
             // Cycle through existing notification list and adjust as necessary
-            for (long accountId : sInstance.mNotificationMap.keySet()) {
+            for (final long accountId : sInstance.mNotificationMap.keySet()) {
                 if (!newAccountList.remove(accountId)) {
                     // account id not in the current set of notifiable accounts
                     removedAccountList.add(accountId);
                 }
             }
             // A new account was added to the notification list
-            for (long accountId : newAccountList) {
+            for (final long accountId : newAccountList) {
                 sInstance.registerMessageNotification(accountId);
             }
             // An account was removed from the notification list
-            for (long accountId : removedAccountList) {
+            for (final long accountId : removedAccountList) {
                 sInstance.unregisterMessageNotification(accountId);
-                int notificationId = sInstance.getNewMessageNotificationId(accountId);
-                sInstance.mNotificationManager.cancel(notificationId);
             }
+
+            NotificationUtils.resendNotifications(mContext, false);
         }
     }
 
@@ -1099,7 +669,7 @@ public class NotificationController {
         /** The {@link Looper} that handles messages for this thread */
         private Looper mLooper;
 
-        NotificationThread() {
+        public NotificationThread() {
             new Thread(null, this, "EmailNotification").start();
             synchronized (mLock) {
                 while (mLooper == null) {
@@ -1121,10 +691,8 @@ public class NotificationController {
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             Looper.loop();
         }
-        void quit() {
-            mLooper.quit();
-        }
-        Looper getLooper() {
+
+        public Looper getLooper() {
             return mLooper;
         }
     }

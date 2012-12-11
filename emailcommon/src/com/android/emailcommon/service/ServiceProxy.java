@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Debug;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -181,6 +182,16 @@ public abstract class ServiceProxy {
     }
 
     public void waitForCompletion() {
+        /*
+         * onServiceConnected() is always called on the main thread, and we block the current thread
+         * for up to 10 seconds as a timeout. If we're currently on the main thread,
+         * onServiceConnected() is not called until our timeout elapses (and the UI is frozen for
+         * the duration).
+         */
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new IllegalStateException("This cannot be called on the main thread.");
+        }
+
         synchronized (mConnection) {
             long time = System.currentTimeMillis();
             try {

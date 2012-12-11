@@ -60,11 +60,9 @@ import java.util.ArrayList;
  *
  */
 public abstract class EmailContent {
-    public static final String[] NOTIFICATION_PROJECTION =
-        new String[] {MailboxColumns.ID, MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT};
     public static final int NOTIFICATION_MAILBOX_ID_COLUMN = 0;
     public static final int NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN = 1;
-    public static final int NOTIFICATION_MAILBOX_MESSAGE_COUNT_COLUMN = 2;
+    public static final int NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN = 2;
 
     // All classes share this
     public static final String RECORD_ID = "_id";
@@ -520,11 +518,6 @@ public abstract class EmailContent {
             mIntroText = cursor.getString(CONTENT_INTRO_TEXT_COLUMN);
             mQuotedTextStartPos = cursor.getInt(CONTENT_QUOTED_TEXT_START_POS_COLUMN);
         }
-
-        public boolean update() {
-            // TODO Auto-generated method stub
-            return false;
-        }
     }
 
     public interface MessageColumns {
@@ -578,6 +571,9 @@ public abstract class EmailContent {
         public static final String THREAD_TOPIC = "threadTopic";
         // For sync adapter use
         public static final String SYNC_DATA = "syncData";
+
+        /** Boolean, unseen = 0, seen = 1 [INDEX] */
+        public static final String FLAG_SEEN = "flagSeen";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -636,6 +632,7 @@ public abstract class EmailContent {
         public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
         public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
         public static final int CONTENT_SYNC_DATA_COLUMN = 24;
+        public static final int CONTENT_FLAG_SEEN_COLUMN = 25;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -650,7 +647,7 @@ public abstract class EmailContent {
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
             MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
-            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA
+            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA, MessageColumns.FLAG_SEEN
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -759,6 +756,7 @@ public abstract class EmailContent {
         public long mTimeStamp;
         public String mSubject;
         public boolean mFlagRead = false;
+        public boolean mFlagSeen = false;
         public int mFlagLoaded = FLAG_LOADED_UNLOADED;
         public boolean mFlagFavorite = false;
         public boolean mFlagAttachment = false;
@@ -878,6 +876,7 @@ public abstract class EmailContent {
             values.put(MessageColumns.TIMESTAMP, mTimeStamp);
             values.put(MessageColumns.SUBJECT, mSubject);
             values.put(MessageColumns.FLAG_READ, mFlagRead);
+            values.put(MessageColumns.FLAG_SEEN, mFlagSeen);
             values.put(MessageColumns.FLAG_LOADED, mFlagLoaded);
             values.put(MessageColumns.FLAG_FAVORITE, mFlagFavorite);
             values.put(MessageColumns.FLAG_ATTACHMENT, mFlagAttachment);
@@ -914,6 +913,7 @@ public abstract class EmailContent {
             mTimeStamp = cursor.getLong(CONTENT_TIMESTAMP_COLUMN);
             mSubject = cursor.getString(CONTENT_SUBJECT_COLUMN);
             mFlagRead = cursor.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
+            mFlagSeen = cursor.getInt(CONTENT_FLAG_SEEN_COLUMN) == 1;
             mFlagLoaded = cursor.getInt(CONTENT_FLAG_LOADED_COLUMN);
             mFlagFavorite = cursor.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
             mFlagAttachment = cursor.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
@@ -934,11 +934,6 @@ public abstract class EmailContent {
             mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
             mThreadTopic = cursor.getString(CONTENT_THREAD_TOPIC_COLUMN);
             mSyncData = cursor.getString(CONTENT_SYNC_DATA_COLUMN);
-        }
-
-        public boolean update() {
-            // TODO Auto-generated method stub
-            return false;
         }
 
         /*
@@ -1518,7 +1513,12 @@ public abstract class EmailContent {
         public static final String COMPATIBILITY_UUID = "compatibilityUuid";
         // User name (for outgoing messages)
         public static final String SENDER_NAME = "senderName";
-        // Ringtone
+        /**
+         * Ringtone
+         *
+         * @deprecated This is no longer used by anything except for creating the database.
+         */
+        @Deprecated
         public static final String RINGTONE_URI = "ringtoneUri";
         // Protocol version (arbitrary string, used by EAS currently)
         public static final String PROTOCOL_VERSION = "protocolVersion";
@@ -1585,9 +1585,19 @@ public abstract class EmailContent {
         public static final String UI_SYNC_STATUS = "uiSyncStatus";
         // The UIProvider last sync result
         public static final String UI_LAST_SYNC_RESULT = "uiLastSyncResult";
-        // The UIProvider sync status
+        /**
+         * The UIProvider sync status
+         *
+         * @deprecated This is no longer used by anything except for creating the database.
+         */
+        @Deprecated
         public static final String LAST_NOTIFIED_MESSAGE_KEY = "lastNotifiedMessageKey";
-        // The UIProvider last sync result
+        /**
+         * The UIProvider last sync result
+        *
+        * @deprecated This is no longer used by anything except for creating the database.
+        */
+       @Deprecated
         public static final String LAST_NOTIFIED_MESSAGE_COUNT = "lastNotifiedMessageCount";
         // The total number of messages in the remote mailbox
         public static final String TOTAL_COUNT = "totalCount";

@@ -131,8 +131,9 @@ public final class DBHelper {
     // Version 102&103: Add hierarchicalName to Mailbox
     // Version 104&105: add syncData to Message
     // Version 106: Add certificate to HostAuth
+    // Version 107: Add a SEEN column to the message table
 
-    public static final int DATABASE_VERSION = 106;
+    public static final int DATABASE_VERSION = 107;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -178,7 +179,8 @@ public final class DBHelper {
             + MessageColumns.SNIPPET + " text, "
             + MessageColumns.PROTOCOL_SEARCH_INFO + " text, "
             + MessageColumns.THREAD_TOPIC + " text, "
-            + MessageColumns.SYNC_DATA + " text"
+            + MessageColumns.SYNC_DATA + " text, "
+            + MessageColumns.FLAG_SEEN + " integer"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -1011,6 +1013,20 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from v105 to v106", e);
                 }
                 oldVersion = 106;
+            }
+            if (oldVersion == 106) {
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add " + MessageColumns.FLAG_SEEN + " integer");
+                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                            + " add " + MessageColumns.FLAG_SEEN + " integer");
+                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                            + " add " + MessageColumns.FLAG_SEEN + " integer");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v106 to v107", e);
+                }
+                oldVersion = 107;
             }
         }
 

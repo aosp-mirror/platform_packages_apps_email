@@ -144,7 +144,7 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
         // Start/stop the various services depending on whether there are any accounts
         startOrStopService(enabled, context, new Intent(context, AttachmentDownloadService.class));
-        NotificationController.getInstance(context).watchForMessages(enabled);
+        NotificationController.getInstance(context).watchForMessages();
     }
 
     /**

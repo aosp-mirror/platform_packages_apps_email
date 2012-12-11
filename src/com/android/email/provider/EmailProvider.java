@@ -93,7 +93,6 @@ import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
 import com.android.mail.widget.WidgetProvider;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -119,33 +118,29 @@ public class EmailProvider extends ContentProvider {
 
     public static String EMAIL_APP_MIME_TYPE;
 
-    protected static final String DATABASE_NAME = "EmailProvider.db";
-    protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
-    protected static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
-
-    public static final String ACTION_ATTACHMENT_UPDATED = "com.android.email.ATTACHMENT_UPDATED";
-    public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
-        "com.android.email.ATTACHMENT_UPDATED_FLAGS";
+    private static final String DATABASE_NAME = "EmailProvider.db";
+    private static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+    private static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
 
     /**
      * Notifies that changes happened. Certain UI components, e.g., widgets, can register for this
      * {@link android.content.Intent} and update accordingly. However, this can be very broad and
      * is NOT the preferred way of getting notification.
      */
-    public static final String ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED =
+    private static final String ACTION_NOTIFY_MESSAGE_LIST_DATASET_CHANGED =
         "com.android.email.MESSAGE_LIST_DATASET_CHANGED";
 
-    public static final String EMAIL_MESSAGE_MIME_TYPE =
+    private static final String EMAIL_MESSAGE_MIME_TYPE =
         "vnd.android.cursor.item/email-message";
-    public static final String EMAIL_ATTACHMENT_MIME_TYPE =
+    private static final String EMAIL_ATTACHMENT_MIME_TYPE =
         "vnd.android.cursor.item/email-attachment";
 
     /** Appended to the notification URI for delete operations */
-    public static final String NOTIFICATION_OP_DELETE = "delete";
+    private static final String NOTIFICATION_OP_DELETE = "delete";
     /** Appended to the notification URI for insert operations */
-    public static final String NOTIFICATION_OP_INSERT = "insert";
+    private static final String NOTIFICATION_OP_INSERT = "insert";
     /** Appended to the notification URI for update operations */
-    public static final String NOTIFICATION_OP_UPDATE = "update";
+    private static final String NOTIFICATION_OP_UPDATE = "update";
 
     // Definitions for our queries looking for orphaned messages
     private static final String[] ORPHANS_PROJECTION
@@ -339,7 +334,7 @@ public class EmailProvider extends ContentProvider {
     private static ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
     private static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
 
-    public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
+    private static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
 
     // For undo handling
     private int mLastSequence = -1;
@@ -368,10 +363,9 @@ public class EmailProvider extends ContentProvider {
         return match;
     }
 
-    public static Uri INTEGRITY_CHECK_URI;
+    private static Uri INTEGRITY_CHECK_URI;
     public static Uri ACCOUNT_BACKUP_URI;
-    public static Uri FOLDER_STATUS_URI;
-    public static Uri FOLDER_REFRESH_URI;
+    private static Uri FOLDER_STATUS_URI;
 
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
@@ -399,9 +393,8 @@ public class EmailProvider extends ContentProvider {
      * @param foreignColumn the column in the foreign table whose absence will trigger the deletion
      * @param foreignTable the foreign table
      */
-    @VisibleForTesting
-    void deleteUnlinked(SQLiteDatabase db, String table, String column, String foreignColumn,
-            String foreignTable) {
+    private static void deleteUnlinked(SQLiteDatabase db, String table, String column,
+            String foreignColumn, String foreignTable) {
         int count = db.delete(table, column + " not in (select " + foreignColumn + " from " +
                 foreignTable + ")", null);
         if (count > 0) {
@@ -409,8 +402,7 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    @VisibleForTesting
-    synchronized SQLiteDatabase getDatabase(Context context) {
+    private synchronized SQLiteDatabase getDatabase(Context context) {
         // Always return the cached database, if we've got one
         if (mDatabase != null) {
             return mDatabase;
@@ -542,15 +534,10 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    /*package*/ static SQLiteDatabase getReadableDatabase(Context context) {
-        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
-        return helper.getReadableDatabase();
-    }
-
     /**
      * Restore user Account and HostAuth data from our backup database
      */
-    public static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
+    private static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
         if (MailActivityEmail.DEBUG) {
             Log.w(TAG, "restoreIfNeeded...");
         }
@@ -596,7 +583,7 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    /*package*/ static void deleteMessageOrphans(SQLiteDatabase database, String tableName) {
+    private static void deleteMessageOrphans(SQLiteDatabase database, String tableName) {
         if (database != null) {
             // We'll look at all of the items in the table; there won't be many typically
             Cursor c = database.query(tableName, ORPHANS_PROJECTION, null, null, null, null, null);
@@ -1061,8 +1048,6 @@ public class EmailProvider extends ContentProvider {
                         Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
                 FOLDER_STATUS_URI =
                         Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
-                FOLDER_REFRESH_URI =
-                        Uri.parse("content://" + EmailContent.AUTHORITY + "/refresh");
                 EMAIL_APP_MIME_TYPE = context.getString(R.string.application_mime_type);
             }
             checkDatabases();
@@ -1303,7 +1288,16 @@ public class EmailProvider extends ContentProvider {
                     if (selection != null || selectionArgs != null) {
                         throw new IllegalArgumentException("UI queries can't have selection/args");
                     }
-                    c = uiQuery(match, uri, projection);
+
+                    final String seenParam = uri.getQueryParameter(UIProvider.SEEN_QUERY_PARAMETER);
+                    final boolean unseenOnly;
+                    if (seenParam != null && Boolean.FALSE.toString().equals(seenParam)) {
+                        unseenOnly = true;
+                    } else {
+                        unseenOnly = false;
+                    }
+
+                    c = uiQuery(match, uri, projection, unseenOnly);
                     return c;
                 case UI_FOLDERS:
                     c = uiFolders(uri, projection);
@@ -1451,7 +1445,7 @@ public class EmailProvider extends ContentProvider {
         return c;
     }
 
-    private String whereWithId(String id, String selection) {
+    private static String whereWithId(String id, String selection) {
         StringBuilder sb = new StringBuilder(256);
         sb.append("_id=");
         sb.append(id);
@@ -1473,7 +1467,7 @@ public class EmailProvider extends ContentProvider {
      * @param selection user-provided selection, may be null
      * @return a single selection string
      */
-    private String whereWith(String where, String selection) {
+    private static String whereWith(String where, String selection) {
         if (selection == null) {
             return where;
         }
@@ -1689,7 +1683,7 @@ outer:
                 case ACCOUNT_PICK_SENT_FOLDER:
                     return pickSentFolder(uri);
                 case UI_FOLDER:
-                    return uiUpdateFolder(uri, values);
+                    return uiUpdateFolder(context, uri, values);
                 case UI_RECENT_FOLDERS:
                     return uiUpdateRecentFolders(uri, values);
                 case UI_DEFAULT_RECENT_FOLDERS:
@@ -1933,7 +1927,7 @@ outer:
      *
      * @param match The type of content that was modified.
      */
-    private Uri getBaseNotificationUri(int match) {
+    private static Uri getBaseNotificationUri(int match) {
         Uri baseUri = null;
         switch (match) {
             case MESSAGE:
@@ -2013,22 +2007,6 @@ outer:
         }
     }
 
-    /**
-     * For testing purposes, check whether a given row is cached
-     * @param baseUri the base uri of the EmailContent
-     * @param id the row id of the EmailContent
-     * @return whether or not the row is currently cached
-     */
-    @VisibleForTesting
-    protected boolean isCached(Uri baseUri, long id) {
-        int match = findMatch(baseUri, "isCached");
-        int table = match >> BASE_SHIFT;
-        ContentCache cache = mContentCaches[table];
-        if (cache == null) return false;
-        Cursor cc = cache.get(Long.toString(id));
-        return (cc != null);
-    }
-
     public static interface AttachmentService {
         /**
          * Notify the service that an attachment has changed.
@@ -2045,43 +2023,30 @@ outer:
     };
     private AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
 
-    /**
-     * Injects a custom attachment service handler. If null is specified, will reset to the
-     * default service.
-     */
-    public void injectAttachmentService(AttachmentService as) {
-        mAttachmentService = (as == null) ? DEFAULT_ATTACHMENT_SERVICE : as;
+    private Cursor notificationQuery(final Uri uri) {
+        final SQLiteDatabase db = getDatabase(getContext());
+        final String accountId = uri.getLastPathSegment();
+
+        final StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT ");
+        sqlBuilder.append(MessageColumns.MAILBOX_KEY).append(", ");
+        sqlBuilder.append("SUM(CASE ")
+                .append(MessageColumns.FLAG_READ).append(" WHEN 0 THEN 1 ELSE 0 END), ");
+        sqlBuilder.append("SUM(CASE ")
+                .append(MessageColumns.FLAG_SEEN).append(" WHEN 0 THEN 1 ELSE 0 END)\n");
+        sqlBuilder.append("FROM ");
+        sqlBuilder.append(Message.TABLE_NAME).append('\n');
+        sqlBuilder.append("WHERE ");
+        sqlBuilder.append(MessageColumns.ACCOUNT_KEY).append(" = ?\n");
+        sqlBuilder.append("GROUP BY ");
+        sqlBuilder.append(MessageColumns.MAILBOX_KEY);
+
+        final String sql = sqlBuilder.toString();
+
+        final String[] selectionArgs = {accountId};
+
+        return db.rawQuery(sql, selectionArgs);
     }
-
-    // SELECT DISTINCT Boxes._id, Boxes.unreadCount count(Message._id) from Message,
-    //   (SELECT _id, unreadCount, messageCount, lastNotifiedMessageCount, lastNotifiedMessageKey
-    //   FROM Mailbox WHERE accountKey=6 AND ((type = 0) OR (syncInterval!=0 AND syncInterval!=-1)))
-    //      AS Boxes
-    // WHERE Boxes.messageCount!=Boxes.lastNotifiedMessageCount
-    //   OR (Boxes._id=Message.mailboxKey AND Message._id>Boxes.lastNotifiedMessageKey)
-    // TODO: This query can be simplified a bit
-    private static final String NOTIFICATION_QUERY =
-        "SELECT DISTINCT Boxes." + MailboxColumns.ID + ", Boxes." + MailboxColumns.UNREAD_COUNT +
-            ", count(" + Message.TABLE_NAME + "." + MessageColumns.ID + ")" +
-        " FROM " +
-            Message.TABLE_NAME + "," +
-            "(SELECT " + MailboxColumns.ID + "," + MailboxColumns.UNREAD_COUNT + "," +
-                MailboxColumns.MESSAGE_COUNT + "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT +
-                "," + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " FROM " + Mailbox.TABLE_NAME +
-                " WHERE " + MailboxColumns.ACCOUNT_KEY + "=?" +
-                " AND (" + MailboxColumns.TYPE + "=" + Mailbox.TYPE_INBOX + " OR ("
-                + MailboxColumns.SYNC_INTERVAL + "!=0 AND " +
-                MailboxColumns.SYNC_INTERVAL + "!=-1))) AS Boxes " +
-        "WHERE Boxes." + MailboxColumns.ID + '=' + Message.TABLE_NAME + "." +
-                MessageColumns.MAILBOX_KEY + " AND " + Message.TABLE_NAME + "." +
-                MessageColumns.ID + ">Boxes." + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY +
-                " AND " + MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.TIMESTAMP + "!=0";
-
-    public Cursor notificationQuery(Uri uri) {
-        SQLiteDatabase db = getDatabase(getContext());
-        String accountId = uri.getLastPathSegment();
-        return db.rawQuery(NOTIFICATION_QUERY, new String[] {accountId});
-   }
 
     public Cursor mostRecentMessageQuery(Uri uri) {
         SQLiteDatabase db = getDatabase(getContext());
@@ -2145,7 +2110,7 @@ outer:
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
      */
-    private ProjectionMap getMessageListMap() {
+    private static ProjectionMap getMessageListMap() {
         if (sMessageListMap == null) {
             sMessageListMap = ProjectionMap.builder()
                 .add(BaseColumns._ID, MessageColumns.ID)
@@ -2163,6 +2128,7 @@ outer:
                 .add(UIProvider.ConversationColumns.PRIORITY,
                         Integer.toString(ConversationPriority.LOW))
                 .add(UIProvider.ConversationColumns.READ, MessageColumns.FLAG_READ)
+                .add(UIProvider.ConversationColumns.SEEN, MessageColumns.FLAG_SEEN)
                 .add(UIProvider.ConversationColumns.STARRED, MessageColumns.FLAG_FAVORITE)
                 .add(UIProvider.ConversationColumns.FLAGS, CONVERSATION_FLAGS)
                 .add(UIProvider.ConversationColumns.ACCOUNT_URI,
@@ -2197,7 +2163,7 @@ outer:
      * Mapping of UIProvider columns to EmailProvider columns for a detailed message view in
      * UnifiedEmail
      */
-    private ProjectionMap getMessageViewMap() {
+    private static ProjectionMap getMessageViewMap() {
         if (sMessageViewMap == null) {
             sMessageViewMap = ProjectionMap.builder()
                 .add(BaseColumns._ID, Message.TABLE_NAME + "." + EmailContent.MessageColumns.ID)
@@ -2233,6 +2199,7 @@ outer:
                         uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
                 .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
                 .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
+                .add(UIProvider.MessageColumns.SEEN, EmailContent.MessageColumns.FLAG_SEEN)
                 .add(UIProvider.MessageColumns.SPAM_WARNING_STRING, null)
                 .add(UIProvider.MessageColumns.SPAM_WARNING_LEVEL,
                         Integer.toString(UIProvider.SpamWarningLevel.NO_WARNING))
@@ -2274,10 +2241,11 @@ outer:
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_menu_star_holo_light
             + " ELSE -1 END";
 
-    private ProjectionMap getFolderListMap() {
+    private static ProjectionMap getFolderListMap() {
         if (sFolderListMap == null) {
             sFolderListMap = ProjectionMap.builder()
                 .add(BaseColumns._ID, MailboxColumns.ID)
+                .add(UIProvider.FolderColumns.PERSISTENT_ID, MailboxColumns.SERVER_ID)
                 .add(UIProvider.FolderColumns.URI, uriWithId("uifolder"))
                 .add(UIProvider.FolderColumns.NAME, "displayName")
                 .add(UIProvider.FolderColumns.HAS_CHILDREN,
@@ -2304,7 +2272,7 @@ outer:
      * Constructs the map of default entries for accounts. These values can be overridden in
      * {@link #genQueryAccount(String[], String)}.
      */
-    private ProjectionMap getAccountListMap() {
+    private static ProjectionMap getAccountListMap() {
         if (sAccountListMap == null) {
             sAccountListMap = ProjectionMap.builder()
                 .add(BaseColumns._ID, AccountColumns.ID)
@@ -2355,7 +2323,7 @@ outer:
     /**
      * Mapping of UIProvider columns to EmailProvider columns for a message's attachments
      */
-    private ProjectionMap getAttachmentMap() {
+    private static ProjectionMap getAttachmentMap() {
         if (sAttachmentMap == null) {
             sAttachmentMap = ProjectionMap.builder()
                 .add(UIProvider.AttachmentColumns.NAME, AttachmentColumns.FILENAME)
@@ -2377,14 +2345,14 @@ outer:
      * Generate the SELECT clause using a specified mapping and the original UI projection
      * @param map the ProjectionMap to use for this projection
      * @param projection the projection as sent by UnifiedEmail
-     * @param values ContentValues to be used if the ProjectionMap entry is null
      * @return a StringBuilder containing the SELECT expression for a SQLite query
      */
-    private StringBuilder genSelect(ProjectionMap map, String[] projection) {
+    private static StringBuilder genSelect(ProjectionMap map, String[] projection) {
         return genSelect(map, projection, EMPTY_CONTENT_VALUES);
     }
 
-    private StringBuilder genSelect(ProjectionMap map, String[] projection, ContentValues values) {
+    private static StringBuilder genSelect(ProjectionMap map, String[] projection,
+            ContentValues values) {
         StringBuilder sb = new StringBuilder("SELECT ");
         boolean first = true;
         for (String column: projection) {
@@ -2545,12 +2513,16 @@ outer:
      * Generate the "message list" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
+     * @param unseenOnly <code>true</code> to only return unseen messages
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryMailboxMessages(String[] uiProjection) {
+    private static String genQueryMailboxMessages(String[] uiProjection, final boolean unseenOnly) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
-        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ORDER BY " +
-                MessageColumns.TIMESTAMP + " DESC");
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ");
+        if (unseenOnly) {
+            sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
+        }
+        sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
         return sb.toString();
     }
 
@@ -2558,11 +2530,12 @@ outer:
      * Generate various virtual mailbox SQLite queries, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
-     * @param id the id of the virtual mailbox
+     * @param mailboxId the id of the virtual mailbox
+     * @param unseenOnly <code>true</code> to only return unseen messages
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private Cursor getVirtualMailboxMessagesCursor(SQLiteDatabase db, String[] uiProjection,
-            long mailboxId) {
+    private static Cursor getVirtualMailboxMessagesCursor(SQLiteDatabase db, String[] uiProjection,
+            long mailboxId, final boolean unseenOnly) {
         ContentValues values = new ContentValues();
         values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
@@ -2572,13 +2545,19 @@ outer:
                     sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
                             MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
                             " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
-                            "=" + Mailbox.TYPE_INBOX + ") ORDER BY " + MessageColumns.TIMESTAMP +
-                            " DESC");
+                            "=" + Mailbox.TYPE_INBOX + ") ");
+                    if (unseenOnly) {
+                        sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
+                    }
+                    sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
                     break;
                 case Mailbox.TYPE_STARRED:
                     sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                            MessageColumns.FLAG_FAVORITE + "=1 ORDER BY " +
-                            MessageColumns.TIMESTAMP + " DESC");
+                            MessageColumns.FLAG_FAVORITE + "=1 ");
+                    if (unseenOnly) {
+                        sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
+                    }
+                    sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
                     break;
                 default:
                     throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
@@ -2606,7 +2585,7 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryConversation(String[] uiProjection) {
+    private static String genQueryConversation(String[] uiProjection) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.RECORD_ID + "=?");
         return sb.toString();
@@ -2618,7 +2597,7 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAccountMailboxes(String[] uiProjection) {
+    private static String genQueryAccountMailboxes(String[] uiProjection) {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
@@ -2634,7 +2613,7 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAccountAllMailboxes(String[] uiProjection) {
+    private static String genQueryAccountAllMailboxes(String[] uiProjection) {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         // Use a derived column to choose either hierarchicalName or displayName
         sb.append(", case when " + MailboxColumns.HIERARCHICAL_NAME + " is null then " +
@@ -2653,7 +2632,7 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryRecentMailboxes(String[] uiProjection) {
+    private static String genQueryRecentMailboxes(String[] uiProjection) {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
@@ -2663,7 +2642,8 @@ outer:
         return sb.toString();
     }
 
-    private int getFolderCapabilities(EmailServiceInfo info, int flags, int type, long mailboxId) {
+    private static int getFolderCapabilities(EmailServiceInfo info, int flags, int type,
+            long mailboxId) {
         // All folders support delete
         int caps = UIProvider.FolderCapabilities.DELETE;
         if (info != null && info.offerLookback) {
@@ -2739,7 +2719,7 @@ outer:
                 .appendQueryParameter("account", account).build().toString();
     }
 
-    private String getBits(int bitField) {
+    private static String getBits(int bitField) {
         StringBuilder sb = new StringBuilder(" ");
         for (int i = 0; i < 32; i++, bitField >>= 1) {
             if ((bitField & 1) != 0) {
@@ -2833,7 +2813,7 @@ outer:
             values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
                     textZoomToUiValue(textZoom));
         }
-       // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
+        // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
         long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX) &&
                 mailboxId != Mailbox.NO_MAILBOX) {
@@ -2878,7 +2858,7 @@ outer:
         return sb.toString();
     }
 
-    private int autoAdvanceToUiValue(int autoAdvance) {
+    private static int autoAdvanceToUiValue(int autoAdvance) {
         switch(autoAdvance) {
             case Preferences.AUTO_ADVANCE_OLDER:
                 return UIProvider.AutoAdvance.OLDER;
@@ -2890,7 +2870,7 @@ outer:
         }
     }
 
-    private int textZoomToUiValue(int textZoom) {
+    private static int textZoomToUiValue(int textZoom) {
         switch(textZoom) {
             case Preferences.TEXT_ZOOM_HUGE:
                 return UIProvider.MessageTextSize.HUGE;
@@ -3130,7 +3110,7 @@ outer:
      * or null if there are no query parameters
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAttachments(String[] uiProjection,
+    private static String genQueryAttachments(String[] uiProjection,
             List<String> contentTypeQueryParameters) {
         StringBuilder sb = genSelect(getAttachmentMap(), uiProjection);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
@@ -3180,7 +3160,7 @@ outer:
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQuerySubfolders(String[] uiProjection) {
+    private static String genQuerySubfolders(String[] uiProjection) {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.PARENT_KEY +
                 " =? ORDER BY ");
@@ -3324,12 +3304,21 @@ outer:
                     if (params.containsKey(
                             UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                        if (mailbox != null && mailbox.mVisibleLimit > 0) {
-                            ContentValues values = new ContentValues();
-                            values.put(MailboxColumns.VISIBLE_LIMIT, 0);
-                            mContext.getContentResolver().update(
-                                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
-                                    values, null, null);
+                        if (mailbox != null) {
+                            if (mailbox.mVisibleLimit > 0) {
+                                ContentValues values = new ContentValues();
+                                values.put(MailboxColumns.VISIBLE_LIMIT, 0);
+                                mContext.getContentResolver().update(ContentUris.withAppendedId(
+                                        Mailbox.CONTENT_URI, mMailboxId), values, null, null);
+                            }
+
+                            // Mark all messages as seen
+                            final ContentValues contentValues = new ContentValues(1);
+                            contentValues.put(MessageColumns.FLAG_SEEN, true);
+                            final Uri uri = EmailContent.Message.CONTENT_URI;
+                            mContext.getContentResolver().update(uri, contentValues,
+                                    MessageColumns.MAILBOX_KEY + " = ?",
+                                    new String[] {String.valueOf(mailbox.mId)});
                         }
                     }
                 }
@@ -3388,7 +3377,7 @@ outer:
      * We need to do individual queries for the mailboxes in order to get correct
      * folder capabilities.
      */
-    Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
+    private Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
         final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
         Object[] values = new Object[uiProjection.length];
         String[] args = new String[1];
@@ -3417,9 +3406,10 @@ outer:
      * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
      * @param uri the original uri passed in from UnifiedEmail
      * @param uiProjection the projection passed in from UnifiedEmail
+     * @param unseenOnly <code>true</code> to only return unseen messages (where supported)
      * @return the result Cursor
      */
-    private Cursor uiQuery(int match, Uri uri, String[] uiProjection) {
+    private Cursor uiQuery(int match, Uri uri, String[] uiProjection, final boolean unseenOnly) {
         Context context = getContext();
         ContentResolver resolver = context.getContentResolver();
         SQLiteDatabase db = getDatabase(context);
@@ -3443,9 +3433,10 @@ outer:
             case UI_MESSAGES:
                 long mailboxId = Long.parseLong(id);
                 if (isVirtualMailbox(mailboxId)) {
-                    c = getVirtualMailboxMessagesCursor(db, uiProjection, mailboxId);
+                    c = getVirtualMailboxMessagesCursor(db, uiProjection, mailboxId, unseenOnly);
                 } else {
-                    c = db.rawQuery(genQueryMailboxMessages(uiProjection), new String[] {id});
+                    c = db.rawQuery(
+                            genQueryMailboxMessages(uiProjection, unseenOnly), new String[] {id});
                 }
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
                 c = new VisibilityCursor(context, c, mailboxId);
@@ -3508,7 +3499,7 @@ outer:
      * @param uiAtt the UIProvider attachment to convert
      * @return the EmailProvider attachment
      */
-    private Attachment convertUiAttachmentToAttachment(
+    private static Attachment convertUiAttachmentToAttachment(
             com.android.mail.providers.Attachment uiAtt) {
         Attachment att = new Attachment();
         att.setContentUri(uiAtt.contentUri.toString());
@@ -3572,7 +3563,7 @@ outer:
 
     /**
      * Given an account name and a mailbox type, return that mailbox, creating it if necessary
-     * @param accountName the account name to use
+     * @param accountId the account id to use
      * @param mailboxType the type of mailbox we're trying to find
      * @return the mailbox of the given type for the account in the uri, or null if not found
      */
@@ -3619,6 +3610,7 @@ outer:
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
+        msg.mFlagSeen = true;
         Integer quoteStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
         msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
         int flags = 0;
@@ -3629,7 +3621,7 @@ outer:
                 break;
             case DraftType.REPLY_ALL:
                 flags |= Message.FLAG_TYPE_REPLY_ALL;
-                // Fall through
+                //$FALL-THROUGH$
             case DraftType.REPLY:
                 flags |= Message.FLAG_TYPE_REPLY;
                 break;
@@ -3818,7 +3810,8 @@ outer:
         return 1;
     }
 
-    private void putIntegerLongOrBoolean(ContentValues values, String columnName, Object value) {
+    private static void putIntegerLongOrBoolean(ContentValues values, String columnName,
+            Object value) {
         if (value instanceof Integer) {
             Integer intValue = (Integer)value;
             values.put(columnName, intValue);
@@ -3836,7 +3829,7 @@ outer:
      * @param folders
      * @return number of folders updated
      */
-    private int updateTimestamp(final Context context, String id, Uri[] folders){
+    private static int updateTimestamp(final Context context, String id, Uri[] folders){
         int updated = 0;
         final long now = System.currentTimeMillis();
         final ContentResolver resolver = context.getContentResolver();
@@ -3941,8 +3934,23 @@ outer:
         return 0;
     }
 
-    private int uiUpdateFolder(Uri uri, ContentValues uiValues) {
-        Uri ourUri = convertToEmailProviderUri(uri, Mailbox.CONTENT_URI, true);
+    private int uiUpdateFolder(final Context context, Uri uri, ContentValues uiValues) {
+        // We need to mark seen separately
+        if (uiValues.containsKey(UIProvider.ConversationColumns.SEEN)) {
+            final int seenValue = uiValues.getAsInteger(UIProvider.ConversationColumns.SEEN);
+
+            if (seenValue == 1) {
+                final String mailboxId = uri.getLastPathSegment();
+                final int rows = markAllSeen(context, mailboxId);
+
+                if (uiValues.size() == 1) {
+                    // Nothing else to do, so return this value
+                    return rows;
+                }
+            }
+        }
+
+        final Uri ourUri = convertToEmailProviderUri(uri, Mailbox.CONTENT_URI, true);
         if (ourUri == null) return 0;
         ContentValues ourValues = new ContentValues();
         // This should only be called via update to "recent folders"
@@ -3954,6 +3962,17 @@ outer:
         return update(ourUri, ourValues, null, null);
     }
 
+    private int markAllSeen(final Context context, final String mailboxId) {
+        final SQLiteDatabase db = getDatabase(context);
+        final String table = Message.TABLE_NAME;
+        final ContentValues values = new ContentValues(1);
+        values.put(MessageColumns.FLAG_SEEN, 1);
+        final String whereClause = MessageColumns.MAILBOX_KEY + " = ?";
+        final String[] whereArgs = new String[] {mailboxId};
+
+        return db.update(table, values, whereClause, whereArgs);
+    }
+
     private ContentValues convertUiMessageValues(Message message, ContentValues values) {
         ContentValues ourValues = new ContentValues();
         for (String columnName : values.keySet()) {
@@ -3962,6 +3981,8 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.READ)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_READ, val);
+            } else if (columnName.equals(UIProvider.ConversationColumns.SEEN)) {
+                putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_SEEN, val);
             } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
@@ -3994,7 +4015,7 @@ outer:
         return ourValues;
     }
 
-    private Uri convertToEmailProviderUri(Uri uri, Uri newBaseUri, boolean asProvider) {
+    private static Uri convertToEmailProviderUri(Uri uri, Uri newBaseUri, boolean asProvider) {
         String idString = uri.getLastPathSegment();
         try {
             long id = Long.parseLong(idString);
@@ -4034,7 +4055,7 @@ outer:
     }
 
     // TODO: This should depend on flags on the mailbox...
-    private boolean uploadsToServer(Context context, Mailbox m) {
+    private static boolean uploadsToServer(Context context, Mailbox m) {
         if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX ||
                 m.mType == Mailbox.TYPE_SEARCH) {
             return false;
@@ -4084,6 +4105,8 @@ outer:
                 undoValues.put(MessageColumns.MAILBOX_KEY, msg.mMailboxKey);
             } else if (columnName.equals(MessageColumns.FLAG_READ)) {
                 undoValues.put(MessageColumns.FLAG_READ, msg.mFlagRead);
+            } else if (columnName.equals(MessageColumns.FLAG_SEEN)) {
+                undoValues.put(MessageColumns.FLAG_SEEN, msg.mFlagSeen);
             } else if (columnName.equals(MessageColumns.FLAG_FAVORITE)) {
                 undoValues.put(MessageColumns.FLAG_FAVORITE, msg.mFlagFavorite);
             }
@@ -4403,7 +4426,7 @@ outer:
 
         // This will look just like a "normal" folder
         return uiQuery(UI_FOLDER, ContentUris.withAppendedId(Mailbox.CONTENT_URI,
-                searchMailbox.mId), projection);
+                searchMailbox.mId), projection, false);
     }
 
     private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
@@ -4454,7 +4477,7 @@ outer:
         return 1;
     }
 
-    private void deleteAccountData(Context context, long accountId) {
+    private static void deleteAccountData(Context context, long accountId) {
         // Delete synced attachments
         AttachmentUtilities.deleteAllAccountAttachmentFiles(context, accountId);
 

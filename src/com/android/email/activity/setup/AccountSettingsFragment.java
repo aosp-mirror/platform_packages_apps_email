@@ -21,8 +21,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,14 +34,16 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.RingtonePreference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.FolderPickerActivity;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -51,6 +55,11 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.preferences.AccountPreferences;
+import com.android.mail.preferences.FolderPreferences;
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.NotificationUtils;
 
 import java.util.ArrayList;
 
@@ -79,10 +88,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static final String PREFERENCE_DEFAULT = "account_default";
     private static final String PREFERENCE_CATEGORY_DATA_USAGE = "data_usage";
     private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
-    private static final String PREFERENCE_NOTIFY = "account_notify";
-    private static final String PREFERENCE_VIBRATE = "account_settings_vibrate";
-    private static final String PREFERENCE_VIBRATE_OLD = "account_settings_vibrate_when";
-    private static final String PREFERENCE_RINGTONE = "account_ringtone";
     private static final String PREFERENCE_CATEGORY_SERVER = "account_servers";
     private static final String PREFERENCE_CATEGORY_POLICIES = "account_policies";
     private static final String PREFERENCE_POLICIES_ENFORCED = "policies_enforced";
@@ -98,6 +103,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static final String PREFERENCE_SYSTEM_FOLDERS_TRASH = "system_folders_trash";
     private static final String PREFERENCE_SYSTEM_FOLDERS_SENT = "system_folders_sent";
 
+    // Request code to start different activities.
+    private static final int RINGTONE_REQUEST_CODE = 0;
+
     private EditTextPreference mAccountDescription;
     private EditTextPreference mAccountName;
     private EditTextPreference mAccountSignature;
@@ -105,9 +113,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountBackgroundAttachments;
     private CheckBoxPreference mAccountDefault;
-    private CheckBoxPreference mAccountNotify;
-    private CheckBoxPreference mAccountVibrate;
-    private RingtonePreference mAccountRingtone;
+    private CheckBoxPreference mInboxNotify;
+    private CheckBoxPreference mInboxVibrate;
+    private Preference mInboxRingtone;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
     private CheckBoxPreference mSyncEmail;
@@ -120,6 +128,11 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private boolean mStarted;
     private boolean mLoaded;
     private boolean mSaveOnExit;
+
+    private Ringtone mRingtone;
+
+    private AccountPreferences mAccountPreferences;
+    private FolderPreferences mInboxFolderPreferences;
 
     /** The e-mail of the account being edited. */
     private String mAccountEmail;
@@ -178,8 +191,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         }
         super.onCreate(savedInstanceState);
 
-        upgradeVibrateSetting();
-
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
@@ -195,20 +206,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         }
 
         mAccountDirty = false;
-    }
-
-    /**
-     * Upgrades the old tri-state vibrate setting to the new boolean value.
-     */
-    private void upgradeVibrateSetting() {
-        final SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
-
-        if (!sharedPreferences.contains(PREFERENCE_VIBRATE)) {
-            // Try to migrate the old one
-            final boolean vibrate =
-                    "always".equals(sharedPreferences.getString(PREFERENCE_VIBRATE_OLD, ""));
-            sharedPreferences.edit().putBoolean(PREFERENCE_VIBRATE, vibrate);
-        }
     }
 
     @Override
@@ -293,6 +290,41 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mStarted = false;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RINGTONE_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    setRingtone(uri);
+                }
+                break;
+        }
+    }
+
+    /**
+     * Sets the current ringtone.
+     */
+    private void setRingtone(Uri ringtone) {
+        if (ringtone != null) {
+            mInboxFolderPreferences.setNotificationRingtoneUri(ringtone.toString());
+            mRingtone = RingtoneManager.getRingtone(getActivity(), ringtone);
+        } else {
+            // Null means silent was selected.
+            mInboxFolderPreferences.setNotificationRingtoneUri("");
+            mRingtone = null;
+        }
+
+        setRingtoneSummary();
+    }
+
+    private void setRingtoneSummary() {
+        final String summary = mRingtone != null ? mRingtone.getTitle(mContext)
+                : mContext.getString(R.string.silent_ringtone);
+
+        mInboxRingtone.setSummary(summary);
+    }
+
     /**
      * Listen to all preference changes in this class.
      * @param preference
@@ -338,11 +370,16 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 preferenceChanged(PREFERENCE_NAME, summary);
             }
             return false;
-        } else if (key.equals(PREFERENCE_VIBRATE)) {
+        } else if (FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE.equals(key)) {
             final boolean vibrateSetting = (Boolean) newValue;
-            mAccountVibrate.setChecked(vibrateSetting);
-            preferenceChanged(PREFERENCE_VIBRATE, newValue);
-            return false;
+            mInboxVibrate.setChecked(vibrateSetting);
+            mInboxFolderPreferences.setNotificationVibrateEnabled(vibrateSetting);
+            preferenceChanged(FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE, newValue);
+            return true;
+        } else if (FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED.equals(key)) {
+            mInboxFolderPreferences.setNotificationsEnabled((Boolean) newValue);
+            preferenceChanged(FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED, newValue);
+            return true;
         } else {
             // Default behavior, just indicate that the preferences were written
             preferenceChanged(key, newValue);
@@ -474,13 +511,80 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     }
 
     /**
-     * Load account data into preference UI
+     * Loads settings that are dependent on a {@link com.android.mail.providers.Account}, which
+     * must be obtained off the main thread. This will also call {@link #loadMainThreadSettings()}.
+     */
+    private void loadSettingsOffMainThread() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Cursor accountCursor = mContext.getContentResolver().query(EmailProvider
+                        .uiUri("uiaccount", mAccount.mId), UIProvider.ACCOUNTS_PROJECTION, null,
+                        null, null);
+
+                com.android.mail.providers.Account account = null;
+                try {
+                    if (accountCursor.moveToFirst()) {
+                        account = new com.android.mail.providers.Account(accountCursor);
+                    }
+                } finally {
+                    accountCursor.close();
+                }
+
+                final Cursor folderCursor = mContext.getContentResolver().query(
+                        account.settings.defaultInbox, UIProvider.FOLDERS_PROJECTION, null, null,
+                        null);
+
+                Folder folder = null;
+                try {
+                    if (folderCursor.moveToFirst()) {
+                        folder = new Folder(folderCursor);
+                    }
+                } finally {
+                    folderCursor.close();
+                }
+
+                mAccountPreferences = new AccountPreferences(mContext, account.name);
+                mInboxFolderPreferences =
+                        new FolderPreferences(mContext, account.name, folder, true);
+
+                NotificationUtils.moveNotificationSetting(
+                        mAccountPreferences, mInboxFolderPreferences);
+
+                final String ringtoneUri = mInboxFolderPreferences.getNotificationRingtoneUri();
+                if (!TextUtils.isEmpty(ringtoneUri)) {
+                    mRingtone = RingtoneManager.getRingtone(getActivity(), Uri.parse(ringtoneUri));
+                }
+
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mInboxNotify.setChecked(
+                                    mInboxFolderPreferences.areNotificationsEnabled());
+
+                            mInboxVibrate.setChecked(
+                                    mInboxFolderPreferences.isNotificationVibrateEnabled());
+
+                            setRingtoneSummary();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Load account data into preference UI. This must be called on the main thread.
      */
     private void loadSettings() {
         // We can only do this once, so prevent repeat
         mLoaded = true;
         // Once loaded the data is ready to be saved, as well
         mSaveOnExit = false;
+
+        loadSettingsOffMainThread();
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDisplayName());
@@ -549,8 +653,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         PreferenceCategory folderPrefs =
                 (PreferenceCategory) findPreference(PREFERENCE_SYSTEM_FOLDERS);
         if (info.requiresSetup) {
-            Preference trashPreference =
-                    (Preference) findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
+            Preference trashPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
             Intent i = new Intent(mContext, FolderPickerActivity.class);
             Uri uri = EmailContent.CONTENT_URI.buildUpon().appendQueryParameter(
                     "account", Long.toString(mAccount.mId)).build();
@@ -558,8 +661,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
             trashPreference.setIntent(i);
 
-            Preference sentPreference =
-                    (Preference) findPreference(PREFERENCE_SYSTEM_FOLDERS_SENT);
+            Preference sentPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_SENT);
             i = new Intent(mContext, FolderPickerActivity.class);
             i.setData(uri);
             i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_SENT);
@@ -582,33 +684,35 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mAccountDefault.setChecked(mAccount.mId == mDefaultAccountId);
         mAccountDefault.setOnPreferenceChangeListener(this);
 
-        mAccountNotify = (CheckBoxPreference) findPreference(PREFERENCE_NOTIFY);
-        mAccountNotify.setChecked(0 != (mAccount.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL));
-        mAccountNotify.setOnPreferenceChangeListener(this);
+        mInboxNotify = (CheckBoxPreference) findPreference(
+                FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED);
+        mInboxNotify.setOnPreferenceChangeListener(this);
 
-        mAccountRingtone = (RingtonePreference) findPreference(PREFERENCE_RINGTONE);
-        mAccountRingtone.setOnPreferenceChangeListener(this);
+        mInboxRingtone = findPreference(FolderPreferences.PreferenceKeys.NOTIFICATION_RINGTONE);
+        mInboxRingtone.setOnPreferenceChangeListener(this);
+        mInboxRingtone.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(final Preference preference) {
+                showRingtonePicker();
 
-        // The following two lines act as a workaround for the RingtonePreference
-        // which does not let us set/get the value programmatically
-        SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
-        prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).apply();
+                return true;
+            }
+        });
 
         // Set the vibrator value, or hide it on devices w/o a vibrator
-        mAccountVibrate = (CheckBoxPreference) findPreference(PREFERENCE_VIBRATE);
+        mInboxVibrate = (CheckBoxPreference) findPreference(
+                FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE);
         Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator.hasVibrator()) {
-            // Calculate the value to set based on the choices, and set the value.
-            final boolean vibrateSetting = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE);
-            mAccountVibrate.setChecked(vibrateSetting);
+            // Checked state will be set when we obtain it in #loadSettingsOffMainThread()
 
             // When the value is changed, update the setting.
-            mAccountVibrate.setOnPreferenceChangeListener(this);
+            mInboxVibrate.setOnPreferenceChangeListener(this);
         } else {
             // No vibrator present. Remove the preference altogether.
             PreferenceCategory notificationsCategory = (PreferenceCategory)
                     findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
-            notificationsCategory.removePreference(mAccountVibrate);
+            notificationsCategory.removePreference(mInboxVibrate);
         }
 
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
@@ -725,10 +829,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
      */
     private void saveSettings() {
         // Turn off all controlled flags - will turn them back on while checking UI elements
-        int newFlags = mAccount.getFlags() &
-                ~(Account.FLAGS_NOTIFY_NEW_MAIL |
-                        Account.FLAGS_VIBRATE |
-                        Account.FLAGS_BACKGROUND_ATTACHMENTS);
+        int newFlags = mAccount.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
         newFlags |= mAccountBackgroundAttachments.isChecked() ?
                 Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
@@ -738,16 +839,10 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         // The sender name must never be empty (this is enforced by the preference editor)
         mAccount.setSenderName(mAccountName.getText().trim());
         mAccount.setSignature(mAccountSignature.getText());
-        newFlags |= mAccountNotify.isChecked() ? Account.FLAGS_NOTIFY_NEW_MAIL : 0;
         mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
         if (mSyncWindow != null) {
             mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
-        if (mAccountVibrate.isChecked()) {
-            newFlags |= Account.FLAGS_VIBRATE;
-        }
-        SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
-        mAccount.setRingtone(prefs.getString(PREFERENCE_RINGTONE, null));
         mAccount.setFlags(newFlags);
 
         EmailServiceInfo info =
@@ -778,5 +873,22 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     public String getAccountEmail() {
         // Get the e-mail address of the account being editted, if this is for an existing account.
         return mAccountEmail;
+    }
+
+    /**
+     * Shows the system ringtone picker.
+     */
+    private void showRingtonePicker() {
+        Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        final String ringtoneUri = mInboxFolderPreferences.getNotificationRingtoneUri();
+        if (!TextUtils.isEmpty(ringtoneUri)) {
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(ringtoneUri));
+        }
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
+                Settings.System.DEFAULT_NOTIFICATION_URI);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+        startActivityForResult(intent, RINGTONE_REQUEST_CODE);
     }
 }

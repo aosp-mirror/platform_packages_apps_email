@@ -29,6 +29,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 
+import com.android.mail.preferences.MailPrefs;
 import com.android.mail.utils.Utils;
 
 public class GeneralPreferences extends EmailPreferenceFragment implements
@@ -41,8 +42,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_SHOW_CHECKBOXES = "show_checkboxes";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
-    private static final String PREFERNECE_REPLY_ALL = "reply_all";
 
+    private MailPrefs mMailPrefs;
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
     /**
@@ -64,6 +65,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mMailPrefs = MailPrefs.get(getActivity());
         getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES_FILE);
 
         // Load the preferences from an XML resource
@@ -75,7 +77,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         // Disabling reply-all on tablets, as this setting is just for phones
         if (Utils.useTabletUI(getActivity().getResources())) {
-            ps.removePreference(findPreference(PREFERNECE_REPLY_ALL));
+            ps.removePreference(findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL));
         }
     }
 
@@ -107,6 +109,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_TEXT_ZOOM.equals(key)) {
             mPreferences.setTextZoom(mTextZoom.findIndexOfValue((String) newValue));
             reloadDynamicSummaries();
+            return true;
+        } else if (MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL.equals(key)) {
+            mMailPrefs.setDefaultReplyAll((Boolean) newValue);
             return true;
         }
         return false;
@@ -157,6 +162,13 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
         mShowCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SHOW_CHECKBOXES);
         mSwipeDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SWIPE_DELETE);
+
+        final Preference replyAllPreference =
+                findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
+        // This preference is removed on tablets
+        if (replyAllPreference != null) {
+            replyAllPreference.setOnPreferenceChangeListener(this);
+        }
 
         reloadDynamicSummaries();
     }

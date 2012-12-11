@@ -28,6 +28,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -40,6 +41,7 @@ import android.widget.Spinner;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.service.MailService;
@@ -50,10 +52,17 @@ import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.preferences.AccountPreferences;
+import com.android.mail.preferences.FolderPreferences;
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogTag;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
+    private static final String LOG_TAG = LogTag.getLogTag();
 
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
@@ -126,8 +135,8 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         if (account.mIsDefault || SetupData.isDefault()) {
             mDefaultView.setChecked(true);
         }
-        mNotifyView.setChecked(
-                (account.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
+
+        mNotifyView.setChecked(true); // By default, we want notifications on
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
 
         if (mServiceInfo.syncContacts) {
@@ -210,11 +219,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             return;
         }
         account.setDisplayName(account.getEmailAddress());
-        int newFlags = account.getFlags() &
-            ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_BACKGROUND_ATTACHMENTS);
-        if (mNotifyView.isChecked()) {
-            newFlags |= Account.FLAGS_NOTIFY_NEW_MAIL;
-        }
+        int newFlags = account.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
         if (mServiceInfo.offerAttachmentPreload && mBackgroundAttachmentsView.isChecked()) {
             newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
@@ -269,6 +274,12 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 AccountSettingsUtils.commitSettings(context, account);
                 MailService.setupAccountManagerAccount(context, account,
                         email2, calendar2, contacts2, mAccountManagerCallback);
+
+                // We can move the notification setting to the inbox FolderPreferences later, once
+                // we know what the inbox is
+                final AccountPreferences accountPreferences =
+                        new AccountPreferences(context, account.mEmailAddress);
+                accountPreferences.setDefaultInboxNotificationsEnabled(mNotifyView.isChecked());
             }
         });
     }

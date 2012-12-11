@@ -63,8 +63,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public long mLastTouchedTime;
     public int mUiSyncStatus;
     public int mUiLastSyncResult;
-    public long mLastNotifiedMessageKey;
-    public int mLastNotifiedMessageCount;
     public int mTotalCount;
     public String mHierarchicalName;
 
@@ -87,10 +85,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 16;
     public static final int CONTENT_UI_SYNC_STATUS_COLUMN = 17;
     public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 18;
-    public static final int CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN = 19;
-    public static final int CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN = 20;
-    public static final int CONTENT_TOTAL_COUNT_COLUMN = 21;
-    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 22;
+    public static final int CONTENT_TOTAL_COUNT_COLUMN = 19;
+    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 20;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -104,7 +100,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
         MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY, MailboxColumns.LAST_TOUCHED_TIME,
         MailboxColumns.UI_SYNC_STATUS, MailboxColumns.UI_LAST_SYNC_RESULT,
-        MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT,
         MailboxColumns.TOTAL_COUNT, MailboxColumns.HIERARCHICAL_NAME
     };
 
@@ -334,8 +329,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mLastTouchedTime = cursor.getLong(CONTENT_LAST_TOUCHED_TIME_COLUMN);
         mUiSyncStatus = cursor.getInt(CONTENT_UI_SYNC_STATUS_COLUMN);
         mUiLastSyncResult = cursor.getInt(CONTENT_UI_LAST_SYNC_RESULT_COLUMN);
-        mLastNotifiedMessageKey = cursor.getLong(CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN);
-        mLastNotifiedMessageCount = cursor.getInt(CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN);
         mTotalCount = cursor.getInt(CONTENT_TOTAL_COUNT_COLUMN);
         mHierarchicalName = cursor.getString(CONTENT_HIERARCHICAL_NAME_COLUMN);
     }
@@ -361,8 +354,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.LAST_TOUCHED_TIME, mLastTouchedTime);
         values.put(MailboxColumns.UI_SYNC_STATUS, mUiSyncStatus);
         values.put(MailboxColumns.UI_LAST_SYNC_RESULT, mUiLastSyncResult);
-        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY, mLastNotifiedMessageKey);
-        values.put(MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT, mLastNotifiedMessageCount);
         values.put(MailboxColumns.TOTAL_COUNT, mTotalCount);
         values.put(MailboxColumns.HIERARCHICAL_NAME, mHierarchicalName);
         return values;
@@ -554,10 +545,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 = mUiSyncStatus;
         hash[CONTENT_UI_LAST_SYNC_RESULT_COLUMN]
                 = mUiLastSyncResult;
-        hash[CONTENT_LAST_NOTIFIED_MESSAGE_KEY_COLUMN]
-                = mLastNotifiedMessageKey;
-        hash[CONTENT_LAST_NOTIFIED_MESSAGE_COUNT_COLUMN]
-                = mLastNotifiedMessageCount;
         hash[CONTENT_TOTAL_COUNT_COLUMN]
                 = mTotalCount;
         hash[CONTENT_HIERARCHICAL_NAME_COLUMN]
@@ -594,8 +581,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         dest.writeLong(mLastTouchedTime);
         dest.writeInt(mUiSyncStatus);
         dest.writeInt(mUiLastSyncResult);
-        dest.writeLong(mLastNotifiedMessageKey);
-        dest.writeInt(mLastNotifiedMessageCount);
         dest.writeInt(mTotalCount);
         dest.writeString(mHierarchicalName);
     }
@@ -621,8 +606,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mLastTouchedTime = in.readLong();
         mUiSyncStatus = in.readInt();
         mUiLastSyncResult = in.readInt();
-        mLastNotifiedMessageKey = in.readLong();
-        mLastNotifiedMessageCount = in.readInt();
         mTotalCount = in.readInt();
         mHierarchicalName = in.readString();
     }

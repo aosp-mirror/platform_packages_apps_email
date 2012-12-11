@@ -16,21 +16,16 @@
 
 package com.android.email.provider;
 
-import android.appwidget.AppWidgetManager;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.net.Uri;
-import android.provider.BaseColumns;
 
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
-import com.android.mail.providers.UIProvider.AccountColumns;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.widget.BaseWidgetProvider;
@@ -42,56 +37,6 @@ public class WidgetProvider extends BaseWidgetProvider {
     private static final String LEGACY_MAILBOX_ID_PREFIX = "mailboxId_";
 
     private static final String LOG_TAG = LogTag.getLogTag();
-
-    // This projection is needed, as if we were to request the capabilities of the account,
-    // that provider attempts to bind to the email service to get this information.  It is not
-    // valid to bind to a service in a broadcast receiver, as the bind just blocks, for the amount
-    // of time specified in the timeout.
-    // Instead, this projection doesn't include the capabilities column.  The cursor wrapper then
-    // makes sure that the Account objects can find all of the columns it expects.
-    private static final String[] WIDGET_ACCOUNTS_PROJECTION = {
-        BaseColumns._ID,
-        AccountColumns.NAME,
-        AccountColumns.PROVIDER_VERSION,
-        AccountColumns.URI,
-        AccountColumns.FOLDER_LIST_URI,
-        AccountColumns.FULL_FOLDER_LIST_URI,
-        AccountColumns.SEARCH_URI,
-        AccountColumns.ACCOUNT_FROM_ADDRESSES,
-        AccountColumns.SAVE_DRAFT_URI,
-        AccountColumns.SEND_MAIL_URI,
-        AccountColumns.EXPUNGE_MESSAGE_URI,
-        AccountColumns.UNDO_URI,
-        AccountColumns.SETTINGS_INTENT_URI,
-        AccountColumns.SYNC_STATUS,
-        AccountColumns.HELP_INTENT_URI,
-        AccountColumns.SEND_FEEDBACK_INTENT_URI,
-        AccountColumns.REAUTHENTICATION_INTENT_URI,
-        AccountColumns.COMPOSE_URI,
-        AccountColumns.MIME_TYPE,
-        AccountColumns.RECENT_FOLDER_LIST_URI,
-        AccountColumns.COLOR,
-        AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
-        AccountColumns.MANUAL_SYNC_URI,
-        AccountColumns.VIEW_INTENT_PROXY_URI,
-        AccountColumns.SettingsColumns.SIGNATURE,
-        AccountColumns.SettingsColumns.AUTO_ADVANCE,
-        AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
-        AccountColumns.SettingsColumns.SNAP_HEADERS,
-        AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-        AccountColumns.SettingsColumns.SHOW_CHECKBOXES,
-        AccountColumns.SettingsColumns.CONFIRM_DELETE,
-        AccountColumns.SettingsColumns.CONFIRM_ARCHIVE,
-        AccountColumns.SettingsColumns.CONFIRM_SEND,
-        AccountColumns.SettingsColumns.DEFAULT_INBOX,
-        AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME,
-        AccountColumns.SettingsColumns.FORCE_REPLY_FROM_DEFAULT,
-        AccountColumns.SettingsColumns.MAX_ATTACHMENT_SIZE,
-        AccountColumns.SettingsColumns.SWIPE,
-        AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED,
-        AccountColumns.SettingsColumns.SETUP_INTENT_URI
-    };
-
 
     /**
      * Remove preferences when deleting widget
@@ -115,10 +60,10 @@ public class WidgetProvider extends BaseWidgetProvider {
     protected com.android.mail.providers.Account getAccountObject(
             Context context, String accountUri) {
         final ContentResolver resolver = context.getContentResolver();
-        final Cursor sparseAccountCursor = resolver.query(Uri.parse(accountUri),
-                WIDGET_ACCOUNTS_PROJECTION, null, null, null);
+        final Cursor accountCursor = resolver.query(Uri.parse(accountUri),
+                UIProvider.ACCOUNTS_PROJECTION_NO_CAPABILITIES, null, null, null);
 
-        return getPopulatedAccountObject(sparseAccountCursor);
+        return getPopulatedAccountObject(accountCursor);
     }
 
 
@@ -126,13 +71,13 @@ public class WidgetProvider extends BaseWidgetProvider {
     protected boolean isAccountValid(Context context, com.android.mail.providers.Account account) {
         if (account != null) {
             final ContentResolver resolver = context.getContentResolver();
-            final Cursor sparseAccountCursor = resolver.query(account.uri,
-                    WIDGET_ACCOUNTS_PROJECTION, null, null, null);
-            if (sparseAccountCursor != null) {
+            final Cursor accountCursor = resolver.query(account.uri,
+                    UIProvider.ACCOUNTS_PROJECTION_NO_CAPABILITIES, null, null, null);
+            if (accountCursor != null) {
                 try {
-                    return sparseAccountCursor.getCount() > 0;
+                    return accountCursor.getCount() > 0;
                 } finally {
-                    sparseAccountCursor.close();
+                    accountCursor.close();
                 }
             }
         }
@@ -169,23 +114,22 @@ public class WidgetProvider extends BaseWidgetProvider {
         editor.apply();
     }
 
-    private com.android.mail.providers.Account getAccount(Context context, long accountId) {
+    private static com.android.mail.providers.Account getAccount(Context context, long accountId) {
         final ContentResolver resolver = context.getContentResolver();
         final Cursor ac = resolver.query(EmailProvider.uiUri("uiaccount", accountId),
-                WIDGET_ACCOUNTS_PROJECTION, null, null, null);
+                UIProvider.ACCOUNTS_PROJECTION_NO_CAPABILITIES, null, null, null);
 
         com.android.mail.providers.Account uiAccount = getPopulatedAccountObject(ac);
 
         return uiAccount;
     }
 
-    private com.android.mail.providers.Account getPopulatedAccountObject(final Cursor ac) {
-        if (ac == null) {
+    private static com.android.mail.providers.Account getPopulatedAccountObject(
+            final Cursor accountCursor) {
+        if (accountCursor == null) {
             LogUtils.e(LOG_TAG, "Null account cursor");
             return null;
         }
-
-        final Cursor accountCursor = new SparseAccountCursorWrapper(ac);
 
         com.android.mail.providers.Account uiAccount = null;
         try {
@@ -198,7 +142,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         return uiAccount;
     }
 
-    private Folder getFolder(Context context, long mailboxId) {
+    private static Folder getFolder(Context context, long mailboxId) {
         final ContentResolver resolver = context.getContentResolver();
         final Cursor fc = resolver.query(EmailProvider.uiUri("uifolder", mailboxId),
                 UIProvider.FOLDERS_PROJECTION, null, null, null);
@@ -240,64 +184,4 @@ public class WidgetProvider extends BaseWidgetProvider {
         long mailboxId = prefs.getLong(LEGACY_MAILBOX_ID_PREFIX + appWidgetId, Mailbox.NO_MAILBOX);
         return mailboxId;
     }
-
-    private class SparseAccountCursorWrapper extends CursorWrapper {
-        public SparseAccountCursorWrapper(Cursor cursor) {
-            super(cursor);
-        }
-
-        @Override
-        public int getColumnCount () {
-            return UIProvider.ACCOUNTS_PROJECTION.length;
-        }
-
-        @Override
-        public int getColumnIndex (String columnName) {
-            for (int i = 0; i < UIProvider.ACCOUNTS_PROJECTION.length; i++) {
-                if (UIProvider.ACCOUNTS_PROJECTION[i].equals(columnName)) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        @Override
-        public String getColumnName (int columnIndex) {
-            return UIProvider.ACCOUNTS_PROJECTION[columnIndex];
-        }
-
-        @Override
-        public String[] getColumnNames () {
-            return UIProvider.ACCOUNTS_PROJECTION;
-        }
-
-        @Override
-        public int getInt (int columnIndex) {
-            if (columnIndex == UIProvider.ACCOUNT_CAPABILITIES_COLUMN) {
-                return 0;
-            }
-            return super.getInt(convertColumnIndex(columnIndex));
-        }
-
-        @Override
-        public long getLong (int columnIndex) {
-            return super.getLong(convertColumnIndex(columnIndex));
-        }
-
-        @Override
-        public String getString (int columnIndex) {
-            return super.getString(convertColumnIndex(columnIndex));
-        }
-
-        private int convertColumnIndex(int columnIndex) {
-            // Since this sparse cursor doesn't have the capabilities column,
-            // we need to adjust all of the column indexes that come after where the
-            // capabilities column should be
-            if (columnIndex > UIProvider.ACCOUNT_CAPABILITIES_COLUMN) {
-                return columnIndex - 1;
-            }
-            return columnIndex;
-        }
-    }
-
 }
