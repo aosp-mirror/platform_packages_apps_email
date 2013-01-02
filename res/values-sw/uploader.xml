@@ -118,7 +118,7 @@
     <string name="preference_plus_enable_cs_summary" msgid="8412139973136041010">"Pakiza otomatiki picha mpya na video &amp; kwa albamu faragha ya wavuti"</string>
     <string name="preference_plus_upload_status" msgid="7925576302519589779">"Hali ya kupakia"</string>
     <string name="preference_plus_category_advanced" msgid="1159923217131890712">"Mahiri"</string>
-    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Vipakizi vya simu ya mkononi"</string>
+    <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Vipakiwa vya simu ya mkononi"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Vipakizi vya urandaji"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Pakia picha na video za na; wakati  wa urandaji katika mtandao wa data"</string>
     <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Vipakizi vya betri"</string>

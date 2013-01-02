@@ -268,9 +268,9 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Puerto"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de seguridad"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos los certificados)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos los certificados)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Eliminar correo del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>

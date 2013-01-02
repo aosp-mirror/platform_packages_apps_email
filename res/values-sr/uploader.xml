@@ -131,7 +131,7 @@
     <string name="preference_summary_uploading_format" msgid="6092575579212954671">": %1$d од %2$d"</string>
     <string name="preference_summary_uploading_paused" msgid="2413016492323452882">"Паузирано: додирните да бисте наставили отпремање"</string>
     <string name="preference_plus_sync_all_prompt_title" msgid="7677605572146032195">"Отпремање постојећих фотографија"</string>
-    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Отпремање фотографија и видео снимака који нису до сада отпремљени са телефона у приватни албум на Вебу може мало да потраје, али ће се обавити у позадини. Да ли заиста желите да наставите?"</string>
+    <string name="preference_plus_sync_all_prompt_text" msgid="2215794846784161524">"Отпремање фотографија и видео снимака који нису до сада отпремљени са телефона у приватни албум на вебу може мало да потраје, али ће се обавити у позадини. Да ли заиста желите да наставите?"</string>
     <string name="preference_plus_sync_all_prompt_yes" msgid="4844977073896196919">"Да"</string>
     <string name="preference_plus_sync_all_prompt_no" msgid="4216190537695947368">"Не"</string>
 </resources>
