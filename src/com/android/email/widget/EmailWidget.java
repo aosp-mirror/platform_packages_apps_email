@@ -239,8 +239,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private Intent getOpenMessageIntent(final Context context, final long messageId,
             final long mailboxId) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-        return Welcome.createOpenMessageIntent(context, mailbox.mAccountKey,
-                        mailboxId, messageId);
+        return (mailbox == null) ? null : Welcome.createOpenMessageIntent(context,
+                mailbox.mAccountKey, mailboxId, messageId);
     }
 
     private void setTextViewTextAndDesc(RemoteViews views, final int id, String text) {
