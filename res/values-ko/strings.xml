@@ -399,7 +399,7 @@
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"동기화 옵션"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"동기화 옵션(<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"동기화 설정"</string>
-    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"주파수 확인"</string>
+    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"확인 빈도"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"동기화할 일 수"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"이메일 계정"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"계정 선택"</string>
