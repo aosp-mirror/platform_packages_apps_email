@@ -39,7 +39,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
-    private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
+    private static final String PREFERENCE_KEY_SHOW_CHECKBOXES = "show_checkboxes";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
     private static final String PREFERNECE_REPLY_ALL = "reply_all";
 
@@ -53,7 +53,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private ListPreference mTextZoom;
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
-    private CheckBoxPreference mHideCheckboxes;
+    private CheckBoxPreference mShowCheckboxes;
     private CheckBoxPreference mSwipeDelete;
 
     private boolean mSettingsChanged = false;
@@ -131,8 +131,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
             mPreferences.setConfirmSend(mConfirmSend.isChecked());
             return true;
-        } else if (PREFERENCE_KEY_HIDE_CHECKBOXES.equals(key)) {
-            mPreferences.setHideCheckboxes(mHideCheckboxes.isChecked());
+        } else if (PREFERENCE_KEY_SHOW_CHECKBOXES.equals(key)) {
+            mPreferences.setShowCheckboxes(mShowCheckboxes.isChecked());
             return true;
         } else if (PREFERENCE_KEY_SWIPE_DELETE.equals(key)) {
             mPreferences.setSwipeDelete(mSwipeDelete.isChecked());
@@ -155,7 +155,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
-        mHideCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_HIDE_CHECKBOXES);
+        mShowCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SHOW_CHECKBOXES);
         mSwipeDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SWIPE_DELETE);
 
         reloadDynamicSummaries();

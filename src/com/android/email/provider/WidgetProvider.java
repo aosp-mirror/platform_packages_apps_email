@@ -79,7 +79,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
         AccountColumns.SettingsColumns.SNAP_HEADERS,
         AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-        AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
+        AccountColumns.SettingsColumns.SHOW_CHECKBOXES,
         AccountColumns.SettingsColumns.CONFIRM_DELETE,
         AccountColumns.SettingsColumns.CONFIRM_ARCHIVE,
         AccountColumns.SettingsColumns.CONFIRM_SEND,
