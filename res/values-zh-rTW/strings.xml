@@ -448,7 +448,7 @@
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"「顯示圖片」已清除。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"正在等待同步處理"</string>
-    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"您的電子郵件即將顯示。"</string>
+    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"即將顯示您的電子郵件。"</string>
     <string name="widget_other_views" msgid="4988574907386539499">"輕觸圖示即可變更。"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"整合式收件匣"</string>
     <string name="widget_unread" msgid="4404711399009077833">"未讀取"</string>
