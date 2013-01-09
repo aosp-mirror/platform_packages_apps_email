@@ -411,7 +411,7 @@
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"동기화 옵션"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"동기화 옵션(<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"동기화 설정"</string>
-    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"주파수 확인"</string>
+    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"확인 빈도"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"동기화할 일 수"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"이메일 계정"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"계정 선택"</string>
@@ -433,8 +433,10 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"설정"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"일반 설정"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"애플리케이션"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"확인란 숨기기"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"메일 목록에서 길게 눌러 선택"</string>
+    <!-- no translation found for general_preference_show_checkboxes_label (7684523794278828657) -->
+    <skip />
+    <!-- no translation found for general_preference_show_checkboxes_summary (8320651996919669280) -->
+    <skip />
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"삭제하기 전에 확인"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"메일"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"스와이프하여 삭제"</string>

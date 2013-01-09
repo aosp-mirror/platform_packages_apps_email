@@ -433,8 +433,10 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Nustatymai"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Bendrieji nustatymai"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Programa"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Slėpti žymimuosius laukelius"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Jei norite pasirinkti, pranešimų sąraš. palieskite ir laikykite"</string>
+    <!-- no translation found for general_preference_show_checkboxes_label (7684523794278828657) -->
+    <skip />
+    <!-- no translation found for general_preference_show_checkboxes_summary (8320651996919669280) -->
+    <skip />
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Patvirtinti prieš ištrinant"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Pranešimai"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Perbraukite, kad ištrintumėte"</string>
