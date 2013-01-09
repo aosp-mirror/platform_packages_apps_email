@@ -261,9 +261,9 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Puerto"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de seguridad"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos los certificados)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos los certificados)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Eliminar correo del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
@@ -433,8 +433,10 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Configuración"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Configuración general"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicación"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar casillas de verificación"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"En las listas de mensajes, mantén presionado para seleccionar."</string>
+    <!-- no translation found for general_preference_show_checkboxes_label (7684523794278828657) -->
+    <skip />
+    <!-- no translation found for general_preference_show_checkboxes_summary (8320651996919669280) -->
+    <skip />
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de eliminar"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensajes"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Deslizar para eliminar"</string>

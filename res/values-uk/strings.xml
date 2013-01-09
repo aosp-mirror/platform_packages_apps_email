@@ -433,8 +433,10 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Налаштування"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Загальні налаштування"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Програма"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Cховати прапорці"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"У списках повідомлень торкніться й утримуйте, щоб вибрати"</string>
+    <!-- no translation found for general_preference_show_checkboxes_label (7684523794278828657) -->
+    <skip />
+    <!-- no translation found for general_preference_show_checkboxes_summary (8320651996919669280) -->
+    <skip />
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Підтвердити перед видаленням"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Повідомлення"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Перегорнути, щоб видалити"</string>
