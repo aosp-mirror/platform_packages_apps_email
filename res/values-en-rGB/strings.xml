@@ -433,10 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Settings"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"General settings"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Application"</string>
-    <!-- no translation found for general_preference_show_checkboxes_label (7684523794278828657) -->
-    <skip />
-    <!-- no translation found for general_preference_show_checkboxes_summary (8320651996919669280) -->
-    <skip />
+    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"Show tick boxes"</string>
+    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"In lists of messages, touch and hold to select"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirm before deleting"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Messages"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Swipe to delete"</string>
