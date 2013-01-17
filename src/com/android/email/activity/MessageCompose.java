@@ -2066,7 +2066,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             } else {
                 to = decode(mailToString.substring(length, index));
             }
-            addAddresses(mToView, to.split(" ,"));
+
+            if (!TextUtils.isEmpty(to.trim())) {
+                addAddresses(mToView, to.split(" ,"));
+            }
         } catch (UnsupportedEncodingException e) {
             Log.e(Logging.LOG_TAG, e.getMessage() + " while decoding '" + mailToString + "'");
         }
