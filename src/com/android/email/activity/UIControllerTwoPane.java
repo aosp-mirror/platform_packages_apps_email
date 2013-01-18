@@ -739,5 +739,10 @@ class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Ca
         public void onSearchExit() {
             UIControllerTwoPane.this.onSearchExit();
         }
+
+        @Override
+        public void onUpPressed() {
+            onBackPressed(false);
+        }
     }
 }

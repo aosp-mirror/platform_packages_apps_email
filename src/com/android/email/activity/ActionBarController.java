@@ -194,6 +194,8 @@ public class ActionBarController {
          * Called when the search box is closed.
          */
         public void onSearchExit();
+
+        public void onUpPressed();
     }
 
     public ActionBarController(Context context, LoaderManager loaderManager,
@@ -235,6 +237,16 @@ public class ActionBarController {
                 }
             }
         });
+        // this other click listener handles clicks that ought to be aliased to "up"
+        // only one or the other listener should be active at any time
+        mActionBarCustomView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.onUpPressed();
+            }
+        });
+        // pick a sane default. later enabled in updateTitle().
+        mActionBarCustomView.setClickable(false);
     }
 
     private void initSearchViews() {
@@ -500,6 +512,8 @@ public class ActionBarController {
         }
 
         mAccountSpinner.setEnabled(enabled);
+        mAccountSpinner.setClickable(enabled);
+        mActionBarCustomView.setClickable(!enabled);
         if (enabled) {
             mAccountSpinner.setBackgroundDrawable(mAccountSpinnerDefaultBackground);
         } else {
