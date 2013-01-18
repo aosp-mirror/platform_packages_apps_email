@@ -253,6 +253,11 @@ class UIControllerOnePane extends UIControllerBase {
         public void onSearchExit() {
             UIControllerOnePane.this.onSearchExit();
         }
+
+        @Override
+        public void onUpPressed() {
+            onBackPressed(false);
+        }
     }
 
     public UIControllerOnePane(EmailActivity activity) {
