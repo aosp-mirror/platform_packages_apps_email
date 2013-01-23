@@ -1109,12 +1109,12 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application</string>
 
-    <!-- General preference: Label of the setting for showing checkboxes in the
+    <!-- General preference: Label of the setting for hiding checkboxes in the
          message list [CHAR LIMIT=32] -->
-    <string name="general_preference_show_checkboxes_label">Show checkboxes</string>
-    <!-- General preference: Description of the setting for showing checkboxes in the
+    <string name="general_preference_hide_checkboxes_label">Hide checkboxes</string>
+    <!-- General preference: Description of the setting for hiding checkboxes in the
          message list [CHAR LIMIT=64] -->
-    <string name="general_preference_show_checkboxes_summary">In lists of messages, touch and
+    <string name="general_preference_hide_checkboxes_summary">In lists of messages, touch and
          hold to select</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=32] -->
