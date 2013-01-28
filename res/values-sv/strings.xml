@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Inställningar"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Allmänna inställningar"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"Visa kryssrutor"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"Tryck länge på ett meddelande i listan om du vill markera det"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Dölj kryssrutor"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"I samtalslistan trycker du länge om du vill markera"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekräfta innan du tar bort"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Meddelanden"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Dra bort om du vill radera"</string>

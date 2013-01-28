@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"सेटिंग"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"सामान्य सेटिंग"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"एप्लिकेशन"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"चेकबॉक्स दिखाएं"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"संदेशों की सूचियों में, चुनने के लिए स्‍पर्श करके रखें"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"चेकबॉक्‍स छुपाएं"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"संदेशों की सूचियों में, चयन करने के लिए स्‍पर्श करके रखें"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"हटाने से पहले पुष्‍टि करें"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"संदेश"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"हटाने के लिए स्वाइप करें"</string>
