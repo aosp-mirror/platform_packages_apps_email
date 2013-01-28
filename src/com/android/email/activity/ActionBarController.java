@@ -62,6 +62,13 @@ public class ActionBarController {
     private static final int LOADER_ID_ACCOUNT_LIST
             = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 0;
 
+    private static final int DISPLAY_TITLE_MULTIPLE_LINES = 0x20;
+    private static final int ACTION_BAR_MASK =
+            ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM
+                    | ActionBar.DISPLAY_SHOW_TITLE | DISPLAY_TITLE_MULTIPLE_LINES;
+    private static final int CUSTOM_ACTION_BAR_OPTIONS =
+            ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM;
+
     private final Context mContext;
     private final LoaderManager mLoaderManager;
     private final ActionBar mActionBar;
@@ -210,7 +217,7 @@ public class ActionBarController {
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext);
 
         // Configure action bar.
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM);
+        enterCustomActionBarMode();
 
         // Prepare the custom view
         mActionBar.setCustomView(R.layout.action_bar_custom_view);
@@ -422,6 +429,7 @@ public class ActionBarController {
     private void updateTitle() {
         mAccountsSelectorAdapter.swapCursor(mCursor);
 
+        enterCustomActionBarMode();
         if (mCursor == null) {
             // Initial load not finished.
             mActionBarCustomView.setVisibility(View.GONE);
@@ -461,19 +469,18 @@ public class ActionBarController {
         UiUtilities.setVisibilitySafe(mSearchContainer, View.GONE);
 
         if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
-            mAccountSpinnerLine1View.setSingleLine(false);
-            mAccountSpinnerLine1View.setMaxLines(2);
-            mAccountSpinnerLine1View.setText(mCallback.getMessageSubject());
-            mAccountSpinnerLine2View.setVisibility(View.GONE);
-
-            mAccountSpinnerCountView.setVisibility(View.GONE);
-
+            // Use two line title action bar mode
+            enterMultiLineTitleActionBarMode();
+            mActionBar.setTitle(mCallback.getMessageSubject());
+            mActionBar.setSubtitle(null);
+        } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
+            enterSingleLineTitleActionBarMode();
+            mActionBar.setTitle(mAllFoldersLabel);
+            mActionBar.setSubtitle(mCursor.getAccountDisplayName());
         } else {
             // Get mailbox name
             final String mailboxName;
-            if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
-                mailboxName = mAllFoldersLabel;
-            } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
+            if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
                 mailboxName = mCursor.getMailboxDisplayName();
             } else {
                 mailboxName = null;
@@ -502,8 +509,21 @@ public class ActionBarController {
         boolean spinnerEnabled =
             ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0) && mCursor.shouldEnableSpinner();
 
-
         setSpinnerEnabled(spinnerEnabled);
+    }
+
+    private void enterCustomActionBarMode() {
+        mActionBar.setDisplayOptions(CUSTOM_ACTION_BAR_OPTIONS, ACTION_BAR_MASK);
+    }
+
+    private void enterMultiLineTitleActionBarMode() {
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
+                | DISPLAY_TITLE_MULTIPLE_LINES, ACTION_BAR_MASK);
+    }
+
+    private void enterSingleLineTitleActionBarMode() {
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE,
+                ACTION_BAR_MASK);
     }
 
     private void setSpinnerEnabled(boolean enabled) {
