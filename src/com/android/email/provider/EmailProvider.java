@@ -2299,6 +2299,10 @@ outer:
     }
     private static ProjectionMap sFolderListMap;
 
+    /**
+     * Constructs the map of default entries for accounts. These values can be overridden in
+     * {@link #genQueryAccount(String[], String)}.
+     */
     private ProjectionMap getAccountListMap() {
         if (sAccountListMap == null) {
             sAccountListMap = ProjectionMap.builder()
@@ -2326,6 +2330,7 @@ outer:
                 .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
                 .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
                         Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
+                .add(UIProvider.AccountColumns.SettingsColumns.VEILED_ADDRESS_PATTERN, null)
                 .build();
         }
         return sAccountListMap;
@@ -2867,7 +2872,6 @@ outer:
                 }
             }
         }
-
         final StringBuilder sb = genSelect(getAccountListMap(), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
