@@ -74,7 +74,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         ps.removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
 
         // Disabling reply-all on tablets, as this setting is just for phones
-        if (Utils.useTabletUI(getActivity())) {
+        if (Utils.useTabletUI(getActivity().getResources())) {
             ps.removePreference(findPreference(PREFERNECE_REPLY_ALL));
         }
     }
