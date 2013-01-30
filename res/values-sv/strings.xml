@@ -31,7 +31,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Svara"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Svara alla"</string>
     <string name="delete_action" msgid="8421026208288857155">"Ta bort"</string>
-    <string name="forward_action" msgid="669174181042344116">"Framåt"</string>
+    <string name="forward_action" msgid="669174181042344116">"Vidarebefordra"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Stjärnmärk"</string>
     <string name="done_action" msgid="7497990549515580249">"Klar"</string>
     <string name="create_action" msgid="3062715563215392251">"Skapa nytt"</string>
