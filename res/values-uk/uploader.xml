@@ -10,7 +10,7 @@
     <string name="summary_title_paused" msgid="8936561302881926595">"Призупинено"</string>
     <string name="summary_subtitle_uploading_format" msgid="8787409179557302869">"%1$d%% • %2$d фото • %3$d відео"</string>
     <string name="summary_subtitle_counts_format" msgid="7867903205999702138">"%1$d фото • %2$d відео"</string>
-    <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"розряджена батарея"</string>
+    <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"низький рівень заряду акумулятора"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"перевищено квоту на фотографії"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"роумінг"</string>
     <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"очікування на WiFi"</string>
@@ -46,7 +46,7 @@
     <string name="upload_state_completed" msgid="5638163990418071018">"Завершено"</string>
     <string name="pause_state_running" msgid="711411177620353982">"завантаження"</string>
     <string name="pause_state_manually_paused" msgid="4837627990158796573">"призупинено вручну"</string>
-    <string name="pause_state_low_battery" msgid="3154677586511229063">"призупинено – розряджена батарея"</string>
+    <string name="pause_state_low_battery" msgid="3154677586511229063">"призупинено – низький рівень заряду акумулятора"</string>
     <string name="pause_state_need_charger" msgid="5014741655713255815">"призупинено – відкладено до зарядження"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"призупинено – очікування з’єднання"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"призупинено – вичерпано квоту на PWA"</string>
@@ -121,7 +121,7 @@
     <string name="preference_plus_mobile_data_connection" msgid="5368391437581896915">"Завантаження в мобільних мережах"</string>
     <string name="preference_plus_sync_while_roaming" msgid="137428136220746649">"Завантаження в роумінгу"</string>
     <string name="preference_plus_sync_while_roaming_summary" msgid="358436280727344717">"Завантажувати фото та відео в роумінгу в мережі передавання даних"</string>
-    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Завантаж. при зарядж."</string>
+    <string name="preference_plus_delay_sync_until_charging" msgid="2327042451671101467">"Завантаження під час заряджання"</string>
     <string name="preference_plus_delay_sync_until_charging_summary" msgid="8613924819421248445">"Завантажувати фото та відео лише під час заряджання"</string>
     <string name="preference_plus_sync_all" msgid="2563137874388611459">"Завантажити існуючі фото"</string>
     <string name="preference_plus_sync_all_description" msgid="2789041515679642463">"Завантажити будь-які існуючі фото та відео з телефону зараз"</string>
