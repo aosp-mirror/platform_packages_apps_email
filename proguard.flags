@@ -35,24 +35,6 @@
   *** *Anim(...);
 }
 
--keepclasseswithmembers class com.android.email.activity.RecentMailboxManager {
-  *** touch(long);
-  *** getInstance(android.content.Context);
-  *** getMostRecent(long, boolean);
-}
-
--keepclasseswithmembers class com.android.email.activity.setup.AccountSetupAccountType {
-  *** checkAccountInstanceLimit(com.android.email.mail.Store$StoreInfo);
-}
-
--keepclasseswithmembers class com.android.email.GroupMessagingListener {
-  *** removeListener(com.android.email.MessagingListener);
-}
-
--keepclasseswithmembers class com.android.email.Controller {
-  *** setProviderContext(android.content.Context);
-}
-
 -keepclasseswithmembers class com.android.emailcommon.internet.Rfc822Output {
   *** getHtmlBody(java.lang.String);
   *** buildBodyText(android.content.Context, com.android.emailcommon.provider.EmailContent$Message, boolean);
@@ -66,10 +48,6 @@
 
 -keepclasseswithmembers class com.android.email.SecurityPolicy {
   *** setContext(android.content.Context);
-}
-
--keepclasseswithmembers class com.android.email.MessagingController {
-  *** injectMockController(com.android.email.MessagingController);
 }
 
 -keepclasseswithmembers class com.android.emailcommon.utility.Utility {
@@ -129,7 +107,7 @@
 }
 
 -keepclasseswithmembers class com.android.email.mail.transport.SmtpSender {
-  *** setTransport(com.android.email.mail.Transport);
+  *** setTransport(com.android.email.mail.transport.MailTransport);
 }
 
 -keepclasseswithmembers class com.android.email.mail.Store {
@@ -137,7 +115,7 @@
 }
 
 -keepclasseswithmembers class com.android.email.mail.store.ImapStore {
-  *** setTransport(com.android.email.mail.Transport);
+  *** setTransport(com.android.email.mail.transport.MailTransport);
 }
 
 -keepclasseswithmembers class com.android.email.mail.store.ImapFolder {
@@ -148,7 +126,7 @@
 }
 
 -keepclasseswithmembers class com.android.email.mail.store.Pop3Store {
-  *** setTransport(com.android.email.mail.Transport);
+  *** setTransport(com.android.email.mail.transport.MailTransport);
 }
 
 -keepclasseswithmembers class com.android.email.mail.store.Pop3Store$Pop3Folder {
@@ -196,10 +174,6 @@
 
 -keep class org.apache.james.mime4j.field.Field {
   *** getBody();
-}
-
--keepclasseswithmembers class com.android.email.FolderProperties {
-  *** getDisplayName(int);
 }
 
 # The following classes are used only by unit tests.
