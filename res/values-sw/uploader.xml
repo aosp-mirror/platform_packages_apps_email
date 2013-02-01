@@ -21,7 +21,7 @@
     <string name="summary_menu_show_finished" msgid="8544099132633066086">"Onyesha Vipakuzi Vilivyokamilishwa"</string>
     <string name="menu_view_online" msgid="6546633605818509942">"Tazama kwenye wavuti"</string>
     <string name="menu_show_pending_items" msgid="8798191388238604213">"Onyesha Vipakuzi Vinavyosubiri"</string>
-    <string name="menu_hide_pending_items" msgid="9216079748638469160">"Ficha Vipakiaji Vinavyosubiri"</string>
+    <string name="menu_hide_pending_items" msgid="9216079748638469160">"Ficha maudhui yanayosubiri kupakuliwa"</string>
     <string name="menu_show_completed_items" msgid="4380487776635859783">"Onyesha Maelezo"</string>
     <string name="menu_hide_completed_items" msgid="6126007571523662799">"Ficha Maelezo"</string>
     <string name="menu_settings" msgid="5088116127086866634">"Mipangilio"</string>
