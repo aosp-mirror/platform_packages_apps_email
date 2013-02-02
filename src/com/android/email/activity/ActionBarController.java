@@ -24,7 +24,10 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -471,7 +474,16 @@ public class ActionBarController {
         if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
             // Use two line title action bar mode
             enterMultiLineTitleActionBarMode();
-            mActionBar.setTitle(mCallback.getMessageSubject());
+            String subject = mCallback.getMessageSubject();
+            if (subject == null) {
+                subject = "";
+            }
+            final SpannableString title = new SpannableString(subject);
+            final SpannableStringBuilder builder = new SpannableStringBuilder();
+            title.setSpan(new TextAppearanceSpan(mContext, R.style.subject_action_bar_title_text),
+                    0, subject.length(), 0);
+            builder.append(title);
+            mActionBar.setTitle(builder);
             mActionBar.setSubtitle(null);
         } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
             enterSingleLineTitleActionBarMode();
