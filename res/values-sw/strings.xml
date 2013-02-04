@@ -337,7 +337,7 @@
     <string name="account_setup_failed_security" msgid="925820957665764964">"Haiwezi kufungua muunganisho kwa seva kwa sababu ya hitilafu ya kiusalama."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Haiwezi kufungua muunganisho kwa seva."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Uliingiza anwani ya seva isiyo sahihi au seva inahitaji toleo la itifaki ambalo haiauniwi na Barua pepe."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kulandanisha kwa seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kusawazisha kwa seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Udhibiti wa usalama kutoka mbali"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Seva <xliff:g id="SERVER">%s</xliff:g> inahitaji uiruhusu kudhibiti kwa umbali baadhi ya vipengele vya usalama vya simu yako. Ungependa kumaliza kuweka mipangilio ya akaunti hii?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Seva hii inahitaji vipengele vya usalama ambavyo kifaa chako cha Android haiauni, ikijumlisha: <xliff:g id="ERROR">%s</xliff:g>"</string>
