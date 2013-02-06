@@ -440,7 +440,7 @@ public class UtilityUnitTests extends AndroidTestCase {
 
     public void testDumpCursor() {
         // Just make sure the method won't crash and returns non-empty string.
-        final Cursor c1 = new MatrixCursor(new String[] {"col"});
+        final Cursor c1 = new MatrixCursorWithCachedColumns(new String[] {"col"});
         final Cursor c2 = new CursorWrapper(c1);
 
         // Note it's a subclass of CursorWrapper.
@@ -461,7 +461,7 @@ public class UtilityUnitTests extends AndroidTestCase {
     }
 
     public void testCloseTraceCursorWrapper() {
-        final Cursor org = new MatrixCursor(new String[] {"col"});
+        final Cursor org = new MatrixCursorWithCachedColumns(new String[] {"col"});
         final Utility.CloseTraceCursorWrapper c =
                 Utility.CloseTraceCursorWrapper.alwaysCreateForTest(org);
 

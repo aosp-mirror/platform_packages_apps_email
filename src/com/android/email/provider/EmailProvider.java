@@ -88,6 +88,7 @@ import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.providers.UIProvider.Swipe;
 import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
@@ -1254,7 +1255,7 @@ public class EmailProvider extends ContentProvider {
                     case ACCOUNT_ID:
                     case HOSTAUTH_ID:
                     case POLICY_ID:
-                        return new MatrixCursor(projection, 0);
+                        return new MatrixCursorWithCachedColumns(projection, 0);
                 }
             }
             throw e;
@@ -1344,7 +1345,7 @@ public class EmailProvider extends ContentProvider {
                         }
                     }
                     // Return a cursor with an id projection
-                    MatrixCursor mc = new MatrixCursor(EmailContent.ID_PROJECTION);
+                    MatrixCursor mc = new MatrixCursorWithCachedColumns(EmailContent.ID_PROJECTION);
                     mc.addRow(new Object[] {accountId});
                     c = mc;
                     break;
@@ -1355,7 +1356,7 @@ public class EmailProvider extends ContentProvider {
                     int type = Integer.parseInt(pathSegments.get(2));
                     long mailboxId = getMailboxIdFromMailboxTypeMap(accountId, type);
                     // Return a cursor with an id projection
-                    mc = new MatrixCursor(EmailContent.ID_PROJECTION);
+                    mc = new MatrixCursorWithCachedColumns(EmailContent.ID_PROJECTION);
                     mc.addRow(new Object[] {mailboxId});
                     c = mc;
                     break;
@@ -1375,7 +1376,7 @@ public class EmailProvider extends ContentProvider {
                         int accountCount = mMailboxTypeMap.size();
                         // In the rare case there are MAX_CACHED_ACCOUNTS or more, we can't do this
                         if (accountCount < MAX_CACHED_ACCOUNTS) {
-                            mc = new MatrixCursor(projection, 1);
+                            mc = new MatrixCursorWithCachedColumns(projection, 1);
                             mc.addRow(new Object[] {accountCount});
                             c = mc;
                             break;
@@ -3061,7 +3062,7 @@ outer:
     }
 
     private Cursor getVirtualMailboxCursor(long mailboxId) {
-        MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 1);
+        MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 1);
         mc.addRow(getVirtualMailboxRow(getVirtualMailboxAccountId(mailboxId),
                 getVirtualMailboxType(mailboxId)));
         return mc;
@@ -3201,7 +3202,7 @@ outer:
         SQLiteDatabase db = getDatabase(context);
         String id = uri.getPathSegments().get(1);
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-            MatrixCursor mc = new MatrixCursor(UIProvider.FOLDERS_PROJECTION, 2);
+            MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 2);
             Object[] row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
             int numUnread = EmailContent.count(context, Message.CONTENT_URI,
                      MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
@@ -3228,7 +3229,7 @@ outer:
             } else {
                 // Add starred virtual folder to the cursor
                 // Show number of messages as unread count (for backward compatibility)
-                MatrixCursor starCursor = new MatrixCursor(uiProjection, 1);
+                MatrixCursor starCursor = new MatrixCursorWithCachedColumns(uiProjection, 1);
                 Object[] row = getVirtualMailboxRow(Long.parseLong(id), Mailbox.TYPE_STARRED);
                 row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
                 row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
@@ -3388,7 +3389,7 @@ outer:
      * folder capabilities.
      */
     Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
-        final MatrixCursor mc = new MatrixCursor(uiProjection);
+        final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
         Object[] values = new Object[uiProjection.length];
         String[] args = new String[1];
         try {
@@ -3483,7 +3484,7 @@ outer:
                 break;
             case UI_ACCOUNT:
                 if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-                    MatrixCursor mc = new MatrixCursor(uiProjection, 1);
+                    MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection, 1);
                     addCombinedAccountRow(mc);
                     c = mc;
                 } else {
@@ -4173,7 +4174,7 @@ outer:
             try {
                 // TODO Always use this projection?  Or what's passed in?
                 // Not sure if UI wants it, but I'm making a cursor of convo uri's
-                MatrixCursor c = new MatrixCursor(
+                MatrixCursor c = new MatrixCursorWithCachedColumns(
                         new String[] {UIProvider.ConversationColumns.URI},
                         mLastSequenceOps.size());
                 for (ContentProviderOperation op: mLastSequenceOps) {
@@ -4192,7 +4193,7 @@ outer:
             } catch (OperationApplicationException e) {
             }
         }
-        return new MatrixCursor(projection, 0);
+        return new MatrixCursorWithCachedColumns(projection, 0);
     }
 
     private void notifyUIConversation(Uri uri) {

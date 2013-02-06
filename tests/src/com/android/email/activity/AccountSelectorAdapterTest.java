@@ -78,7 +78,7 @@ public class AccountSelectorAdapterTest extends LoaderTestCase {
     }
 
     private static AccountSelectorAdapter.CursorWithExtras createCursorWithExtras() {
-        final MatrixCursor m = new MatrixCursor(new String[] {"column"});
+        final MatrixCursor m = new MatrixCursorWithCachedColumns(new String[] {"column"});
         return new AccountSelectorAdapter.CursorWithExtras(m.getColumnNames(), m);
     }
 
