@@ -155,7 +155,7 @@
     <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Kunde inte spara bilagan."</string>
     <string name="message_view_attachment_background_load" msgid="7906875687519445185">"En eller flera bilagor i det vidarebefordrade meddelandet hämtas innan de skickas."</string>
     <string name="message_view_show_message_action" msgid="5134222901019191436">"Meddelande"</string>
-    <string name="message_view_show_invite_action" msgid="8862797393776226777">"Bjud in"</string>
+    <string name="message_view_show_invite_action" msgid="8862797393776226777">"Inbjudan"</string>
   <plurals name="message_view_show_attachments_action">
     <item quantity="one" msgid="7594476368958824007">"Bilaga <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="974463163535515223">"Bilagor <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
