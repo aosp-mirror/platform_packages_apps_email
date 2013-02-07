@@ -19,12 +19,13 @@ package com.android.email.data;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 
 /**
  * {@link MatrixCursor} which takes an extra {@link Cursor} to the constructor, and close
  * it when self is closed.
  */
-public class ClosingMatrixCursor extends MatrixCursor {
+public class ClosingMatrixCursor extends MatrixCursorWithCachedColumns {
     private final Cursor mInnerCursor;
 
     public ClosingMatrixCursor(String[] columnNames, Cursor innerCursor) {

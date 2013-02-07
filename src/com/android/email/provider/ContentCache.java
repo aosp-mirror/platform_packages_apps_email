@@ -27,6 +27,7 @@ import android.util.Log;
 import android.util.LruCache;
 
 import com.android.email2.ui.MailActivityEmail;
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -543,7 +544,7 @@ public final class ContentCache {
         Cursor c = get(id);
         if (c != null) {
             // Make a new MatrixCursor with the requested columns
-            MatrixCursor mc = new MatrixCursor(projection, 1);
+            MatrixCursor mc = new MatrixCursorWithCachedColumns(projection, 1);
             if (c.getCount() == 0) {
                 return mc;
             }

@@ -16,14 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.internet.MimeUtility;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.emailcommon.utility.AttachmentUtilities.Columns;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -37,6 +29,15 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.AttachmentUtilities.Columns;
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -275,7 +276,7 @@ public class AttachmentProvider extends ContentProvider {
                 c.close();
             }
 
-            MatrixCursor ret = new MatrixCursor(projection);
+            MatrixCursor ret = new MatrixCursorWithCachedColumns(projection);
             Object[] values = new Object[projection.length];
             for (int i = 0, count = projection.length; i < count; i++) {
                 String column = projection[i];

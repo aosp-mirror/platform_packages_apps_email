@@ -31,7 +31,7 @@ import java.util.Set;
 public class FolderPropertiesTests extends AndroidTestCase {
 
     private static Cursor buildCursor(String[] columns, Object... values) {
-        MatrixCursor c = new MatrixCursor(columns, 1);
+        MatrixCursor c = new MatrixCursorWithCachedColumns(columns, 1);
         c.addRow(values);
         c.moveToFirst();
         return c;

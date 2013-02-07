@@ -196,7 +196,7 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
     private static final String[] SIMPLE_PROJECTION = new String[] {"Foo"};
     private static final Object[] SIMPLE_ROW = new Object[] {"Bar"};
     private Cursor getOneRowCursor() {
-        MatrixCursor cursor = new MatrixCursor(SIMPLE_PROJECTION, 1);
+        MatrixCursor cursor = new MatrixCursorWithCachedColumns(SIMPLE_PROJECTION, 1);
         cursor.addRow(SIMPLE_ROW);
         return cursor;
     }

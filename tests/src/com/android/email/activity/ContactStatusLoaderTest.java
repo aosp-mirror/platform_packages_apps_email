@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.activity.ContactStatusLoader.Result;
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 
 import android.content.Context;
 import android.content.pm.ProviderInfo;
@@ -62,8 +63,8 @@ public class ContactStatusLoaderTest
     // Contact doesn't exist
     public void testContactNotFound() {
         // Insert empty cursor
-        mProvider.mCursors.offer(
-                new MatrixCursor(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE));
+        mProvider.mCursors.offer(new MatrixCursorWithCachedColumns(
+                ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE));
 
         // Load!
         ContactStatusLoader l = new ContactStatusLoader(getMockContext(), EMAIL);
@@ -95,12 +96,14 @@ public class ContactStatusLoaderTest
     // Contact exists, but no photo
     public void testNoPhoto() {
         // Result for the first query (the one for photo-id)
-        MatrixCursor cursor1 = new MatrixCursor(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
+        MatrixCursor cursor1 =
+                new MatrixCursorWithCachedColumns(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
         cursor1.addRow(new Object[]{12345, StatusUpdates.AWAY});
         mProvider.mCursors.offer(cursor1);
 
         // Empty cursor for the second query
-        mProvider.mCursors.offer(new MatrixCursor(ContactStatusLoader.PHOTO_PROJECTION));
+        mProvider.mCursors.offer(
+                new MatrixCursorWithCachedColumns(ContactStatusLoader.PHOTO_PROJECTION));
 
         // Load!
         ContactStatusLoader l = new ContactStatusLoader(getMockContext(), EMAIL);
@@ -124,7 +127,8 @@ public class ContactStatusLoaderTest
     // Contact exists, but no photo (provider returns null for the second query)
     public void testNull2() {
         // Result for the first query (the one for photo-id)
-        MatrixCursor cursor1 = new MatrixCursor(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
+        MatrixCursor cursor1 =
+                new MatrixCursorWithCachedColumns(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
         cursor1.addRow(new Object[]{12345, StatusUpdates.AWAY});
         mProvider.mCursors.offer(cursor1);
 
@@ -142,7 +146,8 @@ public class ContactStatusLoaderTest
     // Contact exists, with a photo
     public void testWithPhoto() {
         // Result for the first query (the one for photo-id)
-        MatrixCursor cursor1 = new MatrixCursor(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
+        MatrixCursor cursor1 =
+                new MatrixCursorWithCachedColumns(ContactStatusLoader.PROJECTION_PHOTO_ID_PRESENCE);
         cursor1.addRow(new Object[]{12345, StatusUpdates.AWAY});
         mProvider.mCursors.offer(cursor1);
 
@@ -168,7 +173,7 @@ public class ContactStatusLoaderTest
     }
 
     // MatrixCursor doesn't support getBlob, so use this...
-    private static class PhotoCursor extends MatrixCursor {
+    private static class PhotoCursor extends MatrixCursorWithCachedColumns {
         private final byte[] mBlob;
 
         public PhotoCursor(byte[] blob) {
