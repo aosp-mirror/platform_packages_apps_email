@@ -2652,6 +2652,7 @@ outer:
             if ((flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
                 // If the mailbox can accept moved mail, report that as well
                 caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+                caps |= UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION;
             }
         }
         // For trash, we don't allow undo
