@@ -78,6 +78,7 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
+import com.android.mail.preferences.MailPrefs;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.UIProvider;
@@ -2786,6 +2787,7 @@ outer:
         }
 
         final Preferences prefs = Preferences.getPreferences(getContext());
+        final MailPrefs mailPrefs = MailPrefs.get(getContext());
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
                     prefs.getConfirmDelete() ? "1" : "0");
@@ -2796,7 +2798,9 @@ outer:
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SWIPE)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.SWIPE,
-                    prefs.getSwipeDelete() ? SWIPE_DELETE : SWIPE_DISABLED);
+                    MailPrefs.ConversationListSwipeActions.DELETE.equals(mailPrefs
+                            .getConversationListSwipeAction(false))
+                            ? SWIPE_DELETE : SWIPE_DISABLED);
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)) {

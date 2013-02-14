@@ -39,7 +39,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
-    private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_SHOW_CHECKBOXES = "show_checkboxes";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
@@ -139,8 +138,11 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_SHOW_CHECKBOXES.equals(key)) {
             mPreferences.setShowCheckboxes(mShowCheckboxes.isChecked());
             return true;
-        } else if (PREFERENCE_KEY_SWIPE_DELETE.equals(key)) {
-            mPreferences.setSwipeDelete(mSwipeDelete.isChecked());
+        } else if (MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION.equals(key)) {
+            mMailPrefs
+                    .setConversationListSwipeAction(mSwipeDelete.isChecked()
+                            ? MailPrefs.ConversationListSwipeActions.DELETE
+                            : MailPrefs.ConversationListSwipeActions.DISABLED);
             return true;
         }
         return false;
@@ -161,7 +163,10 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
         mShowCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SHOW_CHECKBOXES);
-        mSwipeDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_SWIPE_DELETE);
+        mSwipeDelete = (CheckBoxPreference)
+                findPreference(MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION);
+        mSwipeDelete.setChecked(MailPrefs.ConversationListSwipeActions.DELETE.equals(
+                mMailPrefs.getConversationListSwipeAction(false)));
 
         final Preference replyAllPreference =
                 findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
