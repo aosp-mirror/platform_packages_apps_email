@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
+import com.android.email.Preferences;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.mail.providers.Account;
 import com.android.mail.providers.Folder;
@@ -65,7 +66,20 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
     protected static void migrate(final Context context, final int oldVersion, final int newVersion,
             final List<Account> accounts) {
         if (oldVersion < 1) {
-            // No global settings to move yet
+            // Move global settings
+            final Preferences preferences = Preferences.getPreferences(context);
+            final MailPrefs mailPrefs = MailPrefs.get(context);
+
+            android.os.Debug.waitForDebugger();
+            @SuppressWarnings("deprecation")
+            final boolean hasSwipeDelete = preferences.hasSwipeDelete();
+            if (hasSwipeDelete) {
+                @SuppressWarnings("deprecation")
+                final String swipeAction =
+                        preferences.getSwipeDelete() ? MailPrefs.ConversationListSwipeActions.DELETE
+                                : MailPrefs.ConversationListSwipeActions.DISABLED;
+                mailPrefs.setConversationListSwipeAction(swipeAction);
+            }
 
             // Move folder notification settings
             for (final Account account : accounts) {
