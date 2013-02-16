@@ -1436,7 +1436,10 @@ public class EmailProvider extends ContentProvider {
             }
             if (c == null) {
                 // This should never happen, but let's be sure to log it...
-                Log.e(TAG, "Query returning null for uri: " + uri + ", selection: " + selection);
+                // TODO: There are actually cases where c == null is expected, for example
+                // UI_FOLDER_LOAD_MORE.
+                // Demoting this to a warning for now until we figure out what to do with it.
+                Log.w(TAG, "Query returning null for uri: " + uri + ", selection: " + selection);
             }
         }
 
@@ -2256,7 +2259,7 @@ outer:
                 .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
                 .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
                 .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
-                .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.MESSAGE_COUNT)
+                .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
                 .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
                 .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
                 .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
@@ -3305,19 +3308,12 @@ outer:
                 if (visible) {
                     NotificationController.getInstance(mContext).cancelNewMessageNotification(
                             mMailboxId);
-                    // Clear the visible limit of the mailbox (if any) on entry
                     if (params.containsKey(
                             UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
                         if (mailbox != null) {
-                            if (mailbox.mVisibleLimit > 0) {
-                                ContentValues values = new ContentValues();
-                                values.put(MailboxColumns.VISIBLE_LIMIT, 0);
-                                mContext.getContentResolver().update(ContentUris.withAppendedId(
-                                        Mailbox.CONTENT_URI, mMailboxId), values, null, null);
-                            }
-
                             // Mark all messages as seen
+                            // TODO: should this happen even if the mailbox couldn't be restored?
                             final ContentValues contentValues = new ContentValues(1);
                             contentValues.put(MessageColumns.FLAG_SEEN, true);
                             final Uri uri = EmailContent.Message.CONTENT_URI;
@@ -4327,14 +4323,21 @@ outer:
             mSearchParams.mOffset += SEARCH_MORE_INCREMENT;
             runSearchQuery(context, mailbox.mAccountKey, id);
         } else {
-            ContentValues values = new ContentValues();
-            values.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
-            values.put(EmailContent.ADD_COLUMN_NAME, VISIBLE_LIMIT_INCREMENT);
-            Uri mailboxUri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, id);
-            // Increase the limit
-            context.getContentResolver().update(mailboxUri, values, null, null);
-            // And order a refresh
-            uiFolderRefresh(uri);
+            // Compute the new visibleLimit for this mailbox.
+            int newLimit = mailbox.mVisibleLimit + VISIBLE_LIMIT_INCREMENT;
+            if (newLimit > mailbox.mTotalCount) {
+                newLimit = mailbox.mTotalCount;
+            }
+            // Only do something if the limit is changing.
+            if (newLimit != mailbox.mVisibleLimit) {
+                // Save the new limit to the db.
+                ContentValues values = new ContentValues();
+                values.put(MailboxColumns.VISIBLE_LIMIT, newLimit);
+                context.getContentResolver().update(ContentUris.withAppendedId(Mailbox.CONTENT_URI,
+                        id), values, null, null);
+                // And order a refresh
+                uiFolderRefresh(uri);
+            }
         }
         return null;
     }
