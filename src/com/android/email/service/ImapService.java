@@ -408,17 +408,25 @@ public class ImapService extends Service {
         // 4. Trash any remote messages that are marked as trashed locally.
         // TODO - this comment was here, but no code was here.
 
+        ContentValues values = new ContentValues();
+
         // 5. Get the remote message count.
         int remoteMessageCount = remoteFolder.getMessageCount();
-        ContentValues values = new ContentValues();
         values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
-        mailbox.update(context, values);
 
         // 6. Determine the limit # of messages to download
         int visibleLimit = mailbox.mVisibleLimit;
         if (visibleLimit <= 0) {
             visibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
         }
+        if (visibleLimit > remoteMessageCount) {
+            visibleLimit = remoteMessageCount;
+        }
+        if (visibleLimit != mailbox.mVisibleLimit) {
+            values.put(MailboxColumns.VISIBLE_LIMIT, visibleLimit);
+        }
+
+        mailbox.update(context, values);
 
         // 7.  Create a list of messages to download
         Message[] remoteMessages = new Message[0];
