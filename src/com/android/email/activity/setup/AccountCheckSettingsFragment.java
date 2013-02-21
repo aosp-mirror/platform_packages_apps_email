@@ -578,6 +578,9 @@ public class AccountCheckSettingsFragment extends Fragment {
         protected void onPostExecute(MessagingException result) {
             if (isCancelled()) return;
             if (result == null) {
+                // If user rotates the screen, SetupDate will lose the data of current account.
+                // So we need restore the account with mAccount.
+                SetupData.setAccount(mAccount);
                 reportProgress(STATE_CHECK_OK, null);
             } else {
                 int progressState = STATE_CHECK_ERROR;
