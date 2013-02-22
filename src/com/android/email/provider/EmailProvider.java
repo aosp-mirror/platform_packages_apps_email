@@ -1926,6 +1926,29 @@ outer:
         return result;
     }
 
+    @Override
+    public Bundle call(String method, String arg, Bundle extras) {
+        LogUtils.d(TAG, "EmailProvider#call(%s, %s)", method, arg);
+        final Uri accountUri = Uri.parse(arg);
+
+        Uri messageUri = null;
+        if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
+            messageUri =  uiSendDraftMessageBundle(accountUri, extras);
+        } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SAVE_MESSAGE)) {
+            messageUri =  uiSaveDraftMessageBundle(accountUri, extras);
+        }
+
+        final Bundle result;
+        if (messageUri != null) {
+            result = new Bundle(1);
+            result.putParcelable(UIProvider.MessageColumns.URI, messageUri);
+        } else {
+            result = null;
+        }
+
+        return result;
+    }
+
     /**
      * Returns the base notification URI for the given content type.
      *
@@ -3784,6 +3807,96 @@ outer:
         Message msg = getMessageFromPathSegments(pathSegments);
         return uiSaveMessage(msg, mailbox, values);
     }
+
+    private Uri uiSaveDraftMessageBundle(Uri accountUri, Bundle extras) {
+        List<String> pathSegments = accountUri.getPathSegments();
+        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
+        if (mailbox == null) return null;
+        // This will likely just
+        final Message msg = getMessageFromPathSegments(pathSegments);
+        final ContentValues values = translateMessage(extras);
+        return uiSaveMessage(msg, mailbox, values);
+    }
+
+    private Uri uiSendDraftMessageBundle(Uri uri, Bundle extras) {
+        final long accountId = Long.parseLong(uri.getPathSegments().get(1));
+        Context context = getContext();
+        final Message msg;
+        if (extras.containsKey(BaseColumns._ID)) {
+            final long messageId = extras.getLong(BaseColumns._ID);
+            msg = Message.restoreMessageWithId(getContext(), messageId);
+        } else {
+            msg = new Message();
+        }
+
+        if (msg == null) return null;
+        long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_OUTBOX);
+        if (mailboxId == Mailbox.NO_MAILBOX) return null;
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+        if (mailbox == null) return null;
+        final ContentValues values = translateMessage(extras);
+        final Uri messageUri = uiSaveMessage(msg, mailbox, values);
+        // Kick observers
+        context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
+        return messageUri;
+    }
+
+    /**
+     * Converts the Bundle is used from the {@link UIProvider} ContentProvider#call() methods
+     * to the {@link ContentValues} object that is used in the internal Email provider
+     * @param values Bundle specified from the UI
+     * @return ContentValues object representing message data used in the internal Email provider
+     */
+    private static ContentValues translateMessage(Bundle values) {
+        final ContentValues translated = new ContentValues();
+
+        translated.put(UIProvider.MessageColumns.TO,
+                values.getString(UIProvider.MessageColumns.TO));
+        translated.put(UIProvider.MessageColumns.CC,
+                values.getString(UIProvider.MessageColumns.CC));
+        translated.put(UIProvider.MessageColumns.BCC,
+                values.getString(UIProvider.MessageColumns.BCC));
+        translated.put(UIProvider.MessageColumns.SUBJECT,
+                values.getString(UIProvider.MessageColumns.SUBJECT));
+        translated.put(UIProvider.MessageColumns.SNIPPET,
+                values.getString(UIProvider.MessageColumns.SNIPPET));
+        translated.put(UIProvider.MessageColumns.REPLY_TO,
+                values.getString(UIProvider.MessageColumns.REPLY_TO));
+        translated.put(UIProvider.MessageColumns.FROM,
+                values.getString(UIProvider.MessageColumns.FROM));
+        translated.put(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS,
+                values.getString(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS));
+        translated.put(UIProvider.MessageColumns.ATTACHMENTS,
+                values.getString(UIProvider.MessageColumns.ATTACHMENTS));
+        final String bodyHtml = values.getString(UIProvider.MessageColumns.BODY_HTML);
+        if (!TextUtils.isEmpty(bodyHtml)) {
+            translated.put(UIProvider.MessageColumns.BODY_HTML, bodyHtml);
+        }
+        final String bodyText = values.getString(UIProvider.MessageColumns.BODY_TEXT);
+        if (!TextUtils.isEmpty(bodyText)) {
+            translated.put(UIProvider.MessageColumns.BODY_TEXT, bodyText);
+        }
+        if (values.containsKey(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT)) {
+            translated.put(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
+                    values.getInt(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT));
+        }
+        if (values.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
+            translated.put(UIProvider.MessageColumns.QUOTE_START_POS,
+                    values.getInt(UIProvider.MessageColumns.QUOTE_START_POS));
+        }
+
+        if (values.containsKey(UIProvider.MessageColumns.REF_MESSAGE_ID)) {
+            translated.put(UIProvider.MessageColumns.REF_MESSAGE_ID,
+                    values.getString(UIProvider.MessageColumns.REF_MESSAGE_ID));
+        }
+        if (values.containsKey(UIProvider.MessageColumns.DRAFT_TYPE)) {
+            translated.put(UIProvider.MessageColumns.DRAFT_TYPE,
+                    values.getInt(UIProvider.MessageColumns.DRAFT_TYPE));
+        }
+
+        return translated;
+    }
+
 
     private int uiUpdateDraft(Uri uri, ContentValues values) {
         Context context = getContext();
