@@ -339,7 +339,7 @@ public class EmailProvider extends ContentProvider {
 
     // For undo handling
     private int mLastSequence = -1;
-    private ArrayList<ContentProviderOperation> mLastSequenceOps =
+    private final ArrayList<ContentProviderOperation> mLastSequenceOps =
             new ArrayList<ContentProviderOperation>();
 
     // Query parameter indicating the command came from UIProvider
@@ -2513,8 +2513,8 @@ outer:
                     }
                     com.android.mail.providers.Attachment uiAtt =
                             new com.android.mail.providers.Attachment();
-                    uiAtt.name = att.mFileName;
-                    uiAtt.contentType = att.mMimeType;
+                    uiAtt.setName(att.mFileName);
+                    uiAtt.setContentType(att.mMimeType);
                     uiAtt.size = (int) att.mSize;
                     uiAtt.uri = uiUri("uiattachment", att.mId);
                     uiAtts.add(uiAtt);
@@ -3524,8 +3524,8 @@ outer:
             com.android.mail.providers.Attachment uiAtt) {
         Attachment att = new Attachment();
         att.setContentUri(uiAtt.contentUri.toString());
-        att.mFileName = uiAtt.name;
-        att.mMimeType = uiAtt.contentType;
+        att.mFileName = uiAtt.getName();
+        att.mMimeType = uiAtt.getContentType();
         att.mSize = uiAtt.size;
         return att;
     }
@@ -4618,7 +4618,7 @@ outer:
     }
 
     private int[] mSavedWidgetIds = new int[0];
-    private ArrayList<Long> mWidgetNotifyMailboxes = new ArrayList<Long>();
+    private final ArrayList<Long> mWidgetNotifyMailboxes = new ArrayList<Long>();
     private AppWidgetManager mAppWidgetManager;
     private ComponentName mEmailComponent;
 
