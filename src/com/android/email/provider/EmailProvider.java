@@ -348,6 +348,17 @@ public class EmailProvider extends ContentProvider {
     private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
     private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
 
+    private static final String[] TRANSLATE_MESSAGE_OPTIONAL_STRING_FIELDS = new String[] {
+            UIProvider.MessageColumns.BODY_HTML,
+            UIProvider.MessageColumns.BODY_TEXT,
+            UIProvider.MessageColumns.REF_MESSAGE_ID
+    };
+    private static final String[] TRANSLATE_MESSAGE_OPTIONAL_INT_FIELDS = new String[] {
+            UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
+            UIProvider.MessageColumns.QUOTE_START_POS,
+            UIProvider.MessageColumns.DRAFT_TYPE
+    };
+
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -3798,9 +3809,8 @@ outer:
         List<String> pathSegments = accountUri.getPathSegments();
         Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
-        // This will likely just
-        final Message msg = getMessageFromPathSegments(pathSegments);
         final ContentValues values = translateMessage(extras);
+        final Message msg = new Message();
         return uiSaveMessage(msg, mailbox, values);
     }
 
@@ -3854,30 +3864,19 @@ outer:
                 values.getString(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS));
         translated.put(UIProvider.MessageColumns.ATTACHMENTS,
                 values.getString(UIProvider.MessageColumns.ATTACHMENTS));
-        final String bodyHtml = values.getString(UIProvider.MessageColumns.BODY_HTML);
-        if (!TextUtils.isEmpty(bodyHtml)) {
-            translated.put(UIProvider.MessageColumns.BODY_HTML, bodyHtml);
-        }
-        final String bodyText = values.getString(UIProvider.MessageColumns.BODY_TEXT);
-        if (!TextUtils.isEmpty(bodyText)) {
-            translated.put(UIProvider.MessageColumns.BODY_TEXT, bodyText);
-        }
-        if (values.containsKey(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT)) {
-            translated.put(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
-                    values.getInt(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT));
-        }
-        if (values.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
-            translated.put(UIProvider.MessageColumns.QUOTE_START_POS,
-                    values.getInt(UIProvider.MessageColumns.QUOTE_START_POS));
-        }
 
-        if (values.containsKey(UIProvider.MessageColumns.REF_MESSAGE_ID)) {
-            translated.put(UIProvider.MessageColumns.REF_MESSAGE_ID,
-                    values.getString(UIProvider.MessageColumns.REF_MESSAGE_ID));
+        for (String key : TRANSLATE_MESSAGE_OPTIONAL_STRING_FIELDS) {
+            if (values.containsKey(key)) {
+                final String value = values.getString(key);
+                if (!TextUtils.isEmpty(value)) {
+                    translated.put(key, value);
+                }
+            }
         }
-        if (values.containsKey(UIProvider.MessageColumns.DRAFT_TYPE)) {
-            translated.put(UIProvider.MessageColumns.DRAFT_TYPE,
-                    values.getInt(UIProvider.MessageColumns.DRAFT_TYPE));
+        for (String key : TRANSLATE_MESSAGE_OPTIONAL_INT_FIELDS) {
+            if (values.containsKey(key)) {
+                translated.put(key, values.getInt(key));
+            }
         }
 
         return translated;
