@@ -2217,10 +2217,6 @@ outer:
                 .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                         uriWithFQId("uiattachments", Message.TABLE_NAME))
                 .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
-                .add(UIProvider.MessageColumns.SAVE_MESSAGE_URI,
-                        uriWithFQId("uiupdatedraft", Message.TABLE_NAME))
-                .add(UIProvider.MessageColumns.SEND_MESSAGE_URI,
-                        uriWithFQId("uisenddraft", Message.TABLE_NAME))
                 .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
                 .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
                         uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
@@ -2306,8 +2302,6 @@ outer:
                 .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
                 .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
                 .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
-                .add(UIProvider.AccountColumns.SAVE_DRAFT_URI, uriWithId("uisavedraft"))
-                .add(UIProvider.AccountColumns.SEND_MAIL_URI, uriWithId("uisendmail"))
                 .add(UIProvider.AccountColumns.UNDO_URI,
                         ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
                 .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
@@ -2996,14 +2990,6 @@ outer:
         if (colPosMap.containsKey(UIProvider.AccountColumns.NAME)) {
             values[colPosMap.get(UIProvider.AccountColumns.NAME)] = getContext().getString(
                 R.string.mailbox_list_account_selector_combined_view);
-        }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SAVE_DRAFT_URI)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SAVE_DRAFT_URI)] =
-                    combinedUriString("uisavedraft", idString);
-        }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SEND_MAIL_URI)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SEND_MAIL_URI)] =
-                    combinedUriString("uisendmail", idString);
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.UNDO_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.UNDO_URI)] =
