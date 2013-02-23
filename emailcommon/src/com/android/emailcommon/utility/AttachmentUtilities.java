@@ -58,6 +58,10 @@ public class AttachmentUtilities {
         public static final String SIZE = "_size";
     }
 
+    private static final String[] ATTACHMENT_CACHED_FILE_PROJECTION = new String[] {
+            AttachmentColumns.CACHED_FILE
+    };
+
     /**
      * The MIME type(s) of attachments we're willing to send via attachments.
      *
@@ -293,6 +297,34 @@ public class AttachmentUtilities {
                 // it just returns false, which we ignore, and proceed to the next file.
                 // This entire loop is best-effort only.
                 attachmentFile.delete();
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
+     * In support of deleting a message, find all attachments and delete associated cached
+     * attachment files.
+     * @param context
+     * @param accountId the account for the message
+     * @param messageId the message
+     */
+    public static void deleteAllCachedAttachmentFiles(Context context, long accountId,
+            long messageId) {
+        final Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
+        final Cursor c = context.getContentResolver().query(uri, ATTACHMENT_CACHED_FILE_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                final String fileName = c.getString(0);
+                if (!TextUtils.isEmpty(fileName)) {
+                    final File cachedFile = new File(fileName);
+                    // Note, delete() throws no exceptions for basic FS errors (e.g. file not found)
+                    // it just returns false, which we ignore, and proceed to the next file.
+                    // This entire loop is best-effort only.
+                    cachedFile.delete();
+                }
             }
         } finally {
             c.close();

@@ -524,26 +524,28 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     continue;
                 }
                 // 4. move to sent, or delete
-                Uri syncedUri =
+                final Uri syncedUri =
                     ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+                // Delete all cached files
+                AttachmentUtilities.deleteAllCachedAttachmentFiles(context, account.mId, messageId);
                 if (requireMoveMessageToSentFolder) {
                     // If this is a forwarded message and it has attachments, delete them, as they
                     // duplicate information found elsewhere (on the server).  This saves storage.
-                    EmailContent.Message msg =
+                    final EmailContent.Message msg =
                         EmailContent.Message.restoreMessageWithId(context, messageId);
                     if (msg != null &&
                             ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0)) {
                         AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                                 messageId);
                     }
-                    int flags = msg.mFlags & ~(EmailContent.Message.FLAG_TYPE_REPLY |
+                    final int flags = msg.mFlags & ~(EmailContent.Message.FLAG_TYPE_REPLY |
                             EmailContent.Message.FLAG_TYPE_FORWARD);
                     moveToSentValues.put(EmailContent.MessageColumns.FLAGS, flags);
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
                     AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                             messageId);
-                    Uri uri =
+                    final Uri uri =
                         ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
                     resolver.delete(uri, null, null);
                     resolver.delete(syncedUri, null, null);

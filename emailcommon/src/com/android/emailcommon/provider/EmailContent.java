@@ -1150,6 +1150,8 @@ public abstract class EmailContent {
         // The location of the loaded attachment (probably a file)
         @SuppressWarnings("hiding")
         public static final String CONTENT_URI = "contentUri";
+        // The cached location of the attachment
+        public static final String CACHED_FILE = "cachedFile";
         // A foreign key into the Message table (the message owning this attachment)
         public static final String MESSAGE_KEY = "messageKey";
         // The location of the attachment on the server side
@@ -1200,6 +1202,7 @@ public abstract class EmailContent {
         public long mSize;
         public String mContentId;
         private String mContentUri;
+        private String mCachedFile;
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
@@ -1217,23 +1220,25 @@ public abstract class EmailContent {
         public static final int CONTENT_SIZE_COLUMN = 3;
         public static final int CONTENT_CONTENT_ID_COLUMN = 4;
         public static final int CONTENT_CONTENT_URI_COLUMN = 5;
-        public static final int CONTENT_MESSAGE_ID_COLUMN = 6;
-        public static final int CONTENT_LOCATION_COLUMN = 7;
-        public static final int CONTENT_ENCODING_COLUMN = 8;
-        public static final int CONTENT_CONTENT_COLUMN = 9; // Not currently used
-        public static final int CONTENT_FLAGS_COLUMN = 10;
-        public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 12;
-        public static final int CONTENT_UI_STATE_COLUMN = 13;
-        public static final int CONTENT_UI_DESTINATION_COLUMN = 14;
-        public static final int CONTENT_UI_DOWNLOADED_SIZE_COLUMN = 15;
+        public static final int CONTENT_CACHED_FILE_COLUMN = 6;
+        public static final int CONTENT_MESSAGE_ID_COLUMN = 7;
+        public static final int CONTENT_LOCATION_COLUMN = 8;
+        public static final int CONTENT_ENCODING_COLUMN = 9;
+        public static final int CONTENT_CONTENT_COLUMN = 10; // Not currently used
+        public static final int CONTENT_FLAGS_COLUMN = 11;
+        public static final int CONTENT_CONTENT_BYTES_COLUMN = 12;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 13;
+        public static final int CONTENT_UI_STATE_COLUMN = 14;
+        public static final int CONTENT_UI_DESTINATION_COLUMN = 15;
+        public static final int CONTENT_UI_DOWNLOADED_SIZE_COLUMN = 16;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
-            AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
-            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES,
-            AttachmentColumns.ACCOUNT_KEY, AttachmentColumns.UI_STATE,
-            AttachmentColumns.UI_DESTINATION, AttachmentColumns.UI_DOWNLOADED_SIZE
+            AttachmentColumns.CACHED_FILE, AttachmentColumns.MESSAGE_KEY,
+            AttachmentColumns.LOCATION, AttachmentColumns.ENCODING, AttachmentColumns.CONTENT,
+            AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES, AttachmentColumns.ACCOUNT_KEY,
+            AttachmentColumns.UI_STATE, AttachmentColumns.UI_DESTINATION,
+            AttachmentColumns.UI_DOWNLOADED_SIZE
         };
 
         // All attachments with an empty URI, regardless of mailbox
@@ -1273,6 +1278,14 @@ public abstract class EmailContent {
          */
         public Attachment() {
             mBaseUri = CONTENT_URI;
+        }
+
+        public void setCachedFilePath(String cachedFile) {
+            mCachedFile = cachedFile;
+        }
+
+        public String getCachedFilePath() {
+            return mCachedFile;
         }
 
         public void setContentUri(String contentUri) {
@@ -1376,6 +1389,7 @@ public abstract class EmailContent {
             mSize = cursor.getLong(CONTENT_SIZE_COLUMN);
             mContentId = cursor.getString(CONTENT_CONTENT_ID_COLUMN);
             mContentUri = cursor.getString(CONTENT_CONTENT_URI_COLUMN);
+            mCachedFile = cursor.getString(CONTENT_CACHED_FILE_COLUMN);
             mMessageKey = cursor.getLong(CONTENT_MESSAGE_ID_COLUMN);
             mLocation = cursor.getString(CONTENT_LOCATION_COLUMN);
             mEncoding = cursor.getString(CONTENT_ENCODING_COLUMN);
@@ -1396,6 +1410,7 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.SIZE, mSize);
             values.put(AttachmentColumns.CONTENT_ID, mContentId);
             values.put(AttachmentColumns.CONTENT_URI, mContentUri);
+            values.put(AttachmentColumns.CACHED_FILE, mCachedFile);
             values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);
             values.put(AttachmentColumns.LOCATION, mLocation);
             values.put(AttachmentColumns.ENCODING, mEncoding);
@@ -1423,6 +1438,7 @@ public abstract class EmailContent {
             dest.writeLong(mSize);
             dest.writeString(mContentId);
             dest.writeString(mContentUri);
+            dest.writeString(mCachedFile);
             dest.writeLong(mMessageKey);
             dest.writeString(mLocation);
             dest.writeString(mEncoding);
@@ -1448,6 +1464,7 @@ public abstract class EmailContent {
             mSize = in.readLong();
             mContentId = in.readString();
             mContentUri = in.readString();
+            mCachedFile = in.readString();
             mMessageKey = in.readLong();
             mLocation = in.readString();
             mEncoding = in.readString();
@@ -1482,9 +1499,10 @@ public abstract class EmailContent {
         @Override
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
-                    + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mFlags + ", " + mContentBytes + ", " + mAccountKey +  "," + mUiState + ","
-                    + mUiDestination + "," + mUiDownloadedSize + "]";
+                    + mContentUri + ", " + mCachedFile + ", " + mMessageKey + ", "
+                    + mLocation + ", " + mEncoding  + ", " + mFlags + ", " + mContentBytes + ", "
+                    + mAccountKey +  "," + mUiState + "," + mUiDestination + ","
+                    + mUiDownloadedSize + "]";
         }
     }
 

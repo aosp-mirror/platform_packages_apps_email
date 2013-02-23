@@ -18,6 +18,7 @@ package com.android.emailcommon.internet;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 
@@ -27,11 +28,14 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Message;
 
+import com.android.mail.utils.LogUtils;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +53,7 @@ import java.util.regex.Pattern;
  * Utility class to output RFC 822 messages from provider email messages
  */
 public class Rfc822Output {
+    private static final String TAG = "Email";
 
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
@@ -233,9 +238,25 @@ public class Rfc822Output {
             if (attachment.mContentBytes != null) {
                 inStream = new ByteArrayInputStream(attachment.mContentBytes);
             } else {
-                // try to open the file
-                Uri fileUri = Uri.parse(attachment.getContentUri());
-                inStream = context.getContentResolver().openInputStream(fileUri);
+                // First try the cached file
+                final String cachedFile = attachment.getCachedFilePath();
+                if (!TextUtils.isEmpty(cachedFile)) {
+                    try {
+                        inStream =  new FileInputStream(cachedFile);
+                    } catch (IOException e) {
+                        // Couldn't open the cached file, fall back to the original content uri
+                        inStream = null;
+
+                        LogUtils.d(TAG, "Rfc822Output#writeOneAttachment(), failed to load" +
+                                "cached file, falling back to: %s", attachment.getContentUri());
+                    }
+                }
+
+                if (inStream == null) {
+                    // try to open the file
+                    final Uri fileUri = Uri.parse(attachment.getContentUri());
+                    inStream = context.getContentResolver().openInputStream(fileUri);
+                }
             }
             // switch to output stream for base64 text output
             writer.flush();
@@ -254,8 +275,12 @@ public class Rfc822Output {
         }
         catch (FileNotFoundException fnfe) {
             // Ignore this - empty file is OK
+            LogUtils.e(TAG, fnfe, "Rfc822Output#writeOneAttachment(), FileNotFoundException" +
+                    "when sending attachment");
         }
         catch (IOException ioe) {
+            LogUtils.e(TAG, ioe, "Rfc822Output#writeOneAttachment(), IOException" +
+                    "when sending attachment");
             throw new MessagingException("Invalid attachment.", ioe);
         }
     }
