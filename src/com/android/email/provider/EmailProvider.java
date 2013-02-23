@@ -3677,7 +3677,7 @@ outer:
         // Get attachments from the ContentValues
         List<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.fromJSONArray(
-                        values.getAsString(UIProvider.MessageColumns.JOINED_ATTACHMENT_INFOS));
+                        values.getAsString(UIProvider.MessageColumns.ATTACHMENTS));
         ArrayList<Attachment> atts = new ArrayList<Attachment>();
         boolean hasUnloadedAttachments = false;
         for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
