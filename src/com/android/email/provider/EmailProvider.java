@@ -983,14 +983,21 @@ public class EmailProvider extends ContentProvider {
                         case HOSTAUTH:
                         case POLICY:
                             // Cache new account, host auth, policy, and some mailbox rows
-                            Cursor c = query(resultUri, CACHE_PROJECTIONS[table], null, null, null);
+                            final Cursor c =
+                                    query(resultUri, CACHE_PROJECTIONS[table], null, null, null);
                             if (c != null) {
-                                if (match == MAILBOX) {
-                                    addToMailboxTypeMap(c);
-                                } else if (match == ACCOUNT) {
-                                    getOrCreateAccountMailboxTypeMap(longId);
+                                try {
+                                    if (match == MAILBOX) {
+                                        addToMailboxTypeMap(c);
+                                    } else if (match == ACCOUNT) {
+                                        getOrCreateAccountMailboxTypeMap(longId);
+                                        if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
+                                            notifyUIAccount(longId);
+                                        }
+                                    }
+                                } finally {
+                                    c.close();
                                 }
-                                c.close();
                             }
                             break;
                     }
@@ -3091,34 +3098,37 @@ outer:
     }
 
     private Cursor uiAccounts(String[] uiProjection) {
-        Context context = getContext();
-        SQLiteDatabase db = getDatabase(context);
-        Cursor accountIdCursor =
+        final Context context = getContext();
+        final SQLiteDatabase db = getDatabase(context);
+        final Cursor accountIdCursor =
                 db.rawQuery("select _id from " + Account.TABLE_NAME, new String[0]);
-        int numAccounts = accountIdCursor.getCount();
-        boolean combinedAccount = false;
-        if (numAccounts > 1) {
-            combinedAccount = true;
-            numAccounts++;
-        }
-        final Bundle extras = new Bundle();
-        // Email always returns the accurate number of accounts
-        extras.putInt(AccountCursorExtraKeys.ACCOUNTS_LOADED, 1);
-        final MatrixCursor mc =
-                new MatrixCursorWithExtra(uiProjection, accountIdCursor.getCount(), extras);
-        Object[] values = new Object[uiProjection.length];
+        final MatrixCursor mc;
         try {
+            int numAccounts = accountIdCursor.getCount();
+            boolean combinedAccount = false;
+            if (numAccounts > 1) {
+                combinedAccount = true;
+                numAccounts++;
+            }
+            final Bundle extras = new Bundle();
+            // Email always returns the accurate number of accounts
+            extras.putInt(AccountCursorExtraKeys.ACCOUNTS_LOADED, 1);
+            mc = new MatrixCursorWithExtra(uiProjection, accountIdCursor.getCount(), extras);
+            final Object[] values = new Object[uiProjection.length];
             while (accountIdCursor.moveToNext()) {
-                String id = accountIdCursor.getString(0);
-                Cursor accountCursor =
+                final String id = accountIdCursor.getString(0);
+                final Cursor accountCursor =
                         db.rawQuery(genQueryAccount(uiProjection, id), new String[] {id});
-                if (accountCursor.moveToNext()) {
-                    for (int i = 0; i < uiProjection.length; i++) {
-                        values[i] = accountCursor.getString(i);
+                try {
+                    if (accountCursor.moveToNext()) {
+                        for (int i = 0; i < uiProjection.length; i++) {
+                            values[i] = accountCursor.getString(i);
+                        }
+                        mc.addRow(values);
                     }
-                    mc.addRow(values);
+                } finally {
+                    accountCursor.close();
                 }
-                accountCursor.close();
             }
             if (combinedAccount) {
                 addCombinedAccountRow(mc);
@@ -3127,6 +3137,7 @@ outer:
             accountIdCursor.close();
         }
         mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
+
         return mc;
     }
 
@@ -4345,8 +4356,20 @@ outer:
         notifyWidgets(id);
     }
 
+    /**
+     * Notify about the Account id passed in
+     * @param id the Account id to be notified
+     */
+    private void notifyUIAccount(long id) {
+        // Notify on the specific account
+        notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, Long.toString(id));
+
+        // Notify on the all accounts list
+        notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+    }
+
     private void notifyUI(Uri uri, String id) {
-        Uri notifyUri = uri.buildUpon().appendPath(id).build();
+        final Uri notifyUri = (id != null) ? uri.buildUpon().appendPath(id).build() : uri;
         getContext().getContentResolver().notifyChange(notifyUri, null);
     }
 
