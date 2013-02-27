@@ -57,6 +57,7 @@ import com.android.emailcommon.provider.ProviderUnavailableException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -744,14 +745,30 @@ public class Utility {
         } else if (attachment.mContentBytes != null) {
             return true;
         } else {
-            String contentUri = attachment.getContentUri();
+            final String cachedFile = attachment.getCachedFilePath();
+            // Try the cached file first
+            if (!TextUtils.isEmpty(cachedFile)) {
+                try {
+                    final InputStream inStream =  new FileInputStream(cachedFile);
+                    try {
+                        inStream.close();
+                    } catch (IOException e) {
+                        // Nothing to be done if can't close the stream
+                    }
+                    return true;
+                } catch (FileNotFoundException e) {
+                    // We weren't able to open the file, try the content uri below
+                }
+            }
+            final String contentUri = attachment.getContentUri();
             if (TextUtils.isEmpty(contentUri)) {
                 return false;
             }
             try {
-                Uri fileUri = Uri.parse(contentUri);
+                final Uri fileUri = Uri.parse(contentUri);
                 try {
-                    InputStream inStream = context.getContentResolver().openInputStream(fileUri);
+                    final InputStream inStream =
+                            context.getContentResolver().openInputStream(fileUri);
                     try {
                         inStream.close();
                     } catch (IOException e) {

@@ -132,8 +132,9 @@ public final class DBHelper {
     // Version 104&105: add syncData to Message
     // Version 106: Add certificate to HostAuth
     // Version 107: Add a SEEN column to the message table
+    // Version 108: Add a cachedFile column to the attachments table
 
-    public static final int DATABASE_VERSION = 107;
+    public static final int DATABASE_VERSION = 108;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -453,7 +454,8 @@ public final class DBHelper {
             + AttachmentColumns.ACCOUNT_KEY + " integer, "
             + AttachmentColumns.UI_STATE + " integer, "
             + AttachmentColumns.UI_DESTINATION + " integer, "
-            + AttachmentColumns.UI_DOWNLOADED_SIZE + " integer"
+            + AttachmentColumns.UI_DOWNLOADED_SIZE + " integer, "
+            + AttachmentColumns.CACHED_FILE + " text"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
@@ -1027,6 +1029,17 @@ public final class DBHelper {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from v106 to v107", e);
                 }
                 oldVersion = 107;
+            }
+            if (oldVersion == 107) {
+                try {
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + Attachment.CACHED_FILE +" text" + ";");
+                    oldVersion = 108;
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from v107 to v108", e);
+                }
+
             }
         }
 
