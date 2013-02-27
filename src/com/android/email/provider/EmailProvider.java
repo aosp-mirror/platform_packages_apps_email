@@ -88,6 +88,7 @@ import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.providers.UIProvider.Swipe;
+import com.android.mail.utils.AttachmentUtils;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.android.mail.utils.MatrixCursorWithExtra;
@@ -3529,12 +3530,16 @@ outer:
      * Convert a UIProvider attachment to an EmailProvider attachment (for sending); we only need
      * a few of the fields
      * @param uiAtt the UIProvider attachment to convert
+     * @param cachedFile the path to the cached file to
      * @return the EmailProvider attachment
      */
+    // TODO(pwestbro): once the Attachment contains the cached uri, the second parameter can be
+    // removed
     private static Attachment convertUiAttachmentToAttachment(
-            com.android.mail.providers.Attachment uiAtt) {
-        Attachment att = new Attachment();
+            com.android.mail.providers.Attachment uiAtt, String cachedFile) {
+        final Attachment att = new Attachment();
         att.setContentUri(uiAtt.contentUri.toString());
+        att.setCachedFilePath(cachedFile);
         att.mFileName = uiAtt.getName();
         att.mMimeType = uiAtt.getContentType();
         att.mSize = uiAtt.size;
@@ -3624,10 +3629,11 @@ outer:
      * @param values the content values that represent message fields
      * @return the uri of the newly created message
      */
-    private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values) {
-        Context context = getContext();
+    private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values,
+            Bundle attachmentFds) {
+        final Context context = getContext();
         // Fill in the message
-        Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
+        final Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
         if (account == null) return null;
         msg.mFrom = account.mEmailAddress;
         msg.mTimeStamp = System.currentTimeMillis();
@@ -3643,10 +3649,11 @@ outer:
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
         msg.mFlagSeen = true;
-        Integer quoteStartPos = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        final Integer quoteStartPos =
+                values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
         msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
         int flags = 0;
-        int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
+        final int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
             case DraftType.FORWARD:
                 flags |= Message.FLAG_TYPE_FORWARD;
@@ -3674,7 +3681,7 @@ outer:
         msg.mDraftInfo = draftInfo;
         msg.mFlags = flags;
 
-        String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
+        final String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
         if (ref != null && msg.mQuotedTextStartPos >= 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
@@ -3686,24 +3693,24 @@ outer:
         }
 
         // Get attachments from the ContentValues
-        List<com.android.mail.providers.Attachment> uiAtts =
+        final List<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.fromJSONArray(
                         values.getAsString(UIProvider.MessageColumns.ATTACHMENTS));
-        ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        final ArrayList<Attachment> atts = new ArrayList<Attachment>();
         boolean hasUnloadedAttachments = false;
         for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
-            Uri attUri = uiAtt.uri;
+            final Uri attUri = uiAtt.uri;
             if (attUri != null && attUri.getAuthority().equals(EmailContent.AUTHORITY)) {
                 // If it's one of ours, retrieve the attachment and add it to the list
-                long attId = Long.parseLong(attUri.getLastPathSegment());
-                Attachment att = Attachment.restoreAttachmentWithId(context, attId);
+                final long attId = Long.parseLong(attUri.getLastPathSegment());
+                final Attachment att = Attachment.restoreAttachmentWithId(context, attId);
                 if (att != null) {
                     // We must clone the attachment into a new one for this message; easiest to
                     // use a parcel here
-                    Parcel p = Parcel.obtain();
+                    final Parcel p = Parcel.obtain();
                     att.writeToParcel(p, 0);
                     p.setDataPosition(0);
-                    Attachment attClone = new Attachment(p);
+                    final Attachment attClone = new Attachment(p);
                     p.recycle();
                     // Clear the messageKey (this is going to be a new attachment)
                     attClone.mMessageKey = 0;
@@ -3717,8 +3724,13 @@ outer:
                     atts.add(attClone);
                 }
             } else {
+                // Cache the attachment.  This will allow us to send it, if the permissions are
+                // revoked
+                final String cachedFileUri =
+                        AttachmentUtils.cacheAttachmentUri(context, uiAtt, attachmentFds);
+
                 // Convert external attachment to one of ours and add to the list
-                atts.add(convertUiAttachmentToAttachment(uiAtt));
+                atts.add(convertUiAttachmentToAttachment(uiAtt, cachedFileUri));
             }
         }
         if (!atts.isEmpty()) {
@@ -3734,7 +3746,8 @@ outer:
         } else {
             // This is tricky due to how messages/attachments are saved; rather than putz with
             // what's changed, we'll delete/re-add them
-            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            final ArrayList<ContentProviderOperation> ops =
+                    new ArrayList<ContentProviderOperation>();
             // Delete all existing attachments
             ops.add(ContentProviderOperation.newDelete(
                     ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, msg.mId))
@@ -3752,18 +3765,18 @@ outer:
             }
         }
         if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+            final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
                     mServiceCallback, mailbox.mAccountKey);
             try {
                 service.startSync(mailbox.mId, true);
             } catch (RemoteException e) {
             }
-            long originalMsgId = msg.mSourceKey;
+            final long originalMsgId = msg.mSourceKey;
             if (originalMsgId != 0) {
-                Message originalMsg = Message.restoreMessageWithId(context, originalMsgId);
+                final Message originalMsg = Message.restoreMessageWithId(context, originalMsgId);
                 // If the original message exists, set its forwarded/replied to flags
                 if (originalMsg != null) {
-                    ContentValues cv = new ContentValues();
+                    final ContentValues cv = new ContentValues();
                     flags = originalMsg.mFlags;
                     switch(draftType) {
                         case DraftType.FORWARD:
@@ -3795,7 +3808,7 @@ outer:
         if (mailbox == null) return null;
         Message msg = getMessageFromPathSegments(pathSegments);
         try {
-            return uiSaveMessage(msg, mailbox, values);
+            return uiSaveMessage(msg, mailbox, values, null);
         } finally {
             // Kick observers
             getContext().getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
@@ -3813,21 +3826,27 @@ outer:
         Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
         Message msg = getMessageFromPathSegments(pathSegments);
-        return uiSaveMessage(msg, mailbox, values);
+        return uiSaveMessage(msg, mailbox, values, null);
     }
 
     private Uri uiSaveDraftMessageBundle(Uri accountUri, Bundle extras) {
-        List<String> pathSegments = accountUri.getPathSegments();
-        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
+        final List<String> pathSegments = accountUri.getPathSegments();
+        final Mailbox mailbox =
+                getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
         final ContentValues values = translateMessage(extras);
         final Message msg = new Message();
-        return uiSaveMessage(msg, mailbox, values);
+
+        // Get the Bundle of open fds from the extra
+        final Bundle attachmentFds =
+                extras.getParcelable(UIProvider.SendOrSaveMethodParamKeys.OPENED_FD_MAP);
+
+        return uiSaveMessage(msg, mailbox, values, attachmentFds);
     }
 
     private Uri uiSendDraftMessageBundle(Uri uri, Bundle extras) {
         final long accountId = Long.parseLong(uri.getPathSegments().get(1));
-        Context context = getContext();
+        final Context context = getContext();
         final Message msg;
         if (extras.containsKey(BaseColumns._ID)) {
             final long messageId = extras.getLong(BaseColumns._ID);
@@ -3837,12 +3856,16 @@ outer:
         }
 
         if (msg == null) return null;
-        long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_OUTBOX);
+        final long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_OUTBOX);
         if (mailboxId == Mailbox.NO_MAILBOX) return null;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return null;
         final ContentValues values = translateMessage(extras);
-        final Uri messageUri = uiSaveMessage(msg, mailbox, values);
+        // Get the Bundle of open fds from the extra
+        final Bundle attachmentFds =
+                extras.getParcelable(UIProvider.SendOrSaveMethodParamKeys.OPENED_FD_MAP);
+
+        final Uri messageUri = uiSaveMessage(msg, mailbox, values, attachmentFds);
         // Kick observers
         context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
         return messageUri;
@@ -3901,7 +3924,7 @@ outer:
         if (msg == null) return 0;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
         if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values);
+        uiSaveMessage(msg, mailbox, values, null);
         return 1;
     }
 
@@ -3914,7 +3937,7 @@ outer:
         if (mailboxId == Mailbox.NO_MAILBOX) return 0;
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values);
+        uiSaveMessage(msg, mailbox, values, null);
         // Kick observers
         context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
         return 1;
