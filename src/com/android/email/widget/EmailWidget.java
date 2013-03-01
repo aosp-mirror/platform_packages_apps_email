@@ -286,7 +286,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
         if (isCursorValid()) {
             // Show compose icon & message list
-            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW
+                || Account.restoreAccountWithId(mContext, mAccountId) == null) {
                 // Don't allow compose for "combined" view
                 views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
             } else {
