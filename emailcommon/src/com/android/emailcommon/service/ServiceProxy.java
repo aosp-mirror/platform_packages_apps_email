@@ -21,6 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Debug;
 import android.os.IBinder;
 import android.os.Looper;
@@ -28,18 +29,15 @@ import android.os.RemoteException;
 import android.util.Log;
 
 /**
- * The EmailServiceProxy class provides a simple interface for the UI to call into the various
- * EmailService classes (e.g. ExchangeService for EAS).  It wraps the service connect/disconnect
- * process so that the caller need not be concerned with it.
+ * ServiceProxy is a superclass for proxy objects which make a single call to a service. It handles
+ * connecting to the service, running a task supplied by the subclass when the connection is ready,
+ * and disconnecting from the service afterwards. ServiceProxy objects cannot be reused (trying to
+ * do so generates an {@link IllegalStateException}).
  *
- * Use the class like this:
- *   new EmailServiceClass(context, class).loadAttachment(attachmentId, callback)
- *
- * Methods without a return value return immediately (i.e. are asynchronous); methods with a
- * return value wait for a result from the Service (i.e. they should not be called from the UI
- * thread) with a default timeout of 30 seconds (settable)
- *
- * An EmailServiceProxy object cannot be reused (trying to do so generates a RemoteException)
+ * Subclasses must override {@link #onConnected} to store the binder. Then, when the subclass wants
+ * to make a service call, it should call {@link #setTask}, supplying the {@link ProxyTask} that
+ * should run when the connection is ready. {@link ProxyTask#run} should implement the necessary
+ * logic to make the call on the service.
  */
 
 public abstract class ServiceProxy {
@@ -48,14 +46,14 @@ public abstract class ServiceProxy {
 
     private final Context mContext;
     protected final Intent mIntent;
-    private Runnable mRunnable = new ProxyRunnable();
     private ProxyTask mTask;
     private String mName = " unnamed";
     private final ServiceConnection mConnection = new ProxyConnection();
     // Service call timeout (in seconds)
     private int mTimeout = 45;
     private long mStartTime;
-    private boolean mDead = false;
+    private boolean mTaskSet = false;
+    private boolean mTaskCompleted = false;
 
     public static Intent getIntentForEmailPackage(Context context, String actionName) {
         return new Intent(getIntentStringForEmailPackage(context, actionName));
@@ -78,6 +76,11 @@ public abstract class ServiceProxy {
         return packageName.substring(0, lastDot + 1) + "email." + actionName;
     }
 
+    /**
+     * This function is called after the proxy connects to the service but before it runs its task.
+     * Subclasses must override this to store the binder correctly.
+     * @param binder The service IBinder.
+     */
     public abstract void onConnected(IBinder binder);
 
     public ServiceProxy(Context _context, Intent _intent) {
@@ -90,23 +93,45 @@ public abstract class ServiceProxy {
     }
 
     private class ProxyConnection implements ServiceConnection {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            onConnected(binder);
             if (DEBUG_PROXY) {
                 Log.v(mTag, "Connected: " + name.getShortClassName() + " at " +
                         (System.currentTimeMillis() - mStartTime) + "ms");
             }
-            // Run our task on a new thread
-            new Thread(new Runnable() {
-                public void run() {
+
+            // Let subclasses handle the binder.
+            onConnected(binder);
+
+            // Do our work in another thread.
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
                     try {
-                        runTask();
-                    } finally {
-                        endTask();
+                        mTask.run();
+                    } catch (RemoteException e) {
                     }
-                }}).start();
+                    try {
+                        // Each ServiceProxy handles just one task, so we unbind after we're
+                        // done with our work.
+                        mContext.unbindService(mConnection);
+                    } catch (IllegalArgumentException e) {
+                        // This can happen if the user ended the activity that was using the
+                        // service. This is harmless, but we've got to catch it.
+                    }
+                    mTaskCompleted = true;
+                    synchronized(mConnection) {
+                        if (DEBUG_PROXY) {
+                            Log.v(mTag, "Task " + mName + " completed; disconnecting");
+                        }
+                        mConnection.notify();
+                    }
+                    return null;
+                }
+            }.execute();
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             if (DEBUG_PROXY) {
                 Log.v(mTag, "Disconnected: " + name.getShortClassName() + " at " +
@@ -115,18 +140,8 @@ public abstract class ServiceProxy {
         }
     }
 
-    public interface ProxyTask {
+    protected interface ProxyTask {
         public void run() throws RemoteException;
-    }
-
-    private class ProxyRunnable implements Runnable {
-        @Override
-        public void run() {
-            try {
-                mTask.run();
-            } catch (RemoteException e) {
-            }
-        }
     }
 
     public ServiceProxy setTimeout(int secs) {
@@ -138,41 +153,12 @@ public abstract class ServiceProxy {
         return mTimeout;
     }
 
-    public void endTask() {
-        try {
-            mContext.unbindService(mConnection);
-        } catch (IllegalArgumentException e) {
-            // This can happen if the user ended the activity that was using the service
-            // This is harmless, but we've got to catch it
+    protected boolean setTask(ProxyTask task, String name) throws IllegalStateException {
+        if (mTaskSet) {
+            throw new IllegalStateException("Cannot call setTask twice on the same ServiceProxy.");
         }
-
-        mDead = true;
-        synchronized(mConnection) {
-            if (DEBUG_PROXY) {
-                Log.v(mTag, "Task " + mName + " completed; disconnecting");
-            }
-            mConnection.notify();
-        }
-    }
-
-    private void runTask() {
-        Thread thread = new Thread(mRunnable);
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-        }
-    }
-
-    public boolean setTask(ProxyTask task, String name) {
+        mTaskSet = true;
         mName = name;
-        return setTask(task);
-    }
-
-    public boolean setTask(ProxyTask task) throws IllegalStateException {
-        if (mDead) {
-            throw new IllegalStateException();
-        }
         mTask = task;
         mStartTime = System.currentTimeMillis();
         if (DEBUG_PROXY) {
@@ -181,7 +167,12 @@ public abstract class ServiceProxy {
         return mContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void waitForCompletion() {
+    /**
+     * Callers that want to wait on the {@link ProxyTask} should call this immediately after calling
+     * {@link #setTask}. This will wait until the task completes, up to the timeout (which can be
+     * set with {@link #setTimeout}).
+     */
+    protected void waitForCompletion() {
         /*
          * onServiceConnected() is always called on the main thread, and we block the current thread
          * for up to 10 seconds as a timeout. If we're currently on the main thread,
@@ -203,18 +194,11 @@ public abstract class ServiceProxy {
                 // Can be ignored safely
             }
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Wait for " + mName + (mDead ? " finished in " : " timed out in ") +
+                Log.v(mTag, "Wait for " + mName +
+                        (mTaskCompleted ? " finished in " : " timed out in ") +
                         (System.currentTimeMillis() - time) + "ms");
-                mDead = true;
             }
         }
-    }
-
-    public void close() throws RemoteException {
-        if (mDead) {
-            throw new RemoteException();
-        }
-        endTask();
     }
 
     /**
@@ -224,6 +208,7 @@ public abstract class ServiceProxy {
     public boolean test() {
         try {
             return setTask(new ProxyTask() {
+                @Override
                 public void run() throws RemoteException {
                     if (DEBUG_PROXY) {
                         Log.v(mTag, "Connection test succeeded in " +
