@@ -16,6 +16,13 @@
 
 <!-- non-xlarge.  See also values-xlarge for specializations for xlarge screens -->
 <resources>
+    <!-- Compose Styles -->
+    <style name="RecipientEditTextViewStyle" parent="@style/RecipientEditTextView">
+        <item name="android:height">42dip</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:maxLines">@integer/chips_max_lines</item>
+    </style>
+
     <!-- The headline at the top of every account settings fragments (in preferences) -->
     <!-- TODO these are estimates for the phone UX - final sizes TBD -->
     <style name="accountSettingsHeadline">
