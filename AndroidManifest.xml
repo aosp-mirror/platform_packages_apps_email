@@ -682,7 +682,8 @@
                 <action android:name="com.android.mail.action.NOTIF_FORWARD" />
             </intent-filter>
         </service>
-
+        <service android:name="com.android.mail.MailLogService">
+        </service>
     </application>
 
     <!-- Legacy permissions, etc. can go here -->
