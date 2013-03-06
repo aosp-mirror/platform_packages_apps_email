@@ -769,8 +769,7 @@ public class EmailProvider extends ContentProvider {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
-                        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
-                        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, id);
+                        notifyUIFolder(id, null);
                     } else if (match == ATTACHMENT_ID) {
                         notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
                     }
@@ -1850,8 +1849,8 @@ outer:
                             }
                         }
                     } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
-                        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, id);
-                        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, id);
+                        // TODO: should this notify on keys other than sync status?
+                        notifyUIFolder(id, null);
                     } else if (match == ACCOUNT_ID) {
                         // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
@@ -3323,6 +3322,7 @@ outer:
                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                             mailbox.mUiLastSyncResult);
                 }
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
             }
         }
 
@@ -4274,8 +4274,7 @@ outer:
         if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_DRAFTS) {
             // We actually delete these, including attachments
             AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
-            notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
-            notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, mailbox.mAccountKey);
+            notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
             return context.getContentResolver().delete(
                     ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg.mId), null, null);
         }
@@ -4286,8 +4285,7 @@ outer:
         }
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
-        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, mailbox.mId);
-        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, mailbox.mId);
+        notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
         return uiUpdateMessage(uri, values, true);
     }
 
@@ -4389,6 +4387,36 @@ outer:
 
         // Notify on the all accounts list
         notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+    }
+
+    /**
+     * Notify about a folder update. Because folder changes can affect the conversation cursor's
+     * extras, the conversation must also be notified here.
+     * @param folderId the folder id to be notified
+     * @param accountId the account id to be notified (for folder list notification); if null, then
+     * lookup the accountId from the folder.
+     */
+    private void notifyUIFolder(String folderId, String accountId) {
+        notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, folderId);
+        notifyUI(UIPROVIDER_FOLDER_NOTIFIER, folderId);
+        if (accountId == null) {
+            try {
+                final Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(),
+                        Long.parseLong(folderId));
+                if (mailbox != null) {
+                    accountId = Long.toString(mailbox.mAccountKey);
+                }
+            } catch (NumberFormatException e) {
+                // Bad folderId, so we can't lookup account.
+            }
+        }
+        if (accountId != null) {
+            notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
+        }
+    }
+
+    private void notifyUIFolder(long folderId, long accountId) {
+        notifyUIFolder(Long.toString(folderId), Long.toString(accountId));
     }
 
     private void notifyUI(Uri uri, String id) {
@@ -4526,8 +4554,7 @@ outer:
                             mSearchParams.mTotalCount = service.searchMessages(accountId,
                                     mSearchParams, searchMailboxId);
                             //Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
-                            notifyUI(UIPROVIDER_FOLDER_NOTIFIER, searchMailboxId);
-                            notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
+                            notifyUIFolder(searchMailboxId, accountId);
                         } catch (RemoteException e) {
                             Log.e("searchMessages", "RemoteException", e);
                         }
