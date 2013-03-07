@@ -604,8 +604,8 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mAccountSignature.setOnPreferenceChangeListener(this);
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-        String protocol = Account.getProtocol(mContext, mAccount.mId);
-        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+        final String protocol = Account.getProtocol(mContext, mAccount.mId);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
         mCheckFrequency.setEntries(info.syncIntervalStrings);
         mCheckFrequency.setEntryValues(info.syncIntervals);
         mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
