@@ -58,18 +58,22 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.service.SyncWindow;
 
+import com.android.mail.utils.LogUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility functions for EmailService support.
  */
 public class EmailServiceUtils {
-    private static final ArrayList<EmailServiceInfo> sServiceList =
-            new ArrayList<EmailServiceInfo>();
+    private static final ArrayList<EmailServiceInfo> sServiceList = Lists.newArrayList();
+    private static final Map<String, EmailServiceInfo> sServiceMap = Maps.newHashMap();
 
     /**
      * Starts an EmailService by protocol
@@ -224,12 +228,7 @@ public class EmailServiceUtils {
         if (sServiceList.isEmpty()) {
             findServices(context);
         }
-        for (EmailServiceInfo info: sServiceList) {
-            if (info.protocol.equals(protocol)) {
-                return info;
-            }
-        }
-        return null;
+        return sServiceMap.get(protocol);
     }
 
     public static List<EmailServiceInfo> getServiceInfoList(Context context) {
@@ -296,19 +295,21 @@ public class EmailServiceUtils {
     private static void updateAccountManagerType(Context context,
             android.accounts.Account amAccount, EmailServiceInfo oldInfo,
             EmailServiceInfo newInfo) {
-        ContentResolver resolver = context.getContentResolver();
-        Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
+        final ContentResolver resolver = context.getContentResolver();
+        final Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                 AccountColumns.EMAIL_ADDRESS + "=?", new String[] { amAccount.name }, null);
         // That's odd, isn't it?
         if (c == null) return;
         try {
             if (c.moveToNext()) {
                 // Get the EmailProvider Account/HostAuth
-                Account account = new Account();
+                final Account account = new Account();
                 account.restore(c);
-                HostAuth hostAuth =
+                final HostAuth hostAuth =
                         HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
-                if (hostAuth == null) return;
+                if (hostAuth == null) {
+                    return;
+                }
 
                 // Make sure this email address is using the expected protocol; our query to
                 // AccountManager doesn't know which protocol was being used (com.android.email
@@ -318,18 +319,18 @@ public class EmailServiceUtils {
                 }
                 Log.w(Logging.LOG_TAG, "Converting " + amAccount.name + " to " + newInfo.protocol);
 
-                ContentValues accountValues = new ContentValues();
+                final ContentValues accountValues = new ContentValues();
                 int oldFlags = account.mFlags;
 
                 // Mark the provider account incomplete so it can't get reconciled away
                 account.mFlags |= Account.FLAGS_INCOMPLETE;
                 accountValues.put(AccountColumns.FLAGS, account.mFlags);
-                Uri accountUri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
+                final Uri accountUri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
                 resolver.update(accountUri, accountValues, null, null);
 
                 // Change the HostAuth to reference the new protocol; this has to be done before
                 // trying to create the AccountManager account (below)
-                ContentValues hostValues = new ContentValues();
+                final ContentValues hostValues = new ContentValues();
                 hostValues.put(HostAuth.PROTOCOL, newInfo.protocol);
                 resolver.update(ContentUris.withAppendedId(HostAuth.CONTENT_URI, hostAuth.mId),
                         hostValues, null, null);
@@ -344,16 +345,16 @@ public class EmailServiceUtils {
                         email = ContentResolver.getSyncAutomatically(amAccount,
                                 "com.android.email.provider");
                     }
-                    boolean contacts = ContentResolver.getSyncAutomatically(amAccount,
+                    final boolean contacts = ContentResolver.getSyncAutomatically(amAccount,
                             ContactsContract.AUTHORITY);
-                    boolean calendar = ContentResolver.getSyncAutomatically(amAccount,
+                    final boolean calendar = ContentResolver.getSyncAutomatically(amAccount,
                             CalendarContract.AUTHORITY);
                     Log.w(Logging.LOG_TAG, "Email: " + email + ", Contacts: " + contacts + "," +
                             " Calendar: " + calendar);
 
                     // Get sync keys for calendar/contacts
-                    String amName = amAccount.name;
-                    String oldType = amAccount.type;
+                    final String amName = amAccount.name;
+                    final String oldType = amAccount.type;
                     ContentProviderClient client = context.getContentResolver()
                             .acquireContentProviderClient(CalendarContract.CONTENT_URI);
                     byte[] calendarSyncKey = null;
@@ -467,39 +468,43 @@ public class EmailServiceUtils {
     @SuppressWarnings("unchecked")
     private static synchronized void findServices(Context context) {
         try {
-            Resources res = context.getResources();
-            XmlResourceParser xml = res.getXml(R.xml.services);
+            final Resources res = context.getResources();
+            final XmlResourceParser xml = res.getXml(R.xml.services);
             int xmlEventType;
             // walk through senders.xml file.
             while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
                 if (xmlEventType == XmlResourceParser.START_TAG &&
                         "emailservice".equals(xml.getName())) {
-                    EmailServiceInfo info = new EmailServiceInfo();
-                    TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
+                    final EmailServiceInfo info = new EmailServiceInfo();
+                    final TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
                     info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
                     info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
                     // Handle upgrade of one protocol to another (e.g. imap to imap2)
-                    String newProtocol = ta.getString(R.styleable.EmailServiceInfo_replaceWith);
+                    final String newProtocol =
+                            ta.getString(R.styleable.EmailServiceInfo_replaceWith);
+
                     if (newProtocol != null) {
-                        EmailServiceInfo newInfo = getServiceInfo(context, newProtocol);
+                        final EmailServiceInfo newInfo = getServiceInfo(context, newProtocol);
                         if (newInfo == null) {
                             throw new IllegalStateException(
                                     "Replacement service not found: " + newProtocol);
                         }
+                        sServiceMap.put(info.protocol, newInfo);
+
                         info.requiresAccountUpdate = ta.getBoolean(
                                 R.styleable.EmailServiceInfo_requiresAccountUpdate, false);
-                        AccountManager am = AccountManager.get(context);
-                        android.accounts.Account[] amAccounts =
+                        final AccountManager am = AccountManager.get(context);
+                        final android.accounts.Account[] amAccounts =
                                 am.getAccountsByType(info.accountType);
                         for (android.accounts.Account amAccount: amAccounts) {
                             new UpdateAccountManagerTask(context, amAccount, info, newInfo)
-                                .executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                                    .executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
                         }
                         continue;
                     }
                     info.name = ta.getString(R.styleable.EmailServiceInfo_name);
                     info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
-                    String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
+                    final String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
                     info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
                     info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
                     info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
@@ -559,6 +564,7 @@ public class EmailServiceUtils {
                                 "Both class and intent action specified in service descriptor");
                     }
                     sServiceList.add(info);
+                    sServiceMap.put(info.protocol, info);
                 }
             }
             // Disable our legacy components

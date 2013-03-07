@@ -26,8 +26,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.email.R;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
@@ -50,7 +52,11 @@ import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 public final class DBHelper {
     private static final String TAG = "EmailProvider";
@@ -133,8 +139,9 @@ public final class DBHelper {
     // Version 106: Add certificate to HostAuth
     // Version 107: Add a SEEN column to the message table
     // Version 108: Add a cachedFile column to the attachments table
+    // Version 109: Migrate the account so they have the correct account manager types
 
-    public static final int DATABASE_VERSION = 108;
+    public static final int DATABASE_VERSION = 109;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1041,6 +1048,11 @@ public final class DBHelper {
                 }
 
             }
+            if (oldVersion == 108) {
+                // Migrate the accounts with the correct account type
+                migrateLegacyAccounts(db, mContext);
+                oldVersion = 109;
+            }
         }
 
         @Override
@@ -1122,12 +1134,16 @@ public final class DBHelper {
     private static final int V21_HOSTAUTH_PROTOCOL = 0;
     private static final int V21_HOSTAUTH_PASSWORD = 1;
 
-    static private void createAccountManagerAccount(Context context, String login,
+    private static void createAccountManagerAccount(Context context, String login, String type,
             String password) {
-        AccountManager accountManager = AccountManager.get(context);
-        // STOPSHIP
-        android.accounts.Account amAccount =
-            new android.accounts.Account(login, "com.android.email");
+        final AccountManager accountManager = AccountManager.get(context);
+
+        if (isAccountPresent(accountManager, login, type)) {
+            // The account already exists,just return
+            return;
+        }
+        LogUtils.v("Email", "Creating account %s %s", login, type);
+        final android.accounts.Account amAccount = new android.accounts.Account(login, type);
         accountManager.addAccountExplicitly(amAccount, password, null);
         ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
@@ -1135,26 +1151,53 @@ public final class DBHelper {
         ContentResolver.setIsSyncable(amAccount, CalendarContract.AUTHORITY, 0);
     }
 
+    private static boolean isAccountPresent(AccountManager accountManager, String name,
+            String type) {
+        final android.accounts.Account[] amAccounts = accountManager.getAccountsByType(type);
+        if (amAccounts != null) {
+            for (android.accounts.Account account : amAccounts) {
+                if (TextUtils.equals(account.name, name) && TextUtils.equals(account.type, type)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @VisibleForTesting
     static void upgradeFromVersion21ToVersion22(SQLiteDatabase db, Context accountManagerContext) {
+        migrateLegacyAccounts(db, accountManagerContext);
+    }
+
+    private static void migrateLegacyAccounts(SQLiteDatabase db, Context accountManagerContext) {
+        final Map<String, String> legacyToNewTypeMap = new ImmutableMap.Builder<String, String>()
+                .put(LEGACY_SCHEME_POP3,
+                        accountManagerContext.getString(R.string.account_manager_type_pop3))
+                .put(LEGACY_SCHEME_IMAP,
+                        accountManagerContext.getString(R.string.account_manager_type_legacy_imap))
+                .put(LEGACY_SCHEME_EAS,
+                        accountManagerContext.getString(R.string.account_manager_type_exchange))
+                .build();
         try {
             // Loop through accounts, looking for pop/imap accounts
-            Cursor accountCursor = db.query(Account.TABLE_NAME, V21_ACCOUNT_PROJECTION, null,
+            final Cursor accountCursor = db.query(Account.TABLE_NAME, V21_ACCOUNT_PROJECTION, null,
                     null, null, null, null);
             try {
-                String[] hostAuthArgs = new String[1];
+                final String[] hostAuthArgs = new String[1];
                 while (accountCursor.moveToNext()) {
                     hostAuthArgs[0] = accountCursor.getString(V21_ACCOUNT_RECV);
                     // Get the "receive" HostAuth for this account
-                    Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
+                    final Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
                             V21_HOSTAUTH_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
                             null, null, null);
                     try {
                         if (hostAuthCursor.moveToFirst()) {
-                            String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
+                            final String protocol = hostAuthCursor.getString(V21_HOSTAUTH_PROTOCOL);
                             // If this is a pop3 or imap account, create the account manager account
                             if (LEGACY_SCHEME_IMAP.equals(protocol) ||
-                                   LEGACY_SCHEME_POP3.equals(protocol)) {
+                                    LEGACY_SCHEME_POP3.equals(protocol)) {
+                                // If this is a pop3 or imap account, create the account manager
+                                // account
                                 if (MailActivityEmail.DEBUG) {
                                     Log.d(TAG, "Create AccountManager account for " + protocol +
                                             "account: " +
@@ -1162,18 +1205,18 @@ public final class DBHelper {
                                 }
                                 createAccountManagerAccount(accountManagerContext,
                                         accountCursor.getString(V21_ACCOUNT_EMAIL),
+                                        legacyToNewTypeMap.get(protocol),
                                         hostAuthCursor.getString(V21_HOSTAUTH_PASSWORD));
-                            // If an EAS account, make Email sync automatically (equivalent of
-                            // checking the "Sync Email" box in settings
                             } else if (LEGACY_SCHEME_EAS.equals(protocol)) {
-                                android.accounts.Account amAccount =
-                                        new android.accounts.Account(
-                                                accountCursor.getString(V21_ACCOUNT_EMAIL),
-                                                "eas");
+                                // If an EAS account, make Email sync automatically (equivalent of
+                                // checking the "Sync Email" box in settings
+
+                                android.accounts.Account amAccount = new android.accounts.Account(
+                                        accountCursor.getString(V21_ACCOUNT_EMAIL),
+                                        legacyToNewTypeMap.get(protocol));
                                 ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
                                 ContentResolver.setSyncAutomatically(amAccount,
                                         EmailContent.AUTHORITY, true);
-
                             }
                         }
                     } finally {
@@ -1185,7 +1228,7 @@ public final class DBHelper {
             }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
+            Log.w(TAG, "Exception while migrating accounts " + e);
         }
     }
 
