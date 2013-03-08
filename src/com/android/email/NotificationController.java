@@ -312,27 +312,30 @@ public class NotificationController {
                             UIProvider.FOLDERS_PROJECTION, null, null, null);
 
             if (folderCursor == null) {
-                LogUtils.e(LOG_TAG, "Null folder cursor for mailbox %s",
+                // This can happen when the notification is for the security policy notification
+                // that happens before the account is setup
+                LogUtils.w(LOG_TAG, "Null folder cursor for mailbox %s",
                         uiAccount.settings.defaultInbox);
-            }
-
-            Folder folder = null;
-            try {
-                if (folderCursor.moveToFirst()) {
-                    folder = new Folder(folderCursor);
-                }
-            } finally {
-                folderCursor.close();
-            }
-
-            if (folder != null) {
-                final FolderPreferences folderPreferences =
-                        new FolderPreferences(mContext, uiAccount.name, folder, true /* inbox */);
-
-                ringtoneUri = folderPreferences.getNotificationRingtoneUri();
-                vibrate = folderPreferences.isNotificationVibrateEnabled();
             } else {
-                LogUtils.e(LOG_TAG, "Null folder for mailbox %s", uiAccount.settings.defaultInbox);
+                Folder folder = null;
+                try {
+                    if (folderCursor.moveToFirst()) {
+                        folder = new Folder(folderCursor);
+                    }
+                } finally {
+                    folderCursor.close();
+                }
+
+                if (folder != null) {
+                    final FolderPreferences folderPreferences = new FolderPreferences(
+                            mContext, uiAccount.name, folder, true /* inbox */);
+
+                    ringtoneUri = folderPreferences.getNotificationRingtoneUri();
+                    vibrate = folderPreferences.isNotificationVibrateEnabled();
+                } else {
+                    LogUtils.e(LOG_TAG,
+                            "Null folder for mailbox %s", uiAccount.settings.defaultInbox);
+                }
             }
         } else {
             LogUtils.e(LOG_TAG, "Null uiAccount for account id %d", account.mId);
