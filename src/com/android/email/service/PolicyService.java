@@ -24,15 +24,25 @@ import android.os.IBinder;
 import com.android.email.SecurityPolicy;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.IPolicyService;
+import com.android.mail.utils.LogTag;
+import com.android.mail.utils.LogUtils;
 
 public class PolicyService extends Service {
+    private static final String LOG_TAG = LogTag.getLogTag();
 
     private SecurityPolicy mSecurityPolicy;
     private Context mContext;
 
     private final IPolicyService.Stub mBinder = new IPolicyService.Stub() {
         public boolean isActive(Policy policy) {
-            return mSecurityPolicy.isActive(policy);
+            try {
+                return mSecurityPolicy.isActive(policy);
+            } catch (RuntimeException e) {
+                // Catch, log and rethrow the exception, as otherwise when the exception is
+                // ultimately handled, the complete stack trace is losk
+                LogUtils.e(LOG_TAG, e, "Exception thrown during call to SecurityPolicy#isActive");
+                throw e;
+            }
         }
 
         public void setAccountHoldFlag(long accountId, boolean newState) {
@@ -40,11 +50,26 @@ public class PolicyService extends Service {
         }
 
         public void remoteWipe() {
-            mSecurityPolicy.remoteWipe();
+            try {
+                mSecurityPolicy.remoteWipe();
+            } catch (RuntimeException e) {
+                // Catch, log and rethrow the exception, as otherwise when the exception is
+                // ultimately handled, the complete stack trace is losk
+                LogUtils.e(LOG_TAG, e, "Exception thrown during call to SecurityPolicy#remoteWipe");
+                throw e;
+            }
         }
 
         public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
-            mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey);
+            try {
+                mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey);
+            } catch (RuntimeException e) {
+                // Catch, log and rethrow the exception, as otherwise when the exception is
+                // ultimately handled, the complete stack trace is losk
+                LogUtils.e(LOG_TAG, e,
+                        "Exception thrown from call to SecurityPolicy#setAccountPolicy");
+                throw e;
+            }
         }
     };
 
