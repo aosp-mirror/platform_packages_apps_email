@@ -1294,4 +1294,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="sent_folder_selection_title">Select server sent items folder for <xliff:g id="account">%s</xliff:g></string>
     <string name="create_new_folder">Create folder</string>
     <string name="account_waiting_for_folders_msg">Loading folder list&#8230;</string>
+
+    <!-- Feedback uri to be used when feedback is enabled -->
+    <string name="email_feedback_uri" translatable="false"></string>
 </resources>

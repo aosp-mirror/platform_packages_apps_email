@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.CursorWrapper;
@@ -2313,33 +2314,41 @@ outer:
      * Constructs the map of default entries for accounts. These values can be overridden in
      * {@link #genQueryAccount(String[], String)}.
      */
-    private static ProjectionMap getAccountListMap() {
+    private static ProjectionMap getAccountListMap(Context context) {
         if (sAccountListMap == null) {
-            sAccountListMap = ProjectionMap.builder()
-                .add(BaseColumns._ID, AccountColumns.ID)
-                .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
-                .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
-                .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
-                .add(UIProvider.AccountColumns.UNDO_URI,
-                        ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
-                .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
-                .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
-                // TODO: Is provider version used?
-                .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
-                .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
-                .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI, uriWithId("uirecentfolders"))
-                .add(UIProvider.AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
-                        uriWithId("uidefaultrecentfolders"))
-                .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
-                .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
-                        Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
-                .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-                        Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
-                .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
-                .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
-                        Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
-                .add(UIProvider.AccountColumns.SettingsColumns.VEILED_ADDRESS_PATTERN, null)
-                .build();
+            final ProjectionMap.Builder builder = ProjectionMap.builder()
+                    .add(BaseColumns._ID, AccountColumns.ID)
+                    .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
+                    .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
+                    .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
+                    .add(UIProvider.AccountColumns.UNDO_URI,
+                            ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
+                    .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
+                    .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
+                            // TODO: Is provider version used?
+                    .add(UIProvider.AccountColumns.PROVIDER_VERSION, "1")
+                    .add(UIProvider.AccountColumns.SYNC_STATUS, "0")
+                    .add(UIProvider.AccountColumns.RECENT_FOLDER_LIST_URI,
+                            uriWithId("uirecentfolders"))
+                    .add(UIProvider.AccountColumns.DEFAULT_RECENT_FOLDER_LIST_URI,
+                            uriWithId("uidefaultrecentfolders"))
+                    .add(UIProvider.AccountColumns.SettingsColumns.SIGNATURE,
+                            AccountColumns.SIGNATURE)
+                    .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
+                            Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
+                    .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
+                            Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
+                    .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
+                    .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
+                            Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
+                    .add(UIProvider.AccountColumns.SettingsColumns.VEILED_ADDRESS_PATTERN, null);
+
+            final String feedbackUri = context.getString(R.string.email_feedback_uri);
+            if (!TextUtils.isEmpty(feedbackUri)) {
+                builder.add(UIProvider.AccountColumns.SEND_FEEDBACK_INTENT_URI, feedbackUri);
+            }
+
+            sAccountListMap = builder.build();
         }
         return sAccountListMap;
     }
@@ -2770,7 +2779,7 @@ outer:
     }
 
     private int getCapabilities(Context context, long accountId) {
-        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+        final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
                 mServiceCallback, accountId);
         int capabilities = 0;
         Account acct = null;
@@ -2788,6 +2797,12 @@ outer:
        } catch (RemoteException e) {
             // Nothing to do
            Log.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
+        }
+
+        // If the configuration states that feedback is supported, add that capability
+        final Resources res = context.getResources();
+        if (res.getBoolean(R.bool.feedback_supported)) {
+            capabilities |= UIProvider.AccountCapabilities.SEND_FEEDBACK;
         }
         return capabilities;
     }
@@ -2896,7 +2911,7 @@ outer:
                 }
             }
         }
-        final StringBuilder sb = genSelect(getAccountListMap(), uiProjection, values);
+        final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
     }
