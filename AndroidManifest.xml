@@ -309,6 +309,8 @@
             android:theme="@style/PhotoViewTheme" >
         </activity>
 
+        <!-- additional activities -->
+
         <provider
             android:authorities="com.android.email2.conversation.provider"
             android:label="@string/conversation_content_provider"
