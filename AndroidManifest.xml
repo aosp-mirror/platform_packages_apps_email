@@ -438,7 +438,7 @@
         <service
             android:name=".service.ImapAuthenticatorService"
             android:exported="true"
-            android:enabled="true"
+            android:enabled="false"
             >
             <intent-filter>
                 <action
@@ -564,20 +564,6 @@
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator_alternate"
-                />
-        </service>
-        <service
-            android:name=".service.ImapAuthenticatorService"
-            android:exported="true"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action
-                    android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_imap"
                 />
         </service>
 
