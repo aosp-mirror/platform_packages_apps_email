@@ -337,12 +337,6 @@
             android:authorities="com.android.email.suggestionsprovider"
             android:exported="true" />
 
-        <receiver android:name="com.android.mail.providers.protos.boot.AccountReceiver">
-          <intent-filter>
-              <action android:name="com.android.email2.providers.protos.boot.intent.ACTION_PROVIDER_CREATED" />
-          </intent-filter>
-        </receiver>
-
         <service android:name="com.android.mail.compose.EmptyService"/>
         <!-- Widget -->
         <receiver android:name=".provider.WidgetProvider" android:label="@string/app_name">
