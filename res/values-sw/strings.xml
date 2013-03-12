@@ -19,7 +19,7 @@
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"Soma viambatisho vya barua pepe"</string>
     <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Inaruhusu programu kusoma viambatisho vya barua pepe yako."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Fikia data ya mtoa huduma wa barua pepe"</string>
-    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Inaruhusu programu hii kufikia hifadhidata yako ya barua pepe, ikiwa ni pamoja na jumbe zilizopokewa, jumbe zilizotumwa, majina ya mtumiaji na manenosiri."</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Huruhusu programu hii kufikia hifadhidata yako ya barua pepe, ikiwa ni pamoja na barua pepe ulizopokea, zile ulizotuma, majina ya mtumiaji na manenosiri."</string>
     <string name="app_name" msgid="5815426892327290362">"Barua pepe"</string>
     <string name="compose_title" msgid="427986915662706899">"Tunga"</string>
     <string name="debug_title" msgid="5175710493691536719">"Tatua"</string>
@@ -302,9 +302,9 @@
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Kila saa"</string>
     <string name="account_setup_options_default_label" msgid="2617227194283720914">"Tuma barua pepe kutoka kwa akaunti hii kama chaguo-msingi"</string>
     <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Niarifu wakati barua pepe inapowasili"</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Landanisha anwani kutoka kwa akaunti hii"</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Landanisha kalenda kutoka kwa akaunti hii"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Landanisha barua pepe kutoka kwa akaunti hii"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sawazisha anwani kutoka kwa akaunti hii"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sawazisha kalenda kutoka kwa akaunti hii"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sawazisha barua pepe kutoka kwa akaunti hii"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Pakua viambatisho kiotomatiki  wakati umeunganishwa kwenye mtandao-hewa"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Imeshindwa kumaliza"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Siku hadi Usawazishaji"</string>
@@ -330,7 +330,7 @@
     <string name="account_setup_failed_security" msgid="925820957665764964">"Haiwezi kufungua muunganisho kwa seva kwa sababu ya hitilafu ya kiusalama."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Haiwezi kufungua muunganisho kwa seva."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Uliingiza anwani ya seva isiyo sahihi au seva inahitaji toleo la itifaki ambalo haiauniwi na Barua pepe."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kulandanisha kwa seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kusawazisha kwa seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Udhibiti wa usalama kutoka mbali"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Seva <xliff:g id="SERVER">%s</xliff:g> inahitaji uiruhusu kudhibiti kwa umbali baadhi ya vipengele vya usalama vya simu yako. Ungependa kumaliza kuweka mipangilio ya akaunti hii?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Seva hii inahitaji vipengele vya usalama ambavyo kifaa chako cha Android haiauni, ikijumlisha: <xliff:g id="ERROR">%s</xliff:g>"</string>
@@ -376,7 +376,7 @@
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Sera zisizokubaliwa"</string>
     <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Hamna"</string>
     <string name="account_settings_retry_label" msgid="1104680719299842829">"Jaribu usawazishi"</string>
-    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Gusa hapa ili kulandanisha akaunti hii"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Gusa hapa ili kusawazisha akaunti hii"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Jina la akaunti"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jina lako"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Sahihi"</string>
@@ -398,8 +398,8 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sawazisha anwani"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sawazisha anwani za akaunti hii"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sawazisha kalenda"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Landanisha tukio la kalenda la akaunti hii"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Landanisha barua pepe"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sawazisha tukio lililo kwenye kalenda la akaunti hii"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sawazisha barua pepe"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sawazisha barua pepe za akaunti hii"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Tetema"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Chagua toni ya mlio"</string>
@@ -436,11 +436,11 @@
     <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"Onyesha visanduku tiki"</string>
     <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"Katika orodha ya ujumbe, gusa na ushikilie ili uchague"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Thibitisha kabla ya kufuta"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Jumbe"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Barua pepe"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Papasa ili kufuta"</string>
     <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Futa ujumbe kwenye orodha kwa kupapasa"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Thibitisha kabla ya kutuma"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Jumbe"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Barua pepe"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Ukubwa wa maandishi ya ujumbe"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"Maandishi madogo sana"</item>
