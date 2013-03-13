@@ -168,10 +168,11 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mSwipeDelete.setChecked(MailPrefs.ConversationListSwipeActions.DELETE.equals(
                 mMailPrefs.getConversationListSwipeAction(false)));
 
-        final Preference replyAllPreference =
-                findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
+        final CheckBoxPreference replyAllPreference =
+                (CheckBoxPreference) findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
         // This preference is removed on tablets
         if (replyAllPreference != null) {
+            replyAllPreference.setChecked(mMailPrefs.getDefaultReplyAll());
             replyAllPreference.setOnPreferenceChangeListener(this);
         }
 
