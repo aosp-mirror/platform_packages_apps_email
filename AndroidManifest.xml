@@ -251,10 +251,12 @@
             android:label="@string/account_setup_names_title"
             >
         </activity>
+        <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSettings"
             android:label="@string/settings_activity_title"
             android:theme="@android:style/Theme.Holo.Light"
+            android:exported="true"
             >
             <intent-filter>
                 <action

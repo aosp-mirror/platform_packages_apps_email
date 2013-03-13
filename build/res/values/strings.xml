@@ -21,7 +21,7 @@
     <string name="account_manager_type_imap" translatable="false">com.android.email</string>
     <string name="account_manager_type_legacy_imap" translatable="false">com.android.email</string>
     <string name="intent_exchange" translatable="false">com.android.email.EXCHANGE_INTENT</string>
-    <string name="intent_account_manager_entry" translatable="false">com.android.email.ACCOUNT_MANAGER_ENTRY_INTENT</string>
+    <string name="intent_account_manager_entry" translatable="false">com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY</string>
     <string name="authority_email_provider" translatable="false">com.android.email.provider</string>
     <string name="protocol_legacy_imap" translatable="false">imap</string>
     <string name="protocol_imap" translatable="false">imap</string>
