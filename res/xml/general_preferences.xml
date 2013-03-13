@@ -48,11 +48,11 @@
         android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
     <CheckBoxPreference
-        android:key="show_checkboxes"
+        android:key="hide_checkboxes"
         android:persistent="true"
         android:defaultValue="false"
-        android:title="@string/general_preference_show_checkboxes_label"
-        android:summary="@string/general_preference_show_checkboxes_summary" />
+        android:title="@string/general_preference_hide_checkboxes_label"
+        android:summary="@string/general_preference_hide_checkboxes_summary" />
 
     <!-- This may be removed in GeneralPreferences.java -->
     <CheckBoxPreference

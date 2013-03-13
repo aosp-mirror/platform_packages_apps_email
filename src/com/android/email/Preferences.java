@@ -55,7 +55,7 @@ public class Preferences {
     private static final String CONFIRM_SEND = "confirm_send";
     @Deprecated
     private static final String SWIPE_DELETE = "swipe_delete";
-    private static final String SHOW_CHECKBOXES = "show_checkboxes";
+    private static final String HIDE_CHECKBOXES = "hide_checkboxes";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -64,7 +64,7 @@ public class Preferences {
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
     private static final boolean CONFIRM_DELETE_DEFAULT = false;
     private static final boolean CONFIRM_SEND_DEFAULT = false;
-    private static final boolean SHOW_CHECKBOXES_DEFAULT = false;
+    private static final boolean HIDE_CHECKBOXES_DEFAULT = false;
 
     // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
     public static final int TEXT_ZOOM_TINY = 0;
@@ -193,12 +193,12 @@ public class Preferences {
         mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
-    public boolean getShowCheckboxes() {
-        return mSharedPreferences.getBoolean(SHOW_CHECKBOXES, SHOW_CHECKBOXES_DEFAULT);
+    public boolean getHideCheckboxes() {
+        return mSharedPreferences.getBoolean(HIDE_CHECKBOXES, HIDE_CHECKBOXES_DEFAULT);
     }
 
-    public void setShowCheckboxes(boolean set) {
-        mSharedPreferences.edit().putBoolean(SHOW_CHECKBOXES, set).apply();
+    public void setHideCheckboxes(boolean set) {
+        mSharedPreferences.edit().putBoolean(HIDE_CHECKBOXES, set).apply();
     }
 
     public boolean getConfirmDelete() {

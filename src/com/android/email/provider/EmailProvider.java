@@ -2856,9 +2856,9 @@ outer:
                             ? SWIPE_DELETE : SWIPE_DISABLED);
         }
         if (projectionColumns.contains(
-                UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)) {
-            values.put(UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES,
-                    prefs.getShowCheckboxes() ? "1" : "0");
+                UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
+                    prefs.getHideCheckboxes() ? "1" : "0");
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             int autoAdvance = prefs.getAutoAdvanceDirection();
@@ -3064,8 +3064,8 @@ outer:
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)] =
                     Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
         }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)] = 0;
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] = 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
@@ -3079,9 +3079,9 @@ outer:
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)] =
                     prefs.getConfirmSend() ? 1 : 0;
         }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SHOW_CHECKBOXES)] =
-                    prefs.getShowCheckboxes() ? 1 : 0;
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] =
+                    prefs.getHideCheckboxes() ? 1 : 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)] =
