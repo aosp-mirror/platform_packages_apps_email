@@ -577,6 +577,8 @@ public abstract class EmailContent {
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
+        private static final String LOG_TAG = "Email";
+
         public static final String TABLE_NAME = "Message";
         public static final String UPDATED_TABLE_NAME = "Message_Updates";
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
@@ -863,6 +865,8 @@ public abstract class EmailContent {
         /** a pseudo ID for "no message". */
         public static final long NO_MESSAGE = -1L;
 
+        private static final int ATTACHMENT_INDEX_OFFSET = 2;
+
         public Message() {
             mBaseUri = CONTENT_URI;
         }
@@ -963,20 +967,31 @@ public abstract class EmailContent {
                 }
             }
 
-            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+            final ArrayList<ContentProviderOperation> ops =
+                    new ArrayList<ContentProviderOperation>();
             addSaveOps(ops);
             try {
-                ContentProviderResult[] results =
+                final ContentProviderResult[] results =
                     context.getContentResolver().applyBatch(AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
                 if (doSave) {
                     Uri u = results[0].uri;
                     mId = Long.parseLong(u.getPathSegments().get(1));
                     if (mAttachments != null) {
-                        int resultOffset = 2;
-                        for (Attachment a : mAttachments) {
+                        // Skip over the first two items in the result array
+                        for (int i = 0; i < mAttachments.size(); i++) {
+                            final Attachment a = mAttachments.get(i);
+
+                            final int resultIndex = i + ATTACHMENT_INDEX_OFFSET;
                             // Save the id of the attachment record
-                            u = results[resultOffset++].uri;
+                            if (resultIndex < results.length) {
+                                u = results[resultIndex].uri;
+                            } else {
+                                // We didn't find the expected attachment, log this error
+                                Log.e(LOG_TAG, "Invalid index into ContentProviderResults: " +
+                                        resultIndex);
+                                u = null;
+                            }
                             if (u != null) {
                                 a.mId = Long.parseLong(u.getPathSegments().get(1));
                             }
