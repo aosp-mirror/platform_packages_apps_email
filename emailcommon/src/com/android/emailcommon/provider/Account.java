@@ -97,14 +97,12 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CHECK_INTERVAL_PUSH = -2;
 
     public static Uri CONTENT_URI;
-    public static Uri ADD_TO_FIELD_URI;
     public static Uri RESET_NEW_MESSAGE_COUNT_URI;
     public static Uri NOTIFIER_URI;
     public static Uri DEFAULT_ACCOUNT_ID_URI;
 
     public static void initAccount() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
-        ADD_TO_FIELD_URI = Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
         RESET_NEW_MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
         NOTIFIER_URI = Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
         DEFAULT_ACCOUNT_ID_URI = Uri.parse(EmailContent.CONTENT_URI + "/account/default");
