@@ -2620,12 +2620,13 @@ outer:
         if (info != null && info.offerLookback) {
             // Protocols supporting lookback support settings
             caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
-            if ((flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
-                // If the mailbox can accept moved mail, report that as well
-                caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
-                caps |= UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION;
-            }
         }
+        if ((flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+            // If the mailbox can accept moved mail, report that as well
+            caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
+            caps |= UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION;
+        }
+
         // For trash, we don't allow undo
         if (type == Mailbox.TYPE_TRASH) {
             caps =  UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
@@ -3935,9 +3936,9 @@ outer:
     }
 
     private ContentValues convertUiMessageValues(Message message, ContentValues values) {
-        ContentValues ourValues = new ContentValues();
+        final ContentValues ourValues = new ContentValues();
         for (String columnName : values.keySet()) {
-            Object val = values.get(columnName);
+            final Object val = values.get(columnName);
             if (columnName.equals(UIProvider.ConversationColumns.STARRED)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_FAVORITE, val);
             } else if (columnName.equals(UIProvider.ConversationColumns.READ)) {
@@ -3946,6 +3947,8 @@ outer:
                 putIntegerLongOrBoolean(ourValues, MessageColumns.FLAG_SEEN, val);
             } else if (columnName.equals(MessageColumns.MAILBOX_KEY)) {
                 putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, val);
+            } else if (columnName.equals(UIProvider.ConversationOperations.FOLDERS_UPDATED)) {
+                // Skip this column, as the folders will also be specified  the RAW_FOLDERS column
             } else if (columnName.equals(UIProvider.ConversationColumns.RAW_FOLDERS)) {
                 // Convert from folder list uri to mailbox key
                 final FolderList flist = FolderList.fromBlob(values.getAsByteArray(columnName));
@@ -3977,9 +3980,9 @@ outer:
     }
 
     private static Uri convertToEmailProviderUri(Uri uri, Uri newBaseUri, boolean asProvider) {
-        String idString = uri.getLastPathSegment();
+        final String idString = uri.getLastPathSegment();
         try {
-            long id = Long.parseLong(idString);
+            final long id = Long.parseLong(idString);
             Uri ourUri = ContentUris.withAppendedId(newBaseUri, id);
             if (asProvider) {
                 ourUri = ourUri.buildUpon().appendQueryParameter(IS_UIPROVIDER, "true").build();
