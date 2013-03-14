@@ -175,21 +175,19 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
-    private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 2;
-    private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 3;
-    private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 4;
-    private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 5;
-    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 6;
-    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 7;
-    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 8;
+    private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 2;
+    private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 3;
+    private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 4;
+    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 5;
+    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 6;
+    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 7;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_ID = MAILBOX_BASE + 1;
     private static final int MAILBOX_ID_FROM_ACCOUNT_AND_TYPE = MAILBOX_BASE + 2;
-    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 3;
-    private static final int MAILBOX_NOTIFICATION = MAILBOX_BASE + 4;
-    private static final int MAILBOX_MOST_RECENT_MESSAGE = MAILBOX_BASE + 5;
+    private static final int MAILBOX_NOTIFICATION = MAILBOX_BASE + 3;
+    private static final int MAILBOX_MOST_RECENT_MESSAGE = MAILBOX_BASE + 4;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -228,24 +226,20 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_SUBFOLDERS = UI_BASE + 1;
     private static final int UI_MESSAGES = UI_BASE + 2;
     private static final int UI_MESSAGE = UI_BASE + 3;
-    private static final int UI_SENDMAIL = UI_BASE + 4;
-    private static final int UI_UNDO = UI_BASE + 5;
-    private static final int UI_SAVEDRAFT = UI_BASE + 6;
-    private static final int UI_UPDATEDRAFT = UI_BASE + 7;
-    private static final int UI_SENDDRAFT = UI_BASE + 8;
-    private static final int UI_FOLDER_REFRESH = UI_BASE + 9;
-    private static final int UI_FOLDER = UI_BASE + 10;
-    private static final int UI_ACCOUNT = UI_BASE + 11;
-    private static final int UI_ACCTS = UI_BASE + 12;
-    private static final int UI_ATTACHMENTS = UI_BASE + 13;
-    private static final int UI_ATTACHMENT = UI_BASE + 14;
-    private static final int UI_SEARCH = UI_BASE + 15;
-    private static final int UI_ACCOUNT_DATA = UI_BASE + 16;
-    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 17;
-    private static final int UI_CONVERSATION = UI_BASE + 18;
-    private static final int UI_RECENT_FOLDERS = UI_BASE + 19;
-    private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 20;
-    private static final int UI_ALL_FOLDERS = UI_BASE + 21;
+    private static final int UI_UNDO = UI_BASE + 4;
+    private static final int UI_FOLDER_REFRESH = UI_BASE + 5;
+    private static final int UI_FOLDER = UI_BASE + 6;
+    private static final int UI_ACCOUNT = UI_BASE + 7;
+    private static final int UI_ACCTS = UI_BASE + 8;
+    private static final int UI_ATTACHMENTS = UI_BASE + 9;
+    private static final int UI_ATTACHMENT = UI_BASE + 10;
+    private static final int UI_SEARCH = UI_BASE + 11;
+    private static final int UI_ACCOUNT_DATA = UI_BASE + 12;
+    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 13;
+    private static final int UI_CONVERSATION = UI_BASE + 14;
+    private static final int UI_RECENT_FOLDERS = UI_BASE + 15;
+    private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 16;
+    private static final int UI_ALL_FOLDERS = UI_BASE + 17;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
@@ -349,18 +343,6 @@ public class EmailProvider extends ContentProvider {
 
     private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
     private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
-
-    private static final String[] TRANSLATE_MESSAGE_OPTIONAL_STRING_FIELDS = new String[] {
-            UIProvider.MessageColumns.BODY_HTML,
-            UIProvider.MessageColumns.BODY_TEXT,
-            UIProvider.MessageColumns.REF_MESSAGE_ID
-    };
-    private static final String[] TRANSLATE_MESSAGE_OPTIONAL_INT_FIELDS = new String[] {
-            UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT,
-            UIProvider.MessageColumns.QUOTE_START_POS,
-            UIProvider.MessageColumns.DRAFT_TYPE
-    };
-
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -940,10 +922,6 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
-                case UI_SAVEDRAFT:
-                    return uiSaveDraft(uri, values);
-                case UI_SENDMAIL:
-                    return uiSendMail(uri, values);
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
                 // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
@@ -1128,12 +1106,6 @@ public class EmailProvider extends ContentProvider {
                 // A specific hostauth
                 matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
 
-                // Atomically a constant value to a particular field of a mailbox/account
-                matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
-                        MAILBOX_ID_ADD_TO_FIELD);
-                matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
-                        ACCOUNT_ID_ADD_TO_FIELD);
-
                 /**
                  * THIS URI HAS SPECIAL SEMANTICS
                  * ITS USE IS INTENDED FOR THE UI TO MARK CHANGES THAT NEED TO BE SYNCED BACK
@@ -1176,11 +1148,7 @@ public class EmailProvider extends ContentProvider {
                 matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
                 matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
                 matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
-                matcher.addURI(EmailContent.AUTHORITY, "uisendmail/#", UI_SENDMAIL);
                 matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
-                matcher.addURI(EmailContent.AUTHORITY, "uisavedraft/#", UI_SAVEDRAFT);
-                matcher.addURI(EmailContent.AUTHORITY, "uiupdatedraft/#", UI_UPDATEDRAFT);
-                matcher.addURI(EmailContent.AUTHORITY, "uisenddraft/#", UI_SENDDRAFT);
                 matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
                 matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
                 matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
@@ -1713,10 +1681,6 @@ outer:
                     return uiPopulateRecentFolders(uri);
                 case UI_ATTACHMENT:
                     return uiUpdateAttachment(uri, values);
-                case UI_UPDATEDRAFT:
-                    return uiUpdateDraft(uri, values);
-                case UI_SENDDRAFT:
-                    return uiSendDraft(uri, values);
                 case UI_MESSAGE:
                     return uiUpdateMessage(uri, values);
                 case ACCOUNT_CHECK:
@@ -1736,47 +1700,6 @@ outer:
                     }
                     // Count of duplicated mailboxes
                     return res;
-                case MAILBOX_ID_ADD_TO_FIELD:
-                case ACCOUNT_ID_ADD_TO_FIELD:
-                    id = uri.getPathSegments().get(1);
-                    String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
-                    Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
-                    if (field == null || add == null) {
-                        throw new IllegalArgumentException("No field/add specified " + uri);
-                    }
-                    ContentValues actualValues = new ContentValues();
-                    if (cache != null) {
-                        cache.lock(id);
-                    }
-                    try {
-                        db.beginTransaction();
-                        try {
-                            Cursor c = db.query(tableName,
-                                    new String[] {EmailContent.RECORD_ID, field},
-                                    whereWithId(id, selection),
-                                    selectionArgs, null, null, null);
-                            try {
-                                result = 0;
-                                String[] bind = new String[1];
-                                if (c.moveToNext()) {
-                                    bind[0] = c.getString(0); // _id
-                                    long value = c.getLong(1) + add;
-                                    actualValues.put(field, value);
-                                    result = db.update(tableName, actualValues, ID_EQUALS, bind);
-                                }
-                                db.setTransactionSuccessful();
-                            } finally {
-                                c.close();
-                            }
-                        } finally {
-                            db.endTransaction();
-                        }
-                    } finally {
-                        if (cache != null) {
-                            cache.unlock(id, actualValues);
-                        }
-                    }
-                    break;
                 case MESSAGE_SELECTION:
                     Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
                             selectionArgs, null, null, null);
@@ -1952,9 +1875,9 @@ outer:
 
         Uri messageUri = null;
         if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
-            messageUri =  uiSendDraftMessageBundle(accountUri, extras);
+            messageUri =  uiSendDraftMessage(accountUri, extras);
         } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SAVE_MESSAGE)) {
-            messageUri =  uiSaveDraftMessageBundle(accountUri, extras);
+            messageUri =  uiSaveDraftMessage(accountUri, extras);
         }
 
         final Bundle result;
@@ -3628,47 +3551,41 @@ outer:
         return mailbox;
     }
 
-    private Message getMessageFromPathSegments(List<String> pathSegments) {
-        Message msg = null;
-        if (pathSegments.size() > 2) {
-            msg = Message.restoreMessageWithId(getContext(), Long.parseLong(pathSegments.get(2)));
-        }
-        if (msg == null) {
-            msg = new Message();
-        }
-        return msg;
-    }
     /**
      * Given a mailbox and the content values for a message, create/save the message in the mailbox
      * @param mailbox the mailbox to use
-     * @param values the content values that represent message fields
+     * @param extras the bundle containing the message fields
      * @return the uri of the newly created message
+     * TODO(yph): The following fields are available in extras but unused, verify whether they
+     *     should be respected:
+     *     - UIProvider.MessageColumns.SNIPPET
+     *     - UIProvider.MessageColumns.REPLY_TO
+     *     - UIProvider.MessageColumns.FROM
+     *     - UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS
      */
-    private Uri uiSaveMessage(Message msg, Mailbox mailbox, ContentValues values,
-            Bundle attachmentFds) {
+    private Uri uiSaveMessage(Message msg, Mailbox mailbox, Bundle extras) {
         final Context context = getContext();
         // Fill in the message
         final Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
         if (account == null) return null;
         msg.mFrom = account.mEmailAddress;
         msg.mTimeStamp = System.currentTimeMillis();
-        msg.mTo = values.getAsString(UIProvider.MessageColumns.TO);
-        msg.mCc = values.getAsString(UIProvider.MessageColumns.CC);
-        msg.mBcc = values.getAsString(UIProvider.MessageColumns.BCC);
-        msg.mSubject = values.getAsString(UIProvider.MessageColumns.SUBJECT);
-        msg.mText = values.getAsString(UIProvider.MessageColumns.BODY_TEXT);
-        msg.mHtml = values.getAsString(UIProvider.MessageColumns.BODY_HTML);
+        msg.mTo = extras.getString(UIProvider.MessageColumns.TO);
+        msg.mCc = extras.getString(UIProvider.MessageColumns.CC);
+        msg.mBcc = extras.getString(UIProvider.MessageColumns.BCC);
+        msg.mSubject = extras.getString(UIProvider.MessageColumns.SUBJECT);
+        msg.mText = extras.getString(UIProvider.MessageColumns.BODY_TEXT);
+        msg.mHtml = extras.getString(UIProvider.MessageColumns.BODY_HTML);
         msg.mMailboxKey = mailbox.mId;
         msg.mAccountKey = mailbox.mAccountKey;
         msg.mDisplayName = msg.mTo;
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
         msg.mFlagSeen = true;
-        final Integer quoteStartPos =
-                values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
+        final Integer quoteStartPos = extras.getInt(UIProvider.MessageColumns.QUOTE_START_POS);
         msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
         int flags = 0;
-        final int draftType = values.getAsInteger(UIProvider.MessageColumns.DRAFT_TYPE);
+        final int draftType = extras.getInt(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
             case DraftType.FORWARD:
                 flags |= Message.FLAG_TYPE_FORWARD;
@@ -3684,19 +3601,19 @@ outer:
                 break;
         }
         int draftInfo = 0;
-        if (values.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
-            draftInfo = values.getAsInteger(UIProvider.MessageColumns.QUOTE_START_POS);
-            if (values.getAsInteger(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT) != 0) {
+        if (extras.containsKey(UIProvider.MessageColumns.QUOTE_START_POS)) {
+            draftInfo = extras.getInt(UIProvider.MessageColumns.QUOTE_START_POS);
+            if (extras.getInt(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT) != 0) {
                 draftInfo |= Message.DRAFT_INFO_APPEND_REF_MESSAGE;
             }
         }
-        if (!values.containsKey(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT)) {
+        if (!extras.containsKey(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT)) {
             flags |= Message.FLAG_NOT_INCLUDE_QUOTED_TEXT;
         }
         msg.mDraftInfo = draftInfo;
         msg.mFlags = flags;
 
-        final String ref = values.getAsString(UIProvider.MessageColumns.REF_MESSAGE_ID);
+        final String ref = extras.getString(UIProvider.MessageColumns.REF_MESSAGE_ID);
         if (ref != null && msg.mQuotedTextStartPos >= 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
@@ -3710,9 +3627,11 @@ outer:
         // Get attachments from the ContentValues
         final List<com.android.mail.providers.Attachment> uiAtts =
                 com.android.mail.providers.Attachment.fromJSONArray(
-                        values.getAsString(UIProvider.MessageColumns.ATTACHMENTS));
+                        extras.getString(UIProvider.MessageColumns.ATTACHMENTS));
         final ArrayList<Attachment> atts = new ArrayList<Attachment>();
         boolean hasUnloadedAttachments = false;
+        Bundle attachmentFds =
+                extras.getParcelable(UIProvider.SendOrSaveMethodParamKeys.OPENED_FD_MAP);
         for (com.android.mail.providers.Attachment uiAtt: uiAtts) {
             final Uri attUri = uiAtt.uri;
             if (attUri != null && attUri.getAuthority().equals(EmailContent.AUTHORITY)) {
@@ -3811,55 +3730,22 @@ outer:
         return uiUri("uimessage", msg.mId);
     }
 
-    /**
-     * Create and send the message via the account indicated in the uri
-     * @param uri the incoming uri
-     * @param values the content values that represent message fields
-     * @return the uri of the created message
-     */
-    private Uri uiSendMail(Uri uri, ContentValues values) {
-        List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_OUTBOX);
-        if (mailbox == null) return null;
-        Message msg = getMessageFromPathSegments(pathSegments);
-        try {
-            return uiSaveMessage(msg, mailbox, values, null);
-        } finally {
-            // Kick observers
-            getContext().getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
-        }
-    }
-
-    /**
-     * Create a message and save it to the drafts folder of the account indicated in the uri
-     * @param uri the incoming uri
-     * @param values the content values that represent message fields
-     * @return the uri of the created message
-     */
-    private Uri uiSaveDraft(Uri uri, ContentValues values) {
-        List<String> pathSegments = uri.getPathSegments();
-        Mailbox mailbox = getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
-        if (mailbox == null) return null;
-        Message msg = getMessageFromPathSegments(pathSegments);
-        return uiSaveMessage(msg, mailbox, values, null);
-    }
-
-    private Uri uiSaveDraftMessageBundle(Uri accountUri, Bundle extras) {
+    private Uri uiSaveDraftMessage(Uri accountUri, Bundle extras) {
         final List<String> pathSegments = accountUri.getPathSegments();
         final Mailbox mailbox =
                 getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
-        final ContentValues values = translateMessage(extras);
-        final Message msg = new Message();
-
-        // Get the Bundle of open fds from the extra
-        final Bundle attachmentFds =
-                extras.getParcelable(UIProvider.SendOrSaveMethodParamKeys.OPENED_FD_MAP);
-
-        return uiSaveMessage(msg, mailbox, values, attachmentFds);
+        final Message msg;
+        if (extras.containsKey(BaseColumns._ID)) {
+            final long messageId = extras.getLong(BaseColumns._ID);
+            msg = Message.restoreMessageWithId(getContext(), messageId);
+        } else {
+            msg = new Message();
+        }
+        return uiSaveMessage(msg, mailbox, extras);
     }
 
-    private Uri uiSendDraftMessageBundle(Uri uri, Bundle extras) {
+    private Uri uiSendDraftMessage(Uri uri, Bundle extras) {
         final long accountId = Long.parseLong(uri.getPathSegments().get(1));
         final Context context = getContext();
         final Message msg;
@@ -3879,87 +3765,10 @@ outer:
         final Mailbox sentMailbox = getMailboxByAccountIdAndType(uri.getPathSegments().get(1),
                 Mailbox.TYPE_SENT);
         if (sentMailbox == null) return null;
-        final ContentValues values = translateMessage(extras);
-        // Get the Bundle of open fds from the extra
-        final Bundle attachmentFds =
-                extras.getParcelable(UIProvider.SendOrSaveMethodParamKeys.OPENED_FD_MAP);
-
-        final Uri messageUri = uiSaveMessage(msg, mailbox, values, attachmentFds);
+        final Uri messageUri = uiSaveMessage(msg, mailbox, extras);
         // Kick observers
         context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
         return messageUri;
-    }
-
-    /**
-     * Converts the Bundle is used from the {@link UIProvider} ContentProvider#call() methods
-     * to the {@link ContentValues} object that is used in the internal Email provider
-     * @param values Bundle specified from the UI
-     * @return ContentValues object representing message data used in the internal Email provider
-     */
-    private static ContentValues translateMessage(Bundle values) {
-        final ContentValues translated = new ContentValues();
-
-        translated.put(UIProvider.MessageColumns.TO,
-                values.getString(UIProvider.MessageColumns.TO));
-        translated.put(UIProvider.MessageColumns.CC,
-                values.getString(UIProvider.MessageColumns.CC));
-        translated.put(UIProvider.MessageColumns.BCC,
-                values.getString(UIProvider.MessageColumns.BCC));
-        translated.put(UIProvider.MessageColumns.SUBJECT,
-                values.getString(UIProvider.MessageColumns.SUBJECT));
-        translated.put(UIProvider.MessageColumns.SNIPPET,
-                values.getString(UIProvider.MessageColumns.SNIPPET));
-        translated.put(UIProvider.MessageColumns.REPLY_TO,
-                values.getString(UIProvider.MessageColumns.REPLY_TO));
-        translated.put(UIProvider.MessageColumns.FROM,
-                values.getString(UIProvider.MessageColumns.FROM));
-        translated.put(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS,
-                values.getString(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS));
-        translated.put(UIProvider.MessageColumns.ATTACHMENTS,
-                values.getString(UIProvider.MessageColumns.ATTACHMENTS));
-
-        for (String key : TRANSLATE_MESSAGE_OPTIONAL_STRING_FIELDS) {
-            if (values.containsKey(key)) {
-                final String value = values.getString(key);
-                if (!TextUtils.isEmpty(value)) {
-                    translated.put(key, value);
-                }
-            }
-        }
-        for (String key : TRANSLATE_MESSAGE_OPTIONAL_INT_FIELDS) {
-            if (values.containsKey(key)) {
-                translated.put(key, values.getInt(key));
-            }
-        }
-
-        return translated;
-    }
-
-
-    private int uiUpdateDraft(Uri uri, ContentValues values) {
-        Context context = getContext();
-        Message msg = Message.restoreMessageWithId(context,
-                Long.parseLong(uri.getPathSegments().get(1)));
-        if (msg == null) return 0;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, msg.mMailboxKey);
-        if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values, null);
-        return 1;
-    }
-
-    private int uiSendDraft(Uri uri, ContentValues values) {
-        Context context = getContext();
-        Message msg = Message.restoreMessageWithId(context,
-                Long.parseLong(uri.getPathSegments().get(1)));
-        if (msg == null) return 0;
-        long mailboxId = Mailbox.findMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_OUTBOX);
-        if (mailboxId == Mailbox.NO_MAILBOX) return 0;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-        if (mailbox == null) return 0;
-        uiSaveMessage(msg, mailbox, values, null);
-        // Kick observers
-        context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
-        return 1;
     }
 
     private static void putIntegerLongOrBoolean(ContentValues values, String columnName,
