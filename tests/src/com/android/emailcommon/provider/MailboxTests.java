@@ -475,28 +475,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
                 99999, Mailbox.TYPE_INBOX));
     }
 
-    /**
-     * Check if update on MAILBOX_ID_ADD_TO_FIELD updates the cache properly.
-     */
-    public void testUpdateCacheMailboxIdAddToField() {
-        final Context c = mMockContext;
-
-        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
-
-        int start = Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval;
-
-        // +1 to SYNC_INTERVAL
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.SYNC_INTERVAL);
-        cv.put(EmailContent.ADD_COLUMN_NAME, 1);
-        mProvider.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, a1.mId), cv,
-                null, null);
-
-        // Check
-        assertEquals(start + 1, Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval);
-    }
-
     private Mailbox buildTestMailbox(String serverId) {
         return buildTestMailbox(serverId, null);
     }

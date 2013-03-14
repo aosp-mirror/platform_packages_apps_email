@@ -35,12 +35,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final String TABLE_NAME = "Mailbox";
 
     public static Uri CONTENT_URI;
-    public static Uri ADD_TO_FIELD_URI;
     public static Uri FROM_ACCOUNT_AND_TYPE_URI;
 
     public static void initMailbox() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
-        ADD_TO_FIELD_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
         FROM_ACCOUNT_AND_TYPE_URI = Uri.parse(EmailContent.CONTENT_URI +
                 "/mailboxIdFromAccountAndType");
     }
