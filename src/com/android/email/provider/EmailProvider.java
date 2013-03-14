@@ -3871,10 +3871,14 @@ outer:
         }
 
         if (msg == null) return null;
-        final long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_OUTBOX);
-        if (mailboxId == Mailbox.NO_MAILBOX) return null;
-        final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+        final Mailbox mailbox = getMailboxByAccountIdAndType(uri.getPathSegments().get(1),
+                Mailbox.TYPE_OUTBOX);
         if (mailbox == null) return null;
+        // Make sure the sent mailbox exists, since it will be necessary soon.
+        // TODO(yph): move system mailbox creation to somewhere sane.
+        final Mailbox sentMailbox = getMailboxByAccountIdAndType(uri.getPathSegments().get(1),
+                Mailbox.TYPE_SENT);
+        if (sentMailbox == null) return null;
         final ContentValues values = translateMessage(extras);
         // Get the Bundle of open fds from the extra
         final Bundle attachmentFds =
