@@ -112,7 +112,7 @@ public class Pop3Store extends Store {
 
     @Override
     public Folder[] updateFolders() {
-        String inboxName = mContext.getString(R.string.mailbox_name_display_inbox);
+        String inboxName = mContext.getString(R.string.mailbox_name_server_inbox);
         Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, inboxName);
         updateMailbox(mailbox, mAccount.mId, inboxName, '\0', true, Mailbox.TYPE_INBOX);
         // Force the parent key to be "no mailbox" for the mail POP3 mailbox
@@ -239,7 +239,7 @@ public class Pop3Store extends Store {
             bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE, result);
             return bundle;
         }
-        
+
         @Override
         public synchronized void open(OpenMode mode) throws MessagingException {
             if (mTransport.isOpen()) {
