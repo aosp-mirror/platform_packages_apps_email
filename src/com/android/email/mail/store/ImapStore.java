@@ -399,7 +399,7 @@ public class ImapStore extends Store {
                     mailboxes.put(folderName, folder);
                 }
             }
-            String inboxName = mContext.getString(R.string.mailbox_name_display_inbox);
+            String inboxName = mContext.getString(R.string.mailbox_name_server_inbox);
             Folder newFolder =
                 addMailbox(mContext, mAccount.mId, inboxName, '\0', true /*selectable*/);
             mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
