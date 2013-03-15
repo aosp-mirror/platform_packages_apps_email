@@ -186,8 +186,7 @@
         <activity
             android:label="@string/app_name"
             android:name="com.android.email2.ui.MailActivityEmail"
-            android:theme="@style/PlainUnifiedEmailTheme"
-            android:uiOptions="splitActionBarWhenNarrow">
+            android:theme="@style/PlainUnifiedEmailTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
