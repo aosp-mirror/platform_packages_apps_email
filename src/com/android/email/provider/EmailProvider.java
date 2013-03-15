@@ -3027,7 +3027,8 @@ outer:
         Object[] values = new Object[UIProvider.FOLDERS_PROJECTION.length];
         values[UIProvider.FOLDER_ID_COLUMN] = 0;
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
-        values[UIProvider.FOLDER_NAME_COLUMN] = getMailboxNameForType(mailboxType);
+        values[UIProvider.FOLDER_NAME_COLUMN] =
+                Mailbox.getSystemMailboxName(getContext(), mailboxType);
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
         values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
@@ -3485,44 +3486,12 @@ outer:
         return att;
     }
 
-    private String getMailboxNameForType(int mailboxType) {
-        Context context = getContext();
-        int resId;
-        switch (mailboxType) {
-            case Mailbox.TYPE_INBOX:
-                resId = R.string.mailbox_name_server_inbox;
-                break;
-            case Mailbox.TYPE_OUTBOX:
-                resId = R.string.mailbox_name_server_outbox;
-                break;
-            case Mailbox.TYPE_DRAFTS:
-                resId = R.string.mailbox_name_server_drafts;
-                break;
-            case Mailbox.TYPE_TRASH:
-                resId = R.string.mailbox_name_server_trash;
-                break;
-            case Mailbox.TYPE_SENT:
-                resId = R.string.mailbox_name_server_sent;
-                break;
-            case Mailbox.TYPE_JUNK:
-                resId = R.string.mailbox_name_server_junk;
-                break;
-            case Mailbox.TYPE_STARRED:
-                resId = R.string.widget_starred;
-                break;
-            default:
-                throw new IllegalArgumentException("Illegal mailbox type");
-        }
-        return context.getString(resId);
-    }
-
     /**
      * Create a mailbox given the account and mailboxType.
      */
     private Mailbox createMailbox(long accountId, int mailboxType) {
         Context context = getContext();
-        Mailbox box = Mailbox.newSystemMailbox(accountId, mailboxType,
-                getMailboxNameForType(mailboxType));
+        Mailbox box = Mailbox.newSystemMailbox(context, accountId, mailboxType);
         // Make sure drafts and save will show up in recents...
         // If these already exist (from old Email app), they will have touch times
         switch (mailboxType) {

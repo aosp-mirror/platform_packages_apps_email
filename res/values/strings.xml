@@ -179,20 +179,6 @@
         <item quantity="one"><xliff:g id="num_accounts" example="1">%1$d</xliff:g> account</item>
         <item quantity="other"><xliff:g id="num_accounts" example="2">%1$d</xliff:g> accounts</item>
     </plurals>
-    <!-- The next set of strings are used server-side and must not be localized. -->
-    <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
-    <string name="mailbox_name_server_inbox" translatable="false">Inbox</string>
-    <!-- Do Not Translate.  This is the name of the "outbox" folder, on the server. -->
-    <string name="mailbox_name_server_outbox" translatable="false">Outbox</string>
-    <!-- Do Not Translate.  This is the name of the "drafts" folder, on the server. -->
-    <string name="mailbox_name_server_drafts" translatable="false">Drafts</string>
-    <!-- Do Not Translate.  This is the name of the "trash" folder, on the server. -->
-    <string name="mailbox_name_server_trash" translatable="false">Trash</string>
-    <!-- Do Not Translate.  This is the name of the "sent" folder, on the server. -->
-    <string name="mailbox_name_server_sent" translatable="false">Sent</string>
-    <!-- Do Not Translate.  This is the name of the "junk" folder, on the server. -->
-    <string name="mailbox_name_server_junk" translatable="false">Junk</string>
-
     <!-- The next set of strings are used in local display and may be localized. -->
     <!-- In the UI, the inbox will be displayed with this name -->
     <string name="mailbox_name_display_inbox">Inbox</string>
