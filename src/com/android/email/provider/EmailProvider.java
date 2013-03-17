@@ -2245,7 +2245,7 @@ outer:
                     .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
                     .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
                     .add(UIProvider.AccountColumns.UNDO_URI,
-                            ("'content://" + UIProvider.AUTHORITY + "/uiundo'"))
+                            ("'content://" + EmailContent.AUTHORITY + "/uiundo'"))
                     .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
                     .add(UIProvider.AccountColumns.SEARCH_URI, uriWithId("uisearch"))
                             // TODO: Is provider version used?
@@ -2950,7 +2950,7 @@ outer:
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.UNDO_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.UNDO_URI)] =
-                    "'content://" + UIProvider.AUTHORITY + "/uiundo'";
+                    "'content://" + EmailContent.AUTHORITY + "/uiundo'";
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.URI)] =
