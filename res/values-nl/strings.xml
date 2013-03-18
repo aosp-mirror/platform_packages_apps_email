@@ -213,7 +213,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Kan een of meer bijlagen niet doorsturen."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Bijlage niet doorgestuurd"</string>
     <string name="login_failed_ticker" msgid="5749227022559285302">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g>: aanmelden mislukt."</string>
-    <string name="login_failed_title" msgid="7624349996212476176">"Kan niet aanmelden"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Kan niet inloggen"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -282,7 +282,7 @@
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP-server"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Poort"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Beveiligingstype"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Aanmelden vereist"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Inloggen vereist"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Gebruikersnaam"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Wachtwoord"</string>
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Accountinstellingen"</string>
@@ -359,7 +359,7 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Wachtwoord schermvergrendeling verlopen"</string>
     <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"De gegevens voor <xliff:g id="ACCOUNT">%s</xliff:g> worden gewist op uw apparaat. U kunt het account herstellen door uw PIN-code of wachtwoord voor schermvergrendeling te wijzigen. Nu wijzigen?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Niet-opgeslagen wijzigingen annuleren?"</string>
-    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kan niet aanmelden"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kan niet inloggen"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"De gebruikersnaam of het wachtwoord voor <xliff:g id="ACCOUNT">%s</xliff:g> is onjuist. Nu bijwerken?"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standaardaccount"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-mail standaard vanaf dit account verzenden"</string>
@@ -406,7 +406,7 @@
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Een map selecteren"</string>
     <string name="toast_account_not_found" msgid="8144242451730692816">"Account niet gevonden. Misschien is dit account verwijderd."</string>
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Map niet gevonden. Misschien is deze map verwijderd."</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als u zich niet kunt aanmelden met het juiste e-mailadres en wachtwoord, heeft u mogelijk niet betaald voor uw Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als u niet kunt inloggen met het juiste e-mailadres en wachtwoord, heeft u mogelijk niet betaald voor uw Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Voordat u dit e-mailaccount instelt, gaat u naar de website van T-Online en maakt u een wachtwoord voor toegang tot e-mail via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Zakelijk"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
