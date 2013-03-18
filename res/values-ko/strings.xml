@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"설정"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"일반 설정"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"애플리케이션"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"확인란 표시"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"메일 목록에서 길게 눌러 선택"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"확인란 숨기기"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"메일 목록에서 길게 눌러 선택"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"삭제하기 전에 확인"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"메일"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"스와이프하여 삭제"</string>

@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"設定"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"一般設定"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"應用程式"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"顯示核取方塊"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"在郵件清單中，輕觸並按住郵件即可選取"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"隱藏核取方塊"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"在郵件清單中，輕觸並按住項目即可選取"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"刪除前需確認"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"郵件"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"滑動即可刪除"</string>

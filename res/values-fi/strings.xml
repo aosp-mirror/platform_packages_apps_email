@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Asetukset"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Yleiset asetukset"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Sovellus"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"Näytä valintaruudut"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"Valitse viesti luettelosta koskettamalla pitkään."</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Piilota valintaruudut"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Valitse viesti luettelosta koskettamalla pitkään."</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Vahvista ennen poistamista"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Viestit"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Poista liu\'uttamalla"</string>

@@ -433,8 +433,8 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"تنظیمات"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"تنظیمات کلی"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"برنامهٔ کاربردی"</string>
-    <string name="general_preference_show_checkboxes_label" msgid="7684523794278828657">"نمایش کادرهای انتخاب"</string>
-    <string name="general_preference_show_checkboxes_summary" msgid="8320651996919669280">"در لیست پیام‌ها، برای انتخاب، لمس کرده و نگهدارید"</string>
+    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"پنهان کردن کادرهای تأیید"</string>
+    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"در لیست پیام‌ها، برای انتخاب کردن، لمس کرده و نگهدارید"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"تأیید قبل از حذف"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"پیام‌ها"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"برای حذف با انگشت روی صفحه بکشید"</string>
