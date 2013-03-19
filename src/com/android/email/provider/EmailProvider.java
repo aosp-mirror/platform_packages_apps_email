@@ -4169,11 +4169,6 @@ outer:
                 applyBatch(mLastSequenceOps);
                 // But clear the operations
                 mLastSequenceOps.clear();
-                // Tell the UI there are changes
-                ContentResolver resolver = getContext().getContentResolver();
-                resolver.notifyChange(UIPROVIDER_CONVERSATION_NOTIFIER, null);
-                resolver.notifyChange(UIPROVIDER_FOLDER_NOTIFIER, null);
-                resolver.notifyChange(UIPROVIDER_FOLDERLIST_NOTIFIER, null);
                 return c;
             } catch (OperationApplicationException e) {
             }
