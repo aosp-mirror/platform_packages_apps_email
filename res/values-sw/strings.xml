@@ -318,13 +318,13 @@
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Tumia akaunti chaguo-msingi"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Jina la mtumiaji au nenosiri sio sahihi."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Kuingia kumeshindikana."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Haiwezi kuunganisha kwa seva kwa usalama."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Haiwezi kuunganisha kwa seva kwa usalama."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Imeshindwa kuunganisha kwenye seva kwa usalama."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Imeshindwa kuunganisha kwenye seva kwa usalama."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Cheti cha mteja kinahitajika. Je, unataka kuunganisha kwenye seva na cheti cha mteja?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Cheti ni batili au hakiwezi kufikiwa."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Seva ilijibu na hitilafu. Kagua jina lako la mtumiaji na nenosiri, kisha ujaribu tena."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Haiwezi kuunganisha kwa seva."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Haiwezi kuunganisha kwa seva."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Imeshindwa kuunganisha kwenye seva."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Imeshindwa kuunganisha kwenye seva."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS inahitajika lakini haihimiliwi na seva."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Mbinu za uthibitishaji haziauniwi na seva."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Haiwezi kufungua muunganisho kwa seva kwa sababu ya hitilafu ya kiusalama."</string>
