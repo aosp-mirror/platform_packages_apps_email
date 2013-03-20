@@ -384,6 +384,7 @@ public class ImapStore extends Store {
                     if (encodedFolder.isEmpty()) continue;
 
                     String folderName = decodeFolderName(encodedFolder.getString(), mPathPrefix);
+                    // TODO: Can this special case be eliminated?
                     if (ImapConstants.INBOX.equalsIgnoreCase(folderName)) continue;
 
                     // Parse attributes.
@@ -399,10 +400,13 @@ public class ImapStore extends Store {
                     mailboxes.put(folderName, folder);
                 }
             }
-            String inboxName = mContext.getString(R.string.mailbox_name_server_inbox);
+
+            // In order to properly map INBOX -> Inbox, handle it as a special case.
+            String inboxName = Mailbox.getSystemMailboxName(mContext, Mailbox.TYPE_INBOX);
             Folder newFolder =
                 addMailbox(mContext, mAccount.mId, inboxName, '\0', true /*selectable*/);
             mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
+
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);
             return mailboxes.values().toArray(new Folder[] {});

@@ -103,35 +103,21 @@ public class Pop3Store extends Store {
         return folder;
     }
 
-    private final int[] DEFAULT_FOLDERS = {
-            Mailbox.TYPE_DRAFTS,
-            Mailbox.TYPE_OUTBOX,
-            Mailbox.TYPE_SENT,
-            Mailbox.TYPE_TRASH
-    };
-
     @Override
     public Folder[] updateFolders() {
-        String inboxName = mContext.getString(R.string.mailbox_name_server_inbox);
-        Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, inboxName);
-        updateMailbox(mailbox, mAccount.mId, inboxName, '\0', true, Mailbox.TYPE_INBOX);
-        // Force the parent key to be "no mailbox" for the mail POP3 mailbox
-        mailbox.mParentKey = Mailbox.NO_MAILBOX;
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, mAccount.mId, Mailbox.TYPE_INBOX);
+        if (mailbox == null) {
+            mailbox = Mailbox.newSystemMailbox(mContext, mAccount.mId, Mailbox.TYPE_INBOX);
+        }
+        // TODO: Mailbox.newSystemMailbox should be aware of these default values for inbox?
+        mailbox.mFlags = Mailbox.FLAG_HOLDS_MAIL | Mailbox.FLAG_ACCEPTS_MOVED_MAIL;
+        mailbox.mVisibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
         if (mailbox.isSaved()) {
             mailbox.update(mContext, mailbox.toContentValues());
         } else {
             mailbox.save(mContext);
         }
-
-        // Build default mailboxes as well, in case they're not already made.
-        for (int type : DEFAULT_FOLDERS) {
-            if (Mailbox.findMailboxOfType(mContext, mAccount.mId, type) == Mailbox.NO_MAILBOX) {
-                mailbox = Mailbox.newSystemMailbox(mContext, mAccount.mId, type);
-                mailbox.save(mContext);
-            }
-        }
-
-        return new Folder[] { getFolder(inboxName) };
+        return new Folder[] { getFolder(mailbox.mServerId) };
     }
 
     /**
