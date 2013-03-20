@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013 Google Inc.
+     Licensed to The Android Open Source Project.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- For the following strings, the "system" name refers to the name used internally
+    to distinguish the special mailboxes. In the past there was a notion of this being
+    the name of the mailbox on the server, which is where the naming comes from.
+    Long term I think these strings will change altogether, so I haven't bothered to
+    rename them until after the dust settles on how we manage mailbox names. -->
+    <!-- Do Not Translate.  This is the system name of the "inbox" folder. -->
+    <string name="mailbox_name_server_inbox" translatable="false">Inbox</string>
+    <!-- Do Not Translate.  This is the system name of the "outbox" folder. -->
+    <string name="mailbox_name_server_outbox" translatable="false">Outbox</string>
+    <!-- Do Not Translate.  This is the system name of the "drafts" folder. -->
+    <string name="mailbox_name_server_drafts" translatable="false">Drafts</string>
+    <!-- Do Not Translate.  This is the system name of the "trash" folder. -->
+    <string name="mailbox_name_server_trash" translatable="false">Trash</string>
+    <!-- Do Not Translate.  This is the system name of the "sent" folder. -->
+    <string name="mailbox_name_server_sent" translatable="false">Sent</string>
+    <!-- Do Not Translate.  This is the system name of the "junk" folder. -->
+    <string name="mailbox_name_server_junk" translatable="false">Junk</string>
+    <!-- Do Not Translate.  This is the system name of the "starred" folder. -->
+    <string name="mailbox_name_server_starred" translatable="false">Starred</string>
+</resources>

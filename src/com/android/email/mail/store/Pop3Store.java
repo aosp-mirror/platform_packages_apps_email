@@ -126,44 +126,12 @@ public class Pop3Store extends Store {
         // Build default mailboxes as well, in case they're not already made.
         for (int type : DEFAULT_FOLDERS) {
             if (Mailbox.findMailboxOfType(mContext, mAccount.mId, type) == Mailbox.NO_MAILBOX) {
-                String name = getMailboxServerName(mContext, type);
-                mailbox = Mailbox.newSystemMailbox(mAccount.mId, type, name);
+                mailbox = Mailbox.newSystemMailbox(mContext, mAccount.mId, type);
                 mailbox.save(mContext);
             }
         }
 
         return new Folder[] { getFolder(inboxName) };
-    }
-
-
-    /**
-     * Returns the server-side name for a specific mailbox.
-     *
-     * @return the resource string corresponding to the mailbox type, empty if not found.
-     */
-    public String getMailboxServerName(Context context, int mailboxType) {
-        int resId = -1;
-        switch (mailboxType) {
-            case Mailbox.TYPE_INBOX:
-                resId = R.string.mailbox_name_server_inbox;
-                break;
-            case Mailbox.TYPE_OUTBOX:
-                resId = R.string.mailbox_name_server_outbox;
-                break;
-            case Mailbox.TYPE_DRAFTS:
-                resId = R.string.mailbox_name_server_drafts;
-                break;
-            case Mailbox.TYPE_TRASH:
-                resId = R.string.mailbox_name_server_trash;
-                break;
-            case Mailbox.TYPE_SENT:
-                resId = R.string.mailbox_name_server_sent;
-                break;
-            case Mailbox.TYPE_JUNK:
-                resId = R.string.mailbox_name_server_junk;
-                break;
-        }
-        return resId != -1 ? context.getString(resId) : "";
     }
 
     /**

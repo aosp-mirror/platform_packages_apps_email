@@ -27,6 +27,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.R;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.utility.Utility;
@@ -229,6 +230,36 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mBaseUri = CONTENT_URI;
     }
 
+    public static String getSystemMailboxName(Context context, int mailboxType) {
+        int resId = -1;
+        switch (mailboxType) {
+            case Mailbox.TYPE_INBOX:
+                resId = R.string.mailbox_name_server_inbox;
+                break;
+            case Mailbox.TYPE_OUTBOX:
+                resId = R.string.mailbox_name_server_outbox;
+                break;
+            case Mailbox.TYPE_DRAFTS:
+                resId = R.string.mailbox_name_server_drafts;
+                break;
+            case Mailbox.TYPE_TRASH:
+                resId = R.string.mailbox_name_server_trash;
+                break;
+            case Mailbox.TYPE_SENT:
+                resId = R.string.mailbox_name_server_sent;
+                break;
+            case Mailbox.TYPE_JUNK:
+                resId = R.string.mailbox_name_server_junk;
+                break;
+            case Mailbox.TYPE_STARRED:
+                resId = R.string.mailbox_name_server_starred;
+                break;
+            default:
+                throw new IllegalArgumentException("Illegal mailbox type");
+        }
+        return context.getString(resId);
+    }
+
      /**
      * Restore a Mailbox from the database, given its unique id
      * @param context
@@ -246,7 +277,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
      * system mailboxes synced with the server.
      * Note: the mailbox is not persisted - clients must call {@link #save} themselves.
      */
-    public static Mailbox newSystemMailbox(long accountId, int mailboxType, String name) {
+    public static Mailbox newSystemMailbox(Context context, long accountId, int mailboxType) {
         if (mailboxType == Mailbox.TYPE_MAIL) {
             throw new IllegalArgumentException("Cannot specify TYPE_MAIL for a system mailbox");
         }
@@ -255,7 +286,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         box.mType = mailboxType;
         box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
-        box.mServerId = box.mDisplayName = name;
+        // TODO: Fix how display names work.
+        box.mServerId = box.mDisplayName = getSystemMailboxName(context, mailboxType);
         box.mParentKey = Mailbox.NO_MAILBOX;
         box.mFlags = Mailbox.FLAG_HOLDS_MAIL;
         return box;
