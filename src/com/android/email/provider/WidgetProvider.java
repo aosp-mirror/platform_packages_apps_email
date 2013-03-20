@@ -106,7 +106,7 @@ public class WidgetProvider extends BaseWidgetProvider {
             WidgetService.saveWidgetInformation(context, widgetId, uiAccount,
                     uiFolder.uri.toString());
 
-            updateWidgetInternal(context, widgetId, uiAccount, uiFolder.uri,
+            updateWidgetInternal(context, widgetId, uiAccount, uiFolder.type, uiFolder.uri,
                     uiFolder.conversationListUri, uiFolder.name);
 
             // Now remove the old legacy preference value

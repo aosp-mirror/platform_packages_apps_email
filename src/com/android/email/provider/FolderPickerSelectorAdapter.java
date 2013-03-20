@@ -22,7 +22,6 @@ import android.database.Cursor;
 
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.FolderCapabilities;
-import com.android.mail.providers.UIProvider.FolderType;
 import com.android.mail.ui.HierarchicalFolderSelectorAdapter;
 
 import java.util.Set;
@@ -40,7 +39,7 @@ public class FolderPickerSelectorAdapter extends HierarchicalFolderSelectorAdapt
      */
     protected boolean meetsRequirements(Folder folder) {
         // We only want to show the non-Trash folders that can accept moved messages
-        return folder.supportsCapability(FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES) ||
-                folder.type == FolderType.TRASH;
+        return folder.supportsCapability(FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES)
+                || folder.isTrash();
     }
 }
