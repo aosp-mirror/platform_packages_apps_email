@@ -3171,11 +3171,9 @@ outer:
             mc.addRow(row);
             int numStarred = EmailContent.count(context, Message.CONTENT_URI,
                     MessageColumns.FLAG_FAVORITE + "=1", null);
-            if (numStarred > 0) {
-                row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
-                row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
-                mc.addRow(row);
-            }
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
+            mc.addRow(row);
             return mc;
         } else {
             Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
@@ -3183,19 +3181,15 @@ outer:
             int numStarred = EmailContent.count(context, Message.CONTENT_URI,
                     MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.FLAG_FAVORITE + "=1",
                     new String[] {id});
-            if (numStarred == 0) {
-                return c;
-            } else {
-                // Add starred virtual folder to the cursor
-                // Show number of messages as unread count (for backward compatibility)
-                MatrixCursor starCursor = new MatrixCursorWithCachedColumns(uiProjection, 1);
-                Object[] row = getVirtualMailboxRow(Long.parseLong(id), Mailbox.TYPE_STARRED);
-                row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
-                row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
-                starCursor.addRow(row);
-                Cursor[] cursors = new Cursor[] {starCursor, c};
-                return new MergeCursor(cursors);
-            }
+            // Add starred virtual folder to the cursor
+            // Show number of messages as unread count (for backward compatibility)
+            MatrixCursor starCursor = new MatrixCursorWithCachedColumns(uiProjection, 1);
+            Object[] row = getVirtualMailboxRow(Long.parseLong(id), Mailbox.TYPE_STARRED);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
+            starCursor.addRow(row);
+            Cursor[] cursors = new Cursor[] {starCursor, c};
+            return new MergeCursor(cursors);
         }
     }
 
