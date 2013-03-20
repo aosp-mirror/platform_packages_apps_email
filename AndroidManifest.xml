@@ -647,7 +647,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED"/>
                 <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="com.android.mail.action.CLEAR_NEW_MAIL_NOTIFICATIONS" />
+                <data android:scheme="content" />
             </intent-filter>
         </service>
 
