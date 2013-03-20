@@ -23,7 +23,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := com.android.emailsync
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailsync)
-LOCAL_STATIC_JAVA_LIBRARIES := com.android.emailcommon2
+LOCAL_STATIC_JAVA_LIBRARIES := com.android.emailcommon
 
 LOCAL_SDK_VERSION := 14
 
