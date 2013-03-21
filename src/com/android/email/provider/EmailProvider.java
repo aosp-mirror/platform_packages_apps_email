@@ -37,8 +37,10 @@ import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -101,6 +103,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -199,6 +202,7 @@ public class EmailProvider extends ContentProvider {
     private static final int ATTACHMENT = ATTACHMENT_BASE;
     private static final int ATTACHMENT_ID = ATTACHMENT_BASE + 1;
     private static final int ATTACHMENTS_MESSAGE_ID = ATTACHMENT_BASE + 2;
+    private static final int ATTACHMENTS_CACHED_FILE_ACCESS = ATTACHMENT_BASE + 3;
 
     private static final int HOSTAUTH_BASE = 0x4000;
     private static final int HOSTAUTH = HOSTAUTH_BASE;
@@ -1095,6 +1099,8 @@ public class EmailProvider extends ContentProvider {
                 // The attachments of a specific message (query only) (insert & delete TBD)
                 matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
                         ATTACHMENTS_MESSAGE_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "attachment/cachedFile",
+                        ATTACHMENTS_CACHED_FILE_ACCESS);
 
                 // All mail bodies
                 matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
@@ -1890,6 +1896,39 @@ outer:
 
         return result;
     }
+
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
+            LogUtils.d(TAG, "EmailProvider.openFile: %s", LogUtils.contentUriToString(TAG, uri));
+        }
+
+        final int match = findMatch(uri, "openFile");
+        switch (match) {
+            case ATTACHMENTS_CACHED_FILE_ACCESS:
+                // Parse the cache file path out from the uri
+                final String cachedFilePath =
+                        uri.getQueryParameter(EmailContent.Attachment.CACHED_FILE_QUERY_PARAM);
+
+                if (cachedFilePath != null) {
+                    // clearCallingIdentity means that the download manager will
+                    // check our permissions rather than the permissions of whatever
+                    // code is calling us.
+                    long binderToken = Binder.clearCallingIdentity();
+                    try {
+                        LogUtils.d(TAG, "Opening attachment %s", cachedFilePath);
+                        return ParcelFileDescriptor.open(
+                                new File(cachedFilePath), ParcelFileDescriptor.MODE_READ_ONLY);
+                    } finally {
+                        Binder.restoreCallingIdentity(binderToken);
+                    }
+                }
+                break;
+        }
+
+        throw new FileNotFoundException("unable to open file");
+    }
+
 
     /**
      * Returns the base notification URI for the given content type.
@@ -3473,7 +3512,15 @@ outer:
             com.android.mail.providers.Attachment uiAtt, String cachedFile) {
         final Attachment att = new Attachment();
         att.setContentUri(uiAtt.contentUri.toString());
-        att.setCachedFilePath(cachedFile);
+
+        if (!TextUtils.isEmpty(cachedFile)) {
+            // Generate the content provider uri for this cached file
+            final Uri.Builder cachedFileBuilder = Uri.parse(
+                    "content://" + EmailContent.AUTHORITY + "/attachment/cachedFile").buildUpon();
+            cachedFileBuilder.appendQueryParameter(Attachment.CACHED_FILE_QUERY_PARAM, cachedFile);
+            att.setCachedFileUri(cachedFileBuilder.build().toString());
+        }
+
         att.mFileName = uiAtt.getName();
         att.mMimeType = uiAtt.getContentType();
         att.mSize = uiAtt.size;
