@@ -80,6 +80,15 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
 
+    /** System folders that should always exist. */
+    private final int[] DEFAULT_FOLDERS = {
+            Mailbox.TYPE_INBOX,
+            Mailbox.TYPE_DRAFTS,
+            Mailbox.TYPE_OUTBOX,
+            Mailbox.TYPE_SENT,
+            Mailbox.TYPE_TRASH
+    };
+
     /** Small projection for just the columns required for a sync. */
     private static final String[] MAILBOX_PROJECTION = new String[] {
         MailboxColumns.ID,
@@ -341,10 +350,21 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     public void updateFolderList(long accountId) throws RemoteException {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        Mailbox inbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+        long inboxId = -1;
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         Cursor localFolderCursor = null;
         try {
+            // Step 0: Make sure the default system mailboxes exist.
+            for (int type : DEFAULT_FOLDERS) {
+                if (Mailbox.findMailboxOfType(mContext, accountId, type) == Mailbox.NO_MAILBOX) {
+                    Mailbox mailbox = Mailbox.newSystemMailbox(mContext, accountId, type);
+                    mailbox.save(mContext);
+                    if (type == Mailbox.TYPE_INBOX) {
+                        inboxId = mailbox.mId;
+                    }
+                }
+            }
+
             // Step 1: Get remote mailboxes
             Store store = Store.getInstance(account, mContext);
             Folder[] remoteFolders = store.updateFolders();
@@ -398,12 +418,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (localFolderCursor != null) {
                 localFolderCursor.close();
             }
-            // If this is a first sync, find the inbox and sync it
-            if (inbox == null) {
-                inbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
-                if (inbox != null) {
-                    startSync(inbox.mId, true);
-                }
+            // If we just created the inbox, sync it
+            if (inboxId != -1) {
+                startSync(inboxId, true);
             }
         }
     }
