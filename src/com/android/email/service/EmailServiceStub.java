@@ -525,7 +525,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // 3.  loop through the available messages and send them
             while (c.moveToNext()) {
                 long messageId = -1;
-                moveToSentValues.remove(EmailContent.MessageColumns.FLAGS);
+                if (moveToSentValues != null) {
+                    moveToSentValues.remove(EmailContent.MessageColumns.FLAGS);
+                }
                 try {
                     messageId = c.getLong(0);
                     // Don't send messages with unloaded attachments
