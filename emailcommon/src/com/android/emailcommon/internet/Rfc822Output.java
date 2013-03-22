@@ -239,11 +239,12 @@ public class Rfc822Output {
                 inStream = new ByteArrayInputStream(attachment.mContentBytes);
             } else {
                 // First try the cached file
-                final String cachedFile = attachment.getCachedFilePath();
+                final String cachedFile = attachment.getCachedFileUri();
                 if (!TextUtils.isEmpty(cachedFile)) {
+                    final Uri cachedFileUri = Uri.parse(cachedFile);
                     try {
-                        inStream =  new FileInputStream(cachedFile);
-                    } catch (IOException e) {
+                        inStream = context.getContentResolver().openInputStream(cachedFileUri);
+                    } catch (FileNotFoundException e) {
                         // Couldn't open the cached file, fall back to the original content uri
                         inStream = null;
 

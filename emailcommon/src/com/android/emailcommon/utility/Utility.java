@@ -53,6 +53,7 @@ import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.ProviderUnavailableException;
+import com.android.mail.utils.LogUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -745,11 +746,13 @@ public class Utility {
         } else if (attachment.mContentBytes != null) {
             return true;
         } else {
-            final String cachedFile = attachment.getCachedFilePath();
+            final String cachedFile = attachment.getCachedFileUri();
             // Try the cached file first
             if (!TextUtils.isEmpty(cachedFile)) {
+                final Uri cachedFileUri = Uri.parse(cachedFile);
                 try {
-                    final InputStream inStream =  new FileInputStream(cachedFile);
+                    final InputStream inStream =
+                            context.getContentResolver().openInputStream(cachedFileUri);
                     try {
                         inStream.close();
                     } catch (IOException e) {
@@ -758,6 +761,7 @@ public class Utility {
                     return true;
                 } catch (FileNotFoundException e) {
                     // We weren't able to open the file, try the content uri below
+                    LogUtils.e(Logging.LOG_TAG, e, "not able to open cached file");
                 }
             }
             final String contentUri = attachment.getContentUri();

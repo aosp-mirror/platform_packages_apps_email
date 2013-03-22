@@ -1196,6 +1196,8 @@ public abstract class EmailContent {
         public static final String ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX =
                 "content://com.android.email.attachmentprovider";
 
+        public static final String CACHED_FILE_QUERY_PARAM = "filePath";
+
         public static Uri CONTENT_URI;
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
         public static Uri MESSAGE_ID_URI;
@@ -1217,7 +1219,7 @@ public abstract class EmailContent {
         public long mSize;
         public String mContentId;
         private String mContentUri;
-        private String mCachedFile;
+        private String mCachedFileUri;
         public long mMessageKey;
         public String mLocation;
         public String mEncoding;
@@ -1295,12 +1297,12 @@ public abstract class EmailContent {
             mBaseUri = CONTENT_URI;
         }
 
-        public void setCachedFilePath(String cachedFile) {
-            mCachedFile = cachedFile;
+        public void setCachedFileUri(String cachedFile) {
+            mCachedFileUri = cachedFile;
         }
 
-        public String getCachedFilePath() {
-            return mCachedFile;
+        public String getCachedFileUri() {
+            return mCachedFileUri;
         }
 
         public void setContentUri(String contentUri) {
@@ -1404,7 +1406,7 @@ public abstract class EmailContent {
             mSize = cursor.getLong(CONTENT_SIZE_COLUMN);
             mContentId = cursor.getString(CONTENT_CONTENT_ID_COLUMN);
             mContentUri = cursor.getString(CONTENT_CONTENT_URI_COLUMN);
-            mCachedFile = cursor.getString(CONTENT_CACHED_FILE_COLUMN);
+            mCachedFileUri = cursor.getString(CONTENT_CACHED_FILE_COLUMN);
             mMessageKey = cursor.getLong(CONTENT_MESSAGE_ID_COLUMN);
             mLocation = cursor.getString(CONTENT_LOCATION_COLUMN);
             mEncoding = cursor.getString(CONTENT_ENCODING_COLUMN);
@@ -1425,7 +1427,7 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.SIZE, mSize);
             values.put(AttachmentColumns.CONTENT_ID, mContentId);
             values.put(AttachmentColumns.CONTENT_URI, mContentUri);
-            values.put(AttachmentColumns.CACHED_FILE, mCachedFile);
+            values.put(AttachmentColumns.CACHED_FILE, mCachedFileUri);
             values.put(AttachmentColumns.MESSAGE_KEY, mMessageKey);
             values.put(AttachmentColumns.LOCATION, mLocation);
             values.put(AttachmentColumns.ENCODING, mEncoding);
@@ -1453,7 +1455,7 @@ public abstract class EmailContent {
             dest.writeLong(mSize);
             dest.writeString(mContentId);
             dest.writeString(mContentUri);
-            dest.writeString(mCachedFile);
+            dest.writeString(mCachedFileUri);
             dest.writeLong(mMessageKey);
             dest.writeString(mLocation);
             dest.writeString(mEncoding);
@@ -1479,7 +1481,7 @@ public abstract class EmailContent {
             mSize = in.readLong();
             mContentId = in.readString();
             mContentUri = in.readString();
-            mCachedFile = in.readString();
+            mCachedFileUri = in.readString();
             mMessageKey = in.readLong();
             mLocation = in.readString();
             mEncoding = in.readString();
@@ -1514,7 +1516,7 @@ public abstract class EmailContent {
         @Override
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
-                    + mContentUri + ", " + mCachedFile + ", " + mMessageKey + ", "
+                    + mContentUri + ", " + mCachedFileUri + ", " + mMessageKey + ", "
                     + mLocation + ", " + mEncoding  + ", " + mFlags + ", " + mContentBytes + ", "
                     + mAccountKey +  "," + mUiState + "," + mUiDestination + ","
                     + mUiDownloadedSize + "]";
