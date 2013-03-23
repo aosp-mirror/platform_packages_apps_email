@@ -50,6 +50,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -310,7 +311,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     private void configureEditor() {
         Account account = SetupData.getAccount();
-        if (account == null) {
+        if (account == null || account.mHostAuthRecv == null) {
+            LogUtils.e(Logging.LOG_TAG,
+                    "null account or host auth. account null: %b host auth null: %b",
+                    account == null, account == null || account.mHostAuthRecv == null);
             return;
         }
         TextView lastView = mImapPathPrefixView;
