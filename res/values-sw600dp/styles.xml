@@ -27,12 +27,6 @@
         <item name="android:textColor">@color/account_setup_headline_color</item>
     </style>
 
-    <!-- Info text in any account setup screen -->
-    <style name="accountSetupInfoText">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/account_setup_info_text_color</item>
-    </style>
-
     <!-- Item labels in any account setup screen -->
     <style name="accountSetupLabelText">
         <item name="android:textSize">14sp</item>
