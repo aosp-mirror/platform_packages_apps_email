@@ -45,5 +45,12 @@
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
+
+    <!-- Info text in any account setup screen -->
+    <style name="accountSetupInfoText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/account_setup_info_text_color</item>
+    </style>
+
 </resources>
 
