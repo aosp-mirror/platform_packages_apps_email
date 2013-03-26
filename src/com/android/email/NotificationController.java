@@ -583,13 +583,16 @@ public class NotificationController {
 
                     if (folderCursor == null) {
                         LogUtils.e(LOG_TAG, "Null folder cursor for mMailboxId %d", mailboxId);
-                        return;
+                        continue;
                     }
 
                     Folder folder = null;
                     try {
                         if (folderCursor.moveToFirst()) {
                             folder = new Folder(folderCursor);
+                        } else {
+                            LogUtils.e(LOG_TAG, "Empty folder cursor for mMailboxId %d", mailboxId);
+                            continue;
                         }
                     } finally {
                         folderCursor.close();
