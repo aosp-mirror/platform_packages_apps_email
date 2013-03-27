@@ -657,15 +657,15 @@
         <service android:name="com.android.mail.NotificationActionIntentService"
                   android:exported="false">
             <intent-filter>
-                <action android:name="com.android.mail.action.NOTIF_MARK_READ" />
-                <action android:name="com.android.mail.action.NOTIF_ARCHIVE" />
-                <action android:name="com.android.mail.action.NOTIF_DELETE" />
-                <action android:name="com.android.mail.action.NOTIF_UNDO" />
-                <action android:name="com.android.mail.action.NOTIF_DESTRUCT" />
-                <action android:name="com.android.mail.action.NOTIF_UNDO_TIMEOUT" />
-                <action android:name="com.android.mail.action.NOTIF_REPLY" />
-                <action android:name="com.android.mail.action.NOTIF_REPLY_ALL" />
-                <action android:name="com.android.mail.action.NOTIF_FORWARD" />
+                <action android:name="com.android.mail.action.notification.MARK_READ" />
+                <action android:name="com.android.mail.action.notification.ARCHIVE" />
+                <action android:name="com.android.mail.action.notification.DELETE" />
+                <action android:name="com.android.mail.action.notification.UNDO" />
+                <action android:name="com.android.mail.action.notification.DESTRUCT" />
+                <action android:name="com.android.mail.action.notification.UNDO_TIMEOUT" />
+                <action android:name="com.android.mail.action.notification.REPLY" />
+                <action android:name="com.android.mail.action.notification.REPLY_ALL" />
+                <action android:name="com.android.mail.action.notification.FORWARD" />
             </intent-filter>
         </service>
         <service android:name="com.android.mail.MailLogService">
