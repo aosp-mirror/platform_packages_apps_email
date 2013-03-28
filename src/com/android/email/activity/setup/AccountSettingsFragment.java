@@ -116,6 +116,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private CheckBoxPreference mInboxNotify;
     private CheckBoxPreference mInboxVibrate;
     private Preference mInboxRingtone;
+    private PreferenceCategory mNotificationsCategory;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
     private CheckBoxPreference mSyncEmail;
@@ -563,11 +564,12 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                         public void run() {
                             mInboxNotify.setChecked(
                                     mInboxFolderPreferences.areNotificationsEnabled());
-
                             mInboxVibrate.setChecked(
                                     mInboxFolderPreferences.isNotificationVibrateEnabled());
-
                             setRingtoneSummary();
+                            // Notification preferences must be disabled until after
+                            // mInboxFolderPreferences is available, so enable them here.
+                            mNotificationsCategory.setEnabled(true);
                         }
                     });
                 }
@@ -699,6 +701,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             }
         });
 
+        mNotificationsCategory =
+                (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
+
         // Set the vibrator value, or hide it on devices w/o a vibrator
         mInboxVibrate = (CheckBoxPreference) findPreference(
                 FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE);
@@ -710,9 +715,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             mInboxVibrate.setOnPreferenceChangeListener(this);
         } else {
             // No vibrator present. Remove the preference altogether.
-            PreferenceCategory notificationsCategory = (PreferenceCategory)
-                    findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
-            notificationsCategory.removePreference(mInboxVibrate);
+            mNotificationsCategory.removePreference(mInboxVibrate);
         }
 
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
