@@ -89,7 +89,9 @@
 
     </PreferenceCategory>
 
+    <!-- This category is enabled after the folder preferences are loaded -->
     <PreferenceCategory
+        android:enabled="false"
         android:key="account_notifications"
         android:title="@string/account_settings_notifications">
 
