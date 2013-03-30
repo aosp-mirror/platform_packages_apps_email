@@ -379,7 +379,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Rychlé odpovědi"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Upravit text, který při psaní e-mailů často vkládáte"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Připojit text k odesílaným zprávám"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavení upozornění"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavení oznámení"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Využití dat"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Upravit rychlou odpověď"</string>
     <string name="save_action" msgid="1988862706623227093">"Uložit"</string>
