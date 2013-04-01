@@ -2695,6 +2695,7 @@ outer:
             // "load more" is valid for search results
             values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                     uiUriString("uiloadmore", mailboxId));
+            values.put(UIProvider.FolderColumns.CAPABILITIES, UIProvider.FolderCapabilities.DELETE);
         } else {
             Context context = getContext();
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
