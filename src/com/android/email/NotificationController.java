@@ -582,7 +582,8 @@ public class NotificationController {
                             UIProvider.FOLDERS_PROJECTION, null, null, null);
 
                     if (folderCursor == null) {
-                        LogUtils.e(LOG_TAG, "Null folder cursor for mMailboxId %d", mailboxId);
+                        LogUtils.e(LOG_TAG, "Null folder cursor for account %d, mailbox %d",
+                                mAccountId, mailboxId);
                         continue;
                     }
 
@@ -591,7 +592,8 @@ public class NotificationController {
                         if (folderCursor.moveToFirst()) {
                             folder = new Folder(folderCursor);
                         } else {
-                            LogUtils.e(LOG_TAG, "Empty folder cursor for mMailboxId %d", mailboxId);
+                            LogUtils.e(LOG_TAG, "Empty folder cursor for account %d, mailbox %d",
+                                    mAccountId, mailboxId);
                             continue;
                         }
                     } finally {
