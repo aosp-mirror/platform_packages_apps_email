@@ -384,7 +384,7 @@ public class ImapService extends Service {
         Store remoteStore = Store.getInstance(account, context);
         // The account might have been deleted
         if (remoteStore == null) return;
-        Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+        final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         /*
          * If the folder is a "special" folder we need to see if it exists
@@ -431,7 +431,7 @@ public class ImapService extends Service {
         // 7.  Create a list of messages to download
         Message[] remoteMessages = new Message[0];
         final ArrayList<Message> unsyncedMessages = new ArrayList<Message>();
-        HashMap<String, Message> remoteUidMap = new HashMap<String, Message>();
+        final HashMap<String, Message> remoteUidMap = new HashMap<String, Message>();
 
         if (remoteMessageCount > 0) {
             /*
@@ -532,8 +532,9 @@ public class ImapService extends Service {
         }
 
         // 10. Remove any messages that are in the local store but no longer on the remote store.
-        HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
+        final HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
         localUidsToDelete.removeAll(remoteUidMap.keySet());
+
         for (String uidToDelete : localUidsToDelete) {
             LocalMessageInfo infoToDelete = localMessageMap.get(uidToDelete);
 

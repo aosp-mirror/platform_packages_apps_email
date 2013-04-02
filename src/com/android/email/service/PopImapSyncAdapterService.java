@@ -45,7 +45,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import java.util.ArrayList;
 
 public class PopImapSyncAdapterService extends Service {
-    private static final String TAG = "PopImapSyncAdapterService";
+    private static final String TAG = "PopImapSyncService";
     private static SyncAdapterImpl sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();
 

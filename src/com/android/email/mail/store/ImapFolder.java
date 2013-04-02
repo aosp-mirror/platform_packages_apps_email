@@ -57,6 +57,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -186,7 +187,7 @@ class ImapFolder extends Folder {
             }
         }
         try {
-            connection.executeSimpleCommand(String.format(
+            connection.executeSimpleCommand(String.format(Locale.US,
                     ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UIDVALIDITY + ")",
                     ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             mExists = true;
@@ -232,7 +233,8 @@ class ImapFolder extends Folder {
             }
         }
         try {
-            connection.executeSimpleCommand(String.format(ImapConstants.CREATE + " \"%s\"",
+            connection.executeSimpleCommand(String.format(Locale.US,
+                    ImapConstants.CREATE + " \"%s\"",
                     ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             return true;
 
@@ -256,7 +258,7 @@ class ImapFolder extends Folder {
         checkOpen();
         try {
             List<ImapResponse> responseList = mConnection.executeSimpleCommand(
-                    String.format(ImapConstants.UID_COPY + " %s \"%s\"",
+                    String.format(Locale.US, ImapConstants.UID_COPY + " %s \"%s\"",
                             ImapStore.joinMessageUids(messages),
                             ImapStore.encodeFolderName(folder.getName(), mStore.mPathPrefix)));
             // Build a message map for faster UID matching
@@ -305,14 +307,15 @@ class ImapFolder extends Folder {
             }
             // If the server doesn't support UIDPLUS, try a different way to get the new UID(s)
             if (callbacks != null && !handledUidPlus) {
-                ImapFolder newFolder = (ImapFolder)folder;
+                final ImapFolder newFolder = (ImapFolder)folder;
                 try {
                     // Temporarily select the destination folder
                     newFolder.open(OpenMode.READ_WRITE);
                     // Do the search(es) ...
                     for (Message m : messages) {
-                        String searchString = "HEADER Message-Id \"" + m.getMessageId() + "\"";
-                        String[] newIdArray = newFolder.searchForUids(searchString);
+                        final String searchString =
+                                "HEADER Message-Id \"" + m.getMessageId() + "\"";
+                        final String[] newIdArray = newFolder.searchForUids(searchString);
                         if (newIdArray.length == 1) {
                             callbacks.onMessageUidChange(m, newIdArray[0]);
                         }
@@ -343,9 +346,10 @@ class ImapFolder extends Folder {
         checkOpen();
         try {
             int unreadMessageCount = 0;
-            List<ImapResponse> responses = mConnection.executeSimpleCommand(String.format(
-                    ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
-                    ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
+            final List<ImapResponse> responses = mConnection.executeSimpleCommand(
+                    String.format(Locale.US,
+                            ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
+                            ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
             // S: * STATUS mboxname (MESSAGES 231 UIDNEXT 44292)
             for (ImapResponse response : responses) {
                 if (response.isDataResponse(0, ImapConstants.STATUS)) {
@@ -407,7 +411,7 @@ class ImapFolder extends Folder {
     public Message getMessage(String uid) throws MessagingException {
         checkOpen();
 
-        String[] uids = searchForUids(ImapConstants.UID + " " + uid);
+        final String[] uids = searchForUids(ImapConstants.UID + " " + uid);
         for (int i = 0; i < uids.length; i++) {
             if (uids[i].equals(uid)) {
                 return new ImapMessage(uid, this);
@@ -436,7 +440,7 @@ class ImapFolder extends Folder {
     public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
             throws MessagingException {
         List<String> commands = new ArrayList<String>();
-        String filter = params.mFilter;
+        final String filter = params.mFilter;
         // All servers MUST accept US-ASCII, so we'll send this as the CHARSET unless we're really
         // dealing with a string that contains non-ascii characters
         String charset = "US-ASCII";
@@ -444,7 +448,7 @@ class ImapFolder extends Folder {
             charset = "UTF-8";
         }
         // This is the length of the string in octets (bytes), formatted as a string literal {n}
-        String octetLength = "{" + filter.getBytes().length + "}";
+        final String octetLength = "{" + filter.getBytes().length + "}";
         // Break the command up into pieces ending with the string literal length
         commands.add(ImapConstants.UID_SEARCH + " CHARSET " + charset + " OR FROM " + octetLength);
         commands.add(filter + " (OR TO " + octetLength);
@@ -478,7 +482,7 @@ class ImapFolder extends Folder {
             throw new MessagingException(String.format("Invalid range: %d %d", start, end));
         }
         return getMessagesInternal(
-                searchForUids(String.format("%d:%d NOT DELETED", start, end)), listener);
+                searchForUids(String.format(Locale.US, "%d:%d NOT DELETED", start, end)), listener);
     }
 
     @Override
@@ -564,7 +568,7 @@ class ImapFolder extends Folder {
 
         final Part fetchPart = fp.getFirstPart();
         if (fetchPart != null) {
-            String[] partIds =
+            final String[] partIds =
                     fetchPart.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
             if (partIds != null) {
                 fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK_BARE
@@ -573,7 +577,7 @@ class ImapFolder extends Folder {
         }
 
         try {
-            mConnection.sendCommand(String.format(
+            mConnection.sendCommand(String.format(Locale.US,
                     ImapConstants.UID_FETCH + " %s (%s)", ImapStore.joinMessageUids(messages),
                     Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                     ), false);
@@ -936,7 +940,7 @@ class ImapFolder extends Folder {
                 }
 
                 mConnection.sendCommand(
-                        String.format(ImapConstants.APPEND + " \"%s\" (%s) {%d}",
+                        String.format(Locale.US, ImapConstants.APPEND + " \"%s\" (%s) {%d}",
                                 ImapStore.encodeFolderName(mName, mStore.mPathPrefix),
                                 flagList,
                                 out.getCount()), false);
@@ -975,19 +979,20 @@ class ImapFolder extends Folder {
                  * Message-ID header.  If there are more than one response, take the
                  * last one, as it's most likely the newest (the one we just uploaded).
                  */
-                String messageId = message.getMessageId();
+                final String messageId = message.getMessageId();
                 if (messageId == null || messageId.length() == 0) {
                     continue;
                 }
                 // Most servers don't care about parenthesis in the search query [and, some
                 // fail to work if they are used]
-                String[] uids = searchForUids(String.format("HEADER MESSAGE-ID %s", messageId));
+                String[] uids = searchForUids(
+                        String.format(Locale.US, "HEADER MESSAGE-ID %s", messageId));
                 if (uids.length > 0) {
                     message.setUid(uids[0]);
                 }
                 // However, there's at least one server [AOL] that fails to work unless there
                 // are parenthesis, so, try this as a last resort
-                uids = searchForUids(String.format("(HEADER MESSAGE-ID %s)", messageId));
+                uids = searchForUids(String.format(Locale.US, "(HEADER MESSAGE-ID %s)", messageId));
                 if (uids.length > 0) {
                     message.setUid(uids[0]);
                 }
@@ -1035,7 +1040,7 @@ class ImapFolder extends Folder {
             allFlags = flagList.substring(1);
         }
         try {
-            mConnection.executeSimpleCommand(String.format(
+            mConnection.executeSimpleCommand(String.format(Locale.US,
                     ImapConstants.UID_STORE + " %s %s" + ImapConstants.FLAGS_SILENT + " (%s)",
                     ImapStore.joinMessageUids(messages),
                     value ? "+" : "-",
@@ -1072,8 +1077,8 @@ class ImapFolder extends Folder {
      * must be selected.
      */
     private void doSelect() throws IOException, MessagingException {
-        List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                String.format(ImapConstants.SELECT + " \"%s\"",
+        final List<ImapResponse> responses = mConnection.executeSimpleCommand(
+                String.format(Locale.US, ImapConstants.SELECT + " \"%s\"",
                         ImapStore.encodeFolderName(mName, mStore.mPathPrefix)));
 
         // Assume the folder is opened read-write; unless we are notified otherwise
