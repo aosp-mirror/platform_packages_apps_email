@@ -2529,7 +2529,9 @@ outer:
      */
     private static String genQueryMailboxMessages(String[] uiProjection, final boolean unseenOnly) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
-        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " + Message.MAILBOX_KEY + "=? ");
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
+                Message.FLAG_LOADED + "=" + Message.FLAG_LOADED_COMPLETE + " AND " +
+                Message.MAILBOX_KEY + "=? ");
         if (unseenOnly) {
             sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
         }
@@ -2550,11 +2552,12 @@ outer:
         ContentValues values = new ContentValues();
         values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
+        sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
+                Message.FLAG_LOADED + "=" + Message.FLAG_LOADED_COMPLETE + " AND ");
         if (isCombinedMailbox(mailboxId)) {
             switch (getVirtualMailboxType(mailboxId)) {
                 case Mailbox.TYPE_INBOX:
-                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                            MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
+                    sb.append(MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
                             " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
                             "=" + Mailbox.TYPE_INBOX + ") ");
                     if (unseenOnly) {
@@ -2563,8 +2566,7 @@ outer:
                     sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
                     break;
                 case Mailbox.TYPE_STARRED:
-                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                            MessageColumns.FLAG_FAVORITE + "=1 ");
+                    sb.append(MessageColumns.FLAG_FAVORITE + "=1 ");
                     if (unseenOnly) {
                         sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
                     }
@@ -2577,8 +2579,7 @@ outer:
         } else {
             switch (getVirtualMailboxType(mailboxId)) {
                 case Mailbox.TYPE_STARRED:
-                    sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                            MessageColumns.ACCOUNT_KEY + "=? AND " +
+                    sb.append(MessageColumns.ACCOUNT_KEY + "=? AND " +
                             MessageColumns.FLAG_FAVORITE + "=1 ORDER BY " +
                             MessageColumns.TIMESTAMP + " DESC");
                     break;
