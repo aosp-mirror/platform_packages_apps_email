@@ -2513,8 +2513,8 @@ outer:
             }
         }
         StringBuilder sb = genSelect(getMessageViewMap(), uiProjection, values);
-        sb.append(" FROM " + Message.TABLE_NAME + "," + Body.TABLE_NAME + " WHERE " +
-                Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " AND " +
+        sb.append(" FROM " + Message.TABLE_NAME + " LEFT JOIN " + Body.TABLE_NAME + " ON " +
+                Body.MESSAGE_KEY + "=" + Message.TABLE_NAME + "." + Message.RECORD_ID + " WHERE " +
                 Message.TABLE_NAME + "." + Message.RECORD_ID + "=?");
         String sql = sb.toString();
         return new MessageQuery(sql, attachmentJson);
