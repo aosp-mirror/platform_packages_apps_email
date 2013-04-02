@@ -95,6 +95,7 @@ import com.android.mail.utils.AttachmentUtils;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.android.mail.utils.MatrixCursorWithExtra;
+import com.android.mail.utils.MimeType;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
 import com.android.mail.widget.WidgetProvider;
@@ -3353,11 +3354,24 @@ outer:
         @Override
         public String getString(int column) {
             if (column == mContentUriIndex) {
-                Uri uri = Uri.parse(getString(mUriIndex));
-                long id = Long.parseLong(uri.getLastPathSegment());
-                Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
+                final Uri uri = Uri.parse(getString(mUriIndex));
+                final long id = Long.parseLong(uri.getLastPathSegment());
+                final Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
                 if (att == null) return "";
-                return AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString();
+
+                final String contentUri;
+                // Until the package installer can handle opening apks from a content:// uri, for
+                // any apk that was successfully saved in external storage, return the
+                // content uri from the attachment
+                if (att.mUiDestination == UIProvider.AttachmentDestination.EXTERNAL &&
+                        att.mUiState == UIProvider.AttachmentState.SAVED &&
+                        TextUtils.equals(att.mMimeType, MimeType.ANDROID_ARCHIVE)) {
+                    contentUri = att.getContentUri();
+                } else {
+                    contentUri =
+                            AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString();
+                }
+                return contentUri;
             } else {
                 return super.getString(column);
             }
