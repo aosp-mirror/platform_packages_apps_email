@@ -236,7 +236,7 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresse e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Mot de passe"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Par défaut, envoyer les e-mails avec ce compte"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuration manuelle"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Config. manuelle"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Saisissez une adresse e-mail et un mot de passe corrects."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dupliquer le compte"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Vous utilisez déjà ce nom d\'utilisateur pour le compte \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -332,7 +332,7 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"L\'adresse de serveur saisie est incorrecte ou le serveur exige une version du protocole non compatible avec E-mail."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Vous n\'êtes pas autorisé à synchroniser votre compte avec ce serveur. Veuillez contacter l\'administrateur du serveur pour en savoir plus."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administration de la sécurité à distance"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android. Voulez-vous terminer la configuration de ce compte ?"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre appareil Android. Voulez-vous terminer la configuration de ce compte ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Ce serveur nécessite des fonctionnalités de sécurité incompatibles avec votre appareil Android, dont : <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Vous ne pouvez pas modifier le nom d\'utilisateur d\'un compte. Pour ajouter un compte associé à un autre nom d\'utilisateur, appuyez sur \"Ajouter un compte\"."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"AVERTISSEMENT : Si vous désactivez la gestion de votre appareil par l\'application E-mail, tous les comptes de messagerie qui y sont associés seront supprimés, de même que leurs données (e-mails, contacts, événements d\'agenda, etc.)."</string>
@@ -345,7 +345,7 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"Règles de sécurité modifiées"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Imposs. appliquer règles sécu"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Sécurité de l\'appareil"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre appareil Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" exige que le code PIN ou mot de passe d\'écran de verrouillage soit modifié."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Expiration mot de passe de verrouillage"</string>
