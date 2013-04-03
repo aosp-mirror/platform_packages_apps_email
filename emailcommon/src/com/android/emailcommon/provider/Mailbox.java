@@ -278,18 +278,39 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
      * Note: the mailbox is not persisted - clients must call {@link #save} themselves.
      */
     public static Mailbox newSystemMailbox(Context context, long accountId, int mailboxType) {
-        if (mailboxType == Mailbox.TYPE_MAIL) {
-            throw new IllegalArgumentException("Cannot specify TYPE_MAIL for a system mailbox");
+        // Sync interval and flags are different based on mailbox type.
+        // TODO: Sync interval doesn't seem to be used anywhere, make it matter or get rid of it.
+        final int syncInterval;
+        final int flags;
+        switch (mailboxType) {
+            case TYPE_INBOX:
+                flags = Mailbox.FLAG_HOLDS_MAIL | Mailbox.FLAG_ACCEPTS_MOVED_MAIL;
+                syncInterval = 0;
+                break;
+            case TYPE_SENT:
+            case TYPE_TRASH:
+                flags = Mailbox.FLAG_HOLDS_MAIL;
+                syncInterval = 0;
+                break;
+            case TYPE_DRAFTS:
+            case TYPE_OUTBOX:
+                flags = Mailbox.FLAG_HOLDS_MAIL;
+                syncInterval = Account.CHECK_INTERVAL_NEVER;
+                break;
+            default:
+                throw new IllegalArgumentException("Bad mailbox type for newSystemMailbox: " +
+                        mailboxType);
         }
+
         Mailbox box = new Mailbox();
         box.mAccountKey = accountId;
         box.mType = mailboxType;
-        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = syncInterval;
         box.mFlagVisible = true;
         // TODO: Fix how display names work.
         box.mServerId = box.mDisplayName = getSystemMailboxName(context, mailboxType);
         box.mParentKey = Mailbox.NO_MAILBOX;
-        box.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+        box.mFlags = flags;
         return box;
     }
 
