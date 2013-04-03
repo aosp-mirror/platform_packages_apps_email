@@ -110,7 +110,6 @@ public class Pop3Store extends Store {
             mailbox = Mailbox.newSystemMailbox(mContext, mAccount.mId, Mailbox.TYPE_INBOX);
         }
         // TODO: Mailbox.newSystemMailbox should be aware of these default values for inbox?
-        mailbox.mFlags = Mailbox.FLAG_HOLDS_MAIL | Mailbox.FLAG_ACCEPTS_MOVED_MAIL;
         mailbox.mVisibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
         if (mailbox.isSaved()) {
             mailbox.update(mContext, mailbox.toContentValues());
