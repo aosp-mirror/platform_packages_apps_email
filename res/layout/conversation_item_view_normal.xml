@@ -99,4 +99,12 @@
             style="@style/StarStyle"
             android:src="@drawable/btn_star_off_normal_email_holo_light" />
     </LinearLayout>
+    <ImageView
+        android:id="@+id/attachment_previews"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/attachment_preview_margin_top"
+        android:layout_marginLeft="@dimen/attachment_preview_margin_side"
+        android:layout_marginRight="@dimen/attachment_preview_margin_side"
+        android:visibility="gone" />
 </LinearLayout>
