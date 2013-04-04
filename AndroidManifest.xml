@@ -209,6 +209,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.APP_EMAIL" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data
+                    android:scheme="content"
+                    android:host="ui.email.android.com"
+                    android:path="/view/mailbox"
+                    />
+            </intent-filter>
         </activity-alias>
 
         <!-- Must be exported in order for the AccountManager to launch it -->

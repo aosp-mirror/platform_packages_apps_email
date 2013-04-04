@@ -17,16 +17,20 @@
 package com.android.email2.ui;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;
@@ -34,9 +38,18 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogTag;
+import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.Utils;
+
+import java.util.List;
 
 public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     /**
@@ -52,6 +65,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
      * TODO: rename this to sUserDebug, and rename LOGD below to DEBUG.
      */
     public static boolean DEBUG;
+
+    public static final String LOG_TAG = LogTag.getLogTag();
 
     // Exchange debugging flags (passed to Exchange, when available, via EmailServiceProxy)
     public static boolean DEBUG_EXCHANGE;
@@ -84,6 +99,17 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     private static String sMessageDecodeErrorString;
 
     private static Thread sUiThread;
+
+    private static final int MATCH_LEGACY_SHORTCUT_INTENT = 1;
+    /**
+     * A matcher for data URI's that specify conversation list info.
+     */
+    private static final UriMatcher sUrlMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    static {
+        sUrlMatcher.addURI(
+                EmailProvider.LEGACY_AUTHORITY, "view/mailbox", MATCH_LEGACY_SHORTCUT_INTENT);
+    }
+
 
     /**
      * Asynchronous version of {@link #setServicesEnabledSync(Context)}.  Use when calling from
@@ -163,6 +189,28 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     @Override
     public void onCreate(Bundle bundle) {
+        final Intent intent = getIntent();
+        final Uri data = intent != null ? intent.getData() : null;
+        if (data != null) {
+            final int match = sUrlMatcher.match(data);
+            switch (match) {
+                case MATCH_LEGACY_SHORTCUT_INTENT: {
+                    final long mailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
+                    final Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+                    if (mailbox == null) {
+                        LogUtils.e(LOG_TAG, "unable to restore mailbox");
+                        break;
+                    }
+
+                    final Intent viewIntent = getViewIntent(mailbox.mAccountKey, mailboxId);
+                    if (viewIntent != null) {
+                        setIntent(viewIntent);
+                    }
+                    break;
+                }
+            }
+        }
+
         super.onCreate(bundle);
         sUiThread = Thread.currentThread();
         Preferences prefs = Preferences.getPreferences(this);
@@ -239,5 +287,54 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     public static void enableStrictMode(boolean enabled) {
         Utility.enableStrictMode(enabled);
+    }
+
+    private Intent getViewIntent(long accountId, long mailboxId) {
+        final ContentResolver contentResolver = getContentResolver();
+
+        final Cursor accountCursor = contentResolver.query(
+                EmailProvider.uiUri("uiaccount", accountId),
+                UIProvider.ACCOUNTS_PROJECTION_NO_CAPABILITIES,
+                null, null, null);
+
+        if (accountCursor == null) {
+            LogUtils.e(LOG_TAG, "Null account cursor for mAccountId %d", accountId);
+            return null;
+        }
+
+        com.android.mail.providers.Account account = null;
+        try {
+            if (accountCursor.moveToFirst()) {
+                account = new com.android.mail.providers.Account(accountCursor);
+            }
+        } finally {
+            accountCursor.close();
+        }
+
+
+        final Cursor folderCursor = contentResolver.query(
+                EmailProvider.uiUri("uifolder", mailboxId),
+                UIProvider.FOLDERS_PROJECTION, null, null, null);
+
+        if (folderCursor == null) {
+            LogUtils.e(LOG_TAG, "Null folder cursor for account %d, mailbox %d",
+                    accountId, mailboxId);
+            return null;
+        }
+
+        Folder folder = null;
+        try {
+            if (folderCursor.moveToFirst()) {
+                folder = new Folder(folderCursor);
+            } else {
+                LogUtils.e(LOG_TAG, "Empty folder cursor for account %d, mailbox %d",
+                        accountId, mailboxId);
+                return null;
+            }
+        } finally {
+            folderCursor.close();
+        }
+
+        return Utils.createViewFolderIntent(this, folder.uri, account);
     }
 }
