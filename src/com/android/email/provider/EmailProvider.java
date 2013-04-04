@@ -2720,7 +2720,8 @@ outer:
         return sb.toString();
     }
 
-    private static final Uri BASE_EXTERNAL_URI = Uri.parse("content://ui.email.android.com");
+    public static final String LEGACY_AUTHORITY = "ui.email.android.com";
+    private static final Uri BASE_EXTERNAL_URI = Uri.parse("content://" + LEGACY_AUTHORITY);
 
     private static final Uri BASE_EXTERAL_URI2 = Uri.parse("content://ui.email2.android.com");
 
