@@ -179,8 +179,10 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int TYPE_JUNK = 7;
     /** Search results */
     public static final int TYPE_SEARCH = 8;
-    /** Starred (virtual */
+    /** Starred (virtual) */
     public static final int TYPE_STARRED = 9;
+    /** All unread mail (virtual) */
+    public static final int TYPE_ALL_UNREAD = 10;
 
     // Types after this are used for non-mail mailboxes (as in EAS)
     public static final int TYPE_NOT_EMAIL = 0x40;
@@ -253,6 +255,9 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 break;
             case Mailbox.TYPE_STARRED:
                 resId = R.string.mailbox_name_server_starred;
+                break;
+            case Mailbox.TYPE_ALL_UNREAD:
+                resId = R.string.mailbox_name_server_all_unread;
                 break;
             default:
                 throw new IllegalArgumentException("Illegal mailbox type");
