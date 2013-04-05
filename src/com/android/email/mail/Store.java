@@ -198,6 +198,5 @@ public abstract class Store {
         //mailbox.mSyncTime;
         mailbox.mType = type;
         //box.mUnreadCount;
-        mailbox.mVisibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
     }
 }

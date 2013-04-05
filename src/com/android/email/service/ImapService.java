@@ -165,10 +165,11 @@ public class ImapService extends Service {
      * TODO this should use ID's instead of fully-restored objects
      * @param account
      * @param folder
+     * @param deltaMessageCount requested change in number of messages to sync
      * @throws MessagingException
      */
     public static void synchronizeMailboxSynchronous(Context context, final Account account,
-            final Mailbox folder) throws MessagingException {
+            final Mailbox folder, final int deltaMessageCount) throws MessagingException {
         sendMailboxStatus(folder, EmailServiceStatus.IN_PROGRESS);
 
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
@@ -178,7 +179,7 @@ public class ImapService extends Service {
         NotificationController nc = NotificationController.getInstance(context);
         try {
             processPendingActionsSynchronous(context, account);
-            synchronizeMailboxGeneric(context, account, folder);
+            synchronizeMailboxGeneric(context, account, folder, deltaMessageCount);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
             sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
@@ -335,12 +336,12 @@ public class ImapService extends Service {
      *
      * @param account the account to sync
      * @param mailbox the mailbox to sync
+     * @param deltaMessageCount requested change in number of messages to sync
      * @return results of the sync pass
      * @throws MessagingException
      */
-    private static void synchronizeMailboxGeneric(final Context context,
-            final Account account, final Mailbox mailbox) throws MessagingException {
-
+    private static void synchronizeMailboxGeneric(final Context context, final Account account,
+            final Mailbox mailbox, final int deltaMessageCount) throws MessagingException {
         /*
          * A list of IDs for messages that were downloaded and did not have the seen flag set.
          * This serves as the "true" new message count reported to the user via notification.
@@ -414,25 +415,12 @@ public class ImapService extends Service {
         // 4. Trash any remote messages that are marked as trashed locally.
         // TODO - this comment was here, but no code was here.
 
-        ContentValues values = new ContentValues();
+        // 5. Get the number of messages on the server.
+        final int remoteMessageCount = remoteFolder.getMessageCount();
 
-        // 5. Get the remote message count.
-        int remoteMessageCount = remoteFolder.getMessageCount();
-        values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
-
-        // 6. Determine the limit # of messages to download
-        int visibleLimit = mailbox.mVisibleLimit;
-        if (visibleLimit <= 0) {
-            visibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
-        }
-        if (visibleLimit > remoteMessageCount) {
-            visibleLimit = remoteMessageCount;
-        }
-        if (visibleLimit != mailbox.mVisibleLimit) {
-            values.put(MailboxColumns.VISIBLE_LIMIT, visibleLimit);
-        }
-
-        mailbox.update(context, values);
+        // 6. Update the total count and determine new message count to sync.
+        final int messageCount = mailbox.handleCountsForSync(context, remoteMessageCount,
+                deltaMessageCount);
 
         // 7.  Create a list of messages to download
         Message[] remoteMessages = new Message[0];
@@ -443,7 +431,7 @@ public class ImapService extends Service {
             /*
              * Message numbers start at 1.
              */
-            int remoteStart = Math.max(0, remoteMessageCount - visibleLimit) + 1;
+            int remoteStart = Math.max(0, remoteMessageCount - messageCount) + 1;
             int remoteEnd = remoteMessageCount;
             remoteMessages = remoteFolder.getMessages(remoteStart, remoteEnd, null);
             // TODO Why are we running through the list twice? Combine w/ for loop below
@@ -616,7 +604,7 @@ public class ImapService extends Service {
                     protocolSearchInfo.equals(mLastSearchServerId)) {
                 return mLastSearchRemoteMailbox;
             }
-            Cursor c =  context.getContentResolver().query(Mailbox.CONTENT_URI,
+            Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                     Mailbox.CONTENT_PROJECTION, Mailbox.PATH_AND_ACCOUNT_SELECTION,
                     new String[] {protocolSearchInfo, Long.toString(accountKey)},
                     null);

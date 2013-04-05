@@ -163,14 +163,16 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      *
      * @param mailboxId the id of the mailbox record
      * @param userRequest whether or not the user specifically asked for the sync
+     * @param deltaMessageCount amount by which to change the number of messages synced.
      */
     @Override
-    public void startSync(final long mailboxId, final boolean userRequest) throws RemoteException {
+    public void startSync(final long mailboxId, final boolean userRequest,
+            final int deltaMessageCount) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
                 if (mCallback != null) mService.setCallback(mCallback);
-                mService.startSync(mailboxId, userRequest);
+                mService.startSync(mailboxId, userRequest, deltaMessageCount);
             }
         }, "startSync");
     }
