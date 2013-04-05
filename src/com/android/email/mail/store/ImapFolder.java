@@ -756,7 +756,7 @@ class ImapFolder extends Folder {
 
                 } else {
                     if (e.isString()) {
-                        mp.setSubType(bs.getStringOrEmpty(i).getString().toLowerCase());
+                        mp.setSubType(bs.getStringOrEmpty(i).getString().toLowerCase(Locale.US));
                     }
                     break; // Ignore the rest of the list.
                 }
@@ -781,7 +781,7 @@ class ImapFolder extends Folder {
             final ImapString type = bs.getStringOrEmpty(0);
             final ImapString subType = bs.getStringOrEmpty(1);
             final String mimeType =
-                    (type.getString() + "/" + subType.getString()).toLowerCase();
+                    (type.getString() + "/" + subType.getString()).toLowerCase(Locale.US);
 
             final ImapList bodyParams = bs.getListOrEmpty(2);
             final ImapString cid = bs.getStringOrEmpty(3);
@@ -839,7 +839,7 @@ class ImapFolder extends Folder {
 
             if (bodyDisposition.size() > 0) {
                 final String bodyDisposition0Str =
-                        bodyDisposition.getStringOrEmpty(0).getString().toLowerCase();
+                        bodyDisposition.getStringOrEmpty(0).getString().toLowerCase(Locale.US);
                 if (!TextUtils.isEmpty(bodyDisposition0Str)) {
                     contentDisposition.append(bodyDisposition0Str);
                 }
@@ -853,9 +853,9 @@ class ImapFolder extends Folder {
                     for (int i = 1, count = bodyDispositionParams.size(); i < count; i += 2) {
 
                         // TODO We need to convert " into %22.  See above.
-                        contentDisposition.append(String.format(";\n %s=\"%s\"",
+                        contentDisposition.append(String.format(Locale.US, ";\n %s=\"%s\"",
                                 bodyDispositionParams.getStringOrEmpty(i - 1)
-                                        .getString().toLowerCase(),
+                                        .getString().toLowerCase(Locale.US),
                                 bodyDispositionParams.getStringOrEmpty(i).getString()));
                     }
                 }
@@ -864,7 +864,7 @@ class ImapFolder extends Folder {
             if ((size > 0)
                     && (MimeUtility.getHeaderParameter(contentDisposition.toString(), "size")
                             == null)) {
-                contentDisposition.append(String.format(";\n size=%d", size));
+                contentDisposition.append(String.format(Locale.US, ";\n size=%d", size));
             }
 
             if (contentDisposition.length() > 0) {
