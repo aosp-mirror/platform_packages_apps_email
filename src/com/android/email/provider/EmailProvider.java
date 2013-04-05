@@ -3204,8 +3204,16 @@ outer:
         String id = uri.getPathSegments().get(1);
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
             MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 3);
-            Object[] row;
             int count;
+            Object[] row;
+            count = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
+                   " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
+                   "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox_holo_light;
+            mc.addRow(row);
             count = EmailContent.count(context, Message.CONTENT_URI,
                     MessageColumns.FLAG_FAVORITE + "=1", null);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
@@ -3220,14 +3228,6 @@ outer:
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
             // TODO: Hijacking the mark unread icon for now.
             row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_mark_unread_holo_light;
-            mc.addRow(row);
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
-            count = EmailContent.count(context, Message.CONTENT_URI,
-                     MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
-                    " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
-                    "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox_holo_light;
             mc.addRow(row);
             return mc;
         } else {
