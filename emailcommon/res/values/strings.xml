@@ -35,4 +35,6 @@
     <string name="mailbox_name_server_junk" translatable="false">Junk</string>
     <!-- Do Not Translate.  This is the system name of the "starred" folder. -->
     <string name="mailbox_name_server_starred" translatable="false">Starred</string>
+    <!-- Do Not Translate.  This is the system name of the "all unread" folder. -->
+    <string name="mailbox_name_server_all_unread" translatable="false">Unread</string>
 </resources>
