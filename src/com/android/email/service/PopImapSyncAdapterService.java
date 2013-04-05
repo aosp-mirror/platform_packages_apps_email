@@ -87,18 +87,25 @@ public class PopImapSyncAdapterService extends Service {
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false)) {
             String emailAddress = account.name;
             // Find an EmailProvider account with the Account's email address
-            Cursor c = context.getContentResolver().query(
-                    com.android.emailcommon.provider.Account.CONTENT_URI,
-                    EmailContent.ID_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
-                    new String[] {emailAddress}, null);
-            if (c.moveToNext()) {
-                // If we have one, find the inbox and start it syncing
-                long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                long mailboxId = Mailbox.findMailboxOfType(context, accountId,
-                        Mailbox.TYPE_INBOX);
-                if (mailboxId > 0) {
-                    Log.d(TAG, "Starting manual sync for account " + emailAddress);
-                    Controller.getInstance(context).updateMailbox(accountId, mailboxId, false);
+            Cursor c = null;
+            try {
+                c = context.getContentResolver().query(
+                        com.android.emailcommon.provider.Account.CONTENT_URI,
+                        EmailContent.ID_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
+                        new String[] {emailAddress}, null);
+                if (c != null && c.moveToNext()) {
+                    // If we have one, find the inbox and start it syncing
+                    long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                    long mailboxId = Mailbox.findMailboxOfType(context, accountId,
+                            Mailbox.TYPE_INBOX);
+                    if (mailboxId > 0) {
+                        Log.d(TAG, "Starting manual sync for account " + emailAddress);
+                        Controller.getInstance(context).updateMailbox(accountId, mailboxId, false);
+                    }
+                }
+            } finally {
+                if ( c != null) {
+                    c.close();
                 }
             }
         }
