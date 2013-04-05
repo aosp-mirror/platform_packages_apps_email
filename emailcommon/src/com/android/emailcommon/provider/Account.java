@@ -509,14 +509,16 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      * @return the id of the default account, or Account.NO_ACCOUNT if there are no accounts
      */
     static public long getDefaultAccountId(Context context) {
-        Cursor c = context.getContentResolver().query(
+        final Cursor c = context.getContentResolver().query(
                 Account.DEFAULT_ACCOUNT_ID_URI, Account.ID_PROJECTION, null, null, null);
         try {
             if (c != null && c.moveToFirst()) {
                 return c.getLong(Account.ID_PROJECTION_COLUMN);
             }
         } finally {
-            c.close();
+            if (c != null) {
+                c.close();
+            }
         }
         return Account.NO_ACCOUNT;
     }
