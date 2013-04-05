@@ -2243,6 +2243,7 @@ outer:
             + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts_holo_light
             + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox_holo_light
             + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent_holo_light
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_menu_trash_holo_light
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_menu_star_holo_light
             + " ELSE -1 END";
 
@@ -2551,44 +2552,42 @@ outer:
             long mailboxId, final boolean unseenOnly) {
         ContentValues values = new ContentValues();
         values.put(UIProvider.ConversationColumns.COLOR, CONVERSATION_COLOR);
+        final int virtualMailboxId = getVirtualMailboxType(mailboxId);
+        final String[] selectionArgs;
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
                 Message.FLAG_LOADED + "=" + Message.FLAG_LOADED_COMPLETE + " AND ");
         if (isCombinedMailbox(mailboxId)) {
-            switch (getVirtualMailboxType(mailboxId)) {
-                case Mailbox.TYPE_INBOX:
-                    sb.append(MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
-                            " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
-                            "=" + Mailbox.TYPE_INBOX + ") ");
-                    if (unseenOnly) {
-                        sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
-                    }
-                    sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
-                    break;
-                case Mailbox.TYPE_STARRED:
-                    sb.append(MessageColumns.FLAG_FAVORITE + "=1 ");
-                    if (unseenOnly) {
-                        sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
-                    }
-                    sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
-                    break;
-                default:
-                    throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
+            if (unseenOnly) {
+                sb.append(MessageColumns.FLAG_SEEN).append("=0 AND ");
             }
-            return db.rawQuery(sb.toString(), null);
+            selectionArgs = null;
         } else {
-            switch (getVirtualMailboxType(mailboxId)) {
-                case Mailbox.TYPE_STARRED:
-                    sb.append(MessageColumns.ACCOUNT_KEY + "=? AND " +
-                            MessageColumns.FLAG_FAVORITE + "=1 ORDER BY " +
-                            MessageColumns.TIMESTAMP + " DESC");
-                    break;
-                default:
-                    throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
+            if (virtualMailboxId == Mailbox.TYPE_INBOX) {
+                throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
             }
-            return db.rawQuery(sb.toString(),
-                    new String[] {getVirtualMailboxAccountIdString(mailboxId)});
+            sb.append(MessageColumns.ACCOUNT_KEY).append("=? AND ");
+            selectionArgs = new String[]{getVirtualMailboxAccountIdString(mailboxId)};
         }
+        switch (getVirtualMailboxType(mailboxId)) {
+            case Mailbox.TYPE_INBOX:
+                sb.append(MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
+                        " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
+                        "=" + Mailbox.TYPE_INBOX + ")");
+                break;
+            case Mailbox.TYPE_STARRED:
+                sb.append(MessageColumns.FLAG_FAVORITE + "=1");
+                break;
+            case Mailbox.TYPE_ALL_UNREAD:
+                sb.append(MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
+                        " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
+                        " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")");
+                break;
+            default:
+                throw new IllegalArgumentException("No virtual mailbox for: " + mailboxId);
+        }
+        sb.append(" ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
+        return db.rawQuery(sb.toString(), selectionArgs);
     }
 
     /**
@@ -3204,18 +3203,31 @@ outer:
         SQLiteDatabase db = getDatabase(context);
         String id = uri.getPathSegments().get(1);
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-            MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 2);
-            Object[] row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
-            int numUnread = EmailContent.count(context, Message.CONTENT_URI,
+            MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 3);
+            Object[] row;
+            int count;
+            count = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.FLAG_FAVORITE + "=1", null);
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
+            mc.addRow(row);
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_ALL_UNREAD);
+            count = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
+                    " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
+                    " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
+            // TODO: Hijacking the mark unread icon for now.
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_mark_unread_holo_light;
+            mc.addRow(row);
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
+            count = EmailContent.count(context, Message.CONTENT_URI,
                      MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
                     " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
                     "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
-            mc.addRow(row);
-            int numStarred = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.FLAG_FAVORITE + "=1", null);
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox_holo_light;
             mc.addRow(row);
             return mc;
         } else {
@@ -3226,12 +3238,23 @@ outer:
                     new String[] {id});
             // Add starred virtual folder to the cursor
             // Show number of messages as unread count (for backward compatibility)
-            MatrixCursor starCursor = new MatrixCursorWithCachedColumns(uiProjection, 1);
-            Object[] row = getVirtualMailboxRow(Long.parseLong(id), Mailbox.TYPE_STARRED);
+            MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection, 2);
+            final long acctId = Long.parseLong(id);
+            Object[] row = getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
             row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
-            starCursor.addRow(row);
-            Cursor[] cursors = new Cursor[] {starCursor, c};
+            mc.addRow(row);
+            row = getVirtualMailboxRow(acctId, Mailbox.TYPE_ALL_UNREAD);
+            int numUnread  = EmailContent.count(context, Message.CONTENT_URI,
+                    MessageColumns.ACCOUNT_KEY + "=" + id + " AND " +
+                    MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
+                    " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
+                    " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
+            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
+            // TODO: Hijacking the mark unread icon for now.
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_mark_unread_holo_light;
+            mc.addRow(row);
+            Cursor[] cursors = new Cursor[] {mc, c};
             return new MergeCursor(cursors);
         }
     }
