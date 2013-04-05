@@ -952,16 +952,20 @@ public final class DBHelper {
         Cursor c = db.query(Account.TABLE_NAME,
                 new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
                 AccountColumns.SECURITY_FLAGS + ">0", null, null, null, null);
-        ContentValues cv = new ContentValues();
-        String[] args = new String[1];
-        while (c.moveToNext()) {
-            long securityFlags = c.getLong(1 /*SECURITY_FLAGS*/);
-            Policy policy = LegacyPolicySet.flagsToPolicy(securityFlags);
-            long policyId = db.insert(Policy.TABLE_NAME, null, policy.toContentValues());
-            cv.put(AccountColumns.POLICY_KEY, policyId);
-            cv.putNull(AccountColumns.SECURITY_FLAGS);
-            args[0] = Long.toString(c.getLong(0 /*RECORD_ID*/));
-            db.update(Account.TABLE_NAME, cv, EmailContent.RECORD_ID + "=?", args);
+        try {
+            ContentValues cv = new ContentValues();
+            String[] args = new String[1];
+            while (c.moveToNext()) {
+                long securityFlags = c.getLong(1 /*SECURITY_FLAGS*/);
+                Policy policy = LegacyPolicySet.flagsToPolicy(securityFlags);
+                long policyId = db.insert(Policy.TABLE_NAME, null, policy.toContentValues());
+                cv.put(AccountColumns.POLICY_KEY, policyId);
+                cv.putNull(AccountColumns.SECURITY_FLAGS);
+                args[0] = Long.toString(c.getLong(0 /*RECORD_ID*/));
+                db.update(Account.TABLE_NAME, cv, EmailContent.RECORD_ID + "=?", args);
+            }
+        } finally {
+            c.close();
         }
     }
 
