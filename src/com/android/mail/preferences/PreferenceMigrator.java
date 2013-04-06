@@ -70,7 +70,6 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
             final Preferences preferences = Preferences.getPreferences(context);
             final MailPrefs mailPrefs = MailPrefs.get(context);
 
-            android.os.Debug.waitForDebugger();
             @SuppressWarnings("deprecation")
             final boolean hasSwipeDelete = preferences.hasSwipeDelete();
             if (hasSwipeDelete) {
