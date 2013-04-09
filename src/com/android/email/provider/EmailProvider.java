@@ -1157,7 +1157,9 @@ public class EmailProvider extends ContentProvider {
                 matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
                 matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
                 matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
-                matcher.addURI(EmailContent.AUTHORITY, "uifolder/#", UI_FOLDER);
+                // We listen to everything trailing uifolder/ since there might be an appVersion
+                // as in Utils.appendVersionQueryParameter().
+                matcher.addURI(EmailContent.AUTHORITY, "uifolder/*", UI_FOLDER);
                 matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
                 matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
                 matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
