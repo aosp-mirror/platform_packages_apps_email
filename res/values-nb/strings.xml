@@ -488,7 +488,7 @@
     <string name="quick_2" msgid="4188036352885736617">"Det høres bra ut!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Jeg skal lese dette senere og ta kontakt."</string>
     <string name="quick_4" msgid="3988974084396883051">"Jeg foreslår at vi avtaler et møte for å diskutere dette."</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under streifing."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under roaming."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Sender svaret ditt ..."</string>
     <string name="no_conversations" msgid="5559527390337162819">"Ingen e-poster."</string>
     <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
