@@ -464,5 +464,5 @@
     <string name="search_slow_warning_title" msgid="2826118321880530239">"Venter på resultater"</string>
     <string name="search_slow_warning_message" msgid="8494483410797387903">"Noen tjenere kan ta lang tid."</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapper"</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under streifing."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Bakgrunnssynkronisering for denne kontoen er deaktivert under roaming."</string>
 </resources>
