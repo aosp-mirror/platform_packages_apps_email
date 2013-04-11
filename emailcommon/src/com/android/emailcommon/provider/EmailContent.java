@@ -1609,10 +1609,12 @@ public abstract class EmailContent {
         // Other states, as a bit field, e.g. CHILDREN_VISIBLE, HAS_CHILDREN
         public static final String FLAGS = "flags";
         // Backward compatible
+        @Deprecated
         public static final String VISIBLE_LIMIT = "visibleLimit";
         // Sync status (can be used as desired by sync services)
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
+        @Deprecated
         public static final String MESSAGE_COUNT = "messageCount";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";

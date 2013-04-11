@@ -58,7 +58,6 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.service.SyncWindow;
 
-import com.android.mail.utils.LogUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.xmlpull.v1.XmlPullParserException;
@@ -597,7 +596,8 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+        public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
+                throws RemoteException {
         }
 
         @Override

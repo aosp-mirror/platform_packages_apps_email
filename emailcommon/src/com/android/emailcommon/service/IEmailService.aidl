@@ -26,9 +26,10 @@ import android.os.Bundle;
 interface IEmailService {
     Bundle validate(in HostAuth hostauth);
 
-    oneway void startSync(long mailboxId, boolean userRequest);
+    oneway void startSync(long mailboxId, boolean userRequest, int deltaMessageCount);
     oneway void stopSync(long mailboxId);
 
+    // TODO: loadMore appears to be unused; if so, delete it.
     oneway void loadMore(long messageId);
     oneway void loadAttachment(long attachmentId, boolean background);
 

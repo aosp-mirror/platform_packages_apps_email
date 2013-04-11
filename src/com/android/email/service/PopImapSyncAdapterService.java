@@ -109,7 +109,7 @@ public class PopImapSyncAdapterService extends Service {
     }
 
     private static void sync(Context context, long mailboxId, SyncResult syncResult,
-            boolean uiRefresh) {
+            boolean uiRefresh, int deltaMessageCount) {
         TempDirectory.setTempDirectory(context);
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return;
@@ -139,9 +139,11 @@ public class PopImapSyncAdapterService extends Service {
                 if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                     EmailServiceStub.sendMailImpl(context, account.mId);
                 } else if (protocol.equals(legacyImapProtocol)) {
-                    ImapService.synchronizeMailboxSynchronous(context, account, mailbox);
+                    ImapService.synchronizeMailboxSynchronous(context, account, mailbox,
+                            deltaMessageCount);
                 } else {
-                    Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox);
+                    Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox,
+                            deltaMessageCount);
                 }
             } catch (MessagingException e) {
                 int cause = e.getExceptionType();
@@ -155,8 +157,9 @@ public class PopImapSyncAdapterService extends Service {
                 }
             }
         } finally {
-            // Always clear our sync state
+            // Always clear our sync state and update sync time.
             values.put(Mailbox.UI_SYNC_STATUS, EmailContent.SYNC_STATUS_NONE);
+            values.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
             resolver.update(mailboxUri, values, null, null);
         }
     }
@@ -200,7 +203,7 @@ public class PopImapSyncAdapterService extends Service {
                         }
                     }
                     for (long mailboxId: mailboxesToUpdate) {
-                        sync(context, mailboxId, syncResult, false);
+                        sync(context, mailboxId, syncResult, false, 0);
                     }
                 } else {
                     Log.d(TAG, "Sync request for " + acct.mDisplayName);
@@ -222,7 +225,9 @@ public class PopImapSyncAdapterService extends Service {
                     if (mailboxId == Mailbox.NO_MAILBOX) return;
                     boolean uiRefresh =
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
-                    sync(context, mailboxId, syncResult, uiRefresh);
+                    int deltaMessageCount =
+                            extras.getInt(EmailServiceStub.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
+                    sync(context, mailboxId, syncResult, uiRefresh, deltaMessageCount);
 
                     // Outbox is a special case here
                     Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
