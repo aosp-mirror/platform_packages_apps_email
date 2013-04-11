@@ -1027,6 +1027,24 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
     <string name="mailbox_settings_mailbox_sync_window_label">Days to sync</string>
 
+    <!-- Settings screen, title for whether to show checkboxes or sender image or neither [CHAR LIMIT=150] -->
+    <string name="preference_conversation_list_icon_title">Checkbox/sender image</string>
+    <!-- Options to select from for whether to show checkboxes or sender images [CHAR LIMIT=50] -->
+    <string-array name="prefEntries_conversationListIconName">
+        <item>Show checkbox</item>
+        <item>Show image (not working yet)</item>
+        <item>Show neither</item>
+    </string-array>
+    <!-- Description of setting for whether to show checkboxes or sender images [CHAR LIMIT=200] -->
+    <string name="preference_conversation_list_icon_summary">Choose whether to show checkboxes or sender images in conversation view</string>
+    <string-array translatable="false" name="prefValues_conversationListIcon">
+        <item>checkbox</item>
+        <item>senderimage</item>
+        <item>none</item>
+    </string-array>
+    <!-- Dialog title for the choosing whether to show checkboxes or sender image [CHAR LIMIT=200] -->
+    <string name="prefDialogTitle_conversationListIcon">Checkbox/sender image</string>
+
     <!-- Strings used for account shortcut picker -->
     <!-- String displayed in launcher [CHAR_LIMIT=10] -->
     <string name="account_shortcut_picker_name">Email account</string>
@@ -1095,13 +1113,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application</string>
 
-    <!-- General preference: Label of the setting for hiding checkboxes in the
-         message list [CHAR LIMIT=32] -->
-    <string name="general_preference_hide_checkboxes_label">Hide checkboxes</string>
-    <!-- General preference: Description of the setting for hiding checkboxes in the
-         message list [CHAR LIMIT=64] -->
-    <string name="general_preference_hide_checkboxes_summary">In lists of messages, touch and
-         hold to select</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_delete_label">Confirm before deleting</string>
