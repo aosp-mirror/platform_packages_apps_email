@@ -48,6 +48,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class Pop3Store extends Store {
     // All flags defining debug or development code settings must be FALSE
@@ -786,13 +787,19 @@ public class Pop3Store extends Store {
             int messageId = mUidToMsgNumMap.get(message.getUid());
             if (lines == -1) {
                 // Fetch entire message
-                response = executeSimpleCommand(String.format("RETR %d", messageId));
+                response = executeSimpleCommand(String.format(Locale.US, "RETR %d", messageId));
             } else {
                 // Fetch partial message.  Try "TOP", and fall back to slower "RETR" if necessary
                 try {
-                    response = executeSimpleCommand(String.format("TOP %d %d", messageId,  lines));
+                    response = executeSimpleCommand(
+                            String.format(Locale.US, "TOP %d %d", messageId,  lines));
                 } catch (MessagingException me) {
-                    response = executeSimpleCommand(String.format("RETR %d", messageId));
+                    try {
+                        response = executeSimpleCommand(
+                                String.format(Locale.US, "RETR %d", messageId));
+                    } catch (MessagingException e) {
+                        Log.w(Logging.LOG_TAG, "Can't read message " + messageId);
+                    }
                 }
             }
             if (response != null)  {
@@ -846,8 +853,16 @@ public class Pop3Store extends Store {
             }
             try {
                 for (Message message : messages) {
-                    executeSimpleCommand(String.format("DELE %s",
-                            mUidToMsgNumMap.get(message.getUid())));
+                    try {
+                        final String uid = message.getUid();
+                        final int msgNum = mUidToMsgNumMap.get(uid);
+                        executeSimpleCommand(String.format(Locale.US, "DELE %s", msgNum));
+                        // Remove from the maps
+                        mMsgNumToMsgMap.remove(msgNum);
+                        mUidToMsgNumMap.remove(uid);
+                    } catch (MessagingException e) {
+                        // A failed deletion isn't a problem
+                    }
                 }
             }
             catch (IOException ioe) {
