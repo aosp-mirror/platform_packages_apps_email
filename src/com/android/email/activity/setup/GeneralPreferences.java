@@ -28,7 +28,6 @@ import android.widget.Toast;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
-
 import com.android.mail.preferences.MailPrefs;
 import com.android.mail.utils.Utils;
 
@@ -39,7 +38,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
-    private static final String PREFERENCE_KEY_HIDE_CHECKBOXES = "hide_checkboxes";
+    private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
     private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
@@ -54,7 +53,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private ListPreference mTextZoom;
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
-    private CheckBoxPreference mHideCheckboxes;
+    private ListPreference mConvListIcon;
     private CheckBoxPreference mSwipeDelete;
 
     private boolean mSettingsChanged = false;
@@ -113,6 +112,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL.equals(key)) {
             mMailPrefs.setDefaultReplyAll((Boolean) newValue);
             return true;
+        } else if (PREFERENCE_KEY_CONV_LIST_ICON.equals(key)) {
+            mPreferences.setConversationListIcon((String) newValue);
+            return true;
         }
         return false;
     }
@@ -136,9 +138,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
             mPreferences.setConfirmSend(mConfirmSend.isChecked());
             return true;
-        } else if (PREFERENCE_KEY_HIDE_CHECKBOXES.equals(key)) {
-            mPreferences.setHideCheckboxes(mHideCheckboxes.isChecked());
-            return true;
         } else if (MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION.equals(key)) {
             mMailPrefs
                     .setConversationListSwipeAction(mSwipeDelete.isChecked()
@@ -161,9 +160,14 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             mTextZoom.setOnPreferenceChangeListener(this);
         }
 
+        mConvListIcon = (ListPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
+        if (mConvListIcon != null) {
+            mConvListIcon.setValue(mPreferences.getConversationListIcon());
+            mConvListIcon.setOnPreferenceChangeListener(this);
+        }
+
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
-        mHideCheckboxes = (CheckBoxPreference) findPreference(PREFERENCE_KEY_HIDE_CHECKBOXES);
         mSwipeDelete = (CheckBoxPreference)
                 findPreference(MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION);
         mSwipeDelete.setChecked(MailPrefs.ConversationListSwipeActions.DELETE.equals(
