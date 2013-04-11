@@ -81,6 +81,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
 
     public EmailServiceProxy(Context _context, Class<?> _class, IEmailServiceCallback _callback) {
         super(_context, new Intent(_context, _class));
+        TempDirectory.setTempDirectory(_context);
         mCallback = _callback;
         isRemote = false;
     }
@@ -91,22 +92,15 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         super(_context, _intent);
         try {
             Device.getDeviceId(_context);
-            TempDirectory.setTempDirectory(_context);
         } catch (IOException e) {
         }
+        TempDirectory.setTempDirectory(_context);
         mCallback = _callback;
         isRemote = true;
     }
 
     public EmailServiceProxy(Context _context, String _action, IEmailServiceCallback _callback) {
-        super(_context, new Intent(_action));
-        try {
-            Device.getDeviceId(_context);
-            TempDirectory.setTempDirectory(_context);
-        } catch (IOException e) {
-        }
-        mCallback = _callback;
-        isRemote = true;
+        this(_context, new Intent(_action), _callback);
     }
 
     @Override
