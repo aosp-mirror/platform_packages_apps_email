@@ -36,7 +36,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 public class PopImapSyncAdapterService extends Service {
-    private static final String TAG = "PopImapSyncAdapterService";
+    private static final String TAG = "PopImapSyncService";
     private static SyncAdapterImpl sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();
 
