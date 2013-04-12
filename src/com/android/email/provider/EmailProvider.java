@@ -44,6 +44,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
@@ -148,6 +149,9 @@ public class EmailProvider extends ContentProvider {
     private static final String NOTIFICATION_OP_INSERT = "insert";
     /** Appended to the notification URI for update operations */
     private static final String NOTIFICATION_OP_UPDATE = "update";
+
+    /** The query string to trigger a folder refresh. */
+    private static String QUERY_UIREFRESH = "uirefresh";
 
     // Definitions for our queries looking for orphaned messages
     private static final String[] ORPHANS_PROJECTION
@@ -1158,7 +1162,7 @@ public class EmailProvider extends ContentProvider {
                 matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
                 matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
                 matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
-                matcher.addURI(EmailContent.AUTHORITY, "uirefresh/#", UI_FOLDER_REFRESH);
+                matcher.addURI(EmailContent.AUTHORITY, QUERY_UIREFRESH + "/#", UI_FOLDER_REFRESH);
                 // We listen to everything trailing uifolder/ since there might be an appVersion
                 // as in Utils.appendVersionQueryParameter().
                 matcher.addURI(EmailContent.AUTHORITY, "uifolder/*", UI_FOLDER);
@@ -1302,10 +1306,10 @@ public class EmailProvider extends ContentProvider {
                     c = uiFolders(uri, projection);
                     return c;
                 case UI_FOLDER_LOAD_MORE:
-                    c = uiFolderLoadMore(uri);
+                    c = uiFolderLoadMore(getMailbox(uri));
                     return c;
                 case UI_FOLDER_REFRESH:
-                    c = uiFolderRefresh(uri, 0);
+                    c = uiFolderRefresh(getMailbox(uri), 0);
                     return c;
                 case MAILBOX_NOTIFICATION:
                     c = notificationQuery(uri);
@@ -2276,7 +2280,7 @@ outer:
                 .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
                 .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
                 .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
-                .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId("uirefresh"))
+                .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId(QUERY_UIREFRESH))
                 .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
                 .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
                 .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
@@ -3355,6 +3359,12 @@ outer:
             return mExtras;
         }
 
+        /**
+         * When showing a folder, if it's been at least this long since the last sync,
+         * force a folder refresh.
+         */
+        private static final long AUTO_REFRESH_INTERVAL_MS = 5 * DateUtils.MINUTE_IN_MILLIS;
+
         @Override
         public Bundle respond(Bundle params) {
             final String setVisibilityKey =
@@ -3368,14 +3378,22 @@ outer:
                             UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
                         if (mailbox != null) {
+                            final ContentResolver resolver = mContext.getContentResolver();
                             // Mark all messages as seen
                             // TODO: should this happen even if the mailbox couldn't be restored?
                             final ContentValues contentValues = new ContentValues(1);
                             contentValues.put(MessageColumns.FLAG_SEEN, true);
                             final Uri uri = EmailContent.Message.CONTENT_URI;
-                            mContext.getContentResolver().update(uri, contentValues,
-                                    MessageColumns.MAILBOX_KEY + " = ?",
+                            resolver.update(uri, contentValues, MessageColumns.MAILBOX_KEY + " = ?",
                                     new String[] {String.valueOf(mailbox.mId)});
+                            // If it's been long enough, force sync this mailbox.
+                            final long timeSinceLastSync =
+                                    System.currentTimeMillis() - mailbox.mSyncTime;
+                            if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
+                                final Uri refreshUri = Uri.parse(EmailContent.CONTENT_URI + "/" +
+                                        QUERY_UIREFRESH + "/" + mailbox.mId);
+                                resolver.query(refreshUri, null, null, null, null);
+                            }
                         }
                     }
                 }
@@ -4364,16 +4382,17 @@ outer:
         }
     };
 
-    private Cursor uiFolderRefresh(Uri uri, int deltaMessageCount) {
-        Context context = getContext();
-        String idString = uri.getLastPathSegment();
-        long id = Long.parseLong(idString);
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, id);
+    private Mailbox getMailbox(final Uri uri) {
+        final long id = Long.parseLong(uri.getLastPathSegment());
+        return Mailbox.restoreMailboxWithId(getContext(), id);
+    }
+
+    private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
         if (mailbox == null) return null;
-        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
+        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
                 mServiceCallback, mailbox.mAccountKey);
         try {
-            service.startSync(id, true, deltaMessageCount);
+            service.startSync(mailbox.mId, true, deltaMessageCount);
         } catch (RemoteException e) {
         }
         return null;
@@ -4384,18 +4403,14 @@ outer:
     //Number of additional messages to load when a user selects "Load more..." in a search
     public static final int SEARCH_MORE_INCREMENT = 10;
 
-    private Cursor uiFolderLoadMore(Uri uri) {
-        Context context = getContext();
-        String idString = uri.getLastPathSegment();
-        long id = Long.parseLong(idString);
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(context, id);
+    private Cursor uiFolderLoadMore(final Mailbox mailbox) {
         if (mailbox == null) return null;
         if (mailbox.mType == Mailbox.TYPE_SEARCH) {
             // Ask for 10 more messages
             mSearchParams.mOffset += SEARCH_MORE_INCREMENT;
-            runSearchQuery(context, mailbox.mAccountKey, id);
+            runSearchQuery(getContext(), mailbox.mAccountKey, mailbox.mId);
         } else {
-            uiFolderRefresh(uri, VISIBLE_LIMIT_INCREMENT);
+            uiFolderRefresh(mailbox, VISIBLE_LIMIT_INCREMENT);
         }
         return null;
     }
