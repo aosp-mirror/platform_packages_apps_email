@@ -413,6 +413,15 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Szinkronizálási beállítások"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Ellenőrzés gyakorisága"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Szinkronizálási időtartam"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (3112243519552774172) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (1726954406780046884) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2868213958259269107) -->
+    <!-- no translation found for prefEntries_conversationListIconName:2 (3702634852126227264) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (578493585470958429) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (5022399322070038248) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail fiók"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Válasszon fiókot"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Mappa kiválasztása"</string>
@@ -433,8 +442,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Beállítások"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Általános beállítások"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Alkalmazás"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Jelölőnégyzetek elrejtése"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Kiválasztáshoz érintse meg, és tartsa lenyomva az üzenetlistában"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Megerősítés kérése törlés előtt"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Üzenetek"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Törléshez csúsztassa az ujját"</string>

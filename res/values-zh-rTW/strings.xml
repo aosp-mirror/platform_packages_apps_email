@@ -413,6 +413,15 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"同步處理設定"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"檢查頻率"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"同步處理的天數"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (3112243519552774172) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (1726954406780046884) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2868213958259269107) -->
+    <!-- no translation found for prefEntries_conversationListIconName:2 (3702634852126227264) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (578493585470958429) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (5022399322070038248) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"電子郵件帳戶"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"選擇帳戶"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"選取資料夾"</string>
@@ -433,8 +442,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"設定"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"一般設定"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"應用程式"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"隱藏核取方塊"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"在郵件清單中，輕觸並按住項目即可選取"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"刪除前需確認"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"郵件"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"滑動即可刪除"</string>
