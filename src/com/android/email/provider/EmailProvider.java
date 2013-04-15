@@ -67,6 +67,7 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -373,6 +374,8 @@ public class EmailProvider extends ContentProvider {
     private static Uri INTEGRITY_CHECK_URI;
     public static Uri ACCOUNT_BACKUP_URI;
     private static Uri FOLDER_STATUS_URI;
+
+    private static Map<String, String> sProtocolTypeMap;
 
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
@@ -2822,6 +2825,7 @@ outer:
         final long accountId = Long.parseLong(id);
         final Context context = getContext();
 
+        // TODO: If uiProjection is null, this will NPE. We should do everything here if it's null.
         final Set<String> projectionColumns = ImmutableSet.copyOf(uiProjection);
 
         if (projectionColumns.contains(UIProvider.AccountColumns.CAPABILITIES)) {
@@ -2916,6 +2920,31 @@ outer:
                 }
             }
         }
+        if (projectionColumns.contains(UIProvider.AccountColumns.TYPE)) {
+            final String query = "SELECT ha." + HostAuthColumns.PROTOCOL
+                    + " FROM " + Account.TABLE_NAME + " a INNER JOIN " + HostAuth.TABLE_NAME
+                    + " ha ON a." + AccountColumns.HOST_AUTH_KEY_RECV + " = ha."
+                    + HostAuthColumns.ID
+                    + " WHERE a." + AccountColumns.ID + " = ?";
+            final Cursor cursor = mDatabase.rawQuery(query, new String[] { id });
+            final String type;
+            if (cursor.moveToFirst()) {
+                loadProtocolTypeMap(context);
+                final String protocol = cursor.getString(0);
+                if (protocol != null && sProtocolTypeMap.containsKey(protocol)) {
+                    type = sProtocolTypeMap.get(protocol);
+                } else {
+                    type = "unknown";
+                }
+            } else {
+                type = "unknown";
+            }
+
+            cursor.close();
+
+            values.put(UIProvider.AccountColumns.TYPE, type);
+        }
+
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
         return sb.toString();
@@ -3014,7 +3043,6 @@ outer:
     private void addCombinedAccountRow(MatrixCursor mc) {
         final long id = Account.getDefaultAccountId(getContext());
         if (id == Account.NO_ACCOUNT) return;
-        final String idString = Long.toString(id);
 
         // Build a map of the requested columns to the appropriate positions
         final ImmutableMap.Builder<String, Integer> builder =
@@ -3040,6 +3068,9 @@ outer:
         if (colPosMap.containsKey(UIProvider.AccountColumns.NAME)) {
             values[colPosMap.get(UIProvider.AccountColumns.NAME)] = getContext().getString(
                 R.string.mailbox_list_account_selector_combined_view);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.TYPE)) {
+            values[colPosMap.get(UIProvider.AccountColumns.TYPE)] = "unknown";
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.UNDO_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.UNDO_URI)] =
@@ -4700,6 +4731,21 @@ outer:
             }
         } finally {
             cursor.close();
+        }
+    }
+
+    private void loadProtocolTypeMap(final Context context) {
+        if (sProtocolTypeMap == null) {
+            final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+
+            builder.put(context.getString(R.string.protocol_eas),
+                    context.getString(R.string.account_manager_type_exchange));
+            builder.put(context.getString(R.string.protocol_imap),
+                    context.getString(R.string.account_manager_type_imap));
+            builder.put(context.getString(R.string.protocol_pop3),
+                    context.getString(R.string.account_manager_type_pop3));
+
+            sProtocolTypeMap = builder.build();
         }
     }
 }
