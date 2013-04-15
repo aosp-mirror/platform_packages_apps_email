@@ -192,6 +192,7 @@ public class EmailProvider extends ContentProvider {
     private static final int MAILBOX_ID_FROM_ACCOUNT_AND_TYPE = MAILBOX_BASE + 2;
     private static final int MAILBOX_NOTIFICATION = MAILBOX_BASE + 3;
     private static final int MAILBOX_MOST_RECENT_MESSAGE = MAILBOX_BASE + 4;
+    private static final int MAILBOX_MESSAGE_COUNT = MAILBOX_BASE + 5;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -1086,6 +1087,7 @@ public class EmailProvider extends ContentProvider {
                         MAILBOX_NOTIFICATION);
                 matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
                         MAILBOX_MOST_RECENT_MESSAGE);
+                matcher.addURI(EmailContent.AUTHORITY, "mailboxCount/#", MAILBOX_MESSAGE_COUNT);
 
                 // All messages
                 matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
@@ -1303,13 +1305,16 @@ public class EmailProvider extends ContentProvider {
                     c = uiFolderLoadMore(uri);
                     return c;
                 case UI_FOLDER_REFRESH:
-                    c = uiFolderRefresh(uri);
+                    c = uiFolderRefresh(uri, 0);
                     return c;
                 case MAILBOX_NOTIFICATION:
                     c = notificationQuery(uri);
                     return c;
                 case MAILBOX_MOST_RECENT_MESSAGE:
                     c = mostRecentMessageQuery(uri);
+                    return c;
+                case MAILBOX_MESSAGE_COUNT:
+                    c = getMailboxMessageCount(uri);
                     return c;
                 case ACCOUNT_DEFAULT_ID:
                     // Start with a snapshot of the cache
@@ -2064,7 +2069,14 @@ outer:
         String mailboxId = uri.getLastPathSegment();
         return db.rawQuery("select max(_id) from Message where mailboxKey=?",
                 new String[] {mailboxId});
-   }
+    }
+
+    private Cursor getMailboxMessageCount(Uri uri) {
+        SQLiteDatabase db = getDatabase(getContext());
+        String mailboxId = uri.getLastPathSegment();
+        return db.rawQuery("select count(*) from Message where mailboxKey=?",
+                new String[] {mailboxId});
+    }
 
     /**
      * Support for UnifiedEmail below
@@ -3755,7 +3767,7 @@ outer:
             final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
                     mServiceCallback, mailbox.mAccountKey);
             try {
-                service.startSync(mailbox.mId, true);
+                service.startSync(mailbox.mId, true, 0);
             } catch (RemoteException e) {
             }
             final long originalMsgId = msg.mSourceKey;
@@ -4342,7 +4354,7 @@ outer:
         }
     };
 
-    private Cursor uiFolderRefresh(Uri uri) {
+    private Cursor uiFolderRefresh(Uri uri, int deltaMessageCount) {
         Context context = getContext();
         String idString = uri.getLastPathSegment();
         long id = Long.parseLong(idString);
@@ -4351,7 +4363,7 @@ outer:
         EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
                 mServiceCallback, mailbox.mAccountKey);
         try {
-            service.startSync(id, true);
+            service.startSync(id, true, deltaMessageCount);
         } catch (RemoteException e) {
         }
         return null;
@@ -4373,21 +4385,7 @@ outer:
             mSearchParams.mOffset += SEARCH_MORE_INCREMENT;
             runSearchQuery(context, mailbox.mAccountKey, id);
         } else {
-            // Compute the new visibleLimit for this mailbox.
-            int newLimit = mailbox.mVisibleLimit + VISIBLE_LIMIT_INCREMENT;
-            if (newLimit > mailbox.mTotalCount) {
-                newLimit = mailbox.mTotalCount;
-            }
-            // Only do something if the limit is changing.
-            if (newLimit != mailbox.mVisibleLimit) {
-                // Save the new limit to the db.
-                ContentValues values = new ContentValues();
-                values.put(MailboxColumns.VISIBLE_LIMIT, newLimit);
-                context.getContentResolver().update(ContentUris.withAppendedId(Mailbox.CONTENT_URI,
-                        id), values, null, null);
-                // And order a refresh
-                uiFolderRefresh(uri);
-            }
+            uiFolderRefresh(uri, VISIBLE_LIMIT_INCREMENT);
         }
         return null;
     }

@@ -103,7 +103,7 @@ public class Pop3Service extends Service {
             long inboxId = Mailbox.findMailboxOfType(mContext, att.mAccountKey, Mailbox.TYPE_INBOX);
             if (inboxId == Mailbox.NO_MAILBOX) return;
             // We load attachments during a sync
-            startSync(inboxId, true);
+            startSync(inboxId, true, 0);
         }
 
         @Override
@@ -129,10 +129,11 @@ public class Pop3Service extends Service {
      *
      * @param account
      * @param folder
+     * @param deltaMessageCount the requested change in number of messages to sync.
      * @throws MessagingException
      */
     public static void synchronizeMailboxSynchronous(Context context, final Account account,
-            final Mailbox folder) throws MessagingException {
+            final Mailbox folder, final int deltaMessageCount) throws MessagingException {
         sendMailboxStatus(folder, EmailServiceStatus.IN_PROGRESS);
 
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
@@ -141,7 +142,7 @@ public class Pop3Service extends Service {
         }
         NotificationController nc = NotificationController.getInstance(context);
         try {
-            synchronizePop3Mailbox(context, account, folder);
+            synchronizePop3Mailbox(context, account, folder, deltaMessageCount);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
             sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
@@ -243,10 +244,11 @@ public class Pop3Service extends Service {
      *
      * @param account the account to sync
      * @param mailbox the mailbox to sync
+     * @param deltaMessageCount the requested change to number of messages to sync
      * @throws MessagingException
      */
-    private static void synchronizePop3Mailbox(final Context context,
-            final Account account, final Mailbox mailbox) throws MessagingException {
+    private static void synchronizePop3Mailbox(final Context context, final Account account,
+            final Mailbox mailbox, final int deltaMessageCount) throws MessagingException {
         // TODO Break this into smaller pieces
         ContentResolver resolver = context.getContentResolver();
 
@@ -293,12 +295,6 @@ public class Pop3Service extends Service {
         // count.
         remoteFolder.open(OpenMode.READ_WRITE);
 
-        // Get the remote message count.
-        int remoteMessageCount = remoteFolder.getMessageCount();
-        ContentValues values = new ContentValues();
-        values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
-        mailbox.update(context, values);
-
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
         long trashMailboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_TRASH);
         Cursor updates = resolver.query(
@@ -328,11 +324,12 @@ public class Pop3Service extends Service {
             updates.close();
         }
 
-        // Determine the limit # of messages to download
-        int visibleLimit = mailbox.mVisibleLimit;
-        if (visibleLimit <= 0) {
-            visibleLimit = MailActivityEmail.VISIBLE_LIMIT_DEFAULT;
-        }
+        // Get the remote message count.
+        final int remoteMessageCount = remoteFolder.getMessageCount();
+
+        // Update the total count and determine new message count to sync.
+        final int messageCount = mailbox.handleCountsForSync(context, remoteMessageCount,
+                deltaMessageCount);
 
         // Create a list of messages to download
         Pop3Message[] remoteMessages = new Pop3Message[0];
@@ -343,7 +340,7 @@ public class Pop3Service extends Service {
             /*
              * Message numbers start at 1.
              */
-            remoteMessages = remoteFolder.getMessages(remoteMessageCount, visibleLimit);
+            remoteMessages = remoteFolder.getMessages(remoteMessageCount, messageCount);
 
             /*
              * Get a list of the messages that are in the remote list but not on
@@ -378,7 +375,7 @@ public class Pop3Service extends Service {
                         AttachmentColumns.UI_STATE + "=" + AttachmentState.DOWNLOADING,
                 new String[] {Long.toString(account.mId)}, null);
         try {
-            values.clear();
+            final ContentValues values = new ContentValues();
             while (c.moveToNext()) {
                 values.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
                 Attachment att = new Attachment();

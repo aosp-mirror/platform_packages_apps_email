@@ -29,17 +29,18 @@ import android.util.Log;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.utility.Utility;
 
-public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
+public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
 
     public static Uri CONTENT_URI;
+    public static Uri MESSAGE_COUNT_URI;
     public static Uri FROM_ACCOUNT_AND_TYPE_URI;
 
     public static void initMailbox() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
+        MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailboxCount");
         FROM_ACCOUNT_AND_TYPE_URI = Uri.parse(EmailContent.CONTENT_URI +
                 "/mailboxIdFromAccountAndType");
     }
@@ -57,7 +58,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public long mSyncTime;
     public boolean mFlagVisible = true;
     public int mFlags;
-    public int mVisibleLimit;
     public String mSyncStatus;
     public long mLastTouchedTime;
     public int mUiSyncStatus;
@@ -78,14 +78,13 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final int CONTENT_SYNC_TIME_COLUMN = 10;
     public static final int CONTENT_FLAG_VISIBLE_COLUMN = 11;
     public static final int CONTENT_FLAGS_COLUMN = 12;
-    public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
-    public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
-    public static final int CONTENT_PARENT_KEY_COLUMN = 15;
-    public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 16;
-    public static final int CONTENT_UI_SYNC_STATUS_COLUMN = 17;
-    public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 18;
-    public static final int CONTENT_TOTAL_COUNT_COLUMN = 19;
-    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 20;
+    public static final int CONTENT_SYNC_STATUS_COLUMN = 13;
+    public static final int CONTENT_PARENT_KEY_COLUMN = 14;
+    public static final int CONTENT_LAST_TOUCHED_TIME_COLUMN = 15;
+    public static final int CONTENT_UI_SYNC_STATUS_COLUMN = 16;
+    public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 17;
+    public static final int CONTENT_TOTAL_COUNT_COLUMN = 18;
+    public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 19;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -95,30 +94,16 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
         MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
         MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
-        MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,
-        MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
-        MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY, MailboxColumns.LAST_TOUCHED_TIME,
-        MailboxColumns.UI_SYNC_STATUS, MailboxColumns.UI_LAST_SYNC_RESULT,
-        MailboxColumns.TOTAL_COUNT, MailboxColumns.HIERARCHICAL_NAME
+        MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME, MailboxColumns.FLAG_VISIBLE,
+        MailboxColumns.FLAGS, MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
+        MailboxColumns.LAST_TOUCHED_TIME, MailboxColumns.UI_SYNC_STATUS,
+        MailboxColumns.UI_LAST_SYNC_RESULT, MailboxColumns.TOTAL_COUNT,
+        MailboxColumns.HIERARCHICAL_NAME
     };
 
-    private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
-            MailboxColumns.ACCOUNT_KEY + " =? AND " +
-            MailboxColumns.TYPE + " =?";
-    private static final String MAILBOX_TYPE_SELECTION =
-            MailboxColumns.TYPE + " =?";
     /** Selection by server pathname for a given account */
     public static final String PATH_AND_ACCOUNT_SELECTION =
         MailboxColumns.SERVER_ID + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
-
-    private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
-            "sum(" + MailboxColumns.UNREAD_COUNT + ")"
-            };
-    private static final int UNREAD_COUNT_COUNT_COLUMN = 0;
-    private static final String[] MAILBOX_SUM_OF_MESSAGE_COUNT_PROJECTION = new String [] {
-            "sum(" + MailboxColumns.MESSAGE_COUNT + ")"
-            };
-    private static final int MESSAGE_COUNT_COUNT_COLUMN = 0;
 
     private static final String[] MAILBOX_TYPE_PROJECTION = new String [] {
             MailboxColumns.TYPE
@@ -227,6 +212,11 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final long QUERY_ALL_FAVORITES = -4;
     public static final long QUERY_ALL_DRAFTS = -5;
     public static final long QUERY_ALL_OUTBOX = -6;
+
+    /**
+     * Specifies how many messages will be shown in a folder when it is first synced.
+     */
+    public static final int FIRST_SYNC_MESSAGE_COUNT = 25;
 
     public Mailbox() {
         mBaseUri = CONTENT_URI;
@@ -380,7 +370,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mSyncTime = cursor.getLong(CONTENT_SYNC_TIME_COLUMN);
         mFlagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
         mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
-        mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
         mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
         mLastTouchedTime = cursor.getLong(CONTENT_LAST_TOUCHED_TIME_COLUMN);
         mUiSyncStatus = cursor.getInt(CONTENT_UI_SYNC_STATUS_COLUMN);
@@ -405,7 +394,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.SYNC_TIME, mSyncTime);
         values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);
         values.put(MailboxColumns.FLAGS, mFlags);
-        values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
         values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
         values.put(MailboxColumns.LAST_TOUCHED_TIME, mLastTouchedTime);
         values.put(MailboxColumns.UI_SYNC_STATUS, mUiSyncStatus);
@@ -413,6 +401,44 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         values.put(MailboxColumns.TOTAL_COUNT, mTotalCount);
         values.put(MailboxColumns.HIERARCHICAL_NAME, mHierarchicalName);
         return values;
+    }
+
+    /**
+     * During sync, updates the remote message count, and determine how many messages to sync down
+     * for this mailbox.
+     * @param c
+     * @param remoteMessageCount the current message count on the server; this might be different
+     * from this object's current message count (in which case it will be written back to the db).
+     * @param deltaMessageCount the minimum number of additional messages to sync for this request.
+     * @return
+     */
+    public int handleCountsForSync(Context c, final int remoteMessageCount,
+            final int deltaMessageCount) {
+        // Write the remote message count to the DB if necessary.
+        if (remoteMessageCount != mTotalCount) {
+            ContentValues values = new ContentValues();
+            values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
+            update(c, values);
+        }
+
+        // TODO: The value computed below is not quite right if the messages we have are not
+        // actually a subset of the server side messages, but it's close enough?
+
+        final int currentMessageCount = getMailboxMessageCount(c, mId);
+
+        // Determine how many "new" messages we have. If we've never synced before, then use a
+        // default value, otherwise it's the actual change in remote count.
+        final int newMessageCount;
+        if (mSyncTime == 0) {
+            newMessageCount = FIRST_SYNC_MESSAGE_COUNT;
+        } else {
+            newMessageCount = Math.max(0, remoteMessageCount - mTotalCount);
+        }
+
+        // Determine the desired number of messages to sync.
+        final int messageCount = currentMessageCount + Math.max(newMessageCount, deltaMessageCount);
+        // Limit to [0, remoteMessageCount].
+        return Math.min(Math.max(0, messageCount), remoteMessageCount);
     }
 
     /**
@@ -461,29 +487,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         return null;
     }
 
-    public static int getUnreadCountByAccountAndMailboxType(Context context, long accountId,
-            int type) {
-        return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
-                MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
-                ACCOUNT_AND_MAILBOX_TYPE_SELECTION,
-                new String[] { String.valueOf(accountId), String.valueOf(type) },
-                null, UNREAD_COUNT_COUNT_COLUMN, 0);
-    }
-
-    public static int getUnreadCountByMailboxType(Context context, int type) {
-        return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
-                MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
-                MAILBOX_TYPE_SELECTION,
-                new String[] { String.valueOf(type) }, null, UNREAD_COUNT_COUNT_COLUMN, 0);
-    }
-
-    public static int getMessageCountByMailboxType(Context context, int type) {
-        return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
-                MAILBOX_SUM_OF_MESSAGE_COUNT_PROJECTION,
-                MAILBOX_TYPE_SELECTION,
-                new String[] { String.valueOf(type) }, null, MESSAGE_COUNT_COUNT_COLUMN, 0);
-    }
-
     /**
      * Return the mailbox for a message with a given id
      * @param context the caller's context
@@ -515,6 +518,21 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         return Utility.getFirstRowString(context, url, MAILBOX_DISPLAY_NAME_PROJECTION,
                 null, null, null, MAILBOX_DISPLAY_NAME_COLUMN);
+    }
+
+    public static int getMailboxMessageCount(Context c, long mailboxId) {
+        Cursor cursor = c.getContentResolver().query(
+                ContentUris.withAppendedId(MESSAGE_COUNT_URI, mailboxId), null, null, null, null);
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    return cursor.getInt(0);
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return 0;
     }
 
     /**
@@ -589,8 +607,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
                 = mFlagVisible;
         hash[CONTENT_FLAGS_COLUMN]
                 = mFlags;
-        hash[CONTENT_VISIBLE_LIMIT_COLUMN]
-                = mVisibleLimit;
         hash[CONTENT_SYNC_STATUS_COLUMN]
                 = mSyncStatus;
         hash[CONTENT_PARENT_KEY_COLUMN]
@@ -632,7 +648,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         dest.writeLong(mSyncTime);
         dest.writeInt(mFlagVisible ? 1 : 0);
         dest.writeInt(mFlags);
-        dest.writeInt(mVisibleLimit);
         dest.writeString(mSyncStatus);
         dest.writeLong(mLastTouchedTime);
         dest.writeInt(mUiSyncStatus);
@@ -657,7 +672,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         mSyncTime = in.readLong();
         mFlagVisible = in.readInt() == 1;
         mFlags = in.readInt();
-        mVisibleLimit = in.readInt();
         mSyncStatus = in.readString();
         mLastTouchedTime = in.readLong();
         mUiSyncStatus = in.readInt();
