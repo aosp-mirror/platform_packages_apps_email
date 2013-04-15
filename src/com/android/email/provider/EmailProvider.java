@@ -45,6 +45,7 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
@@ -2730,6 +2731,25 @@ outer:
                 }
                 values.put(UIProvider.FolderColumns.CAPABILITIES,
                         getFolderCapabilities(info, mailbox.mFlags, mailbox.mType, mailboxId));
+                // The persistent id is used to form a filename, so we must ensure that it doesn't
+                // include illegal characters (such as '/'). Only perform the encoding if this
+                // query wants the persistent id.
+                boolean shouldEncodePersistentId = false;
+                if (uiProjection == null) {
+                    shouldEncodePersistentId = true;
+                } else {
+                    for (final String column : uiProjection) {
+                        if (TextUtils.equals(column, UIProvider.FolderColumns.PERSISTENT_ID)) {
+                            shouldEncodePersistentId = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldEncodePersistentId) {
+                    values.put(UIProvider.FolderColumns.PERSISTENT_ID,
+                            Base64.encodeToString(mailbox.mServerId.getBytes(),
+                                    Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING));
+                }
              }
         }
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection, values);
