@@ -47,12 +47,13 @@
         android:entryValues="@array/general_preference_text_zoom_values"
         android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
-    <CheckBoxPreference
-        android:key="hide_checkboxes"
-        android:persistent="true"
-        android:defaultValue="false"
-        android:title="@string/general_preference_hide_checkboxes_label"
-        android:summary="@string/general_preference_hide_checkboxes_summary" />
+    <ListPreference
+        android:key="conversation_list_icon"
+        android:title="@string/preference_conversation_list_icon_title"
+        android:summary="@string/preference_conversation_list_icon_summary"
+        android:entries="@array/prefEntries_conversationListIconName"
+        android:entryValues="@array/prefValues_conversationListIcon"
+        android:dialogTitle="@string/prefDialogTitle_conversationListIcon" />
 
     <!-- This may be removed in GeneralPreferences.java -->
     <CheckBoxPreference
