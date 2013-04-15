@@ -79,18 +79,6 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     public static boolean sDebugInhibitGraphicsAcceleration = false;
 
     /**
-     * Specifies how many messages will be shown in a folder by default. This number is set
-     * on each new folder and can be incremented with "Load more messages..." by the
-     * VISIBLE_LIMIT_INCREMENT
-     */
-    public static final int VISIBLE_LIMIT_DEFAULT = 25;
-
-    /**
-     * Number of additional messages to load when a user selects "Load more messages..."
-     */
-    public static final int VISIBLE_LIMIT_INCREMENT = 25;
-
-    /**
      * This is used to force stacked UI to return to the "welcome" screen any time we change
      * the accounts list (e.g. deleting accounts in the Account Manager preferences.)
      */

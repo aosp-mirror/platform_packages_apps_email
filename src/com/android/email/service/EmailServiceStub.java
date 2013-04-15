@@ -79,6 +79,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
     public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
+    public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
 
     /** System folders that should always exist. */
     private final int[] DEFAULT_FOLDERS = {
@@ -111,7 +112,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+    public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
+            throws RemoteException {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         if (mailbox == null) return;
         Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
@@ -126,6 +128,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         }
         extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
+        if (deltaMessageCount != 0) {
+            extras.putInt(SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
+        }
         ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
     }
 
@@ -420,7 +425,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             }
             // If we just created the inbox, sync it
             if (inboxId != -1) {
-                startSync(inboxId, true);
+                startSync(inboxId, true, 0);
             }
         }
     }
