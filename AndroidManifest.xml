@@ -95,6 +95,7 @@
         android:icon="@mipmap/ic_launcher_email"
         android:label="@string/app_name"
         android:name="Email"
+        android:requiredAccountType="com.android.exchange,com.android.email"
         android:theme="@style/EmailTheme"
         android:hardwareAccelerated="false"
         >
