@@ -205,8 +205,10 @@ public class Pop3Service extends Service {
             // We'll load them from most recent to oldest
             for (int i = cnt - 1; i >= 0; i--) {
                 Pop3Message message = unsyncedMessages.get(i);
-                remoteFolder.fetchBody(message, Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76,
-                        null);
+                // TODO: this fetches the entire message at once. This should go back to trying
+                // to avoid downloading attachments initially. Specifically, the second argument
+                // below used to be Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76
+                remoteFolder.fetchBody(message, -1, null);
                 int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
                 if (!message.isComplete()) {
                      flag = EmailContent.Message.FLAG_LOADED_UNKNOWN;
@@ -266,10 +268,8 @@ public class Pop3Service extends Service {
             localUidCursor = resolver.query(
                     EmailContent.Message.CONTENT_URI,
                     LocalMessageInfo.PROJECTION,
-                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                            " AND " + MessageColumns.MAILBOX_KEY + "=?",
+                    MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {
-                            String.valueOf(account.mId),
                             String.valueOf(mailbox.mId)
                     },
                     null);
@@ -356,9 +356,9 @@ public class Pop3Service extends Service {
                 remoteUidMap.put(uid, message);
                 LocalMessageInfo localMessage = localMessageMap.get(uid);
                 // localMessage == null -> message has never been created (not even headers)
-                // mFlagLoaded = UNLOADED -> message created, but none of body loaded
+                // mFlagLoaded != FLAG_LOADED_COMPLETE -> message failed to sync completely
                 if (localMessage == null ||
-                        (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED)) {
+                        (localMessage.mFlagLoaded != EmailContent.Message.FLAG_LOADED_COMPLETE)) {
                     unsyncedMessages.add(message);
                 }
             }
@@ -366,6 +366,7 @@ public class Pop3Service extends Service {
             if (MailActivityEmail.DEBUG) {
                 Log.d(TAG, "*** Message count is zero??");
             }
+            remoteFolder.close(false);
             return;
         }
 

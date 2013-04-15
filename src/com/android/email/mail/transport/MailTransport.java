@@ -123,7 +123,7 @@ public class MailTransport {
             }
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
-
+            mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
         } catch (SSLException e) {
             if (MailActivityEmail.DEBUG) {
                 Log.d(Logging.LOG_TAG, e.toString());

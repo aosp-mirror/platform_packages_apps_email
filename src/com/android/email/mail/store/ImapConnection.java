@@ -106,7 +106,6 @@ class ImapConnection {
             }
 
             mTransport.open();
-            mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
 
             createParser();
 
@@ -498,7 +497,6 @@ class ImapConnection {
                 executeSimpleCommand(ImapConstants.STARTTLS);
 
                 mTransport.reopenTls();
-                mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
                 createParser();
                 // Per RFC requirement (3501-6.2.1) gather new capabilities
                 return(queryCapabilities());
