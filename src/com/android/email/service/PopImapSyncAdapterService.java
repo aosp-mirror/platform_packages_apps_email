@@ -212,14 +212,12 @@ public class PopImapSyncAdapterService extends Service {
                             Mailbox.NO_MAILBOX);
                     boolean isInbox = false;
                     if (mailboxId == Mailbox.NO_MAILBOX) {
+                        // Update folders.
+                        EmailServiceProxy service =
+                                EmailServiceUtils.getServiceForAccount(context, null, acct.mId);
+                        service.updateFolderList(acct.mId);
                         mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
                                 Mailbox.TYPE_INBOX);
-                        if (mailboxId == Mailbox.NO_MAILBOX) {
-                            // Update folders?
-                            EmailServiceProxy service =
-                                EmailServiceUtils.getServiceForAccount(context, null, acct.mId);
-                            service.updateFolderList(acct.mId);
-                        }
                         isInbox = true;
                     }
                     if (mailboxId == Mailbox.NO_MAILBOX) return;
