@@ -885,7 +885,7 @@ public class EmailProvider extends ContentProvider {
             case HOSTAUTH_ID:
                 return "vnd.android.cursor.item/email-hostauth";
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                return null;
         }
     }
 
