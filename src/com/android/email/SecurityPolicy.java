@@ -498,10 +498,14 @@ public class SecurityPolicy {
     /**
      * Convenience method; see javadoc below
      */
-    public static void setAccountHoldFlag(Context context, long accountId, boolean newState) {
+    public static void setAccountHoldFlag(Context context, long accountId, boolean holdEnabled) {
         Account account = Account.restoreAccountWithId(context, accountId);
         if (account != null) {
-            setAccountHoldFlag(context, account, newState);
+            setAccountHoldFlag(context, account, holdEnabled);
+            if (holdEnabled) {
+                // Make sure there's a notification up
+                NotificationController.getInstance(context).showSecurityNeededNotification(account);
+            }
         }
     }
 
