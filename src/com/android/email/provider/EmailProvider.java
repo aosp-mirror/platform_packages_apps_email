@@ -2836,9 +2836,10 @@ outer:
                             ? SWIPE_DELETE : SWIPE_DISABLED);
         }
         if (projectionColumns.contains(
-                UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
-            values.put(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES,
-                    prefs.getHideCheckboxes() ? "1" : "0");
+                UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
+            String convListIcon = prefs.getConversationListIcon();
+            values.put(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON,
+                    convListIconToUiValue(convListIcon));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             int autoAdvance = prefs.getAutoAdvanceDirection();
@@ -2922,6 +2923,18 @@ outer:
                 return UIProvider.MessageTextSize.TINY;
             default:
                 return UIProvider.MessageTextSize.NORMAL;
+        }
+    }
+
+    private static int convListIconToUiValue(String convListIcon) {
+        if (Preferences.CONV_LIST_ICON_CHECKBOX.equals(convListIcon)) {
+            return UIProvider.ConversationListIcon.CHECKBOX;
+        } else if (Preferences.CONV_LIST_ICON_SENDER_IMAGE.equals(convListIcon)) {
+            return UIProvider.ConversationListIcon.SENDER_IMAGE;
+        } else if (Preferences.CONV_LIST_ICON_NONE.equals(convListIcon)) {
+            return UIProvider.ConversationListIcon.NONE;
+        } else {
+            return UIProvider.ConversationListIcon.DEFAULT;
         }
     }
 
@@ -3044,8 +3057,9 @@ outer:
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)] =
                     Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
         }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] = 0;
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)] =
+                    prefs.getConversationListIcon();
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
@@ -3058,10 +3072,6 @@ outer:
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)] =
                     prefs.getConfirmSend() ? 1 : 0;
-        }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.HIDE_CHECKBOXES)] =
-                    prefs.getHideCheckboxes() ? 1 : 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)] =
