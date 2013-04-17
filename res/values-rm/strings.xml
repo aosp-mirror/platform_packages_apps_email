@@ -618,6 +618,15 @@
     <skip />
     <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
     <skip />
+    <!-- no translation found for preference_conversation_list_icon_title (3112243519552774172) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (1726954406780046884) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2868213958259269107) -->
+    <!-- no translation found for prefEntries_conversationListIconName:2 (3702634852126227264) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (578493585470958429) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (5022399322070038248) -->
+    <skip />
     <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
     <skip />
     <!-- no translation found for account_shortcut_picker_title (1039929224016048015) -->
@@ -648,10 +657,6 @@
     <!-- no translation found for header_label_general_preferences (8243724566056800991) -->
     <skip />
     <!-- no translation found for category_general_preferences (2742423840964045801) -->
-    <skip />
-    <!-- no translation found for general_preference_hide_checkboxes_label (2054599123778503930) -->
-    <skip />
-    <!-- no translation found for general_preference_hide_checkboxes_summary (141341137898712712) -->
     <skip />
     <!-- no translation found for general_preference_confirm_delete_label (1863245465244241907) -->
     <skip />
