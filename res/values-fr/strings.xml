@@ -413,6 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Paramètres de synchronisation"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Fréquence de consultation"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Jours à synchroniser"</string>
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Case à cocher/Image de l\'expéditeur"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"Afficher la case à cocher"</item>
+    <item msgid="2868213958259269107">"Afficher l\'image (pas encore opérationnel)"</item>
+    <item msgid="3702634852126227264">"Ne rien afficher"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Définissez si vous souhaitez afficher une case à cocher ou l\'image des expéditeurs dans la conversation."</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Case à cocher/Image de l\'expéditeur"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Compte"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Sélectionner compte"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Sélectionner dossier"</string>
@@ -433,8 +441,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Paramètres"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Paramètres généraux"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Application"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Masquer les cases à cocher"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Dans les listes de messages, maintenir enfoncé pour sélectionner"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmer avant suppression"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Messages"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Faire glisser pour supprimer"</string>
