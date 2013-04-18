@@ -175,6 +175,12 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
             AccountColumns.ID, AccountColumns.FLAGS};
 
+    public static final int ACCOUNT_IS_DEFAULT_COLUMN_ID = 0;
+    public static final int ACCOUNT_IS_DEFAULT_COLUMN_IS_DEFAULT = 1;
+    public static final String[] ACCOUNT_IS_DEFAULT_PROJECTION = new String[] {
+            AccountColumns.ID, AccountColumns.IS_DEFAULT
+    };
+
     public static final String MAILBOX_SELECTION =
         MessageColumns.MAILBOX_KEY + " =?";
 
