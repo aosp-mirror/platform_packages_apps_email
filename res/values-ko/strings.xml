@@ -413,15 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"동기화 설정"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"확인 빈도"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"동기화할 일 수"</string>
-    <!-- no translation found for preference_conversation_list_icon_title (3112243519552774172) -->
-    <skip />
-    <!-- no translation found for prefEntries_conversationListIconName:0 (1726954406780046884) -->
-    <!-- no translation found for prefEntries_conversationListIconName:1 (2868213958259269107) -->
-    <!-- no translation found for prefEntries_conversationListIconName:2 (3702634852126227264) -->
-    <!-- no translation found for preference_conversation_list_icon_summary (578493585470958429) -->
-    <skip />
-    <!-- no translation found for prefDialogTitle_conversationListIcon (5022399322070038248) -->
-    <skip />
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"확인란/발신자 이미지"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"확인란 표시"</item>
+    <item msgid="2868213958259269107">"이미지 표시(아직 지원되지 않음)"</item>
+    <item msgid="3702634852126227264">"둘 다 표시하지 않음"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"대화형식으로 보기에 확인란 또는 발신자 이미지를 표시할지 여부를 선택합니다."</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"확인란/발신자 이미지"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"이메일 계정"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"계정 선택"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"폴더 선택"</string>

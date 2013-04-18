@@ -413,15 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Mga setting ng pag-sync"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Suriin ang dalas"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Mga araw upang i-sync"</string>
-    <!-- no translation found for preference_conversation_list_icon_title (3112243519552774172) -->
-    <skip />
-    <!-- no translation found for prefEntries_conversationListIconName:0 (1726954406780046884) -->
-    <!-- no translation found for prefEntries_conversationListIconName:1 (2868213958259269107) -->
-    <!-- no translation found for prefEntries_conversationListIconName:2 (3702634852126227264) -->
-    <!-- no translation found for preference_conversation_list_icon_summary (578493585470958429) -->
-    <skip />
-    <!-- no translation found for prefDialogTitle_conversationListIcon (5022399322070038248) -->
-    <skip />
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Checkbox/larawan ng nagpadala"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"Ipakita ang checkbox"</item>
+    <item msgid="2868213958259269107">"Ipakita ang larawan (hindi pa gumagana)"</item>
+    <item msgid="3702634852126227264">"Huwag ipakita ang alinman sa dalawa"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Piliin kung ipapakita ang mga checkbox o larawan ng nagpadala sa view ng pag-uusap"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Checkbox/larawan ng nagpadala"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Email account"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Pumili ng account"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pumili ng folder"</string>
