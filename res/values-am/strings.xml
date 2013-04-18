@@ -413,6 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"ቅንብሮች አስምር"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"ድግግሞሽ ተመልከት"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"ቀኖች ለአሳምር"</string>
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"አመልካች ሳጥን/የላኪ ምስል"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"አመልካች ሳጥን አሳይ"</item>
+    <item msgid="2868213958259269107">"ምስል አሳይ (ገና አይሰራም)"</item>
+    <item msgid="3702634852126227264">"ሁለቱንም አታሳይ"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"አመልካች ሳጥኖች ወይም የላኪ ምስሎችን በውይይት እይታ ውስጥ ይታዩ ወይም አይታዩ ይምረጡ"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"አመልካች ሳጥን/የላኪ ምስል"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"የኢሜይል መለያ"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"መለያ ምረጥ"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"አቃፊ ምረጥ"</string>
@@ -433,8 +441,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"ቅንብሮች"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"ጠቅላላ ቅንብሮች"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"መተግበሪያ"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"ኣመልካች ሳጥኖች ደብቅ"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"በመልዕክቶች ዝርዝሮች ውስጥ ለመምረጥ ንካና ያዝ"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"ለመሰረዝ ያንሸራቱ"</string>

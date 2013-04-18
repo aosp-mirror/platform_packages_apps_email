@@ -413,6 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"同步處理設定"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"檢查頻率"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"同步處理的天數"</string>
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"核取方塊/寄件者圖片"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"顯示核取方塊"</item>
+    <item msgid="2868213958259269107">"顯示圖片 (目前尚未開始運作)"</item>
+    <item msgid="3702634852126227264">"兩者皆不顯示"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"選擇是否在會話群組檢視中顯示核取方塊或寄件者圖片"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"核取方塊/寄件者圖片"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"電子郵件帳戶"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"選擇帳戶"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"選取資料夾"</string>
@@ -433,8 +441,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"設定"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"一般設定"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"應用程式"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"隱藏核取方塊"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"在郵件清單中，輕觸並按住項目即可選取"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"刪除前需確認"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"郵件"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"滑動即可刪除"</string>

@@ -413,6 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Configurações de sincronização"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Verificar frequência"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dias para sincronizar"</string>
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Caixa de seleção/imagem do remetente"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"Mostrar caixa de seleção"</item>
+    <item msgid="2868213958259269107">"Mostrar imagem (ainda não funcionando)"</item>
+    <item msgid="3702634852126227264">"Não mostrar"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Escolha se deseja mostrar caixas de seleção ou imagens do remetente na visualização de conversa"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Caixa de seleção/imagem do remetente"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Con e-mail"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Escolha uma conta"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Selecionar uma pasta"</string>
@@ -433,8 +441,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Configurações"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Configurações gerais"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicativo"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"Ocultar caixas de seleção"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"Nas listas de mensagens, a mantenha pressionada para selecionar"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de excluir"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensagens"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Deslize para excluir"</string>
