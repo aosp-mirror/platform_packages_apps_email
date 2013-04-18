@@ -413,6 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"समन्वयन सेटिंग"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"आवृत्ति जांचें"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"समन्वयन के लिए दिन:"</string>
+    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"चेकबॉक्स/प्रेषक का चित्र"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="1726954406780046884">"चेकबॉक्स दिखाएं"</item>
+    <item msgid="2868213958259269107">"चित्र दिखाएं (अभी काम नहीं कर रहा)"</item>
+    <item msgid="3702634852126227264">"कुछ भी न दिखाएं"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"यह चुनें कि बातचीत दृश्य में चेकबॉक्स या प्रेषक के चित्र दिखाए जाएं या नहीं"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"चेकबॉक्स/प्रेषक का चित्र"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"ईमेल खाता"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"कोई खाता चुनें"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"फ़ोल्डर को चुनें"</string>
@@ -433,8 +441,6 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"सेटिंग"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"सामान्य सेटिंग"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"एप्लिकेशन"</string>
-    <string name="general_preference_hide_checkboxes_label" msgid="2054599123778503930">"चेकबॉक्‍स छुपाएं"</string>
-    <string name="general_preference_hide_checkboxes_summary" msgid="141341137898712712">"संदेशों की सूचियों में, चयन करने के लिए स्‍पर्श करके रखें"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"हटाने से पहले पुष्‍टि करें"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"संदेश"</string>
     <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"हटाने के लिए स्वाइप करें"</string>
