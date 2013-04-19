@@ -98,6 +98,9 @@ public class WidgetProvider extends BaseWidgetProvider {
             return;
         }
 
+        accountId = migrateLegacyWidgetAccountId(accountId);
+        mailboxId = migrateLegacyWidgetMailboxId(mailboxId, accountId);
+
         // Get Account and folder objects for the account id and mailbox id
         final com.android.mail.providers.Account uiAccount = getAccount(context, accountId);
         final Folder uiFolder = getFolder(context, mailboxId);
@@ -114,6 +117,26 @@ public class WidgetProvider extends BaseWidgetProvider {
             editor.remove(LEGACY_MAILBOX_ID_PREFIX + widgetId);
         }
         editor.apply();
+    }
+
+    private long migrateLegacyWidgetAccountId(long accountId) {
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            return EmailProvider.COMBINED_ACCOUNT_ID;
+        }
+        return accountId;
+    }
+
+    /**
+     * @param accountId The migrated accountId
+     * @return
+     */
+    private long migrateLegacyWidgetMailboxId(long mailboxId, long accountId) {
+        if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+            return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_INBOX);
+        } else if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
+            return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_ALL_UNREAD);
+        }
+        return mailboxId;
     }
 
     private static com.android.mail.providers.Account getAccount(Context context, long accountId) {
