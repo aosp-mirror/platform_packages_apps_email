@@ -36,13 +36,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     public static Uri CONTENT_URI;
     public static Uri MESSAGE_COUNT_URI;
-    public static Uri FROM_ACCOUNT_AND_TYPE_URI;
 
     public static void initMailbox() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
         MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailboxCount");
-        FROM_ACCOUNT_AND_TYPE_URI = Uri.parse(EmailContent.CONTENT_URI +
-                "/mailboxIdFromAccountAndType");
     }
 
     public String mDisplayName;
@@ -452,24 +449,6 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return the id of the mailbox, or -1 if not found
      */
     public static long findMailboxOfType(Context context, long accountId, int type) {
-        // First use special URI
-        Uri uri = FROM_ACCOUNT_AND_TYPE_URI.buildUpon().appendPath(Long.toString(accountId))
-            .appendPath(Integer.toString(type)).build();
-        Cursor c = context.getContentResolver().query(uri, ID_PROJECTION, null, null, null);
-        if (c != null) {
-            try {
-                c.moveToFirst();
-                Long mailboxId = c.getLong(ID_PROJECTION_COLUMN);
-                if (mailboxId != null
-                        && mailboxId != 0L
-                        && mailboxId != NO_MAILBOX) {
-                    return mailboxId;
-                }
-            } finally {
-                c.close();
-            }
-        }
-        // Fallback to querying the database directly.
         String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
         return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
                 ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null,
