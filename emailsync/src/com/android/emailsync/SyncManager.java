@@ -980,6 +980,12 @@ public abstract class SyncManager extends Service implements Runnable {
         }
     }
 
+    private boolean hasWakeLock(long id) {
+        synchronized (mWakeLocks) {
+            return mWakeLocks.get(id) != null;
+        }
+    }
+
     private void acquireWakeLock(long id) {
         synchronized (mWakeLocks) {
             Long lock = mWakeLocks.get(id);
@@ -1073,6 +1079,14 @@ public abstract class SyncManager extends Service implements Runnable {
             }
             mPendingIntents.clear();
         }
+    }
+
+    static public boolean isHoldingWakeLock(long id) {
+        SyncManager ssm = INSTANCE;
+        if (ssm != null) {
+            return ssm.hasWakeLock(id);
+        }
+        return false;
     }
 
     static public void runAwake(long id) {
