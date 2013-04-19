@@ -866,7 +866,7 @@ public class EmailProvider extends ContentProvider {
                 // A specific mailbox
                 // insert into this URI causes a message to be added to the mailbox
                 // ** NOTE For now, the accountKey must be set manually in the values!
-                matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
+                matcher.addURI(EmailContent.AUTHORITY, "mailbox/*", MAILBOX_ID);
                 matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#",
                         MAILBOX_NOTIFICATION);
                 matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
@@ -1720,7 +1720,7 @@ public class EmailProvider extends ContentProvider {
             AttachmentDownloadService.attachmentChanged(context, id, flags);
         }
     };
-    private AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
+    private final AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
 
     private Cursor notificationQuery(final Uri uri) {
         final SQLiteDatabase db = getDatabase(getContext());
@@ -2676,7 +2676,7 @@ public class EmailProvider extends ContentProvider {
         return "content://" + EmailContent.AUTHORITY + "/" + type + "/" + id;
     }
 
-    private static final long COMBINED_ACCOUNT_ID = 0x10000000;
+    public static final long COMBINED_ACCOUNT_ID = 0x10000000;
 
     /**
      * Generate an id for a combined mailbox of a given type
@@ -2691,7 +2691,7 @@ public class EmailProvider extends ContentProvider {
         return Long.toString(getVirtualMailboxId(accountId, type));
     }
 
-    private static long getVirtualMailboxId(long accountId, int type) {
+    public static long getVirtualMailboxId(long accountId, int type) {
         return (accountId << 32) + type;
     }
 
