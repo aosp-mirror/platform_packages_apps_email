@@ -1569,12 +1569,13 @@ public class EmailProvider extends ContentProvider {
     public Bundle call(String method, String arg, Bundle extras) {
         LogUtils.d(TAG, "EmailProvider#call(%s, %s)", method, arg);
         final Uri accountUri = Uri.parse(arg);
+        final long accountId = Long.parseLong(accountUri.getPathSegments().get(1));
 
         Uri messageUri = null;
         if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
-            messageUri =  uiSendDraftMessage(accountUri, extras);
+            messageUri =  uiSendDraftMessage(accountId, extras);
         } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SAVE_MESSAGE)) {
-            messageUri =  uiSaveDraftMessage(accountUri, extras);
+            messageUri =  uiSaveDraftMessage(accountId, extras);
         }
 
         final Bundle result;
@@ -3361,11 +3362,10 @@ public class EmailProvider extends ContentProvider {
      * @param mailboxType the type of mailbox we're trying to find
      * @return the mailbox of the given type for the account in the uri, or null if not found
      */
-    private Mailbox getMailboxByAccountIdAndType(String accountId, int mailboxType) {
-        long id = Long.parseLong(accountId);
-        Mailbox mailbox = Mailbox.restoreMailboxOfType(getContext(), id, mailboxType);
+    private Mailbox getMailboxByAccountIdAndType(final long accountId, final int mailboxType) {
+        Mailbox mailbox = Mailbox.restoreMailboxOfType(getContext(), accountId, mailboxType);
         if (mailbox == null) {
-            mailbox = createMailbox(id, mailboxType);
+            mailbox = createMailbox(accountId, mailboxType);
         }
         return mailbox;
     }
@@ -3549,10 +3549,9 @@ public class EmailProvider extends ContentProvider {
         return uiUri("uimessage", msg.mId);
     }
 
-    private Uri uiSaveDraftMessage(Uri accountUri, Bundle extras) {
-        final List<String> pathSegments = accountUri.getPathSegments();
+    private Uri uiSaveDraftMessage(final long accountId, final Bundle extras) {
         final Mailbox mailbox =
-                getMailboxByAccountIdAndType(pathSegments.get(1), Mailbox.TYPE_DRAFTS);
+                getMailboxByAccountIdAndType(accountId, Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
         final Message msg;
         if (extras.containsKey(BaseColumns._ID)) {
@@ -3564,8 +3563,7 @@ public class EmailProvider extends ContentProvider {
         return uiSaveMessage(msg, mailbox, extras);
     }
 
-    private Uri uiSendDraftMessage(Uri uri, Bundle extras) {
-        final long accountId = Long.parseLong(uri.getPathSegments().get(1));
+    private Uri uiSendDraftMessage(final long accountId, final Bundle extras) {
         final Context context = getContext();
         final Message msg;
         if (extras.containsKey(BaseColumns._ID)) {
@@ -3576,13 +3574,11 @@ public class EmailProvider extends ContentProvider {
         }
 
         if (msg == null) return null;
-        final Mailbox mailbox = getMailboxByAccountIdAndType(uri.getPathSegments().get(1),
-                Mailbox.TYPE_OUTBOX);
+        final Mailbox mailbox = getMailboxByAccountIdAndType(accountId, Mailbox.TYPE_OUTBOX);
         if (mailbox == null) return null;
         // Make sure the sent mailbox exists, since it will be necessary soon.
         // TODO(yph): move system mailbox creation to somewhere sane.
-        final Mailbox sentMailbox = getMailboxByAccountIdAndType(uri.getPathSegments().get(1),
-                Mailbox.TYPE_SENT);
+        final Mailbox sentMailbox = getMailboxByAccountIdAndType(accountId, Mailbox.TYPE_SENT);
         if (sentMailbox == null) return null;
         final Uri messageUri = uiSaveMessage(msg, mailbox, extras);
         // Kick observers
