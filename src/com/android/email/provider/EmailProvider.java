@@ -27,6 +27,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.content.PeriodicSync;
 import android.content.UriMatcher;
 import android.content.res.Resources;
 import android.database.ContentObserver;
@@ -771,6 +772,7 @@ public class EmailProvider extends ContentProvider {
                             }
                             break;
                         case ACCOUNT:
+                            updateAccountSyncInterval(longId, values);
                             if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
                                 notifyUIAccount(longId);
                             }
@@ -1514,6 +1516,7 @@ public class EmailProvider extends ContentProvider {
                         // TODO: should this notify on keys other than sync status?
                         notifyUIFolder(id, null);
                     } else if (match == ACCOUNT_ID) {
+                        updateAccountSyncInterval(Long.parseLong(id), values);
                         // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
@@ -4109,6 +4112,70 @@ public class EmailProvider extends ContentProvider {
         return Mailbox.restoreMailboxWithId(getContext(), id);
     }
 
+    /**
+     * Create an android.accounts.Account object for this account.
+     * @param accountId id of account to load.
+     * @return an android.accounts.Account for this account, or null if we can't load it.
+     */
+    private android.accounts.Account getAccountManagerAccount(final long accountId) {
+        final Context context = getContext();
+        final Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) return null;
+        final String protocol = account.getProtocol(context);
+        loadProtocolTypeMap(context);
+        final String type = sProtocolTypeMap.get(protocol);
+        if (type == null) return null;
+        return new android.accounts.Account(account.mEmailAddress, type);
+    }
+
+    /**
+     * The old sync code used to add periodic syncs for a mailbox when it was manually synced.
+     * This function removes all such non-default periodic syncs.
+     * @param account The account for which to remove unnecessary periodic syncs.
+     */
+    private void removeExtraPeriodicSyncs(final android.accounts.Account account) {
+        final List<PeriodicSync> syncs =
+                ContentResolver.getPeriodicSyncs(account, EmailContent.AUTHORITY);
+        for (PeriodicSync sync : syncs) {
+            if (!sync.extras.isEmpty()) {
+                ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, sync.extras);
+            }
+        }
+    }
+
+    /**
+     * Update an account's periodic sync if the sync interval has changed.
+     * @param accountId id for the account to update.
+     * @param values the ContentValues for this update to the account.
+     */
+    private void updateAccountSyncInterval(final long accountId, final ContentValues values) {
+        final Integer syncInterval = values.getAsInteger(AccountColumns.SYNC_INTERVAL);
+        if (syncInterval == null) {
+            // No change to the sync interval.
+            return;
+        }
+        final android.accounts.Account account = getAccountManagerAccount(accountId);
+        if (account == null) {
+            // Unable to load the account, or unknown protocol.
+            return;
+        }
+
+        Log.d(TAG, "Setting sync interval for account " + accountId + " to " + syncInterval +
+                " minutes");
+
+        // TODO: Ideally we don't need to do this every time we change the sync interval.
+        // Either do this on upgrade, or perhaps on startup.
+        removeExtraPeriodicSyncs(account);
+
+        final Bundle extras = new Bundle();
+        if (syncInterval > 0) {
+            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, extras,
+                    syncInterval * 60);
+        } else {
+            ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, extras);
+        }
+    }
+
     private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
         if (mailbox == null) return null;
         EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
@@ -4413,6 +4480,8 @@ public class EmailProvider extends ContentProvider {
                     context.getString(R.string.account_manager_type_exchange));
             builder.put(context.getString(R.string.protocol_imap),
                     context.getString(R.string.account_manager_type_imap));
+            builder.put(context.getString(R.string.protocol_legacy_imap),
+                    context.getString(R.string.account_manager_type_legacy_imap));
             builder.put(context.getString(R.string.protocol_pop3),
                     context.getString(R.string.account_manager_type_pop3));
 
