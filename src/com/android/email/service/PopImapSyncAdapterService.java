@@ -226,24 +226,6 @@ public class PopImapSyncAdapterService extends Service {
                     int deltaMessageCount =
                             extras.getInt(EmailServiceStub.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
                     sync(context, mailboxId, syncResult, uiRefresh, deltaMessageCount);
-
-                    // Outbox is a special case here
-                    Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-                    if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-                        return;
-                    }
-
-                    // Convert from minutes to seconds
-                    int syncFrequency = acct.mSyncInterval * 60;
-                    // Values < 0 are for "never" or "push"; 0 is undefined
-                    if (syncFrequency <= 0) return;
-                    Bundle ex = new Bundle();
-                    if (!isInbox) {
-                        ex.putLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID, mailboxId);
-                    }
-                    Log.d(TAG, "Setting periodic sync for " + acct.mDisplayName + ": " +
-                            syncFrequency + " seconds");
-                    ContentResolver.addPeriodicSync(account, authority, ex, syncFrequency);
                 }
             }
         } catch (Exception e) {
