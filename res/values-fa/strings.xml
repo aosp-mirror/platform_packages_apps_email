@@ -419,7 +419,7 @@
     <item msgid="2868213958259269107">"نمایش تصویر (هنوز کار نمی‌کند)"</item>
     <item msgid="3702634852126227264">"هیچ‌کدام نمایش داده نشود"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"انتخاب کنید آیا کادرهای تأیید یا تصاویر فرستنده در نمای مکالمه نمایش داده شود یا خیر"</string>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"انتخاب کنید آیا کادر تأیید یا تصویر فرستنده در نمای مکالمه نمایش داده شود یا نه"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"تصویر فرستنده/کادر تأیید"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"حساب ایمیل"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"انتخاب یک حساب"</string>

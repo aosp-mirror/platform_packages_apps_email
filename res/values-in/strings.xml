@@ -416,7 +416,7 @@
     <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Gambar kotak centang/pengirim"</string>
   <string-array name="prefEntries_conversationListIconName">
     <item msgid="1726954406780046884">"Tampilkan kotak centang"</item>
-    <item msgid="2868213958259269107">"Tampilkan gambar (belum bekerja)"</item>
+    <item msgid="2868213958259269107">"Tampilkan gambar (belum berfungsi)"</item>
     <item msgid="3702634852126227264">"Jangan tampilkan keduanya"</item>
   </string-array>
     <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Pilih apakah menampilkan kotak centang atau gambar pengirim dalam tampilan percakapan"</string>

@@ -419,7 +419,7 @@
     <item msgid="2868213958259269107">"Afficher l\'image (pas encore opérationnel)"</item>
     <item msgid="3702634852126227264">"Ne rien afficher"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Définissez si vous souhaitez afficher une case à cocher ou l\'image des expéditeurs dans la conversation."</string>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Indiquez si vous souhaitez afficher une case à cocher ou l\'image des expéditeurs dans la conversation."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Case à cocher/Image de l\'expéditeur"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Compte"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Sélectionner compte"</string>
