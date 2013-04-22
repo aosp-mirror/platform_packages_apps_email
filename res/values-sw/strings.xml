@@ -230,13 +230,13 @@
     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Mpya zaidi"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Nzee zaidi"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"Usanidi wa akaunti"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Kufungua akaunti"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Akaunti ya barua pepe"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Unaweza kusanidi akaunti yako katika hatua chache tu."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Anwani ya barua pepe"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Nenosiri"</string>
     <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Tuma barua pepe kutoka kwa akaunti hii kama chaguo-msingi"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Usanidi wa mkono"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Fungua mwenyewe"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Tafadhali andika anwani na nenosiri halali ya barua pepe."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Akaunti Rudufu"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Tayari unatumia jina hili la mtumiaji kwa akaunti \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -245,15 +245,15 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Uhalalishaji wa mipangilio ya seva…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Inahalalisha mipangilio ya smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Inaunda akaunti…"</string>
-    <string name="account_setup_names_title" msgid="8483517350241119291">"Usanidi wa akaunti"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Kufungua akaunti"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Akaunti yako imesanidiwa, na barua pepe iko njiani!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ipe akaunti hii jina (ya hiari)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Jina lako (linaloonyeshwa kwenye ujumbe unaotoka)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Jina lako (linaloonyeshwa kwenye barua pepe zinazotumwa)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Uga hii haiwezi kuwa tupu."</string>
-    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Usanidi wa akaunti"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kufungua akaunti"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Aina ya akaunti"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hii ni akaunti ya aina gani ?"</string>
-    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Usanidi wa akaunti"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kufungua akaunti"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Mipangilio ya seva ya kuingia"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Jina la mtumiaji"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Nenosiri"</string>
@@ -270,7 +270,7 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Nikifuta kutoka kwa kikasha"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Kiambishi cha njia ya IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Hiari"</string>
-    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Usanidi wa akaunti"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Kufungua akaunti"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Mipangilio ya seva ya kutoka"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Seva ya SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Mlango"</string>
@@ -278,7 +278,7 @@
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Inahitaji kuingia"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Jina la mtumiaji"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Nenosiri"</string>
-    <string name="account_setup_exchange_title" msgid="396004732514751781">"Usanidi wa akaunti"</string>
+    <string name="account_setup_exchange_title" msgid="396004732514751781">"Kufungua akaunti"</string>
     <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Mipangilio ya seva"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Seva"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Kikoa\\Jina la mtumiaji"</string>
@@ -292,7 +292,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Kitambulisho cha Kifaa cha Mkononi"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Mipangilio ya akaunti"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Chaguo za akaunti"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Mazoea ya kukagua kikasha"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Saa za kukagua kikasha"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Katu"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Kiotomatiki (Msukumo)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Kila dakika 5"</string>
@@ -301,11 +301,11 @@
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Kila dakika 30"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Kila saa"</string>
     <string name="account_setup_options_default_label" msgid="2617227194283720914">"Tuma barua pepe kutoka kwa akaunti hii kama chaguo-msingi"</string>
-    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Niarifu wakati barua pepe inapowasili"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Niarifu barua pepe zinapoingia"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sawazisha anwani kutoka kwa akaunti hii"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sawazisha kalenda kutoka kwa akaunti hii"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sawazisha barua pepe kutoka kwa akaunti hii"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Pakua viambatisho kiotomatiki  wakati umeunganishwa kwenye mtandao-hewa"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Pakua viambatisho kiotomatiki wakati kifaa kimeunganishwa kwenye Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Imeshindwa kumaliza"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Siku hadi Usawazishaji"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Kiotomatiki"</string>
@@ -362,11 +362,11 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akaunti chaguo-msingi"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Tuma barua pepe kutoka kwa akaunti hii kwa chaguo-msingi"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Pakua viambatisho"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Pakua-otomatiki viambatisho kwa ujumbe wa hivi karibuni kupitia Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Pakua kiotomatiki, kupitia Wi-Fi, viambatisho vya barua pepe zilizotumwa hivi karibuni"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Arifa za barua pepe"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Mara za kusawazisha, kutuma arifa, n.k."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Tuma arifa wakati barua pepe inafika"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Mazoea ya kukagua kikasha"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Saa za kukagua kikasha"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Mipangilio inayoingia"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Jina la mtumiaji, nenosiri, na mipangilio mingine ya seva inayoingia"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Mipangilio ya kutoka"</string>

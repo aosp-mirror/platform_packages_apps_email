@@ -419,7 +419,7 @@
     <item msgid="2868213958259269107">"Wys prent (werk nog nie)"</item>
     <item msgid="3702634852126227264">"Moenie een wys nie"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Kies om merkblokkies of stuurderprente in gesprekaansig te wys of nie"</string>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Kies om of merkblokkies of stuurderprente in gesprekaansig te wys"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Merkblokkie/prent van stuurder"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-posrekening"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Kies \'n rekening"</string>

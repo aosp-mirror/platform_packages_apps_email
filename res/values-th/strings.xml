@@ -416,10 +416,10 @@
     <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"ช่องทำเครื่องหมาย/ภาพผู้ส่ง"</string>
   <string-array name="prefEntries_conversationListIconName">
     <item msgid="1726954406780046884">"แสดงช่องทำเครื่องหมาย"</item>
-    <item msgid="2868213958259269107">"แสดงรูปภาพ (ยังไม่ทำงาน)"</item>
-    <item msgid="3702634852126227264">"ไม่แสดงทั้งสองอย่าง"</item>
+    <item msgid="2868213958259269107">"แสดงรูปภาพ (ยังใช้ไม่ได้)"</item>
+    <item msgid="3702634852126227264">"ไม่แสดงทั้งคู่"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"เลือกว่าจะแสดงช่องทำเครื่องหมาย หรือภาพของผู้ส่งในมุมมองการสนทนา"</string>
+    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"เลือกว่าจะแสดงช่องทำเครื่องหมายหรือภาพของผู้ส่งในมุมมองการสนทนา"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"ช่องทำเครื่องหมาย/ภาพผู้ส่ง"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"บัญชีอีเมล"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"เลือกบัญชี"</string>
