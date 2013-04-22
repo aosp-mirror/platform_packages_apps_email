@@ -186,7 +186,7 @@
     <string name="attachment_info_malware" msgid="6576029010855055528">"Sie können diese Datei nicht öffnen oder speichern, weil diese Art von Anhang möglicherweise schädliche Software enthält."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Dieser Anhang kann aufgrund der Sicherheitsrichtlinien dieses Kontos nicht gespeichert oder geöffnet werden."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Dieser Anhang ist zu groß, um ihn über ein Mobilfunknetz herunterzuladen. Sie können ihn herunterladen, sobald Sie das nächste Mal mit einem WLAN-Netzwerk verbunden sind."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Sie verfügen über keine App, mit der Sie diesen Anhang öffnen können. Laden Sie eine entsprechende App von Android Market herunter."</string>
+    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Sie verfügen über keine App, mit der Sie diesen Anhang öffnen können. Laden Sie eine entsprechende App von Google Play herunter."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Dieser Anhang ist eine App. Aktivieren Sie \"Unbekannte Quellen\" unter \"Einstellungen\" &gt; \"Apps\", damit Sie die App installieren können."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps können nicht direkt aus E-Mails installiert werden. Speichern Sie diese App zuerst und installieren Sie sie dann mithilfe der App \"Downloads\"."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Anhang kann nicht heruntergeladen werden."</string>
