@@ -415,8 +415,8 @@
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Período de sincronización"</string>
     <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Casilla de verificación o imagen del remitente"</string>
   <string-array name="prefEntries_conversationListIconName">
-    <item msgid="1726954406780046884">"Mostrar la casilla de verificación"</item>
-    <item msgid="2868213958259269107">"Mostrar la imagen (aún no funciona)"</item>
+    <item msgid="1726954406780046884">"Mostrar casilla de verificación"</item>
+    <item msgid="2868213958259269107">"Mostrar la imagen (todavía no funciona)"</item>
     <item msgid="3702634852126227264">"No mostrar nada"</item>
   </string-array>
     <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Elige si quieres mostrar casillas de verificación o imágenes de remitente en la vista de conversación."</string>
