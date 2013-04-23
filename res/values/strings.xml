@@ -1119,10 +1119,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=64] -->
     <string name="general_preference_confirm_delete_summary">Messages</string>
-    <!-- General preference: Label of the setting for enabling swipe-to-delete [CHAR LIMIT=32] -->
-    <string name="general_preference_swipe_delete_label">Swipe to delete</string>
-    <!-- General preference: Description of the setting for enabling swipe-to-delete [CHAR LIMIT=64] -->
-    <string name="general_preference_swipe_delete_summary">Delete a message in the list by swiping</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_send_label">Confirm before sending</string>

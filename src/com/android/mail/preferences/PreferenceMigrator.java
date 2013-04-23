@@ -74,10 +74,8 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
             final boolean hasSwipeDelete = preferences.hasSwipeDelete();
             if (hasSwipeDelete) {
                 @SuppressWarnings("deprecation")
-                final String swipeAction =
-                        preferences.getSwipeDelete() ? MailPrefs.ConversationListSwipeActions.DELETE
-                                : MailPrefs.ConversationListSwipeActions.DISABLED;
-                mailPrefs.setConversationListSwipeAction(swipeAction);
+                final boolean swipeDelete = preferences.getSwipeDelete();
+                mailPrefs.setConversationListSwipeEnabled(swipeDelete);
             }
 
             // Move folder notification settings
