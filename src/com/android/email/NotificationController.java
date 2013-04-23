@@ -664,7 +664,7 @@ public class NotificationController {
                 sInstance.unregisterMessageNotification(accountId);
             }
 
-            NotificationUtils.resendNotifications(mContext, false);
+            NotificationUtils.resendNotifications(mContext, false, null, null);
         }
     }
 
