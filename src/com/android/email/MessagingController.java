@@ -2070,6 +2070,12 @@ public class MessagingController implements Runnable {
                         nc.showLoginFailedNotification(account.mId);
                     }
                     mListeners.sendPendingMessagesFailed(account.mId, messageId, me);
+                    if (me.getExceptionType() == MessagingException.GENERAL_SECURITY) {
+                        final Object exceptionData = me.getExceptionData();
+                        if (exceptionData != null && exceptionData instanceof Attachment) {
+                            nc.showDownloadForwardFailedNotification((Attachment) exceptionData);
+                        }
+                    }
                     continue;
                 }
                 // 5. move to sent, or delete
