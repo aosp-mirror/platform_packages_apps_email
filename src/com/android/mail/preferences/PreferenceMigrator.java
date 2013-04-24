@@ -126,6 +126,8 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
                             sharedPreferences.getString(PREFERENCE_VIBRATE_OLD, ""));
                     folderPreferences.setNotificationVibrateEnabled(vibrate);
                 }
+
+                folderPreferences.commit();
             }
         }
     }
