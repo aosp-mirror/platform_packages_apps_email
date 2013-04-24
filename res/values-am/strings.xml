@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"መተግበሪያ"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"ለመሰረዝ ያንሸራቱ"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"በማንሸራተት ዝርዝር ላይ ያለ መልዕክት ይሰርዙ"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ከመላክህ በፊት አረጋግጥ"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልእክቶች"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"የመልዕክት ፅሁፍ መጠን"</string>
