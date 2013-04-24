@@ -39,7 +39,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
-    private static final String PREFERENCE_KEY_SWIPE_DELETE = "swipe_delete";
     private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private MailPrefs mMailPrefs;
@@ -138,11 +137,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
             mPreferences.setConfirmSend(mConfirmSend.isChecked());
             return true;
-        } else if (MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION.equals(key)) {
-            mMailPrefs
-                    .setConversationListSwipeAction(mSwipeDelete.isChecked()
-                            ? MailPrefs.ConversationListSwipeActions.DELETE
-                            : MailPrefs.ConversationListSwipeActions.DISABLED);
+        } else if (MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE.equals(key)) {
+            mMailPrefs.setConversationListSwipeEnabled(mSwipeDelete.isChecked());
             return true;
         }
         return false;
@@ -169,9 +165,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
         mSwipeDelete = (CheckBoxPreference)
-                findPreference(MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE_ACTION);
-        mSwipeDelete.setChecked(MailPrefs.ConversationListSwipeActions.DELETE.equals(
-                mMailPrefs.getConversationListSwipeAction(false)));
+                findPreference(MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE);
+        mSwipeDelete.setChecked(mMailPrefs.getIsConversationListSwipeEnabled());
 
         final CheckBoxPreference replyAllPreference =
                 (CheckBoxPreference) findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);

@@ -64,11 +64,11 @@
         android:summary="@string/general_preference_reply_all_summary" />
 
     <CheckBoxPreference
-        android:key="conversation-list-swipe-action"
+        android:key="conversation-list-swipe"
         android:persistent="false"
         android:defaultValue="true"
-        android:title="@string/general_preference_swipe_delete_label"
-        android:summary="@string/general_preference_swipe_delete_summary" />
+        android:title="@string/preference_swipe_title"
+        android:summary="@string/preference_swipe_description" />
 
     <PreferenceScreen
         android:key="clear_trusted_senders"
