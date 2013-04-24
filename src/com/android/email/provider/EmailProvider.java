@@ -111,8 +111,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -296,9 +294,6 @@ public class EmailProvider extends ContentProvider {
 
     // Query parameter indicating the command came from UIProvider
     private static final String IS_UIPROVIDER = "is_uiprovider";
-
-    private static final String SWIPE_DELETE = Integer.toString(Swipe.DELETE);
-    private static final String SWIPE_DISABLED = Integer.toString(Swipe.DISABLED);
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -2538,9 +2533,7 @@ public class EmailProvider extends ContentProvider {
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SWIPE)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.SWIPE,
-                    MailPrefs.ConversationListSwipeActions.DELETE.equals(mailPrefs
-                            .getConversationListSwipeAction(false))
-                            ? SWIPE_DELETE : SWIPE_DISABLED);
+                    mailPrefs.getConversationListSwipeActionInteger(false));
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
