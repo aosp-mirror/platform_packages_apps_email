@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"Lietojumprogramma"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Apstiprināt pirms dzēšanas"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Ziņojumi"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Vilkt, lai dzēstu"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Dzēst ziņojumu sarakstā, velkot ar pirkstu"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Apstiprināt pirms sūtīšanas"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Ziņojumi"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Ziņojuma teksta izmērs"</string>

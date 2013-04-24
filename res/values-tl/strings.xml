@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"Application"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Kumpirmahin bago tanggalin"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mga Mensahe"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"I-swipe upang tanggalin"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Magtanggal ng mensahe sa listahan sa pamamagitan ng pag-swipe"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Kumpirmahin bago ipadala"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mga Mensahe"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Laki ng teksto ng mensahe"</string>

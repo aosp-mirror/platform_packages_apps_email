@@ -68,7 +68,7 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"انتقال در حساب‌های POP3 پشتیبانی نمی‌شود."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"انتقال امکان‌پذیر نیست. مورد انتخابی شامل چندین حساب است."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"پیام‌های موجود در پیش‌نویس‌ها، صندوق خروجی و موارد ارسالی قابل انتقال نمی‌باشند."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"پیام‌های موجود در پیش‌نویس‌ها، صندوق خروجی و موارد ارسالی قابل انتقال نیستند."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده <xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"برنامهٔ کاربردی"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"تأیید قبل از حذف"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"پیام‌ها"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"برای حذف با انگشت روی صفحه بکشید"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"حذف یک پیام در لیست با کشیدن انگشت روی صفحه"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"تأیید قبل از ارسال"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"پیام‌ها"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"اندازه متن پیام"</string>
