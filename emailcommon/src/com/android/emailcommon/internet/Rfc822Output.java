@@ -260,6 +260,7 @@ public class Rfc822Output {
                     writeBoundary(writer, multipartBoundary, false);
                     Attachment attachment =
                         Attachment.getContent(attachmentsCursor, Attachment.class);
+                    attachment.mAccountKey = message.mAccountKey;
                     writeOneAttachment(context, writer, stream, attachment);
                     writer.write("\r\n");
                 } while (attachmentsCursor.moveToNext());
@@ -321,12 +322,13 @@ public class Rfc822Output {
             out.write('\r');
             out.write('\n');
             out.flush();
-        }
-        catch (FileNotFoundException fnfe) {
+        } catch (final FileNotFoundException fnfe) {
             // Ignore this - empty file is OK
-        }
-        catch (IOException ioe) {
+        } catch (final IOException ioe) {
             throw new MessagingException("Invalid attachment.", ioe);
+        } catch (final SecurityException se) {
+            throw new MessagingException(MessagingException.GENERAL_SECURITY,
+                    "No permissions for attachment", attachment);
         }
     }
 
