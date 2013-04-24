@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"애플리케이션"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"삭제하기 전에 확인"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"메일"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"스와이프하여 삭제"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"스와이프하여 목록의 메시지 삭제"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"보내기 전에 확인"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"메일"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"글꼴 크기"</string>

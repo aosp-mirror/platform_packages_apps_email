@@ -443,8 +443,6 @@
     <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekräfta innan du tar bort"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Meddelanden"</string>
-    <string name="general_preference_swipe_delete_label" msgid="9056241302035595141">"Dra bort om du vill radera"</string>
-    <string name="general_preference_swipe_delete_summary" msgid="922880566493325308">"Ta bort ett meddelande i listan genom att dra"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekräfta innan du skickar"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Meddelanden"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Storlek på text i meddelande"</string>
