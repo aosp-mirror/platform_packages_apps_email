@@ -154,11 +154,13 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * Request the sync of a mailbox; the service MUST send the syncMailboxStatus callback
      * indicating "starting" and "finished" (or error), regardless of whether the mailbox is
      * actually syncable.
+     * TODO: Remove this from IEmailService in favor of ContentResolver.requestSync.
      *
      * @param mailboxId the id of the mailbox record
      * @param userRequest whether or not the user specifically asked for the sync
      * @param deltaMessageCount amount by which to change the number of messages synced.
      */
+    @Deprecated
     @Override
     public void startSync(final long mailboxId, final boolean userRequest,
             final int deltaMessageCount) throws RemoteException {
