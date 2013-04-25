@@ -1162,11 +1162,6 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
 
-    <!--  Settings screen, Reply to all default setting title  [CHAR LIMIT=30] -->
-    <string msgid="6469564953937885304" name="general_preference_reply_all_label">Reply all</string>
-    <!--  Settings screen, Reply to all default setting summary [CHAR LIMIT=70] -->
-    <string msgid="3356918650886350497" name="general_preference_reply_all_summary">Make \"Reply all\" the default for message replies</string>
-
     <!-- Settings screen, title used to clear the setting for the list of
          senders to automatically show pictures for [CHAR LIMIT=80] -->
     <string name="general_preferences_clear_trusted_senders_title"

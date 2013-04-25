@@ -72,11 +72,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         final PreferenceScreen ps = getPreferenceScreen();
         // Merely hide app pref for font size until we're sure it's unnecessary (b/5287963)
         ps.removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
-
-        // Disabling reply-all on tablets, as this setting is just for phones
-        if (Utils.useTabletUI(getActivity().getResources())) {
-            ps.removePreference(findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL));
-        }
     }
 
     @Override
@@ -170,11 +165,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         final CheckBoxPreference replyAllPreference =
                 (CheckBoxPreference) findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
-        // This preference is removed on tablets
-        if (replyAllPreference != null) {
-            replyAllPreference.setChecked(mMailPrefs.getDefaultReplyAll());
-            replyAllPreference.setOnPreferenceChangeListener(this);
-        }
+        replyAllPreference.setChecked(mMailPrefs.getDefaultReplyAll());
+        replyAllPreference.setOnPreferenceChangeListener(this);
 
         reloadDynamicSummaries();
     }
