@@ -60,8 +60,8 @@
         android:key="default-reply-all"
         android:persistent="false"
         android:defaultValue="false"
-        android:title="@string/general_preference_reply_all_label"
-        android:summary="@string/general_preference_reply_all_summary" />
+        android:title="@string/preferences_default_reply_all_title"
+        android:summary="@string/preferences_default_reply_all_summary" />
 
     <CheckBoxPreference
         android:key="conversation-list-swipe"
