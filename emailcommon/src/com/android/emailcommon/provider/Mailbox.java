@@ -32,6 +32,15 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.Utility;
 
 public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
+    /**
+     * Sync extras key when syncing a mailbox to specify which mailbox to sync.
+     */
+    public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
+    /**
+     * Sync extras key when syncing a mailbox to specify how many additional messages to sync.
+     */
+    public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
+
     public static final String TABLE_NAME = "Mailbox";
 
     public static Uri CONTENT_URI;

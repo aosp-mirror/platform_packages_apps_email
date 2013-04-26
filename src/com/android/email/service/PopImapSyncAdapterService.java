@@ -208,8 +208,8 @@ public class PopImapSyncAdapterService extends Service {
                 } else {
                     Log.d(TAG, "Sync request for " + acct.mDisplayName);
                     Log.d(TAG, extras.toString());
-                    long mailboxId = extras.getLong(EmailServiceStub.SYNC_EXTRA_MAILBOX_ID,
-                            Mailbox.NO_MAILBOX);
+                    long mailboxId =
+                            extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
                     boolean isInbox = false;
                     if (mailboxId == Mailbox.NO_MAILBOX) {
                         // Update folders.
@@ -224,7 +224,7 @@ public class PopImapSyncAdapterService extends Service {
                     boolean uiRefresh =
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
                     int deltaMessageCount =
-                            extras.getInt(EmailServiceStub.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
+                            extras.getInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
                     sync(context, mailboxId, syncResult, uiRefresh, deltaMessageCount);
                 }
             }
