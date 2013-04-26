@@ -413,14 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"同步设置"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"检查频率"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"要同步的天数"</string>
-    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"复选框/发件人头像"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="1726954406780046884">"显示复选框"</item>
-    <item msgid="2868213958259269107">"显示头像（尚未启用）"</item>
-    <item msgid="3702634852126227264">"都不显示"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"选择是否在会话视图中显示复选框或发件人头像"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"复选框/发件人头像"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"电子邮件帐户"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"选择帐户"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"选择文件夹"</string>
@@ -459,8 +459,6 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"正常"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"超大"</string>
-    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"全部回复"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"将“全部回复”设置为默认的邮件回复操作"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"请求显示图片"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"邮件中的图片不会自动显示"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"“显示图片”设置已清除。"</string>

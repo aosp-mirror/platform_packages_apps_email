@@ -413,14 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Tetapan penyegerakan"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Kekerapan menyemak"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Hari untuk disegerakkan"</string>
-    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Kotak pilihan/imej penghantar"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="1726954406780046884">"Tunjukkan kotak pilihan"</item>
-    <item msgid="2868213958259269107">"Tunjukkan imej (belum berfungsi lagi)"</item>
-    <item msgid="3702634852126227264">"Jangan tunjukkan kedua-duanya"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Pilih sama ada untuk menunjukkan kotak pilihan atau imej penghantar dalam paparan perbualan"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Kotak pilihan/imej penghantar"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akaun e-mel"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Pilih akaun"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Pilih folder"</string>
@@ -459,8 +459,6 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Biasa"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Besar"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sangat besar"</string>
-    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Balas kepada semua"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Jadikan \"Balas kepada semua\" sebagai lalai untuk balasan mesej"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Minta untuk menunjukkan gambar"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Gambar dalam mesej tidak akan ditunjukkan secara automatik"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Tunjukkan gambar\" sudah dipadam bersih."</string>
