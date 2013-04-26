@@ -413,14 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Synkroniseringsinställningar"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Intervall för kontroll"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dagar för synkronisering"</string>
-    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Kryssruta/bild på avsändaren"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="1726954406780046884">"Visa kryssrutor"</item>
-    <item msgid="2868213958259269107">"Visa bild (fungerar inte ännu)"</item>
-    <item msgid="3702634852126227264">"Visa varken kryssruta eller bild"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Välj om du vill visa kryssrutor eller bilder på avsändarna i konversationsvyn"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Kryssruta/bild på avsändaren"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Epostkonto"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Välj ett konto"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Välj en mapp"</string>
@@ -459,8 +459,6 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Stor"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Jättestor"</string>
-    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Svara alla"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Använd Svara alla som standard vid svar på meddelanden"</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Fråga om bilder ska visas"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Bilder i meddelanden kommer inte att visas automatiskt"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Visa bilder\" rensas."</string>
