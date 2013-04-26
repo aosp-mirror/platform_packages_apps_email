@@ -314,8 +314,6 @@ public class EmailProvider extends ContentProvider {
     public static Uri ACCOUNT_BACKUP_URI;
     private static Uri FOLDER_STATUS_URI;
 
-    private static Map<String, String> sProtocolTypeMap;
-
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
 
@@ -2499,6 +2497,8 @@ public class EmailProvider extends ContentProvider {
         final long accountId = Long.parseLong(id);
         final Context context = getContext();
 
+        EmailServiceInfo info = null;
+
         // TODO: If uiProjection is null, this will NPE. We should do everything here if it's null.
         final Set<String> projectionColumns = ImmutableSet.copyOf(uiProjection);
 
@@ -2584,8 +2584,7 @@ public class EmailProvider extends ContentProvider {
             // TODO We should clarify/document the trash/setup relationship
             long trashId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_TRASH);
             if (trashId == Mailbox.NO_MAILBOX) {
-                EmailServiceInfo info = EmailServiceUtils.getServiceInfoForAccount(context,
-                        accountId);
+                info = EmailServiceUtils.getServiceInfoForAccount(context, accountId);
                 if (info != null && info.requiresSetup) {
                     values.put(UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI,
                             getExternalUriString("setup", id));
@@ -2593,26 +2592,15 @@ public class EmailProvider extends ContentProvider {
             }
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.TYPE)) {
-            final String query = "SELECT ha." + HostAuthColumns.PROTOCOL
-                    + " FROM " + Account.TABLE_NAME + " a INNER JOIN " + HostAuth.TABLE_NAME
-                    + " ha ON a." + AccountColumns.HOST_AUTH_KEY_RECV + " = ha."
-                    + HostAuthColumns.ID
-                    + " WHERE a." + AccountColumns.ID + " = ?";
-            final Cursor cursor = mDatabase.rawQuery(query, new String[] { id });
             final String type;
-            if (cursor.moveToFirst()) {
-                loadProtocolTypeMap(context);
-                final String protocol = cursor.getString(0);
-                if (protocol != null && sProtocolTypeMap.containsKey(protocol)) {
-                    type = sProtocolTypeMap.get(protocol);
-                } else {
-                    type = "unknown";
-                }
+            if (info == null) {
+                info = EmailServiceUtils.getServiceInfoForAccount(context, accountId);
+            }
+            if (info != null) {
+                type = info.accountType;
             } else {
                 type = "unknown";
             }
-
-            cursor.close();
 
             values.put(UIProvider.AccountColumns.TYPE, type);
         }
@@ -3512,12 +3500,7 @@ public class EmailProvider extends ContentProvider {
             }
         }
         if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
-            final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                    mServiceCallback, mailbox.mAccountKey);
-            try {
-                service.startSync(mailbox.mId, true, 0);
-            } catch (RemoteException e) {
-            }
+            startSync(mailbox, 0);
             final long originalMsgId = msg.mSourceKey;
             if (originalMsgId != 0) {
                 final Message originalMsg = Message.restoreMessageWithId(context, originalMsgId);
@@ -4112,11 +4095,9 @@ public class EmailProvider extends ContentProvider {
         final Context context = getContext();
         final Account account = Account.restoreAccountWithId(context, accountId);
         if (account == null) return null;
-        final String protocol = account.getProtocol(context);
-        loadProtocolTypeMap(context);
-        final String type = sProtocolTypeMap.get(protocol);
-        if (type == null) return null;
-        return new android.accounts.Account(account.mEmailAddress, type);
+        EmailServiceInfo info =
+                EmailServiceUtils.getServiceInfo(context, account.getProtocol(context));
+        return new android.accounts.Account(account.mEmailAddress, info.accountType);
     }
 
     /**
@@ -4167,13 +4148,22 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    private void startSync(final Mailbox mailbox, final int deltaMessageCount) {
+        android.accounts.Account account = getAccountManagerAccount(mailbox.mAccountKey);
+        Bundle extras = new Bundle();
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailbox.mId);
+        if (deltaMessageCount != 0) {
+            extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
+        }
+        ContentResolver.requestSync(account, EmailContent.AUTHORITY, extras);
+    }
+
     private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
-        if (mailbox == null) return null;
-        EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(getContext(),
-                mServiceCallback, mailbox.mAccountKey);
-        try {
-            service.startSync(mailbox.mId, true, deltaMessageCount);
-        } catch (RemoteException e) {
+        if (mailbox != null) {
+            startSync(mailbox, deltaMessageCount);
         }
         return null;
     }
@@ -4460,23 +4450,6 @@ public class EmailProvider extends ContentProvider {
             }
         } finally {
             cursor.close();
-        }
-    }
-
-    private void loadProtocolTypeMap(final Context context) {
-        if (sProtocolTypeMap == null) {
-            final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-
-            builder.put(context.getString(R.string.protocol_eas),
-                    context.getString(R.string.account_manager_type_exchange));
-            builder.put(context.getString(R.string.protocol_imap),
-                    context.getString(R.string.account_manager_type_imap));
-            builder.put(context.getString(R.string.protocol_legacy_imap),
-                    context.getString(R.string.account_manager_type_legacy_imap));
-            builder.put(context.getString(R.string.protocol_pop3),
-                    context.getString(R.string.account_manager_type_pop3));
-
-            sProtocolTypeMap = builder.build();
         }
     }
 }
