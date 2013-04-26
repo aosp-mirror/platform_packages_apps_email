@@ -44,6 +44,7 @@ LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.a
 LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon com.android.emailsync guava android-common-chips libphotoviewer
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
+LOCAL_STATIC_JAVA_LIBRARIES += unified-email-analytics
 
 LOCAL_PACKAGE_NAME := Email2
 LOCAL_OVERRIDES_PACKAGES := Email
