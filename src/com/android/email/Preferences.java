@@ -56,9 +56,7 @@ public class Preferences {
     private static final String CONFIRM_SEND = "confirm_send";
     @Deprecated
     private static final String SWIPE_DELETE = "swipe_delete";
-    @Deprecated
-    private static final String HIDE_CHECKBOXES = "hide_checkboxes";
-    private static final String CONV_LIST_ICON = "conversation_list_icon";
+    private static final String CONV_LIST_ICON = "conversation_list_icons";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -67,8 +65,6 @@ public class Preferences {
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
     private static final boolean CONFIRM_DELETE_DEFAULT = false;
     private static final boolean CONFIRM_SEND_DEFAULT = false;
-    @Deprecated
-    private static final boolean HIDE_CHECKBOXES_DEFAULT = false;
 
     // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
     public static final int TEXT_ZOOM_TINY = 0;
@@ -79,10 +75,9 @@ public class Preferences {
     // "normal" will be the default
     public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
 
-    public static final String CONV_LIST_ICON_CHECKBOX = "checkbox";
     public static final String CONV_LIST_ICON_SENDER_IMAGE = "senderimage";
     public static final String CONV_LIST_ICON_NONE = "none";
-    public static final String CONV_LIST_ICON_DEFAULT = CONV_LIST_ICON_CHECKBOX;
+    public static final String CONV_LIST_ICON_DEFAULT = CONV_LIST_ICON_SENDER_IMAGE;
 
     private static Preferences sPreferences;
 
@@ -202,30 +197,8 @@ public class Preferences {
         mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
-    /** @deprecated Only used for migration */
-    @Deprecated
-    private boolean hasHideCheckboxes() {
-        return mSharedPreferences.contains(HIDE_CHECKBOXES);
-    }
-
-    /** @deprecated Only used for migration */
-    @Deprecated
-    private boolean getHideCheckboxes() {
-        return mSharedPreferences.getBoolean(HIDE_CHECKBOXES, HIDE_CHECKBOXES_DEFAULT);
-    }
-
     public String getConversationListIcon() {
-        if (!mSharedPreferences.contains(CONV_LIST_ICON)) {
-            if (hasHideCheckboxes()) {
-                // Migrate to new settings
-                if (getHideCheckboxes()) {
-                    setConversationListIcon(CONV_LIST_ICON_NONE);
-                } else {
-                    setConversationListIcon(CONV_LIST_ICON_CHECKBOX);
-                }
-            }
-        }
-        return mSharedPreferences.getString(CONV_LIST_ICON, "checkbox");
+        return mSharedPreferences.getString(CONV_LIST_ICON, CONV_LIST_ICON_SENDER_IMAGE);
     }
 
     public void setConversationListIcon(String value) {
