@@ -2653,7 +2653,7 @@ public class EmailProvider extends ContentProvider {
 
     private static int convListIconToUiValue(String convListIcon) {
         if (Preferences.CONV_LIST_ICON_CHECKBOX.equals(convListIcon)) {
-            return UIProvider.ConversationListIcon.CHECKBOX;
+            return UIProvider.ConversationListIcon.SENDER_IMAGE;
         } else if (Preferences.CONV_LIST_ICON_SENDER_IMAGE.equals(convListIcon)) {
             return UIProvider.ConversationListIcon.SENDER_IMAGE;
         } else if (Preferences.CONV_LIST_ICON_NONE.equals(convListIcon)) {
