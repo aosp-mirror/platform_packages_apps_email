@@ -137,7 +137,7 @@ public abstract class SyncManager extends Service implements Runnable {
     private static final String WHERE_MAILBOX_KEY = Message.MAILBOX_KEY + "=?";
     private static final String WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN =
         "(" + MailboxColumns.TYPE + '=' + Mailbox.TYPE_OUTBOX
-        + " or " + MailboxColumns.SYNC_INTERVAL + "!=" + Mailbox.CHECK_INTERVAL_NEVER + ')'
+        + " or " + MailboxColumns.SYNC_INTERVAL + "<" + Mailbox.CHECK_INTERVAL_NEVER + ')'
         + " and " + MailboxColumns.ACCOUNT_KEY + " in (";
 
     public static final int SEND_FAILED = 1;
@@ -1930,6 +1930,7 @@ public abstract class SyncManager extends Service implements Runnable {
                             startServiceThread(getServiceForMailbox(this, m));
                         }
                     } else if (syncInterval > 0 && syncInterval <= ONE_DAY_MINUTES) {
+                        // TODO: Migrating to use system SyncManager, so this should be dead code.
                         long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
                         long sinceLastSync = now - lastSync;
                         long toNextSync = syncInterval*MINUTES - sinceLastSync;

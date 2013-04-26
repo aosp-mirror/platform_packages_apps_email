@@ -78,9 +78,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     private static final int MAILBOX_COLUMN_SERVER_ID = 1;
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
-    public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
-    public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
-
     /** System folders that should always exist. */
     private final int[] DEFAULT_FOLDERS = {
             Mailbox.TYPE_INBOX,
@@ -111,6 +108,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         return null;
     }
 
+    @Deprecated
     @Override
     public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
             throws RemoteException {
@@ -127,9 +125,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         }
-        extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
+        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailboxId);
         if (deltaMessageCount != 0) {
-            extras.putInt(SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
+            extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
         ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
     }
