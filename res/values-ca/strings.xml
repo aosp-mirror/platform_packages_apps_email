@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Llegeix els fitxers adjunts al correu electrònic"</string>
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Llegir els fitxers adjunts dels missatges de correu electrònic"</string>
     <string name="permission_read_attachment_desc" msgid="6592948507403743153">"Permet que aquesta aplicació llegeixi els fitxers adjunts al correu electrònic."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Accedeix a les dades del proveïdor de correu electrònic"</string>
     <string name="permission_access_provider_desc" msgid="2221907862438022705">"Permet que aquesta aplicació accedeixi a la base de dades del teu correu electrònic, inclosos els missatges rebuts, els missatges enviats, els noms d\'usuari i les contrasenyes."</string>
