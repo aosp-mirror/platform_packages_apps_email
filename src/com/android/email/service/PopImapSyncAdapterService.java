@@ -16,7 +16,6 @@
 
 package com.android.email.service;
 
-import android.accounts.OperationCanceledException;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
@@ -46,45 +45,34 @@ import java.util.ArrayList;
 
 public class PopImapSyncAdapterService extends Service {
     private static final String TAG = "PopImapSyncService";
-    private static SyncAdapterImpl sSyncAdapter = null;
-    private static final Object sSyncAdapterLock = new Object();
+    private SyncAdapterImpl mSyncAdapter = null;
 
     public PopImapSyncAdapterService() {
         super();
     }
 
     private static class SyncAdapterImpl extends AbstractThreadedSyncAdapter {
-        private Context mContext;
-
         public SyncAdapterImpl(Context context) {
             super(context, true /* autoInitialize */);
-            mContext = context;
         }
 
         @Override
         public void onPerformSync(android.accounts.Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
-            try {
-                PopImapSyncAdapterService.performSync(mContext, account, extras,
-                        authority, provider, syncResult);
-            } catch (OperationCanceledException e) {
-            }
+            PopImapSyncAdapterService.performSync(getContext(), account, extras, authority,
+                    provider, syncResult);
         }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        synchronized (sSyncAdapterLock) {
-            if (sSyncAdapter == null) {
-                sSyncAdapter = new SyncAdapterImpl(getApplicationContext());
-            }
-        }
+        mSyncAdapter = new SyncAdapterImpl(getApplicationContext());
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return sSyncAdapter.getSyncAdapterBinder();
+        return mSyncAdapter.getSyncAdapterBinder();
     }
 
     /**
@@ -168,8 +156,8 @@ public class PopImapSyncAdapterService extends Service {
      * Partial integration with system SyncManager; we initiate manual syncs upon request
      */
     private static void performSync(Context context, android.accounts.Account account,
-            Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult)
-                    throws OperationCanceledException {
+            Bundle extras, String authority, ContentProviderClient provider,
+            SyncResult syncResult) {
         // Find an EmailProvider account with the Account's email address
         Cursor c = null;
         try {
