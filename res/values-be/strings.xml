@@ -413,14 +413,14 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"Настройкі сінхранізацыі"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"Частата праверкі"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Дні для сінхранізацыі"</string>
-    <string name="preference_conversation_list_icon_title" msgid="3112243519552774172">"Выява поля/адпраўніка"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="1726954406780046884">"Паказваць поле"</item>
-    <item msgid="2868213958259269107">"Паказваць выяву (пакуль не працуе)"</item>
-    <item msgid="3702634852126227264">"Нічога не паказваць"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="578493585470958429">"Выбраць, ці паказваць палі або фатаграфій адпраўнікоў у выглядзе размовы"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="5022399322070038248">"Выява поля/адпраўніка"</string>
+    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
+    <skip />
+    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
+    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
+    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
+    <skip />
+    <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
+    <skip />
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Уліковы запіс электроннай пошты"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Выберыце ўліковы запіс"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Выбраць папку"</string>
@@ -459,8 +459,6 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Звычайны"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Вялікі"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Вялікі"</string>
-    <string name="general_preference_reply_all_label" msgid="7806833609810003510">"Адказаць усім"</string>
-    <string name="general_preference_reply_all_summary" msgid="9191932552604733245">"Устал. \"Адказаць усім\" як парам. па змаўч. для адказаў на паведамл."</string>
     <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Запытаць паказ малюнкаў"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Малюнкі ў паведамленнях не будуць паказвацца аўтаматычна"</string>
     <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Паказваць малюнкі\" ачышчана."</string>
