@@ -363,6 +363,10 @@
                 <action android:name="com.android.mail.ACTION_UPDATE_WIDGET" />
                 <data android:mimeType="@string/application_mime_type" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.mail.ACTION_VALIDATE_ALL_WIDGETS" />
+                <data android:mimeType="@string/application_mime_type" />
+            </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_info" />
         </receiver>
