@@ -226,8 +226,6 @@ public abstract class SyncManager extends Service implements Runnable {
 
     // Receiver of connectivity broadcasts
     private ConnectivityReceiver mConnectivityReceiver = null;
-    private ConnectivityReceiver mBackgroundDataSettingReceiver = null;
-    private volatile boolean mBackgroundData = true;
     // The most current NetworkInfo (from ConnectivityManager)
     private NetworkInfo mNetworkInfo;
 
@@ -874,7 +872,7 @@ public abstract class SyncManager extends Service implements Runnable {
      * This would work on a real device as well, but it would be better to use the "real" id if
      * it's available
      */
-    static public String getDeviceId(Context context) throws IOException {
+    static public String getDeviceId(Context context) {
         if (sDeviceId == null) {
             sDeviceId = new AccountServiceProxy(context).getDeviceId();
             alwaysLog("Received deviceId from Email app: " + sDeviceId);
@@ -1180,45 +1178,22 @@ public abstract class SyncManager extends Service implements Runnable {
         @SuppressWarnings("deprecation")
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                Bundle b = intent.getExtras();
-                if (b != null) {
-                    NetworkInfo a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_NETWORK_INFO);
-                    String info = "Connectivity alert for " + a.getTypeName();
-                    State state = a.getState();
-                    if (state == State.CONNECTED) {
-                        info += " CONNECTED";
-                        log(info);
-                        synchronized (sConnectivityLock) {
-                            sConnectivityLock.notifyAll();
-                        }
-                        kick("connected");
-                    } else if (state == State.DISCONNECTED) {
-                        info += " DISCONNECTED";
-                        log(info);
-                        kick("disconnected");
+            Bundle b = intent.getExtras();
+            if (b != null) {
+                NetworkInfo a = (NetworkInfo)b.get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                String info = "Connectivity alert for " + a.getTypeName();
+                State state = a.getState();
+                if (state == State.CONNECTED) {
+                    info += " CONNECTED";
+                    log(info);
+                    synchronized (sConnectivityLock) {
+                        sConnectivityLock.notifyAll();
                     }
-                }
-            } else if (intent.getAction().equals(
-                    ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED)) {
-                ConnectivityManager cm =
-                        (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-                mBackgroundData = cm.getBackgroundDataSetting();
-                // If background data is now on, we want to kick SyncServiceManager
-                if (mBackgroundData) {
-                    kick("background data on");
-                    log("Background data on; restart syncs");
-                // Otherwise, stop all syncs
-                } else {
-                    log("Background data off: stop all syncs");
-                    EmailAsyncTask.runAsyncParallel(new Runnable() {
-                        @Override
-                        public void run() {
-                            synchronized (mAccountList) {
-                                for (Account account : mAccountList)
-                                    SyncManager.stopAccountSyncs(account.mId);
-                            }
-                        }});
+                    kick("connected");
+                } else if (state == State.DISCONNECTED) {
+                    info += " DISCONNECTED";
+                    log(info);
+                    kick("disconnected");
                 }
             }
         }
@@ -1421,29 +1396,21 @@ public abstract class SyncManager extends Service implements Runnable {
                                 alwaysLog("!!! Email application not found; stopping self");
                                 stopSelf();
                             }
-                            if (sDeviceId == null) {
-                                try {
-                                    String deviceId = getDeviceId(SyncManager.this);
-                                    if (deviceId != null) {
-                                        sDeviceId = deviceId;
-                                    }
-                                } catch (IOException e) {
-                                }
-                                if (sDeviceId == null) {
-                                    alwaysLog("!!! deviceId unknown; stopping self and retrying");
-                                    stopSelf();
-                                    // Try to restart ourselves in a few seconds
-                                    Utility.runAsync(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                Thread.sleep(5000);
-                                            } catch (InterruptedException e) {
-                                            }
-                                            startService(getServiceIntent());
-                                        }});
-                                    return;
-                                }
+                            String deviceId = getDeviceId(SyncManager.this);
+                            if (deviceId == null) {
+                                alwaysLog("!!! deviceId unknown; stopping self and retrying");
+                                stopSelf();
+                                // Try to restart ourselves in a few seconds
+                                Utility.runAsync(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(5000);
+                                        } catch (InterruptedException e) {
+                                        }
+                                        startService(getServiceIntent());
+                                    }});
+                                return;
                             }
                             // Run the reconciler and clean up mismatched accounts - if we weren't
                             // running when accounts were deleted, it won't have been called.
@@ -1556,19 +1523,9 @@ public abstract class SyncManager extends Service implements Runnable {
                 mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true,
                         mSyncedMessageObserver);
 
-                // Set up receivers for connectivity and background data setting
                 mConnectivityReceiver = new ConnectivityReceiver();
                 registerReceiver(mConnectivityReceiver, new IntentFilter(
                         ConnectivityManager.CONNECTIVITY_ACTION));
-
-                mBackgroundDataSettingReceiver = new ConnectivityReceiver();
-                registerReceiver(mBackgroundDataSettingReceiver, new IntentFilter(
-                        ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
-                // Save away the current background data setting; we'll keep track of it with the
-                // receiver we just registered
-                ConnectivityManager cm = (ConnectivityManager)getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
-                mBackgroundData = cm.getBackgroundDataSetting();
 
                 onStartup();
             }
@@ -1639,9 +1596,6 @@ public abstract class SyncManager extends Service implements Runnable {
                 // Stop receivers
                 if (mConnectivityReceiver != null) {
                     unregisterReceiver(mConnectivityReceiver);
-                }
-                if (mBackgroundDataSettingReceiver != null) {
-                    unregisterReceiver(mBackgroundDataSettingReceiver);
                 }
 
                 // Unregister observers
@@ -1833,11 +1787,10 @@ public abstract class SyncManager extends Service implements Runnable {
         // Never automatically sync trash
         } else if (type == Mailbox.TYPE_TRASH) {
             return false;
-        // For non-outbox, non-account mail, we do three checks:
+        // For non-outbox, non-account mail, we do two checks:
         // 1) are we restricted by policy (i.e. manual sync only),
         // 2) has the user checked the "Sync Email" box in Account Settings, and
-        // 3) does the user have the master "background data" box checked in Settings
-        } else if (!canAutoSync(account) || !canSyncEmail(account.mAmAccount) || !mBackgroundData) {
+        } else if (!canAutoSync(account) || !canSyncEmail(account.mAmAccount)) {
             return false;
         }
         return true;
