@@ -413,14 +413,13 @@
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"إعدادات المزامنة"</string>
     <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"معدل الاطلاع"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"الأيام المطلوب مزامنتها"</string>
-    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
-    <skip />
-    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
-    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
-    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
-    <skip />
-    <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
-    <skip />
+    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"صورة المرسل"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="228585958140385749">"عرض الصورة"</item>
+    <item msgid="2226691218102223696">"عدم عرض شيء"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"اختيار ما إذا كان سيتم عرض صورة المرسل في عرض المحادثات"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"صورة المرسل"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"حساب بريد"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"اختيار حساب"</string>
     <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"تحديد مجلد"</string>
