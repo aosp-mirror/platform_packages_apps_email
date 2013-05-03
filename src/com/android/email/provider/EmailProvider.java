@@ -67,7 +67,6 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -78,6 +77,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
@@ -93,7 +93,6 @@ import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
-import com.android.mail.providers.UIProvider.Swipe;
 import com.android.mail.utils.AttachmentUtils;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
@@ -294,6 +293,8 @@ public class EmailProvider extends ContentProvider {
 
     // Query parameter indicating the command came from UIProvider
     private static final String IS_UIPROVIDER = "is_uiprovider";
+
+    private static final String SYNC_STATUS_CALLBACK_METHOD = "sync_status";
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -1564,14 +1565,37 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
         LogUtils.d(TAG, "EmailProvider#call(%s, %s)", method, arg);
+
+        // First handle sync status callbacks.
+        if (TextUtils.equals(method, SYNC_STATUS_CALLBACK_METHOD)) {
+            final int syncStatusType = extras.getInt(EmailServiceStatus.SYNC_STATUS_TYPE);
+            switch (syncStatusType) {
+                case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX:
+                    try {
+                        mServiceCallback.syncMailboxStatus(
+                                extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
+                                extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
+                                extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
+                    } catch (RemoteException re) {
+                        // This can't actually happen but I have to pacify the compiler.
+                    }
+                    break;
+                default:
+                    LogUtils.e(TAG, "Sync status received of unknown type %d", syncStatusType);
+                    break;
+            }
+            return null;
+        }
+
+        // Handle send & save.
         final Uri accountUri = Uri.parse(arg);
         final long accountId = Long.parseLong(accountUri.getPathSegments().get(1));
 
         Uri messageUri = null;
         if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
-            messageUri =  uiSendDraftMessage(accountId, extras);
+            messageUri = uiSendDraftMessage(accountId, extras);
         } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SAVE_MESSAGE)) {
-            messageUri =  uiSaveDraftMessage(accountId, extras);
+            messageUri = uiSaveDraftMessage(accountId, extras);
         }
 
         final Bundle result;
@@ -4150,7 +4174,7 @@ public class EmailProvider extends ContentProvider {
 
     private void startSync(final Mailbox mailbox, final int deltaMessageCount) {
         android.accounts.Account account = getAccountManagerAccount(mailbox.mAccountKey);
-        Bundle extras = new Bundle();
+        Bundle extras = new Bundle(7);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
@@ -4158,6 +4182,10 @@ public class EmailProvider extends ContentProvider {
         if (deltaMessageCount != 0) {
             extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
+        extras.putString(EmailServiceStatus.SYNC_EXTRAS_CALLBACK_URI,
+                EmailContent.CONTENT_URI.toString());
+        extras.putString(EmailServiceStatus.SYNC_EXTRAS_CALLBACK_METHOD,
+                SYNC_STATUS_CALLBACK_METHOD);
         ContentResolver.requestSync(account, EmailContent.AUTHORITY, extras);
     }
 
