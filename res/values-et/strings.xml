@@ -418,7 +418,7 @@
     <item msgid="228585958140385749">"Kuva pilt"</item>
     <item msgid="2226691218102223696">"Midagi ei kuvata"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Valige, kas kuvada vestluse vaates saatjate pildid"</string>
+    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Valige, kas kuvada meilivestluse vaates saatjate pildid"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Saatja pilt"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Meilikonto"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Konto valimine"</string>
