@@ -427,7 +427,7 @@
     <string name="toast_mailbox_not_found" msgid="4960014581292378895">"No se encontró la carpeta. Es posible que se haya eliminado."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Solo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo y contraseña correctas, tal vez no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Para configurar esta cuenta de correo, accede al sitio web de T-Online y crea una contraseña para acceder al correo POP3."</string>
-    <string name="exchange_name" msgid="1190783774800310346">"Corporativo"</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Corporativa"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"No se pudo crear la cuenta. Inténtalo de nuevo."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Correo"</string>

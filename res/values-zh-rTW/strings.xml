@@ -418,7 +418,7 @@
     <item msgid="228585958140385749">"顯示圖片"</item>
     <item msgid="2226691218102223696">"不顯示任何內容"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"選擇是否在會話群組檢視中顯示寄件者圖片"</string>
+    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"選擇是否在會話群組畫面中顯示寄件者圖片"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"寄件者圖片"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"電子郵件帳戶"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"選擇帳戶"</string>
