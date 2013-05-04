@@ -57,6 +57,8 @@ public class Preferences {
     @Deprecated
     private static final String SWIPE_DELETE = "swipe_delete";
     private static final String CONV_LIST_ICON = "conversation_list_icons";
+    @Deprecated
+    private static final String REPLY_ALL = "reply_all";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -231,6 +233,18 @@ public class Preferences {
     @Deprecated
     public boolean getSwipeDelete() {
         return mSharedPreferences.getBoolean(SWIPE_DELETE, false);
+    }
+
+    /** @deprecated Only used for migration */
+    @Deprecated
+    public boolean hasReplyAll() {
+        return mSharedPreferences.contains(REPLY_ALL);
+    }
+
+    /** @deprecated Only used for migration */
+    @Deprecated
+    public boolean getReplyAll() {
+        return mSharedPreferences.getBoolean(REPLY_ALL, false);
     }
 
     public int getTextZoom() {
