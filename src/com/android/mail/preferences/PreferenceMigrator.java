@@ -78,6 +78,15 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
                 mailPrefs.setConversationListSwipeEnabled(swipeDelete);
             }
 
+            // Move reply-all setting
+            @SuppressWarnings("deprecation")
+            final boolean isReplyAllSet = preferences.hasReplyAll();
+            if (isReplyAllSet) {
+                @SuppressWarnings("deprecation")
+                final boolean replyAll = preferences.getReplyAll();
+                mailPrefs.setDefaultReplyAll(replyAll);
+            }
+
             // Move folder notification settings
             for (final Account account : accounts) {
                 // The only setting in AccountPreferences so far is a global notification toggle,
