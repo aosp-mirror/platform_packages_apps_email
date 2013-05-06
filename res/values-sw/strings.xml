@@ -210,7 +210,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Haikuweza kusambaza kiambatisho kimoja au zaidi."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Kiambatishho hakijasambazwa"</string>
     <string name="login_failed_ticker" msgid="2169365211566829350">"Kuingia <xliff:g id="ACCOUNT_NAME">%s</xliff:g> hakujafaulu."</string>
-    <string name="login_failed_title" msgid="7624349996212476176">"Haingeweza kuingia"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Haikuweza kuingia"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"B <xliff:g id="SIZE_IN_BYTES">%d</xliff:g>"</item>
     <item quantity="other" msgid="4613385949384337840">"B <xliff:g id="SIZE_IN_BYTES">%d</xliff:g>"</item>
