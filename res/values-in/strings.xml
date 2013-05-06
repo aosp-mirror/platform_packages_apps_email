@@ -168,7 +168,7 @@
     <string name="message_view_invite_title" msgid="3418949733434713805">"Undangan kalender"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Gabung?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Ya"</string>
-    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Mungkin hadir"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Mungkin"</string>
     <string name="message_view_invite_decline" msgid="6119797303297149463">" Tidak"</string>
     <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Anda telah menerima undangan ini."</string>
     <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Anda telah menjawab \"mungkin\" pada undangan ini."</string>
