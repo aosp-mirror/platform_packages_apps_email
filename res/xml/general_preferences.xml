@@ -67,7 +67,7 @@
         android:key="conversation-list-swipe"
         android:persistent="false"
         android:defaultValue="true"
-        android:title="@string/preference_swipe_title"
+        android:title="@string/preference_swipe_title_delete"
         android:summary="@string/preference_swipe_description" />
 
     <PreferenceScreen
