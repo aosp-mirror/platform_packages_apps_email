@@ -1998,6 +1998,8 @@ public class EmailProvider extends ContentProvider {
      */
     private static ProjectionMap getAccountListMap(Context context) {
         if (sAccountListMap == null) {
+            final MailPrefs mailPrefs = MailPrefs.get(context);
+
             final ProjectionMap.Builder builder = ProjectionMap.builder()
                     .add(BaseColumns._ID, AccountColumns.ID)
                     .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
@@ -2019,7 +2021,9 @@ public class EmailProvider extends ContentProvider {
                     .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
                             Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
                     .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-                            Integer.toString(UIProvider.DefaultReplyBehavior.REPLY))
+                            Integer.toString(mailPrefs.getDefaultReplyAll()
+                                    ? UIProvider.DefaultReplyBehavior.REPLY_ALL
+                                    : UIProvider.DefaultReplyBehavior.REPLY))
                     .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
                     .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
                             Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
@@ -2735,6 +2739,8 @@ public class EmailProvider extends ContentProvider {
         }
         final Map<String, Integer> colPosMap = builder.build();
 
+        final MailPrefs mailPrefs = MailPrefs.get(getContext());
+
         final Object[] values = new Object[columnNames.length];
         if (colPosMap.containsKey(BaseColumns._ID)) {
             values[colPosMap.get(BaseColumns._ID)] = 0;
@@ -2792,7 +2798,9 @@ public class EmailProvider extends ContentProvider {
         //.add(UIProvider.SettingsColumns.SIGNATURE, AccountColumns.SIGNATURE)
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)] =
-                    Integer.toString(UIProvider.DefaultReplyBehavior.REPLY);
+                    Integer.toString(mailPrefs.getDefaultReplyAll()
+                            ? UIProvider.DefaultReplyBehavior.REPLY_ALL
+                            : UIProvider.DefaultReplyBehavior.REPLY);
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)] =
