@@ -1569,20 +1569,33 @@ public class EmailProvider extends ContentProvider {
         // First handle sync status callbacks.
         if (TextUtils.equals(method, SYNC_STATUS_CALLBACK_METHOD)) {
             final int syncStatusType = extras.getInt(EmailServiceStatus.SYNC_STATUS_TYPE);
-            switch (syncStatusType) {
-                case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX:
-                    try {
-                        mServiceCallback.syncMailboxStatus(
+            try {
+                switch (syncStatusType) {
+                    case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX:
+                            mServiceCallback.syncMailboxStatus(
+                                    extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
+                                    extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
+                                    extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
+                        break;
+                    case EmailServiceStatus.SYNC_STATUS_TYPE_SEND_MESSAGE:
+                        mServiceCallback.sendMessageStatus(
+                                extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
+                                extras.getString(EmailServiceStatus.SYNC_STATUS_SUBJECT),
+                                extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
+                                extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
+                        break;
+                    case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX_LIST:
+                        mServiceCallback.syncMailboxListStatus(
                                 extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
                                 extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
                                 extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
-                    } catch (RemoteException re) {
-                        // This can't actually happen but I have to pacify the compiler.
-                    }
-                    break;
-                default:
-                    LogUtils.e(TAG, "Sync status received of unknown type %d", syncStatusType);
-                    break;
+                        break;
+                    default:
+                        LogUtils.e(TAG, "Sync status received of unknown type %d", syncStatusType);
+                        break;
+                }
+            } catch (RemoteException re) {
+                // This can't actually happen but I have to pacify the compiler.
             }
             return null;
         }
