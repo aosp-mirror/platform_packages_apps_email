@@ -56,7 +56,7 @@ public abstract class EmailServiceStatus {
     public static final String SYNC_EXTRAS_CALLBACK_METHOD = "callback_method";
     public static final String SYNC_EXTRAS_CALLBACK_ARG = "callback_arg";
 
-    // Keys for the status Bundle sent to the callback.
+    // Keys for the status Bundle sent to the callback. These keys are used in every status type.
     public static final String SYNC_STATUS_TYPE = "type";
     public static final String SYNC_STATUS_ID = "id";
     public static final String SYNC_STATUS_CODE = "status_code";
@@ -64,6 +64,51 @@ public abstract class EmailServiceStatus {
 
     // Values for the SYNC_STATUS_TYPE to specify what kind of sync status we're returning.
     public static final int SYNC_STATUS_TYPE_MAILBOX = 0;
+    public static final int SYNC_STATUS_TYPE_SEND_MESSAGE = 1;
+    public static final int SYNC_STATUS_TYPE_MAILBOX_LIST = 2;
+
+    // Additional status Bundle keys, used for specific status types.
+    public static final String SYNC_STATUS_SUBJECT = "subject";
+
+    /**
+     * Some status updates need to provide values in addition to the core id, code, and progress.
+     * Those updates will provide an appropriate StatusWriter to fill in those extras.
+     */
+    private static interface StatusWriter {
+        public void addToStatus(final Bundle statusExtras);
+    }
+
+    /**
+     * Generic function to check if the callback is necessary and, if so, perform it.
+     * The function is the common parts for the following functions, which are for use by the
+     * {@link android.content.AbstractThreadedSyncAdapter} to communicate the status of a sync
+     * action to the caller.
+     * @param cr A ContentResolver.
+     * @param syncExtras The extras provided to the sync request.
+     * @param statusType The type of sync status update to send.
+     * @param id The id of the thing whose status is being updated (type depends on statusType).
+     * @param statusCode The status code for this sync operation.
+     * @param progress The progress of this sync operation.
+     * @param writer If not null, an object which will write additional status fields.
+     */
+    private static void syncStatus(final ContentResolver cr, final Bundle syncExtras,
+            final int statusType, final long id, final int statusCode, final int progress,
+            final StatusWriter writer) {
+        final String callbackUri = syncExtras.getString(SYNC_EXTRAS_CALLBACK_URI);
+        final String callbackMethod = syncExtras.getString(SYNC_EXTRAS_CALLBACK_METHOD);
+        if (callbackUri != null && callbackMethod != null) {
+            final String callbackArg = syncExtras.getString(SYNC_EXTRAS_CALLBACK_ARG, "");
+            final Bundle statusExtras = new Bundle(4);
+            statusExtras.putInt(SYNC_STATUS_TYPE, statusType);
+            statusExtras.putLong(SYNC_STATUS_ID, id);
+            statusExtras.putInt(SYNC_STATUS_CODE, statusCode);
+            statusExtras.putInt(SYNC_STATUS_PROGRESS, progress);
+            if (writer != null) {
+                writer.addToStatus(statusExtras);
+            }
+            cr.call(Uri.parse(callbackUri), callbackMethod, callbackArg, statusExtras);
+        }
+    }
 
     /**
      * If the sync extras specify a callback, then notify the sync requester of the mailbox's
@@ -72,21 +117,38 @@ public abstract class EmailServiceStatus {
      * @param cr A ContentResolver.
      * @param syncExtras The extras provided to the sync request.
      * @param mailboxId The mailbox whose status is changing.
-     * @param statusCode The status code for this mailbox.
-     * @param progress The progress of this mailbox's sync.
+     * @param statusCode The status code for this sync operation.
+     * @param progress The progress of this sync operation.
      */
     public static void syncMailboxStatus(final ContentResolver cr, final Bundle syncExtras,
             final long mailboxId, final int statusCode, final int progress) {
-        final String callbackUri = syncExtras.getString(SYNC_EXTRAS_CALLBACK_URI);
-        final String callbackMethod = syncExtras.getString(SYNC_EXTRAS_CALLBACK_METHOD);
-        if (callbackUri != null && callbackMethod != null) {
-            final String callbackArg = syncExtras.getString(SYNC_EXTRAS_CALLBACK_ARG, "");
-            final Bundle statusExtras = new Bundle(4);
-            statusExtras.putInt(SYNC_STATUS_TYPE, SYNC_STATUS_TYPE_MAILBOX);
-            statusExtras.putLong(SYNC_STATUS_ID, mailboxId);
-            statusExtras.putInt(SYNC_STATUS_CODE, statusCode);
-            statusExtras.putInt(SYNC_STATUS_PROGRESS, progress);
-            cr.call(Uri.parse(callbackUri), callbackMethod, callbackArg, statusExtras);
-        }
+        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX, mailboxId, statusCode, progress, null);
+    }
+
+    /**
+     * If the sync extras specify a callback, then notify the sync requester of the outbound
+     * message status. This function is for use by the
+     * {@link android.content.AbstractThreadedSyncAdapter}.
+     * @param cr A ContentResolver.
+     * @param syncExtras The extras provided to the sync request.
+     * @param messageId The message that is being sent.
+     * @param subject The subject line of that message, or null if the subject is unavailable.
+     * @param statusCode The status code for this sync operation.
+     * @param progress The progress of this sync operation.
+     */
+    public static void sendMessageStatus(final ContentResolver cr, final Bundle syncExtras,
+            final long messageId, final String subject, final int statusCode, final int progress) {
+        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_SEND_MESSAGE, messageId, statusCode, progress,
+                new StatusWriter() {
+                    @Override
+                    public void addToStatus(final Bundle statusExtras) {
+                        statusExtras.putString(SYNC_STATUS_SUBJECT, subject);
+                    }});
+    }
+
+    public static void syncMailboxListStatus(final ContentResolver cr, final Bundle syncExtras,
+            final long accountId, final int statusCode, final int progress) {
+        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX_LIST, accountId, statusCode, progress,
+                null);
     }
 }
