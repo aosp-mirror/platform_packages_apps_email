@@ -3140,13 +3140,16 @@ public class EmailProvider extends ContentProvider {
                             final Uri uri = EmailContent.Message.CONTENT_URI;
                             resolver.update(uri, contentValues, MessageColumns.MAILBOX_KEY + " = ?",
                                     new String[] {String.valueOf(mailbox.mId)});
-                            // If it's been long enough, force sync this mailbox.
-                            final long timeSinceLastSync =
-                                    System.currentTimeMillis() - mailbox.mSyncTime;
-                            if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
-                                final Uri refreshUri = Uri.parse(EmailContent.CONTENT_URI + "/" +
-                                        QUERY_UIREFRESH + "/" + mailbox.mId);
-                                resolver.query(refreshUri, null, null, null, null);
+                            // For non-push mailboxes, if it's stale (i.e. last sync was a while
+                            // ago), force a sync.
+                            if (mailbox.mSyncInterval > Mailbox.CHECK_INTERVAL_PUSH) {
+                                final long timeSinceLastSync =
+                                        System.currentTimeMillis() - mailbox.mSyncTime;
+                                if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
+                                    final Uri refreshUri = Uri.parse(EmailContent.CONTENT_URI +
+                                            "/" + QUERY_UIREFRESH + "/" + mailbox.mId);
+                                    resolver.query(refreshUri, null, null, null, null);
+                                }
                             }
                         }
                     }
