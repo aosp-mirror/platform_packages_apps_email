@@ -398,7 +398,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronitza els contactes"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincr. contactes d\'aquest compte"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronitza el calendari"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincr. esdev. calend. per al compte"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincronitza esdeveniments del calendari per al compte"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronitza el correu electrònic"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincr. miss. correu d\'aquest compte"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibra"</string>
