@@ -21,6 +21,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.android.emailcommon.provider.Account;
@@ -39,14 +40,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class AbstractSyncService implements Runnable {
 
     public String TAG = "AbstractSyncService";
-
-    public static final int SECONDS = 1000;
-    public static final int MINUTES = 60*SECONDS;
-    public static final int HOURS = 60*MINUTES;
-    public static final int DAYS = 24*HOURS;
-
-    public static final int CONNECT_TIMEOUT = 30*SECONDS;
-    public static final int NETWORK_WAIT = 15*SECONDS;
 
     public static final int EXIT_DONE = 0;
     public static final int EXIT_IO_ERROR = 1;
@@ -275,7 +268,7 @@ public abstract class AbstractSyncService implements Runnable {
                 return true;
             }
             try {
-                Thread.sleep(10*SECONDS);
+                Thread.sleep(10 * DateUtils.SECOND_IN_MILLIS);
             } catch (InterruptedException e) {
             }
         }
