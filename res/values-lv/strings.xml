@@ -305,7 +305,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sinhronizēt šī konta kontaktpersonas"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sinhronizēt šī konta kalendāru"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sinhronizēt šī konta e-pastu"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automātiski lejupielādēt pielikumus, kad ir izveidots WiFi savienojums"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automātiski lejupielādēt pielikumus, kad ir izveidots Wi-Fi savienojums"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nevarēja pabeigt"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Sinhronizējamās dienas"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automātiski"</string>
