@@ -364,7 +364,7 @@
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"अनुलग्नकों को डाउनलोड करें"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अनुलग्नक स्वत: डाउनलोड करें"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ईमेल सूचनाएं"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि सिंक करें."</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ईमेल आने पर सूचना भेजें"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"इनबॉक्‍स देखने की आवृत्ति"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"इनकमिंग सेटिंग"</string>
@@ -395,12 +395,12 @@
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"त्वरित प्रतिसाद संपादित करें"</string>
     <string name="save_action" msgid="1988862706623227093">"सहेजें"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"संपर्कों को सिंक करें"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"इस खाते के लिए संपर्क सिंक करें"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"कैलेंडर सिंक करें"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"संपर्कों को समन्वयन करें"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"इस खाते के लिए संपर्क समन्वयन करें"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"कैलेंडर समन्वयन करें"</string>
     <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"इस खाता हेतु कैलें. इवेंट समन्व. करें"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"ईमेल समन्‍वयित करें"</string>
-    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"इस खाते के लिए ईमेल सिंक करें"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"इस खाते के लिए ईमेल समन्वयन करें"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"कंपन"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"रिंगटोन चुनें"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"सर्वर सेटिंग"</string>
