@@ -421,7 +421,7 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Configuració"</string>
     <string name="header_label_general_preferences" msgid="9204600297009680176">"General"</string>
     <string name="category_general_preferences" msgid="2742423840964045801">"Aplicació"</string>
-    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avança automàticament"</string>
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avançament automàtic"</string>
     <string name="general_preference_auto_advance_summary" msgid="6483439980032715119">"Selecciona quina pantalla s\'ha de mostrar després de suprimir un missatge"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Vés a"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Missatge més recent"</string>

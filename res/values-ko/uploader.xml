@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"배터리 전원 부족"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"사진 용량을 초과했습니다."</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"로밍 중"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"WiFi 대기 중"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"Wi-Fi 대기 중"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"충전될 때까지 지연됨"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"연결 대기 중"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"%s 후에 다시 시도"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"계정에 로그인하는 동안 문제가 발생했습니다."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"재시도 대기 중"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"WiFi 대기 중"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Wi-Fi 대기 중"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"업로드 중"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"실패"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"완료됨"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"일시중지됨 - 충전될 때까지 지연됨"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"일시중지됨 - 연결 대기중"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"일시중지됨 - Picasa 웹앨범 용량 초과"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"일시중지됨 - wifi 대기 중"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"일시중지됨 - Wi-Fi 대기 중"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"일시중지됨 - 로밍 중"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"재시도 대기 중"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1분"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"업로드 완료됨"</string>
     <string name="notify_paused" msgid="3999817913227671338">"업로드 일시중지됨"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"자동 업로드가 아직 활성화되지 않았습니다."</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"대용량 파일은 WiFi 연결을 통해서만 업로드됩니다."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"대용량 파일은 Wi-Fi 연결을 통해서만 업로드됩니다."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"파일 검색 중..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"업로드할 사진 <xliff:g id="PHOTOCOUNT">%1$d</xliff:g>장과 동영상 <xliff:g id="VIDEOCOUNT">%2$d</xliff:g>개를 준비하는 중..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"사진/동영상을 추가로 업로드할 필요가 없습니다."</string>

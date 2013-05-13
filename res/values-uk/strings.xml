@@ -364,7 +364,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Обл. зап. за умовч."</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Надіс. ел.листи з цього обл. зап. за умовч."</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Завантажити вкладені файли"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автом. завантажувати вклад. файли з останніх повідом. через WiFi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автом. завантажувати вклад. файли з останніх повідом. через Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Сповіщення ел. пошти"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Синхронізуйте частоту, сповіщення тощо"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Сповіщати в системному рядку про надходження листа"</string>

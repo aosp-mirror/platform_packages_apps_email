@@ -364,7 +364,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Akun default"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Kirim email dari akun ini secara default"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Unduh lampiran"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Unduh-otomatis lampiran pada pesan terbaru melalui WiFi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Unduh-otomatis lampiran pada pesan terbaru melalui Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Pemberitahuan email"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sinkronkan frekuensi, pemberitahuan, dll."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Beri tahukan dalam bilah Sistem ketika email tiba"</string>

@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"низький рівень заряду акумулятора"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"перевищено квоту на фотографії"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"роумінг"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"очікування на WiFi"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"очікування на Wi-Fi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"відкладено до зарядження"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"очікування з’єднання"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"повтор через %s"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"Виникла проблема з входом у ваш обліковий запис."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"Очікування на повтор"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Очікування на WiFi"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Очікування на Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Завантаження"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Помилка"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Завершено"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"призупинено – відкладено до зарядження"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"призупинено – очікування з’єднання"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"призупинено – вичерпано квоту на PWA"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"призупинено – очікування на WiFi"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"призупинено – очікування на Wi-Fi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"призупинено – роумінг"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"очікування на повтор"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 хвилина"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Завантаження завершено"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Завантаження призупинено"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Миттєве завантаження ще не активовано"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Великі файли буде завантажено лише через з’єднання WiFi."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"Великі файли буде завантажено лише через з’єднання Wi-Fi."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Сканування на наявність файлів..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Підготовка <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> фото та <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> відео для завантаження..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Не потрібно завантажувати додаткові фото чи відео."</string>
