@@ -1970,12 +1970,12 @@ public class EmailProvider extends ContentProvider {
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
-            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_folder_inbox_holo_light
-            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts_holo_light
-            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox_holo_light
-            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent_holo_light
-            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_menu_trash_holo_light
-            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_menu_star_holo_light
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_folder_inbox
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_folder_trash
+            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_folder_star
             + " ELSE -1 END";
 
     private static ProjectionMap getFolderListMap() {
@@ -2994,13 +2994,13 @@ public class EmailProvider extends ContentProvider {
                    "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox_holo_light;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox;
             mc.addRow(row);
             count = EmailContent.count(context, Message.CONTENT_URI,
                     MessageColumns.FLAG_FAVORITE + "=1", null);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_star;
             mc.addRow(row);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_ALL_UNREAD);
             count = EmailContent.count(context, Message.CONTENT_URI,
@@ -3024,7 +3024,7 @@ public class EmailProvider extends ContentProvider {
             final long acctId = Long.parseLong(id);
             Object[] row = getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_star_holo_light;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_star;
             mc.addRow(row);
             row = getVirtualMailboxRow(acctId, Mailbox.TYPE_ALL_UNREAD);
             int numUnread  = EmailContent.count(context, Message.CONTENT_URI,
