@@ -3098,13 +3098,21 @@ public class EmailProvider extends ContentProvider {
             mMailboxId = mailboxId;
             mContext = context;
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+
+            // We assume that all message lists are complete
+            // since we don't do any live lists in email.
+            mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                    UIProvider.CursorStatus.COMPLETE);
             if (mailbox != null) {
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS, mailbox.mUiSyncStatus);
-                if (mailbox.mUiLastSyncResult != UIProvider.LastSyncResult.SUCCESS) {
-                    mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
-                            mailbox.mUiLastSyncResult);
-                }
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
+                        mailbox.mUiLastSyncResult);
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
+            } else {
+                // TODO for virtual mailboxes, we may want to do something besides just fake it
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
+                        UIProvider.LastSyncResult.SUCCESS);
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT,
+                        cursor != null ? cursor.getCount() : 0);
             }
         }
 
