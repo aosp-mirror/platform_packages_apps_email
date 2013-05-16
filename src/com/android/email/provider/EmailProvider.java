@@ -3008,8 +3008,7 @@ public class EmailProvider extends ContentProvider {
                     " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
                     " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            // TODO: Hijacking the mark unread icon for now.
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_mark_unread_holo_light;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
             mc.addRow(row);
             return mc;
         } else {
@@ -3033,8 +3032,7 @@ public class EmailProvider extends ContentProvider {
                     " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
                     " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
-            // TODO: Hijacking the mark unread icon for now.
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_menu_mark_unread_holo_light;
+            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
             mc.addRow(row);
             Cursor[] cursors = new Cursor[] {mc, c};
             return new MergeCursor(cursors);
