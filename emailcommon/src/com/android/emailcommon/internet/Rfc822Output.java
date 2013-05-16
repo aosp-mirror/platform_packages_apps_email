@@ -35,7 +35,6 @@ import org.apache.commons.io.IOUtils;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,7 +63,7 @@ public class Rfc822Output {
     private static final Pattern BODY_PATTERN = Pattern.compile(
                 "(?:<\\s*body[^>]*>)(.*)(?:<\\s*/\\s*body\\s*>)",
                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    /** Match group in {@code BODDY_PATTERN} for the body HTML */ 
+    /** Match group in {@code BODY_PATTERN} for the body HTML */
     private static final int BODY_PATTERN_GROUP = 1;
     /** Index of the plain text version of the message body */
     private final static int INDEX_BODY_TEXT = 0;
@@ -110,20 +109,15 @@ public class Rfc822Output {
      * not necessary to pass in a buffered output stream here.
      *
      * @param context system context for accessing the provider
-     * @param messageId the message to write out
+     * @param message the message to write out
      * @param out the output stream to write the message to
      * @param useSmartReply whether or not quoted text is appended to a reply/forward
-     * @param a list of attachments to send (or null if retrieved from the message itself)
+     * @param sendBcc Whether to add the bcc header
+     * @param attachments list of attachments to send (or null if retrieved from the message itself)
      */
-    public static void writeTo(Context context, long messageId, OutputStream out,
-            boolean useSmartReply, boolean sendBcc) throws IOException, MessagingException {
-        writeTo(context, messageId, out, useSmartReply, sendBcc, null);
-    }
-
-    public static void writeTo(Context context, long messageId, OutputStream out,
+    public static void writeTo(Context context, Message message, OutputStream out,
             boolean useSmartReply, boolean sendBcc, List<Attachment> attachments)
                     throws IOException, MessagingException {
-        Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
             return;
@@ -160,7 +154,7 @@ public class Rfc822Output {
         // If a list of attachments hasn't been passed in, build one from the message
         if (attachments == null) {
             attachments =
-                    Arrays.asList(Attachment.restoreAttachmentsWithMessageId(context, messageId));
+                    Arrays.asList(Attachment.restoreAttachmentsWithMessageId(context, message.mId));
         }
 
         boolean multipart = attachments.size() > 0;
