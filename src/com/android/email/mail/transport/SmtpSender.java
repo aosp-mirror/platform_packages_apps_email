@@ -190,10 +190,11 @@ public class SmtpSender extends Sender {
             }
             executeSimpleCommand("DATA");
             // TODO byte stuffing
-            Rfc822Output.writeTo(mContext, messageId,
+            Rfc822Output.writeTo(mContext, message,
                     new EOLConvertingOutputStream(mTransport.getOutputStream()),
                     false /* do not use smart reply */,
-                    false /* do not send BCC */);
+                    false /* do not send BCC */,
+                    null  /* attachments are in the message itself */);
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);
