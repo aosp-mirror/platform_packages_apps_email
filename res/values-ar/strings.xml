@@ -364,7 +364,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"الحساب الافتراضي"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"إرسال البريد الإلكتروني من هذا الحساب افتراضيًا"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"تنزيل المرفقات"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"تنزيل مرفقات الرسائل الأخيرة تلقائيًا عبر WiFi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"تنزيل مرفقات الرسائل الأخيرة تلقائيًا عبر Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"إشعارات البريد إلكتروني"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"معدل المزامنة والتنبيهات وما إلى ذلك"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"التنبيه في شريط النظام عند استلام رسالة إلكترونية"</string>

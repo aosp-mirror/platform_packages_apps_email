@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"Daar was \'n probleem om by jou rekening aan te meld."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"Wag om weer te probeer"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Wag vir WiFi"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Wag vir Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Oplaai"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Misluk"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Afgehandel"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Oplaaisels afgehandel"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Oplaaisels wagtend"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Kitsoplaai is nog nie geaktiveer nie"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Groot lêers sal net oor \'n WiFi-verbinding opgelaai word."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"Groot lêers sal net oor \'n Wi-Fi-verbinding opgelaai word."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Skandeer tans vir lêers..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"Berei tans <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto\'s en <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video\'s voor vir oplaai..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"Geen bykomende foto\'s/video\'s hoef opgelaai te word nie."</string>

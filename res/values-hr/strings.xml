@@ -364,7 +364,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Zadani račun"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Šalji e-poštu s ovog računa prema zadanim postavkama"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Preuzimanje privitaka"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automatsko preuzimanje privitaka uz nedavne poruke WiFi mrežom"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automatsko preuzimanje privitaka uz nedavne poruke Wi-Fi mrežom"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Obavijesti e-pošte"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Učestalost sinkronizacije, obavijesti itd."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Obavijesti u traci sustava kad stigne e-pošta"</string>

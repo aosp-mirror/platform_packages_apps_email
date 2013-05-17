@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"de accu is bijna leeg"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"fotoquotum overschreden"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"roaming"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"wachten op Wi-Fi"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"wachten op wifi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"uitgesteld tot opladen"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"wachten op verbinding"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"opnieuw proberen over %s"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"Er is een probleem opgetreden bij het aanmelden bij uw account."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"Wachten op nieuwe poging"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Wachten op Wi-Fi"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"Wachten op wifi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"Uploaden"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"Mislukt"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"Voltooid"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"onderbroken - uitgesteld tot opladen"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"onderbroken - wachten op verbinding"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"onderbroken - PWA-quotum overschreden"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"onderbroken - wachten op Wi-Fi"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"onderbroken - wachten op wifi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"onderbroken - roaming"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"wachten op nieuwe poging"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 minuut"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"Uploads voltooid"</string>
     <string name="notify_paused" msgid="3999817913227671338">"Uploads onderbroken"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"Automatisch uploaden is nog niet geactiveerd"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"Grote bestanden worden alleen geüpload via een Wi-Fi-verbinding."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"Grote bestanden worden alleen geüpload via een wifi-verbinding."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"Scannen naar bestanden..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"<xliff:g id="PHOTOCOUNT">%1$d</xliff:g> foto\'s en <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> video\'s voorbereiden op uploaden..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"U hoeft geen aanvullende foto\'s/video\'s te uploaden."</string>
@@ -93,8 +93,8 @@
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"Alle uploads onderbreken"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"Opladen vereist"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"Alleen uploaden wanneer de telefoon wordt opgeladen."</string>
-    <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
-    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Alleen uploaden wanneer Wi-Fi beschikbaar is."</string>
+    <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wifi"</string>
+    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"Alleen uploaden wanneer wifi beschikbaar is."</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"Foto\'s"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"Account"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"Uploadvoorwaarden"</string>
@@ -106,7 +106,7 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"De verbindingsinstellingen van foto\'s worden momenteel gebruikt."</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"Alleen foto\'s uploaden via mobiele netwerken"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"Foto\'s en video\'s via mobiele netwerken"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Foto\'s en video\'s alleen via Wi-Fi uploaden"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"Foto\'s en video\'s alleen via wifi uploaden"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"Over"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"Auto-uploadversie"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"Aanbevolen: 1600 pixels (voor delen, afdrukken en screensavers)"</string>

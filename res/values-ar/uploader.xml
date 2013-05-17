@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"طاقة البطارية منخفضة"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"تم تجاوز حصة الصور"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"التجوال"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"في انتظار اتصال WiFi"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"في انتظار اتصال Wi-Fi"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"متأخر لحين الشحن"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"في انتظار الاتصال"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"إعادة المحاولة في %s"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"حدثت مشكلة أثناء تسجيل الدخول إلى حسابك."</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"في انتظار إعادة المحاولة"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"في انتظار اتصال WiFi"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"في انتظار اتصال Wi-Fi"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"تحميل"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"أخفق"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"مكتمل"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"تم الإيقاف مؤقتًا - متأخر لحين الشحن"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"تم الإيقاف مؤقتًا - في انتظار الاتصال"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"تم الإيقاف مؤقتًا - نفدت حصة PWA"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"تم الإيقاف مؤقتًا - في انتظار اتصال WiFi"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"تم الإيقاف مؤقتًا - في انتظار اتصال Wi-Fi"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"تم الإيقاف مؤقتًا - تجوال"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"في انتظار إعادة المحاولة"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"دقيقة واحدة"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"انتهت التحميلات"</string>
     <string name="notify_paused" msgid="3999817913227671338">"تم إيقاف التحميلات مؤقتًا"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"لم يتم تنشيط التحميل الفوري بعد."</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"سيتم تحميل الملفات كبيرة الحجم عبر اتصال WiFi فقط."</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"سيتم تحميل الملفات كبيرة الحجم عبر اتصال Wi-Fi فقط."</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"جارٍ الفحص للملفات..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"جارٍ تحضير <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> من الصور و<xliff:g id="VIDEOCOUNT">%2$d</xliff:g> من مقاطع الفيديو للتحميل..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"ليست هناك صور/مقاطع فيديو إضافية يلزم تحميلها."</string>
