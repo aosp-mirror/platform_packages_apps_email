@@ -2405,6 +2405,7 @@ public class EmailProvider extends ContentProvider {
         // For trash, we don't allow undo
         if (type == Mailbox.TYPE_TRASH) {
             caps =  UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
+                    UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION |
                     UIProvider.FolderCapabilities.CAN_HOLD_MAIL |
                     UIProvider.FolderCapabilities.DELETE |
                     UIProvider.FolderCapabilities.DELETE_ACTION_FINAL;
