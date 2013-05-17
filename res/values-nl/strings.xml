@@ -176,13 +176,13 @@
     <string name="message_view_show_details" msgid="6287415596441037095">"Details weergeven"</string>
     <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Berichtdetails"</string>
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Bijlage-informatie"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi-verbinding vereist"</string>
-    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi-instellingen"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wifi-verbinding vereist"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wifi-instellingen"</string>
     <string name="attachment_info_application_settings" msgid="4124655487276125596">"App-instellingen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Kan bijlage niet openen."</string>
     <string name="attachment_info_malware" msgid="6576029010855055528">"U kunt dit bericht niet opslaan of openen omdat dit type bijlage schadelijke software kan bevatten."</string>
     <string name="attachment_info_policy" msgid="3560422300127587508">"Deze bijlage kan niet worden opgeslagen of geopend als gevolg van het beveiligingsbeleid van dit account."</string>
-    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Deze bijlage is te groot om te downloaden via een mobiel netwerk. U kunt de bijlage downloaden wanneer u weer verbinding maakt met een Wi-Fi-netwerk."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Deze bijlage is te groot om te downloaden via een mobiel netwerk. U kunt de bijlage downloaden wanneer u weer verbinding maakt met een wifi-netwerk."</string>
     <string name="attachment_info_no_intent" msgid="8139209405745777924">"Er is geen app geïnstalleerd die de bijlage kan openen. Download een geschikte app van Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Deze bijlage is een app. U moet \'Onbekende bronnen\' aanvinken in \'Instellingen\' &gt; \'Apps\' voordat u de app kunt installeren."</string>
     <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Apps kunnen niet rechtstreeks via e-mail worden geïnstalleerd. Sla de app eerst op en installeer deze via de app Downloads."</string>
@@ -305,7 +305,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Contacten van dit account synchroniseren"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Agenda van dit account synchroniseren"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"E-mail van dit account synchroniseren"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Bijlagen automatisch downloaden indien verbonden met Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Bijlagen automatisch downloaden indien verbonden met wifi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Is niet voltooid"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dagen om te synchroniseren"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisch"</string>
