@@ -473,6 +473,8 @@ public class AccountCheckSettingsFragment extends Fragment {
                     Bundle bundle = store.checkSettings();
                     int resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
                     if (bundle != null) {
+                        mAccount.mProtocolVersion = bundle.getString(
+                                EmailServiceProxy.VALIDATE_BUNDLE_PROTOCOL_VERSION);
                         resultCode = bundle.getInt(
                                 EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
                         // Only show "policies required" if this is a new account setup
