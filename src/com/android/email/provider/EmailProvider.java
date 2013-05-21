@@ -3035,6 +3035,9 @@ public class EmailProvider extends ContentProvider {
             row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
             row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
             mc.addRow(row);
+
+            mc.setNotificationUri(context.getContentResolver(), uri);
+            c.setNotificationUri(context.getContentResolver(), uri);
             Cursor[] cursors = new Cursor[] {mc, c};
             return new MergeCursor(cursors);
         }
