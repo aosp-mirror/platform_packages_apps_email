@@ -29,11 +29,13 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
+import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -557,12 +559,29 @@ public class SecurityPolicy {
         try {
             context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
             account.refresh(context);
+            syncAccount(context, account);
         } catch (RemoteException e) {
            // This is fatal to a remote process
             throw new IllegalStateException("Exception setting account policy.");
         } catch (OperationApplicationException e) {
             // Can't happen; our provider doesn't throw this exception
         }
+    }
+
+    private static void syncAccount(final Context context, final Account account) {
+        final EmailServiceUtils.EmailServiceInfo info =
+                EmailServiceUtils.getServiceInfo(context, account.getProtocol(context));
+        final android.accounts.Account amAccount =
+                new android.accounts.Account(account.mEmailAddress, info.accountType);
+        final Bundle extras = new Bundle(3);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        ContentResolver.requestSync(amAccount, EmailContent.AUTHORITY, extras);
+    }
+
+    public void syncAccount(final Account account) {
+        syncAccount(mContext, account);
     }
 
     public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
