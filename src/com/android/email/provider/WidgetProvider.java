@@ -103,7 +103,7 @@ public class WidgetProvider extends BaseWidgetProvider {
 
         // Get Account and folder objects for the account id and mailbox id
         final com.android.mail.providers.Account uiAccount = getAccount(context, accountId);
-        final Folder uiFolder = getFolder(context, mailboxId);
+        final Folder uiFolder = EmailProvider.getFolder(context, mailboxId);
 
         if (uiAccount != null && uiFolder != null) {
             WidgetService.saveWidgetInformation(context, widgetId, uiAccount,
@@ -165,27 +165,6 @@ public class WidgetProvider extends BaseWidgetProvider {
             accountCursor.close();
         }
         return uiAccount;
-    }
-
-    private static Folder getFolder(Context context, long mailboxId) {
-        final ContentResolver resolver = context.getContentResolver();
-        final Cursor fc = resolver.query(EmailProvider.uiUri("uifolder", mailboxId),
-                UIProvider.FOLDERS_PROJECTION, null, null, null);
-
-        if (fc == null) {
-            LogUtils.e(LOG_TAG, "Null folder cursor for mailboxId %d", mailboxId);
-            return null;
-        }
-
-        Folder uiFolder = null;
-        try {
-            if (fc.moveToFirst()) {
-                 uiFolder = new Folder(fc);
-            }
-        } finally {
-            fc.close();
-        }
-        return uiFolder;
     }
 
     /**
