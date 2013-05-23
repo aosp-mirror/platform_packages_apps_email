@@ -24,6 +24,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.android.email.NotificationController;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -134,6 +135,9 @@ public class AccountReconciler {
                             providerAccountName);
                     Uri uri = EmailProvider.uiUri("uiaccount", providerAccount.mId);
                     context.getContentResolver().delete(uri, null, null);
+
+                    // Cancel all notifications for this account
+                    NotificationController.cancelNotifications(context, providerAccount);
                 }
             }
         }

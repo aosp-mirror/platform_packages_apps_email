@@ -70,7 +70,6 @@ public class NotificationController {
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
 
     private static final int NOTIFICATION_ID_BASE_MASK = 0xF0000000;
-    private static final int NOTIFICATION_ID_BASE_NEW_MESSAGES = 0x10000000;
     private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
     private static final int NOTIFICATION_ID_BASE_SECURITY_NEEDED = 0x30000000;
     private static final int NOTIFICATION_ID_BASE_SECURITY_CHANGED = 0x40000000;
@@ -176,14 +175,6 @@ public class NotificationController {
                 ticker, title, contentText, intent, null, null, true,
                 needsOngoingNotification(notificationId));
         mNotificationManager.notify(notificationId, builder.build());
-    }
-
-    /**
-     * Returns a notification ID for new message notifications for the given account.
-     */
-    private static int getNewMessageNotificationId(long mailboxId) {
-        // We assume accountId will always be less than 0x0FFFFFFF; is there a better way?
-        return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + mailboxId);
     }
 
     /**
@@ -408,13 +399,6 @@ public class NotificationController {
     }
 
     /**
-     * Cancels the new message notification for a given mailbox
-     */
-    public void cancelNewMessageNotification(long mailboxId) {
-        mNotificationManager.cancel(getNewMessageNotificationId(mailboxId));
-    }
-
-    /**
      * Show (or update) a notification that the user's password is expiring. The given account
      * is used to update the display text, but, all accounts share the same notification ID.
      *
@@ -525,6 +509,20 @@ public class NotificationController {
                     c.close();
                 }
             }});
+    }
+
+    /**
+     * Cancels all notifications for the specified account id. This includes new mail notifications,
+     * as well as special login/security notifications.
+     */
+    public static void cancelNotifications(final Context context, final Account account) {
+        NotificationUtils.clearAccountNotifications(context, account.mEmailAddress);
+
+        final NotificationManager notificationManager = getInstance(context).mNotificationManager;
+
+        notificationManager.cancel((int) (NOTIFICATION_ID_BASE_LOGIN_WARNING + account.mId));
+        notificationManager.cancel((int) (NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
+        notificationManager.cancel((int) (NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
     }
 
     /**
