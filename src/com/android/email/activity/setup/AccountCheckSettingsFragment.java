@@ -477,6 +477,11 @@ public class AccountCheckSettingsFragment extends Fragment {
                                 EmailServiceProxy.VALIDATE_BUNDLE_PROTOCOL_VERSION);
                         resultCode = bundle.getInt(
                                 EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
+                        final String redirectAddress = bundle.getString(
+                                EmailServiceProxy.VALIDATE_BUNDLE_REDIRECT_ADDRESS, null);
+                        if (redirectAddress != null) {
+                            mAccount.mHostAuthRecv.mAddress = redirectAddress;
+                        }
                         // Only show "policies required" if this is a new account setup
                         if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED &&
                                 mAccount.isSaved()) {
