@@ -102,6 +102,7 @@ import com.android.mail.widget.BaseWidgetProvider;
 import com.android.mail.widget.WidgetProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -3089,15 +3090,17 @@ public class EmailProvider extends ContentProvider {
      * any pending notifications for the corresponding mailbox should be canceled). We also handle
      * getExtras() to provide a snapshot of the mailbox's status
      */
-    static class VisibilityCursor extends CursorWrapper {
+    static class EmailConversationCursor extends CursorWrapper {
         private final long mMailboxId;
         private final Context mContext;
+        private final FolderList mFolderList;
         private final Bundle mExtras = new Bundle();
 
-        public VisibilityCursor(Context context, Cursor cursor, long mailboxId) {
+        public EmailConversationCursor(Context context, Cursor cursor, long mailboxId) {
             super(cursor);
             mMailboxId = mailboxId;
             mContext = context;
+            mFolderList = FolderList.copyOf(Lists.newArrayList(getFolder(mContext, mMailboxId)));
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
 
             // We assume that all message lists are complete
@@ -3130,6 +3133,8 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public Bundle respond(Bundle params) {
+            final Bundle response = new Bundle();
+
             final String setVisibilityKey =
                     UIProvider.ConversationCursorCommand.COMMAND_KEY_SET_VISIBILITY;
             if (params.containsKey(setVisibilityKey)) {
@@ -3163,11 +3168,44 @@ public class EmailProvider extends ContentProvider {
                 }
             }
             // Return success
-            Bundle response = new Bundle();
             response.putString(setVisibilityKey,
                     UIProvider.ConversationCursorCommand.COMMAND_RESPONSE_OK);
+
+            final String rawFoldersKey =
+                    UIProvider.ConversationCursorCommand.COMMAND_GET_RAW_FOLDERS;
+            if (params.containsKey(rawFoldersKey)) {
+                response.putParcelable(rawFoldersKey, mFolderList);
+            }
+
             return response;
         }
+    }
+
+    /**
+     * Convenience method to create a {@link Folder}
+     * @param context to get a {@ContentResolver}
+     * @param mailboxId id of the {@link Mailbox} that we want
+     * @return the {@link Folder} or null
+     */
+    public static Folder getFolder(Context context, long mailboxId) {
+        final ContentResolver resolver = context.getContentResolver();
+        final Cursor fc = resolver.query(EmailProvider.uiUri("uifolder", mailboxId),
+                UIProvider.FOLDERS_PROJECTION, null, null, null);
+
+        if (fc == null) {
+            LogUtils.e(TAG, "Null folder cursor for mailboxId %d", mailboxId);
+            return null;
+        }
+
+        Folder uiFolder = null;
+        try {
+            if (fc.moveToFirst()) {
+                uiFolder = new Folder(fc);
+            }
+        } finally {
+            fc.close();
+        }
+        return uiFolder;
     }
 
     static class AttachmentsCursor extends CursorWrapper {
@@ -3291,7 +3329,7 @@ public class EmailProvider extends ContentProvider {
                             genQueryMailboxMessages(uiProjection, unseenOnly), new String[] {id});
                 }
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
-                c = new VisibilityCursor(context, c, mailboxId);
+                c = new EmailConversationCursor(context, c, mailboxId);
                 break;
             case UI_MESSAGE:
                 MessageQuery qq = genQueryViewMessage(uiProjection, id);
