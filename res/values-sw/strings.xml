@@ -58,7 +58,7 @@
     <string name="close_action" msgid="533058985745238100">"Funga"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Tuma barua zote"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Chagua kiambatisho"</string>
-    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Sogeza hadi"</string>
+    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Hamisha hadi"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Inapakia ujumbe..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"Tatizo la kuunganisha."</string>
     <string name="error_loading_message_body" msgid="6775234299515596760">"Haikuweza kupakia ujumbe wa maandishi. Ujumbe unaweza kuwa kubwa mno kwa mtazamo."</string>
