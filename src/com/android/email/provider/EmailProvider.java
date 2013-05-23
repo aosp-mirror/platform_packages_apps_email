@@ -50,7 +50,6 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
-import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -3136,8 +3135,6 @@ public class EmailProvider extends ContentProvider {
             if (params.containsKey(setVisibilityKey)) {
                 final boolean visible = params.getBoolean(setVisibilityKey);
                 if (visible) {
-                    NotificationController.getInstance(mContext).cancelNewMessageNotification(
-                            mMailboxId);
                     if (params.containsKey(
                             UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
@@ -3669,17 +3666,9 @@ public class EmailProvider extends ContentProvider {
         final String id = uri.getPathSegments().get(1);
         final Uri[] folders = new Uri[numFolders];
         final Context context = getContext();
-        final NotificationController controller = NotificationController.getInstance(context);
         int i = 0;
-        for (final String uriString: values.keySet()) {
+        for (final String uriString : values.keySet()) {
             folders[i] = Uri.parse(uriString);
-            try {
-                final String mailboxIdString = folders[i].getLastPathSegment();
-                final long mailboxId = Long.parseLong(mailboxIdString);
-                controller.cancelNewMessageNotification(mailboxId);
-            } catch (NumberFormatException e) {
-                // Keep on going...
-            }
         }
         return updateTimestamp(context, id, folders);
     }
