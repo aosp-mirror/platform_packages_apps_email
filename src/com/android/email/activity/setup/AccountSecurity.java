@@ -225,6 +225,7 @@ public class AccountSecurity extends Activity {
                 Log.d(TAG, "Security active; clear holds");
             }
             Account.clearSecurityHoldOnAllAccounts(this);
+            security.syncAccount(account);
             security.clearNotification();
             finish();
             return;
@@ -282,6 +283,7 @@ public class AccountSecurity extends Activity {
             Log.d(TAG, "Policies enforced; clear holds");
         }
         Account.clearSecurityHoldOnAllAccounts(this);
+        security.syncAccount(account);
         security.clearNotification();
         finish();
     }
