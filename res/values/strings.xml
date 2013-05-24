@@ -1283,4 +1283,17 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
 
     <!-- Feedback uri to be used when feedback is enabled -->
     <string name="email_feedback_uri" translatable="false"></string>
+
+    <string name="account_manager_type_exchange" translatable="false">com.android.exchange</string>
+    <string name="account_manager_type_pop3" translatable="false">com.android.email</string>
+    <string name="account_manager_type_imap" translatable="false">com.android.email</string>
+    <string name="account_manager_type_legacy_imap" translatable="false">com.android.email</string>
+    <string name="intent_exchange" translatable="false">com.android.email.EXCHANGE_INTENT</string>
+    <string name="intent_account_manager_entry" translatable="false">com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY</string>
+    <string name="authority_email_provider" translatable="false">com.android.email.provider</string>
+    <string name="protocol_legacy_imap" translatable="false">imap</string>
+    <string name="protocol_imap" translatable="false">imap</string>
+    <string name="protocol_pop3" translatable="false">pop3</string>
+    <string name="protocol_eas" translatable="false">eas</string>
+    <string name="application_mime_type" translatable="false">application/email-ls</string>
 </resources>
