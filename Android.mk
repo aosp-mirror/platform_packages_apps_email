@@ -24,7 +24,7 @@ chips_dir := ../../../frameworks/ex/chips/res
 unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/opt/photoviewer/res
 emailcommon_dir := emailcommon
-res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir) $(emailcommon_dir)/res build/res
+res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir) $(emailcommon_dir)/res
 
 LOCAL_MODULE_TAGS := optional
 
