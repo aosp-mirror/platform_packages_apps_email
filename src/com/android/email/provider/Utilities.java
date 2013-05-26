@@ -21,7 +21,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.emailcommon.Logging;
@@ -35,6 +34,7 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.ConversionUtilities;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -158,13 +158,13 @@ public class Utilities {
                 context.getContentResolver().update(uri, cv, null, null);
 
             } catch (MessagingException me) {
-                Log.e(Logging.LOG_TAG, "Error while copying downloaded message." + me);
+                LogUtils.e(Logging.LOG_TAG, "Error while copying downloaded message." + me);
             }
 
         } catch (RuntimeException rte) {
-            Log.e(Logging.LOG_TAG, "Error while storing downloaded message." + rte.toString());
+            LogUtils.e(Logging.LOG_TAG, "Error while storing downloaded message." + rte.toString());
         } catch (IOException ioe) {
-            Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
+            LogUtils.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
         }
     }
 

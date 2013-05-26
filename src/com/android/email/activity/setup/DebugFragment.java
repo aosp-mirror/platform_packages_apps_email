@@ -19,7 +19,6 @@ package com.android.email.activity.setup;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,7 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
+import com.android.mail.utils.LogUtils;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
@@ -49,7 +49,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
         }
         View view = inflater.inflate(R.layout.debug, container, false);
 
@@ -134,7 +134,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         WebView webview = new WebView(getActivity());
         try {
             webview.clearCache(true);
-            Log.w(Logging.LOG_TAG, "Cleard WebView cache.");
+            LogUtils.w(Logging.LOG_TAG, "Cleard WebView cache.");
         } finally {
             webview.destroy();
         }

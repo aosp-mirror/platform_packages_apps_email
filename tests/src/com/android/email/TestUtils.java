@@ -23,7 +23,6 @@ import android.content.Context;
 import android.os.PowerManager;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -114,7 +113,7 @@ public class TestUtils extends TestCase /* It tests itself */ {
      * Wait until a {@code Condition} is met.
      */
     public static void waitUntil(String message, Condition condition, int timeoutSeconds) {
-        Log.d(Logging.LOG_TAG, message + ": Waiting...");
+        LogUtils.d(Logging.LOG_TAG, message + ": Waiting...");
         final long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
         while (System.currentTimeMillis() < timeout) {
             if (condition.isMet()) {

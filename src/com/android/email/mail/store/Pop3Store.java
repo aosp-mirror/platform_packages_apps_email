@@ -18,9 +18,7 @@ package com.android.email.mail.store;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.transport.MailTransport;
 import com.android.email2.ui.MailActivityEmail;
@@ -40,6 +38,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.james.mime4j.EOLConvertingInputStream;
@@ -216,7 +215,7 @@ public class Pop3Store extends Store {
                         mTransport.reopenTls();
                     } else {
                         if (MailActivityEmail.DEBUG) {
-                            Log.d(Logging.LOG_TAG, "TLS not supported but required");
+                            LogUtils.d(Logging.LOG_TAG, "TLS not supported but required");
                         }
                         throw new MessagingException(MessagingException.TLS_REQUIRED);
                     }
@@ -227,14 +226,14 @@ public class Pop3Store extends Store {
                     executeSensitiveCommand("PASS " + mPassword, "PASS /redacted/");
                 } catch (MessagingException me) {
                     if (MailActivityEmail.DEBUG) {
-                        Log.d(Logging.LOG_TAG, me.toString());
+                        LogUtils.d(Logging.LOG_TAG, me.toString());
                     }
                     throw new AuthenticationFailedException(null, me);
                 }
             } catch (IOException ioe) {
                 mTransport.close();
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ioe.toString());
+                    LogUtils.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException(MessagingException.IOERROR, ioe.toString());
             }
@@ -258,7 +257,7 @@ public class Pop3Store extends Store {
             if (statException != null) {
                 mTransport.close();
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, statException.toString());
+                    LogUtils.d(Logging.LOG_TAG, statException.toString());
                 }
                 throw new MessagingException("POP3 STAT", statException);
             }
@@ -329,7 +328,7 @@ public class Pop3Store extends Store {
                 } catch (IOException ioe) {
                     mTransport.close();
                     if (MailActivityEmail.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "Unable to index during getMessage " + ioe);
+                        LogUtils.d(Logging.LOG_TAG, "Unable to index during getMessage " + ioe);
                     }
                     throw new MessagingException("getMessages", ioe);
                 }
@@ -351,7 +350,7 @@ public class Pop3Store extends Store {
             } catch (IOException ioe) {
                 mTransport.close();
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ioe.toString());
+                    LogUtils.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException("getMessages", ioe);
             }
@@ -569,7 +568,7 @@ public class Pop3Store extends Store {
                         response = executeSimpleCommand(
                                 String.format(Locale.US, "RETR %d", messageId));
                     } catch (MessagingException e) {
-                        Log.w(Logging.LOG_TAG, "Can't read message " + messageId);
+                        LogUtils.w(Logging.LOG_TAG, "Can't read message " + messageId);
                     }
                 }
             }
@@ -660,7 +659,7 @@ public class Pop3Store extends Store {
             catch (IOException ioe) {
                 mTransport.close();
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ioe.toString());
+                    LogUtils.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw new MessagingException("setFlags()", ioe);
             }

@@ -19,11 +19,10 @@ package com.android.email;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -273,7 +272,7 @@ public class Preferences {
                 mTrustedSenders = parseEmailSet(mSharedPreferences.getString(TRUSTED_SENDERS, ""));
             } catch (JSONException e) {
                 // Something went wrong, and the data is corrupt. Just clear it to be safe.
-                Log.w(Logging.LOG_TAG, "Trusted sender set corrupted. Clearing");
+                LogUtils.w(Logging.LOG_TAG, "Trusted sender set corrupted. Clearing");
                 mSharedPreferences.edit().putString(TRUSTED_SENDERS, "").apply();
                 mTrustedSenders = new HashSet<String>();
             }
@@ -348,8 +347,7 @@ public class Preferences {
      * It should only be shown once per account.
      */
     public boolean getHasShownRequireManualSync(Context context, Account account) {
-        return getBoolean(context, account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN,
-                false);
+        return getBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, false);
     }
 
     /**
@@ -357,7 +355,7 @@ public class Preferences {
      * It should only be shown once per account.
      */
     public void setHasShownRequireManualSync(Context context, Account account, boolean value) {
-        setBoolean(context, account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
+        setBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
     }
 
 
@@ -378,7 +376,7 @@ public class Preferences {
     public void dump() {
         if (Logging.LOGD) {
             for (String key : mSharedPreferences.getAll().keySet()) {
-                Log.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
+                LogUtils.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }
         }
     }
@@ -386,21 +384,21 @@ public class Preferences {
     /**
      * Utility method for setting a boolean value on a per-account preference.
      */
-    private void setBoolean(Context context, String account, String key, Boolean value) {
+    private void setBoolean(String account, String key, Boolean value) {
         mSharedPreferences.edit().putBoolean(makeKey(account, key), value).apply();
     }
 
     /**
      * Utility method for getting a boolean value from a per-account preference.
      */
-    private boolean getBoolean(Context context, String account, String key, boolean def) {
+    private boolean getBoolean(String account, String key, boolean def) {
         return mSharedPreferences.getBoolean(makeKey(account, key), def);
     }
 
     /**
      * Utility method for creating a per account preference key.
      */
-    private String makeKey(String account, String key) {
+    private static String makeKey(String account, String key) {
         return account != null ? account + "-" + key : key;
     }
 }

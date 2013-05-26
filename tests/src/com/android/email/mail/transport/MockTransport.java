@@ -18,8 +18,6 @@ package com.android.email.mail.transport;
 
 import com.android.email.mail.Transport;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -296,12 +294,12 @@ public class MockTransport implements Transport {
         }
         if (mQueuedInput.size() == 0) {
             // MailTransport returns "" at EOS.
-            Log.w(LOG_TAG, "Underflow reading from MockTransport");
+            LogUtils.w(LOG_TAG, "Underflow reading from MockTransport");
             return "";
         }
         String line = mQueuedInput.remove(0);
         if (DEBUG_LOG_STREAMS) {
-            Log.d(LOG_TAG, "<<< " + line);
+            LogUtils.d(LOG_TAG, "<<< " + line);
         }
         if (SPECIAL_RESPONSE_IOEXCEPTION.equals(line)) {
             throw new IOException("Expected IOException.");
@@ -339,7 +337,7 @@ public class MockTransport implements Transport {
     @Override
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
         if (DEBUG_LOG_STREAMS) {
-            Log.d(LOG_TAG, ">>> " + s);
+            LogUtils.d(LOG_TAG, ">>> " + s);
         }
         SmtpSenderUnitTests.assertTrue(mOpen);
         SmtpSenderUnitTests.assertTrue("Overflow writing to MockTransport: Getting " + s,

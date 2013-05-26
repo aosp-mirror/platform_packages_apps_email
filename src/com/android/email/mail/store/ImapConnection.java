@@ -17,7 +17,6 @@
 package com.android.email.mail.store;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.imap.ImapConstants;
@@ -32,6 +31,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ class ImapConnection {
             mImapStore.ensurePrefixIsValid();
         } catch (SSLException e) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, e.toString());
+                LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
@@ -153,7 +153,7 @@ class ImapConnection {
             // of other code here that catches IOException and I don't want to break it.
             // This catch is only here to enhance logging of connection-time issues.
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, ioe.toString());
+                LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw ioe;
         } finally {
@@ -390,7 +390,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
@@ -415,7 +415,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
@@ -446,7 +446,7 @@ class ImapConnection {
             executeSimpleCommand(mLoginPhrase, true);
         } catch (ImapException ie) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, ie.toString());
+                LogUtils.d(Logging.LOG_TAG, ie.toString());
             }
             throw new AuthenticationFailedException(ie.getAlertText(), ie);
 
@@ -470,7 +470,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie.toString());
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
@@ -502,7 +502,7 @@ class ImapConnection {
                 return(queryCapabilities());
             } else {
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(Logging.LOG_TAG, "TLS not supported but required");
+                    LogUtils.d(Logging.LOG_TAG, "TLS not supported but required");
                 }
                 throw new MessagingException(MessagingException.TLS_REQUIRED);
             }

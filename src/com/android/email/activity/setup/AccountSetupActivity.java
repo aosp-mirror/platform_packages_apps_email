@@ -18,7 +18,8 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+
+import com.android.mail.utils.LogUtils;
 
 /**
  * Superclass of all of the account setup activities; ensures that SetupData state is saved/restored
@@ -32,7 +33,7 @@ public class AccountSetupActivity extends Activity {
         SetupData.restore(savedInstanceState);
         super.onCreate(savedInstanceState);
         if (DEBUG_SETUP_FLOWS) {
-            Log.d(getClass().getName(), SetupData.debugString());
+            LogUtils.d(getClass().getName(), SetupData.debugString());
         }
     }
 

@@ -23,10 +23,10 @@ import android.database.CursorWindow;
 import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 import android.util.LruCache;
 
 import com.android.email2.ui.MailActivityEmail;
+import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -186,7 +186,7 @@ public final class ContentCache {
 
         /*package*/ int invalidateTokens(String id) {
             if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
-                Log.d(mLogTag, "============ Invalidate tokens for: " + id);
+                LogUtils.d(mLogTag, "============ Invalidate tokens for: " + id);
             }
             ArrayList<CacheToken> removeList = new ArrayList<CacheToken>();
             int count = 0;
@@ -205,7 +205,7 @@ public final class ContentCache {
 
         /*package*/ void invalidate() {
             if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
-                Log.d(mLogTag, "============ List invalidated");
+                LogUtils.d(mLogTag, "============ List invalidated");
             }
             for (CacheToken token: this) {
                 token.invalidate();
@@ -217,9 +217,9 @@ public final class ContentCache {
             boolean result = super.remove(token);
             if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
                 if (result) {
-                    Log.d(mLogTag, "============ Removing token for: " + token.mId);
+                    LogUtils.d(mLogTag, "============ Removing token for: " + token.mId);
                 } else {
-                    Log.d(mLogTag, "============ No token found for: " + token.mId);
+                    LogUtils.d(mLogTag, "============ No token found for: " + token.mId);
                 }
             }
             return result;
@@ -229,7 +229,7 @@ public final class ContentCache {
             CacheToken token = new CacheToken(id);
             super.add(token);
             if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
-                Log.d(mLogTag, "============ Taking token for: " + token.mId);
+                LogUtils.d(mLogTag, "============ Taking token for: " + token.mId);
             }
             return token;
         }
@@ -484,14 +484,14 @@ public final class ContentCache {
         try {
             if (!token.isValid()) {
                 if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
-                    Log.d(mLogTag, "============ Stale token for " + id);
+                    LogUtils.d(mLogTag, "============ Stale token for " + id);
                 }
                 mStats.mStaleCount++;
                 return c;
             }
             if (c != null && Arrays.equals(projection, mBaseProjection) && !sLockCache) {
                 if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
-                    Log.d(mLogTag, "============ Caching cursor for: " + id);
+                    LogUtils.d(mLogTag, "============ Caching cursor for: " + id);
                 }
                 // If we've already cached this cursor, invalidate the older one
                 Cursor existingCursor = get(id);
@@ -596,7 +596,7 @@ public final class ContentCache {
         // Invalidate current tokens
         int count = mTokenList.invalidateTokens(id);
         if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
-            Log.d(mTokenList.mLogTag, "============ Lock invalidated " + count +
+            LogUtils.d(mTokenList.mLogTag, "============ Lock invalidated " + count +
                     " tokens for: " + id);
         }
     }
@@ -633,13 +633,13 @@ public final class ContentCache {
         Cursor c = get(id);
         if (c != null) {
             if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
-                Log.d(mLogTag, "=========== Unlocking cache for: " + id);
+                LogUtils.d(mLogTag, "=========== Unlocking cache for: " + id);
             }
             if (values != null && !sLockCache) {
                 MatrixCursor cursor = getMatrixCursor(id, mBaseProjection, values);
                 if (cursor != null) {
                     if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
-                        Log.d(mLogTag, "=========== Recaching with new values: " + id);
+                        LogUtils.d(mLogTag, "=========== Recaching with new values: " + id);
                     }
                     cursor.moveToFirst();
                     mLruCache.put(id, cursor);
@@ -676,7 +676,7 @@ public final class ContentCache {
      */
     public synchronized void invalidate(String operation, Uri uri, String selection) {
         if (DEBUG_CACHE && (operation != null)) {
-            Log.d(mLogTag, "============ INVALIDATED BY " + operation + ": " + uri +
+            LogUtils.d(mLogTag, "============ INVALIDATED BY " + operation + ": " + uri +
                     ", SELECTION: " + selection);
         }
         mStats.mInvalidateCount++;
@@ -740,7 +740,7 @@ public final class ContentCache {
         }
         Arrays.sort(array);
         for (CacheCounter cc: array) {
-            Log.d("NotCacheable", cc.count + ": " + cc.uri);
+            LogUtils.d("NotCacheable", cc.count + ": " + cc.uri);
         }
     }
 
@@ -842,10 +842,10 @@ public final class ContentCache {
 
         for (ContentCache cache: sContentCaches) {
             if (cache != null) {
-                Log.d(cache.mName, cache.mStats.toString());
+                LogUtils.d(cache.mName, cache.mStats.toString());
                 totals.addCacheStatistics(cache);
             }
         }
-        Log.d(totals.mName, totals.toString());
+        LogUtils.d(totals.mName, totals.toString());
     }
 }

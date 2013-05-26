@@ -28,10 +28,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -41,7 +39,6 @@ import android.widget.Spinner;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
-import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.service.MailService;
@@ -53,17 +50,11 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.preferences.AccountPreferences;
-import com.android.mail.preferences.FolderPreferences;
-import com.android.mail.providers.Folder;
-import com.android.mail.providers.UIProvider;
-import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
-    private static final String LOG_TAG = LogTag.getLogTag();
-
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
     private CheckBox mDefaultView;
@@ -301,11 +292,11 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 });
                 return;
             } catch (OperationCanceledException e) {
-                Log.d(Logging.LOG_TAG, "addAccount was canceled");
+                LogUtils.d(Logging.LOG_TAG, "addAccount was canceled");
             } catch (IOException e) {
-                Log.d(Logging.LOG_TAG, "addAccount failed: " + e);
+                LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
             } catch (AuthenticatorException e) {
-                Log.d(Logging.LOG_TAG, "addAccount failed: " + e);
+                LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
             }
             showErrorDialog(R.string.account_setup_failed_dlg_auth_message,
                     R.string.system_account_create_failed);

@@ -24,12 +24,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
     /**
@@ -336,10 +336,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             if (c.moveToFirst()) {
                 mailbox = getContent(c, Mailbox.class);
                 if (c.moveToNext()) {
-                    Log.w(Logging.LOG_TAG, "Multiple mailboxes named \"" + path + "\"");
+                    LogUtils.w(Logging.LOG_TAG, "Multiple mailboxes named \"" + path + "\"");
                 }
             } else {
-                Log.i(Logging.LOG_TAG, "Could not find mailbox at \"" + path + "\"");
+                LogUtils.i(Logging.LOG_TAG, "Could not find mailbox at \"" + path + "\"");
             }
             return mailbox;
         } finally {

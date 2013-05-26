@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.EditText;
 
 import com.android.email.R;
@@ -31,13 +30,11 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
-
-import java.io.Serializable;
 
 public class AccountSettingsUtils {
 
@@ -146,7 +143,7 @@ public class AccountSettingsUtils {
                             provider.note = getXmlAttribute(context, xml, "note");
                         }
                     } catch (IllegalArgumentException e) {
-                        Log.w(Logging.LOG_TAG, "providers line: " + xml.getLineNumber() +
+                        LogUtils.w(Logging.LOG_TAG, "providers line: " + xml.getLineNumber() +
                                 "; Domain contains multiple globals");
                     }
                 }
@@ -170,7 +167,7 @@ public class AccountSettingsUtils {
             }
         }
         catch (Exception e) {
-            Log.e(Logging.LOG_TAG, "Error while trying to load provider settings.", e);
+            LogUtils.e(Logging.LOG_TAG, "Error while trying to load provider settings.", e);
         }
         return null;
     }

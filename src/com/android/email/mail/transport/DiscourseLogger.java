@@ -17,8 +17,7 @@
 package com.android.email.mail.transport;
 
 import com.android.emailcommon.Logging;
-
-import android.util.Log;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 
@@ -111,9 +110,9 @@ public class DiscourseLogger {
             return;
         }
 
-        Log.w(Logging.LOG_TAG, "Last network activities:");
+        LogUtils.w(Logging.LOG_TAG, "Last network activities:");
         for (String r : getLines()) {
-            Log.w(Logging.LOG_TAG, r);
+            LogUtils.w(Logging.LOG_TAG, r);
         }
         initBuffer();
     }

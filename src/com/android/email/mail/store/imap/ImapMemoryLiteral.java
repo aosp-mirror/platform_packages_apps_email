@@ -19,8 +19,7 @@ package com.android.email.mail.store.imap;
 import com.android.email.FixedLengthInputStream;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.Utility;
-
-import android.util.Log;
+import com.android.mail.utils.LogUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class ImapMemoryLiteral extends ImapString {
             pos += read;
         }
         if (pos != mData.length) {
-            Log.w(Logging.LOG_TAG, "");
+            LogUtils.w(Logging.LOG_TAG, "");
         }
     }
 

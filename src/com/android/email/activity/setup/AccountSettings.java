@@ -35,7 +35,6 @@ import android.preference.PreferenceActivity;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +52,7 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
+import com.android.mail.utils.LogUtils;
 
 import java.util.List;
 
@@ -656,7 +656,7 @@ public class AccountSettings extends PreferenceActivity {
             startPreferencePanel(AccountSettingsEditQuickResponsesFragment.class.getName(), args,
                     R.string.account_settings_edit_quick_responses_label, null, null, 0);
         } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "Error while trying to invoke edit quick responses.", e);
+            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke edit quick responses.", e);
         }
     }
 
@@ -670,7 +670,7 @@ public class AccountSettings extends PreferenceActivity {
                     AccountSetupIncomingFragment.getSettingsModeArgs(),
                     R.string.account_settings_incoming_label, null, null, 0);
         } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
+            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
     }
 
@@ -694,7 +694,7 @@ public class AccountSettings extends PreferenceActivity {
                 }
             }
         } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "Error while trying to invoke sender settings.", e);
+            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke sender settings.", e);
         }
     }
 

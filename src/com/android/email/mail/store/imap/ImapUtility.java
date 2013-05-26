@@ -17,8 +17,7 @@
 package com.android.email.mail.store.imap;
 
 import com.android.emailcommon.Logging;
-
-import android.util.Log;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 
@@ -76,7 +75,7 @@ public class ImapUtility {
                         Integer.parseInt(item); // Don't need the value; just ensure it's valid
                         list.add(item);
                     } catch (NumberFormatException e) {
-                        Log.d(Logging.LOG_TAG, "Invalid UID value", e);
+                        LogUtils.d(Logging.LOG_TAG, "Invalid UID value", e);
                     }
                 } else {
                     // range
@@ -119,7 +118,7 @@ public class ImapUtility {
                 }
             }
         } catch (NumberFormatException e) {
-            Log.d(Logging.LOG_TAG, "Invalid range value", e);
+            LogUtils.d(Logging.LOG_TAG, "Invalid range value", e);
         }
         String[] stringList = new String[list.size()];
         return list.toArray(stringList);

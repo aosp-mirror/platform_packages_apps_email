@@ -38,7 +38,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
-import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,7 +57,6 @@ import com.android.mail.utils.LogUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -755,7 +753,7 @@ public class Utility {
                     return false;
                 }
             } catch (RuntimeException re) {
-                Log.w(Logging.LOG_TAG, "attachmentExists RuntimeException=" + re);
+                LogUtils.w(Logging.LOG_TAG, "attachmentExists RuntimeException=" + re);
                 return false;
             }
         }
@@ -781,7 +779,7 @@ public class Utility {
                 // alternative.  In theory, this situation shouldn't be possible.
                 if ((att.mFlags & (Attachment.FLAG_DOWNLOAD_FORWARD |
                         Attachment.FLAG_DOWNLOAD_USER_REQUEST)) == 0) {
-                    Log.d(Logging.LOG_TAG, "Unloaded attachment isn't marked for download: " +
+                    LogUtils.d(Logging.LOG_TAG, "Unloaded attachment isn't marked for download: " +
                             att.mFileName + ", #" + att.mId);
                     Account acct = Account.restoreAccountWithId(context, msg.mAccountKey);
                     if (acct == null) return true;
@@ -1027,10 +1025,10 @@ public class Utility {
                 return;
             }
             if (c.isClosed()) {
-                Log.w(Logging.LOG_TAG, "Cursor was closed here: Cursor=" + c,
+                LogUtils.w(Logging.LOG_TAG, "Cursor was closed here: Cursor=" + c,
                         getTraceIfAvailable(c));
             } else {
-                Log.w(Logging.LOG_TAG, "Cursor not closed.  Cursor=" + c);
+                LogUtils.w(Logging.LOG_TAG, "Cursor not closed.  Cursor=" + c);
             }
         }
 

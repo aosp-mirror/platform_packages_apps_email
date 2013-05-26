@@ -19,7 +19,6 @@ package com.android.email.mail.store;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64DataException;
-import android.util.Log;
 
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.ImapStore.ImapMessage;
@@ -49,6 +48,7 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.CountingOutputStream;
 import com.android.emailcommon.utility.EOLConvertingOutputStream;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
@@ -322,7 +322,7 @@ class ImapFolder extends Folder {
                     }
                 } catch (MessagingException e) {
                     // Log, but, don't abort; failures here don't need to be propagated
-                    Log.d(Logging.LOG_TAG, "Failed to find message", e);
+                    LogUtils.d(Logging.LOG_TAG, "Failed to find message", e);
                 } finally {
                     newFolder.close(false);
                 }
@@ -396,7 +396,7 @@ class ImapFolder extends Folder {
                 String command = ImapConstants.UID_SEARCH + " " + searchCriteria;
                 return getSearchUids(mConnection.executeSimpleCommand(command));
             } catch (ImapException e) {
-                Log.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria);
+                LogUtils.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria);
                 return Utility.EMPTY_STRINGS; // not found;
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -514,7 +514,7 @@ class ImapFolder extends Folder {
         try {
             fetchInternal(messages, fp, listener);
         } catch (RuntimeException e) { // Probably a parser error.
-            Log.w(Logging.LOG_TAG, "Exception detected: " + e.getMessage());
+            LogUtils.w(Logging.LOG_TAG, "Exception detected: " + e.getMessage());
             if (mConnection != null) {
                 mConnection.logLastDiscourse();
             }
@@ -635,7 +635,7 @@ class ImapFolder extends Folder {
                                 parseBodyStructure(bs, message, ImapConstants.TEXT);
                             } catch (MessagingException e) {
                                 if (Logging.LOGD) {
-                                    Log.v(Logging.LOG_TAG, "Error handling message", e);
+                                    LogUtils.v(Logging.LOG_TAG, "Error handling message", e);
                                 }
                                 message.setBody(null);
                             }
@@ -1114,7 +1114,7 @@ class ImapFolder extends Folder {
 
     private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe) {
         if (MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
+            LogUtils.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
         }
         connection.close();
         if (connection == mConnection) {

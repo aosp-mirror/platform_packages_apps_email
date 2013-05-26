@@ -29,11 +29,11 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -139,7 +139,7 @@ public abstract class EmailContent {
                 EMAIL_PACKAGE_NAME = PACKAGE_NAME.substring(0, lastDot + 1) + "email";
             }
             AUTHORITY = EMAIL_PACKAGE_NAME + ".provider";
-            Log.d("EmailContent", "init for " + AUTHORITY);
+            LogUtils.d("EmailContent", "init for " + AUTHORITY);
             NOTIFIER_AUTHORITY = EMAIL_PACKAGE_NAME + ".notifier";
             CONTENT_URI = Uri.parse("content://" + AUTHORITY);
             CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
@@ -988,7 +988,7 @@ public abstract class EmailContent {
                                 u = results[resultIndex].uri;
                             } else {
                                 // We didn't find the expected attachment, log this error
-                                Log.e(LOG_TAG, "Invalid index into ContentProviderResults: " +
+                                LogUtils.e(LOG_TAG, "Invalid index into ContentProviderResults: " +
                                         resultIndex);
                                 u = null;
                             }
@@ -1331,7 +1331,7 @@ public abstract class EmailContent {
                     // Create a proper uri string using the actual provider
                     return ATTACHMENT_PROVIDER_URI_PREFIX + "/" + mContentUri.substring(prefix);
                 } else {
-                    Log.e("Attachment", "Improper contentUri format: " + mContentUri);
+                    LogUtils.e("Attachment", "Improper contentUri format: " + mContentUri);
                     // Belt & suspenders; can't really happen
                     return mContentUri;
                 }

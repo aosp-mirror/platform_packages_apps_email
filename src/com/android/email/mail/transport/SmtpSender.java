@@ -18,7 +18,6 @@ package com.android.email.mail.transport;
 
 import android.content.Context;
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.email.mail.Sender;
 import com.android.email2.ui.MailActivityEmail;
@@ -32,6 +31,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.EOLConvertingOutputStream;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -122,7 +122,7 @@ public class SmtpSender extends Sender {
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
                     if (MailActivityEmail.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "TLS not supported but required");
+                        LogUtils.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
                 }
@@ -144,19 +144,19 @@ public class SmtpSender extends Sender {
                 }
                 else {
                     if (MailActivityEmail.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
+                        LogUtils.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, e.toString());
+                LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, ioe.toString());
+                LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }

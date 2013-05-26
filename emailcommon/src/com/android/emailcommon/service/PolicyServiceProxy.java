@@ -19,10 +19,10 @@ package com.android.emailcommon.service;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Policy;
+import com.android.mail.utils.LogUtils;
 
 public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
@@ -40,6 +40,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         mService = IPolicyService.Stub.asInterface(binder);
     }
 
+    @Override
     public IBinder asBinder() {
         return null;
     }
@@ -47,13 +48,14 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     @Override
     public boolean isActive(final Policy arg0) throws RemoteException {
         setTask(new ProxyTask() {
+            @Override
             public void run() throws RemoteException {
                 mReturn = mService.isActive(arg0);
             }
         }, "isActive");
         waitForCompletion();
         if (DEBUG_PROXY) {
-            Log.v(TAG, "isActive: " + ((mReturn == null) ? "null" : mReturn));
+            LogUtils.v(TAG, "isActive: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
             throw new ServiceUnavailableException("isActive");
@@ -66,6 +68,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     public void setAccountPolicy(final long accountId, final Policy policy,
             final String securityKey) throws RemoteException {
         setTask(new ProxyTask() {
+            @Override
             public void run() throws RemoteException {
                 mService.setAccountPolicy(accountId, policy, securityKey);
             }
@@ -76,6 +79,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     @Override
     public void remoteWipe() throws RemoteException {
         setTask(new ProxyTask() {
+            @Override
             public void run() throws RemoteException {
                 mService.remoteWipe();
             }
@@ -85,6 +89,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     @Override
     public void setAccountHoldFlag(final long arg0, final boolean arg1) throws RemoteException {
         setTask(new ProxyTask() {
+            @Override
             public void run() throws RemoteException {
                 mService.setAccountHoldFlag(arg0, arg1);
             }

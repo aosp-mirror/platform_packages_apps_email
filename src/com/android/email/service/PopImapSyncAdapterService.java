@@ -29,7 +29,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.android.email.R;
 import com.android.emailcommon.TempDirectory;
@@ -40,6 +39,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 
@@ -113,7 +113,7 @@ public class PopImapSyncAdapterService extends Service {
                     new String[] {Long.toString(mailbox.mId)});
             return;
         }
-        Log.d(TAG, "Mailbox: " + mailbox.mDisplayName);
+        LogUtils.d(TAG, "Mailbox: " + mailbox.mDisplayName);
 
         Uri mailboxUri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         ContentValues values = new ContentValues();
@@ -168,7 +168,7 @@ public class PopImapSyncAdapterService extends Service {
                 Account acct = new Account();
                 acct.restore(c);
                 if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
-                    Log.d(TAG, "Upload sync request for " + acct.mDisplayName);
+                    LogUtils.d(TAG, "Upload sync request for " + acct.mDisplayName);
                     // See if any boxes have mail...
                     ArrayList<Long> mailboxesToUpdate;
                     Cursor updatesCursor = provider.query(Message.UPDATED_CONTENT_URI,
@@ -194,8 +194,8 @@ public class PopImapSyncAdapterService extends Service {
                         sync(context, mailboxId, syncResult, false, 0);
                     }
                 } else {
-                    Log.d(TAG, "Sync request for " + acct.mDisplayName);
-                    Log.d(TAG, extras.toString());
+                    LogUtils.d(TAG, "Sync request for " + acct.mDisplayName);
+                    LogUtils.d(TAG, extras.toString());
                     long mailboxId =
                             extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
                     boolean isInbox = false;

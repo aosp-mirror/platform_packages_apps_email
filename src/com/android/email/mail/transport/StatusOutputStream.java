@@ -17,8 +17,7 @@
 package com.android.email.mail.transport;
 
 import com.android.emailcommon.Logging;
-
-import android.util.Log;
+import com.android.mail.utils.LogUtils;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -26,7 +25,7 @@ import java.io.OutputStream;
 
 public class StatusOutputStream extends FilterOutputStream {
     private long mCount = 0;
-    
+
     public StatusOutputStream(OutputStream out) {
         super(out);
     }
@@ -37,7 +36,7 @@ public class StatusOutputStream extends FilterOutputStream {
         mCount++;
         if (Logging.LOGD) {
             if (mCount % 1024 == 0) {
-                Log.v(Logging.LOG_TAG, "# " + mCount);
+                LogUtils.v(Logging.LOG_TAG, "# " + mCount);
             }
         }
     }
