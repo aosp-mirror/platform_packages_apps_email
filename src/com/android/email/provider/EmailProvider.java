@@ -2848,9 +2848,10 @@ public class EmailProvider extends ContentProvider {
     }
 
     private Object[] getVirtualMailboxRow(long accountId, int mailboxType) {
-        String idString = getVirtualMailboxIdString(accountId, mailboxType);
+        final long id = getVirtualMailboxId(accountId, mailboxType);
+        final String idString = Long.toString(id);
         Object[] values = new Object[UIProvider.FOLDERS_PROJECTION.length];
-        values[UIProvider.FOLDER_ID_COLUMN] = 0;
+        values[UIProvider.FOLDER_ID_COLUMN] = id;
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
         values[UIProvider.FOLDER_NAME_COLUMN] =
                 Mailbox.getSystemMailboxName(getContext(), mailboxType);
@@ -2858,7 +2859,63 @@ public class EmailProvider extends ContentProvider {
         values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
                 idString);
-        values[UIProvider.FOLDER_ID_COLUMN] = 0;
+
+        // Do any special handling
+        final String accountIdString = Long.toString(accountId);
+        switch (mailboxType) {
+            case Mailbox.TYPE_INBOX:
+                if (accountId == COMBINED_ACCOUNT_ID) {
+                    // Add the unread count
+                    final int unreadCount = EmailContent.count(getContext(), Message.CONTENT_URI,
+                            MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID
+                            + " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE
+                            + "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0",
+                            null);
+                    values[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = unreadCount;
+                }
+                // Add the icon
+                values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox;
+                break;
+            case Mailbox.TYPE_ALL_UNREAD: {
+                // Add the unread count
+                final String accountKeyClause;
+                final String[] whereArgs;
+                if (accountId == COMBINED_ACCOUNT_ID) {
+                    accountKeyClause = "";
+                    whereArgs = null;
+                } else {
+                    accountKeyClause = MessageColumns.ACCOUNT_KEY + "= ? AND ";
+                    whereArgs = new String[] { accountIdString };
+                }
+                final int unreadCount = EmailContent.count(getContext(), Message.CONTENT_URI,
+                        accountKeyClause + MessageColumns.FLAG_READ + "=0 AND "
+                        + MessageColumns.MAILBOX_KEY + " NOT IN (SELECT " + MailboxColumns.ID
+                        + " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE + "="
+                        + Mailbox.TYPE_TRASH + ")", whereArgs);
+                values[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = unreadCount;
+                // Add the icon
+                values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
+                break;
+            } case Mailbox.TYPE_STARRED: {
+                // Add the starred count as the unread count
+                final String accountKeyClause;
+                final String[] whereArgs;
+                if (accountId == COMBINED_ACCOUNT_ID) {
+                    accountKeyClause = "";
+                    whereArgs = null;
+                } else {
+                    accountKeyClause = MessageColumns.ACCOUNT_KEY + "= ? AND ";
+                    whereArgs = new String[] { accountIdString };
+                }
+                final int starredCount = EmailContent.count(getContext(), Message.CONTENT_URI,
+                        accountKeyClause + MessageColumns.FLAG_FAVORITE + "=1", whereArgs);
+                values[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = starredCount;
+                // Add the icon
+                values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_star;
+                break;
+            }
+        }
+
         return values;
     }
 
@@ -2987,53 +3044,24 @@ public class EmailProvider extends ContentProvider {
         String id = uri.getPathSegments().get(1);
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
             MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 3);
-            int count;
             Object[] row;
-            count = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.MAILBOX_KEY + " IN (SELECT " + MailboxColumns.ID +
-                   " FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.TYPE +
-                   "=" + Mailbox.TYPE_INBOX + ") AND " + MessageColumns.FLAG_READ + "=0", null);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox;
             mc.addRow(row);
-            count = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.FLAG_FAVORITE + "=1", null);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_star;
             mc.addRow(row);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_ALL_UNREAD);
-            count = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
-                    " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
-                    " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = count;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
             mc.addRow(row);
             return mc;
         } else {
             Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
             c = getFolderListCursor(db, c, uiProjection);
-            int numStarred = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.FLAG_FAVORITE + "=1",
-                    new String[] {id});
             // Add starred virtual folder to the cursor
             // Show number of messages as unread count (for backward compatibility)
             MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection, 2);
             final long acctId = Long.parseLong(id);
             Object[] row = getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numStarred;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_star;
             mc.addRow(row);
             row = getVirtualMailboxRow(acctId, Mailbox.TYPE_ALL_UNREAD);
-            int numUnread  = EmailContent.count(context, Message.CONTENT_URI,
-                    MessageColumns.ACCOUNT_KEY + "=" + id + " AND " +
-                    MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
-                    " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
-                    " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")", null);
-            row[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = numUnread;
-            row[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
             mc.addRow(row);
 
             mc.setNotificationUri(context.getContentResolver(), uri);
