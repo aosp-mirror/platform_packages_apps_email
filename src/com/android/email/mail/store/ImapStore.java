@@ -330,11 +330,14 @@ public class ImapStore extends Store {
      * @param mailboxPath The path of the mailbox to add
      * @param delimiter A path delimiter. May be {@code null} if there is no delimiter.
      * @param selectable If {@code true}, the mailbox can be selected and used to store messages.
+     * @param mailbox If not null, mailbox is used instead of querying for the Mailbox.
      */
     private ImapFolder addMailbox(Context context, long accountId, String mailboxPath,
-            char delimiter, boolean selectable) {
+            char delimiter, boolean selectable, Mailbox mailbox) {
         ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
-        Mailbox mailbox = Mailbox.getMailboxForPath(context, accountId, mailboxPath);
+        if (mailbox == null) {
+            mailbox = Mailbox.getMailboxForPath(context, accountId, mailboxPath);
+        }
         if (mailbox.isSaved()) {
             // existing mailbox
             // mailbox retrieved from database; save hash _before_ updating fields
@@ -384,7 +387,7 @@ public class ImapStore extends Store {
                     if (encodedFolder.isEmpty()) continue;
 
                     String folderName = decodeFolderName(encodedFolder.getString(), mPathPrefix);
-                    // TODO: Can this special case be eliminated?
+
                     if (ImapConstants.INBOX.equalsIgnoreCase(folderName)) continue;
 
                     // Parse attributes.
@@ -395,17 +398,18 @@ public class ImapStore extends Store {
                     if (!TextUtils.isEmpty(delimiter)) {
                         delimiterChar = delimiter.charAt(0);
                     }
-                    ImapFolder folder =
-                        addMailbox(mContext, mAccount.mId, folderName, delimiterChar, selectable);
+                    ImapFolder folder = addMailbox(
+                            mContext, mAccount.mId, folderName, delimiterChar, selectable, null);
                     mailboxes.put(folderName, folder);
                 }
             }
 
             // In order to properly map INBOX -> Inbox, handle it as a special case.
-            String inboxName = Mailbox.getSystemMailboxName(mContext, Mailbox.TYPE_INBOX);
-            Folder newFolder =
-                addMailbox(mContext, mAccount.mId, inboxName, '\0', true /*selectable*/);
-            mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
+            final Mailbox inbox =
+                    Mailbox.restoreMailboxOfType(mContext, mAccount.mId, Mailbox.TYPE_INBOX);
+            final ImapFolder newFolder = addMailbox(
+                    mContext, mAccount.mId, inbox.mServerId, '\0', true /*selectable*/, inbox);
+            mailboxes.put(ImapConstants.INBOX, newFolder);
 
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);
