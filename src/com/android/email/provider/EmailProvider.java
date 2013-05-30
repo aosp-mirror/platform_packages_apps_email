@@ -38,6 +38,7 @@ import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -4329,38 +4330,42 @@ public class EmailProvider extends ContentProvider {
 
     private void runSearchQuery(final Context context, final long accountId,
             final long searchMailboxId) {
-        // Start the search running in the background
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                 try {
-                    EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                            mServiceCallback, accountId);
-                    if (service != null) {
-                        try {
-                            // Save away the total count
-                            mSearchParams.mTotalCount = service.searchMessages(accountId,
-                                    mSearchParams, searchMailboxId);
-                            //Log.d(TAG, "TotalCount to UI: " + mSearchParams.mTotalCount);
-                            notifyUIFolder(searchMailboxId, accountId);
-                        } catch (RemoteException e) {
-                            Log.e("searchMessages", "RemoteException", e);
-                        }
-                    }
-                } finally {
-                }
-            }}).start();
+        LogUtils.d(TAG, "runSearchQuery. account: %d mailbox id: %d",
+                accountId, searchMailboxId);
 
+        // Start the search running in the background
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            public Void doInBackground(Void... params) {
+                final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
+                        context, mServiceCallback, accountId);
+                if (service != null) {
+                    try {
+                        // Save away the total count
+                        mSearchParams.mTotalCount =
+                                service.searchMessages(accountId, mSearchParams, searchMailboxId);
+                        LogUtils.d(TAG, "EmailProvider#runSearchQuery. TotalCount to UI: %d",
+                                mSearchParams.mTotalCount);
+                        notifyUIFolder(searchMailboxId, accountId);
+                    } catch (RemoteException e) {
+                        Log.e("searchMessages", "RemoteException", e);
+                    }
+                }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     // TODO: Handle searching for more...
     private Cursor uiSearch(Uri uri, String[] projection) {
+        LogUtils.d(TAG, "runSearchQuery in search %s", uri);
         final long accountId = Long.parseLong(uri.getLastPathSegment());
 
         // TODO: Check the actual mailbox
         Mailbox inbox = Mailbox.restoreMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
         if (inbox == null) {
             Log.w(Logging.LOG_TAG, "In uiSearch, inbox doesn't exist for account " + accountId);
+
             return null;
         }
 
@@ -4377,11 +4382,13 @@ public class EmailProvider extends ContentProvider {
 
         final Context context = getContext();
         if (mSearchParams.mOffset == 0) {
+            LogUtils.d(TAG, "deleting existing search results.");
+
             // Delete existing contents of search mailbox
             ContentResolver resolver = context.getContentResolver();
             resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
                     null);
-            ContentValues cv = new ContentValues();
+            final ContentValues cv = new ContentValues();
             // For now, use the actual query as the name of the mailbox
             cv.put(Mailbox.DISPLAY_NAME, mSearchParams.mFilter);
             resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
