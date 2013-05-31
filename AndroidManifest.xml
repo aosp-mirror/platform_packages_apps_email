@@ -321,6 +321,17 @@
             android:theme="@style/PhotoViewTheme" >
         </activity>
 
+        <activity
+                android:name="com.android.mail.browse.EmlViewerActivity"
+                android:label="@string/app_name"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="message/rfc822" />
+            </intent-filter>
+        </activity>
+
         <!-- additional activities -->
 
         <provider
