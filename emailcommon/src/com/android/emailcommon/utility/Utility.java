@@ -212,34 +212,6 @@ public class Utility {
     }
 
     /**
-     * Ensures that the given string starts and ends with the double quote character. The string is
-     * not modified in any way except to add the double quote character to start and end if it's not
-     * already there.
-     *
-     * TODO: Rename this, because "quoteString()" can mean so many different things.
-     *
-     * sample -> "sample"
-     * "sample" -> "sample"
-     * ""sample"" -> "sample"
-     * "sample"" -> "sample"
-     * sa"mp"le -> "sa"mp"le"
-     * "sa"mp"le" -> "sa"mp"le"
-     * (empty string) -> ""
-     * " -> ""
-     */
-    public static String quoteString(String s) {
-        if (s == null) {
-            return null;
-        }
-        if (!s.matches("^\".*\"$")) {
-            return "\"" + s + "\"";
-        }
-        else {
-            return s;
-        }
-    }
-
-    /**
      * A fast version of  URLDecoder.decode() that works only with UTF-8 and does only two
      * allocations. This version is around 3x as fast as the standard one and I'm using it
      * hundreds of times in places that slow down the UI, so it helps.

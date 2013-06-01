@@ -25,9 +25,6 @@ unified_email_src_dir := ../../UnifiedEmail/src
 apache_src_dir := ../../UnifiedEmail/src/org
 
 imported_unified_email_files := \
-        $(unified_email_unified_src_dir)/com/android/mail/utils/LogTag.java \
-        $(unified_email_src_dir)/com/android/mail/preferences/BasePreferenceMigrator.java \
-        $(unified_email_unified_src_dir)/com/android/mail/preferences/PreferenceMigrator.java \
         $(unified_email_src_dir)/com/android/mail/utils/LogUtils.java \
         $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
 
@@ -41,6 +38,7 @@ LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IAccountService.aidl
 LOCAL_SRC_FILES += $(call all-java-files-under, $(apache_src_dir))
 LOCAL_SRC_FILES += $(imported_unified_email_files)
+LOCAL_SRC_FILES += $(call all-java-files-under, $(unified_email_src_dir)/com/android/emailcommon)
 
 LOCAL_SDK_VERSION := 14
 
