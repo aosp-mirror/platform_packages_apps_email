@@ -13,7 +13,7 @@
     <string name="summary_subtitle_paused_low_battery" msgid="7030423720574078362">"电量不足"</string>
     <string name="summary_subtitle_paused_photos_quota" msgid="3057279018089658614">"超出照片配额"</string>
     <string name="summary_subtitle_paused_roaming" msgid="974863046888934062">"正在漫游"</string>
-    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"正在等待建立 WiFi 连接"</string>
+    <string name="summary_subtitle_paused_need_wifi" msgid="2264018871872109546">"正在等待建立 WLAN 连接"</string>
     <string name="summary_subtitle_paused_need_charger" msgid="3256171133661659691">"充电时继续"</string>
     <string name="summary_subtitle_paused_need_network" msgid="1922651711990030201">"正在等待建立连接"</string>
     <string name="summary_subtitle_paused_retry_format" msgid="3851931944505090119">"将于 %s后重新尝试"</string>
@@ -40,7 +40,7 @@
     <string name="toast_failed_auth" msgid="2196450105656960566">"登录帐户时出现问题。"</string>
     <string name="upload_state_queued" msgid="3990598443227105526"></string>
     <string name="upload_state_waiting_retry" msgid="471790705731784779">"正在等待重新尝试"</string>
-    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"正在等待建立 WiFi 连接"</string>
+    <string name="upload_state_waiting_wifi" msgid="234662717256366625">"正在等待建立 WLAN 连接"</string>
     <string name="upload_state_uploading" msgid="82854465974176047">"正在上传"</string>
     <string name="upload_state_failed" msgid="3799932718800848294">"失败"</string>
     <string name="upload_state_completed" msgid="5638163990418071018">"已完成"</string>
@@ -50,7 +50,7 @@
     <string name="pause_state_need_charger" msgid="5014741655713255815">"已暂停 - 充电时继续"</string>
     <string name="pause_state_need_connectivity" msgid="338696137467815955">"已暂停 - 正在等待建立连接"</string>
     <string name="pause_state_need_photos_quota" msgid="4026149712680343993">"已暂停 - Picasa 网络相册配额不足"</string>
-    <string name="pause_state_need_wifi" msgid="231858819136516913">"已暂停 - 正在等待建立 WiFi 连接"</string>
+    <string name="pause_state_need_wifi" msgid="231858819136516913">"已暂停 - 正在等待建立 WLAN 连接"</string>
     <string name="pause_state_roaming" msgid="1811348200068311099">"已暂停 - 正在漫游"</string>
     <string name="pause_state_retrying" msgid="3734440128828177639">"正在等待重新尝试"</string>
     <string name="retry_in_1min" msgid="2242454935194420914">"1 分钟"</string>
@@ -80,7 +80,7 @@
     <string name="notify_resolved" msgid="8111194870485485674">"已上传完毕"</string>
     <string name="notify_paused" msgid="3999817913227671338">"上传已暂停"</string>
     <string name="notify_activation_reminder" msgid="1639234651193843030">"尚未激活“即时上传”"</string>
-    <string name="dialog_first_wifi" msgid="4318047428346248089">"大文件只能通过 WiFi 连接上传。"</string>
+    <string name="dialog_first_wifi" msgid="4318047428346248089">"大文件只能通过 WLAN 连接上传。"</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"正在扫描文件..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"正在准备上传 <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> 张照片和 <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> 段视频..."</string>
     <string name="dialog_sync_all_found_none" msgid="4066988191364416995">"没有需要上传的其他照片/视频。"</string>
@@ -93,8 +93,8 @@
     <string name="preference_title_pause_all_uploads" msgid="4188909974244266321">"暂停所有上传"</string>
     <string name="preference_title_need_power" msgid="9165152026296632685">"充电"</string>
     <string name="preference_summary_need_power" msgid="1829578224249216151">"仅在手机充电时上传。"</string>
-    <string name="preference_title_need_wifi" msgid="2398468701949227352">"Wi-Fi"</string>
-    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"仅在建立 Wi-Fi 连接时上传。"</string>
+    <string name="preference_title_need_wifi" msgid="2398468701949227352">"WLAN"</string>
+    <string name="preference_summary_need_wifi" msgid="4627730244549568487">"仅在建立 WLAN 连接时上传。"</string>
     <string name="preference_category_title_photos" msgid="8558221017057440259">"照片"</string>
     <string name="preference_title_photos_account" msgid="1235191190019405102">"帐户"</string>
     <string name="preference_title_photos_upload_connectivity" msgid="8026800699913042033">"上传条件"</string>
@@ -106,7 +106,7 @@
     <string name="preference_title_videos_upload_connectivity_summary" msgid="2228943790654186152">"目前采用照片的连接设置。"</string>
     <string name="preference_mobile_data_usage_for_photos_only" msgid="8047534381344601018">"通过移动网络上传的内容仅限照片"</string>
     <string name="preference_mobile_data_usage_for_all_media" msgid="4228623171763750182">"通过移动网络上传照片和视频"</string>
-    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"仅通过 Wi-Fi 上传照片和视频"</string>
+    <string name="preference_mobile_data_usage_never" msgid="4887062654163669480">"仅通过 WLAN 上传照片和视频"</string>
     <string name="preference_category_title_about" msgid="3001183168471659844">"关于"</string>
     <string name="preference_title_camera_sync_version" msgid="1590760570503808392">"“即时上传”版本"</string>
     <string name="photos_upload_dimension_1600" msgid="2261848079760937674">"推荐：1600 像素（用于分享、打印和屏幕保护程序）"</string>
