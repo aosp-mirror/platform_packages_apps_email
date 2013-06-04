@@ -25,7 +25,6 @@ import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
@@ -36,7 +35,6 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.ConversionUtilities;
-import com.android.mail.providers.Attachment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -117,7 +115,17 @@ public class Utilities {
                 ArrayList<Part> attachments = new ArrayList<Part>();
                 MimeUtility.collectParts(message, viewables, attachments);
 
-                ConversionUtilities.updateBodyFields(body, localMessage, viewables);
+                final ConversionUtilities.BodyFieldData data =
+                        ConversionUtilities.parseBodyFields(viewables);
+
+                // set body and local message values
+                localMessage.setFlags(data.isQuotedReply, data.isQuotedForward);
+                localMessage.mSnippet = data.snippet;
+                body.mTextContent = data.textContent;
+                body.mHtmlContent = data.htmlContent;
+                body.mHtmlReply = data.htmlReply;
+                body.mTextReply = data.textReply;
+                body.mIntroText = data.introText;
 
                 // Commit the message & body to the local store immediately
                 saveOrUpdate(localMessage, context);
