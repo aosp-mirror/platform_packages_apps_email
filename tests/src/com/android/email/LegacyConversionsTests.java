@@ -183,9 +183,9 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         viewables.add(emptyTextPart);
 
         // a "null" body part of type text/plain should result in a null mTextContent
-        boolean result = ConversionUtilities.updateBodyFields(localBody, localMessage, viewables);
-        assertTrue(result);
-        assertNull(localBody.mTextContent);
+        final BodyFieldData data =
+                ConversionUtilities.parseBodyFields(viewables);
+        assertNull(data.textContent);
     }
 
     /**
