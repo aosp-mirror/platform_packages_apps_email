@@ -1150,6 +1150,16 @@ public abstract class EmailContent {
             }
             return selection.toString();
         }
+
+        public void setFlags(boolean quotedReply, boolean quotedForward) {
+            // Set message flags as well
+            if (quotedReply || quotedForward) {
+                mFlags &= ~EmailContent.Message.FLAG_TYPE_MASK;
+                mFlags |= quotedReply
+                        ? EmailContent.Message.FLAG_TYPE_REPLY
+                        : EmailContent.Message.FLAG_TYPE_FORWARD;
+            }
+        }
     }
 
     public interface AttachmentColumns {
