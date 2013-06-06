@@ -2350,6 +2350,7 @@ public class EmailProvider extends ContentProvider {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " AND " + MailboxColumns.TYPE + " != " + Mailbox.TYPE_SEARCH +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 ORDER BY ");
         sb.append(MAILBOX_ORDER_BY);
         return sb.toString();
@@ -2371,6 +2372,7 @@ public class EmailProvider extends ContentProvider {
         // Order by the derived column
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " AND " + MailboxColumns.TYPE + " != " + Mailbox.TYPE_SEARCH +
                 " ORDER BY h_name");
         return sb.toString();
     }
@@ -2385,6 +2387,7 @@ public class EmailProvider extends ContentProvider {
         StringBuilder sb = genSelect(getFolderListMap(), uiProjection);
         sb.append(" FROM " + Mailbox.TABLE_NAME + " WHERE " + MailboxColumns.ACCOUNT_KEY +
                 "=? AND " + MailboxColumns.TYPE + " < " + Mailbox.TYPE_NOT_EMAIL +
+                " AND " + MailboxColumns.TYPE + " != " + Mailbox.TYPE_SEARCH +
                 " AND " + MailboxColumns.PARENT_KEY + " < 0 AND " +
                 MailboxColumns.LAST_TOUCHED_TIME + " > 0 ORDER BY " +
                 MailboxColumns.LAST_TOUCHED_TIME + " DESC");
