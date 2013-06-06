@@ -17,8 +17,7 @@
 package com.android.emailcommon.utility;
 
 import com.android.emailcommon.Logging;
-
-import android.util.Log;
+import com.android.mail.utils.LogUtils;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.io.InputStream;
 /**
  * Simple class used for debugging only that affords us a view of the raw IMAP or POP3 stream,
  * in addition to the tokenized version.
- * 
+ *
  * Use of this class *MUST* be restricted to logging-enabled situations only.
  */
 public class LoggingInputStream extends FilterInputStream {
@@ -44,7 +43,7 @@ public class LoggingInputStream extends FilterInputStream {
         mTag = tag + " ";
         mDumpEmptyLines = dumpEmptyLines;
         initBuffer();
-        Log.d(Logging.LOG_TAG, mTag + "dump start");
+        LogUtils.d(Logging.LOG_TAG, mTag + "dump start");
     }
 
     private void initBuffer() {
@@ -96,7 +95,7 @@ public class LoggingInputStream extends FilterInputStream {
 
     private void flushLog() {
         if (mDumpEmptyLines || (mSb.length() > mTag.length())) {
-            Log.d(Logging.LOG_TAG, mSb.toString());
+            LogUtils.d(Logging.LOG_TAG, mSb.toString());
             initBuffer();
         }
     }

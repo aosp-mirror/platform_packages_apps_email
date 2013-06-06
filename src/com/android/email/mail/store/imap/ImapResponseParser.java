@@ -17,7 +17,6 @@
 package com.android.email.mail.store.imap;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.FixedLengthInputStream;
 import com.android.email.PeekableInputStream;
@@ -26,6 +25,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.LoggingInputStream;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +100,7 @@ public class ImapResponseParser {
     private static IOException newEOSException() {
         final String message = "End of stream reached";
         if (MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, message);
+            LogUtils.d(Logging.LOG_TAG, message);
         }
         return new IOException(message);
     }
@@ -162,7 +162,7 @@ public class ImapResponseParser {
         try {
             response = parseResponse();
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, "<<< " + response.toString());
+                LogUtils.d(Logging.LOG_TAG, "<<< " + response.toString());
             }
 
         } catch (RuntimeException e) {
@@ -177,7 +177,7 @@ public class ImapResponseParser {
 
         // Handle this outside of try-catch.  We don't have to dump protocol log when getting BYE.
         if (response.is(0, ImapConstants.BYE)) {
-            Log.w(Logging.LOG_TAG, ByeException.MESSAGE);
+            LogUtils.w(Logging.LOG_TAG, ByeException.MESSAGE);
             response.destroy();
             throw new ByeException();
         }
@@ -201,7 +201,7 @@ public class ImapResponseParser {
             }
         } catch (IOException ignore) {
         }
-        Log.w(Logging.LOG_TAG, "Exception detected: " + e.getMessage());
+        LogUtils.w(Logging.LOG_TAG, "Exception detected: " + e.getMessage());
         mDiscourseLogger.logLastDiscourse();
     }
 

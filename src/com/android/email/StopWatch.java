@@ -17,9 +17,9 @@
 package com.android.email;
 
 import com.android.emailcommon.Logging;
+import com.android.mail.utils.LogUtils;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 /**
  * A simple class to measure elapsed time.
@@ -43,7 +43,7 @@ public class StopWatch {
         mName = name;
         mStart = getCurrentTime();
         mLastSplit = mStart;
-        Log.w(Logging.LOG_TAG, "StopWatch(" + mName + ") start");
+        LogUtils.w(Logging.LOG_TAG, "StopWatch(" + mName + ") start");
     }
 
     public static StopWatch start(String name) {
@@ -53,14 +53,13 @@ public class StopWatch {
     public void split(String label) {
         long now = getCurrentTime() ;
         long elapse = now - mLastSplit;
-        Log.w(Logging.LOG_TAG, "StopWatch(" + mName + ") split(" + label + ") " + elapse);
+        LogUtils.w(Logging.LOG_TAG, "StopWatch(" + mName + ") split(" + label + ") " + elapse);
         mLastSplit = now;
     }
 
     public void stop() {
         long now = getCurrentTime();
-        long elapse = now - mLastSplit;
-        Log.w(Logging.LOG_TAG, "StopWatch(" + mName + ") stop: "
+        LogUtils.w(Logging.LOG_TAG, "StopWatch(" + mName + ") stop: "
                 + (now - mLastSplit)
                 + "  (total " + (now - mStart) + ")");
     }

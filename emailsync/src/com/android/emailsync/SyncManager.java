@@ -43,7 +43,6 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.ContactsContract;
-import android.util.Log;
 
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
@@ -63,9 +62,9 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback.Stub;
 import com.android.emailcommon.service.PolicyServiceProxy;
-import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.EmailClientConnectionManager;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
@@ -74,7 +73,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -339,10 +337,11 @@ public abstract class SyncManager extends Service implements Runnable {
         if (sFileLog) {
             sUserLog = true;
         }
-        Log.d("Sync Debug", "Logging: " + (sUserLog ? "User " : "") + (sFileLog ? "File" : ""));
+        LogUtils.d("Sync Debug", "Logging: " + (sUserLog ? "User " : "")
+                + (sFileLog ? "File" : ""));
     }
 
-    private boolean onSecurityHold(Account account) {
+    private static boolean onSecurityHold(Account account) {
         return (account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0;
     }
 
@@ -688,7 +687,7 @@ public abstract class SyncManager extends Service implements Runnable {
                                 c.close();
                             }
                         } catch (ProviderUnavailableException e) {
-                            Log.w(TAG, "Observer failed; provider unavailable");
+                            LogUtils.w(TAG, "Observer failed; provider unavailable");
                         }
                     }}, "Calendar Observer").start();
             }
@@ -850,7 +849,7 @@ public abstract class SyncManager extends Service implements Runnable {
 
     public static void log(String tag, String str) {
         if (sUserLog) {
-            Log.d(tag, str);
+            LogUtils.d(tag, str);
             if (sFileLog) {
                 FileLogger.log(tag, str);
             }
@@ -859,7 +858,7 @@ public abstract class SyncManager extends Service implements Runnable {
 
     public static void alwaysLog(String str) {
         if (!sUserLog) {
-            Log.d(TAG, str);
+            LogUtils.d(TAG, str);
         } else {
             log(str);
         }
@@ -1142,7 +1141,8 @@ public abstract class SyncManager extends Service implements Runnable {
                            // We ignore drafts completely (doesn't sync).  Changes in Outbox are
                            // handled in the checkMailboxes loop, so we can ignore these pings.
                            if (sUserLog) {
-                               Log.d(TAG, "Alert for mailbox " + id + " (" + m.mDisplayName + ")");
+                               LogUtils.d(TAG, "Alert for mailbox " + id + " ("
+                                       + m.mDisplayName + ")");
                            }
                            if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
                                String[] args = new String[] {Long.toString(m.mId)};
@@ -1572,12 +1572,12 @@ public abstract class SyncManager extends Service implements Runnable {
             // NOTE: Sync adapters will also crash with this error, but that is already handled
             // in the adapters themselves, i.e. they return cleanly via done().  When the Email
             // process starts running again, remote processes will be started again in due course
-            Log.e(TAG, "EmailProvider unavailable; shutting down");
+            LogUtils.e(TAG, "EmailProvider unavailable; shutting down");
             // Ask for our service to be restarted; this should kick-start the Email process as well
             startService(new Intent(this, SyncManager.class));
         } catch (RuntimeException e) {
             // Crash; this is a completely unexpected runtime error
-            Log.e(TAG, "RuntimeException", e);
+            LogUtils.e(TAG, "RuntimeException", e);
             throw e;
         } finally {
             shutdown();
@@ -1737,7 +1737,7 @@ public abstract class SyncManager extends Service implements Runnable {
      * @param account the Account in question
      * @return whether Email sync is enabled
      */
-    private boolean canSyncEmail(android.accounts.Account account) {
+    private static boolean canSyncEmail(android.accounts.Account account) {
         return ContentResolver.getSyncAutomatically(account, EmailContent.AUTHORITY);
     }
 

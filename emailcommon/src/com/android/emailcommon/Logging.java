@@ -16,8 +16,10 @@
 
 package com.android.emailcommon;
 
+import com.android.mail.utils.LogTag;
+
 public class Logging {
-    public static final String LOG_TAG = "Email";
+    public static final String LOG_TAG = LogTag.getLogTag();
 
     /**
      * Set this to 'true' to enable as much Email logging as possible.

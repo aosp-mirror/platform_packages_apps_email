@@ -23,10 +23,10 @@ import android.database.Cursor;
 import android.net.SSLCertificateSocketFactory;
 import android.security.KeyChain;
 import android.security.KeyChainException;
-import android.util.Log;
 
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
@@ -246,7 +246,7 @@ public class SSLUtils {
         public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
             if (LOG_ENABLED) {
                 InetAddress address = socket.getInetAddress();
-                Log.i(TAG, "TrackingKeyManager: requesting a client cert alias for "
+                LogUtils.i(TAG, "TrackingKeyManager: requesting a client cert alias for "
                         + address.getCanonicalHostName());
             }
             mLastTimeCertRequested = System.currentTimeMillis();
@@ -256,7 +256,7 @@ public class SSLUtils {
         @Override
         public X509Certificate[] getCertificateChain(String alias) {
             if (LOG_ENABLED) {
-                Log.i(TAG, "TrackingKeyManager: returning a null cert chain");
+                LogUtils.i(TAG, "TrackingKeyManager: returning a null cert chain");
             }
             return null;
         }
@@ -264,7 +264,7 @@ public class SSLUtils {
         @Override
         public PrivateKey getPrivateKey(String alias) {
             if (LOG_ENABLED) {
-                Log.i(TAG, "TrackingKeyManager: returning a null private key");
+                LogUtils.i(TAG, "TrackingKeyManager: returning a null private key");
             }
             return null;
         }
@@ -325,9 +325,9 @@ public class SSLUtils {
         private static void logError(String alias, String type, Exception ex) {
             // Avoid logging PII when explicit logging is not on.
             if (LOG_ENABLED) {
-                Log.e(TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
+                LogUtils.e(TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
             } else {
-                Log.e(TAG, "Unable to retrieve " + type + " due to " + ex);
+                LogUtils.e(TAG, "Unable to retrieve " + type + " due to " + ex);
             }
         }
 
@@ -342,7 +342,7 @@ public class SSLUtils {
         @Override
         public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
             if (LOG_ENABLED) {
-                Log.i(TAG, "Requesting a client cert alias for " + Arrays.toString(keyTypes));
+                LogUtils.i(TAG, "Requesting a client cert alias for " + Arrays.toString(keyTypes));
             }
             return mClientAlias;
         }
@@ -350,7 +350,7 @@ public class SSLUtils {
         @Override
         public X509Certificate[] getCertificateChain(String alias) {
             if (LOG_ENABLED) {
-                Log.i(TAG, "Requesting a client certificate chain for alias [" + alias + "]");
+                LogUtils.i(TAG, "Requesting a client certificate chain for alias [" + alias + "]");
             }
             return mCertificateChain;
         }
@@ -358,7 +358,7 @@ public class SSLUtils {
         @Override
         public PrivateKey getPrivateKey(String alias) {
             if (LOG_ENABLED) {
-                Log.i(TAG, "Requesting a client private key for alias [" + alias + "]");
+                LogUtils.i(TAG, "Requesting a client private key for alias [" + alias + "]");
             }
             return mPrivateKey;
         }

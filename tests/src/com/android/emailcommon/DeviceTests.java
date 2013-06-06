@@ -20,7 +20,6 @@ package com.android.emailcommon;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 public class DeviceTests extends AndroidTestCase {
 
@@ -28,7 +27,7 @@ public class DeviceTests extends AndroidTestCase {
         TelephonyManager tm =
                 (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
         if (tm == null) {
-            Log.w(Logging.LOG_TAG, "TelephonyManager not supported.  Skipping.");
+            LogUtils.w(Logging.LOG_TAG, "TelephonyManager not supported.  Skipping.");
             return;
         }
 

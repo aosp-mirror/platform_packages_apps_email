@@ -17,9 +17,9 @@ package com.android.emailcommon.service;
 
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.service.IEmailServiceCallback.Stub;
+import com.android.mail.utils.LogUtils;
 
 public class EmailServiceCallback extends Stub {
 
@@ -47,7 +47,8 @@ public class EmailServiceCallback extends Stub {
                     } catch (RuntimeException e) {
                         // We don't want an exception in one call to prevent other calls, so
                         // we'll just log this and continue
-                        Log.e("EmailServiceCallback", "Caught RuntimeException in broadcast", e);
+                        LogUtils.e("EmailServiceCallback", "Caught RuntimeException in broadcast",
+                                e);
                     }
                 }
             } finally {

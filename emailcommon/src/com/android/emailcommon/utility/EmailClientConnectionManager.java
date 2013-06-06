@@ -18,13 +18,12 @@
 package com.android.emailcommon.utility;
 
 import android.content.Context;
-import android.net.SSLCertificateSocketFactory;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.SSLUtils.KeyChainKeyManager;
 import com.android.emailcommon.utility.SSLUtils.TrackingKeyManager;
+import com.android.mail.utils.LogUtils;
 
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -97,7 +96,7 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
         Scheme existing = registry.get(schemeName);
         if (existing == null) {
             if (LOG_ENABLED) {
-                Log.i(Logging.LOG_TAG, "Registering socket factory for certificate alias ["
+                LogUtils.i(Logging.LOG_TAG, "Registering socket factory for certificate alias ["
                         + hostAuth.mClientCertAlias + "]");
             }
             KeyManager keyManager =

@@ -29,7 +29,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.android.email.R;
@@ -41,6 +40,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.mail.utils.LogUtils;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -292,7 +292,7 @@ public class MailboxSettings extends PreferenceActivity {
             }
             mNeedsSave = true;
             if (MailActivityEmail.DEBUG) {
-                Log.i(Logging.LOG_TAG, "Setting changed");
+                LogUtils.i(Logging.LOG_TAG, "Setting changed");
             }
             // In order to set the current entry to the summary, we need to udpate the value
             // manually, rather than letting the framework do that (by returning true).
@@ -310,7 +310,7 @@ public class MailboxSettings extends PreferenceActivity {
         final int syncInterval = Integer.valueOf(mSyncIntervalPref.getValue());
         final int syncLookback = Integer.valueOf(mSyncLookbackPref.getValue());
         if (MailActivityEmail.DEBUG) {
-            Log.i(Logging.LOG_TAG, "Updating object: " + syncInterval + "," + syncLookback);
+            LogUtils.i(Logging.LOG_TAG, "Updating object: " + syncInterval + "," + syncLookback);
         }
         if (mMailbox.mType == Mailbox.TYPE_INBOX) {
             mAccount.mSyncInterval = syncInterval;
@@ -333,7 +333,7 @@ public class MailboxSettings extends PreferenceActivity {
         if (!mNeedsSave) {
             return;
         }
-        Log.i(Logging.LOG_TAG, "Saving mailbox settings...");
+        LogUtils.i(Logging.LOG_TAG, "Saving mailbox settings...");
         enablePreferences(false);
 
         // Since the activity will be destroyed...
@@ -360,7 +360,7 @@ public class MailboxSettings extends PreferenceActivity {
                 }
                 context.getContentResolver().update(uri, cv, null, null);
 
-                Log.i(Logging.LOG_TAG, "Saved: " + uri);
+                LogUtils.i(Logging.LOG_TAG, "Saved: " + uri);
                 return null;
             }
 

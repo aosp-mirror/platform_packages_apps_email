@@ -26,7 +26,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.android.emailcommon.Logging;
@@ -37,6 +36,7 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -365,7 +365,7 @@ public class AttachmentUtilities {
         for (File file : files) {
             boolean result = file.delete();
             if (!result) {
-                Log.e(Logging.LOG_TAG, "Failed to delete attachment file " + file.getName());
+                LogUtils.e(Logging.LOG_TAG, "Failed to delete attachment file " + file.getName());
             }
         }
     }
@@ -418,7 +418,8 @@ public class AttachmentUtilities {
                 contentUri = dm.getUriForDownloadedFile(id).toString();
 
             } else {
-                Log.w(Logging.LOG_TAG, "Trying to save an attachment without external storage?");
+                LogUtils.w(Logging.LOG_TAG,
+                        "Trying to save an attachment without external storage?");
                 throw new IOException();
             }
 

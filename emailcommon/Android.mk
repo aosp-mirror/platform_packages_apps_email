@@ -25,6 +25,7 @@ unified_email_src_dir := ../../UnifiedEmail/src
 apache_src_dir := ../../UnifiedEmail/src/org
 
 imported_unified_email_files := \
+        $(unified_email_src_dir)/com/android/mail/utils/LogTag.java \
         $(unified_email_src_dir)/com/android/mail/utils/LogUtils.java \
         $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
 

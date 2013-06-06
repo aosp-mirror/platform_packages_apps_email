@@ -19,9 +19,9 @@ package com.android.emailcommon;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -62,16 +62,17 @@ public class Device {
                 if (id == null) {
                     // It's very bad if we read a null device id; let's delete that file
                     if (!f.delete()) {
-                        Log.e(Logging.LOG_TAG, "Can't delete null deviceName file; try overwrite.");
+                        LogUtils.e(Logging.LOG_TAG,
+                                "Can't delete null deviceName file; try overwrite.");
                     }
                 } else {
                     return id;
                 }
             } else {
-                Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
+                LogUtils.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
                     "  Trying to remove.");
                 if (!f.delete()) {
-                    Log.w(Logging.LOG_TAG, "Remove failed. Tring to overwrite.");
+                    LogUtils.w(Logging.LOG_TAG, "Remove failed. Tring to overwrite.");
                 }
             }
         }
@@ -104,7 +105,8 @@ public class Device {
                 return null;
             }
         } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "Error in TelephonyManager.getDeviceId(): " + e.getMessage());
+            LogUtils.d(Logging.LOG_TAG, "Error in TelephonyManager.getDeviceId(): "
+                    + e.getMessage());
             return null;
         }
         return Utility.getSmallHash(deviceId);

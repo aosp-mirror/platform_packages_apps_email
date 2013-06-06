@@ -22,13 +22,13 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
@@ -118,10 +118,10 @@ public class AccountReconciler {
                     if (EmailContent.count(providerContext, Mailbox.CONTENT_URI,
                             Mailbox.ACCOUNT_KEY + "=?",
                             new String[] { Long.toString(providerAccount.mId) } ) > 0) {
-                        Log.w(Logging.LOG_TAG,
+                        LogUtils.w(Logging.LOG_TAG,
                                 "Account reconciler found wrongly incomplete account");
                     } else {
-                        Log.w(Logging.LOG_TAG,
+                        LogUtils.w(Logging.LOG_TAG,
                                 "Account reconciler noticed incomplete account; ignoring");
                         continue;
                     }
@@ -130,7 +130,7 @@ public class AccountReconciler {
                 needsReconciling = true;
                 if (performReconciliation) {
                     // This account has been deleted in the AccountManager!
-                    Log.d(Logging.LOG_TAG,
+                    LogUtils.d(Logging.LOG_TAG,
                             "Account deleted in AccountManager; deleting from provider: " +
                             providerAccountName);
                     Uri uri = EmailProvider.uiUri("uiaccount", providerAccount.mId);
@@ -159,7 +159,7 @@ public class AccountReconciler {
                 needsReconciling = true;
 
                 if (performReconciliation) {
-                    Log.d(Logging.LOG_TAG,
+                    LogUtils.d(Logging.LOG_TAG,
                             "Account deleted from provider; deleting from AccountManager: " +
                             accountManagerAccountName);
                     // Delete the account
@@ -170,11 +170,11 @@ public class AccountReconciler {
                         // here, as there is nothing to actually do about them.
                         blockingResult.getResult();
                     } catch (OperationCanceledException e) {
-                        Log.w(Logging.LOG_TAG, e.toString());
+                        LogUtils.w(Logging.LOG_TAG, e.toString());
                     } catch (AuthenticatorException e) {
-                        Log.w(Logging.LOG_TAG, e.toString());
+                        LogUtils.w(Logging.LOG_TAG, e.toString());
                     } catch (IOException e) {
-                        Log.w(Logging.LOG_TAG, e.toString());
+                        LogUtils.w(Logging.LOG_TAG, e.toString());
                     }
                 }
             }

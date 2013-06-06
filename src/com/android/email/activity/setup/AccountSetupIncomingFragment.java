@@ -25,7 +25,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +96,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreate");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -111,7 +110,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
         }
         int layoutId = mSettingsMode
                 ? R.layout.account_settings_incoming_fragment
@@ -182,20 +181,25 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
         mSecurityTypeView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 updatePortFromSecurityType();
             }
 
+            @Override
             public void onNothingSelected(AdapterView<?> arg0) { }
         });
 
         // After any text edits, call validateFields() which enables or disables the Next button
         TextWatcher validationTextWatcher = new TextWatcher() {
+            @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
             }
 
+            @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
         // We're editing an existing account; don't allow modification of the user name
@@ -220,7 +224,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
         mClientCertificateSelector.setHostActivity(this);
@@ -232,7 +236,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onStart() {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStart");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -246,7 +250,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onResume() {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onResume");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onResume");
         }
         super.onResume();
         validateFields();
@@ -255,7 +259,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onPause() {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onPause");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onPause");
         }
         super.onPause();
     }
@@ -266,7 +270,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onStop() {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStop");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -278,7 +282,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
         }
         super.onDestroy();
     }
@@ -286,7 +290,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
+            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
 
@@ -510,7 +514,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             serverPort = Integer.parseInt(mPortView.getText().toString().trim());
         } catch (NumberFormatException e) {
             serverPort = getPortFromSecurityType(getSslSelected());
-            Log.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
+            LogUtils.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
         int securityType = (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
         recvAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);

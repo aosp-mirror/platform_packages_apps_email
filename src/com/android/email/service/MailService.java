@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.android.email.provider.AccountReconciler;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -33,6 +32,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class MailService extends Service {
 
         @Override
         public void run() {
-            Log.d("MailService", "Reconciling accounts of type " + mInfo.accountType +
+            LogUtils.d("MailService", "Reconciling accounts of type " + mInfo.accountType +
                     ", protocol " + mInfo.protocol);
             android.accounts.Account[] accountManagerAccounts = AccountManager.get(mContext)
                     .getAccountsByType(mInfo.accountType);

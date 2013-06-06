@@ -22,11 +22,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.utils.LogUtils;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -205,9 +205,9 @@ public abstract class AbstractSyncService implements Runnable {
 
     public void userLog(String str, Exception e) {
         if (mUserLog) {
-            Log.e(TAG, str, e);
+            LogUtils.e(TAG, str, e);
         } else {
-            Log.e(TAG, str + e);
+            LogUtils.e(TAG, str + e);
         }
         if (mFileLog) {
             FileLogger.log(e);
@@ -216,7 +216,7 @@ public abstract class AbstractSyncService implements Runnable {
 
     /**
      * Standard logging for EAS.
-     * If user logging is active, we concatenate any arguments and log them using Log.d
+     * If user logging is active, we concatenate any arguments and log them using LogUtils.d
      * We also check for file logging, and log appropriately
      * @param strings strings to concatenate and log
      */
@@ -232,7 +232,7 @@ public abstract class AbstractSyncService implements Runnable {
                 }
                 logText = sb.toString();
             }
-            Log.d(TAG, logText);
+            LogUtils.d(TAG, logText);
             if (mFileLog) {
                 FileLogger.log(TAG, logText);
             }
@@ -244,7 +244,7 @@ public abstract class AbstractSyncService implements Runnable {
      * @param str the string to log
      */
     public void errorLog(String str) {
-        Log.e(TAG, str);
+        LogUtils.e(TAG, str);
         if (mFileLog) {
             FileLogger.log(TAG, str);
         }

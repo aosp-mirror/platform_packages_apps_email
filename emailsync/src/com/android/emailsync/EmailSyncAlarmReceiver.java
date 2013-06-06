@@ -22,11 +22,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.ProviderUnavailableException;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 
@@ -54,6 +54,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 handleReceive(context);
             }
@@ -105,7 +106,8 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
                 SyncManager.serviceRequest(mailboxId, SyncManager.SYNC_UPSYNC);
             }
         } catch (ProviderUnavailableException e) {
-            Log.e("EmailSyncAlarmReceiver", "EmailProvider unavailable; aborting alarm receiver");
+            LogUtils.e("EmailSyncAlarmReceiver",
+                    "EmailProvider unavailable; aborting alarm receiver");
         }
     }
 }

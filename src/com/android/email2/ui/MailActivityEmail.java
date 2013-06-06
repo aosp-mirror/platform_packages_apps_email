@@ -25,7 +25,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
@@ -49,12 +48,10 @@ import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
 
-import java.util.List;
-
 public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     /**
      * If this is enabled there will be additional logging information sent to
-     * Log.d, including protocol dumps.
+     * LogUtils.d, including protocol dumps.
      *
      * This should only be used for logs that are useful for debbuging user problems,
      * not for internal/development logs.
@@ -239,7 +236,7 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
      * The calls to log() must be guarded with "if (Email.LOGD)" for performance reasons.
      */
     public static void log(String message) {
-        Log.d(Logging.LOG_TAG, message);
+        LogUtils.d(Logging.LOG_TAG, message);
     }
 
     /**
@@ -261,7 +258,8 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     public static void warnIfUiThread() {
         if (Thread.currentThread().equals(sUiThread)) {
-            Log.w(Logging.LOG_TAG, "Method called on the UI thread", new Exception("STACK TRACE"));
+            LogUtils.w(Logging.LOG_TAG, "Method called on the UI thread",
+                    new Exception("STACK TRACE"));
         }
     }
 

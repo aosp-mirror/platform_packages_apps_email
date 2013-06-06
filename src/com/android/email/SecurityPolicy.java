@@ -31,7 +31,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
@@ -45,6 +44,7 @@ import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public class SecurityPolicy {
             while (c.moveToNext()) {
                 policy.restore(c);
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(TAG, "Aggregate from: " + policy);
+                    LogUtils.d(TAG, "Aggregate from: " + policy);
                 }
                 aggregate.mPasswordMinLength =
                     Math.max(policy.mPasswordMinLength, aggregate.mPasswordMinLength);
@@ -185,12 +185,12 @@ public class SecurityPolicy {
             if (aggregate.mPasswordComplexChars == Integer.MIN_VALUE)
                 aggregate.mPasswordComplexChars = 0;
             if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "Calculated Aggregate: " + aggregate);
+                LogUtils.d(TAG, "Calculated Aggregate: " + aggregate);
             }
             return aggregate;
         }
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "Calculated Aggregate: no policy");
+            LogUtils.d(TAG, "Calculated Aggregate: no policy");
         }
         return Policy.NO_POLICY;
     }
@@ -232,7 +232,7 @@ public class SecurityPolicy {
      */
     public void reducePolicies() {
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "reducePolicies");
+            LogUtils.d(TAG, "reducePolicies");
         }
         policiesUpdated();
     }
@@ -268,7 +268,7 @@ public class SecurityPolicy {
             if ((reasons & INACTIVE_PROTOCOL_POLICIES) != 0) {
                 sb.append("protocol ");
             }
-            Log.d(TAG, sb.toString());
+            LogUtils.d(TAG, sb.toString());
         }
         return reasons == 0;
     }
@@ -411,12 +411,12 @@ public class SecurityPolicy {
         // if empty set, detach from policy manager
         if (aggregatePolicy == Policy.NO_POLICY) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "setActivePolicies: none, remove admin");
+                LogUtils.d(TAG, "setActivePolicies: none, remove admin");
             }
             dpm.removeActiveAdmin(mAdminName);
         } else if (isActiveAdmin()) {
             if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "setActivePolicies: " + aggregatePolicy);
+                LogUtils.d(TAG, "setActivePolicies: " + aggregatePolicy);
             }
             // set each policy in the policy manager
             // password mode & length
@@ -496,7 +496,7 @@ public class SecurityPolicy {
         Policy policy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
         if (policy == null) return;
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
+            LogUtils.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
         }
 
         // Mark the account as "on hold".
@@ -593,7 +593,7 @@ public class SecurityPolicy {
         boolean policyChanged = (oldPolicy == null) || !oldPolicy.equals(policy);
         if (!policyChanged && (TextUtilities.stringOrNullEquals(securityKey,
                 account.mSecuritySyncKey))) {
-            Log.d(Logging.LOG_TAG, "setAccountPolicy; policy unchanged");
+            LogUtils.d(Logging.LOG_TAG, "setAccountPolicy; policy unchanged");
         } else {
             setAccountPolicy(mContext, account, policy, securityKey);
             policiesUpdated();
@@ -602,7 +602,7 @@ public class SecurityPolicy {
         boolean setHold = false;
         if (policy.mProtocolPoliciesUnsupported != null) {
             // We can't support this, reasons in unsupportedRemotePolicies
-            Log.d(Logging.LOG_TAG,
+            LogUtils.d(Logging.LOG_TAG,
                     "Notify policies for " + account.mDisplayName + " not supported.");
             setHold = true;
             NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
@@ -612,16 +612,17 @@ public class SecurityPolicy {
             mContext.getContentResolver().delete(uri, null, null);
         } else if (isActive(policy)) {
             if (policyChanged) {
-                Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName + " changed.");
+                LogUtils.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName
+                        + " changed.");
                 // Notify that policies changed
                 NotificationController.getInstance(mContext).showSecurityChangedNotification(
                         account);
             } else {
-                Log.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
+                LogUtils.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
             }
         } else {
             setHold = true;
-            Log.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName +
+            LogUtils.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName +
                     " are not being enforced.");
             // Put up a notification
             NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
@@ -647,7 +648,7 @@ public class SecurityPolicy {
         if (dpm.isAdminActive(mAdminName)) {
             dpm.wipeData(DevicePolicyManager.WIPE_EXTERNAL_STORAGE);
         } else {
-            Log.d(Logging.LOG_TAG, "Could not remote wipe because not device admin.");
+            LogUtils.d(Logging.LOG_TAG, "Could not remote wipe because not device admin.");
         }
     }
     /**
@@ -687,7 +688,7 @@ public class SecurityPolicy {
         Cursor c = cr.query(Account.CONTENT_URI, EmailContent.ID_PROJECTION,
                 Account.SECURITY_NONZERO_SELECTION, null, null);
         try {
-            Log.w(TAG, "Email administration disabled; deleting " + c.getCount() +
+            LogUtils.w(TAG, "Email administration disabled; deleting " + c.getCount() +
                     " secured account(s)");
             while (c.moveToNext()) {
                 long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);

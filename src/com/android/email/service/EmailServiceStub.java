@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.email.mail.Sender;
@@ -63,6 +62,7 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 
 import java.util.HashSet;
 
@@ -190,7 +190,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             mCallback.loadMessageStatus(messageId, 0, 100);
 
         } catch (MessagingException me) {
-            if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
+            if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
             mCallback.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
         } catch (RuntimeException rte) {
             mCallback.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
@@ -313,7 +313,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             remoteFolder.close(false);
         }
         catch (MessagingException me) {
-            if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
+            if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
             // TODO: Fix this up; consider the best approach
 
             ContentValues cv = new ContentValues();
@@ -536,7 +536,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     // Don't send messages with unloaded attachments
                     if (Utility.hasUnloadedAttachments(context, messageId)) {
                         if (MailActivityEmail.DEBUG) {
-                            Log.d(Logging.LOG_TAG, "Can't send #" + messageId +
+                            LogUtils.d(Logging.LOG_TAG, "Can't send #" + messageId +
                                     "; unloaded attachments");
                         }
                         continue;

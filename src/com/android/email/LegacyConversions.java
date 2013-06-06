@@ -21,7 +21,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -42,6 +41,7 @@ import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.LogUtils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -227,7 +227,7 @@ public class LegacyConversions {
         localAttachment.mAccountKey = localMessage.mAccountKey;
 
         if (DEBUG_ATTACHMENTS) {
-            Log.d(Logging.LOG_TAG, "Add attachment " + localAttachment);
+            LogUtils.d(Logging.LOG_TAG, "Add attachment " + localAttachment);
         }
 
         // To prevent duplication - do we already have a matching attachment?
@@ -253,7 +253,7 @@ public class LegacyConversions {
                 attachmentFoundInDb = true;
                 localAttachment.mId = dbAttachment.mId;
                 if (DEBUG_ATTACHMENTS) {
-                    Log.d(Logging.LOG_TAG, "Skipped, found db attachment " + dbAttachment);
+                    LogUtils.d(Logging.LOG_TAG, "Skipped, found db attachment " + dbAttachment);
                 }
                 break;
             }
@@ -364,14 +364,14 @@ public class LegacyConversions {
             addTextBodyPart(mp, "text/html", null,
                     EmailContent.Body.restoreBodyHtmlWithMessageId(context, localMessage.mId));
         } catch (RuntimeException rte) {
-            Log.d(Logging.LOG_TAG, "Exception while reading html body " + rte.toString());
+            LogUtils.d(Logging.LOG_TAG, "Exception while reading html body " + rte.toString());
         }
 
         try {
             addTextBodyPart(mp, "text/plain", null,
                     EmailContent.Body.restoreBodyTextWithMessageId(context, localMessage.mId));
         } catch (RuntimeException rte) {
-            Log.d(Logging.LOG_TAG, "Exception while reading text body " + rte.toString());
+            LogUtils.d(Logging.LOG_TAG, "Exception while reading text body " + rte.toString());
         }
 
         boolean isReply = (localMessage.mFlags & EmailContent.Message.FLAG_TYPE_REPLY) != 0;
@@ -385,7 +385,7 @@ public class LegacyConversions {
                 addTextBodyPart(mp, "text/plain", BODY_QUOTED_PART_INTRO,
                         EmailContent.Body.restoreIntroTextWithMessageId(context, localMessage.mId));
             } catch (RuntimeException rte) {
-                Log.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
+                LogUtils.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
             }
 
             String replyTag = isReply ? BODY_QUOTED_PART_REPLY : BODY_QUOTED_PART_FORWARD;
@@ -393,14 +393,14 @@ public class LegacyConversions {
                 addTextBodyPart(mp, "text/html", replyTag,
                         EmailContent.Body.restoreReplyHtmlWithMessageId(context, localMessage.mId));
             } catch (RuntimeException rte) {
-                Log.d(Logging.LOG_TAG, "Exception while reading html reply " + rte.toString());
+                LogUtils.d(Logging.LOG_TAG, "Exception while reading html reply " + rte.toString());
             }
 
             try {
                 addTextBodyPart(mp, "text/plain", replyTag,
                         EmailContent.Body.restoreReplyTextWithMessageId(context, localMessage.mId));
             } catch (RuntimeException rte) {
-                Log.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
+                LogUtils.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
             }
         }
 
