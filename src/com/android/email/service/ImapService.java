@@ -29,7 +29,6 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
@@ -62,6 +61,7 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,9 +71,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ImapService extends Service {
-    private static final String TAG = "ImapService";
-    private static final int MAX_SMALL_MESSAGE_SIZE = (25 * 1024);
-
     private static final Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
     private static final Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
     private static final Flag[] FLAG_LIST_ANSWERED = new Flag[] { Flag.ANSWERED };
@@ -185,7 +182,7 @@ public class ImapService extends Service {
             sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
-                Log.v(Logging.LOG_TAG, "synchronizeMailbox", e);
+                LogUtils.v(Logging.LOG_TAG, "synchronizeMailbox", e);
             }
             if (e instanceof AuthenticationFailedException) {
                 // Generate authentication notification
@@ -310,14 +307,14 @@ public class ImapService extends Service {
                                         unseenMessages.add(localMessage.mId);
                                     }
                                 } catch (MessagingException me) {
-                                    Log.e(Logging.LOG_TAG,
+                                    LogUtils.e(Logging.LOG_TAG,
                                             "Error while copying downloaded message." + me);
                                 }
 
                             }
                         }
                         catch (Exception e) {
-                            Log.e(Logging.LOG_TAG,
+                            LogUtils.e(Logging.LOG_TAG,
                                     "Error while storing downloaded message." + e.toString());
                         }
                     }
@@ -684,7 +681,7 @@ public class ImapService extends Service {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Unable to process pending delete for id="
+                LogUtils.d(Logging.LOG_TAG, "Unable to process pending delete for id="
                             + lastMessageId + ": " + me);
             }
         } finally {
@@ -792,7 +789,7 @@ public class ImapService extends Service {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Unable to process pending upsync for id="
+                LogUtils.d(Logging.LOG_TAG, "Unable to process pending upsync for id="
                         + lastMessageId + ": " + me);
             }
         } finally {
@@ -881,7 +878,7 @@ public class ImapService extends Service {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (MailActivityEmail.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Unable to process pending update for id="
+                LogUtils.d(Logging.LOG_TAG, "Unable to process pending update for id="
                             + lastMessageId + ": " + me);
             }
         } finally {
@@ -915,21 +912,21 @@ public class ImapService extends Service {
         final boolean deleteUpdate;
         if (newMessage == null) {
             deleteUpdate = true;
-            Log.d(Logging.LOG_TAG, "Upsync failed for null message, id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsync failed for null message, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_DRAFTS) {
             deleteUpdate = false;
-            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=drafts, id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsync skipped for mailbox=drafts, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
             deleteUpdate = false;
-            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=outbox, id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsync skipped for mailbox=outbox, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_TRASH) {
             deleteUpdate = false;
-            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
         } else if (newMessage != null && newMessage.mMailboxKey != mailbox.mId) {
             deleteUpdate = false;
-            Log.d(Logging.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
         } else {
-            Log.d(Logging.LOG_TAG, "Upsyc triggered for message id=" + messageId);
+            LogUtils.d(Logging.LOG_TAG, "Upsyc triggered for message id=" + messageId);
             deleteUpdate = processPendingAppend(context, remoteStore, account, mailbox, newMessage);
         }
         if (deleteUpdate) {
@@ -988,7 +985,7 @@ public class ImapService extends Service {
             return;
         }
         if (MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG,
+            LogUtils.d(Logging.LOG_TAG,
                     "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead
                     + " flagged=" + newMessage.mFlagFavorite
@@ -1320,7 +1317,7 @@ public class ImapService extends Service {
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, searchParams.mMailboxId);
         final Mailbox destMailbox = Mailbox.restoreMailboxWithId(context, destMailboxId);
         if (account == null || mailbox == null || destMailbox == null) {
-            Log.d(Logging.LOG_TAG, "Attempted search for " + searchParams
+            LogUtils.d(Logging.LOG_TAG, "Attempted search for " + searchParams
                     + " but account or mailbox information was missing");
             return 0;
         }
@@ -1401,11 +1398,11 @@ public class ImapService extends Service {
                         }
                         Utilities.copyOneMessageToProvider(context, message, localMessage, flag);
                     } catch (MessagingException me) {
-                        Log.e(Logging.LOG_TAG,
+                        LogUtils.e(Logging.LOG_TAG,
                                 "Error while copying downloaded message." + me);
                     }
                 } catch (Exception e) {
-                    Log.e(Logging.LOG_TAG,
+                    LogUtils.e(Logging.LOG_TAG,
                             "Error while storing downloaded message." + e.toString());
                 }
             }

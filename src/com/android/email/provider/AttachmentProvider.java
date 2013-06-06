@@ -28,7 +28,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
@@ -37,6 +36,7 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.AttachmentUtilities.Columns;
+import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 
 import java.io.File;
@@ -202,11 +202,11 @@ public class AttachmentProvider extends ContentProvider {
                         out.close();
                         in.close();
                     } catch (IOException ioe) {
-                        Log.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
+                        LogUtils.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
                                 ioe.getMessage());
                         return null;
                     } catch (OutOfMemoryError oome) {
-                        Log.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
+                        LogUtils.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
                                 oome.getMessage());
                         return null;
                     }
@@ -305,22 +305,22 @@ public class AttachmentProvider extends ContentProvider {
         return 0;
     }
 
-    private Bitmap createThumbnail(String type, InputStream data) {
+    private static Bitmap createThumbnail(String type, InputStream data) {
         if(MimeUtility.mimeTypeMatches(type, "image/*")) {
             return createImageThumbnail(data);
         }
         return null;
     }
 
-    private Bitmap createImageThumbnail(InputStream data) {
+    private static Bitmap createImageThumbnail(InputStream data) {
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(data);
             return bitmap;
         } catch (OutOfMemoryError oome) {
-            Log.d(Logging.LOG_TAG, "createImageThumbnail failed with " + oome.getMessage());
+            LogUtils.d(Logging.LOG_TAG, "createImageThumbnail failed with " + oome.getMessage());
             return null;
         } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
+            LogUtils.d(Logging.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
             return null;
         }
     }

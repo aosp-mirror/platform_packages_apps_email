@@ -22,11 +22,9 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
-import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.store.imap.ImapResponse;
@@ -45,6 +43,7 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.beetstra.jutf7.CharsetProvider;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -204,7 +203,7 @@ public class ImapStore extends Store {
             id.append(hexUid);
             id.append('\"');
         } catch (NoSuchAlgorithmException e) {
-            Log.d(Logging.LOG_TAG, "couldn't obtain SHA-1 hash for device UID");
+            LogUtils.d(Logging.LOG_TAG, "couldn't obtain SHA-1 hash for device UID");
         }
         return id.toString();
     }

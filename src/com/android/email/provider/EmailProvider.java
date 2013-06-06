@@ -48,7 +48,6 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.common.content.ProjectionMap;
 import com.android.email.Preferences;
@@ -94,6 +93,7 @@ import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.utils.AttachmentUtils;
+import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.android.mail.utils.MatrixCursorWithExtra;
@@ -122,7 +122,7 @@ import java.util.regex.Pattern;
  */
 public class EmailProvider extends ContentProvider {
 
-    private static final String TAG = "EmailProvider";
+    private static final String TAG = LogTag.getLogTag();
 
     public static String EMAIL_APP_MIME_TYPE;
 
@@ -307,7 +307,7 @@ public class EmailProvider extends ContentProvider {
         if (match < 0) {
             throw new IllegalArgumentException("Unknown uri: " + uri);
         } else if (Logging.LOGD) {
-            Log.v(TAG, methodName + ": uri=" + uri + ", match is " + match);
+            LogUtils.v(TAG, methodName + ": uri=" + uri + ", match is " + match);
         }
         return match;
     }
@@ -347,7 +347,7 @@ public class EmailProvider extends ContentProvider {
         int count = db.delete(table, column + " not in (select " + foreignColumn + " from " +
                 foreignTable + ")", null);
         if (count > 0) {
-            Log.w(TAG, "Found " + count + " orphaned row(s) in " + table);
+            LogUtils.w(TAG, "Found " + count + " orphaned row(s) in " + table);
         }
     }
 
@@ -401,7 +401,7 @@ public class EmailProvider extends ContentProvider {
      */
     private static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
         if (MailActivityEmail.DEBUG) {
-            Log.w(TAG, "restoreIfNeeded...");
+            LogUtils.w(TAG, "restoreIfNeeded...");
         }
         // Check for legacy backup
         String legacyBackup = Preferences.getLegacyBackupPreference(context);
@@ -411,7 +411,7 @@ public class EmailProvider extends ContentProvider {
         if (!TextUtils.isEmpty(legacyBackup)) {
             backupAccounts(context, mainDatabase);
             Preferences.clearLegacyBackupPreference(context);
-            Log.w(TAG, "Created new EmailProvider backup database");
+            LogUtils.w(TAG, "Created new EmailProvider backup database");
             return;
         }
 
@@ -421,7 +421,7 @@ public class EmailProvider extends ContentProvider {
         try {
             if (c.moveToFirst()) {
                 if (MailActivityEmail.DEBUG) {
-                    Log.w(TAG, "restoreIfNeeded: Account exists.");
+                    LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
                 }
                 return; // At least one account exists.
             }
@@ -985,10 +985,10 @@ public class EmailProvider extends ContentProvider {
 
         // TODO Make sure attachments are deleted
         if (databaseFile.exists() && !bodyFile.exists()) {
-            Log.w(TAG, "Deleting orphaned EmailProvider database...");
+            LogUtils.w(TAG, "Deleting orphaned EmailProvider database...");
             databaseFile.delete();
         } else if (bodyFile.exists() && !databaseFile.exists()) {
-            Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
+            LogUtils.w(TAG, "Deleting orphaned EmailProviderBody database...");
             bodyFile.delete();
         }
     }
@@ -1170,7 +1170,8 @@ public class EmailProvider extends ContentProvider {
                 // TODO: There are actually cases where c == null is expected, for example
                 // UI_FOLDER_LOAD_MORE.
                 // Demoting this to a warning for now until we figure out what to do with it.
-                Log.w(TAG, "Query returning null for uri: " + uri + ", selection: " + selection);
+                LogUtils.w(TAG, "Query returning null for uri: " + uri + ", selection: "
+                        + selection);
             }
         }
 
@@ -1259,7 +1260,7 @@ public class EmailProvider extends ContentProvider {
                 Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
                         null, null, null, null, null);
                 if (c == null) return 0;
-                Log.d(TAG, "fromDatabase accounts: " + c.getCount());
+                LogUtils.d(TAG, "fromDatabase accounts: " + c.getCount());
                 try {
                     // Loop through accounts, copying them and associated host auth's
                     while (c.moveToNext()) {
@@ -1306,14 +1307,14 @@ public class EmailProvider extends ContentProvider {
                 toDatabase.setTransactionSuccessful();
             } finally {
                 // STOPSHIP: Remove logging here and in at endTransaction() below
-                Log.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
+                LogUtils.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
                 toDatabase.endTransaction();
             }
         } catch (SQLiteException ex) {
-            Log.w(TAG, "Exception while copying account tables", ex);
+            LogUtils.w(TAG, "Exception while copying account tables", ex);
             copyCount = -1;
         } finally {
-            Log.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
+            LogUtils.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
             fromDatabase.endTransaction();
         }
         return copyCount;
@@ -1329,15 +1330,15 @@ public class EmailProvider extends ContentProvider {
      */
     private static int backupAccounts(Context context, SQLiteDatabase mainDatabase) {
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "backupAccounts...");
+            LogUtils.d(TAG, "backupAccounts...");
         }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
         try {
             int numBackedUp = copyAccountTables(mainDatabase, backupDatabase);
             if (numBackedUp < 0) {
-                Log.e(TAG, "Account backup failed!");
+                LogUtils.e(TAG, "Account backup failed!");
             } else if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "Backed up " + numBackedUp + " accounts...");
+                LogUtils.d(TAG, "Backed up " + numBackedUp + " accounts...");
             }
             return numBackedUp;
         } finally {
@@ -1352,17 +1353,17 @@ public class EmailProvider extends ContentProvider {
      */
     private static int restoreAccounts(Context context, SQLiteDatabase mainDatabase) {
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "restoreAccounts...");
+            LogUtils.d(TAG, "restoreAccounts...");
         }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
         try {
             int numRecovered = copyAccountTables(backupDatabase, mainDatabase);
             if (numRecovered > 0) {
-                Log.e(TAG, "Recovered " + numRecovered + " accounts!");
+                LogUtils.e(TAG, "Recovered " + numRecovered + " accounts!");
             } else if (numRecovered < 0) {
-                Log.e(TAG, "Account recovery failed?");
+                LogUtils.e(TAG, "Account recovery failed?");
             } else if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "No accounts to restore...");
+                LogUtils.d(TAG, "No accounts to restore...");
             }
             return numRecovered;
         } finally {
@@ -2510,16 +2511,17 @@ public class EmailProvider extends ContentProvider {
             service.setTimeout(10);
             acct = Account.restoreAccountWithId(context, accountId);
             if (acct == null) {
-                Log.d(TAG, "getCapabilities() for " + accountId + ": returning 0x0 (no account)");
+                LogUtils.d(TAG, "getCapabilities() for " + accountId
+                        + ": returning 0x0 (no account)");
                 return 0;
             }
             capabilities = service.getCapabilities(acct);
             // STOPSHIP
-            Log.d(TAG, "getCapabilities() for " + acct.mDisplayName + ": 0x" +
+            LogUtils.d(TAG, "getCapabilities() for " + acct.mDisplayName + ": 0x" +
                     Integer.toHexString(capabilities) + getBits(capabilities));
        } catch (RemoteException e) {
             // Nothing to do
-           Log.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
+           LogUtils.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
         }
 
         // If the configuration states that feedback is supported, add that capability
@@ -3289,7 +3291,7 @@ public class EmailProvider extends ContentProvider {
         @Override
         public void close() {
             super.close();
-            Log.d(TAG, "Closing cursor", new Error());
+            LogUtils.d(TAG, "Closing cursor", new Error());
         }
     }
 
@@ -4098,7 +4100,7 @@ public class EmailProvider extends ContentProvider {
         notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, Long.toString(id));
         Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(), id);
         if (mailbox == null) {
-            Log.w(TAG, "No mailbox for notification: " + id);
+            LogUtils.w(TAG, "No mailbox for notification: " + id);
             return;
         }
         // Notify combined inbox...
@@ -4247,7 +4249,7 @@ public class EmailProvider extends ContentProvider {
             return;
         }
 
-        Log.d(TAG, "Setting sync interval for account " + accountId + " to " + syncInterval +
+        LogUtils.d(TAG, "Setting sync interval for account " + accountId + " to " + syncInterval +
                 " minutes");
 
         // TODO: Ideally we don't need to do this every time we change the sync interval.
@@ -4349,7 +4351,7 @@ public class EmailProvider extends ContentProvider {
                                 mSearchParams.mTotalCount);
                         notifyUIFolder(searchMailboxId, accountId);
                     } catch (RemoteException e) {
-                        Log.e("searchMessages", "RemoteException", e);
+                        LogUtils.e("searchMessages", "RemoteException", e);
                     }
                 }
                 return null;
@@ -4365,7 +4367,8 @@ public class EmailProvider extends ContentProvider {
         // TODO: Check the actual mailbox
         Mailbox inbox = Mailbox.restoreMailboxOfType(getContext(), accountId, Mailbox.TYPE_INBOX);
         if (inbox == null) {
-            Log.w(Logging.LOG_TAG, "In uiSearch, inbox doesn't exist for account " + accountId);
+            LogUtils.w(Logging.LOG_TAG, "In uiSearch, inbox doesn't exist for account "
+                    + accountId);
 
             return null;
         }
@@ -4435,7 +4438,7 @@ public class EmailProvider extends ContentProvider {
             MailActivityEmail.setServicesEnabledSync(context);
             return 1;
         } catch (Exception e) {
-            Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
+            LogUtils.w(Logging.LOG_TAG, "Exception while deleting account", e);
         }
         return 0;
     }

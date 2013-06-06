@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
@@ -30,6 +29,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 
@@ -221,7 +221,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         } else {
             Bundle bundle = (Bundle) mReturn;
             bundle.setClassLoader(Policy.class.getClassLoader());
-            Log.v(TAG, "validate returns " + bundle.getInt(VALIDATE_BUNDLE_RESULT_CODE));
+            LogUtils.v(TAG, "validate returns " + bundle.getInt(VALIDATE_BUNDLE_RESULT_CODE));
             return bundle;
         }
     }
@@ -252,7 +252,8 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         } else {
             Bundle bundle = (Bundle) mReturn;
             bundle.setClassLoader(HostAuth.class.getClassLoader());
-            Log.v(TAG, "autoDiscover returns " + bundle.getInt(AUTO_DISCOVER_BUNDLE_ERROR_CODE));
+            LogUtils.v(TAG, "autoDiscover returns "
+                    + bundle.getInt(AUTO_DISCOVER_BUNDLE_ERROR_CODE));
             return bundle;
         }
     }

@@ -26,7 +26,8 @@ import android.os.Debug;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.util.Log;
+
+import com.android.mail.utils.LogUtils;
 
 /**
  * ServiceProxy is a superclass for proxy objects which make a single call to a service. It handles
@@ -96,7 +97,7 @@ public abstract class ServiceProxy {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Connected: " + name.getShortClassName() + " at " +
+                LogUtils.v(mTag, "Connected: " + name.getShortClassName() + " at " +
                         (System.currentTimeMillis() - mStartTime) + "ms");
             }
 
@@ -122,7 +123,7 @@ public abstract class ServiceProxy {
                     mTaskCompleted = true;
                     synchronized(mConnection) {
                         if (DEBUG_PROXY) {
-                            Log.v(mTag, "Task " + mName + " completed; disconnecting");
+                            LogUtils.v(mTag, "Task " + mName + " completed; disconnecting");
                         }
                         mConnection.notify();
                     }
@@ -134,7 +135,7 @@ public abstract class ServiceProxy {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Disconnected: " + name.getShortClassName() + " at " +
+                LogUtils.v(mTag, "Disconnected: " + name.getShortClassName() + " at " +
                         (System.currentTimeMillis() - mStartTime) + "ms");
             }
         }
@@ -162,7 +163,7 @@ public abstract class ServiceProxy {
         mTask = task;
         mStartTime = System.currentTimeMillis();
         if (DEBUG_PROXY) {
-            Log.v(mTag, "Bind requested for task " + mName);
+            LogUtils.v(mTag, "Bind requested for task " + mName);
         }
         return mContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
@@ -187,14 +188,14 @@ public abstract class ServiceProxy {
             long time = System.currentTimeMillis();
             try {
                 if (DEBUG_PROXY) {
-                    Log.v(mTag, "Waiting for task " + mName + " to complete...");
+                    LogUtils.v(mTag, "Waiting for task " + mName + " to complete...");
                 }
                 mConnection.wait(mTimeout * 1000L);
             } catch (InterruptedException e) {
                 // Can be ignored safely
             }
             if (DEBUG_PROXY) {
-                Log.v(mTag, "Wait for " + mName +
+                LogUtils.v(mTag, "Wait for " + mName +
                         (mTaskCompleted ? " finished in " : " timed out in ") +
                         (System.currentTimeMillis() - time) + "ms");
             }
@@ -211,7 +212,7 @@ public abstract class ServiceProxy {
                 @Override
                 public void run() throws RemoteException {
                     if (DEBUG_PROXY) {
-                        Log.v(mTag, "Connection test succeeded in " +
+                        LogUtils.v(mTag, "Connection test succeeded in " +
                                 (System.currentTimeMillis() - mStartTime) + "ms");
                     }
                 }

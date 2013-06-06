@@ -24,6 +24,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.mail.utils.LogUtils;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -32,7 +33,6 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -226,7 +226,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreate");
+            LogUtils.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -239,7 +239,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            Log.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreateView");
+            LogUtils.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreateView");
         }
         int layoutId = R.layout.account_settings_edit_quick_responses_fragment;
         View view = inflater.inflate(layoutId, container, false);

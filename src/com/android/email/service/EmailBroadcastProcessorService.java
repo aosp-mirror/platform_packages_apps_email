@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -38,6 +37,7 @@ import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.mail.utils.LogUtils;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -139,7 +139,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         final int initialProgress = progress;
 
         if (progress < 1) {
-            Log.i(Logging.LOG_TAG, "Onetime initialization: 1");
+            LogUtils.i(Logging.LOG_TAG, "Onetime initialization: 1");
             progress = 1;
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
                 setComponentEnabled(EasAuthenticatorServiceAlternate.class, true);
@@ -148,7 +148,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         }
 
         if (progress < 2) {
-            Log.i(Logging.LOG_TAG, "Onetime initialization: 2");
+            LogUtils.i(Logging.LOG_TAG, "Onetime initialization: 2");
             progress = 2;
             setImapDeletePolicy(this);
         }
@@ -160,7 +160,7 @@ public class EmailBroadcastProcessorService extends IntentService {
 
         if (progress != initialProgress) {
             pref.setOneTimeInitializationProgress(progress);
-            Log.i(Logging.LOG_TAG, "Onetime initialization: completed.");
+            LogUtils.i(Logging.LOG_TAG, "Onetime initialization: completed.");
         }
     }
 
@@ -202,7 +202,7 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void onSystemAccountChanged() {
-        Log.i(Logging.LOG_TAG, "System accounts updated.");
+        LogUtils.i(Logging.LOG_TAG, "System accounts updated.");
         reconcileAndStartServices();
     }
 }

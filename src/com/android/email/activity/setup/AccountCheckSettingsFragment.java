@@ -28,7 +28,6 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.mail.Sender;
@@ -42,6 +41,7 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 /**
  * Check incoming or outgoing settings, or perform autodiscovery.
@@ -440,7 +440,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 if ((mMode & SetupData.CHECK_AUTODISCOVER) != 0) {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
-                    Log.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
+                    LogUtils.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
                     Store store = Store.getInstance(mAccount, mContext);
                     Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
                     // Result will be one of:
@@ -467,7 +467,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Check Incoming Settings
                 if ((mMode & SetupData.CHECK_INCOMING) != 0) {
                     if (isCancelled()) return null;
-                    Log.d(Logging.LOG_TAG, "Begin check of incoming email settings");
+                    LogUtils.d(Logging.LOG_TAG, "Begin check of incoming email settings");
                     publishProgress(STATE_CHECK_INCOMING);
                     Store store = Store.getInstance(mAccount, mContext);
                     Bundle bundle = store.checkSettings();
@@ -511,7 +511,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Check Outgoing Settings
                 if (info.usesSmtp && (mMode & SetupData.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
-                    Log.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
+                    LogUtils.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);
                     Sender sender = Sender.getInstance(mContext, mAccount);
                     sender.close();
@@ -660,7 +660,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Belt and suspenders here; there should always be a non-empty array here
                 String[] unsupportedPolicies = (String[]) ex.getExceptionData();
                 if (unsupportedPolicies == null) {
-                    Log.w(TAG, "No data for unsupported policies?");
+                    LogUtils.w(TAG, "No data for unsupported policies?");
                     break;
                 }
                 // Build a string, concatenating policies we don't support

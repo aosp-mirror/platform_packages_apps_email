@@ -28,10 +28,10 @@ import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.StatusUpdates;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -134,7 +134,7 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
                 try {
                     photo = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
                 } catch (OutOfMemoryError e) {
-                    Log.d(Logging.LOG_TAG, "Decoding bitmap failed with " + e.getMessage());
+                    LogUtils.d(Logging.LOG_TAG, "Decoding bitmap failed with " + e.getMessage());
                 }
             }
         }

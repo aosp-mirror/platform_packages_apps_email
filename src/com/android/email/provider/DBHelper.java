@@ -27,7 +27,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.email.R;
 import com.android.email2.ui.MailActivityEmail;
@@ -514,7 +513,7 @@ public final class DBHelper {
                         + " add " + BodyColumns.INTRO_TEXT + " text");
             } catch (SQLException e) {
                 // Shouldn't be needed unless we're debugging and interrupt the process
-                Log.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
+                LogUtils.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
             }
             oldVersion = 6;
         }
@@ -524,7 +523,7 @@ public final class DBHelper {
                         + " add " + BodyColumns.QUOTED_TEXT_START_POS + " integer");
             } catch (SQLException e) {
                 // Shouldn't be needed unless we're debugging and interrupt the process
-                Log.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
+                LogUtils.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
             }
             oldVersion = 8;
         }
@@ -541,7 +540,7 @@ public final class DBHelper {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Log.d(TAG, "Creating EmailProviderBody database");
+            LogUtils.d(TAG, "Creating EmailProviderBody database");
             createBodyTable(db);
         }
 
@@ -574,7 +573,7 @@ public final class DBHelper {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Log.d(TAG, "Creating EmailProvider database");
+            LogUtils.d(TAG, "Creating EmailProvider database");
             // Create all tables here; each class has its own method
             createMessageTable(db);
             createAttachmentTable(db);
@@ -588,7 +587,7 @@ public final class DBHelper {
         @Override
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion == 101 && newVersion == 100) {
-                Log.d(TAG, "Downgrade from v101 to v100");
+                LogUtils.d(TAG, "Downgrade from v101 to v100");
             } else {
                 super.onDowngrade(db, oldVersion, newVersion);
             }
@@ -623,7 +622,7 @@ public final class DBHelper {
                             + " add column " + SyncColumns.SERVER_TIMESTAMP + " integer" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
                 }
                 oldVersion = 6;
             }
@@ -640,7 +639,7 @@ public final class DBHelper {
                             + " add column " + AccountColumns.SECURITY_FLAGS + " integer" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
                 }
                 oldVersion = 8;
             }
@@ -653,7 +652,7 @@ public final class DBHelper {
                             + " add column " + AccountColumns.SIGNATURE + " text" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
                 }
                 oldVersion = 9;
             }
@@ -668,7 +667,7 @@ public final class DBHelper {
                             + " add column " + MessageColumns.MEETING_INFO + " text" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
                 }
                 oldVersion = 10;
             }
@@ -681,7 +680,7 @@ public final class DBHelper {
                             + " add column " + AttachmentColumns.FLAGS + " integer" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
                 }
                 oldVersion = 11;
             }
@@ -692,7 +691,7 @@ public final class DBHelper {
                             + " add column " + AttachmentColumns.CONTENT_BYTES + " blob" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
                 }
                 oldVersion = 12;
             }
@@ -704,7 +703,7 @@ public final class DBHelper {
                     recalculateMessageCount(db);
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
                 }
                 oldVersion = 13;
             }
@@ -715,7 +714,7 @@ public final class DBHelper {
                                     +" text" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 13 to 14 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 13 to 14 " + e);
                 }
                 oldVersion = 14;
             }
@@ -727,7 +726,7 @@ public final class DBHelper {
                             + " add column " + Message.SNIPPET +" text" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 14 to 15 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 14 to 15 " + e);
                 }
                 oldVersion = 15;
             }
@@ -743,7 +742,7 @@ public final class DBHelper {
                             Attachment.TABLE_NAME + "." + Attachment.MESSAGE_KEY + ")");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
                 }
                 oldVersion = 16;
             }
@@ -753,7 +752,7 @@ public final class DBHelper {
                             + " add column " + Mailbox.PARENT_KEY + " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 16 to 17 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 16 to 17 " + e);
                 }
                 oldVersion = 17;
             }
@@ -771,7 +770,7 @@ public final class DBHelper {
                     convertPolicyFlagsToPolicyTable(db);
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
                 }
                 oldVersion = 19;
             }
@@ -803,7 +802,7 @@ public final class DBHelper {
                             " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 19 to 20 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 19 to 20 " + e);
                 }
                 oldVersion = 20;
             }
@@ -840,7 +839,7 @@ public final class DBHelper {
                             + " add column " + Message.PROTOCOL_SEARCH_INFO +" text" + ";");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
                 }
                 oldVersion = 27;
             }
@@ -855,7 +854,7 @@ public final class DBHelper {
                             + " add column " + Policy.PROTOCOL_POLICIES_UNSUPPORTED + " text;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 28 to 29 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 28 to 29 " + e);
                 }
                 oldVersion = 29;
             }
@@ -871,7 +870,7 @@ public final class DBHelper {
                             + " add column " + Mailbox.UI_LAST_SYNC_RESULT + " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 30 to 31 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 30 to 31 " + e);
                 }
                 oldVersion = 31;
             }
@@ -887,7 +886,7 @@ public final class DBHelper {
                             "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT + " IS NULL");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32 " + e);
                 }
                 oldVersion = 32;
             }
@@ -906,7 +905,7 @@ public final class DBHelper {
                             AttachmentColumns.CONTENT_URI + " is not null;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
                 }
                 oldVersion = 33;
             }
@@ -916,7 +915,7 @@ public final class DBHelper {
                             + " add column " + MailboxColumns.TOTAL_COUNT + " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 33 to 34 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 33 to 34 " + e);
                 }
                 oldVersion = 34;
             }
@@ -932,7 +931,7 @@ public final class DBHelper {
                             " = " + Mailbox.TYPE_SENT);
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
                 }
                 oldVersion = 35;
             }
@@ -951,7 +950,7 @@ public final class DBHelper {
                             LEGACY_SCHEME_EAS + "')");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
                 }
                 oldVersion = 37;
             }
@@ -961,7 +960,7 @@ public final class DBHelper {
                             + " add column " + MessageColumns.THREAD_TOPIC + " text;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 37 to 38 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 37 to 38 " + e);
                 }
                 oldVersion = 38;
             }
@@ -973,7 +972,7 @@ public final class DBHelper {
                             + " add column " + MessageColumns.THREAD_TOPIC + " text;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 38 to 39 " + e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 38 to 39 " + e);
                 }
                 oldVersion = 39;
             }
@@ -987,7 +986,7 @@ public final class DBHelper {
                             + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v10x to v103", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v10x to v103", e);
                 }
                 oldVersion = 103;
             }
@@ -997,7 +996,7 @@ public final class DBHelper {
                             + " add " + MessageColumns.SYNC_DATA + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v103 to v104", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v103 to v104", e);
                 }
                 oldVersion = 104;
             }
@@ -1009,7 +1008,7 @@ public final class DBHelper {
                             + " add " + MessageColumns.SYNC_DATA + " text");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v104 to v105", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v104 to v105", e);
                 }
                 oldVersion = 105;
             }
@@ -1019,7 +1018,7 @@ public final class DBHelper {
                             + " add " + HostAuthColumns.SERVER_CERT + " blob");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v105 to v106", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v105 to v106", e);
                 }
                 oldVersion = 106;
             }
@@ -1033,7 +1032,7 @@ public final class DBHelper {
                             + " add " + MessageColumns.FLAG_SEEN + " integer");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v106 to v107", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v106 to v107", e);
                 }
                 oldVersion = 107;
             }
@@ -1044,7 +1043,7 @@ public final class DBHelper {
                     oldVersion = 108;
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from v107 to v108", e);
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v107 to v108", e);
                 }
 
             }
@@ -1128,7 +1127,7 @@ public final class DBHelper {
                     + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='pop3' ) )");
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
         }
         ContentCache.invalidateAllCaches();
     }
@@ -1213,9 +1212,9 @@ public final class DBHelper {
                                 // If this is a pop3 or imap account, create the account manager
                                 // account
                                 if (MailActivityEmail.DEBUG) {
-                                    Log.d(TAG, "Create AccountManager account for " + protocol +
-                                            "account: " +
-                                            accountCursor.getString(V21_ACCOUNT_EMAIL));
+                                    LogUtils.d(TAG, "Create AccountManager account for " + protocol
+                                            + "account: "
+                                            + accountCursor.getString(V21_ACCOUNT_EMAIL));
                                 }
                                 createAccountManagerAccount(accountManagerContext,
                                         accountCursor.getString(V21_ACCOUNT_EMAIL),
@@ -1242,7 +1241,7 @@ public final class DBHelper {
             }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception while migrating accounts " + e);
+            LogUtils.w(TAG, "Exception while migrating accounts " + e);
         }
     }
 
@@ -1253,7 +1252,7 @@ public final class DBHelper {
                     + " add column " + Mailbox.LAST_TOUCHED_TIME + " integer default 0;");
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 22 to 23 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 22 to 23 " + e);
         }
     }
 
@@ -1264,7 +1263,7 @@ public final class DBHelper {
                     + " add column " + HostAuth.CLIENT_CERT_ALIAS + " text;");
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 23 to 24 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 23 to 24 " + e);
         }
     }
 
@@ -1274,7 +1273,7 @@ public final class DBHelper {
             createQuickResponseTable(db);
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
         }
     }
 
@@ -1323,7 +1322,7 @@ public final class DBHelper {
             }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 25 to 26 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 25 to 26 " + e);
         }
     }
 
@@ -1359,7 +1358,7 @@ public final class DBHelper {
             }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 29 to 30 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 29 to 30 " + e);
         }
     }
 
@@ -1374,7 +1373,7 @@ public final class DBHelper {
             db.execSQL("update Mailbox set " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT +
                     "=0 where " + Mailbox.LAST_NOTIFIED_MESSAGE_COUNT + " IS NULL");
         } catch (SQLException e) {
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32/100 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32/100 " + e);
         }
 
         // From 32->33 upgrade
@@ -1383,7 +1382,7 @@ public final class DBHelper {
                     "=" + UIProvider.AttachmentState.SAVED + " where " +
                     AttachmentColumns.CONTENT_URI + " is not null;");
         } catch (SQLException e) {
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33/100 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33/100 " + e);
         }
 
         // From 34->35 upgrade
@@ -1397,7 +1396,7 @@ public final class DBHelper {
                     Mailbox.SENT_DEFAULT_TOUCH_TIME + " WHERE " + MailboxColumns.TYPE +
                     " = " + Mailbox.TYPE_SENT);
         } catch (SQLException e) {
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35/100 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35/100 " + e);
         }
 
         // From 35/36->37
@@ -1413,7 +1412,7 @@ public final class DBHelper {
                     HostAuthColumns.ID + " and " + HostAuthColumns.PROTOCOL + "='" +
                     LEGACY_SCHEME_EAS + "')");
         } catch (SQLException e) {
-            Log.w(TAG, "Exception upgrading EmailProvider.db from 35/36 to 37/100 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 35/36 to 37/100 " + e);
         }
     }
 }

@@ -21,14 +21,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Debug;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.utils.LogUtils;
 
 import java.util.HashMap;
 
@@ -88,7 +87,7 @@ public class MailboxUtilities {
         } else {
             // Mark this is having no parent, so that we don't examine this mailbox again
             parentValues.put(Mailbox.PARENT_KEY, Mailbox.NO_MAILBOX);
-            Log.w(Logging.LOG_TAG, "Mailbox with null serverId: " +
+            LogUtils.w(Logging.LOG_TAG, "Mailbox with null serverId: " +
                     parentCursor.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN) + ", type: " +
                     parentType);
         }
@@ -199,7 +198,7 @@ public class MailboxUtilities {
         Account account = Account.restoreAccountWithId(context, accountId);
         if (account == null) return;
         if ((account.mFlags & ACCOUNT_MAILBOX_CHANGE_FLAG) != 0) {
-            Log.w(Logging.LOG_TAG, "Account " + account.mDisplayName +
+            LogUtils.w(Logging.LOG_TAG, "Account " + account.mDisplayName +
                     " has inconsistent mailbox data; fixing up...");
             // Set all account mailboxes to uninitialized parent key
             ContentValues values = new ContentValues();

@@ -18,14 +18,12 @@ package com.android.email.mail;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.android.email.R;
 import com.android.email.mail.store.ImapStore;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.ServiceStore;
 import com.android.email.mail.transport.MailTransport;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
@@ -33,6 +31,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.lang.reflect.Method;
@@ -102,7 +101,7 @@ public abstract class Store {
                 Method m = klass.getMethod("newInstance", Account.class, Context.class);
                 store = (Store)m.invoke(null, account, appContext);
             } catch (Exception e) {
-                Log.d(Logging.LOG_TAG, String.format(
+                LogUtils.d(Logging.LOG_TAG, String.format(
                         "exception %s invoking method %s#newInstance(Account, Context) for %s",
                         e.toString(), klass.getName(), account.mDisplayName));
                 throw new MessagingException("Can't instantiate Store for " + account.mDisplayName);

@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.android.email.NotificationController;
 import com.android.email.mail.Store;
@@ -46,7 +45,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
@@ -58,6 +56,7 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AttachmentState;
+import com.android.mail.utils.LogUtils;
 
 import org.apache.james.mime4j.EOLConvertingInputStream;
 
@@ -148,7 +147,7 @@ public class Pop3Service extends Service {
             sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
-                Log.v(Logging.LOG_TAG, "synchronizeMailbox", e);
+                LogUtils.v(Logging.LOG_TAG, "synchronizeMailbox", e);
             }
             if (e instanceof AuthenticationFailedException) {
                 // Generate authentication notification
@@ -198,7 +197,7 @@ public class Pop3Service extends Service {
             Pop3Folder remoteFolder, ArrayList<Pop3Message> unsyncedMessages,
             final Mailbox toMailbox) throws MessagingException {
         if (MailActivityEmail.DEBUG) {
-            Log.d(TAG, "Loading " + unsyncedMessages.size() + " unsynced messages");
+            LogUtils.d(TAG, "Loading " + unsyncedMessages.size() + " unsynced messages");
         }
         try {
             int cnt = unsyncedMessages.size();
@@ -214,7 +213,8 @@ public class Pop3Service extends Service {
                      flag = EmailContent.Message.FLAG_LOADED_UNKNOWN;
                 }
                 if (MailActivityEmail.DEBUG) {
-                    Log.d(TAG, "Message is " + (message.isComplete() ? "" : "NOT ") + "complete");
+                    LogUtils.d(TAG, "Message is " + (message.isComplete() ? "" : "NOT ")
+                            + "complete");
                 }
                 // If message is incomplete, create a "fake" attachment
                 Utilities.copyOneMessageToProvider(context, message, account, toMailbox, flag);
@@ -364,7 +364,7 @@ public class Pop3Service extends Service {
             }
         } else {
             if (MailActivityEmail.DEBUG) {
-                Log.d(TAG, "*** Message count is zero??");
+                LogUtils.d(TAG, "*** Message count is zero??");
             }
             remoteFolder.close(false);
             return;
@@ -405,7 +405,7 @@ public class Pop3Service extends Service {
 
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
                         if (!popMessage.isComplete()) {
-                            Log.e(TAG, "How is this possible?");
+                            LogUtils.e(TAG, "How is this possible?");
                         }
                         Utilities.copyOneMessageToProvider(
                                 context, popMessage, account, mailbox, flag);
