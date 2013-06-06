@@ -2272,7 +2272,8 @@ public class EmailProvider extends ContentProvider {
         if (unseenOnly) {
             sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
         }
-        sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC");
+        sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC ");
+        sb.append("LIMIT " + UIProvider.CONVERSATION_PROJECTION_QUERY_CURSOR_WINDOW_LIMT);
         return sb.toString();
     }
 
