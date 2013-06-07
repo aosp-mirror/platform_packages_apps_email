@@ -112,7 +112,7 @@ public class DiscourseLogger {
 
         LogUtils.w(Logging.LOG_TAG, "Last network activities:");
         for (String r : getLines()) {
-            LogUtils.w(Logging.LOG_TAG, r);
+            LogUtils.w(Logging.LOG_TAG, "%s", r);
         }
         initBuffer();
     }
