@@ -31,6 +31,7 @@ import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Migrates Email settings to UnifiedEmail
@@ -65,10 +66,10 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
 
     protected static void migrate(final Context context, final int oldVersion, final int newVersion,
             final List<Account> accounts) {
+        final Preferences preferences = Preferences.getPreferences(context);
+        final MailPrefs mailPrefs = MailPrefs.get(context);
         if (oldVersion < 1) {
             // Move global settings
-            final Preferences preferences = Preferences.getPreferences(context);
-            final MailPrefs mailPrefs = MailPrefs.get(context);
 
             @SuppressWarnings("deprecation")
             final boolean hasSwipeDelete = preferences.hasSwipeDelete();
@@ -139,5 +140,12 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
                 folderPreferences.commit();
             }
         }
+
+        if (oldVersion < 2) {
+            @SuppressWarnings("deprecation")
+            final Set<String> whitelistedAddresses = preferences.getWhitelistedSenderAddresses();
+            mailPrefs.setSenderWhitelist(whitelistedAddresses);
+        }
+
     }
 }

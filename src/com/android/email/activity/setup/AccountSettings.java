@@ -33,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
@@ -51,8 +52,11 @@ import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
+import com.android.mail.ui.FeedbackEnabledActivity;
 import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.Utils;
 
 import java.util.List;
 
@@ -71,7 +75,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity {
+public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -283,6 +287,10 @@ public class AccountSettings extends PreferenceActivity {
                 break;
             case R.id.add_new_account:
                 onAddNewAccount();
+                break;
+            case R.id.feedback_menu_item:
+                final Uri feedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
+                Utils.sendFeedback(this, feedbackUri, false /* reportingProblem */);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -882,5 +890,10 @@ public class AccountSettings extends PreferenceActivity {
                 getActivity().finish();
             }
         }
+    }
+
+    @Override
+    public Context getActivityContext() {
+        return this;
     }
 }
