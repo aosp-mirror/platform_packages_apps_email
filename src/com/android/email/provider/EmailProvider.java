@@ -2210,10 +2210,10 @@ public class EmailProvider extends ContentProvider {
             }
             Address[] fromList = Address.unpack(msg.mFrom);
             int autoShowImages = 0;
-            Preferences prefs = Preferences.getPreferences(context);
+            final MailPrefs mailPrefs = MailPrefs.get(context);
             for (Address sender : fromList) {
-                String email = sender.getAddress();
-                if (prefs.shouldShowImagesFor(email)) {
+                final String email = sender.getAddress();
+                if (mailPrefs.getDisplayImagesFromSender(email)) {
                     autoShowImages = 1;
                     break;
                 }
@@ -3875,10 +3875,10 @@ public class EmailProvider extends ContentProvider {
                 }
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
                 Address[] fromList = Address.unpack(message.mFrom);
-                Preferences prefs = Preferences.getPreferences(getContext());
+                final MailPrefs mailPrefs = MailPrefs.get(getContext());
                 for (Address sender : fromList) {
-                    String email = sender.getAddress();
-                    prefs.setSenderAsTrusted(email);
+                    final String email = sender.getAddress();
+                    mailPrefs.setDisplayImagesFromSender(email, null);
                 }
             } else if (columnName.equals(UIProvider.ConversationColumns.VIEWED) ||
                     columnName.equals(UIProvider.ConversationOperations.Parameters.SUPPRESS_UNDO)) {

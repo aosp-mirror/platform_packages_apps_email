@@ -27,7 +27,9 @@ import com.android.mail.utils.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Preferences {
@@ -83,13 +85,6 @@ public class Preferences {
     private static Preferences sPreferences;
 
     private final SharedPreferences mSharedPreferences;
-
-    /**
-     * A set of trusted senders for whom images and external resources should automatically be
-     * loaded for.
-     * Lazilly created.
-     */
-    private HashSet<String> mTrustedSenders = null;
 
     private Preferences(Context context) {
         mSharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
@@ -263,45 +258,15 @@ public class Preferences {
     }
 
     /**
-     * Determines whether or not a sender should be trusted and images should automatically be
-     * shown for messages by that sender.
+     * @deprecated This has been moved to {@link com.android.mail.preferences.MailPrefs}, and is only here for migration.
      */
-    public boolean shouldShowImagesFor(String email) {
-        if (mTrustedSenders == null) {
-            try {
-                mTrustedSenders = parseEmailSet(mSharedPreferences.getString(TRUSTED_SENDERS, ""));
-            } catch (JSONException e) {
-                // Something went wrong, and the data is corrupt. Just clear it to be safe.
-                LogUtils.w(Logging.LOG_TAG, "Trusted sender set corrupted. Clearing");
-                mSharedPreferences.edit().putString(TRUSTED_SENDERS, "").apply();
-                mTrustedSenders = new HashSet<String>();
-            }
+    @Deprecated
+    public Set<String> getWhitelistedSenderAddresses() {
+        try {
+            return parseEmailSet(mSharedPreferences.getString(TRUSTED_SENDERS, ""));
+        } catch (JSONException e) {
+            return Collections.EMPTY_SET;
         }
-        return mTrustedSenders.contains(email);
-    }
-
-    /**
-     * Marks a sender as trusted so that images from that sender will automatically be shown.
-     */
-    public void setSenderAsTrusted(String email) {
-        if (!mTrustedSenders.contains(email)) {
-            mTrustedSenders.add(email);
-            mSharedPreferences
-                    .edit()
-                    .putString(TRUSTED_SENDERS, packEmailSet(mTrustedSenders))
-                    .apply();
-        }
-    }
-
-    /**
-     * Clears all trusted senders asynchronously.
-     */
-    public void clearTrustedSenders() {
-        mTrustedSenders = new HashSet<String>();
-        mSharedPreferences
-                .edit()
-                .putString(TRUSTED_SENDERS, packEmailSet(mTrustedSenders))
-                .apply();
     }
 
     HashSet<String> parseEmailSet(String serialized) throws JSONException {

@@ -70,9 +70,4 @@
         android:title="@string/preference_swipe_title_delete"
         android:summary="@string/preference_swipe_description" />
 
-    <PreferenceScreen
-        android:key="clear_trusted_senders"
-        android:title="@string/general_preferences_clear_trusted_senders_title"
-        android:summary="@string/general_preferences_clear_trusted_senders_summary" />
-
 </PreferenceScreen>

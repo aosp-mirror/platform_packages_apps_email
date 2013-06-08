@@ -23,13 +23,15 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
-import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 import com.android.mail.preferences.MailPrefs;
-import com.android.mail.utils.Utils;
+import com.android.mail.ui.settings.ClearPictureApprovalsDialogFragment;
 
 public class GeneralPreferences extends EmailPreferenceFragment implements
         OnPreferenceChangeListener {
@@ -39,7 +41,6 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
-    private static final String PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS = "clear_trusted_senders";
 
     private MailPrefs mMailPrefs;
     private Preferences mPreferences;
@@ -121,12 +122,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
         }
         mSettingsChanged = true;
         String key = preference.getKey();
-        if (key.equals(PREFERENCE_KEY_CLEAR_TRUSTED_SENDERS)) {
-            mPreferences.clearTrustedSenders();
-            Toast.makeText(
-                    getActivity(), R.string.trusted_senders_cleared, Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (PREFERENCE_KEY_CONFIRM_DELETE.equals(key)) {
+        if (PREFERENCE_KEY_CONFIRM_DELETE.equals(key)) {
             mPreferences.setConfirmDelete(mConfirmDelete.isChecked());
             return true;
         } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
@@ -189,4 +185,29 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             mTextZoom.setSummary(summary);
         }
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.general_prefs_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.clear_picture_approvals_menu_item:
+                clearDisplayImages();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void clearDisplayImages() {
+        final ClearPictureApprovalsDialogFragment fragment =
+                ClearPictureApprovalsDialogFragment.newInstance();
+        fragment.show(getActivity().getFragmentManager(),
+                ClearPictureApprovalsDialogFragment.FRAGMENT_TAG);
+    }
+
 }
