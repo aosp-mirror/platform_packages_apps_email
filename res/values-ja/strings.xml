@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"標準"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"極大"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"画像の表示を確認"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"メールの画像が自動的には表示されない"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"[画像を表示]を解除しました。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"同期を待機中"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"まもなくメールが表示されます。"</string>

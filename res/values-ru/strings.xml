@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Обычный"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Крупный"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромный"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Запрашивать разрешение на показ изображений"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Автоматический показ изображений в сообщениях будет отключен"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"Показ изображений отключен."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> из <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Ожидание синхронизации"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Ваши письма скоро загрузятся."</string>

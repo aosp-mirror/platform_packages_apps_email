@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normaal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groot"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Reusagtig"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Vra om prente te wys"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Prente in boodskappe sal nie outomaties gewys word nie"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Wys prente\" uitgevee."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Wag vir sinkronisasie"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Jou e-posadres sal binnekort verskyn."</string>

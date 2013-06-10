@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Stor"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Jättestor"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"Fråga om bilder ska visas"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Bilder i meddelanden kommer inte att visas automatiskt"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"Visa bilder\" rensas."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> av <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Väntar på synk"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Din e-post visas snart."</string>
