@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"सामान्य"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"बड़ा"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"बहुत बड़ा"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"चित्र दिखाने के लिए पूछें"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"संदेशों के चित्र अपने आप नहीं दिखाए जाएंगे"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"\"चित्र दिखाएं\" साफ़ किया गया."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_2">%2$s</xliff:g> का <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"समन्वयन की प्रतीक्षा कर रहा है"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"आपका ईमेल जल्‍दी ही दिखाई देगा."</string>

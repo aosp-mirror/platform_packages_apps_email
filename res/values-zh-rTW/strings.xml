@@ -458,9 +458,7 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"適中"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"最大"</string>
-    <string name="general_preferences_clear_trusted_senders_title" msgid="507988226277210305">"顯示圖片前先讓我確認"</string>
     <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"系統不會自動顯示郵件中的圖片"</string>
-    <string name="trusted_senders_cleared" msgid="4762002183756251723">"「顯示圖片」已清除。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
     <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"正在等待同步處理"</string>
     <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"即將顯示您的電子郵件。"</string>
