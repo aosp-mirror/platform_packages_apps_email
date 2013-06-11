@@ -522,11 +522,16 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 final Cursor accountCursor = mContext.getContentResolver().query(EmailProvider
                         .uiUri("uiaccount", mAccount.mId), UIProvider.ACCOUNTS_PROJECTION, null,
                         null, null);
+                if (accountCursor == null) {
+                    return;
+                }
 
-                com.android.mail.providers.Account account = null;
+                final com.android.mail.providers.Account account;
                 try {
                     if (accountCursor.moveToFirst()) {
                         account = new com.android.mail.providers.Account(accountCursor);
+                    } else {
+                        return;
                     }
                 } finally {
                     accountCursor.close();
@@ -535,11 +540,16 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 final Cursor folderCursor = mContext.getContentResolver().query(
                         account.settings.defaultInbox, UIProvider.FOLDERS_PROJECTION, null, null,
                         null);
+                if (folderCursor == null) {
+                    return;
+                }
 
-                Folder folder = null;
+                final Folder folder;
                 try {
                     if (folderCursor.moveToFirst()) {
                         folder = new Folder(folderCursor);
+                    } else {
+                        return;
                     }
                 } finally {
                     folderCursor.close();
