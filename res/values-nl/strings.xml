@@ -393,7 +393,7 @@
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Beltoon kiezen"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinstellingen"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Account verwijderen"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Het account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Account verwijderen"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Account verwijderen"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Synchronisatieopties"</string>
