@@ -2602,20 +2602,21 @@ public class EmailProvider extends ContentProvider {
                     textZoomToUiValue(textZoom));
         }
         // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
-        long mailboxId = Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
+        final long inboxMailboxId =
+                Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX) &&
-                mailboxId != Mailbox.NO_MAILBOX) {
+                inboxMailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
-                    uiUriString("uifolder", mailboxId));
+                    uiUriString("uifolder", inboxMailboxId));
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME) &&
-                mailboxId != Mailbox.NO_MAILBOX) {
+                inboxMailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME,
-                    Mailbox.getDisplayName(context, mailboxId));
+                    Mailbox.getDisplayName(context, inboxMailboxId));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SYNC_STATUS)) {
-            if (mailboxId != Mailbox.NO_MAILBOX) {
+            if (inboxMailboxId != Mailbox.NO_MAILBOX) {
                 values.put(UIProvider.AccountColumns.SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
             } else {
                 values.put(UIProvider.AccountColumns.SYNC_STATUS,
@@ -2652,6 +2653,11 @@ public class EmailProvider extends ContentProvider {
             }
 
             values.put(UIProvider.AccountColumns.TYPE, type);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX) &&
+                inboxMailboxId != Mailbox.NO_MAILBOX) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX,
+                    uiUriString("uifolder", inboxMailboxId));
         }
 
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
@@ -2841,6 +2847,10 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)] =
+                    combinedUriString("uifolder", combinedMailboxId(Mailbox.TYPE_INBOX));
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX)] =
                     combinedUriString("uifolder", combinedMailboxId(Mailbox.TYPE_INBOX));
         }
 
