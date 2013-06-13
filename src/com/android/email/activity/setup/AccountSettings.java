@@ -271,7 +271,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.account_settings_add_account_option, menu);
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
         return true;
     }
 
