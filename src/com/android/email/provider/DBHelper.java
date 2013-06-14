@@ -50,6 +50,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
+import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -139,8 +140,10 @@ public final class DBHelper {
     // Version 107: Add a SEEN column to the message table
     // Version 108: Add a cachedFile column to the attachments table
     // Version 109: Migrate the account so they have the correct account manager types
+    // Version 110: Stop updating message_count, don't use auto lookback, and don't use
+    //              ping/push_hold sync states.
 
-    public static final int DATABASE_VERSION = 109;
+    public static final int DATABASE_VERSION = 110;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -271,35 +274,6 @@ public final class DBHelper {
                 '=' + MailboxColumns.UNREAD_COUNT + "+ case OLD." + MessageColumns.FLAG_READ +
                 " when 0 then -1 else 1 end" +
                 "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Add triggers to update message count per mailbox
-
-        // Insert a message.
-        db.execSQL("create trigger message_count_message_insert after insert on " +
-                Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
-                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Delete a message; if flagRead is zero, decrement the unread count of the msg's mailbox
-        db.execSQL("create trigger message_count_message_delete after delete on " +
-                Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; end");
-
-        // Change a message's mailbox
-        db.execSQL("create trigger message_count_message_move after update of " +
-                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
-                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
-                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
-                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
-                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
-                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
                 "; end");
     }
 
@@ -1040,17 +1014,35 @@ public final class DBHelper {
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
                             + " add column " + Attachment.CACHED_FILE +" text" + ";");
-                    oldVersion = 108;
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v107 to v108", e);
                 }
-
+                oldVersion = 108;
             }
             if (oldVersion == 108) {
                 // Migrate the accounts with the correct account type
                 migrateLegacyAccounts(db, mContext);
                 oldVersion = 109;
+            }
+            if (oldVersion == 109) {
+                // Delete the triggers that maintained message_count.
+                db.execSQL("drop trigger message_count_message_insert");
+                db.execSQL("drop trigger message_count_message_delete");
+                db.execSQL("drop trigger message_count_message_move");
+
+                // Fix any mailboxes that have ping or push_hold states.
+                db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
+                        + "=" + Mailbox.CHECK_INTERVAL_PUSH + " where "
+                        + MailboxColumns.SYNC_INTERVAL + "<" + Mailbox.CHECK_INTERVAL_PUSH);
+
+                // Fix invalid syncLookback values.
+                db.execSQL("update " + Account.TABLE_NAME + " set " + AccountColumns.SYNC_LOOKBACK
+                        + "=null where " + AccountColumns.SYNC_LOOKBACK +"<"
+                        + SyncWindow.SYNC_WINDOW_1_DAY);
+                db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_LOOKBACK
+                        + "=null where " + MailboxColumns.SYNC_LOOKBACK + "<"
+                        + SyncWindow.SYNC_WINDOW_1_DAY);
             }
         }
 
