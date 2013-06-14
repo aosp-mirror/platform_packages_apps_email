@@ -39,6 +39,8 @@ import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -408,6 +410,12 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             LogUtils.d(Logging.LOG_TAG, "AccountSettingsFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.settings_fragment_menu, menu);
     }
 
     /**
