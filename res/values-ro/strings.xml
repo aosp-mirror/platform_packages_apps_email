@@ -45,7 +45,6 @@
     <string name="set_star_action" msgid="4660317166196258160">"Marcaţi cu stea"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Eliminaţi steaua"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualizaţi"</string>
-    <string name="add_account_action" msgid="8835736309476033727">"Adăugaţi un cont"</string>
     <string name="compose_action" msgid="4045702519637388045">"Scrieţi"</string>
     <string name="search_action" msgid="6325101454876682308">"Căutaţi"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Setările contului"</string>

@@ -56,7 +56,6 @@
     <string name="set_star_action" msgid="4660317166196258160">"Agiuntar ina staila"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Allontanar la staila"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualisar"</string>
-    <string name="add_account_action" msgid="8835736309476033727">"Agiuntar in conto"</string>
     <string name="compose_action" msgid="4045702519637388045">"Nov messadi"</string>
     <string name="search_action" msgid="6325101454876682308">"Tschertgar"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Parameters dal conto"</string>
