@@ -45,7 +45,6 @@
     <string name="set_star_action" msgid="4660317166196258160">"เพิ่มดาว"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"ลบดาว"</string>
     <string name="refresh_action" msgid="5951383001436708175">"รีเฟรช"</string>
-    <string name="add_account_action" msgid="8835736309476033727">"เพิ่มบัญชี"</string>
     <string name="compose_action" msgid="4045702519637388045">"เขียน"</string>
     <string name="search_action" msgid="6325101454876682308">"ค้นหา"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"การตั้งค่าบัญชี"</string>

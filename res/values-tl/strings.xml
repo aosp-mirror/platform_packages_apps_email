@@ -45,7 +45,6 @@
     <string name="set_star_action" msgid="4660317166196258160">"Magdagdag ng star"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Alisin ang bituin"</string>
     <string name="refresh_action" msgid="5951383001436708175">"I-refresh"</string>
-    <string name="add_account_action" msgid="8835736309476033727">"Magdagdag ng account"</string>
     <string name="compose_action" msgid="4045702519637388045">"Bumuo"</string>
     <string name="search_action" msgid="6325101454876682308">"Paghahanap"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Mga setting ng account"</string>

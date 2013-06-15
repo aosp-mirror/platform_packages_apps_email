@@ -45,7 +45,6 @@
     <string name="set_star_action" msgid="4660317166196258160">"Добавяне на звезда"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Премахване на звездата"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Опресняване"</string>
-    <string name="add_account_action" msgid="8835736309476033727">"Добавяне на профил"</string>
     <string name="compose_action" msgid="4045702519637388045">"Ново съобщение"</string>
     <string name="search_action" msgid="6325101454876682308">"Търсене"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Настройки на профил"</string>
