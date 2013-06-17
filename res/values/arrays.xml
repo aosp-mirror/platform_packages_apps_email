@@ -63,7 +63,6 @@
 
     <!-- Mail sync window sizes for EAS accounts -->
     <string-array name="account_settings_mail_window_entries">
-        <item>@string/account_setup_options_mail_window_auto</item>
         <item>@string/account_setup_options_mail_window_1day</item>
         <item>@string/account_setup_options_mail_window_3days</item>
         <item>@string/account_setup_options_mail_window_1week</item>
@@ -74,7 +73,6 @@
 
     <!-- Mail sync window size codes for EAS accounts -->
     <string-array name="account_settings_mail_window_values" translatable="false">
-        <item>-2</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -87,7 +85,6 @@
          account_settings_mail_window_entries, but has 0=default.  -->
     <string-array name="account_settings_mail_window_entries_with_default">
         <item>@string/account_setup_options_mail_window_default</item>
-        <item>@string/account_setup_options_mail_window_auto</item>
         <item>@string/account_setup_options_mail_window_1day</item>
         <item>@string/account_setup_options_mail_window_3days</item>
         <item>@string/account_setup_options_mail_window_1week</item>
@@ -100,7 +97,6 @@
          account_settings_mail_window_values, but has 0=default.  -->
     <string-array name="account_settings_mail_window_values_with_default" translatable="false">
         <item>0</item>
-        <item>-2</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>

@@ -652,7 +652,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             mSyncWindow.setSummary(mSyncWindow.getEntry());
-            MailboxSettings.setupLookbackPreferenceOptions(mContext, mSyncWindow, mAccount);
+            MailboxSettings.setupLookbackPreferenceOptions(mContext, mSyncWindow, mAccount, false);
 
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);

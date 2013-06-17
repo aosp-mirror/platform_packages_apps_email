@@ -44,6 +44,8 @@ import com.android.mail.utils.LogUtils;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import java.util.Arrays;
+
 /**
  * "Mailbox settings" activity.
  *
@@ -182,30 +184,33 @@ public class MailboxSettings extends PreferenceActivity {
      * @param context the caller's context
      * @param pref a ListPreference to be set up
      * @param account the Account (or owner of a Mailbox) whose preference is being set
+     * @param showWithDefault Whether to show the version with default, or without.
      */
-    public static void setupLookbackPreferenceOptions(Context context, ListPreference pref,
-            Account account) {
-        Resources resources = context.getResources();
+    public static void setupLookbackPreferenceOptions(final Context context,
+            final ListPreference pref, final Account account, final boolean showWithDefault) {
+        final Resources resources = context.getResources();
         // Load the complete list of entries/values
-        CharSequence[] entries =
-                resources.getTextArray(R.array.account_settings_mail_window_entries);
-        CharSequence[] values =
-                resources.getTextArray(R.array.account_settings_mail_window_values);
+        CharSequence[] entries;
+        CharSequence[] values;
+        final int offset;
+        if (showWithDefault) {
+            entries = resources.getTextArray(
+                    R.array.account_settings_mail_window_entries_with_default);
+            values = resources.getTextArray(
+                    R.array.account_settings_mail_window_values_with_default);
+            offset = 1;
+        } else {
+            entries = resources.getTextArray(R.array.account_settings_mail_window_entries);
+            values = resources.getTextArray(R.array.account_settings_mail_window_values);
+            offset = 0;
+        }
         // If we have a maximum lookback policy, enforce it
         if (account.mPolicyKey > 0) {
             Policy policy = Policy.restorePolicyWithId(context, account.mPolicyKey);
             if (policy != null && (policy.mMaxEmailLookback != 0)) {
-                int maxEntry  = policy.mMaxEmailLookback + 1;
-                // Copy the proper number of values into new entries/values array
-                CharSequence[] policyEntries = new CharSequence[maxEntry];
-                CharSequence[] policyValues = new CharSequence[maxEntry];
-                for (int i = 0; i < maxEntry; i++) {
-                    policyEntries[i] = entries[i];
-                    policyValues[i] = values[i];
-                }
-                // Point entries/values to the new arrays
-                entries = policyEntries;
-                values = policyValues;
+                final int size = policy.mMaxEmailLookback + offset;
+                entries = Arrays.copyOf(entries, size);
+                values = Arrays.copyOf(values, size);
             }
         }
         // Set up the preference
@@ -231,7 +236,8 @@ public class MailboxSettings extends PreferenceActivity {
             setTitle(getString(R.string.mailbox_settings_activity_title_with_mailbox, mailboxName));
         }
 
-        setupLookbackPreferenceOptions(this, mSyncLookbackPref, mAccount);
+        setupLookbackPreferenceOptions(this, mSyncLookbackPref, mAccount,
+                mMailbox.mType != Mailbox.TYPE_INBOX);
 
         // Set default value & update summary
         mSyncIntervalPref.setValue(String.valueOf(getSyncInterval()));
