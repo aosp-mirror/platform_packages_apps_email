@@ -24,9 +24,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
 import com.android.mail.utils.LogUtils;
 
 import java.util.HashMap;
@@ -43,6 +41,7 @@ public class MailboxUtilities {
      * @param context the caller's context
      * @param parentCursor a cursor to a mailbox that requires fixup
      */
+    @Deprecated
     public static void setFlagsAndChildrensParentKey(Context context, Cursor parentCursor,
             String accountSelector) {
         ContentResolver resolver = context.getContentResolver();
@@ -103,6 +102,7 @@ public class MailboxUtilities {
      * @param accountSelector (see description below in fixupUninitializedParentKeys)
      * @param serverId the server id of an individual mailbox
      */
+    @Deprecated
     public static void setFlagsAndChildrensParentKey(Context context, String accountSelector,
             String serverId) {
         Cursor cursor = context.getContentResolver().query(Mailbox.CONTENT_URI,
@@ -125,6 +125,7 @@ public class MailboxUtilities {
      * @param accountSelector a sqlite WHERE clause expression to be used in determining the
      * mailboxes to be acted upon, e.g. accountKey IN (1, 2), accountKey = 12, etc.
      */
+    @Deprecated
     public static void fixupUninitializedParentKeys(Context context, String accountSelector) {
         // Sanity check first on our arguments
         if (accountSelector == null) throw new IllegalArgumentException();
@@ -192,6 +193,7 @@ public class MailboxUtilities {
      * @param context the caller's context
      * @param accountId the account whose mailboxes are to be checked
      */
+    @Deprecated
     public static void checkMailboxConsistency(Context context, long accountId) {
         // If our temporary flag is set, we were interrupted during an update
         // First, make sure we're current (really fast w/ caching)

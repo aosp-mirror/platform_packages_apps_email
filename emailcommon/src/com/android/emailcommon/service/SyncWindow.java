@@ -17,7 +17,6 @@
 package com.android.emailcommon.service;
 
 public class SyncWindow {
-    public static final int SYNC_WINDOW_AUTO = -2;
     public static final int SYNC_WINDOW_USER = -1;
     public static final int SYNC_WINDOW_UNKNOWN = 0;
     public static final int SYNC_WINDOW_1_DAY = 1;
@@ -42,7 +41,6 @@ public class SyncWindow {
             case SYNC_WINDOW_ALL:
                 return 365*10;
             case SYNC_WINDOW_UNKNOWN:
-            case SYNC_WINDOW_AUTO:
             default:
                 return 14;
         }
