@@ -60,6 +60,7 @@ import com.android.mail.preferences.AccountPreferences;
 import com.android.mail.preferences.FolderPreferences;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.ui.settings.SettingsUtils;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.NotificationUtils;
 
@@ -363,6 +364,8 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 signature = "";
             }
             mAccountSignature.setText(signature);
+            SettingsUtils.updatePreferenceSummary(mAccountSignature, signature,
+                    R.string.preferences_signature_summary_not_set);
             preferenceChanged(PREFERENCE_SIGNATURE, signature);
             return false;
         } else if (key.equals(PREFERENCE_NAME)) {
@@ -619,9 +622,13 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         mAccountName.setText(senderName);
         mAccountName.setOnPreferenceChangeListener(this);
 
+        final String accountSignature = mAccount.getSignature();
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
-        mAccountSignature.setText(mAccount.getSignature());
+        mAccountSignature.setText(accountSignature);
         mAccountSignature.setOnPreferenceChangeListener(this);
+        SettingsUtils.updatePreferenceSummary(mAccountSignature, accountSignature,
+                R.string.preferences_signature_summary_not_set);
+
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
         final String protocol = Account.getProtocol(mContext, mAccount.mId);
