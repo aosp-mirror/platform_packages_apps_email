@@ -4421,10 +4421,6 @@ public class EmailProvider extends ContentProvider {
     }
 
     private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
-    private static final String MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION =
-        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" +
-        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
-    private static final String MESSAGES_FOR_ACCOUNT_SELECTION = MessageColumns.ACCOUNT_KEY + "=?";
 
     /**
      * Delete an account and clean it up
@@ -4472,24 +4468,15 @@ public class EmailProvider extends ContentProvider {
         // Delete synced attachments
         AttachmentUtilities.deleteAllAccountAttachmentFiles(context, accountId);
 
-        // Delete synced email, leaving only an empty inbox.  We do this in two phases:
-        // 1. Delete all non-inbox mailboxes (which will delete all of their messages)
-        // 2. Delete all remaining messages (which will be the inbox messages)
+        // Delete all mailboxes.
         ContentResolver resolver = context.getContentResolver();
         String[] accountIdArgs = new String[] { Long.toString(accountId) };
-        resolver.delete(Mailbox.CONTENT_URI,
-                MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION,
-                accountIdArgs);
-        resolver.delete(Message.CONTENT_URI, MESSAGES_FOR_ACCOUNT_SELECTION, accountIdArgs);
+        resolver.delete(Mailbox.CONTENT_URI, MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
 
-        // Delete sync keys on remaining items
-        ContentValues cv = new ContentValues();
+        // Delete account sync key.
+        final ContentValues cv = new ContentValues();
         cv.putNull(Account.SYNC_KEY);
         resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
-        cv.clear();
-        cv.putNull(Mailbox.SYNC_KEY);
-        resolver.update(Mailbox.CONTENT_URI, cv,
-                MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
 
         // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
         IEmailService service = EmailServiceUtils.getServiceForAccount(context, null, accountId);

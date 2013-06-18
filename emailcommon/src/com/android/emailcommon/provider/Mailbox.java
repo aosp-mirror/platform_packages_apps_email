@@ -180,6 +180,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final int TYPE_CALENDAR = 0x41;
     public static final int TYPE_CONTACTS = 0x42;
     public static final int TYPE_TASKS = 0x43;
+    @Deprecated
     public static final int TYPE_EAS_ACCOUNT_MAILBOX = 0x44;
     public static final int TYPE_UNKNOWN = 0x45;
 

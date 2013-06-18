@@ -398,10 +398,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long box1Id = box1.mId;
         Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
         long box2Id = box2.mId;
-        // An EAS account mailbox
-        Mailbox eas = ProviderTestUtils.setupMailbox("eas", account1Id, false, mProviderContext);
-        eas.mType = Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
-        eas.save(mProviderContext);
 
         Account account2 = ProviderTestUtils.setupAccount("wipe-synced-2", false, mProviderContext);
         account2.mSyncKey = "account-2-sync-key";
@@ -435,7 +431,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // Confirm:  Mailboxes gone (except account box), all messages gone, account survives
         assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box1Id));
         assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box2Id));
-        assertNotNull(Mailbox.restoreMailboxWithId(mProviderContext, eas.mId));
         assertNull(Message.restoreMessageWithId(mProviderContext, message1Id));
         assertNull(Message.restoreMessageWithId(mProviderContext, message2Id));
         account1 = Account.restoreAccountWithId(mProviderContext, account1Id);
