@@ -142,8 +142,9 @@ public final class DBHelper {
     // Version 109: Migrate the account so they have the correct account manager types
     // Version 110: Stop updating message_count, don't use auto lookback, and don't use
     //              ping/push_hold sync states.
+    // Version 111: Delete Exchange account mailboxes.
 
-    public static final int DATABASE_VERSION = 110;
+    public static final int DATABASE_VERSION = 111;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1043,6 +1044,11 @@ public final class DBHelper {
                 db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_LOOKBACK
                         + "=null where " + MailboxColumns.SYNC_LOOKBACK + "<"
                         + SyncWindow.SYNC_WINDOW_1_DAY);
+                oldVersion = 110;
+            }
+            if (oldVersion == 110) {
+                db.execSQL("delete from " + Mailbox.TABLE_NAME + " where " + MailboxColumns.TYPE
+                        + "=" +Mailbox.TYPE_EAS_ACCOUNT_MAILBOX);
             }
         }
 
