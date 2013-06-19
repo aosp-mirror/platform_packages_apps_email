@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"المس هنا لمزامنة الحساب"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"اسم الحساب"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"الاسم"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"التوقيع"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"الردود السريعة"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"تعديل النص الذي تدرجه بشكل متكرر عند إنشاء رسالة إلكترونية"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"إلحاق نص بالرسائل التي يتم إرسالها"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"إعدادات التنبيه"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"استخدام البيانات"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"سياسات الأمان"</string>
