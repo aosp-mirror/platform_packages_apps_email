@@ -3141,11 +3141,12 @@ public class EmailProvider extends ContentProvider {
         private final FolderList mFolderList;
         private final Bundle mExtras = new Bundle();
 
-        public EmailConversationCursor(Context context, Cursor cursor, long mailboxId) {
+        public EmailConversationCursor(final Context context, final Cursor cursor,
+                final Folder folder, final long mailboxId) {
             super(cursor);
             mMailboxId = mailboxId;
             mContext = context;
-            mFolderList = FolderList.copyOf(Lists.newArrayList(getFolder(mContext, mMailboxId)));
+            mFolderList = FolderList.copyOf(Lists.newArrayList(folder));
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
 
             // We assume that all message lists are complete
@@ -3367,6 +3368,11 @@ public class EmailProvider extends ContentProvider {
                 break;
             case UI_MESSAGES:
                 long mailboxId = Long.parseLong(id);
+                final Folder folder = getFolder(context, mailboxId);
+                if (folder == null) {
+                    // This mailboxId is bogus.
+                    return null;
+                }
                 if (isVirtualMailbox(mailboxId)) {
                     c = getVirtualMailboxMessagesCursor(db, uiProjection, mailboxId, unseenOnly);
                 } else {
@@ -3374,7 +3380,7 @@ public class EmailProvider extends ContentProvider {
                             genQueryMailboxMessages(uiProjection, unseenOnly), new String[] {id});
                 }
                 notifyUri = UIPROVIDER_CONVERSATION_NOTIFIER.buildUpon().appendPath(id).build();
-                c = new EmailConversationCursor(context, c, mailboxId);
+                c = new EmailConversationCursor(context, c, folder, mailboxId);
                 break;
             case UI_MESSAGE:
                 MessageQuery qq = genQueryViewMessage(uiProjection, id);
