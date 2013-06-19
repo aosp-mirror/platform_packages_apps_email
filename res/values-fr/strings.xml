@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Appuyer ici pour synchroniser ce compte"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nom du compte"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Votre nom"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Signature"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Réponses rapides"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Modifier texte fréquemment inséré lors de la rédaction d\'e-mails"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Ajouter un texte aux messages envoyés"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paramètres de notification"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Consommation des données"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Règles de sécurité"</string>

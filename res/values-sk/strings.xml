@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Ak chcete tento účet synchronizovať, dotknite sa tu"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Názov účtu"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Vaše meno"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Rýchle odpovede"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Upraviť text, ktorý často vkladáte pri písaní e-mailu"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text pripojiť k odosielaným správam"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavenia upozornení"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Spotreba dát"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Pravidlá zabezpečenia"</string>

@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Tryck här för att synkronisera kontot"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonamn"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ditt namn"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Snabbsvar"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Redigera text som du ofta infogar när du skriver e-post"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Lägg till text i meddelanden som du skickar"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Meddelandeinställningar"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataanvändning"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Säkerhetspolicyer"</string>

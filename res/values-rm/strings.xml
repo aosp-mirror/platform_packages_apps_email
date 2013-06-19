@@ -562,12 +562,10 @@
     <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Num dal conto"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Voss num"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatura"</string>
     <!-- no translation found for account_settings_edit_quick_responses_label (3106019627675996480) -->
     <skip />
     <!-- no translation found for account_settings_edit_quick_responses_summary (8056686122888722591) -->
     <skip />
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Agiuntar in text als messadis che sortan"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Parameters dad avis"</string>
     <!-- no translation found for account_settings_data_usage (6669107430575866736) -->
     <skip />
