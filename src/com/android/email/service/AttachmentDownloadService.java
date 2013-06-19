@@ -45,6 +45,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.UIProvider.AttachmentState;
 import com.android.mail.utils.LogUtils;
 
 import java.io.File;
@@ -621,6 +622,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     int flags =
                         Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
                     cv.put(Attachment.FLAGS, attachment.mFlags &= ~flags);
+                    cv.put(Attachment.UI_STATE, AttachmentState.SAVED);
                     attachment.update(mContext, cv);
                 }
             }
