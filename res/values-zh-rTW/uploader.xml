@@ -79,7 +79,7 @@
     <string name="notify_uploads" msgid="8593982942665493037">"即時上傳"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"上傳已完成"</string>
     <string name="notify_paused" msgid="3999817913227671338">"上傳已暫停"</string>
-    <string name="notify_activation_reminder" msgid="1639234651193843030">"尚未啟用即時上傳程式"</string>
+    <string name="notify_activation_reminder" msgid="1639234651193843030">"尚未啟用即時上傳器"</string>
     <string name="dialog_first_wifi" msgid="4318047428346248089">"大型檔案只能透過 Wi-Fi 連線上傳。"</string>
     <string name="dialog_sync_all_scanning" msgid="3175935645776839524">"正在掃描檔案..."</string>
     <string name="dialog_sync_all_preparing" msgid="1666557491871126684">"正在準備要上傳的 <xliff:g id="PHOTOCOUNT">%1$d</xliff:g> 張相片和 <xliff:g id="VIDEOCOUNT">%2$d</xliff:g> 部影片..."</string>
