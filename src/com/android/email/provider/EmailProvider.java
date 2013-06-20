@@ -257,6 +257,14 @@ public class EmailProvider extends ContentProvider {
         Body.TABLE_NAME,
     };
 
+    /**
+     * Accounts that are receiving push notifications schedule a periodic sync to fetch account
+     * changes that aren't included in push (e.g. account settings, folder structure). This value
+     * specifies the poll frequency, in seconds. Currently set to one day.
+     */
+    private static final long ACCOUNT_ONLY_SYNC_INTERVAL =
+            DateUtils.DAY_IN_MILLIS / DateUtils.SECOND_IN_MILLIS;
+
     private static UriMatcher sURIMatcher = null;
 
     /**
@@ -4242,21 +4250,6 @@ public class EmailProvider extends ContentProvider {
     }
 
     /**
-     * The old sync code used to add periodic syncs for a mailbox when it was manually synced.
-     * This function removes all such non-default periodic syncs.
-     * @param account The account for which to remove unnecessary periodic syncs.
-     */
-    private void removeExtraPeriodicSyncs(final android.accounts.Account account) {
-        final List<PeriodicSync> syncs =
-                ContentResolver.getPeriodicSyncs(account, EmailContent.AUTHORITY);
-        for (PeriodicSync sync : syncs) {
-            if (!sync.extras.isEmpty()) {
-                ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, sync.extras);
-            }
-        }
-    }
-
-    /**
      * Update an account's periodic sync if the sync interval has changed.
      * @param accountId id for the account to update.
      * @param values the ContentValues for this update to the account.
@@ -4276,16 +4269,27 @@ public class EmailProvider extends ContentProvider {
         LogUtils.d(TAG, "Setting sync interval for account " + accountId + " to " + syncInterval +
                 " minutes");
 
-        // TODO: Ideally we don't need to do this every time we change the sync interval.
-        // Either do this on upgrade, or perhaps on startup.
-        removeExtraPeriodicSyncs(account);
+        // First remove all existing periodic syncs.
+        final List<PeriodicSync> syncs =
+                ContentResolver.getPeriodicSyncs(account, EmailContent.AUTHORITY);
+        for (final PeriodicSync sync : syncs) {
+            ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, sync.extras);
+        }
 
-        final Bundle extras = new Bundle();
-        if (syncInterval > 0) {
-            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, extras,
-                    syncInterval * 60);
-        } else {
-            ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, extras);
+        // Now add back the periodic sync we need, if there is one.
+        if (syncInterval != Account.CHECK_INTERVAL_NEVER) {
+            final Bundle extras = new Bundle();
+            final long pollFrequency;
+            if (syncInterval == Account.CHECK_INTERVAL_PUSH) {
+                // For push accounts, we still need an account-only sync to update things that are
+                // not pushed.
+                extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID,
+                        Mailbox.SYNC_EXTRA_MAILBOX_ID_ACCOUNT_ONLY);
+                pollFrequency = ACCOUNT_ONLY_SYNC_INTERVAL;
+            } else {
+                pollFrequency = syncInterval * 60;
+            }
+            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, extras, pollFrequency);
         }
     }
 
