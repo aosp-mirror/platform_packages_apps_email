@@ -37,6 +37,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      */
     public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
     /**
+     * Value for {@link #SYNC_EXTRA_MAILBOX_ID} when requesting an account only sync
+     */
+    public static final long SYNC_EXTRA_MAILBOX_ID_ACCOUNT_ONLY = -2;
+    /**
      * Sync extras key when syncing a mailbox to specify how many additional messages to sync.
      */
     public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
