@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"ይህን መለያ ለማመሳሰል እዚጋ ንካ"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"የመለያ ስም"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"ስምዎ"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"ፊርማ"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"ፈጣን ምላሾች"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"ኢሜይል ስትጽፍ በተደጋጋሚ የምታስገባውን ፅሁፍ አርትዕ አድርግ"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"ወደ ሚልኩት መለልዕክቶች ፅሁፍ  ይጨምሩ"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"የማሳወቂያ ቅንብሮች"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"የውሂብ አጠቃቀም"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"የደህንነት ቋሚ መመሪያዎች"</string>
