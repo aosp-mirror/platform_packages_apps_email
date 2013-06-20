@@ -269,11 +269,6 @@ public class MailboxSettings extends PreferenceActivity {
                 syncInterval = mMailbox.mSyncInterval;
             }
         }
-        // In the case of the internal push states, use "push"
-        if (syncInterval == Mailbox.CHECK_INTERVAL_PING ||
-                syncInterval == Mailbox.CHECK_INTERVAL_PUSH_HOLD) {
-            syncInterval = Mailbox.CHECK_INTERVAL_PUSH;
-        }
         return syncInterval;
     }
 
