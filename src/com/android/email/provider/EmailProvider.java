@@ -3781,6 +3781,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     private int uiUpdateAttachment(Uri uri, ContentValues uiValues) {
+        int result = 0;
         Integer stateValue = uiValues.getAsInteger(UIProvider.AttachmentColumns.STATE);
         if (stateValue != null) {
             // This is a command from UIProvider
@@ -3790,37 +3791,41 @@ public class EmailProvider extends ContentProvider {
                     Attachment.restoreAttachmentWithId(context, attachmentId);
             if (attachment == null) {
                 // Went away; ah, well...
-                return 0;
+                return result;
             }
+            int state = stateValue.intValue();
             ContentValues values = new ContentValues();
-            switch (stateValue.intValue()) {
-                case UIProvider.AttachmentState.NOT_SAVED:
-                    // Set state, try to cancel request
-                    values.put(AttachmentColumns.UI_STATE, stateValue);
-                    values.put(AttachmentColumns.FLAGS,
-                            attachment.mFlags &= ~Attachment.FLAG_DOWNLOAD_USER_REQUEST);
-                    attachment.update(context, values);
-                    return 1;
-                case UIProvider.AttachmentState.DOWNLOADING:
-                    // Set state and destination; request download
-                    values.put(AttachmentColumns.UI_STATE, stateValue);
-                    Integer destinationValue =
+            if (state == UIProvider.AttachmentState.NOT_SAVED
+                    || state == UIProvider.AttachmentState.REDOWNLOADING) {
+                // Set state, try to cancel request
+                values.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.NOT_SAVED);
+                values.put(AttachmentColumns.FLAGS,
+                        attachment.mFlags &= ~Attachment.FLAG_DOWNLOAD_USER_REQUEST);
+                attachment.update(context, values);
+                result = 1;
+            }
+            if (state == UIProvider.AttachmentState.DOWNLOADING
+                    || state == UIProvider.AttachmentState.REDOWNLOADING) {
+                // Set state and destination; request download
+                values.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.DOWNLOADING);
+                Integer destinationValue =
                         uiValues.getAsInteger(UIProvider.AttachmentColumns.DESTINATION);
-                    values.put(AttachmentColumns.UI_DESTINATION,
-                            destinationValue == null ? 0 : destinationValue);
-                    values.put(AttachmentColumns.FLAGS,
-                            attachment.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
-                    attachment.update(context, values);
-                    return 1;
-                case UIProvider.AttachmentState.SAVED:
-                    // If this is an inline attachment, notify message has changed
-                    if (!TextUtils.isEmpty(attachment.mContentId)) {
-                        notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, attachment.mMessageKey);
-                    }
-                    return 1;
+                values.put(AttachmentColumns.UI_DESTINATION,
+                        destinationValue == null ? 0 : destinationValue);
+                values.put(AttachmentColumns.FLAGS,
+                        attachment.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
+                attachment.update(context, values);
+                result = 1;
+            }
+            if (state == UIProvider.AttachmentState.SAVED) {
+                // If this is an inline attachment, notify message has changed
+                if (!TextUtils.isEmpty(attachment.mContentId)) {
+                    notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, attachment.mMessageKey);
+                }
+                result = 1;
             }
         }
-        return 0;
+        return result;
     }
 
     private int uiUpdateFolder(final Context context, Uri uri, ContentValues uiValues) {
