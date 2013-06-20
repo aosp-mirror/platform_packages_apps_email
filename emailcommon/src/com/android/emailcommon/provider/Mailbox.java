@@ -128,8 +128,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final int CHECK_INTERVAL_PUSH = -2;
     // The following two sentinel values are used by EAS
     // Ping indicates that the EAS mailbox is synced based on a "ping" from the server
+    @Deprecated
     public static final int CHECK_INTERVAL_PING = -3;
     // Push-Hold indicates an EAS push or ping Mailbox shouldn't sync just yet
+    @Deprecated
     public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
     // Sentinel for PARENT_KEY.  Use NO_MAILBOX for toplevel mailboxes (i.e. no parents).
