@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Atingeţi aici pentru a sincroniza acest cont"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Numele contului"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Numele dvs."</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Semnătura"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Răspunsuri rapide"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Editaţi textul introdus frecvent când scrieţi e-mailuri"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Adăugaţi text la mesajele trimise"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Setări pentru notificări"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Utilizarea datelor"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Politici de securitate"</string>

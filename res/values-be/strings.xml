@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Націсніце тут, каб сінхранізаваць гэты ўліковы запіс"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Назва уліковага запісу:"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Вашае імя"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Подпіс"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Хуткія адказы"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Змяніць тэкст, які часта ўстаўляецца пры напiсанні паведамлення"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Дадаць тэкст у паведамленні, што вы адпраўляеце"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Налады апавяшчэнняў"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Выкарыстанне дадзеных"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Правiлы бяспекі"</string>

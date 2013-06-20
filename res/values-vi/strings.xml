@@ -378,10 +378,8 @@
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Chạm vào đây để đồng bộ hóa tài khoản này"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Tên tài khoản"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tên bạn"</string>
-    <string name="account_settings_signature_label" msgid="4091969938785803201">"Chữ ký"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Trả lời nhanh"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Chỉnh sửa văn bản mà bạn thường xuyên chèn khi soạn email"</string>
-    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Thêm văn bản vào tin nhắn bạn gửi"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Cài đặt thông báo"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Sử dụng dữ liệu"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Chính sách bảo mật"</string>
