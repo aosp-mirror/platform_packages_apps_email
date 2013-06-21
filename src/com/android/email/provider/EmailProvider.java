@@ -3208,7 +3208,9 @@ public class EmailProvider extends ContentProvider {
                                     new String[] {String.valueOf(mailbox.mId)});
                             // For non-push mailboxes, if it's stale (i.e. last sync was a while
                             // ago), force a sync.
-                            if (mailbox.mSyncInterval > Mailbox.CHECK_INTERVAL_PUSH) {
+                            // TODO: Fix the check for whether we're non-push? Right now it checks
+                            // whether we are participating in account sync rules.
+                            if (mailbox.mSyncInterval == 0) {
                                 final long timeSinceLastSync =
                                         System.currentTimeMillis() - mailbox.mSyncTime;
                                 if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
@@ -4350,7 +4352,7 @@ public class EmailProvider extends ContentProvider {
             m.mServerId = SEARCH_MAILBOX_SERVER_ID;
             m.mFlagVisible = false;
             m.mDisplayName = SEARCH_MAILBOX_SERVER_ID;
-            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            m.mSyncInterval = 0;
             m.mType = Mailbox.TYPE_SEARCH;
             m.mFlags = Mailbox.FLAG_HOLDS_MAIL;
             m.mParentKey = Mailbox.NO_MAILBOX;
