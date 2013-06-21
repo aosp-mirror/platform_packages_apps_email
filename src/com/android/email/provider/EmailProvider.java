@@ -2998,7 +2998,10 @@ public class EmailProvider extends ContentProvider {
      */
     private static String genQueryAttachments(String[] uiProjection,
             List<String> contentTypeQueryParameters) {
-        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection);
+        // MAKE SURE THESE VALUES STAY IN SYNC WITH GEN QUERY ATTACHMENT
+        ContentValues values = new ContentValues(1);
+        values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
+        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
                 " =? ");
 
@@ -3032,9 +3035,11 @@ public class EmailProvider extends ContentProvider {
     private String genQueryAttachment(String[] uiProjection, String idString) {
         Long id = Long.parseLong(idString);
         Attachment att = Attachment.restoreAttachmentWithId(getContext(), id);
-        ContentValues values = new ContentValues();
+        // MAKE SURE THESE VALUES STAY IN SYNC WITH GEN QUERY ATTACHMENTS
+        ContentValues values = new ContentValues(2);
         values.put(AttachmentColumns.CONTENT_URI,
                 AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
+        values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
         StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
         sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.ID + " =? ");
         return sb.toString();
