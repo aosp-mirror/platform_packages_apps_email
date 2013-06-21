@@ -143,8 +143,10 @@ public final class DBHelper {
     // Version 110: Stop updating message_count, don't use auto lookback, and don't use
     //              ping/push_hold sync states.
     // Version 111: Delete Exchange account mailboxes.
+    // Version 112: Convert Mailbox syncInterval to a boolean (whether or not this mailbox
+    //              syncs along with the account).
 
-    public static final int DATABASE_VERSION = 111;
+    public static final int DATABASE_VERSION = 112;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1047,8 +1049,18 @@ public final class DBHelper {
                 oldVersion = 110;
             }
             if (oldVersion == 110) {
+                // Delete account mailboxes.
                 db.execSQL("delete from " + Mailbox.TABLE_NAME + " where " + MailboxColumns.TYPE
                         + "=" +Mailbox.TYPE_EAS_ACCOUNT_MAILBOX);
+                oldVersion = 111;
+            }
+            if (oldVersion == 111) {
+                // Mailbox sync interval now indicates whether this mailbox syncs with the rest
+                // of the account. Anyone who was syncing at all, plus outboxes, are set to 1,
+                // everyone else is 0.
+                db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
+                        + "=case when " + MailboxColumns.SYNC_INTERVAL + "="
+                        + Mailbox.CHECK_INTERVAL_NEVER + " then 0 else 1 end");
             }
         }
 

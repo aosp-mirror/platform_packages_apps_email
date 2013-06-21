@@ -17,6 +17,7 @@
 
 package com.android.emailcommon.provider;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -128,7 +129,9 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final long NO_MAILBOX = -1;
 
     // Sentinel values for the mSyncInterval field of both Mailbox records
+    @Deprecated
     public static final int CHECK_INTERVAL_NEVER = -1;
+    @Deprecated
     public static final int CHECK_INTERVAL_PUSH = -2;
     // The following two sentinel values are used by EAS
     // Ping indicates that the EAS mailbox is synced based on a "ping" from the server
@@ -150,6 +153,15 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final String USER_VISIBLE_MAILBOX_SELECTION =
         MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
         " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+
+    /** Selection for all mailboxes that explicitly say they want to sync for an account. */
+    private static final String SYNCING_AND_ACCOUNT_SELECTION =
+            MailboxColumns.SYNC_INTERVAL + "=1 and " + MailboxColumns.ACCOUNT_KEY + "=?";
+
+    /** Selection for mailboxes that say they want to sync, plus outbox, for an account. */
+    private static final String OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION = "("
+            + MailboxColumns.TYPE + "=" + Mailbox.TYPE_OUTBOX + " or "
+            + MailboxColumns.SYNC_INTERVAL + "=1) and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
     // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
     // placing the inbox at the top.
@@ -690,5 +702,28 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     @Override
     public String toString() {
         return "[Mailbox " + mId + ": " + mDisplayName + "]";
+    }
+
+    /**
+     * Get the mailboxes that want to receive push updates for an account.
+     * @param cr The {@link ContentResolver}.
+     * @param accountId The id for the account that is pushing.
+     * @return A cursor (suitable for use with {@link #restore}) with all mailboxes we should sync.
+     */
+    public static Cursor getMailboxesForPush(final ContentResolver cr, final long accountId) {
+        return cr.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
+                SYNCING_AND_ACCOUNT_SELECTION, new String[] { Long.toString(accountId) }, null);
+    }
+
+    /**
+     * Get the mailbox ids for an account that should sync when we do a full account sync.
+     * @param cr The {@link ContentResolver}.
+     * @param accountId The id for the account that is pushing.
+     * @return A cursor (with one column, containing ids) with all mailbox ids we should sync.
+     */
+    public static Cursor getMailboxIdsForSync(final ContentResolver cr, final long accountId) {
+        return cr.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
+                OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION,
+                new String[] { Long.toString(accountId) }, null);
     }
 }
