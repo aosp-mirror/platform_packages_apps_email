@@ -1283,4 +1283,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="protocol_pop3" translatable="false">pop3</string>
     <string name="protocol_eas" translatable="false">eas</string>
     <string name="application_mime_type" translatable="false">application/email-ls</string>
+
+    <!-- Content Provider Authority for Eml Attachments -->
+    <string name="eml_attachment_provider" translatable="false">com.android.email.provider.eml.attachment</string>
 </resources>
