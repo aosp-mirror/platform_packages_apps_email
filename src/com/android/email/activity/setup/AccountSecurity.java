@@ -292,7 +292,7 @@ public class AccountSecurity extends Activity {
      * Mark an account as not-ready-for-sync and post a notification to bring the user back here
      * eventually.
      */
-    private void repostNotification(final Account account, final SecurityPolicy security) {
+    private static void repostNotification(final Account account, final SecurityPolicy security) {
         if (account == null) return;
         Utility.runAsync(new Runnable() {
             @Override
@@ -360,7 +360,7 @@ public class AccountSecurity extends Activity {
                     if (MailActivityEmail.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "User declines; repost notification");
                     }
-                    activity.repostNotification(
+                    AccountSecurity.repostNotification(
                             activity.mAccount, SecurityPolicy.getInstance(activity));
                     activity.finish();
                     break;

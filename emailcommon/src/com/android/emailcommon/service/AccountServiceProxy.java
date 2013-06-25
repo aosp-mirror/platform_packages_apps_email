@@ -17,7 +17,6 @@
 package com.android.emailcommon.service;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;

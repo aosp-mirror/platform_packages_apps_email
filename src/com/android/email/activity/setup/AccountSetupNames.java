@@ -90,7 +90,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         mName.addTextChangedListener(validationTextWatcher);
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
-        Account account = SetupData.getAccount();
+        final Account account = SetupData.getAccount();
         if (account == null) {
             throw new IllegalStateException("unexpected null account");
         }
@@ -116,7 +116,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
             mName.setVisibility(View.GONE);
             accountNameLabel.setVisibility(View.GONE);
         } else {
-            if (account != null && account.getSenderName() != null) {
+            if (account.getSenderName() != null) {
                 mName.setText(account.getSenderName());
             } else if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
                     && flowMode != SetupData.FLOW_MODE_EDIT) {

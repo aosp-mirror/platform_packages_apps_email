@@ -2733,10 +2733,6 @@ public class EmailProvider extends ContentProvider {
         return Long.toString(Account.ACCOUNT_ID_COMBINED_VIEW + type);
     }
 
-    private static String getVirtualMailboxIdString(long accountId, int type) {
-        return Long.toString(getVirtualMailboxId(accountId, type));
-    }
-
     public static long getVirtualMailboxId(long accountId, int type) {
         return (accountId << 32) + type;
     }
@@ -4022,7 +4018,7 @@ public class EmailProvider extends ContentProvider {
                 undoValues.put(MessageColumns.FLAG_FAVORITE, msg.mFlagFavorite);
             }
         }
-        if (undoValues == null || undoValues.size() == 0) {
+        if (undoValues.size() == 0) {
             return -1;
         }
         final Boolean suppressUndo =

@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -171,7 +170,6 @@ public class MailboxSettings extends PreferenceActivity {
             mMailbox = Mailbox.restoreMailboxWithId(c, mMailboxId);
             mMaxLookback = 0;
             if (mMailbox != null) {
-                final ContentResolver cr = c.getContentResolver();
                 // Get the max lookback from our policy, if we have one.
                 final Long policyKey = Utility.getFirstRowLong(c, ContentUris.withAppendedId(
                         Account.CONTENT_URI, mMailbox.mAccountKey), POLICY_KEY_PROJECTION,

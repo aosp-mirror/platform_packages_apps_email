@@ -123,16 +123,4 @@ public class UiUtilities {
     public static void setVisibilitySafe(View parent, int viewId, int visibility) {
         setVisibilitySafe(parent.findViewById(viewId), visibility);
     }
-
-    private static int sDebugForcedPaneMode = 0;
-
-    /**
-     * Force 1-pane UI or 2-pane UI.
-     *
-     * @param paneMode Set 1 if 1-pane UI should be used.  Set 2 if 2-pane UI should be used.
-     *        Set 0 to use the default UI.
-     */
-    static void setDebugPaneMode(int paneMode) {
-        sDebugForcedPaneMode = paneMode;
-    }
 }

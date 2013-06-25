@@ -119,7 +119,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         editor.apply();
     }
 
-    private long migrateLegacyWidgetAccountId(long accountId) {
+    private static long migrateLegacyWidgetAccountId(long accountId) {
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             return EmailProvider.COMBINED_ACCOUNT_ID;
         }
@@ -130,7 +130,7 @@ public class WidgetProvider extends BaseWidgetProvider {
      * @param accountId The migrated accountId
      * @return
      */
-    private long migrateLegacyWidgetMailboxId(long mailboxId, long accountId) {
+    private static long migrateLegacyWidgetMailboxId(long mailboxId, long accountId) {
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
             return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_INBOX);
         } else if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {

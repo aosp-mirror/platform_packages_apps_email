@@ -33,7 +33,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
@@ -52,7 +51,6 @@ import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
-import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
 import com.android.mail.ui.FeedbackEnabledActivity;
 import com.android.mail.utils.LogUtils;
@@ -114,7 +112,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     private int mNumGeneralHeaderClicked = 0;
 
     private long mRequestedAccountId;
-    private Header mRequestedAccountHeader;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
     /* package */ Fragment mCurrentFragment;
@@ -137,8 +134,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      * Display (and edit) settings for a specific account, or -1 for any/all accounts
      */
     public static void actionSettings(Activity fromActivity, long accountId) {
-        fromActivity.startActivity(
-                createAccountSettingsIntent(fromActivity, accountId, null, null));
+        fromActivity.startActivity(createAccountSettingsIntent(accountId, null, null));
     }
 
     /**
@@ -146,7 +142,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      * for any/all accounts.  If an account name string is provided, a warning dialog will be
      * displayed as well.
      */
-    public static Intent createAccountSettingsIntent(Context context, long accountId,
+    public static Intent createAccountSettingsIntent(long accountId,
             String loginWarningAccountName, String loginWarningReason) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
         IntentUtilities.setAccountId(b, accountId);
@@ -380,9 +376,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     @Override
     public void onBuildHeaders(List<Header> target) {
-        // Assume the account is unspecified
-        mRequestedAccountHeader = null;
-
         // Always add app preferences as first header
         target.clear();
         target.add(getAppPreferencesHeader());
@@ -396,7 +389,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                     if (header.id != mDeletingAccountId) {
                         target.add(header);
                         if (header.id == mRequestedAccountId) {
-                            mRequestedAccountHeader = header;
                             mRequestedAccountId = -1;
                         }
                     }

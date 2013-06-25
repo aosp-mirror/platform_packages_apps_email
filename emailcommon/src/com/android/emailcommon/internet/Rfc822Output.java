@@ -89,7 +89,7 @@ public class Rfc822Output {
     /**
      * Gets both the plain text and HTML versions of the message body.
      */
-    /*package*/ static String[] buildBodyText(Body body, int flags, boolean useSmartReply) {
+    /*package*/ static String[] buildBodyText(Body body, boolean useSmartReply) {
         if (body == null) {
             return new String[2];
         }
@@ -149,7 +149,7 @@ public class Rfc822Output {
 
         // Analyze message and determine if we have multiparts
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
-        String[] bodyText = buildBodyText(body, message.mFlags, useSmartReply);
+        String[] bodyText = buildBodyText(body, useSmartReply);
 
         // If a list of attachments hasn't been passed in, build one from the message
         if (attachments == null) {

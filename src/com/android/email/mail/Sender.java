@@ -37,8 +37,7 @@ public abstract class Sender {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    public static Sender newInstance(Context context, Account account)
-            throws MessagingException {
+    public static Sender newInstance(Account account) throws MessagingException {
         throw new MessagingException("Sender.newInstance: Unknown scheme in "
                 + account.mDisplayName);
     }

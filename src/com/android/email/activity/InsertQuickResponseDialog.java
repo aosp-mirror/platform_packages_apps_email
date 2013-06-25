@@ -67,11 +67,8 @@ public class InsertQuickResponseDialog extends DialogFragment
         final InsertQuickResponseDialog dialog = new InsertQuickResponseDialog();
 
         // If a target is set, it MUST implement Callback. Fail-fast if not.
-        final Callback callback;
         if (callbackFragment != null) {
-            try {
-                callback = (Callback) callbackFragment;
-            } catch (ClassCastException e) {
+            if (!(callbackFragment instanceof Callback)) {
                 throw new ClassCastException(callbackFragment.toString()
                         + " must implement Callback");
             }
@@ -89,10 +86,7 @@ public class InsertQuickResponseDialog extends DialogFragment
         // If target not set, the parent activity MUST implement Callback. Fail-fast if not.
         final Fragment targetFragment = getTargetFragment();
         if (targetFragment != null) {
-            final Callback callback;
-            try {
-                callback = (Callback) getActivity();
-            } catch (ClassCastException e) {
+            if (!(getActivity() instanceof Callback)) {
                 throw new ClassCastException(getActivity().toString() + " must implement Callback");
             }
         }

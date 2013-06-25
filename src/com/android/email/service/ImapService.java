@@ -667,8 +667,7 @@ public class ImapService extends Service {
                     // Dispatch here for specific change types
                     if (deleteFromTrash) {
                         // Move message to trash
-                        processPendingDeleteFromTrash(context, remoteStore, account, mailbox,
-                                oldMessage);
+                        processPendingDeleteFromTrash(remoteStore, account, mailbox, oldMessage);
                     }
                 }
 
@@ -922,7 +921,7 @@ public class ImapService extends Service {
         } else if (mailbox.mType == Mailbox.TYPE_TRASH) {
             deleteUpdate = false;
             LogUtils.d(Logging.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
-        } else if (newMessage != null && newMessage.mMailboxKey != mailbox.mId) {
+        } else if (newMessage.mMailboxKey != mailbox.mId) {
             deleteUpdate = false;
             LogUtils.d(Logging.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
         } else {
@@ -1145,7 +1144,7 @@ public class ImapService extends Service {
      * @param oldMailbox The local trash mailbox
      * @param oldMessage The message that was deleted from the trash
      */
-    private static void processPendingDeleteFromTrash(Context context, Store remoteStore,
+    private static void processPendingDeleteFromTrash(Store remoteStore,
             Account account, Mailbox oldMailbox, EmailContent.Message oldMessage)
             throws MessagingException {
 
@@ -1311,8 +1310,8 @@ public class ImapService extends Service {
         }
     }
 
-    private int searchMailboxImpl(final Context context, long accountId, SearchParams searchParams,
-            final long destMailboxId) throws MessagingException {
+    private static int searchMailboxImpl(final Context context, final long accountId,
+            final SearchParams searchParams, final long destMailboxId) throws MessagingException {
         final Account account = Account.restoreAccountWithId(context, accountId);
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, searchParams.mMailboxId);
         final Mailbox destMailbox = Mailbox.restoreMailboxWithId(context, destMailboxId);

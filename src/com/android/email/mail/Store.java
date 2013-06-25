@@ -62,7 +62,7 @@ public abstract class Store {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    static Store newInstance(Account account, Context context) throws MessagingException {
+    static Store newInstance(Account account) throws MessagingException {
         throw new MessagingException("Store#newInstance: Unknown scheme in "
                 + account.mDisplayName);
     }

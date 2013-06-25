@@ -331,7 +331,6 @@ public class AccountCheckSettingsFragment extends Fragment {
     }
 
     private void onEditCertificateOk() {
-        Callbacks callbackTarget = getCallbackTarget();
         getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED);
         finish();
     }

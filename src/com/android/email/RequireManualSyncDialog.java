@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.res.Resources;
 
 public class RequireManualSyncDialog extends AlertDialog implements OnClickListener {
 
@@ -30,7 +29,7 @@ public class RequireManualSyncDialog extends AlertDialog implements OnClickListe
         super(context);
         setMessage(context.getResources().getString(R.string.require_manual_sync_message));
         setButton(DialogInterface.BUTTON_POSITIVE, context.getString(android.R.string.ok), this);
-        Preferences.getPreferences(context).setHasShownRequireManualSync(context, account, true);
+        Preferences.getPreferences(context).setHasShownRequireManualSync(account, true);
     }
 
     /** {@inheritDoc} */
