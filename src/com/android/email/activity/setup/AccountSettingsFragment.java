@@ -653,13 +653,33 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         PreferenceCategory dataUsageCategory =
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
+        final Policy policy;
+        if (mAccount.mPolicyKey != 0) {
+            // Make sure we have most recent data from account
+            mAccount.refresh(mContext);
+            policy = Policy.restorePolicyWithId(mContext, mAccount.mPolicyKey);
+            if (policy == null) {
+                // The account has been deleted?  Crazy, but not impossible
+                return;
+            }
+        } else {
+            policy = null;
+        }
+
         mSyncWindow = null;
         if (info.offerLookback) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
-            mSyncWindow.setSummary(mSyncWindow.getEntry());
-            MailboxSettings.setupLookbackPreferenceOptions(mContext, mSyncWindow, mAccount, false);
+            final int maxLookback;
+            if (policy != null) {
+                maxLookback = policy.mMaxEmailLookback;
+            } else {
+                maxLookback = 0;
+            }
+
+            MailboxSettings.setupLookbackPreferenceOptions(mContext, mSyncWindow, maxLookback,
+                    false);
 
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);
@@ -746,14 +766,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
         final PreferenceCategory policiesCategory = (PreferenceCategory) findPreference(
                 PREFERENCE_CATEGORY_POLICIES);
-        if (mAccount.mPolicyKey > 0) {
-            // Make sure we have most recent data from account
-            mAccount.refresh(mContext);
-            Policy policy = Policy.restorePolicyWithId(mContext, mAccount.mPolicyKey);
-            if (policy == null) {
-                // The account has been deleted?  Crazy, but not impossible
-                return;
-            }
+        if (policy != null) {
             if (policy.mProtocolPoliciesEnforced != null) {
                 ArrayList<String> policies = getSystemPoliciesList(policy);
                 setPolicyListSummary(policies, policy.mProtocolPoliciesEnforced,

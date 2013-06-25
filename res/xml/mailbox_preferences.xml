@@ -16,15 +16,11 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- summary is set at runtime -->
-    <ListPreference
-        android:key="check_frequency"
-        android:title="@string/mailbox_settings_mailbox_check_frequency_label"
-        android:dialogTitle="@string/mailbox_settings_mailbox_check_frequency_label"
-        android:entries="@array/account_settings_check_frequency_entries_push"
-        android:entryValues="@array/account_settings_check_frequency_values_push"
-        android:persistent="false"
-        />
+    <CheckBoxPreference
+        android:key="sync_enabled"
+        android:defaultValue="false"
+        android:title="@string/mailbox_settings_sync_enabled_label"
+        android:summary="@string/mailbox_settings_sync_enabled_summary" />
 
     <!-- summary is set at runtime -->
     <ListPreference
