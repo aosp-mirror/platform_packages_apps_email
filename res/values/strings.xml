@@ -1016,8 +1016,11 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="mailbox_settings_activity_title_with_mailbox">Sync options (<xliff:g id="mailboxx_name" example="Family">%s</xliff:g>)</string>
     <!-- Mailbox "sync settings" preference header [CHAR LIMIT=none] -->
     <string name="mailbox_preferences_header">Sync settings</string>
-    <!-- On mailbox settings screen: Mailbox check frequency setting label [CHAR LIMIT=none] -->
-    <string name="mailbox_settings_mailbox_check_frequency_label">Check frequency</string>
+    <!-- TODO: Finalize the next two strings and set them to translate. -->
+    <!-- On mailbox settings screen: Whether to sync this mailbox when the account syncs. -->
+    <string translatable="false" name="mailbox_settings_sync_enabled_label">Auto sync this folder</string>
+    <!-- On mailbox settings screen: Explanatory text for what it means to "auto sync a folder". -->
+    <string translatable="false" name="mailbox_settings_sync_enabled_summary">Sync this folder when the account syncs</string>
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
     <string name="mailbox_settings_mailbox_sync_window_label">Days to sync</string>
 

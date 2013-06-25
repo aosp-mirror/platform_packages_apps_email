@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -32,16 +34,14 @@ import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
 import com.android.email.R;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
@@ -58,21 +58,29 @@ import java.util.Arrays;
  */
 public class MailboxSettings extends PreferenceActivity {
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
-    private static final String BUNDLE_ACCOUNT = "MailboxSettings.account";
     private static final String BUNDLE_MAILBOX = "MailboxSettings.mailbox";
-    private static final String BUNDLE_NEEDS_SAVE = "MailboxSettings.needsSave";
+    private static final String BUNDLE_MAX_LOOKBACK = "MailboxSettings.maxLookback";
+    private static final String BUNDLE_SYNC_ENABLED_VALUE = "MailboxSettings.syncEnabled";
+    private static final String BUNDLE_SYNC_WINDOW_VALUE = "MailboxSettings.syncWindow";
 
-    private static final String PREF_CHECK_FREQUENCY_KEY = "check_frequency";
+    private static final String PREF_SYNC_ENABLED_KEY = "sync_enabled";
     private static final String PREF_SYNC_WINDOW_KEY = "sync_window";
+
+    /** Projection for loading an account's policy key. */
+    private static final String[] POLICY_KEY_PROJECTION = { Account.POLICY_KEY };
+    private static final int POLICY_KEY_COLUMN = 0;
+
+    /** Projection for loading the max email lookback. */
+    private static final String[] MAX_EMAIL_LOOKBACK_PROJECTION = { Policy.MAX_EMAIL_LOOKBACK };
+    private static final int MAX_EMAIL_LOOKBACK_COLUMN = 0;
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
-    // Account and Mailbox -- directly loaded by LoadMailboxTask
-    private Account mAccount;
     private Mailbox mMailbox;
-    private boolean mNeedsSave;
+    /** The maximum lookback allowed for this mailbox, or 0 if no max. */
+    private int mMaxLookback;
 
-    private ListPreference mSyncIntervalPref;
+    private CheckBoxPreference mSyncEnabledPref;
     private ListPreference mSyncLookbackPref;
 
     /**
@@ -96,24 +104,21 @@ public class MailboxSettings extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.mailbox_preferences);
 
-        mSyncIntervalPref = (ListPreference) findPreference(PREF_CHECK_FREQUENCY_KEY);
+        mSyncEnabledPref = (CheckBoxPreference) findPreference(PREF_SYNC_ENABLED_KEY);
         mSyncLookbackPref = (ListPreference) findPreference(PREF_SYNC_WINDOW_KEY);
 
-        mSyncIntervalPref.setOnPreferenceChangeListener(mPreferenceChanged);
         mSyncLookbackPref.setOnPreferenceChangeListener(mPreferenceChanged);
 
-        // Make them disabled until we load data
-        enablePreferences(false);
-
         if (savedInstanceState != null) {
-            mAccount = savedInstanceState.getParcelable(BUNDLE_ACCOUNT);
             mMailbox = savedInstanceState.getParcelable(BUNDLE_MAILBOX);
-            mNeedsSave = savedInstanceState.getBoolean(BUNDLE_NEEDS_SAVE);
-        }
-        if (mAccount == null) {
-            new LoadMailboxTask(mailboxId).executeParallel((Void[]) null);
-        } else {
+            mMaxLookback = savedInstanceState.getInt(BUNDLE_MAX_LOOKBACK);
+            mSyncEnabledPref.setChecked(savedInstanceState.getBoolean(BUNDLE_SYNC_ENABLED_VALUE));
+            mSyncLookbackPref.setValue(savedInstanceState.getString(BUNDLE_SYNC_WINDOW_VALUE));
             onDataLoaded();
+        } else {
+            // Make them disabled until we load data
+            enablePreferences(false);
+            new LoadMailboxTask(mailboxId).executeParallel((Void[]) null);
         }
 
         // Always show "app up" as we expect our parent to be an Email activity.
@@ -124,16 +129,17 @@ public class MailboxSettings extends PreferenceActivity {
     }
 
     private void enablePreferences(boolean enabled) {
-        mSyncIntervalPref.setEnabled(enabled);
+        mSyncEnabledPref.setEnabled(enabled);
         mSyncLookbackPref.setEnabled(enabled);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(BUNDLE_ACCOUNT, mAccount);
         outState.putParcelable(BUNDLE_MAILBOX, mMailbox);
-        outState.putBoolean(BUNDLE_NEEDS_SAVE, mNeedsSave);
+        outState.putInt(BUNDLE_MAX_LOOKBACK, mMaxLookback);
+        outState.putBoolean(BUNDLE_SYNC_ENABLED_VALUE, mSyncEnabledPref.isChecked());
+        outState.putString(BUNDLE_SYNC_WINDOW_VALUE, mSyncLookbackPref.getValue());
     }
 
     /**
@@ -149,7 +155,7 @@ public class MailboxSettings extends PreferenceActivity {
     }
 
     /**
-     * Loads {@link #mAccount} and {@link #mMailbox}.
+     * Loads {@link #mMailbox} and {@link #mMaxLookback} from DB.
      */
     private class LoadMailboxTask extends EmailAsyncTask<Void, Void, Void> {
         private final long mMailboxId;
@@ -163,19 +169,32 @@ public class MailboxSettings extends PreferenceActivity {
         protected Void doInBackground(Void... params) {
             final Context c = MailboxSettings.this;
             mMailbox = Mailbox.restoreMailboxWithId(c, mMailboxId);
+            mMaxLookback = 0;
             if (mMailbox != null) {
-                mAccount = Account.restoreAccountWithId(c, mMailbox.mAccountKey);
+                final ContentResolver cr = c.getContentResolver();
+                // Get the max lookback from our policy, if we have one.
+                final Long policyKey = Utility.getFirstRowLong(c, ContentUris.withAppendedId(
+                        Account.CONTENT_URI, mMailbox.mAccountKey), POLICY_KEY_PROJECTION,
+                        null, null, null, POLICY_KEY_COLUMN);
+                if (policyKey != null) {
+                    mMaxLookback = Utility.getFirstRowInt(c, ContentUris.withAppendedId(
+                            Policy.CONTENT_URI, policyKey), MAX_EMAIL_LOOKBACK_PROJECTION,
+                            null, null, null, MAX_EMAIL_LOOKBACK_COLUMN, 0);
+                }
             }
             return null;
         }
 
         @Override
         protected void onSuccess(Void result) {
-            if ((mAccount == null) || (mMailbox == null)) {
+            if (mMailbox == null) {
                 finish(); // Account or mailbox removed.
                 return;
             }
+            mSyncEnabledPref.setChecked(mMailbox.mSyncInterval != 0);
+            mSyncLookbackPref.setValue(String.valueOf(mMailbox.mSyncLookback));
             onDataLoaded();
+            enablePreferences(true);
         }
     }
 
@@ -183,11 +202,11 @@ public class MailboxSettings extends PreferenceActivity {
      * Setup the entries and entry values for the sync lookback preference
      * @param context the caller's context
      * @param pref a ListPreference to be set up
-     * @param account the Account (or owner of a Mailbox) whose preference is being set
+     * @param maxLookback The maximum lookback allowed, or 0 if no max.
      * @param showWithDefault Whether to show the version with default, or without.
      */
     public static void setupLookbackPreferenceOptions(final Context context,
-            final ListPreference pref, final Account account, final boolean showWithDefault) {
+            final ListPreference pref, final int maxLookback, final boolean showWithDefault) {
         final Resources resources = context.getResources();
         // Load the complete list of entries/values
         CharSequence[] entries;
@@ -205,30 +224,26 @@ public class MailboxSettings extends PreferenceActivity {
             offset = 0;
         }
         // If we have a maximum lookback policy, enforce it
-        if (account.mPolicyKey > 0) {
-            Policy policy = Policy.restorePolicyWithId(context, account.mPolicyKey);
-            if (policy != null && (policy.mMaxEmailLookback != 0)) {
-                final int size = policy.mMaxEmailLookback + offset;
-                entries = Arrays.copyOf(entries, size);
-                values = Arrays.copyOf(values, size);
-            }
+        if (maxLookback > 0) {
+            final int size = maxLookback + offset;
+            entries = Arrays.copyOf(entries, size);
+            values = Arrays.copyOf(values, size);
         }
         // Set up the preference
         pref.setEntries(entries);
         pref.setEntryValues(values);
+        pref.setSummary(pref.getEntry());
     }
 
     /**
-     * Called when {@link #mAccount} and {@link #mMailbox} are loaded (either by the async task
-     * or from the saved state).
+     * Called when {@link #mMailbox} is loaded (either by the async task or from the saved state).
      */
     private void onDataLoaded() {
-        Preconditions.checkNotNull(mAccount);
         Preconditions.checkNotNull(mMailbox);
 
         // Update the title with the mailbox name.
-        ActionBar actionBar = getActionBar();
-        String mailboxName = mMailbox.mDisplayName;
+        final ActionBar actionBar = getActionBar();
+        final String mailboxName = mMailbox.mDisplayName;
         if (actionBar != null) {
             actionBar.setTitle(mailboxName);
             actionBar.setSubtitle(getString(R.string.mailbox_settings_activity_title));
@@ -236,91 +251,18 @@ public class MailboxSettings extends PreferenceActivity {
             setTitle(getString(R.string.mailbox_settings_activity_title_with_mailbox, mailboxName));
         }
 
-        setupLookbackPreferenceOptions(this, mSyncLookbackPref, mAccount,
-                mMailbox.mType != Mailbox.TYPE_INBOX);
-
-        // Set default value & update summary
-        mSyncIntervalPref.setValue(String.valueOf(getSyncInterval()));
-        mSyncLookbackPref.setValue(String.valueOf(getSyncLookback()));
-
-        updatePreferenceSummary();
-
-        // Make then enabled
-        enablePreferences(true);
+        setupLookbackPreferenceOptions(this, mSyncLookbackPref, mMaxLookback, true);
     }
 
-    private void updatePreferenceSummary() {
-        mSyncIntervalPref.setSummary(mSyncIntervalPref.getEntry());
-        mSyncLookbackPref.setSummary(mSyncLookbackPref.getEntry());
-    }
-
-    /**
-     * @return current sync interval setting from the objects
-     */
-    private int getSyncInterval() {
-        int syncInterval;
-        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-            syncInterval = mAccount.mSyncInterval;
-        } else {
-            if (mMailbox.mSyncInterval == 0) {
-                // 0 is the default value, and it means "don't sync" (for non-inbox mailboxes)
-                syncInterval = Mailbox.CHECK_INTERVAL_NEVER;
-            } else {
-                syncInterval = mMailbox.mSyncInterval;
-            }
-        }
-        return syncInterval;
-    }
-
-    /**
-     * @return current sync lookback setting from the objects
-     */
-    private int getSyncLookback() {
-        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-            return mAccount.mSyncLookback;
-        } else {
-            // Here, 0 is valid and means "use the account default sync window".
-            return mMailbox.mSyncLookback;
-        }
-    }
 
     private final OnPreferenceChangeListener mPreferenceChanged = new OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            final ListPreference lp = (ListPreference) preference;
-            if (Objects.equal(lp.getValue(), newValue)) {
-                return false;
-            }
-            mNeedsSave = true;
-            if (MailActivityEmail.DEBUG) {
-                LogUtils.i(Logging.LOG_TAG, "Setting changed");
-            }
-            // In order to set the current entry to the summary, we need to udpate the value
-            // manually, rather than letting the framework do that (by returning true).
-            lp.setValue((String) newValue);
-            updatePreferenceSummary();
-            updateObjects();
+            mSyncLookbackPref.setValue((String) newValue);
+            mSyncLookbackPref.setSummary(mSyncLookbackPref.getEntry());
             return false;
         }
     };
-
-    /**
-     * Updates {@link #mAccount}/{@link #mMailbox}, but doesn't save to the database yet.
-     */
-    private void updateObjects() {
-        final int syncInterval = Integer.valueOf(mSyncIntervalPref.getValue());
-        final int syncLookback = Integer.valueOf(mSyncLookbackPref.getValue());
-        if (MailActivityEmail.DEBUG) {
-            LogUtils.i(Logging.LOG_TAG, "Updating object: " + syncInterval + "," + syncLookback);
-        }
-        if (mMailbox.mType == Mailbox.TYPE_INBOX) {
-            mAccount.mSyncInterval = syncInterval;
-            mAccount.mSyncLookback = syncLookback;
-        } else {
-            mMailbox.mSyncInterval = syncInterval;
-            mMailbox.mSyncLookback = syncLookback;
-        }
-    }
 
     /**
      * Save changes to the database.
@@ -331,48 +273,47 @@ public class MailboxSettings extends PreferenceActivity {
      * finished.
      */
     private void saveToDatabase() {
-        if (!mNeedsSave) {
-            return;
-        }
-        LogUtils.i(Logging.LOG_TAG, "Saving mailbox settings...");
-        enablePreferences(false);
+        final int syncInterval = mSyncEnabledPref.isChecked() ? 1 : 0;
+        final int syncLookback = Integer.valueOf(mSyncLookbackPref.getValue());
 
-        // Since the activity will be destroyed...
-        // Create local references (Although it's really okay to touch members of a destroyed
-        // activity...)
-        final Account account = mAccount;
-        final Mailbox mailbox = mMailbox;
-        final Context context = getApplicationContext();
+        final boolean syncIntervalChanged = syncInterval != mMailbox.mSyncInterval;
+        final boolean syncLookbackChanged = syncLookback != mMailbox.mSyncLookback;
 
-        new EmailAsyncTask<Void, Void, Void> (null /* no cancel */) {
-            @Override
-            protected Void doInBackground(Void... params) {
-                final ContentValues cv = new ContentValues();
-                final Uri uri;
+        // Only save if a preference has changed value.
+        if (syncIntervalChanged || syncLookbackChanged) {
+            LogUtils.i(Logging.LOG_TAG, "Saving mailbox settings...");
+            enablePreferences(false);
 
-                if (mailbox.mType == Mailbox.TYPE_INBOX) {
-                    cv.put(AccountColumns.SYNC_INTERVAL, account.mSyncInterval);
-                    cv.put(AccountColumns.SYNC_LOOKBACK, account.mSyncLookback);
-                    uri = ContentUris.withAppendedId(Account.CONTENT_URI, account.mId);
-                } else {
-                    cv.put(MailboxColumns.SYNC_INTERVAL, mailbox.mSyncInterval);
-                    cv.put(MailboxColumns.SYNC_LOOKBACK, mailbox.mSyncLookback);
-                    uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailbox.mId);
+            final long id = mMailbox.mId;
+            final Context context = getApplicationContext();
+
+            new EmailAsyncTask<Void, Void, Void> (null /* no cancel */) {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    final ContentValues cv = new ContentValues(2);
+                    final Uri uri;
+                    if (syncIntervalChanged) {
+                        cv.put(MailboxColumns.SYNC_INTERVAL, syncInterval);
+                    }
+                    if (syncLookbackChanged) {
+                        cv.put(MailboxColumns.SYNC_LOOKBACK, syncLookback);
+                    }
+                    uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, id);
+                    context.getContentResolver().update(uri, cv, null, null);
+
+                    LogUtils.i(Logging.LOG_TAG, "Saved: " + uri);
+                    return null;
                 }
-                context.getContentResolver().update(uri, cv, null, null);
 
-                LogUtils.i(Logging.LOG_TAG, "Saved: " + uri);
-                return null;
-            }
-
-            @Override
-            protected void onSuccess(Void result) {
-                // must be called on the ui thread
-                //***
-                //RefreshManager.getInstance(context).refreshMessageList(account.mId, mailbox.mId,
-                //        true);
-            }
-        }.executeSerial((Void [])null);
+                @Override
+                protected void onSuccess(Void result) {
+                    // must be called on the ui thread
+                    //***
+                    //RefreshManager.getInstance(context).refreshMessageList(account.mId,
+                    //        mailbox.mId, true);
+                }
+            }.executeSerial((Void [])null);
+        }
     }
 
     @Override
