@@ -385,7 +385,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         return result;
     }
 
-    private void appendPolicy(StringBuilder sb, String code, int value) {
+    private static void appendPolicy(StringBuilder sb, String code, int value) {
         sb.append(code);
         sb.append(":");
         sb.append(value);

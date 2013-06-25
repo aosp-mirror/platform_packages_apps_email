@@ -582,7 +582,6 @@ class ImapFolder extends Folder {
                     Utility.combine(fetchFields.toArray(new String[fetchFields.size()]), ' ')
                     ), false);
             ImapResponse response;
-            int messageNumber = 0;
             do {
                 response = null;
                 try {
@@ -680,7 +679,7 @@ class ImapFolder extends Folder {
      * Removes any content transfer encoding from the stream and returns a Body.
      * This code is taken/condensed from MimeUtility.decodeBody
      */
-    private Body decodeBody(InputStream in, String contentTransferEncoding, int size,
+    private static Body decodeBody(InputStream in, String contentTransferEncoding, int size,
             MessageRetrievalListener listener) throws IOException {
         // Get a properly wrapped input stream
         in = MimeUtility.getInputStreamForContentTransferEncoding(in, contentTransferEncoding);

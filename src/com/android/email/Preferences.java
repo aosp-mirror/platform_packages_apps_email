@@ -265,7 +265,7 @@ public class Preferences {
         try {
             return parseEmailSet(mSharedPreferences.getString(TRUSTED_SENDERS, ""));
         } catch (JSONException e) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
     }
 
@@ -311,7 +311,7 @@ public class Preferences {
      * Gets whether the require manual sync dialog has been shown for the specified account.
      * It should only be shown once per account.
      */
-    public boolean getHasShownRequireManualSync(Context context, Account account) {
+    public boolean getHasShownRequireManualSync(Account account) {
         return getBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, false);
     }
 
@@ -319,7 +319,7 @@ public class Preferences {
      * Sets whether the require manual sync dialog has been shown for the specified account.
      * It should only be shown once per account.
      */
-    public void setHasShownRequireManualSync(Context context, Account account, boolean value) {
+    public void setHasShownRequireManualSync(Account account, boolean value) {
         setBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
     }
 
@@ -331,7 +331,7 @@ public class Preferences {
      */
     public boolean shouldShowRequireManualSync(Context context, Account account) {
         return Account.isAutomaticSyncDisabledByRoaming(context, account.mId)
-                && !getHasShownRequireManualSync(context, account);
+                && !getHasShownRequireManualSync(account);
     }
 
     public void clear() {

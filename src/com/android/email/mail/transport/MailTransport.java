@@ -189,7 +189,7 @@ public class MailTransport {
      * @throws IOException if something goes wrong handshaking with the server
      * @throws SSLPeerUnverifiedException if the server cannot prove its identity
       */
-    private void verifyHostname(Socket socket, String hostname) throws IOException {
+    private static void verifyHostname(Socket socket, String hostname) throws IOException {
         // The code at the start of OpenSSLSocketImpl.startHandshake()
         // ensures that the call is idempotent, so we can safely call it.
         SSLSocket ssl = (SSLSocket) socket;

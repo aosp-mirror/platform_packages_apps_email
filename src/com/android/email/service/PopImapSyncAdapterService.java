@@ -59,8 +59,8 @@ public class PopImapSyncAdapterService extends Service {
         @Override
         public void onPerformSync(android.accounts.Account account, Bundle extras,
                 String authority, ContentProviderClient provider, SyncResult syncResult) {
-            PopImapSyncAdapterService.performSync(getContext(), account, extras, authority,
-                    provider, syncResult);
+            PopImapSyncAdapterService.performSync(getContext(), account, extras, provider,
+                    syncResult);
         }
     }
 
@@ -156,8 +156,7 @@ public class PopImapSyncAdapterService extends Service {
      * Partial integration with system SyncManager; we initiate manual syncs upon request
      */
     private static void performSync(Context context, android.accounts.Account account,
-            Bundle extras, String authority, ContentProviderClient provider,
-            SyncResult syncResult) {
+            Bundle extras, ContentProviderClient provider, SyncResult syncResult) {
         // Find an EmailProvider account with the Account's email address
         Cursor c = null;
         try {
@@ -198,7 +197,6 @@ public class PopImapSyncAdapterService extends Service {
                     LogUtils.d(TAG, extras.toString());
                     long mailboxId =
                             extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
-                    boolean isInbox = false;
                     if (mailboxId == Mailbox.NO_MAILBOX) {
                         // Update folders.
                         EmailServiceProxy service =
@@ -206,7 +204,6 @@ public class PopImapSyncAdapterService extends Service {
                         service.updateFolderList(acct.mId);
                         mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
                                 Mailbox.TYPE_INBOX);
-                        isInbox = true;
                     }
                     if (mailboxId == Mailbox.NO_MAILBOX) return;
                     boolean uiRefresh =

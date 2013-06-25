@@ -262,7 +262,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY);
     }
 
-    private long getId(Uri u) {
+    private static long getId(Uri u) {
         return Long.parseLong(u.getPathSegments().get(1));
     }
 

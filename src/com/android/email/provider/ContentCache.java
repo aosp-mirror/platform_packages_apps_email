@@ -715,35 +715,6 @@ public final class ContentCache {
         }
     }
 
-    private static class CacheCounter implements Comparable<CacheCounter> {
-        String uri;
-        Integer count;
-
-        CacheCounter(String _uri, Integer _count) {
-            uri = _uri;
-            count = _count;
-        }
-
-        @Override
-        public int compareTo(CacheCounter another) {
-            return another.count > count ? 1 : another.count == count ? 0 : -1;
-        }
-    }
-
-    private static void dumpNotCacheableQueries() {
-        int size = sNotCacheableMap.size();
-        CacheCounter[] array = new CacheCounter[size];
-
-        int i = 0;
-        for (Map.Entry<String, Integer> entry: sNotCacheableMap.entrySet()) {
-            array[i++] = new CacheCounter(entry.getKey(), entry.getValue());
-        }
-        Arrays.sort(array);
-        for (CacheCounter cc: array) {
-            LogUtils.d("NotCacheable", cc.count + ": " + cc.uri);
-        }
-    }
-
     // For use with unit tests
     public static void invalidateAllCaches() {
         for (ContentCache cache: sContentCaches) {
@@ -812,7 +783,7 @@ public final class ContentCache {
             }
         }
 
-        private void append(StringBuilder sb, String name, Object value) {
+        private static void append(StringBuilder sb, String name, Object value) {
             sb.append(", ");
             sb.append(name);
             sb.append(": ");

@@ -32,7 +32,6 @@ import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.IAccountService;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
