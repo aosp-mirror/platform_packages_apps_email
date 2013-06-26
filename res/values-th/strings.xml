@@ -408,7 +408,6 @@
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"ตัวเลือกการซิงค์"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"ตัวเลือกการซิงค์ (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"การตั้งค่าการซิงค์"</string>
-    <string name="mailbox_settings_mailbox_check_frequency_label" msgid="1246075442689328906">"ตรวจสอบความถี่"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"วันที่จะซิงค์"</string>
     <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"ภาพของผู้ส่ง"</string>
   <string-array name="prefEntries_conversationListIconName">
