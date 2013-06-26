@@ -57,7 +57,6 @@ public class SetupData implements Parcelable {
     private boolean mAllowAutodiscover = true;
     private Policy mPolicy;
     private boolean mAutoSetup = false;
-    private boolean mDefault = false;
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
 
     // We only have one instance of SetupData; if/when the process is destroyed, this data will be
@@ -151,14 +150,6 @@ public class SetupData implements Parcelable {
         getInstance().mAutoSetup = autoSetup;
     }
 
-    static public boolean isDefault() {
-        return getInstance().mDefault;
-    }
-
-    static public void setDefault(boolean _default) {
-        getInstance().mDefault = _default;
-    }
-
     static public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
         return getInstance().mAccountAuthenticatorResponse;
     }
@@ -197,7 +188,6 @@ public class SetupData implements Parcelable {
         mAllowAutodiscover = true;
         mCheckSettingsMode = 0;
         mAccount = new Account();
-        mDefault = false;
         mUsername = null;
         mPassword = null;
         mAccountAuthenticatorResponse = null;
@@ -232,7 +222,6 @@ public class SetupData implements Parcelable {
         dest.writeInt(mAllowAutodiscover ? 1 : 0);
         dest.writeParcelable(mPolicy, 0);
         dest.writeInt(mAutoSetup ? 1 : 0);
-        dest.writeInt(mDefault ? 1 : 0);
         dest.writeParcelable(mAccountAuthenticatorResponse, 0);
     }
 
@@ -246,7 +235,6 @@ public class SetupData implements Parcelable {
         mAllowAutodiscover = in.readInt() == 1;
         mPolicy = in.readParcelable(loader);
         mAutoSetup = in.readInt() == 1;
-        mDefault = in.readInt() == 1;
         mAccountAuthenticatorResponse = in.readParcelable(loader);
     }
 
@@ -276,7 +264,6 @@ public class SetupData implements Parcelable {
         }
         sb.append(":a/d=" + data.mAllowAutodiscover);
         sb.append(":auto=" + data.mAutoSetup);
-        sb.append(":default=" + data.mDefault);
         sb.append(":check=");
         if (SetupData.isCheckIncoming()) sb.append("in+");
         if (SetupData.isCheckOutgoing()) sb.append("out+");

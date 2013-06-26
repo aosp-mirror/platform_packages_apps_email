@@ -60,31 +60,9 @@
                 android:layout_width="match_parent" />
         </TableRow>
     </TableLayout>
-    <View
-        android:id="@+id/account_default_divider_upper"
-        android:layout_below="@+id/spinners_table"
-        android:layout_marginTop="32dip"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
-    <CheckBox
-        android:id="@+id/account_default"
-        android:layout_below="@+id/account_default_divider_upper"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="@string/account_setup_options_default_label" />
-    <View
-        android:id="@+id/account_default_divider"
-        android:layout_below="@+id/account_default"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
     <CheckBox
         android:id="@+id/account_notify"
-        android:layout_below="@+id/account_default_divider"
+        android:layout_below="@+id/spinners_table"
         android:layout_marginTop="16dip"
         android:layout_marginBottom="16dip"
         android:layout_marginLeft="32dip"

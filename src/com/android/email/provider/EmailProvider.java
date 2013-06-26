@@ -166,10 +166,9 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
     private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 2;
     private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 3;
-    private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 4;
-    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 5;
-    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 6;
-    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 7;
+    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 4;
+    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 5;
+    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 6;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -856,7 +855,6 @@ public class EmailProvider extends ContentProvider {
                 // A specific account
                 // insert into this URI causes a mailbox to be added to the account
                 matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
-                matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
                 matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
 
                 // Special URI to reset the new message count.  Only update works, and values
@@ -1096,31 +1094,6 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_MESSAGE_COUNT:
                     c = getMailboxMessageCount(uri);
                     return c;
-                case ACCOUNT_DEFAULT_ID:
-                    // We want either the row which has isDefault set, or we want the lowest valued
-                    // account id if none are isDefault. I don't think there's a way to express this
-                    // simply in sql so we get all account ids and loop through them manually.
-                    final Cursor accounts = db.query(Account.TABLE_NAME,
-                            Account.ACCOUNT_IS_DEFAULT_PROJECTION,
-                            null, null, null, null, null, null);
-                    long defaultAccountId = Account.NO_ACCOUNT;
-                    while (accounts.moveToNext()) {
-                        final long accountId =
-                                accounts.getLong(Account.ACCOUNT_IS_DEFAULT_COLUMN_ID);
-                        if (accounts.getInt(Account.ACCOUNT_IS_DEFAULT_COLUMN_IS_DEFAULT) == 1) {
-                            defaultAccountId = accountId;
-                            break;
-                        } else if (defaultAccountId == Account.NO_ACCOUNT ||
-                                accountId < defaultAccountId) {
-                            defaultAccountId = accountId;
-                        }
-                    }
-                    // Return a cursor with an id projection
-                    final MatrixCursor mc =
-                            new MatrixCursorWithCachedColumns(EmailContent.ID_PROJECTION, 1);
-                    mc.addRow(new Object[] {defaultAccountId});
-                    c = mc;
-                    break;
                 case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
@@ -1617,8 +1590,13 @@ public class EmailProvider extends ContentProvider {
         Uri messageUri = null;
         if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
             messageUri = uiSendDraftMessage(accountId, extras);
+            Preferences.getPreferences(getContext()).setLastUsedAccountId(accountId);
         } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SAVE_MESSAGE)) {
             messageUri = uiSaveDraftMessage(accountId, extras);
+        } else if (TextUtils.equals(method, UIProvider.AccountCallMethods.SET_CURRENT_ACCOUNT)) {
+            LogUtils.d(TAG, "Unhandled (but expected) Content provider method: %s", method);
+        } else {
+            LogUtils.wtf(TAG, "Unexpected Content provider method: %s", method);
         }
 
         final Bundle result;
@@ -2759,7 +2737,9 @@ public class EmailProvider extends ContentProvider {
     }
 
     private void addCombinedAccountRow(MatrixCursor mc) {
-        final long id = Account.getDefaultAccountId(getContext());
+        final long lastUsedAccountId =
+                Preferences.getPreferences(getContext()).getLastUsedAccountId();
+        final long id = Account.getDefaultAccountId(getContext(), lastUsedAccountId);
         if (id == Account.NO_ACCOUNT) return;
 
         // Build a map of the requested columns to the appropriate positions

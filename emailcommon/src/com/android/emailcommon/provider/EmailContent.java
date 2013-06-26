@@ -1552,7 +1552,13 @@ public abstract class EmailContent {
         public static final String HOST_AUTH_KEY_SEND = "hostAuthKeySend";
         // Flags
         public static final String FLAGS = "flags";
-        // Default account
+        /**
+         * Default account
+         *
+         * @deprecated This should never be used any more, as default accounts are handled
+         *             differently now
+         */
+        @Deprecated
         public static final String IS_DEFAULT = "isDefault";
         // Old-Style UUID for compatibility with previous versions
         public static final String COMPATIBILITY_UUID = "compatibilityUuid";
