@@ -99,13 +99,11 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static Uri CONTENT_URI;
     public static Uri RESET_NEW_MESSAGE_COUNT_URI;
     public static Uri NOTIFIER_URI;
-    public static Uri DEFAULT_ACCOUNT_ID_URI;
 
     public static void initAccount() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
         RESET_NEW_MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
         NOTIFIER_URI = Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
-        DEFAULT_ACCOUNT_ID_URI = Uri.parse(EmailContent.CONTENT_URI + "/account/default");
     }
 
     public String mDisplayName;
@@ -116,7 +114,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public long mHostAuthKeyRecv;
     public long mHostAuthKeySend;
     public int mFlags;
-    public boolean mIsDefault;          // note: callers should use getDefaultAccountId()
     public String mCompatibilityUuid;
     public String mSenderName;
     public String mProtocolVersion;
@@ -141,20 +138,19 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
     public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
     public static final int CONTENT_FLAGS_COLUMN = 8;
-    public static final int CONTENT_IS_DEFAULT_COLUMN = 9;
-    public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 10;
-    public static final int CONTENT_SENDER_NAME_COLUMN = 11;
-    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 12;
-    public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 13;
-    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 14;
-    public static final int CONTENT_SIGNATURE_COLUMN = 15;
-    public static final int CONTENT_POLICY_KEY = 16;
+    public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 9;
+    public static final int CONTENT_SENDER_NAME_COLUMN = 10;
+    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 11;
+    public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 12;
+    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 13;
+    public static final int CONTENT_SIGNATURE_COLUMN = 14;
+    public static final int CONTENT_POLICY_KEY = 15;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
         AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
         AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
-        AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
+        AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS,
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
         AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
@@ -174,12 +170,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
     public static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
             AccountColumns.ID, AccountColumns.FLAGS};
-
-    public static final int ACCOUNT_IS_DEFAULT_COLUMN_ID = 0;
-    public static final int ACCOUNT_IS_DEFAULT_COLUMN_IS_DEFAULT = 1;
-    public static final String[] ACCOUNT_IS_DEFAULT_PROJECTION = new String[] {
-            AccountColumns.ID, AccountColumns.IS_DEFAULT
-    };
 
     public static final String MAILBOX_SELECTION =
         MessageColumns.MAILBOX_KEY + " =?";
@@ -252,7 +242,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
         mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
         mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
-        mIsDefault = cursor.getInt(CONTENT_IS_DEFAULT_COLUMN) == 1;
         mCompatibilityUuid = cursor.getString(CONTENT_COMPATIBILITY_UUID_COLUMN);
         mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
         mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
@@ -436,15 +425,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     }
 
     /**
-     * Set the account to be the default account.  If this is set to "true", when the account
-     * is saved, all other accounts will have the same value set to "false".
-     * @param newDefaultState the new default state - if true, others will be cleared.
-     */
-    public void setDefaultAccount(boolean newDefaultState) {
-        mIsDefault = newDefaultState;
-    }
-
-    /**
      * @return {@link Uri} to this {@link Account} in the
      * {@code content://com.android.email.provider/account/UUID} format, which is safe to use
      * for desktop shortcuts.
@@ -509,24 +489,39 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     }
 
     /**
-     * Return the id of the default account.  If one hasn't been explicitly specified, return
-     * the first one in the database (the logic is provided within EmailProvider)
+     * Return the id of the default account. If one hasn't been explicitly specified, return the
+     * first one in the database. If no account exists, returns {@link #NO_ACCOUNT}.
+     *
      * @param context the caller's context
-     * @return the id of the default account, or Account.NO_ACCOUNT if there are no accounts
+     * @param lastUsedAccountId the last used account id, which is the basis of the default account
      */
-    static public long getDefaultAccountId(Context context) {
-        final Cursor c = context.getContentResolver().query(
-                Account.DEFAULT_ACCOUNT_ID_URI, Account.ID_PROJECTION, null, null, null);
+    public static long getDefaultAccountId(final Context context, final long lastUsedAccountId) {
+        final Cursor cursor = context.getContentResolver().query(
+                CONTENT_URI, ID_PROJECTION, null, null, null);
+
+        long firstAccount = NO_ACCOUNT;
+
         try {
-            if (c != null && c.moveToFirst()) {
-                return c.getLong(Account.ID_PROJECTION_COLUMN);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    final long accountId = cursor.getLong(Account.ID_PROJECTION_COLUMN);
+
+                    if (accountId == lastUsedAccountId) {
+                        return accountId;
+                    }
+
+                    if (firstAccount == NO_ACCOUNT) {
+                        firstAccount = accountId;
+                    }
+                } while (cursor.moveToNext());
             }
         } finally {
-            if (c != null) {
-                c.close();
+            if (cursor != null) {
+                cursor.close();
             }
         }
-        return Account.NO_ACCOUNT;
+
+        return firstAccount;
     }
 
     /**
@@ -664,35 +659,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         return policy.mRequireManualSyncWhenRoaming;
     }
 
-    /**
-     * Override update to enforce a single default account, and do it atomically
-     */
-    @Override
-    public int update(Context context, ContentValues cv) {
-        if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
-                cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
-            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-            ContentValues cv1 = new ContentValues();
-            cv1.put(AccountColumns.IS_DEFAULT, false);
-            // Clear the default flag in all accounts
-            ops.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
-            // Update this account
-            ops.add(ContentProviderOperation
-                    .newUpdate(ContentUris.withAppendedId(CONTENT_URI, mId))
-                    .withValues(cv).build());
-            try {
-                context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
-                return 1;
-            } catch (RemoteException e) {
-                // There is nothing to be done here; fail by returning 0
-            } catch (OperationApplicationException e) {
-                // There is nothing to be done here; fail by returning 0
-            }
-            return 0;
-        }
-        return super.update(context, cv);
-    }
-
     /*
      * Override this so that we can store the HostAuth's first and link them to the Account
      * (non-Javadoc)
@@ -706,8 +672,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         // This logic is in place so I can (a) short circuit the expensive stuff when
         // possible, and (b) override (and throw) if anyone tries to call save() or update()
         // directly for Account, which are unsupported.
-        if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false &&
-                mPolicy != null) {
+        if (mHostAuthRecv == null && mHostAuthSend == null && mPolicy != null) {
             return super.save(context);
         }
 
@@ -729,15 +694,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             ops.add(ContentProviderOperation.newInsert(mHostAuthSend.mBaseUri)
                     .withValues(mHostAuthSend.toContentValues())
                     .build());
-        }
-
-        // Create operations for making this the only default account
-        // Note, these are always updates because they change existing accounts
-        if (mIsDefault) {
-            index++;
-            ContentValues cv1 = new ContentValues();
-            cv1.put(AccountColumns.IS_DEFAULT, 0);
-            ops.add(ContentProviderOperation.newUpdate(CONTENT_URI).withValues(cv1).build());
         }
 
         // Now do the Account
@@ -795,7 +751,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
         values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
         values.put(AccountColumns.FLAGS, mFlags);
-        values.put(AccountColumns.IS_DEFAULT, mIsDefault);
         values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
         values.put(AccountColumns.SENDER_NAME, mSenderName);
         values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
@@ -845,7 +800,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         dest.writeLong(mHostAuthKeyRecv);
         dest.writeLong(mHostAuthKeySend);
         dest.writeInt(mFlags);
-        dest.writeByte(mIsDefault ? (byte)1 : (byte)0);
         dest.writeString(mCompatibilityUuid);
         dest.writeString(mSenderName);
         dest.writeString(mProtocolVersion);
@@ -883,7 +837,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mHostAuthKeyRecv = in.readLong();
         mHostAuthKeySend = in.readLong();
         mFlags = in.readInt();
-        mIsDefault = in.readByte() == 1;
         mCompatibilityUuid = in.readString();
         mSenderName = in.readString();
         mProtocolVersion = in.readString();

@@ -88,7 +88,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_BACKGROUND_ATTACHMENTS =
             "account_background_attachments";
-    private static final String PREFERENCE_DEFAULT = "account_default";
     private static final String PREFERENCE_CATEGORY_DATA_USAGE = "data_usage";
     private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
     private static final String PREFERENCE_CATEGORY_SERVER = "account_servers";
@@ -115,7 +114,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private ListPreference mCheckFrequency;
     private ListPreference mSyncWindow;
     private CheckBoxPreference mAccountBackgroundAttachments;
-    private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mInboxNotify;
     private CheckBoxPreference mInboxVibrate;
     private Preference mInboxRingtone;
@@ -127,7 +125,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private Context mContext;
     private Account mAccount;
     private boolean mAccountDirty;
-    private long mDefaultAccountId;
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
@@ -440,9 +437,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     /**
      * Async task to load account in order to view/edit it
      */
-    private class LoadAccountTask extends AsyncTask<Long, Void, Object[]> {
+    private class LoadAccountTask extends AsyncTask<Long, Void, Account> {
         @Override
-        protected Object[] doInBackground(Long... params) {
+        protected Account doInBackground(Long... params) {
             long accountId = params[0];
             Account account = Account.restoreAccountWithId(mContext, accountId);
             if (account != null) {
@@ -454,20 +451,17 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     account = null;
                 }
             }
-            long defaultAccountId = Account.getDefaultAccountId(mContext);
-            return new Object[] { account, Long.valueOf(defaultAccountId) };
+            return account;
         }
 
         @Override
-        protected void onPostExecute(Object[] results) {
-            if (results != null && !isCancelled()) {
-                Account account = (Account) results[0];
+        protected void onPostExecute(Account account) {
+            if (!isCancelled()) {
                 if (account == null) {
                     mSaveOnExit = false;
                     mCallback.abandonEdit();
                 } else {
                     mAccount = account;
-                    mDefaultAccountId = (Long) results[1];
                     if (mStarted && !mLoaded) {
                         loadSettings();
                     }
@@ -727,10 +721,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             mAccountBackgroundAttachments.setOnPreferenceChangeListener(this);
         }
 
-        mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
-        mAccountDefault.setChecked(mAccount.mId == mDefaultAccountId);
-        mAccountDefault.setOnPreferenceChangeListener(this);
-
         mInboxNotify = (CheckBoxPreference) findPreference(
                 FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED);
         mInboxNotify.setOnPreferenceChangeListener(this);
@@ -874,7 +864,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         newFlags |= mAccountBackgroundAttachments.isChecked() ?
                 Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
-        mAccount.setDefaultAccount(mAccountDefault.isChecked());
         // If the display name has been cleared, we'll reset it to the default value (email addr)
         mAccount.setDisplayName(mAccountDescription.getText().trim());
         // The sender name must never be empty (this is enforced by the preference editor)

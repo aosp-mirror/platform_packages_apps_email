@@ -57,7 +57,6 @@ import java.io.IOException;
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
-    private CheckBox mDefaultView;
     private CheckBox mNotifyView;
     private CheckBox mSyncContactsView;
     private CheckBox mSyncCalendarView;
@@ -86,7 +85,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
 
         mCheckFrequencyView = (Spinner) UiUtilities.getView(this, R.id.account_check_frequency);
         mSyncWindowView = (Spinner) UiUtilities.getView(this, R.id.account_sync_window);
-        mDefaultView = (CheckBox) UiUtilities.getView(this, R.id.account_default);
         mNotifyView = (CheckBox) UiUtilities.getView(this, R.id.account_notify);
         mSyncContactsView = (CheckBox) UiUtilities.getView(this, R.id.account_sync_contacts);
         mSyncCalendarView = (CheckBox) UiUtilities.getView(this, R.id.account_sync_calendar);
@@ -119,12 +117,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
 
         if (mServiceInfo.offerLookback) {
             enableLookbackSpinner();
-        }
-
-        // Note:  It is OK to use mAccount.mIsDefault here *only* because the account
-        // has not been written to the DB yet.  Ordinarily, call Account.getDefaultAccountId().
-        if (account.mIsDefault || SetupData.isDefault()) {
-            mDefaultView.setChecked(true);
         }
 
         mNotifyView.setChecked(true); // By default, we want notifications on
@@ -221,7 +213,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
             account.setSyncLookback(window);
         }
-        account.setDefaultAccount(mDefaultView.isChecked());
 
         if (account.mHostAuthRecv == null) {
             throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");

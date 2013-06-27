@@ -60,11 +60,6 @@
                 android:layout_width="match_parent" />
         </LinearLayout>
         <CheckBox
-            android:id="@+id/account_default"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="@string/account_setup_options_default_label" />
-        <CheckBox
             android:id="@+id/account_notify"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"

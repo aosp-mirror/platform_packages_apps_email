@@ -35,11 +35,11 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.email.EmailAddressValidator;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
@@ -110,7 +110,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     // Support for UI
     private EditText mEmailView;
     private EditText mPasswordView;
-    private CheckBox mDefaultView;
     private final EmailAddressValidator mEmailValidator = new EmailAddressValidator();
     private Provider mProvider;
     private Button mManualButton;
@@ -242,14 +241,9 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         mEmailView = (EditText) UiUtilities.getView(this, R.id.account_email);
         mPasswordView = (EditText) UiUtilities.getView(this, R.id.account_password);
-        mDefaultView = (CheckBox) UiUtilities.getView(this, R.id.account_default);
 
         mEmailView.addTextChangedListener(this);
         mPasswordView.addTextChangedListener(this);
-
-        // If there are one or more accounts already in existence, then display
-        // the "use as default" checkbox (it defaults to hidden).
-        new DisplayCheckboxTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         boolean manualButtonDisplayed = true;
 
@@ -432,16 +426,20 @@ public class AccountSetupBasics extends AccountSetupActivity
     private final Callable<String> mOwnerLookupCallable = new Callable<String>() {
         @Override
         public String call() {
-            Context context = AccountSetupBasics.this;
-            String name = null;
-            long defaultId = Account.getDefaultAccountId(context);
+            final Context context = AccountSetupBasics.this;
+
+            final long lastUsedAccountId =
+                    Preferences.getPreferences(context).getLastUsedAccountId();
+            final long defaultId = Account.getDefaultAccountId(context, lastUsedAccountId);
+
             if (defaultId != -1) {
-                Account account = Account.restoreAccountWithId(context, defaultId);
+                final Account account = Account.restoreAccountWithId(context, defaultId);
                 if (account != null) {
-                    name = account.getSenderName();
+                    return account.getSenderName();
                 }
             }
-            return name;
+
+            return null;
         }
     };
 
@@ -469,7 +467,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             sendAuth.setLogin(mProvider.outgoingUsername, password);
 
             // Populate the setup data, assuming that the duplicate account check will succeed
-            populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
+            populateSetupData(getOwnerName(), email);
 
             // Stop here if the login credentials duplicate an existing account
             // Launch an Async task to do the work
@@ -590,7 +588,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         sendAuth.setLogin(user, password);
         sendAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
 
-        populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
+        populateSetupData(getOwnerName(), email);
 
         SetupData.setAllowAutodiscover(allowAutoDiscover);
         AccountSetupType.actionSelectAccountType(this);
@@ -616,7 +614,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
             HostAuth.setHostAuthFromString(sendAuth, outgoing);
 
-            populateSetupData(user, email, false);
+            populateSetupData(user, email);
         } catch (URISyntaxException e) {
             // If we can't set up the URL, don't continue - account setup pages will fail too
             Toast.makeText(
@@ -638,13 +636,11 @@ public class AccountSetupBasics extends AccountSetupActivity
     /**
      * Populate SetupData's account with complete setup info.
      */
-    private void populateSetupData(String senderName, String senderEmail, boolean isDefault) {
+    private void populateSetupData(String senderName, String senderEmail) {
         Account account = SetupData.getAccount();
         account.setSenderName(senderName);
         account.setEmailAddress(senderEmail);
         account.setDisplayName(senderEmail);
-        account.setDefaultAccount(isDefault);
-        SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
         setDefaultsForProtocol(this, account);
     }
 
@@ -672,28 +668,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     @Override
     public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
         throw new IllegalStateException();
-    }
-
-    /**
-     * AsyncTask checks count of accounts and displays "use this account as default" checkbox
-     * if there are more than one.
-     */
-    private class DisplayCheckboxTask extends AsyncTask<Void, Void, Integer> {
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            return EmailContent.count(AccountSetupBasics.this, Account.CONTENT_URI);
-        }
-
-        @Override
-        protected void onPostExecute(Integer numAccounts) {
-            if (numAccounts > 0) {
-                Activity a = AccountSetupBasics.this;
-                UiUtilities.setVisibilitySafe(mDefaultView, View.VISIBLE);
-                UiUtilities.setVisibilitySafe(a, R.id.account_default_divider_1, View.VISIBLE);
-                UiUtilities.setVisibilitySafe(a, R.id.account_default_divider_2, View.VISIBLE);
-            }
-        }
     }
 
     private void onEnableProceedButtons(boolean enabled) {

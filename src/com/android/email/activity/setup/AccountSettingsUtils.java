@@ -84,7 +84,6 @@ public class AccountSettingsUtils {
      */
     public static ContentValues getAccountContentValues(Account account) {
         ContentValues cv = new ContentValues();
-        cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
         cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());
         cv.put(AccountColumns.SENDER_NAME, account.getSenderName());
         cv.put(AccountColumns.SIGNATURE, account.getSignature());
