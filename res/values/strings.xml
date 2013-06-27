@@ -190,6 +190,8 @@
     <string name="mailbox_name_display_sent">Sent</string>
     <!-- In the UI, the junk will be displayed with this name -->
     <string name="mailbox_name_display_junk">Junk</string>
+    <!-- In the UI, the starred will be displayed with this name -->
+    <string name="mailbox_name_display_starred">Starred</string>
     <!-- In the UI, the unread will be displayed with this name [CHAR LIMIT=15] -->
     <string name="mailbox_name_display_unread">Unread</string>
     <!-- In the shortcut/widget configuration UI, the label for selecting only the unread messages in an account's inbox [CHAR LIMIT=30] -->
