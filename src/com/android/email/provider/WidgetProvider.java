@@ -134,7 +134,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
             return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_INBOX);
         } else if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
-            return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_ALL_UNREAD);
+            return EmailProvider.getVirtualMailboxId(accountId, Mailbox.TYPE_UNREAD);
         }
         return mailboxId;
     }
