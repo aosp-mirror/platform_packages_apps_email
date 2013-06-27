@@ -1977,6 +1977,7 @@ public class EmailProvider extends ContentProvider {
             + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + UIProvider.FolderType.TRASH
             + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + UIProvider.FolderType.STARRED
+            + " WHEN " + Mailbox.TYPE_UNREAD + " THEN " + UIProvider.FolderType.UNREAD
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
@@ -2324,7 +2325,7 @@ public class EmailProvider extends ContentProvider {
             case Mailbox.TYPE_STARRED:
                 sb.append(MessageColumns.FLAG_FAVORITE + "=1");
                 break;
-            case Mailbox.TYPE_ALL_UNREAD:
+            case Mailbox.TYPE_UNREAD:
                 sb.append(MessageColumns.FLAG_READ + "=0 AND " + MessageColumns.MAILBOX_KEY +
                         " NOT IN (SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME +
                         " WHERE " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH + ")");
@@ -2874,8 +2875,9 @@ public class EmailProvider extends ContentProvider {
         Object[] values = new Object[UIProvider.FOLDERS_PROJECTION.length];
         values[UIProvider.FOLDER_ID_COLUMN] = id;
         values[UIProvider.FOLDER_URI_COLUMN] = combinedUriString("uifolder", idString);
-        values[UIProvider.FOLDER_NAME_COLUMN] =
-                Mailbox.getSystemMailboxName(getContext(), mailboxType);
+        values[UIProvider.FOLDER_NAME_COLUMN] = getFolderDisplayName(
+                getFolderTypeFromMailboxType(mailboxType), "");
+                // default empty string since all of these should use resource strings
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
         values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
@@ -2897,7 +2899,7 @@ public class EmailProvider extends ContentProvider {
                 // Add the icon
                 values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_inbox;
                 break;
-            case Mailbox.TYPE_ALL_UNREAD: {
+            case Mailbox.TYPE_UNREAD: {
                 // Add the unread count
                 final String accountKeyClause;
                 final String[] whereArgs;
@@ -3075,7 +3077,7 @@ public class EmailProvider extends ContentProvider {
             mc.addRow(row);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
             mc.addRow(row);
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_ALL_UNREAD);
+            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_UNREAD);
             mc.addRow(row);
             return mc;
         } else {
@@ -3087,7 +3089,7 @@ public class EmailProvider extends ContentProvider {
             final long acctId = Long.parseLong(id);
             Object[] row = getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED);
             mc.addRow(row);
-            row = getVirtualMailboxRow(acctId, Mailbox.TYPE_ALL_UNREAD);
+            row = getVirtualMailboxRow(acctId, Mailbox.TYPE_UNREAD);
             mc.addRow(row);
 
             mc.setNotificationUri(context.getContentResolver(), uri);
@@ -3326,25 +3328,130 @@ public class EmailProvider extends ContentProvider {
      */
     private Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
         final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
-        Object[] values = new Object[uiProjection.length];
-        String[] args = new String[1];
+        final String[] args = new String[1];
+        final int projectionLength = uiProjection.length;
+        final List<String> projectionList = Arrays.asList(uiProjection);
+        final int nameColumn = projectionList.indexOf(UIProvider.FolderColumns.NAME);
+        final int typeColumn = projectionList.indexOf(UIProvider.FolderColumns.TYPE);
+
         try {
             // Loop through mailboxes, building matrix cursor
             while (c.moveToNext()) {
-                String id = c.getString(0);
+                final String id = c.getString(0);
                 args[0] = id;
-                Cursor mailboxCursor = db.rawQuery(genQueryMailbox(uiProjection, id), args);
+                final Cursor mailboxCursor = db.rawQuery(genQueryMailbox(uiProjection, id), args);
                 if (mailboxCursor.moveToNext()) {
-                    for (int i = 0; i < uiProjection.length; i++) {
-                        values[i] = mailboxCursor.getString(i);
-                    }
-                    mc.addRow(values);
+                    getUiFolderCursorRowFromMailboxCursorRow(
+                            mc, projectionLength, mailboxCursor, nameColumn, typeColumn);
                 }
             }
         } finally {
             c.close();
         }
        return mc;
+    }
+
+    /**
+     * Converts a mailbox in a row of the mailboxCursor into a row
+     * in the supplied {@link MatrixCursor} in the format required for {@link Folder}.
+     * As a convenience, the modified {@link MatrixCursor} is also returned.
+     * @param mc the {@link MatrixCursor} into which the mailbox data will be converted
+     * @param projectionLength the length of the projection for this Cursor
+     * @param mailboxCursor the cursor supplying the mailbox data
+     * @param nameColumn column in the cursor containing the folder name value
+     * @param typeColumn column in the cursor containing the folder type value
+     * @return the {@link MatrixCursor} containing the transformed data.
+     */
+    private Cursor getUiFolderCursorRowFromMailboxCursorRow(
+            MatrixCursor mc, int projectionLength, Cursor mailboxCursor,
+            int nameColumn, int typeColumn) {
+        final MatrixCursor.RowBuilder builder = mc.newRow();
+        for (int i = 0; i < projectionLength; i++) {
+            // If we are at the name column, get the type
+            // and use it to use a properly translated string
+            // from resources instead of the display name.
+            // This ignores display names for system mailboxes.
+            if (nameColumn == i) {
+                // We implicitly assume that if name is requested,
+                // type has also been requested. If not, this will
+                // error in unknown ways.
+                final int type = mailboxCursor.getInt(typeColumn);
+                builder.add(getFolderDisplayName(type, mailboxCursor.getString(i)));
+            } else {
+                builder.add(mailboxCursor.getString(i));
+            }
+        }
+        return mc;
+    }
+
+    /**
+     * Returns a {@link String} from Resources corresponding
+     * to the {@link UIProvider.FolderType} requested.
+     * @param folderType {@link UIProvider.FolderType} value for the folder
+     * @param defaultName a {@link String} to use in case the {@link UIProvider.FolderType}
+     *                    provided is not a system folder.
+     * @return a {@link String} to use as the display name for the folder
+     */
+    private String getFolderDisplayName(int folderType, String defaultName) {
+        int resId = -1;
+        switch (folderType) {
+            case UIProvider.FolderType.INBOX:
+                resId = R.string.mailbox_name_display_inbox;
+                break;
+            case UIProvider.FolderType.OUTBOX:
+                resId = R.string.mailbox_name_display_outbox;
+                break;
+            case UIProvider.FolderType.DRAFT:
+                resId = R.string.mailbox_name_display_drafts;
+                break;
+            case UIProvider.FolderType.TRASH:
+                resId = R.string.mailbox_name_display_trash;
+                break;
+            case UIProvider.FolderType.SENT:
+                resId = R.string.mailbox_name_display_sent;
+                break;
+            case UIProvider.FolderType.SPAM:
+                resId = R.string.mailbox_name_display_junk;
+                break;
+            case UIProvider.FolderType.STARRED:
+                resId = R.string.mailbox_name_display_starred;
+                break;
+            case UIProvider.FolderType.UNREAD:
+                resId = R.string.mailbox_name_display_unread;
+                break;
+            default:
+                return defaultName;
+        }
+        return getContext().getString(resId);
+    }
+
+    /**
+     * Converts a {@link Mailbox} type value to its {@link UIProvider.FolderType}
+     * equivalent.
+     * @param mailboxType a {@link Mailbox} type
+     * @return a {@link UIProvider.FolderType} value
+     */
+    private static int getFolderTypeFromMailboxType(int mailboxType) {
+        switch (mailboxType) {
+            case Mailbox.TYPE_INBOX:
+                return UIProvider.FolderType.INBOX;
+            case Mailbox.TYPE_OUTBOX:
+                return UIProvider.FolderType.OUTBOX;
+            case Mailbox.TYPE_DRAFTS:
+                return UIProvider.FolderType.DRAFT;
+            case Mailbox.TYPE_TRASH:
+                return UIProvider.FolderType.TRASH;
+            case Mailbox.TYPE_SENT:
+                return UIProvider.FolderType.SENT;
+            case Mailbox.TYPE_JUNK:
+                return UIProvider.FolderType.SPAM;
+            case Mailbox.TYPE_STARRED:
+                return UIProvider.FolderType.STARRED;
+            case Mailbox.TYPE_UNREAD:
+                return UIProvider.FolderType.UNREAD;
+            default:
+                return UIProvider.FolderType.DEFAULT;
+        }
     }
 
     /**
@@ -3421,7 +3528,15 @@ public class EmailProvider extends ContentProvider {
                 if (isVirtualMailbox(mailboxId)) {
                     c = getVirtualMailboxCursor(mailboxId);
                 } else {
-                    c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[] {id});
+                    c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[]{id});
+                    final List<String> projectionList = Arrays.asList(uiProjection);
+                    final int nameColumn = projectionList.indexOf(UIProvider.FolderColumns.NAME);
+                    final int typeColumn = projectionList.indexOf(UIProvider.FolderColumns.TYPE);
+                    if (c.moveToFirst()) {
+                        c = getUiFolderCursorRowFromMailboxCursorRow(
+                                new MatrixCursorWithCachedColumns(uiProjection),
+                                uiProjection.length, c, nameColumn, typeColumn);
+                    }
                     notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
                 }
                 break;
