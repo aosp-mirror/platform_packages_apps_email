@@ -257,8 +257,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             // Because "delete policy" UI is on edit incoming settings, we have
             // to refresh that as well.
             Account refreshedAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
-            if (refreshedAccount == null || mAccount.mHostAuthRecv == null
-                    || mAccount.mHostAuthSend == null) {
+            if (refreshedAccount == null || mAccount.mHostAuthRecv == null) {
                 mSaveOnExit = false;
                 mCallback.abandonEdit();
                 return;
@@ -447,7 +446,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     HostAuth.restoreHostAuthWithId(mContext, account.mHostAuthKeyRecv);
                 account.mHostAuthSend =
                     HostAuth.restoreHostAuthWithId(mContext, account.mHostAuthKeySend);
-                if (account.mHostAuthRecv == null || account.mHostAuthSend == null) {
+                if (account.mHostAuthRecv == null) {
                     account = null;
                 }
             }
@@ -798,7 +797,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
         // Hide the outgoing account setup link if it's not activated
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
-        if (info.usesSmtp) {
+        if (info.usesSmtp && mAccount.mHostAuthSend != null) {
             prefOutgoing.setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
                         @Override
@@ -809,6 +808,11 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                         }
                     });
         } else {
+            if (info.usesSmtp) {
+                // We really ought to have an outgoing host auth but we don't.
+                // There's nothing we can do at this point, so just log the error.
+                LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth", mAccount.mId);
+            }
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                     PREFERENCE_CATEGORY_SERVER);
             serverCategory.removePreference(prefOutgoing);
