@@ -1988,6 +1988,9 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
                 .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
                 .add(UIProvider.FolderColumns.HIERARCHICAL_DESC, MailboxColumns.HIERARCHICAL_NAME)
+                .add(UIProvider.FolderColumns.PARENT_URI, "case when " + MailboxColumns.PARENT_KEY
+                        + "=" + Mailbox.NO_MAILBOX + " then NULL else " +
+                        uriWithColumn("uifolder", MailboxColumns.PARENT_KEY) + " end")
                 .build();
         }
         return sFolderListMap;
