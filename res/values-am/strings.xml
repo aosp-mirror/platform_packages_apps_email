@@ -67,7 +67,7 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"አንቀሳቅስ በPOP3 መለያዎች የሚደገፍ  አይደለም።"</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"ምርጫው ብዙ መለያዎች ስለያዘ ማንቀሳቀስ አልተቻለም።"</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"በረቂቅ ውስጥ፣ የወጪ መልእክት ሳጥን እና የተላኩ መልዕክቶች መንቀሳቀስ  አይችሉም።"</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"በረቂቅ ውስጥ፣ የወጪ መልዕክት ሳጥን እና የተላኩ መልዕክቶች መንቀሳቀስ  አይችሉም።"</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ያልተነበበ (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ያልተነበበ (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -84,7 +84,7 @@
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>መለያ"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> መለያዎች"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"ገቢ መልእክት"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"ገቢ መልዕክት"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"የወጪ መልዕክት ሳጥን"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"ረቂቆች"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ጣል"</string>
@@ -100,7 +100,7 @@
     <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> መለያዎች"</item>
   </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"ሥሪት፡<xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"ገቢ መልእክት"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"ገቢ መልዕክት"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ኮከብ የተደረገባቸው"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"ረቂቆች"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"የወጪ መልዕክት ሳጥን"</string>
