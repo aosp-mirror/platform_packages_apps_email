@@ -107,10 +107,10 @@ public class WidgetProvider extends BaseWidgetProvider {
 
         if (uiAccount != null && uiFolder != null) {
             WidgetService.saveWidgetInformation(context, widgetId, uiAccount,
-                    uiFolder.uri.toString());
+                    uiFolder.folderUri.fullUri.toString());
 
-            updateWidgetInternal(context, widgetId, uiAccount, uiFolder.type, uiFolder.uri,
-                    uiFolder.conversationListUri, uiFolder.name);
+            updateWidgetInternal(context, widgetId, uiAccount, uiFolder.type,
+                    uiFolder.folderUri.fullUri, uiFolder.conversationListUri, uiFolder.name);
 
             // Now remove the old legacy preference value
             editor.remove(LEGACY_ACCOUNT_ID_PREFIX + widgetId);

@@ -180,7 +180,7 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
 
     @Override
     public void select(Folder folder) {
-        String folderId = folder.uri.getLastPathSegment();
+        String folderId = folder.folderUri.fullUri.getLastPathSegment();
         Long id = Long.parseLong(folderId);
         ContentValues values = new ContentValues();
 

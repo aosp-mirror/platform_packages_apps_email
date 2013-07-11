@@ -3986,7 +3986,7 @@ public class EmailProvider extends ContentProvider {
                             message.mId);
                 } else {
                     final Folder f = flist.folders.get(0);
-                    final Uri uri = f.uri;
+                    final Uri uri = f.folderUri.fullUri;
                     final Long mailboxId = Long.parseLong(uri.getLastPathSegment());
                     putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
                 }
