@@ -1047,10 +1047,10 @@ public class EmailProvider extends ContentProvider {
         // TODO Make sure attachments are deleted
         if (databaseFile.exists() && !bodyFile.exists()) {
             Log.w(TAG, "Deleting orphaned EmailProvider database...");
-            databaseFile.delete();
+            getContext().deleteDatabase(DATABASE_NAME);
         } else if (bodyFile.exists() && !databaseFile.exists()) {
             Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
-            bodyFile.delete();
+            getContext().deleteDatabase(BODY_DATABASE_NAME);
         }
     }
     @Override
