@@ -989,16 +989,16 @@ public class EmailProvider extends ContentProvider {
             mBodyDatabase = null;
         }
         // Look for orphans, and delete as necessary; these must always be in sync
-        File databaseFile = getContext().getDatabasePath(DATABASE_NAME);
-        File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
+        final File databaseFile = getContext().getDatabasePath(DATABASE_NAME);
+        final File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
 
         // TODO Make sure attachments are deleted
         if (databaseFile.exists() && !bodyFile.exists()) {
             LogUtils.w(TAG, "Deleting orphaned EmailProvider database...");
-            databaseFile.delete();
+            getContext().deleteDatabase(DATABASE_NAME);
         } else if (bodyFile.exists() && !databaseFile.exists()) {
             LogUtils.w(TAG, "Deleting orphaned EmailProviderBody database...");
-            bodyFile.delete();
+            getContext().deleteDatabase(BODY_DATABASE_NAME);
         }
     }
     @Override
