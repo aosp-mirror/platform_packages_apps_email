@@ -2036,7 +2036,10 @@ public class EmailProvider extends ContentProvider {
 
             final String feedbackUri = context.getString(R.string.email_feedback_uri);
             if (!TextUtils.isEmpty(feedbackUri)) {
-                builder.add(UIProvider.AccountColumns.SEND_FEEDBACK_INTENT_URI, feedbackUri);
+                // This string needs to be in single quotes, as it will be used as a constant
+                // in a sql expression
+                builder.add(UIProvider.AccountColumns.SEND_FEEDBACK_INTENT_URI,
+                        "'" + feedbackUri + "'");
             }
 
             sAccountListMap = builder.build();
