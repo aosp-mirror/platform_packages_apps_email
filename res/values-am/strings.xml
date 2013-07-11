@@ -46,7 +46,7 @@
     <string name="remove_star_action" msgid="6689770999647007163">"ኮከብ አስወግድ"</string>
     <string name="refresh_action" msgid="5951383001436708175">"አድስ"</string>
     <string name="compose_action" msgid="4045702519637388045">"ፅሁፍ አዘጋጅ"</string>
-    <string name="search_action" msgid="6325101454876682308">" ፈልግ"</string>
+    <string name="search_action" msgid="6325101454876682308">"ፍለጋ"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"መለያ ቅንብሮች"</string>
     <string name="settings_action" msgid="6334807007967459412">"ቅንብሮች"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"የማመሳሰል አማራጮች"</string>
