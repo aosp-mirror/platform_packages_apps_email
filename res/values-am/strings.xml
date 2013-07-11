@@ -47,7 +47,7 @@
     <string name="refresh_action" msgid="5951383001436708175">"አድስ"</string>
     <string name="add_account_action" msgid="8835736309476033727">"መለያ አክል"</string>
     <string name="compose_action" msgid="4045702519637388045">"ፅሁፍ አዘጋጅ"</string>
-    <string name="search_action" msgid="6325101454876682308">" ፈልግ"</string>
+    <string name="search_action" msgid="6325101454876682308">"ፍለጋ"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"መለያ ቅንብሮች"</string>
     <string name="settings_action" msgid="6334807007967459412">"ቅንብሮች"</string>
     <string name="mailbox_settings_action" msgid="8008375875310554776">"አስምር አማራጮች"</string>
