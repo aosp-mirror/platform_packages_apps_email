@@ -118,6 +118,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
+    private Uri mFeedbackUri;
+    private MenuItem mFeedbackMenuItem;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -223,6 +225,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 updateAccounts();
             }
         };
+
+        mFeedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
     }
 
     @Override
@@ -268,8 +272,22 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.settings_menu, menu);
+
+        mFeedbackMenuItem = menu.findItem(R.id.feedback_menu_item);
         return true;
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (mFeedbackMenuItem != null) {
+            // We only want to enable the feedback menu item, if there is a valid feedback uri
+            mFeedbackMenuItem.setVisible(!Uri.EMPTY.equals(mFeedbackUri));
+        }
+        return true;
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -285,8 +303,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 onAddNewAccount();
                 break;
             case R.id.feedback_menu_item:
-                final Uri feedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
-                Utils.sendFeedback(this, feedbackUri, false /* reportingProblem */);
+                Utils.sendFeedback(this, mFeedbackUri, false /* reportingProblem */);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
