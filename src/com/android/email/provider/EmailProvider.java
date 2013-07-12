@@ -256,14 +256,6 @@ public class EmailProvider extends ContentProvider {
         Body.TABLE_NAME,
     };
 
-    /**
-     * Accounts that are receiving push notifications schedule a periodic sync to fetch account
-     * changes that aren't included in push (e.g. account settings, folder structure). This value
-     * specifies the poll frequency, in seconds. Currently set to one day.
-     */
-    private static final long ACCOUNT_ONLY_SYNC_INTERVAL =
-            DateUtils.DAY_IN_MILLIS / DateUtils.SECOND_IN_MILLIS;
-
     private static UriMatcher sURIMatcher = null;
 
     /**
@@ -4377,20 +4369,11 @@ public class EmailProvider extends ContentProvider {
             ContentResolver.removePeriodicSync(account, EmailContent.AUTHORITY, sync.extras);
         }
 
-        // Now add back the periodic sync we need, if there is one.
-        if (syncInterval != Account.CHECK_INTERVAL_NEVER) {
-            final Bundle extras = new Bundle();
-            final long pollFrequency;
-            if (syncInterval == Account.CHECK_INTERVAL_PUSH) {
-                // For push accounts, we still need an account-only sync to update things that are
-                // not pushed.
-                extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID,
-                        Mailbox.SYNC_EXTRA_MAILBOX_ID_ACCOUNT_ONLY);
-                pollFrequency = ACCOUNT_ONLY_SYNC_INTERVAL;
-            } else {
-                pollFrequency = syncInterval * 60;
-            }
-            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, extras, pollFrequency);
+        // Only positive values of sync interval indicate periodic syncs. The value is in minutes,
+        // while addPeriodicSync expects its time in seconds.
+        if (syncInterval > 0) {
+            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, Bundle.EMPTY,
+                    syncInterval * DateUtils.MINUTE_IN_MILLIS / DateUtils.SECOND_IN_MILLIS);
         }
     }
 
