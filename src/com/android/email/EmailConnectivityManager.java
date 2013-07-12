@@ -43,7 +43,7 @@ import com.android.mail.utils.LogUtils;
  * TODO: Use this class in ExchangeService
  */
 public class EmailConnectivityManager extends BroadcastReceiver {
-    private static final String TAG = "EmailConnectivityManager";
+    private static final String TAG = "EmailConnectivityMgr";
 
     // Loop time while waiting (stopgap in case we don't get a broadcast)
     private static final int CONNECTIVITY_WAIT_TIME = 10*60*1000;
