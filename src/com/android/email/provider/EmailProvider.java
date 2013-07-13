@@ -1920,7 +1920,7 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
                 .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
                 .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
-                        uriWithColumn("account", MessageColumns.ACCOUNT_KEY))
+                        uriWithColumn("uiaccount", MessageColumns.ACCOUNT_KEY))
                 .add(UIProvider.MessageColumns.STARRED, EmailContent.MessageColumns.FLAG_FAVORITE)
                 .add(UIProvider.MessageColumns.READ, EmailContent.MessageColumns.FLAG_READ)
                 .add(UIProvider.MessageColumns.SEEN, EmailContent.MessageColumns.FLAG_SEEN)
