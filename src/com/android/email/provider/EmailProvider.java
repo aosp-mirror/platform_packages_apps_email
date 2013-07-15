@@ -1279,15 +1279,12 @@ public class EmailProvider extends ContentProvider {
                 // Say it's ok to commit
                 toDatabase.setTransactionSuccessful();
             } finally {
-                // STOPSHIP: Remove logging here and in at endTransaction() below
-                LogUtils.d(TAG, "ending toDatabase transaction; copyCount = " + copyCount);
                 toDatabase.endTransaction();
             }
         } catch (SQLiteException ex) {
             LogUtils.w(TAG, "Exception while copying account tables", ex);
             copyCount = -1;
         } finally {
-            LogUtils.d(TAG, "ending fromDatabase transaction; copyCount = " + copyCount);
             fromDatabase.endTransaction();
         }
         return copyCount;
@@ -2504,9 +2501,9 @@ public class EmailProvider extends ContentProvider {
                 return 0;
             }
             capabilities = service.getCapabilities(acct);
-            // STOPSHIP
-            LogUtils.d(TAG, "getCapabilities() for " + acct.mDisplayName + ": 0x" +
-                    Integer.toHexString(capabilities) + getBits(capabilities));
+            LogUtils.d(TAG, "getCapabilities() for %s: 0x%x %s",
+                    LogUtils.sanitizeAccountName(acct.mDisplayName),
+                    capabilities, getBits(capabilities));
        } catch (RemoteException e) {
             // Nothing to do
            LogUtils.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
