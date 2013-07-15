@@ -492,7 +492,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * Do the work of starting an attachment download using the EmailService interface, and
          * set our watchdog alarm
          *
-         * @param serviceClass the service handling the download
+         * @param service the service handling the download
          * @param req the DownloadRequest
          * @throws RemoteException
          */
@@ -501,7 +501,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
-            service.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
+            service.loadAttachment(mServiceCallback, req.attachmentId,
+                    req.priority != PRIORITY_FOREGROUND);
             setWatchdogAlarm();
         }
 
