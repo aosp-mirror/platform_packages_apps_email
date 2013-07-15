@@ -44,6 +44,7 @@
     <original-package android:name="com.android.email" />
 
     <!-- Grant permission to other apps to view attachments -->
+    <!-- STOPSHIP: protectionLevel should not be dangerous -->
     <permission
         android:name="com.android.email.permission.READ_ATTACHMENT"
         android:permissionGroup="android.permission-group.MESSAGES"
@@ -57,10 +58,9 @@
         android:name="android.permission.USE_CREDENTIALS"/>
 
     <!-- Grant permission to system apps to access provider (see provider below) -->
-    <!-- STOPSHIP: Temporarily set protection level to "dangerous" (from "signature") -->
     <permission
         android:name="com.android.email.permission.ACCESS_PROVIDER"
-        android:protectionLevel="dangerous"
+        android:protectionLevel="signature"
         android:label="@string/permission_access_provider_label"
         android:description="@string/permission_access_provider_desc"/>
     <uses-permission
