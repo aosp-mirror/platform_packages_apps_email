@@ -412,7 +412,7 @@
     <item msgid="228585958140385749">"Afficher l\'image"</item>
     <item msgid="2226691218102223696">"Ne rien afficher"</item>
   </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Indiquez si vous souhaitez afficher l\'image de l\'expéditeur dans la conversation."</string>
+    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Indiquez si vous souhaitez afficher les images de l\'expéditeur en mode Conversation."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Image de l\'expéditeur"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Compte"</string>
     <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Sélectionner compte"</string>
