@@ -206,8 +206,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         }
     }
 
+    // TODO: Switch from using setCallback to the explicitly passed callback.
     @Override
-    public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+    public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
+            final boolean background) throws RemoteException {
         try {
             //1. Check if the attachment is already here and return early in that case
             Attachment attachment =

@@ -125,19 +125,21 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * loading has started and stopped and SHOULD send callbacks with progress information if
      * possible.
      *
+     * @param cb The {@link IEmailServiceCallback} to use for this operation.
      * @param attachmentId the id of the attachment record
      * @param background whether or not this request corresponds to a background action (i.e.
      * prefetch) vs a foreground action (user request)
      */
     @Override
-    public void loadAttachment(final long attachmentId, final boolean background)
+    public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
+            final boolean background)
             throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
                 try {
                     if (mCallback != null) mService.setCallback(mCallback);
-                    mService.loadAttachment(attachmentId, background);
+                    mService.loadAttachment(mCallback, attachmentId, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
@@ -181,7 +183,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * the sync was started via the startSync service call.
      *
      * @param mailboxId the id of the mailbox record
-     * @param userRequest whether or not the user specifically asked for the sync
      */
     @Override
     public void stopSync(final long mailboxId) throws RemoteException {
@@ -262,7 +263,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * Request that the service reload the folder list for the specified account. The service
      * MUST use the syncMailboxListStatus callback to indicate "starting" and "finished"
      *
-     * @param accoundId the id of the account whose folder list is to be updated
+     * @param accountId the id of the account whose folder list is to be updated
      */
     @Override
     public void updateFolderList(final long accountId) throws RemoteException {
@@ -479,7 +480,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     /**
      * Request that the account be updated for this service; this call is synchronous
      *
-     * @param the email address of the account to be updated
+     * @param emailAddress the email address of the account to be updated
      */
     @Override
     public void serviceUpdated(final String emailAddress) throws RemoteException {

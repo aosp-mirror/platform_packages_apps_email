@@ -95,8 +95,10 @@ public class Pop3Service extends Service {
             return AccountCapabilities.UNDO;
         }
 
+        // TODO: Switch from using the callback from setCallback to using the one passed here.
         @Override
-        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
+        public void loadAttachment(final IEmailServiceCallback callback, final long attachmentId,
+                final boolean background) throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (att == null || att.mUiState != AttachmentState.DOWNLOADING) return;
             long inboxId = Mailbox.findMailboxOfType(mContext, att.mAccountKey, Mailbox.TYPE_INBOX);
