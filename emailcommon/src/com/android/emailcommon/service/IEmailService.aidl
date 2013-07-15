@@ -31,7 +31,7 @@ interface IEmailService {
 
     // TODO: loadMore appears to be unused; if so, delete it.
     oneway void loadMore(long messageId);
-    oneway void loadAttachment(long attachmentId, boolean background);
+    oneway void loadAttachment(IEmailServiceCallback cb, long attachmentId, boolean background);
 
     oneway void updateFolderList(long accountId);
 
