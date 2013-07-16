@@ -23,6 +23,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -108,7 +109,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             mMailPrefs.setDefaultReplyAll((Boolean) newValue);
             return true;
         } else if (PREFERENCE_KEY_CONV_LIST_ICON.equals(key)) {
-            mPreferences.setConversationListIcon((String) newValue);
+            // TODO: Fix this to use a checkbox, instead of a list
+            mMailPrefs.setShowSenderImages(
+                    TextUtils.equals((String)newValue, Preferences.CONV_LIST_ICON_SENDER_IMAGE));
             return true;
         }
         return false;
@@ -149,7 +152,10 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
         mConvListIcon = (ListPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
         if (mConvListIcon != null) {
-            mConvListIcon.setValue(mPreferences.getConversationListIcon());
+            // TODO: Fix this to use a checkbox, instead of a list
+            final boolean showSenderImage = mMailPrefs.getShowSenderImages();
+            mConvListIcon.setValue(showSenderImage ?
+                    Preferences.CONV_LIST_ICON_SENDER_IMAGE : Preferences.CONV_LIST_ICON_NONE);
             mConvListIcon.setOnPreferenceChangeListener(this);
         }
 

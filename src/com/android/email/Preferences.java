@@ -193,12 +193,10 @@ public class Preferences {
         mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
+    /** @deprecated Only used for migration */
+    @Deprecated
     public String getConversationListIcon() {
         return mSharedPreferences.getString(CONV_LIST_ICON, CONV_LIST_ICON_SENDER_IMAGE);
-    }
-
-    public void setConversationListIcon(String value) {
-        mSharedPreferences.edit().putString(CONV_LIST_ICON, value).apply();
     }
 
     public boolean getConfirmDelete() {
