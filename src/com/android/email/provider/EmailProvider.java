@@ -2568,9 +2568,8 @@ public class EmailProvider extends ContentProvider {
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
-            String convListIcon = prefs.getConversationListIcon();
             values.put(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON,
-                    convListIconToUiValue(convListIcon));
+                    getConversationListIcon(mailPrefs));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             int autoAdvance = prefs.getAutoAdvanceDirection();
@@ -2673,16 +2672,6 @@ public class EmailProvider extends ContentProvider {
                 return UIProvider.MessageTextSize.TINY;
             default:
                 return UIProvider.MessageTextSize.NORMAL;
-        }
-    }
-
-    private static int convListIconToUiValue(String convListIcon) {
-        if (Preferences.CONV_LIST_ICON_SENDER_IMAGE.equals(convListIcon)) {
-            return UIProvider.ConversationListIcon.SENDER_IMAGE;
-        } else if (Preferences.CONV_LIST_ICON_NONE.equals(convListIcon)) {
-            return UIProvider.ConversationListIcon.NONE;
-        } else {
-            return UIProvider.ConversationListIcon.DEFAULT;
         }
     }
 
@@ -2811,7 +2800,7 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ICON)] =
-                    convListIconToUiValue(prefs.getConversationListIcon());
+                    getConversationListIcon(mailPrefs);
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
@@ -2835,6 +2824,12 @@ public class EmailProvider extends ContentProvider {
         }
 
         mc.addRow(values);
+    }
+
+    private int getConversationListIcon(MailPrefs mailPrefs) {
+        return mailPrefs.getShowSenderImages() ?
+                UIProvider.ConversationListIcon.SENDER_IMAGE :
+                UIProvider.ConversationListIcon.NONE;
     }
 
     private Cursor getVirtualMailboxCursor(long mailboxId) {
