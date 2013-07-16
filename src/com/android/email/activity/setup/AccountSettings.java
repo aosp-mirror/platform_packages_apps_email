@@ -357,7 +357,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // See bug 6242668
 
         // Get the mailbox id from the folder
-        final long mailboxId = Long.parseLong(folder.uri.getPathSegments().get(1));
+        final long mailboxId =
+                Long.parseLong(folder.folderUri.fullUri.getPathSegments().get(1));
 
         MailboxSettings.start(this, mailboxId);
         finish();

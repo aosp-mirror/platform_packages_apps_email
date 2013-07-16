@@ -321,6 +321,6 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
             folderCursor.close();
         }
 
-        return Utils.createViewFolderIntent(this, folder.uri, account);
+        return Utils.createViewFolderIntent(this, folder.folderUri.fullUri, account);
     }
 }
