@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.android.email.Preferences;
 import com.android.emailcommon.provider.EmailContent;
@@ -147,5 +148,12 @@ public class PreferenceMigrator extends BasePreferenceMigrator {
             mailPrefs.setSenderWhitelist(whitelistedAddresses);
         }
 
+        if (oldVersion < 3) {
+            @SuppressWarnings("deprecation")
+            // The default for the conversation list icon is the sender image.
+            final boolean showSenderImages = !TextUtils.equals(
+                    Preferences.CONV_LIST_ICON_NONE, preferences.getConversationListIcon());
+            mailPrefs.setShowSenderImages(showSenderImages);
+        }
     }
 }
