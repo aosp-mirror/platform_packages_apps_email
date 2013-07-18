@@ -31,7 +31,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Vastaa"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Vastaa kaikille"</string>
     <string name="delete_action" msgid="8421026208288857155">"Poista"</string>
-    <string name="forward_action" msgid="669174181042344116">"Seuraava"</string>
+    <string name="forward_action" msgid="669174181042344116">"Lähetä edelleen"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Tähti"</string>
     <string name="done_action" msgid="7497990549515580249">"Valmis"</string>
     <string name="create_action" msgid="3062715563215392251">"Luo uusi"</string>
