@@ -683,11 +683,6 @@ public abstract class EmailContent {
             RECORD_ID, SyncColumns.SERVER_ID
         };
 
-        public static final int MAILBOX_COLUMN_MAILBOX_KEY = 0;
-        public static final String[] MAILBOX_PROJECTION = new String[] {
-                MessageColumns.MAILBOX_KEY
-        };
-
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
 
         private static final String ACCOUNT_KEY_SELECTION =
