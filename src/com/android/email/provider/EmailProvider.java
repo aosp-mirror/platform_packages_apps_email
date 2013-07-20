@@ -4558,7 +4558,20 @@ public class EmailProvider extends ContentProvider {
         return 1;
     }
 
+    /** Projection used for getting email address for an account. */
+    private static final String[] ACCOUNT_EMAIL_PROJECTION = { AccountColumns.EMAIL_ADDRESS };
+
     private static void deleteAccountData(Context context, long accountId) {
+        // We will delete PIM data, but by the time the asynchronous call to do that happens,
+        // the account may have been deleted from the DB. Therefore we have to get the email
+        // address now and send that, rather than the account id.
+        final String emailAddress = Utility.getFirstRowString(context, Account.CONTENT_URI,
+                ACCOUNT_EMAIL_PROJECTION, Account.ID_SELECTION,
+                new String[] {Long.toString(accountId)}, null, 0);
+        if (emailAddress == null) {
+            LogUtils.e(TAG, "Could not find email address for account %d", accountId);
+        }
+
         // Delete synced attachments
         AttachmentUtilities.deleteAllAccountAttachmentFiles(context, accountId);
 
@@ -4573,12 +4586,15 @@ public class EmailProvider extends ContentProvider {
         resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
 
         // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
-        IEmailService service = EmailServiceUtils.getServiceForAccount(context, null, accountId);
-        if (service != null) {
-            try {
-                service.deleteAccountPIMData(accountId);
-            } catch (RemoteException e) {
-                // Can't do anything about this
+        if (emailAddress != null) {
+            final IEmailService service =
+                    EmailServiceUtils.getServiceForAccount(context, null, accountId);
+            if (service != null) {
+                try {
+                    service.deleteAccountPIMData(emailAddress);
+                } catch (final RemoteException e) {
+                    // Can't do anything about this
+                }
             }
         }
     }

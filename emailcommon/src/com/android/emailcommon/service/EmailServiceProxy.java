@@ -401,14 +401,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * service or its sync adapters and 3) not stored in the EmailProvider database (e.g. contact
      * and calendar information).
      *
-     * @param accountId the account whose data is to be deleted
+     * @param emailAddress the email address for the account whose data should be deleted
      */
     @Override
-    public void deleteAccountPIMData(final long accountId) throws RemoteException {
+    public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.deleteAccountPIMData(accountId);
+                mService.deleteAccountPIMData(emailAddress);
             }
         }, "deleteAccountPIMData");
     }

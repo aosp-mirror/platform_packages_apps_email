@@ -53,7 +53,7 @@ interface IEmailService {
 
     // Must not be oneway; unless an exception is thrown, the caller is guaranteed that the action
     // has been completed
-    void deleteAccountPIMData(long accountId);
+    void deleteAccountPIMData(String emailAddress);
 
     int getApiLevel();
 
