@@ -658,7 +658,7 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void deleteAccountPIMData(long accountId) throws RemoteException {
+        public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
         }
 
         @Override
