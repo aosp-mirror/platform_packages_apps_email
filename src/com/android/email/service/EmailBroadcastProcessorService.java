@@ -39,6 +39,8 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
 
+import java.util.HashMap;
+
 /**
  * The service that really handles broadcast intents on a worker thread.
  *
@@ -64,6 +66,9 @@ public class EmailBroadcastProcessorService extends IntentService {
     private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
     private static final String EXTRA_DEVICE_POLICY_ADMIN = "message_code";
 
+    // Action used for EmailUpgradeBroadcastReceiver.
+    private static final String ACTION_UPGRADE_BROADCAST = "upgrade_broadcast_receiver";
+
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
         super(EmailBroadcastProcessorService.class.getName());
@@ -79,6 +84,12 @@ public class EmailBroadcastProcessorService extends IntentService {
         Intent i = new Intent(context, EmailBroadcastProcessorService.class);
         i.setAction(ACTION_BROADCAST);
         i.putExtra(Intent.EXTRA_INTENT, broadcastIntent);
+        context.startService(i);
+    }
+
+    public static void processUpgradeBroadcastIntent(final Context context) {
+        final Intent i = new Intent(context, EmailBroadcastProcessorService.class);
+        i.setAction(ACTION_UPGRADE_BROADCAST);
         context.startService(i);
     }
 
@@ -115,7 +126,52 @@ public class EmailBroadcastProcessorService extends IntentService {
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);
             SecurityPolicy.onDeviceAdminReceiverMessage(this, message);
+        } else if (ACTION_UPGRADE_BROADCAST.equals(action)) {
+            onAppUpgrade();
         }
+    }
+
+    private void disableComponent(final Class<?> klass) {
+        getPackageManager().setComponentEnabledSetting(new ComponentName(this, klass),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    private void updateAccountManagerAccountsOfType(final String amAccountType,
+            final HashMap<String, String> protocolMap) {
+        final android.accounts.Account[] amAccounts =
+                AccountManager.get(this).getAccountsByType(amAccountType);
+
+        for (android.accounts.Account amAccount: amAccounts) {
+            EmailServiceUtils.updateAccountManagerType(this, amAccount, protocolMap);
+        }
+    }
+
+    private void onAppUpgrade() {
+        // TODO: Only do this for Email2Google.
+        // When upgrading to Email2Google, we need to essentially rename the account manager
+        // type for all existing accounts, so we add new ones and delete the old.
+        // We specify the translations in this map. We map from old protocol name to new protocol
+        // name, and from protocol name + "_type" to new account manager type name. (Email1 did
+        // not use distinct account manager types for POP and IMAP, but Email2 does, hence this
+        // weird mapping.)
+        final HashMap<String, String> protocolMap = new HashMap();
+        protocolMap.put("imap", getString(R.string.protocol_legacy_imap));
+        protocolMap.put("pop3", getString(R.string.protocol_pop3));
+        protocolMap.put("imap_type", getString(R.string.account_manager_type_legacy_imap));
+        protocolMap.put("pop3_type", getString(R.string.account_manager_type_pop3));
+        updateAccountManagerAccountsOfType("com.android.email", protocolMap);
+
+        protocolMap.clear();
+        protocolMap.put("eas", getString(R.string.protocol_eas));
+        protocolMap.put("eas_type", getString(R.string.account_manager_type_exchange));
+        updateAccountManagerAccountsOfType("com.android.exchange", protocolMap);
+
+        // Disable the old authenticators.
+        disableComponent(LegacyEmailAuthenticatorService.class);
+        disableComponent(LegacyEasAuthenticatorService.class);
+
+        // Disable the upgrade broadcast receiver now that we're fully upgraded.
+        disableComponent(EmailUpgradeBroadcastReceiver.class);
     }
 
     /**
