@@ -299,9 +299,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 // when necessary.
                 onBackPressed();
                 break;
-            case R.id.add_new_account:
-                onAddNewAccount();
-                break;
             case R.id.feedback_menu_item:
                 Utils.sendFeedback(this, mFeedbackUri, false /* reportingProblem */);
                 break;
