@@ -401,6 +401,16 @@
             android:name=".service.AttachmentDownloadService$Watchdog"
             android:enabled="true"/>
 
+        <!-- Handles app upgrade. This disables itself after running once. -->
+        <receiver
+            android:name=".service.EmailUpgradeBroadcastReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".service.EmailBroadcastReceiver"
             android:enabled="true">

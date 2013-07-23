@@ -21,20 +21,17 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -57,13 +54,14 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.utils.LogUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -253,47 +251,8 @@ public class EmailServiceUtils {
         }
     }
 
-    private static class UpdateAccountManagerTask extends AsyncTask<Void, Void, Void> {
-        private final Context mContext;
-        private final android.accounts.Account mAccount;
-        private final EmailServiceInfo mOldInfo;
-        private final EmailServiceInfo mNewInfo;
-
-        public UpdateAccountManagerTask(Context context, android.accounts.Account amAccount,
-                EmailServiceInfo oldInfo, EmailServiceInfo newInfo) {
-            super();
-            mContext = context;
-            mAccount = amAccount;
-            mOldInfo = oldInfo;
-            mNewInfo = newInfo;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            updateAccountManagerType(mContext, mAccount, mOldInfo, mNewInfo);
-            return null;
-        }
-    }
-
-    private static class DisableComponentsTask extends AsyncTask<Void, Void, Void> {
-        private final Context mContext;
-
-        public DisableComponentsTask(Context context) {
-            super();
-            mContext = context;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            disableComponent(mContext, LegacyEmailAuthenticatorService.class);
-            disableComponent(mContext, LegacyEasAuthenticatorService.class);
-            return null;
-        }
-    }
-
-    private static void updateAccountManagerType(Context context,
-            android.accounts.Account amAccount, EmailServiceInfo oldInfo,
-            EmailServiceInfo newInfo) {
+    public static void updateAccountManagerType(Context context,
+            android.accounts.Account amAccount, final HashMap<String, String> protocolMap) {
         final ContentResolver resolver = context.getContentResolver();
         final Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                 AccountColumns.EMAIL_ADDRESS + "=?", new String[] { amAccount.name }, null);
@@ -310,14 +269,14 @@ public class EmailServiceUtils {
                     return;
                 }
 
-                // Make sure this email address is using the expected protocol; our query to
-                // AccountManager doesn't know which protocol was being used (com.android.email
-                // was used for both pop3 and imap
-                if (!hostAuth.mProtocol.equals(oldInfo.protocol)) {
+                final String newProtocol = protocolMap.get(hostAuth.mProtocol);
+                if (newProtocol == null) {
+                    // This account doesn't need updating.
                     return;
                 }
+
                 LogUtils.w(Logging.LOG_TAG, "Converting " + amAccount.name + " to "
-                        + newInfo.protocol);
+                        + newProtocol);
 
                 final ContentValues accountValues = new ContentValues();
                 int oldFlags = account.mFlags;
@@ -331,7 +290,7 @@ public class EmailServiceUtils {
                 // Change the HostAuth to reference the new protocol; this has to be done before
                 // trying to create the AccountManager account (below)
                 final ContentValues hostValues = new ContentValues();
-                hostValues.put(HostAuth.PROTOCOL, newInfo.protocol);
+                hostValues.put(HostAuth.PROTOCOL, newProtocol);
                 resolver.update(ContentUris.withAppendedId(HostAuth.CONTENT_URI, hostAuth.mId),
                         hostValues, null, null);
                 LogUtils.w(Logging.LOG_TAG, "Updated HostAuths");
@@ -401,14 +360,17 @@ public class EmailServiceUtils {
                     LogUtils.w(Logging.LOG_TAG, "Deleted old AccountManager account");
 
                     // Restore sync keys for contacts/calendar
-                    if (calendarSyncKey != null && calendarSyncKey.length != 0) {
+                    // TODO: Clean up how we determine the type.
+                    final String accountType = protocolMap.get(hostAuth.mProtocol + "_type");
+                    if (accountType != null &&
+                            calendarSyncKey != null && calendarSyncKey.length != 0) {
                         client = context.getContentResolver()
                                 .acquireContentProviderClient(CalendarContract.CONTENT_URI);
                         try {
                             SyncStateContract.Helpers.set(client,
                                     asCalendarSyncAdapter(SyncState.CONTENT_URI, amName,
-                                            newInfo.accountType),
-                                    new android.accounts.Account(amName, newInfo.accountType),
+                                            accountType),
+                                    new android.accounts.Account(amName, accountType),
                                     calendarSyncKey);
                             LogUtils.w(Logging.LOG_TAG, "Set calendar key...");
                         } catch (RemoteException e) {
@@ -417,28 +379,18 @@ public class EmailServiceUtils {
                             client.release();
                         }
                     }
-                    if (contactsSyncKey != null && contactsSyncKey.length != 0) {
+                    if (accountType != null &&
+                            contactsSyncKey != null && contactsSyncKey.length != 0) {
                         client = context.getContentResolver()
                                 .acquireContentProviderClient(ContactsContract.AUTHORITY_URI);
                         try {
                             SyncStateContract.Helpers.set(client,
                                     ContactsContract.SyncState.CONTENT_URI,
-                                    new android.accounts.Account(amName, newInfo.accountType),
+                                    new android.accounts.Account(amName, accountType),
                                     contactsSyncKey);
                             LogUtils.w(Logging.LOG_TAG, "Set contacts key...");
                         } catch (RemoteException e) {
                             LogUtils.w(Logging.LOG_TAG, "Set contacts key FAILED");
-                        }
-                    }
-
-                    if (oldInfo.requiresAccountUpdate) {
-                        EmailServiceProxy service =
-                                EmailServiceUtils.getServiceFromInfo(context, null, newInfo);
-                        try {
-                            service.serviceUpdated(amAccount.name);
-                            LogUtils.w(Logging.LOG_TAG, "Updated account settings");
-                        } catch (RemoteException e) {
-                            // Old settings won't hurt anyone
                         }
                     }
 
@@ -454,14 +406,6 @@ public class EmailServiceUtils {
         } finally {
             c.close();
         }
-    }
-
-    private static void disableComponent(Context context, Class<?> klass) {
-        LogUtils.w(Logging.LOG_TAG, "Disabling legacy authenticator " + klass.getSimpleName());
-        final ComponentName c = new ComponentName(context, klass);
-        context.getPackageManager().setComponentEnabledSetting(c,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
     }
 
     /**
@@ -481,7 +425,9 @@ public class EmailServiceUtils {
                     final TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
                     info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
                     info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
-                    // Handle upgrade of one protocol to another (e.g. imap to imap2)
+                    // Protocol upgrades are handled by the upgrade broadcast receiver.
+                    // However, we still create the entry from the old protocol to the new type.
+                    // TODO: Remove the need for this entry.
                     final String newProtocol =
                             ta.getString(R.styleable.EmailServiceInfo_replaceWith);
 
@@ -492,16 +438,6 @@ public class EmailServiceUtils {
                                     "Replacement service not found: " + newProtocol);
                         }
                         sServiceMap.put(info.protocol, newInfo);
-
-                        info.requiresAccountUpdate = ta.getBoolean(
-                                R.styleable.EmailServiceInfo_requiresAccountUpdate, false);
-                        final AccountManager am = AccountManager.get(context);
-                        final android.accounts.Account[] amAccounts =
-                                am.getAccountsByType(info.accountType);
-                        for (android.accounts.Account amAccount: amAccounts) {
-                            new UpdateAccountManagerTask(context, amAccount, info, newInfo)
-                                    .executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-                        }
                         continue;
                     }
                     info.name = ta.getString(R.styleable.EmailServiceInfo_name);
@@ -569,8 +505,6 @@ public class EmailServiceUtils {
                     sServiceMap.put(info.protocol, info);
                 }
             }
-            // Disable our legacy components
-            new DisableComponentsTask(context).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         } catch (XmlPullParserException e) {
             // ignore
         } catch (IOException e) {
