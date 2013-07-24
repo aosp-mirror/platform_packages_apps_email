@@ -379,7 +379,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"クイック返信"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"メールの作成時に頻繁に挿入する文章を編集する"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"データ使用"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"データ使用量"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"セキュリティポリシー"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"システムフォルダ"</string>
     <string name="system_folders_trash_title" msgid="8470058000681188327">"ゴミ箱フォルダ"</string>
