@@ -1041,11 +1041,16 @@ public final class DBHelper {
 
                 // Fix invalid syncLookback values.
                 db.execSQL("update " + Account.TABLE_NAME + " set " + AccountColumns.SYNC_LOOKBACK
-                        + "=null where " + AccountColumns.SYNC_LOOKBACK +"<"
-                        + SyncWindow.SYNC_WINDOW_1_DAY);
+                        + "=" + SyncWindow.SYNC_WINDOW_1_WEEK + " where "
+                        + AccountColumns.SYNC_LOOKBACK + " is null or "
+                        + AccountColumns.SYNC_LOOKBACK + "<" + SyncWindow.SYNC_WINDOW_1_DAY + " or "
+                        + AccountColumns.SYNC_LOOKBACK + ">" + SyncWindow.SYNC_WINDOW_ALL);
+
                 db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_LOOKBACK
-                        + "=null where " + MailboxColumns.SYNC_LOOKBACK + "<"
-                        + SyncWindow.SYNC_WINDOW_1_DAY);
+                        + "=" + SyncWindow.SYNC_WINDOW_ACCOUNT + " where "
+                        + MailboxColumns.SYNC_LOOKBACK + " is null or "
+                        + MailboxColumns.SYNC_LOOKBACK + "<" + SyncWindow.SYNC_WINDOW_1_DAY + " or "
+                        + MailboxColumns.SYNC_LOOKBACK + ">" + SyncWindow.SYNC_WINDOW_ALL);
                 oldVersion = 110;
             }
             if (oldVersion == 110) {
