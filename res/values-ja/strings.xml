@@ -380,7 +380,7 @@
     <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"メールの作成時に頻繁に挿入する文章を編集する"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"送信メッセージに署名を付ける"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"データ使用"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"データ使用量"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"クイック返信の編集"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"連絡先を同期"</string>
