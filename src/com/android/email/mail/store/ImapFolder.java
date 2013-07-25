@@ -54,6 +54,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -391,14 +392,20 @@ class ImapFolder extends Folder {
     @VisibleForTesting
     String[] searchForUids(String searchCriteria) throws MessagingException {
         checkOpen();
+        LogUtils.d(Logging.LOG_TAG, "searchForUids '" + searchCriteria + "'");
         try {
             try {
-                String command = ImapConstants.UID_SEARCH + " " + searchCriteria;
-                return getSearchUids(mConnection.executeSimpleCommand(command));
+                final String command = ImapConstants.UID_SEARCH + " " + searchCriteria;
+                final String[] result = getSearchUids(mConnection.executeSimpleCommand(command));
+                LogUtils.d(Logging.LOG_TAG, "searchForUids '" + searchCriteria + "' results: " +
+                        result.length);
+                return result;
             } catch (ImapException e) {
-                LogUtils.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria);
+                LogUtils.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria +
+                        " :" + e.toString() + ":", e);
                 return Utility.EMPTY_STRINGS; // not found;
             } catch (IOException ioe) {
+                LogUtils.d(Logging.LOG_TAG, "IOException in search: " + searchCriteria, ioe);
                 throw ioExceptionHandler(mConnection, ioe);
             }
         } finally {
@@ -481,8 +488,30 @@ class ImapFolder extends Folder {
         if (start < 1 || end < 1 || end < start) {
             throw new MessagingException(String.format("Invalid range: %d %d", start, end));
         }
+        LogUtils.d(Logging.LOG_TAG, "getMessages number " + start + " - " + end);
         return getMessagesInternal(
                 searchForUids(String.format(Locale.US, "%d:%d NOT DELETED", start, end)), listener);
+    }
+
+    @Override
+    @VisibleForTesting
+    public Message[] getMessages(long startDate, long endDate, MessageRetrievalListener listener)
+            throws MessagingException {
+        LogUtils.d(Logging.LOG_TAG, "getMessages since " + startDate + " before " + endDate);
+        // Dates must be formatted like: 7-Feb-1994 21:52:25 -0800
+        // XXX can I limit the maximum number of results?
+        final String format = String.format("dd-LLL-yyyy HH:mm:ss Z");
+        final SimpleDateFormat formatter = new SimpleDateFormat(format);
+        final String sinceDateStr = formatter.format(endDate);
+        final String beforeDateStr = formatter.format(startDate);
+
+        if (startDate < endDate) {
+            throw new MessagingException(String.format("Invalid date range: %s - %s",
+                    sinceDateStr, beforeDateStr));
+        }
+        return getMessagesInternal(
+                searchForUids(String.format(Locale.US, "1:* BEFORE \"%s\" SINCE \"%s\"",
+                        beforeDateStr, sinceDateStr)), listener);
     }
 
     @Override

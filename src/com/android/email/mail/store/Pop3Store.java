@@ -343,6 +343,12 @@ public class Pop3Store extends Store {
             return null;
         }
 
+        @Override
+        public Pop3Message[] getMessages(long startDate, long endDate,
+                MessageRetrievalListener listener) throws MessagingException {
+            return null;
+        }
+
         public Pop3Message[] getMessages(int end, final int limit)
                 throws MessagingException {
             try {

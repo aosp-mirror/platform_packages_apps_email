@@ -128,7 +128,7 @@ public class PopImapSyncAdapterService extends Service {
                     EmailServiceStub.sendMailImpl(context, account.mId);
                 } else if (protocol.equals(legacyImapProtocol)) {
                     ImapService.synchronizeMailboxSynchronous(context, account, mailbox,
-                            deltaMessageCount);
+                            deltaMessageCount != 0);
                 } else {
                     Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox,
                             deltaMessageCount);
