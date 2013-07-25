@@ -433,6 +433,19 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     /**
+     * Store the updated message count in the database.
+     * @param c
+     * @param count
+     */
+    public void updateMessageCount(final Context c, final int count) {
+        if (count != mTotalCount) {
+            ContentValues values = new ContentValues();
+            values.put(MailboxColumns.TOTAL_COUNT, count);
+            update(c, values);
+        }
+    }
+
+    /**
      * During sync, updates the remote message count, and determine how many messages to sync down
      * for this mailbox.
      * @param c
