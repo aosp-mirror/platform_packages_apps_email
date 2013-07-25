@@ -24,9 +24,14 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.PeriodicSync;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.provider.CalendarContract;
+import android.provider.ContactsContract;
+import android.text.format.DateUtils;
 
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -36,11 +41,15 @@ import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
+import com.google.common.collect.Maps;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -138,13 +147,83 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void updateAccountManagerAccountsOfType(final String amAccountType,
-            final HashMap<String, String> protocolMap) {
+            final Map<String, String> protocolMap) {
         final android.accounts.Account[] amAccounts =
                 AccountManager.get(this).getAccountsByType(amAccountType);
 
         for (android.accounts.Account amAccount: amAccounts) {
             EmailServiceUtils.updateAccountManagerType(this, amAccount, protocolMap);
         }
+    }
+
+    /**
+     * Delete all periodic syncs for an account.
+     * @param amAccount The account for which to disable syncs.
+     * @param authority The authority for which to disable syncs.
+     */
+    private void removePeriodicSyncs(final android.accounts.Account amAccount,
+            final String authority) {
+        final List<PeriodicSync> syncs =
+                ContentResolver.getPeriodicSyncs(amAccount, authority);
+        for (final PeriodicSync sync : syncs) {
+            ContentResolver.removePeriodicSync(amAccount, authority, sync.extras);
+        }
+    }
+
+    /**
+     * Remove all existing periodic syncs for an account type, and add the necessary syncs.
+     * @param amAccountType The account type to handle.
+     * @param syncIntervals The map of all account addresses to sync intervals in the DB.
+     */
+    private void fixPeriodicSyncs(final String amAccountType,
+            final Map<String, Integer> syncIntervals) {
+        final android.accounts.Account[] amAccounts =
+                AccountManager.get(this).getAccountsByType(amAccountType);
+        for (android.accounts.Account amAccount : amAccounts) {
+            // First delete existing periodic syncs.
+            removePeriodicSyncs(amAccount, EmailContent.AUTHORITY);
+            removePeriodicSyncs(amAccount, CalendarContract.AUTHORITY);
+            removePeriodicSyncs(amAccount, ContactsContract.AUTHORITY);
+
+            // Add back a sync for this account if necessary (i.e. the account has a positive
+            // sync interval in the DB). This assumes that the email app requires unique email
+            // addresses for each account, which is currently the case.
+            final Integer syncInterval = syncIntervals.get(amAccount.name);
+            if (syncInterval != null && syncInterval > 0) {
+                // Sync interval is stored in minutes in DB, but we want the value in seconds.
+                ContentResolver.addPeriodicSync(amAccount, EmailContent.AUTHORITY, Bundle.EMPTY,
+                        syncInterval * DateUtils.MINUTE_IN_MILLIS / DateUtils.SECOND_IN_MILLIS);
+            }
+        }
+    }
+
+    /** Projection used for getting sync intervals for all accounts. */
+    private static final String[] ACCOUNT_SYNC_INTERVAL_PROJECTION =
+            { AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_INTERVAL };
+    private static final int ACCOUNT_SYNC_INTERVAL_ADDRESS_COLUMN = 0;
+    private static final int ACCOUNT_SYNC_INTERVAL_INTERVAL_COLUMN = 1;
+
+    /**
+     * Get the sync interval for all accounts, as stored in the DB.
+     * @return The map of all sync intervals by account email address.
+     */
+    private Map<String, Integer> getSyncIntervals() {
+        final Cursor c = getContentResolver().query(Account.CONTENT_URI,
+                ACCOUNT_SYNC_INTERVAL_PROJECTION, null, null, null);
+        if (c != null) {
+            final Map<String, Integer> periodicSyncs =
+                    Maps.newHashMapWithExpectedSize(c.getCount());
+            try {
+                while (c.moveToNext()) {
+                    periodicSyncs.put(c.getString(ACCOUNT_SYNC_INTERVAL_ADDRESS_COLUMN),
+                            c.getInt(ACCOUNT_SYNC_INTERVAL_INTERVAL_COLUMN));
+                }
+            } finally {
+                c.close();
+            }
+            return periodicSyncs;
+        }
+        return Collections.emptyMap();
     }
 
     private void onAppUpgrade() {
@@ -155,7 +234,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         // name, and from protocol name + "_type" to new account manager type name. (Email1 did
         // not use distinct account manager types for POP and IMAP, but Email2 does, hence this
         // weird mapping.)
-        final HashMap<String, String> protocolMap = new HashMap();
+        final Map<String, String> protocolMap = Maps.newHashMapWithExpectedSize(4);
         protocolMap.put("imap", getString(R.string.protocol_legacy_imap));
         protocolMap.put("pop3", getString(R.string.protocol_pop3));
         protocolMap.put("imap_type", getString(R.string.account_manager_type_legacy_imap));
@@ -170,6 +249,14 @@ public class EmailBroadcastProcessorService extends IntentService {
         // Disable the old authenticators.
         disableComponent(LegacyEmailAuthenticatorService.class);
         disableComponent(LegacyEasAuthenticatorService.class);
+
+        // Fix periodic syncs.
+        final Map<String, Integer> syncIntervals = getSyncIntervals();
+        final List<EmailServiceUtils.EmailServiceInfo> serviceList =
+                EmailServiceUtils.getServiceInfoList(this);
+        for (final EmailServiceUtils.EmailServiceInfo service : serviceList) {
+            fixPeriodicSyncs(service.accountType, syncIntervals);
+        }
 
         // Disable the upgrade broadcast receiver now that we're fully upgraded.
         disableComponent(EmailUpgradeBroadcastReceiver.class);
