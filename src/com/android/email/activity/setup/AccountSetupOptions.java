@@ -41,7 +41,6 @@ import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
-import com.android.email.service.MailService;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -254,7 +253,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             public void run() {
                 Context context = AccountSetupOptions.this;
                 AccountSettingsUtils.commitSettings(context, account);
-                MailService.setupAccountManagerAccount(context, account,
+                EmailServiceUtils.setupAccountManagerAccount(context, account,
                         email2, calendar2, contacts2, mAccountManagerCallback);
 
                 // We can move the notification setting to the inbox FolderPreferences later, once

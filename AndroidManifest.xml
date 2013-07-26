@@ -456,12 +456,6 @@
         </receiver>
 
         <service
-            android:name=".service.MailService"
-            android:enabled="true"
-            >
-        </service>
-
-        <service
             android:name=".service.AttachmentDownloadService"
             android:enabled="false"
             >

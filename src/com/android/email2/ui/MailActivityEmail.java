@@ -20,8 +20,8 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.UriMatcher;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,7 +32,6 @@ import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.Account;
@@ -142,11 +141,6 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     private static void setServicesEnabled(Context context, boolean enabled) {
         PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, MailService.class),
-                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(
                 new ComponentName(context, AttachmentDownloadService.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
