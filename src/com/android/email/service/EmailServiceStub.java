@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import com.android.email.NotificationController;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.email.provider.AccountReconciler;
 import com.android.email.provider.Utilities;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
@@ -477,7 +478,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     @Override
     public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
-        MailService.reconcileLocalAccountsSync(mContext);
+        AccountReconciler.reconcileAccounts(mContext);
     }
 
     @Override
