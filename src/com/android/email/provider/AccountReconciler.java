@@ -21,42 +21,64 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
-import android.net.Uri;
+import android.database.Cursor;
 
 import com.android.email.NotificationController;
+import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.mail.utils.LogUtils;
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AccountReconciler {
-    // AccountManager accounts with a name beginning with this constant are ignored for purposes
-    // of reconcilation.  This is for unit test purposes only; the caller may NOT be in the same
-    // package as this class, so we make the constant public.
-    @VisibleForTesting
-    static final String ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX = " _";
+    /**
+     * Get all AccountManager accounts for all email types.
+     * @param context Our {@link Context}.
+     * @return A list of all {@link android.accounts.Account}s created by our app.
+     */
+    private static List<android.accounts.Account> getAllAmAccounts(final Context context) {
+        final AccountManager am = AccountManager.get(context);
+        final ImmutableList.Builder<android.accounts.Account> builder = ImmutableList.builder();
+        // TODO: Consider getting the types programmatically, in case we add more types.
+        builder.addAll(Arrays.asList(am.getAccountsByType(
+                context.getString(R.string.account_manager_type_legacy_imap))));
+        builder.addAll(Arrays.asList(am.getAccountsByType(
+                context.getString(R.string.account_manager_type_pop3))));
+        builder.addAll(Arrays.asList(am.getAccountsByType(
+                context.getString(R.string.account_manager_type_exchange))));
+        return builder.build();
+    }
 
     /**
-     * Checks two account lists to see if there is any reconciling to be done. Can be done on the
-     * UI thread.
-     * @param context the app context
-     * @param emailProviderAccounts accounts as reported in the Email provider
-     * @param accountManagerAccounts accounts as reported by the system account manager, for the
-     *     particular protocol types that match emailProviderAccounts
+     * Get a all {@link Account} objects from the {@link EmailProvider}.
+     * @param context Our {@link Context}.
+     * @return A list of all {@link Account}s from the {@link EmailProvider}.
      */
-    public static boolean accountsNeedReconciling(
-            final Context context,
-            List<Account> emailProviderAccounts,
-            android.accounts.Account[] accountManagerAccounts) {
+    private static List<Account> getAllEmailProviderAccounts(final Context context) {
+        final Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
+                Account.CONTENT_PROJECTION, null, null, null);
+        if (c == null) {
+            return Collections.emptyList();
+        }
 
-        return reconcileAccountsInternal(
-                context, emailProviderAccounts, accountManagerAccounts,
-                context, false /* performReconciliation */);
+        final ImmutableList.Builder<Account> builder = ImmutableList.builder();
+        try {
+            while (c.moveToNext()) {
+                final Account account = new Account();
+                account.restore(c);
+                builder.add(account);
+            }
+        } finally {
+            c.close();
+        }
+        return builder.build();
     }
 
     /**
@@ -71,18 +93,42 @@ public class AccountReconciler {
      * into the account manager.
      *
      * @param context The context in which to operate
-     * @param emailProviderAccounts the exchange provider accounts to work from
-     * @param accountManagerAccounts The account manager accounts to work from
-     * @param providerContext application provider context
      */
-    public static void reconcileAccounts(
-            Context context,
-            List<Account> emailProviderAccounts,
-            android.accounts.Account[] accountManagerAccounts,
-            Context providerContext) {
-        reconcileAccountsInternal(
-                context, emailProviderAccounts, accountManagerAccounts,
-                providerContext, true /* performReconciliation */);
+    public static void reconcileAccounts(final Context context) {
+        final List<android.accounts.Account> amAccounts = getAllAmAccounts(context);
+        final List<Account> providerAccounts = getAllEmailProviderAccounts(context);
+        reconcileAccountsInternal(context, providerAccounts, amAccounts, true);
+    }
+
+    /**
+     * Check if the AccountManager accounts list contains a specific account.
+     * @param accounts The list of {@link android.accounts.Account} objects.
+     * @param name The name of the account to find.
+     * @return Whether the account is in the list.
+     */
+    private static boolean hasAmAccount(final List<android.accounts.Account> accounts,
+            final String name) {
+        for (final android.accounts.Account account : accounts) {
+            if (account.name.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the EmailProvider accounts list contains a specific account.
+     * @param accounts The list of {@link Account} objects.
+     * @param name The name of the account to find.
+     * @return Whether the account is in the list.
+     */
+    private static boolean hasEpAccount(final List<Account> accounts, final String name) {
+        for (final Account account : accounts) {
+            if (account.mEmailAddress.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -91,31 +137,23 @@ public class AccountReconciler {
      * {@code performReconciliation}.
      */
     private static boolean reconcileAccountsInternal(
-            Context context,
-            List<Account> emailProviderAccounts,
-            android.accounts.Account[] accountManagerAccounts,
-            Context providerContext,
-            boolean performReconciliation) {
+            final Context context,
+            final List<Account> emailProviderAccounts,
+            final List<android.accounts.Account> accountManagerAccounts,
+            final boolean performReconciliation) {
         boolean needsReconciling = false;
 
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account
-        for (Account providerAccount: emailProviderAccounts) {
-            String providerAccountName = providerAccount.mEmailAddress;
-            boolean found = false;
-            for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
-                if (accountManagerAccount.name.equalsIgnoreCase(providerAccountName)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+        for (final Account providerAccount : emailProviderAccounts) {
+            final String providerAccountName = providerAccount.mEmailAddress;
+            if (!hasAmAccount(accountManagerAccounts, providerAccountName)) {
                 if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
                     // Do another test before giving up; an incomplete account shouldn't have
                     // any mailboxes (the incomplete flag is used to prevent reconciliation
                     // between the time the EP account is created and when the AM account is
                     // asynchronously created)
-                    if (EmailContent.count(providerContext, Mailbox.CONTENT_URI,
+                    if (EmailContent.count(context, Mailbox.CONTENT_URI,
                             Mailbox.ACCOUNT_KEY + "=?",
                             new String[] { Long.toString(providerAccount.mId) } ) > 0) {
                         LogUtils.w(Logging.LOG_TAG,
@@ -133,8 +171,8 @@ public class AccountReconciler {
                     LogUtils.d(Logging.LOG_TAG,
                             "Account deleted in AccountManager; deleting from provider: " +
                             providerAccountName);
-                    Uri uri = EmailProvider.uiUri("uiaccount", providerAccount.mId);
-                    context.getContentResolver().delete(uri, null, null);
+                    context.getContentResolver().delete(
+                            EmailProvider.uiUri("uiaccount", providerAccount.mId), null, null);
 
                     // Cancel all notifications for this account
                     NotificationController.cancelNotifications(context, providerAccount);
@@ -143,18 +181,9 @@ public class AccountReconciler {
         }
         // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
         // account from EmailProvider
-        for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
-            String accountManagerAccountName = accountManagerAccount.name;
-            boolean found = false;
-            for (Account cachedEasAccount: emailProviderAccounts) {
-                if (cachedEasAccount.mEmailAddress.equalsIgnoreCase(accountManagerAccountName)) {
-                    found = true;
-                }
-            }
-            if (accountManagerAccountName.startsWith(ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX)) {
-                found = true;
-            }
-            if (!found) {
+        for (final android.accounts.Account accountManagerAccount : accountManagerAccounts) {
+            final String accountManagerAccountName = accountManagerAccount.name;
+            if (!hasEpAccount(emailProviderAccounts, accountManagerAccountName)) {
                 // This account has been deleted from the EmailProvider database
                 needsReconciling = true;
 
@@ -164,7 +193,7 @@ public class AccountReconciler {
                             accountManagerAccountName);
                     // Delete the account
                     AccountManagerFuture<Boolean> blockingResult = AccountManager.get(context)
-                    .removeAccount(accountManagerAccount, null, null);
+                            .removeAccount(accountManagerAccount, null, null);
                     try {
                         // Note: All of the potential errors from removeAccount() are simply logged
                         // here, as there is nothing to actually do about them.

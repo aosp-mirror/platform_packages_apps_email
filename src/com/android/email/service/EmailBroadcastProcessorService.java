@@ -32,6 +32,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
@@ -184,7 +185,7 @@ public class EmailBroadcastProcessorService extends IntentService {
 
     private void reconcileAndStartServices() {
         // Reconcile accounts
-        MailService.reconcileLocalAccountsSync(this);
+        AccountReconciler.reconcileAccounts(this);
         // Starts remote services, if any
         EmailServiceUtils.startRemoteServices(this);
     }

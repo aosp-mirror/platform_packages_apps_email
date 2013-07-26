@@ -22,7 +22,6 @@ import android.accounts.AccountManagerFuture;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -31,22 +30,17 @@ import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.mail.utils.LogUtils;
-import com.google.common.annotations.VisibleForTesting;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Legacy service, now used mainly for account reconciliation
+ * TODO: Eliminate this service, since it doesn't actually do anything.
  */
 public class MailService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-        reconcileLocalAccountsSync(this);
+        AccountReconciler.reconcileAccounts(this);
         // Make sure our services are running, if necessary
         MailActivityEmail.setServicesEnabledAsync(this);
         return START_STICKY;
@@ -55,78 +49,6 @@ public class MailService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    public static ArrayList<Account> getAccountList(Context context, String protocol) {
-        ArrayList<Account> providerAccounts = new ArrayList<Account>();
-        Cursor c = context.getContentResolver().query(Account.CONTENT_URI, Account.ID_PROJECTION,
-                null, null, null);
-        try {
-            while (c.moveToNext()) {
-                long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
-                if (protocol.equals(Account.getProtocol(context, accountId))) {
-                    Account account = Account.restoreAccountWithId(context, accountId);
-                    if (account != null) {
-                        providerAccounts.add(account);
-                    }
-                }
-            }
-        } finally {
-            c.close();
-        }
-        return providerAccounts;
-    }
-
-    /**
-     * Reconcile local (i.e. non-remote) accounts.
-     */
-    public static void reconcileLocalAccountsSync(Context context) {
-        List<EmailServiceInfo> serviceList = EmailServiceUtils.getServiceInfoList(context);
-        for (EmailServiceInfo info: serviceList) {
-            if (info.klass != null) {
-                new AccountReconcilerTask(context, info).runAsync();
-            }
-        }
-    }
-
-    static class AccountReconcilerTask implements Runnable {
-        private final Context mContext;
-        private final EmailServiceInfo mInfo;
-
-        AccountReconcilerTask(Context context, EmailServiceInfo info) {
-            mContext = context;
-            mInfo = info;
-        }
-
-        public void runAsync() {
-            EmailAsyncTask.runAsyncSerial(this);
-        }
-
-        @Override
-        public void run() {
-            LogUtils.d("MailService", "Reconciling accounts of type " + mInfo.accountType +
-                    ", protocol " + mInfo.protocol);
-            android.accounts.Account[] accountManagerAccounts = AccountManager.get(mContext)
-                    .getAccountsByType(mInfo.accountType);
-            ArrayList<Account> providerAccounts = getAccountList(mContext, mInfo.protocol);
-            reconcileAccountsWithAccountManager(mContext, providerAccounts,
-                    accountManagerAccounts, mContext);
-        }
-    }
-
-    /**
-     * See Utility.reconcileAccounts for details
-     * @param context The context in which to operate
-     * @param emailProviderAccounts the exchange provider accounts to work from
-     * @param accountManagerAccounts The account manager accounts to work from
-     * @param providerContext the provider's context (in unit tests, this may differ from context)
-     */
-    @VisibleForTesting
-    public static void reconcileAccountsWithAccountManager(Context context,
-            List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
-            Context providerContext) {
-        AccountReconciler.reconcileAccounts(context, emailProviderAccounts, accountManagerAccounts,
-                providerContext);
     }
 
     public static AccountManagerFuture<Bundle> setupAccountManagerAccount(Context context,
