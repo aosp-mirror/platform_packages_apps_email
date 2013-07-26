@@ -175,7 +175,6 @@ public class EmailServiceUtils {
         public CharSequence[] syncIntervals;
         public int defaultSyncInterval;
         public String inferPrefix;
-        public boolean requiresAccountUpdate;
         public boolean offerLoadMore;
         public boolean requiresSetup;
         public boolean hide;
@@ -425,21 +424,6 @@ public class EmailServiceUtils {
                     final TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
                     info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
                     info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
-                    // Protocol upgrades are handled by the upgrade broadcast receiver.
-                    // However, we still create the entry from the old protocol to the new type.
-                    // TODO: Remove the need for this entry.
-                    final String newProtocol =
-                            ta.getString(R.styleable.EmailServiceInfo_replaceWith);
-
-                    if (newProtocol != null) {
-                        final EmailServiceInfo newInfo = getServiceInfo(context, newProtocol);
-                        if (newInfo == null) {
-                            throw new IllegalStateException(
-                                    "Replacement service not found: " + newProtocol);
-                        }
-                        sServiceMap.put(info.protocol, newInfo);
-                        continue;
-                    }
                     info.name = ta.getString(R.styleable.EmailServiceInfo_name);
                     info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
                     final String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
