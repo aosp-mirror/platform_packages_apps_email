@@ -62,7 +62,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -282,7 +281,7 @@ public class EmailServiceUtils {
     }
 
     public static void updateAccountManagerType(Context context,
-            android.accounts.Account amAccount, final HashMap<String, String> protocolMap) {
+            android.accounts.Account amAccount, final Map<String, String> protocolMap) {
         final ContentResolver resolver = context.getContentResolver();
         final Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
                 AccountColumns.EMAIL_ADDRESS + "=?", new String[] { amAccount.name }, null);
