@@ -624,13 +624,6 @@
                 />
         </service>
 
-        <service
-            android:name=".imap2.Imap2SyncManager"
-            android:enabled="true"
-            android:permission="com.android.email.permission.ACCESS_PROVIDER"
-            >
-        </service>
-
         <provider
             android:name=".provider.AttachmentProvider"
             android:authorities="com.android.email.attachmentprovider"
