@@ -205,13 +205,16 @@ public class Pop3Service extends Service {
             int cnt = unsyncedMessages.size();
             // We'll load them from most recent to oldest
             for (int i = cnt - 1; i >= 0; i--) {
-                Pop3Message message = unsyncedMessages.get(i);
-                // TODO: this fetches the entire message at once. This should go back to trying
-                // to avoid downloading attachments initially. Specifically, the second argument
-                // below used to be Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76
-                remoteFolder.fetchBody(message, -1, null);
+                final Pop3Message message = unsyncedMessages.get(i);
+                remoteFolder.fetchBody(message, Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76,
+                        null);
                 int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
                 if (!message.isComplete()) {
+                    // TODO: when the message is not complete, this should mark the message as
+                    // partial.  When that change is made, we need to make sure that:
+                    // 1) Partial messages are shown in the conversation list
+                    // 2) We are able to download the rest of the message/attachment when the
+                    //    user requests it.
                      flag = EmailContent.Message.FLAG_LOADED_UNKNOWN;
                 }
                 if (MailActivityEmail.DEBUG) {
