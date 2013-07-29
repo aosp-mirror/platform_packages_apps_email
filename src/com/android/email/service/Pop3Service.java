@@ -65,6 +65,7 @@ import java.util.HashSet;
 
 public class Pop3Service extends Service {
     private static final String TAG = "Pop3Service";
+    private static final int DEFAULT_SYNC_COUNT = 100;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -175,13 +176,15 @@ public class Pop3Service extends Service {
     static void loadUnsyncedMessages(final Context context, final Account account,
             Pop3Folder remoteFolder, ArrayList<Pop3Message> unsyncedMessages,
             final Mailbox toMailbox) throws MessagingException {
+
         if (MailActivityEmail.DEBUG) {
             LogUtils.d(TAG, "Loading " + unsyncedMessages.size() + " unsynced messages");
         }
+
         try {
             int cnt = unsyncedMessages.size();
-            // We'll load them from most recent to oldest
-            for (int i = cnt - 1; i >= 0; i--) {
+            // They are in most recent to least recent order, process them that way.
+            for (int i = 0; i < cnt; i++) {
                 final Pop3Message message = unsyncedMessages.get(i);
                 remoteFolder.fetchBody(message, Pop3Store.FETCH_BODY_SANE_SUGGESTED_SIZE / 76,
                         null);
@@ -309,9 +312,8 @@ public class Pop3Service extends Service {
         // Get the remote message count.
         final int remoteMessageCount = remoteFolder.getMessageCount();
 
-        // Update the total count and determine new message count to sync.
-        final int messageCount = mailbox.handleCountsForSync(context, remoteMessageCount,
-                deltaMessageCount);
+        // Save the folder message count.
+        mailbox.updateMessageCount(context, remoteMessageCount);
 
         // Create a list of messages to download
         Pop3Message[] remoteMessages = new Pop3Message[0];
@@ -320,30 +322,67 @@ public class Pop3Service extends Service {
 
         if (remoteMessageCount > 0) {
             /*
-             * Message numbers start at 1.
+             * Get all messageIds in the mailbox.
+             * We don't necessarily need to sync all of them.
+             *
+             * There are four end conditions:
+             * 1. We currently have zero local messages. In this case, we will sync the most recent
+             * DEFAULT_SYNC_COUNT, then stop.
+             * 2. We have some local messages, and after encountering them, we find some older
+             * messages that do not yet exist locally. In this case, we will load whichever came
+             * before the ones we already had locally, and also deltaMessageCount additional
+             * older messages.
+             * 3. We have some local messages, but after examining the most recent
+             * DEFAULT_SYNC_COUNT remote messages, we still have not encountered any that exist
+             * locally. In this case, we'll abort, leaving a gap between the ones we've just loaded
+             * and the ones we already had.
+             * 4. We examine all of the remote messages before running into any of our count
+             * limitations.
              */
-            remoteMessages = remoteFolder.getMessages(remoteMessageCount, messageCount);
+            remoteMessages = remoteFolder.getMessages(remoteMessageCount, remoteMessageCount);
+            LogUtils.d(Logging.LOG_TAG, "remoteMessageCount " + remoteMessageCount);
 
             /*
-             * Get a list of the messages that are in the remote list but not on
-             * the local store, or messages that are in the local store but
-             * failed to download on the last sync. These are the new messages
-             * that we will download. Note, we also skip syncing messages which
-             * are flagged as "deleted message" sentinels, because they are
-             * locally deleted and we don't need or want the old message from
-             * the server.
+             * TODO: It would be nicer if the default sync window were time based rather than
+             * count based, but POP3 does not support time based queries, and the UIDL command
+             * does not report timestamps. To handle this, we would need to load a block of
+             * Ids, sync those messages to get the timestamps, and then load more Ids until we
+             * have filled out our window.
              */
-            for (Pop3Message message : remoteMessages) {
-                String uid = message.getUid();
+            int count = 0;
+            int countNeeded = DEFAULT_SYNC_COUNT;
+            for (final Pop3Message message : remoteMessages) {
+                final String uid = message.getUid();
                 remoteUidMap.put(uid, message);
-                LocalMessageInfo localMessage = localMessageMap.get(uid);
+
+                final LocalMessageInfo localMessage = localMessageMap.get(uid);
+                if (localMessage == null) {
+                    count++;
+                } else {
+                    // We have found a message that already exists locally. We may or may not
+                    // need to keep looking, depending on what deltaMessageCount is.
+                    LogUtils.d(Logging.LOG_TAG, "found a local message, need " +
+                            deltaMessageCount + " more remote messages");
+                    countNeeded = deltaMessageCount;
+                    count = 0;
+                }
+
                 // localMessage == null -> message has never been created (not even headers)
                 // mFlagLoaded != FLAG_LOADED_COMPLETE -> message failed to sync completely
                 if (localMessage == null ||
                         (localMessage.mFlagLoaded != EmailContent.Message.FLAG_LOADED_COMPLETE &&
                                 localMessage.mFlagLoaded != Message.FLAG_LOADED_PARTIAL)) {
+                    LogUtils.d(Logging.LOG_TAG, "need to sync " + uid);
                     unsyncedMessages.add(message);
+                } else {
+                    LogUtils.d(Logging.LOG_TAG, "don't need to sync " + uid);
                 }
+
+                if (count >= countNeeded) {
+                    LogUtils.d(Logging.LOG_TAG, "loaded " + count + " messages, stopping");
+                    break;
+                }
+
             }
         } else {
             if (MailActivityEmail.DEBUG) {
@@ -403,9 +442,14 @@ public class Pop3Service extends Service {
         }
 
         // Remove any messages that are in the local store but no longer on the remote store.
+        // TODO: This is disabled for now, because it could be that the local copy of the
+        // message is the only one that exists. We should find a way to handle intentional
+        // deletions coming from the server.
+        /*
         HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
         localUidsToDelete.removeAll(remoteUidMap.keySet());
         for (String uidToDelete : localUidsToDelete) {
+            LogUtils.d(Logging.LOG_TAG, "need to delete " + uidToDelete);
             LocalMessageInfo infoToDelete = localMessageMap.get(uidToDelete);
 
             // Delete associated data (attachment files)
@@ -426,8 +470,9 @@ public class Pop3Service extends Service {
             Uri deleteRowToDelete = ContentUris.withAppendedId(
                     EmailContent.Message.DELETED_CONTENT_URI, infoToDelete.mId);
             resolver.delete(deleteRowToDelete, null, null);
-        }
+        } */
 
+        LogUtils.d(TAG, "loadUnsynchedMessages " + unsyncedMessages.size());
         // Load messages we need to sync
         loadUnsyncedMessages(context, account, remoteFolder, unsyncedMessages, mailbox);
 
