@@ -133,7 +133,9 @@ public class Utilities {
                 saveOrUpdate(body, context);
 
                 // process (and save) attachments
-                if (loadStatus != EmailContent.Message.FLAG_LOADED_UNKNOWN) {
+                if (loadStatus != EmailContent.Message.FLAG_LOADED_PARTIAL
+                        && loadStatus != EmailContent.Message.FLAG_LOADED_UNKNOWN) {
+                    // TODO(pwestbro): What should happen with unknown status?
                     LegacyConversions.updateAttachments(context, localMessage, attachments);
                 } else {
                     EmailContent.Attachment att = new EmailContent.Attachment();
