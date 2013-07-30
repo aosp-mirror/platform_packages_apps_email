@@ -2250,7 +2250,7 @@ public class EmailProvider extends ContentProvider {
     private static String genQueryMailboxMessages(String[] uiProjection, final boolean unseenOnly) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                Message.FLAG_LOADED + "=" + Message.FLAG_LOADED_COMPLETE + " AND " +
+                Message.FLAG_LOADED_SELECTION + " AND " +
                 Message.MAILBOX_KEY + "=? ");
         if (unseenOnly) {
             sb.append("AND ").append(MessageColumns.FLAG_SEEN).append(" = 0 ");
@@ -2276,7 +2276,7 @@ public class EmailProvider extends ContentProvider {
         final String[] selectionArgs;
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
-                Message.FLAG_LOADED + "=" + Message.FLAG_LOADED_COMPLETE + " AND ");
+                Message.FLAG_LOADED_SELECTION + " AND ");
         if (isCombinedMailbox(mailboxId)) {
             if (unseenOnly) {
                 sb.append(MessageColumns.FLAG_SEEN).append("=0 AND ");

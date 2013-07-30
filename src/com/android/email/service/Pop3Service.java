@@ -215,7 +215,7 @@ public class Pop3Service extends Service {
                     // 1) Partial messages are shown in the conversation list
                     // 2) We are able to download the rest of the message/attachment when the
                     //    user requests it.
-                     flag = EmailContent.Message.FLAG_LOADED_UNKNOWN;
+                     flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
                 }
                 if (MailActivityEmail.DEBUG) {
                     LogUtils.d(TAG, "Message is " + (message.isComplete() ? "" : "NOT ")
@@ -363,7 +363,8 @@ public class Pop3Service extends Service {
                 // localMessage == null -> message has never been created (not even headers)
                 // mFlagLoaded != FLAG_LOADED_COMPLETE -> message failed to sync completely
                 if (localMessage == null ||
-                        (localMessage.mFlagLoaded != EmailContent.Message.FLAG_LOADED_COMPLETE)) {
+                        (localMessage.mFlagLoaded != EmailContent.Message.FLAG_LOADED_COMPLETE &&
+                                localMessage.mFlagLoaded != Message.FLAG_LOADED_PARTIAL)) {
                     unsyncedMessages.add(message);
                 }
             }
