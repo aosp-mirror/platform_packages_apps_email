@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.IBinder;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
@@ -55,9 +54,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.EmailServiceCallback;
 import com.android.emailcommon.service.EmailServiceStatus;
-import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
@@ -108,23 +105,10 @@ public class ImapService extends Service {
         return Service.START_STICKY;
     }
 
-    // Callbacks as set up via setCallback
-    private static final RemoteCallbackList<IEmailServiceCallback> mCallbackList =
-            new RemoteCallbackList<IEmailServiceCallback>();
-
-    private static final EmailServiceCallback sCallbackProxy =
-            new EmailServiceCallback(mCallbackList);
-
     /**
      * Create our EmailService implementation here.
      */
     private final EmailServiceStub mBinder = new EmailServiceStub() {
-
-        @Override
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-            mCallbackList.register(cb);
-        }
-
         @Override
         public void loadMore(long messageId) throws RemoteException {
             // We don't do "loadMore" for IMAP messages; the sync should handle this
@@ -155,12 +139,8 @@ public class ImapService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        mBinder.init(this, sCallbackProxy);
+        mBinder.init(this);
         return mBinder;
-    }
-
-    private static void sendMailboxStatus(Mailbox mailbox, int status) {
-        sCallbackProxy.syncMailboxStatus(mailbox.mId, status, 0);
     }
 
     /**
@@ -169,24 +149,18 @@ public class ImapService extends Service {
      * TODO this should use ID's instead of fully-restored objects
      * @param account
      * @param folder
-     * @param deltaMessageCount requested change in number of messages to sync
+     * @return The status code for whether this operation succeeded.
      * @throws MessagingException
      */
-    public static void synchronizeMailboxSynchronous(Context context, final Account account,
+    public static int synchronizeMailboxSynchronous(Context context, final Account account,
             final Mailbox folder, final boolean loadMore) throws MessagingException {
-        sendMailboxStatus(folder, EmailServiceStatus.IN_PROGRESS);
-
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-        if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
-            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
-        }
         NotificationController nc = NotificationController.getInstance(context);
         try {
             processPendingActionsSynchronous(context, account);
             synchronizeMailboxGeneric(context, account, folder, loadMore);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
-            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
                 LogUtils.v(Logging.LOG_TAG, "synchronizeMailboxSynchronous", e);
@@ -195,9 +169,11 @@ public class ImapService extends Service {
                 // Generate authentication notification
                 nc.showLoginFailedNotification(account.mId);
             }
-            sendMailboxStatus(folder, e.getExceptionType());
             throw e;
         }
+        // TODO: Rather than use exceptions as logic above, return the status and handle it
+        // correctly in caller.
+        return EmailServiceStatus.SUCCESS;
     }
 
     /**

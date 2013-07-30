@@ -112,7 +112,7 @@ public class EmailServiceUtils {
         for (EmailServiceInfo info: getServiceInfoList(context)) {
             if (info.intentAction != null) {
                 EmailServiceProxy service =
-                        EmailServiceUtils.getService(context, null, info.protocol);
+                        EmailServiceUtils.getService(context, info.protocol);
                 if (service != null) {
                     try {
                         service.setLogging(debugBits);
@@ -131,7 +131,7 @@ public class EmailServiceUtils {
         EmailServiceInfo info = getServiceInfo(context, protocol);
         if (info == null) return false;
         if (info.klass != null) return true;
-        return new EmailServiceProxy(context, info.intentAction, null).test();
+        return new EmailServiceProxy(context, info.intentAction).test();
     }
 
     /**
@@ -140,9 +140,8 @@ public class EmailServiceUtils {
      * @param accountId the message of interest
      * @result service proxy, or null if n/a
      */
-    public static EmailServiceProxy getServiceForAccount(Context context,
-            IEmailServiceCallback callback, long accountId) {
-        return getService(context, callback, Account.getProtocol(context, accountId));
+    public static EmailServiceProxy getServiceForAccount(Context context, long accountId) {
+        return getService(context, Account.getProtocol(context, accountId));
     }
 
     /**
@@ -191,8 +190,7 @@ public class EmailServiceUtils {
         }
     }
 
-    public static EmailServiceProxy getService(Context context, IEmailServiceCallback callback,
-            String protocol) {
+    public static EmailServiceProxy getService(Context context, String protocol) {
         EmailServiceInfo info = null;
         // Handle the degenerate case here (account might have been deleted)
         if (protocol != null) {
@@ -200,18 +198,17 @@ public class EmailServiceUtils {
         }
         if (info == null) {
             LogUtils.w(Logging.LOG_TAG, "Returning NullService for " + protocol);
-            return new EmailServiceProxy(context, NullService.class, null);
+            return new EmailServiceProxy(context, NullService.class);
         } else  {
-            return getServiceFromInfo(context, callback, info);
+            return getServiceFromInfo(context, info);
         }
     }
 
-    public static EmailServiceProxy getServiceFromInfo(Context context,
-            IEmailServiceCallback callback, EmailServiceInfo info) {
+    public static EmailServiceProxy getServiceFromInfo(Context context, EmailServiceInfo info) {
         if (info.klass != null) {
-            return new EmailServiceProxy(context, info.klass, callback);
+            return new EmailServiceProxy(context, info.klass);
         } else {
-            return new EmailServiceProxy(context, info.intentAction, callback);
+            return new EmailServiceProxy(context, info.intentAction);
         }
     }
 
@@ -582,10 +579,6 @@ public class EmailServiceUtils {
         public boolean renameFolder(long accountId, String oldName, String newName)
                 throws RemoteException {
             return false;
-        }
-
-        @Override
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
         }
 
         @Override

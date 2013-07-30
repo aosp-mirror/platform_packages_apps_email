@@ -78,7 +78,6 @@ import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
-import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -1534,41 +1533,19 @@ public class EmailProvider extends ContentProvider {
         return result;
     }
 
+    private void updateSyncStatus(final Bundle extras) {
+        final long id = extras.getLong(EmailServiceStatus.SYNC_STATUS_ID);
+        final Uri uri = ContentUris.withAppendedId(FOLDER_STATUS_URI, id);
+        EmailProvider.this.getContext().getContentResolver().notifyChange(uri, null);
+    }
+
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
         LogUtils.d(TAG, "EmailProvider#call(%s, %s)", method, arg);
 
-        // First handle sync status callbacks.
+        // Handle sync status callbacks.
         if (TextUtils.equals(method, SYNC_STATUS_CALLBACK_METHOD)) {
-            final int syncStatusType = extras.getInt(EmailServiceStatus.SYNC_STATUS_TYPE);
-            try {
-                switch (syncStatusType) {
-                    case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX:
-                            mServiceCallback.syncMailboxStatus(
-                                    extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
-                                    extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
-                                    extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
-                        break;
-                    case EmailServiceStatus.SYNC_STATUS_TYPE_SEND_MESSAGE:
-                        mServiceCallback.sendMessageStatus(
-                                extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
-                                extras.getString(EmailServiceStatus.SYNC_STATUS_SUBJECT),
-                                extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
-                                extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
-                        break;
-                    case EmailServiceStatus.SYNC_STATUS_TYPE_MAILBOX_LIST:
-                        mServiceCallback.syncMailboxListStatus(
-                                extras.getLong(EmailServiceStatus.SYNC_STATUS_ID),
-                                extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE),
-                                extras.getInt(EmailServiceStatus.SYNC_STATUS_PROGRESS));
-                        break;
-                    default:
-                        LogUtils.e(TAG, "Sync status received of unknown type %d", syncStatusType);
-                        break;
-                }
-            } catch (RemoteException re) {
-                // This can't actually happen but I have to pacify the compiler.
-            }
+            updateSyncStatus(extras);
             return null;
         }
 
@@ -2488,8 +2465,8 @@ public class EmailProvider extends ContentProvider {
     }
 
     private int getCapabilities(Context context, long accountId) {
-        final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                mServiceCallback, accountId);
+        final EmailServiceProxy service =
+                EmailServiceUtils.getServiceForAccount(context, accountId);
         int capabilities = 0;
         Account acct = null;
         try {
@@ -4075,8 +4052,8 @@ public class EmailProvider extends ContentProvider {
 
         // Special case - meeting response
         if (values.containsKey(UIProvider.MessageOperations.RESPOND_COLUMN)) {
-            EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(context,
-                    mServiceCallback, mailbox.mAccountKey);
+            final EmailServiceProxy service =
+                    EmailServiceUtils.getServiceForAccount(context, mailbox.mAccountKey);
             try {
                 service.sendMeetingResponse(msg.mId,
                         values.getAsInteger(UIProvider.MessageOperations.RESPOND_COLUMN));
@@ -4282,42 +4259,6 @@ public class EmailProvider extends ContentProvider {
         notifyUI(uri, Long.toString(id));
     }
 
-    /**
-     * Support for services and service notifications
-     */
-
-    private final IEmailServiceCallback.Stub mServiceCallback =
-            new IEmailServiceCallback.Stub() {
-
-        @Override
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
-            // We'll get callbacks here from the services, which we'll pass back to the UI
-            Uri uri = ContentUris.withAppendedId(FOLDER_STATUS_URI, mailboxId);
-            EmailProvider.this.getContext().getContentResolver().notifyChange(uri, null);
-        }
-
-        @Override
-        public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
-                int progress) throws RemoteException {
-        }
-
-        @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
-        public void loadMessageStatus(long messageId, int statusCode, int progress)
-                throws RemoteException {
-        }
-    };
-
     private Mailbox getMailbox(final Uri uri) {
         final long id = Long.parseLong(uri.getLastPathSegment());
         return Mailbox.restoreMailboxWithId(getContext(), id);
@@ -4447,8 +4388,8 @@ public class EmailProvider extends ContentProvider {
         new AsyncTask<Void, Void, Void>() {
             @Override
             public Void doInBackground(Void... params) {
-                final EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                        context, mServiceCallback, accountId);
+                final EmailServiceProxy service =
+                        EmailServiceUtils.getServiceForAccount(context, accountId);
                 if (service != null) {
                     try {
                         // Save away the total count
@@ -4588,7 +4529,7 @@ public class EmailProvider extends ContentProvider {
         // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
         if (emailAddress != null) {
             final IEmailService service =
-                    EmailServiceUtils.getServiceForAccount(context, null, accountId);
+                    EmailServiceUtils.getServiceForAccount(context, accountId);
             if (service != null) {
                 try {
                     service.deleteAccountPIMData(emailAddress);

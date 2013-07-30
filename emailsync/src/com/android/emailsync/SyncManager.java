@@ -1223,16 +1223,6 @@ public abstract class SyncManager extends Service implements Runnable {
         int syncStatus = EmailContent.SYNC_STATUS_BACKGROUND;
         // Don't sync if there's no connectivity
         if (sConnectivityHold || (m == null) || sStop) {
-            if (reason >= SYNC_CALLBACK_START) {
-                try {
-                    Stub proxy = getCallbackProxy();
-                    if (proxy != null) {
-                        proxy.syncMailboxStatus(m.mId, EmailServiceStatus.CONNECTION_ERROR, 0);
-                    }
-                } catch (RemoteException e) {
-                    // We tried...
-                }
-            }
             return;
         }
         synchronized (sSyncLock) {

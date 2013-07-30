@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.IBinder;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
 import com.android.email.NotificationController;
@@ -49,7 +48,6 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.EmailServiceCallback;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
@@ -73,29 +71,15 @@ public class Pop3Service extends Service {
         return Service.START_STICKY;
     }
 
-    // Callbacks as set up via setCallback
-    private static final RemoteCallbackList<IEmailServiceCallback> mCallbackList =
-            new RemoteCallbackList<IEmailServiceCallback>();
-
-    private static final EmailServiceCallback sCallbackProxy =
-            new EmailServiceCallback(mCallbackList);
-
     /**
      * Create our EmailService implementation here.
      */
     private final EmailServiceStub mBinder = new EmailServiceStub() {
-
-        @Override
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-            mCallbackList.register(cb);
-        }
-
         @Override
         public int getCapabilities(Account acct) throws RemoteException {
             return AccountCapabilities.UNDO;
         }
 
-        // TODO: Switch from using the callback from setCallback to using the one passed here.
         @Override
         public void loadAttachment(final IEmailServiceCallback callback, final long attachmentId,
                 final boolean background) throws RemoteException {
@@ -115,12 +99,8 @@ public class Pop3Service extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        mBinder.init(this, sCallbackProxy);
+        mBinder.init(this);
         return mBinder;
-    }
-
-    private static void sendMailboxStatus(Mailbox mailbox, int status) {
-            sCallbackProxy.syncMailboxStatus(mailbox.mId, status, 0);
     }
 
     /**
@@ -131,22 +111,17 @@ public class Pop3Service extends Service {
      * @param account
      * @param folder
      * @param deltaMessageCount the requested change in number of messages to sync.
+     * @return The status code for whether this operation succeeded.
      * @throws MessagingException
      */
-    public static void synchronizeMailboxSynchronous(Context context, final Account account,
+    public static int synchronizeMailboxSynchronous(Context context, final Account account,
             final Mailbox folder, final int deltaMessageCount) throws MessagingException {
-        sendMailboxStatus(folder, EmailServiceStatus.IN_PROGRESS);
-
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-        if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
-            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
-        }
         NotificationController nc = NotificationController.getInstance(context);
         try {
             synchronizePop3Mailbox(context, account, folder, deltaMessageCount);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
-            sendMailboxStatus(folder, EmailServiceStatus.SUCCESS);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
                 LogUtils.v(Logging.LOG_TAG, "synchronizeMailbox", e);
@@ -155,9 +130,11 @@ public class Pop3Service extends Service {
                 // Generate authentication notification
                 nc.showLoginFailedNotification(account.mId);
             }
-            sendMailboxStatus(folder, e.getExceptionType());
             throw e;
         }
+        // TODO: Rather than use exceptions as logic aobve, return the status and handle it
+        // correctly in caller.
+        return EmailServiceStatus.SUCCESS;
     }
 
     /**

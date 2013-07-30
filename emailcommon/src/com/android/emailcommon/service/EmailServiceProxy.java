@@ -62,7 +62,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     public static final String VALIDATE_BUNDLE_PROTOCOL_VERSION = "validate_protocol_version";
     public static final String VALIDATE_BUNDLE_REDIRECT_ADDRESS = "validate_redirect_address";
 
-    private final IEmailServiceCallback mCallback;
     private Object mReturn = null;
     private IEmailService mService;
     private final boolean isRemote;
@@ -78,31 +77,25 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
 
     // The first two constructors are used with local services that can be referenced by class
     public EmailServiceProxy(Context _context, Class<?> _class) {
-        this(_context, _class, null);
-    }
-
-    public EmailServiceProxy(Context _context, Class<?> _class, IEmailServiceCallback _callback) {
         super(_context, new Intent(_context, _class));
         TempDirectory.setTempDirectory(_context);
-        mCallback = _callback;
         isRemote = false;
     }
 
     // The following two constructors are used with remote services that must be referenced by
     // a known action or by a prebuilt intent
-    public EmailServiceProxy(Context _context, Intent _intent, IEmailServiceCallback _callback) {
+    public EmailServiceProxy(Context _context, Intent _intent) {
         super(_context, _intent);
         try {
             Device.getDeviceId(_context);
         } catch (IOException e) {
         }
         TempDirectory.setTempDirectory(_context);
-        mCallback = _callback;
         isRemote = true;
     }
 
-    public EmailServiceProxy(Context _context, String _action, IEmailServiceCallback _callback) {
-        this(_context, new Intent(_action), _callback);
+    public EmailServiceProxy(Context _context, String _action) {
+        this(_context, new Intent(_action));
     }
 
     @Override
@@ -138,13 +131,12 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             @Override
             public void run() throws RemoteException {
                 try {
-                    if (mCallback != null) mService.setCallback(mCallback);
-                    mService.loadAttachment(mCallback, attachmentId, background);
+                    mService.loadAttachment(cb, attachmentId, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
-                        if (mCallback != null) {
-                            mCallback.loadAttachmentStatus(-1, attachmentId,
+                        if (cb != null) {
+                            cb.loadAttachmentStatus(-1, attachmentId,
                                     EmailServiceStatus.REMOTE_EXCEPTION, 0);
                         }
                     } catch (RemoteException e1) {
@@ -171,7 +163,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.startSync(mailboxId, userRequest, deltaMessageCount);
             }
         }, "startSync");
@@ -189,7 +180,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.stopSync(mailboxId);
             }
         }, "stopSync");
@@ -210,7 +200,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mReturn = mService.validate(hostAuth);
             }
         }, "validate");
@@ -243,7 +232,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mReturn = mService.autoDiscover(userName, password);
             }
         }, "autoDiscover");
@@ -270,7 +258,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.updateFolderList(accountId);
             }
         }, "updateFolderList");
@@ -287,26 +274,9 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.setLogging(flags);
             }
         }, "setLogging");
-    }
-
-    /**
-     * Set the global callback object to be used by the service; the service MUST always use the
-     * most recently set callback object
-     *
-     * @param cb a callback object through which all service callbacks are executed
-     */
-    @Override
-    public void setCallback(final IEmailServiceCallback cb) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.setCallback(cb);
-            }
-        }, "setCallback");
     }
 
     /**
@@ -338,7 +308,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.sendMeetingResponse(messageId, response);
             }
         }, "sendMeetingResponse");
@@ -354,7 +323,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.loadMore(messageId);
             }
         }, "startSync");
@@ -433,7 +401,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mReturn = mService.searchMessages(accountId, searchParams, destMailboxId);
             }
         }, "searchMessages");
@@ -455,7 +422,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.sendMail(accountId);
             }
         }, "sendMail");
@@ -466,7 +432,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mReturn = mService.getCapabilities(acct);
             }
         }, "getCapabilities");
@@ -487,7 +452,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                if (mCallback != null) mService.setCallback(mCallback);
                 mService.serviceUpdated(emailAddress);
             }
         }, "settingsUpdate");
