@@ -39,6 +39,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -96,8 +97,9 @@ public class PopImapSyncAdapterService extends Service {
         return false;
     }
 
-    private static void sync(Context context, long mailboxId, SyncResult syncResult,
-            boolean uiRefresh, int deltaMessageCount) {
+    private static void sync(final Context context, final long mailboxId,
+            final Bundle extras, final SyncResult syncResult, final boolean uiRefresh,
+            final int deltaMessageCount) {
         TempDirectory.setTempDirectory(context);
         Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
         if (mailbox == null) return;
@@ -126,15 +128,22 @@ public class PopImapSyncAdapterService extends Service {
                 String legacyImapProtocol = context.getString(R.string.protocol_legacy_imap);
                 if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                     EmailServiceStub.sendMailImpl(context, account.mId);
-                } else if (protocol.equals(legacyImapProtocol)) {
-                    ImapService.synchronizeMailboxSynchronous(context, account, mailbox,
-                            deltaMessageCount != 0);
                 } else {
-                    Pop3Service.synchronizeMailboxSynchronous(context, account, mailbox,
-                            deltaMessageCount);
+                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
+                            EmailServiceStatus.IN_PROGRESS, 0);
+                    final int status;
+                    if (protocol.equals(legacyImapProtocol)) {
+                        status = ImapService.synchronizeMailboxSynchronous(context, account,
+                                mailbox, deltaMessageCount != 0);
+                    } else {
+                        status = Pop3Service.synchronizeMailboxSynchronous(context, account,
+                                mailbox, deltaMessageCount);
+                    }
+                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, status, 0);
                 }
             } catch (MessagingException e) {
                 int cause = e.getExceptionType();
+                EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0);
                 switch(cause) {
                     case MessagingException.IOERROR:
                         syncResult.stats.numIoExceptions++;
@@ -190,7 +199,7 @@ public class PopImapSyncAdapterService extends Service {
                         }
                     }
                     for (long mailboxId: mailboxesToUpdate) {
-                        sync(context, mailboxId, syncResult, false, 0);
+                        sync(context, mailboxId, extras, syncResult, false, 0);
                     }
                 } else {
                     LogUtils.d(TAG, "Sync request for " + acct.mDisplayName);
@@ -200,7 +209,7 @@ public class PopImapSyncAdapterService extends Service {
                     if (mailboxId == Mailbox.NO_MAILBOX) {
                         // Update folders.
                         EmailServiceProxy service =
-                                EmailServiceUtils.getServiceForAccount(context, null, acct.mId);
+                                EmailServiceUtils.getServiceForAccount(context, acct.mId);
                         service.updateFolderList(acct.mId);
                         mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
                                 Mailbox.TYPE_INBOX);
@@ -210,7 +219,7 @@ public class PopImapSyncAdapterService extends Service {
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
                     int deltaMessageCount =
                             extras.getInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
-                    sync(context, mailboxId, syncResult, uiRefresh, deltaMessageCount);
+                    sync(context, mailboxId, extras, syncResult, uiRefresh, deltaMessageCount);
                 }
             }
         } catch (Exception e) {

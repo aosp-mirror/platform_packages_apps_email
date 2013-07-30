@@ -344,7 +344,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         saveAccountAndFinish();
 
         // Update the folder list (to get our starting folders, e.g. Inbox)
-        EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(this, null, account.mId);
+        EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(this, account.mId);
         try {
             proxy.updateFolderList(account.mId);
         } catch (RemoteException e) {

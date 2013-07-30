@@ -452,7 +452,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          */
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
             EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                    AttachmentDownloadService.this, mServiceCallback, req.accountId);
+                    AttachmentDownloadService.this, req.accountId);
 
             // Do not download the same attachment multiple times
             boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
@@ -595,7 +595,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                                     + req.messageId);
                         }
                         EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                                mContext, null, accountId);
+                                mContext, accountId);
                         try {
                             service.sendMail(accountId);
                         } catch (RemoteException e) {
@@ -700,26 +700,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     mDownloadSet.endDownload(attachmentId, statusCode);
                     break;
             }
-        }
-
-        @Override
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
-        }
-
-        @Override
-        public void loadMessageStatus(long messageId, int statusCode, int progress)
-                throws RemoteException {
         }
     }
 
