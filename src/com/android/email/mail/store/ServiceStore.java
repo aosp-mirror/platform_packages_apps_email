@@ -50,7 +50,7 @@ public class ServiceStore extends Store {
     }
 
     private IEmailService getService() {
-        return EmailServiceUtils.getService(mContext, null, mHostAuth.mProtocol);
+        return EmailServiceUtils.getService(mContext, mHostAuth.mProtocol);
     }
 
     @Override

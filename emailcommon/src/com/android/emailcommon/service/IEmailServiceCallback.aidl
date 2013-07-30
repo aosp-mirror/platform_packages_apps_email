@@ -34,22 +34,6 @@ oneway interface IEmailServiceCallback {
      */
 
     /**
-     * Callback to indicate that an account is being synced (updating folder list)
-     * accountId = the account being synced
-     * statusCode = 0 for OK, 1 for progress, other codes for error
-     * progress = 0 for "start", 1..100 for optional progress reports
-     */
-    void syncMailboxListStatus(long accountId, int statusCode, int progress);
-
-    /**
-     * Callback to indicate that a mailbox is being synced
-     * mailboxId = the mailbox being synced
-     * statusCode = 0 for OK, 1 for progress, other codes for error
-     * progress = 0 for "start", 1..100 for optional progress reports
-     */
-    void syncMailboxStatus(long mailboxId, int statusCode, int progress);
-
-    /**
      * Callback to indicate that a particular attachment is being synced
      * messageId = the message that owns the attachment
      * attachmentId = the attachment being synced
@@ -57,20 +41,4 @@ oneway interface IEmailServiceCallback {
      * progress = 0 for "start", 1..100 for optional progress reports
      */
     void loadAttachmentStatus(long messageId, long attachmentId, int statusCode, int progress);
-
-    /**
-     * Callback to indicate that a particular message is being sent
-     * messageId = the message being sent
-     * statusCode = 0 for OK, 1 for progress, other codes for error
-     * progress = 0 for "start", 1..100 for optional progress reports
-     */
-    void sendMessageStatus(long messageId, String subject, int statusCode, int progress);
-
-    /**
-     * Callback to indicate that a particular message is being loaded
-     * messageId = the message being sent
-     * statusCode = 0 for OK, 1 for progress, other codes for error
-     * progress = 0 for "start", 1..100 for optional progress reports
-     */
-    void loadMessageStatus(long messageId, int statusCode, int progress);
 }

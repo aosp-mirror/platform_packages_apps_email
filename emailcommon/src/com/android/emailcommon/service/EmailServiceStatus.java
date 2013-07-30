@@ -64,11 +64,6 @@ public abstract class EmailServiceStatus {
 
     // Values for the SYNC_STATUS_TYPE to specify what kind of sync status we're returning.
     public static final int SYNC_STATUS_TYPE_MAILBOX = 0;
-    public static final int SYNC_STATUS_TYPE_SEND_MESSAGE = 1;
-    public static final int SYNC_STATUS_TYPE_MAILBOX_LIST = 2;
-
-    // Additional status Bundle keys, used for specific status types.
-    public static final String SYNC_STATUS_SUBJECT = "subject";
 
     /**
      * Some status updates need to provide values in addition to the core id, code, and progress.
@@ -125,30 +120,4 @@ public abstract class EmailServiceStatus {
         syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX, mailboxId, statusCode, progress, null);
     }
 
-    /**
-     * If the sync extras specify a callback, then notify the sync requester of the outbound
-     * message status. This function is for use by the
-     * {@link android.content.AbstractThreadedSyncAdapter}.
-     * @param cr A ContentResolver.
-     * @param syncExtras The extras provided to the sync request.
-     * @param messageId The message that is being sent.
-     * @param subject The subject line of that message, or null if the subject is unavailable.
-     * @param statusCode The status code for this sync operation.
-     * @param progress The progress of this sync operation.
-     */
-    public static void sendMessageStatus(final ContentResolver cr, final Bundle syncExtras,
-            final long messageId, final String subject, final int statusCode, final int progress) {
-        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_SEND_MESSAGE, messageId, statusCode, progress,
-                new StatusWriter() {
-                    @Override
-                    public void addToStatus(final Bundle statusExtras) {
-                        statusExtras.putString(SYNC_STATUS_SUBJECT, subject);
-                    }});
-    }
-
-    public static void syncMailboxListStatus(final ContentResolver cr, final Bundle syncExtras,
-            final long accountId, final int statusCode, final int progress) {
-        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX_LIST, accountId, statusCode, progress,
-                null);
-    }
 }

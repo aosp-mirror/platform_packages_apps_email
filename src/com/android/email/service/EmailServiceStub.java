@@ -96,11 +96,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     };
 
     protected Context mContext;
-    private IEmailServiceCallback.Stub mCallback;
 
-    protected void init(Context context, IEmailServiceCallback.Stub callbackProxy) {
+    protected void init(Context context) {
         mContext = context;
-        mCallback = callbackProxy;
     }
 
     @Override
@@ -147,13 +145,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             EmailContent.Message message =
                 EmailContent.Message.restoreMessageWithId(mContext, messageId);
             if (message == null) {
-                mCallback.loadMessageStatus(messageId,
-                        EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
                 return;
             }
             if (message.mFlagLoaded == EmailContent.Message.FLAG_LOADED_COMPLETE) {
                 // We should NEVER get here
-                mCallback.loadMessageStatus(messageId, 0, 100);
                 return;
             }
 
@@ -186,28 +181,14 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // 4. Write to provider
             Utilities.copyOneMessageToProvider(mContext, remoteMessage, account, mailbox,
                     EmailContent.Message.FLAG_LOADED_COMPLETE);
-
-            // 5. Notify UI
-            mCallback.loadMessageStatus(messageId, 0, 100);
-
         } catch (MessagingException me) {
             if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
-            mCallback.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
+
         } catch (RuntimeException rte) {
-            mCallback.loadMessageStatus(messageId, EmailServiceStatus.REMOTE_EXCEPTION, 0);
+
         }
     }
 
-    private void doProgressCallback(long messageId, long attachmentId, int progress) {
-        try {
-            mCallback.loadAttachmentStatus(messageId, attachmentId,
-                    EmailServiceStatus.IN_PROGRESS, progress);
-        } catch (RemoteException e) {
-            // No danger if the client is no longer around
-        }
-    }
-
-    // TODO: Switch from using setCallback to the explicitly passed callback.
     @Override
     public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
             final boolean background) throws RemoteException {
@@ -216,7 +197,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             Attachment attachment =
                 Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (attachment == null) {
-                mCallback.loadAttachmentStatus(0, attachmentId,
+                cb.loadAttachmentStatus(0, attachmentId,
                         EmailServiceStatus.ATTACHMENT_NOT_FOUND, 0);
                 return;
             }
@@ -225,19 +206,19 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             EmailContent.Message message =
                     EmailContent.Message.restoreMessageWithId(mContext, attachment.mMessageKey);
             if (message == null) {
-                mCallback.loadAttachmentStatus(messageId, attachmentId,
+                cb.loadAttachmentStatus(messageId, attachmentId,
                         EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
             }
 
             // If the message is loaded, just report that we're finished
             if (Utility.attachmentExists(mContext, attachment)) {
-                mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS,
+                cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS,
                         0);
                 return;
             }
 
             // Say we're starting...
-            doProgressCallback(messageId, attachmentId, 0);
+            cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS, 0);
 
             // 2. Open the remote folder.
             Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
@@ -260,7 +241,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
             if (account == null || mailbox == null) {
                 // If the account/mailbox are gone, just report success; the UI handles this
-                mCallback.loadAttachmentStatus(messageId, attachmentId,
+                cb.loadAttachmentStatus(messageId, attachmentId,
                         EmailServiceStatus.SUCCESS, 0);
                 return;
             }
@@ -297,7 +278,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             FetchProfile fp = new FetchProfile();
             fp.add(storePart);
             remoteFolder.fetch(new Message[] { storeMessage }, fp,
-                    new MessageRetrievalListenerBridge(messageId, attachmentId));
+                    new MessageRetrievalListenerBridge(messageId, attachmentId, cb));
 
             // If we failed to load the attachment, throw an Exception here, so that
             // AttachmentDownloadService knows that we failed
@@ -310,7 +291,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     attachment);
 
             // 6. Report success
-            mCallback.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
+            cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
 
             // Close the connection
             remoteFolder.close(false);
@@ -324,7 +305,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             mContext.getContentResolver().update(uri, cv, null, null);
 
-            mCallback.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
+            cb.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
         }
 
     }
@@ -336,15 +317,24 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
         private final long mMessageId;
         private final long mAttachmentId;
+        private final IEmailServiceCallback mCallback;
 
-        public MessageRetrievalListenerBridge(long messageId, long attachmentId) {
+
+        public MessageRetrievalListenerBridge(final long messageId, final long attachmentId,
+                final IEmailServiceCallback callback) {
             mMessageId = messageId;
             mAttachmentId = attachmentId;
+            mCallback = callback;
         }
 
         @Override
         public void loadAttachmentProgress(int progress) {
-            doProgressCallback(mMessageId, mAttachmentId, progress);
+            try {
+                mCallback.loadAttachmentStatus(mMessageId, mAttachmentId,
+                        EmailServiceStatus.IN_PROGRESS, progress);
+            } catch (final RemoteException e) {
+                // No danger if the client is no longer around
+            }
         }
 
         @Override
@@ -448,11 +438,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             throws RemoteException {
         // Not required
         return false;
-    }
-
-    @Override
-    public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-        // Not required
     }
 
     @Override

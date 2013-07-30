@@ -39,10 +39,6 @@ interface IEmailService {
     boolean deleteFolder(long accountId, String name);
     boolean renameFolder(long accountId, String oldName, String newName);
 
-    // Must not be oneway; unless an exception is thrown, the caller is guaranteed that the callback
-    // has been registered
-    void setCallback(IEmailServiceCallback cb);
-
     oneway void setLogging(int on);
 
     oneway void hostChanged(long accountId);
