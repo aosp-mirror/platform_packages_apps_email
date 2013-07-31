@@ -413,6 +413,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.settings_fragment_menu, menu);
     }
 

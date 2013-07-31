@@ -194,6 +194,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.general_prefs_fragment_menu, menu);
     }
 
