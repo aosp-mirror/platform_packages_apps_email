@@ -148,10 +148,6 @@
                     />
             </intent-filter>
         </activity>
-            
-        <!-- TODO: this activity doesn't exist.  Determine what to do here -->
-        <activity android:name=".ui.CreateShortcutActivity"
-            android:label="@string/activity_folder_selection" />
 
         <activity android:name="com.android.mail.ui.FolderSelectionActivity"
             android:label="@string/activity_folder_selection" />
@@ -177,7 +173,7 @@
 
         <activity android:name="com.android.email2.ui.CreateShortcutActivityEmail"
             android:theme="@style/ShortcutWidgetTheme"
-            android:label="@string/activity_folder_selection">
+            android:label="@string/folder_shortcut_widget_label">
 
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
