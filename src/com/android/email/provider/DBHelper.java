@@ -141,12 +141,13 @@ public final class DBHelper {
     // Version 108: Add a cachedFile column to the attachments table
     // Version 109: Migrate the account so they have the correct account manager types
     // Version 110: Stop updating message_count, don't use auto lookback, and don't use
-    //              ping/push_hold sync states.
+    //              ping/push_hold sync states. Note that message_count updating is restored in 113.
     // Version 111: Delete Exchange account mailboxes.
     // Version 112: Convert Mailbox syncInterval to a boolean (whether or not this mailbox
     //              syncs along with the account).
+    // Version 113: Restore message_count to being useful.
 
-    public static final int DATABASE_VERSION = 112;
+    public static final int DATABASE_VERSION = 113;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -168,6 +169,35 @@ public final class DBHelper {
     static String createIndex(String tableName, String columnName) {
         return "create index " + tableName.toLowerCase() + '_' + columnName
             + " on " + tableName + " (" + columnName + ");";
+    }
+
+    static void createMessageCountTriggers(final SQLiteDatabase db) {
+        // Insert a message.
+        db.execSQL("create trigger message_count_message_insert after insert on " +
+                Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
+                "  where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Delete a message.
+        db.execSQL("create trigger message_count_message_delete after delete on " +
+                Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; end");
+
+        // Change a message's mailbox.
+        db.execSQL("create trigger message_count_message_move after update of " +
+                MessageColumns.MAILBOX_KEY + " on " + Message.TABLE_NAME +
+                " begin update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "-1" +
+                "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
+                "; update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
+                '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
+                " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
+                "; end");
     }
 
     static void createMessageTable(SQLiteDatabase db) {
@@ -278,6 +308,9 @@ public final class DBHelper {
                 " when 0 then -1 else 1 end" +
                 "  where " + EmailContent.RECORD_ID + "=OLD." + MessageColumns.MAILBOX_KEY +
                 "; end");
+
+        // Add triggers to maintain message_count.
+        createMessageCountTriggers(db);
     }
 
     static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -601,15 +634,13 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
                 }
-                oldVersion = 6;
             }
-            if (oldVersion == 6) {
+            if (oldVersion <= 6) {
                 // Use the newer mailbox_delete trigger
                 db.execSQL("drop trigger mailbox_delete;");
                 db.execSQL(TRIGGER_MAILBOX_DELETE);
-                oldVersion = 7;
             }
-            if (oldVersion == 7) {
+            if (oldVersion <= 7) {
                 // add the security (provisioning) column
                 try {
                     db.execSQL("alter table " + Account.TABLE_NAME
@@ -618,9 +649,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 7 to 8 " + e);
                 }
-                oldVersion = 8;
             }
-            if (oldVersion == 8) {
+            if (oldVersion <= 8) {
                 // accounts: add security sync key & user signature columns
                 try {
                     db.execSQL("alter table " + Account.TABLE_NAME
@@ -631,9 +661,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 8 to 9 " + e);
                 }
-                oldVersion = 9;
             }
-            if (oldVersion == 9) {
+            if (oldVersion <= 9) {
                 // Message: add meeting info column into Message tables
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
@@ -646,9 +675,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 9 to 10 " + e);
                 }
-                oldVersion = 10;
             }
-            if (oldVersion == 10) {
+            if (oldVersion <= 10) {
                 // Attachment: add content and flags columns
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
@@ -659,9 +687,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 10 to 11 " + e);
                 }
-                oldVersion = 11;
             }
-            if (oldVersion == 11) {
+            if (oldVersion <= 11) {
                 // Attachment: add content_bytes
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
@@ -670,9 +697,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 11 to 12 " + e);
                 }
-                oldVersion = 12;
             }
-            if (oldVersion == 12) {
+            if (oldVersion <= 12) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + Mailbox.MESSAGE_COUNT
@@ -682,9 +708,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
                 }
-                oldVersion = 13;
             }
-            if (oldVersion == 13) {
+            if (oldVersion <= 13) {
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
                             + " add column " + Message.SNIPPET
@@ -693,9 +718,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 13 to 14 " + e);
                 }
-                oldVersion = 14;
             }
-            if (oldVersion == 14) {
+            if (oldVersion <= 14) {
                 try {
                     db.execSQL("alter table " + Message.DELETED_TABLE_NAME
                             + " add column " + Message.SNIPPET +" text" + ";");
@@ -705,9 +729,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 14 to 15 " + e);
                 }
-                oldVersion = 15;
             }
-            if (oldVersion == 15) {
+            if (oldVersion <= 15) {
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
                             + " add column " + Attachment.ACCOUNT_KEY +" integer" + ";");
@@ -721,9 +744,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
                 }
-                oldVersion = 16;
             }
-            if (oldVersion == 16) {
+            if (oldVersion <= 16) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + Mailbox.PARENT_KEY + " integer;");
@@ -731,13 +753,11 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 16 to 17 " + e);
                 }
-                oldVersion = 17;
             }
-            if (oldVersion == 17) {
+            if (oldVersion <= 17) {
                 upgradeFromVersion17ToVersion18(db);
-                oldVersion = 18;
             }
-            if (oldVersion == 18) {
+            if (oldVersion <= 18) {
                 try {
                     db.execSQL("alter table " + Account.TABLE_NAME
                             + " add column " + Account.POLICY_KEY + " integer;");
@@ -749,9 +769,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
                 }
-                oldVersion = 19;
             }
-            if (oldVersion == 19) {
+            if (oldVersion <= 19) {
                 try {
                     db.execSQL("alter table " + Policy.TABLE_NAME
                             + " add column " + PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING +
@@ -781,32 +800,24 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 19 to 20 " + e);
                 }
-                oldVersion = 20;
             }
-            if (oldVersion == 20) {
-                oldVersion = 21;
-            }
-            if (oldVersion == 21) {
+            if (oldVersion <= 21) {
                 upgradeFromVersion21ToVersion22(db, mContext);
                 oldVersion = 22;
             }
-            if (oldVersion == 22) {
+            if (oldVersion <= 22) {
                 upgradeFromVersion22ToVersion23(db);
-                oldVersion = 23;
             }
-            if (oldVersion == 23) {
+            if (oldVersion <= 23) {
                 upgradeFromVersion23ToVersion24(db);
-                oldVersion = 24;
             }
-            if (oldVersion == 24) {
+            if (oldVersion <= 24) {
                 upgradeFromVersion24ToVersion25(db);
-                oldVersion = 25;
             }
-            if (oldVersion == 25) {
+            if (oldVersion <= 25) {
                 upgradeFromVersion25ToVersion26(db);
-                oldVersion = 26;
             }
-            if (oldVersion == 26) {
+            if (oldVersion <= 26) {
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
                             + " add column " + Message.PROTOCOL_SEARCH_INFO + " text;");
@@ -818,12 +829,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
                 }
-                oldVersion = 27;
             }
-            if (oldVersion == 27) {
-                oldVersion = 28;
-            }
-            if (oldVersion == 28) {
+            if (oldVersion <= 28) {
                 try {
                     db.execSQL("alter table " + Policy.TABLE_NAME
                             + " add column " + Policy.PROTOCOL_POLICIES_ENFORCED + " text;");
@@ -833,13 +840,11 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 28 to 29 " + e);
                 }
-                oldVersion = 29;
             }
-            if (oldVersion == 29) {
+            if (oldVersion <= 29) {
                 upgradeFromVersion29ToVersion30(db);
-                oldVersion = 30;
             }
-            if (oldVersion == 30) {
+            if (oldVersion <= 30) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + Mailbox.UI_SYNC_STATUS + " integer;");
@@ -849,9 +854,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 30 to 31 " + e);
                 }
-                oldVersion = 31;
             }
-            if (oldVersion == 31) {
+            if (oldVersion <= 31) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + Mailbox.LAST_NOTIFIED_MESSAGE_KEY + " integer;");
@@ -865,9 +869,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 31 to 32 " + e);
                 }
-                oldVersion = 32;
             }
-            if (oldVersion == 32) {
+            if (oldVersion <= 32) {
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
                             + " add column " + Attachment.UI_STATE + " integer;");
@@ -884,9 +887,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 32 to 33 " + e);
                 }
-                oldVersion = 33;
             }
-            if (oldVersion == 33) {
+            if (oldVersion <= 33) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + MailboxColumns.TOTAL_COUNT + " integer;");
@@ -894,9 +896,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 33 to 34 " + e);
                 }
-                oldVersion = 34;
             }
-            if (oldVersion == 34) {
+            if (oldVersion <= 34) {
                 try {
                     db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
                             MailboxColumns.LAST_TOUCHED_TIME + " = " +
@@ -910,9 +911,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 34 to 35 " + e);
                 }
-                oldVersion = 35;
             }
-            if (oldVersion == 35 || oldVersion == 36) {
+            if (oldVersion <= 36) {
                 try {
                     // Set "supports settings" for EAS mailboxes
                     db.execSQL("update " + Mailbox.TABLE_NAME + " set " +
@@ -929,9 +929,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 35 to 36 " + e);
                 }
-                oldVersion = 37;
             }
-            if (oldVersion == 37) {
+            if (oldVersion <= 37) {
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
                             + " add column " + MessageColumns.THREAD_TOPIC + " text;");
@@ -939,9 +938,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 37 to 38 " + e);
                 }
-                oldVersion = 38;
             }
-            if (oldVersion == 38) {
+            if (oldVersion <= 38) {
                 try {
                     db.execSQL("alter table " + Message.DELETED_TABLE_NAME
                             + " add column " + MessageColumns.THREAD_TOPIC + " text;");
@@ -951,13 +949,11 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 38 to 39 " + e);
                 }
-                oldVersion = 39;
             }
-            if (oldVersion == 39) {
+            if (oldVersion <= 39) {
                 upgradeToEmail2(db);
-                oldVersion = 100;
             }
-            if (oldVersion >= 100 && oldVersion < 103) {
+            if (oldVersion <= 102) {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add " + MailboxColumns.HIERARCHICAL_NAME + " text");
@@ -965,9 +961,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v10x to v103", e);
                 }
-                oldVersion = 103;
             }
-            if (oldVersion == 103) {
+            if (oldVersion <= 103) {
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
                             + " add " + MessageColumns.SYNC_DATA + " text");
@@ -975,9 +970,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v103 to v104", e);
                 }
-                oldVersion = 104;
             }
-            if (oldVersion == 104) {
+            if (oldVersion <= 104) {
                 try {
                     db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
                             + " add " + MessageColumns.SYNC_DATA + " text");
@@ -987,9 +981,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v104 to v105", e);
                 }
-                oldVersion = 105;
             }
-            if (oldVersion == 105) {
+            if (oldVersion <= 105) {
                 try {
                     db.execSQL("alter table " + HostAuth.TABLE_NAME
                             + " add " + HostAuthColumns.SERVER_CERT + " blob");
@@ -997,9 +990,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v105 to v106", e);
                 }
-                oldVersion = 106;
             }
-            if (oldVersion == 106) {
+            if (oldVersion <= 106) {
                 try {
                     db.execSQL("alter table " + Message.TABLE_NAME
                             + " add " + MessageColumns.FLAG_SEEN + " integer");
@@ -1011,9 +1003,8 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v106 to v107", e);
                 }
-                oldVersion = 107;
             }
-            if (oldVersion == 107) {
+            if (oldVersion <= 107) {
                 try {
                     db.execSQL("alter table " + Attachment.TABLE_NAME
                             + " add column " + Attachment.CACHED_FILE +" text" + ";");
@@ -1021,19 +1012,12 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v107 to v108", e);
                 }
-                oldVersion = 108;
             }
-            if (oldVersion == 108) {
+            if (oldVersion <= 108) {
                 // Migrate the accounts with the correct account type
                 migrateLegacyAccounts(db, mContext);
-                oldVersion = 109;
             }
-            if (oldVersion == 109) {
-                // Delete the triggers that maintained message_count.
-                db.execSQL("drop trigger message_count_message_insert");
-                db.execSQL("drop trigger message_count_message_delete");
-                db.execSQL("drop trigger message_count_message_move");
-
+            if (oldVersion <= 109) {
                 // Fix any mailboxes that have ping or push_hold states.
                 db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
                         + "=" + Mailbox.CHECK_INTERVAL_PUSH + " where "
@@ -1051,21 +1035,27 @@ public final class DBHelper {
                         + MailboxColumns.SYNC_LOOKBACK + " is null or "
                         + MailboxColumns.SYNC_LOOKBACK + "<" + SyncWindow.SYNC_WINDOW_1_DAY + " or "
                         + MailboxColumns.SYNC_LOOKBACK + ">" + SyncWindow.SYNC_WINDOW_ALL);
-                oldVersion = 110;
             }
-            if (oldVersion == 110) {
+            if (oldVersion <= 110) {
                 // Delete account mailboxes.
                 db.execSQL("delete from " + Mailbox.TABLE_NAME + " where " + MailboxColumns.TYPE
                         + "=" +Mailbox.TYPE_EAS_ACCOUNT_MAILBOX);
-                oldVersion = 111;
             }
-            if (oldVersion == 111) {
+            if (oldVersion <= 111) {
                 // Mailbox sync interval now indicates whether this mailbox syncs with the rest
                 // of the account. Anyone who was syncing at all, plus outboxes, are set to 1,
                 // everyone else is 0.
                 db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
                         + "=case when " + MailboxColumns.SYNC_INTERVAL + "="
                         + Mailbox.CHECK_INTERVAL_NEVER + " then 0 else 1 end");
+            }
+            if (oldVersion >= 110 && oldVersion <= 112) {
+                // v110 had dropped these triggers, but starting with v113 we restored them
+                // (and altered the 109 -> 110 upgrade code to stop dropping them).
+                // We therefore only add them back for the versions in between. We also need to
+                // compute the correct value at this point as well.
+                recalculateMessageCount(db);
+                createMessageCountTriggers(db);
             }
         }
 

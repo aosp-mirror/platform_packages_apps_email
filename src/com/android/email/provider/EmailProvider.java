@@ -1933,6 +1933,17 @@ public class EmailProvider extends ContentProvider {
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_folder_star
             + " ELSE -1 END";
 
+    /**
+     * For local folders, use message count instead of total count.
+     * TODO: Improve how we determine this is a local folder.
+     */
+    private static final String TOTAL_COUNT = "CASE WHEN "
+            + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS + " OR "
+            + MailboxColumns.TYPE + "=" + Mailbox.TYPE_OUTBOX + " OR "
+            + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH
+            + " THEN " + MailboxColumns.MESSAGE_COUNT
+            + " ELSE " + MailboxColumns.TOTAL_COUNT + " END";
+
     private static ProjectionMap getFolderListMap() {
         if (sFolderListMap == null) {
             sFolderListMap = ProjectionMap.builder()
@@ -1947,7 +1958,7 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.FolderColumns.CONVERSATION_LIST_URI, uriWithId("uimessages"))
                 .add(UIProvider.FolderColumns.CHILD_FOLDERS_LIST_URI, uriWithId("uisubfolders"))
                 .add(UIProvider.FolderColumns.UNREAD_COUNT, MailboxColumns.UNREAD_COUNT)
-                .add(UIProvider.FolderColumns.TOTAL_COUNT, MailboxColumns.TOTAL_COUNT)
+                .add(UIProvider.FolderColumns.TOTAL_COUNT, TOTAL_COUNT)
                 .add(UIProvider.FolderColumns.REFRESH_URI, uriWithId(QUERY_UIREFRESH))
                 .add(UIProvider.FolderColumns.SYNC_STATUS, MailboxColumns.UI_SYNC_STATUS)
                 .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
