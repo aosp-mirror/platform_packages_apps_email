@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"업로드가 취소되었습니다."</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"업로드를 이미 완료했습니다."</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"모두 동기화"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"마지막 동기화 시간:"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"마지막 동기화 시간:\n%1$s\n%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"완료된 항목 목록이 비어 있습니다."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"자동 업로드"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"업로드 완료됨"</string>

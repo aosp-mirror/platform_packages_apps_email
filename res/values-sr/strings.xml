@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"Скривена копија"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Наслов"</string>
     <string name="body_hint" msgid="4279864165439577668">"Напишите поруку е-поште"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Изворна порука --------"\n"Наслов: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Од: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Коме: <xliff:g id="TO">%3$s</xliff:g>"\n"Копија: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> је написао/ла:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Изворна порука --------\nНаслов: <xliff:g id="SUBJECT">%1$s</xliff:g>\nОд: <xliff:g id="SENDER">%2$s</xliff:g>\nКоме: <xliff:g id="TO">%3$s</xliff:g>\nКопија: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> је написао/ла:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Уврсти наведени текст"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Укључи текст"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Потребно је да додате бар једног примаоца."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Све"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Користи подр. под. налога"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Корисничко име или лозинка нису тачни."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Корисничко име или лозинка нису тачни."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Корисничко име или лозинка нису тачни.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Безбедно повезивање са сервером није могуће."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Безбедно повезивање са сервером није могуће."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Безбедно повезивање са сервером није могуће.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Потребан је сертификат клијента. Желите ли да се повежете са сервером помоћу сертификата клијента?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Сертификат је неважећи или недоступан."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Сервер је одговорио грешком. Проверите корисничко име и лозинку, а затим покушајте поново."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Повезивање са сервером није могуће."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Повезивање са сервером није могуће."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Повезивање са сервером није могуће.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS је захтеван, али га сервер не подржава."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Сервер не подржава методе потврде аутентичности."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Није могуће отворити везу са сервером због безбедносне грешке."</string>

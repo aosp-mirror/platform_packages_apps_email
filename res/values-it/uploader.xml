@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Caricamento annullato"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Caricamento già terminato"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Sincronizza tutto"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Ultima sincronizzazione:"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Ultima sincronizzazione:\n%1$s\n%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"L\'elenco di elementi terminati è vuoto."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"Caricam. istantaneo"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Caricamenti terminati"</string>

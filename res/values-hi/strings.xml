@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"विषय"</string>
     <string name="body_hint" msgid="4279864165439577668">"ईमेल लिखें"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------मूल संदेश --------"\n"विषय: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"प्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>"\n"प्रति: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ने लिखा:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ने लिखा:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"उद्धरित पाठ शामिल करें"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"पाठ शामिल करें"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"आपको कम से कम एक प्राप्तकर्ता जोड़ना चाहिए."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"सभी"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"खाते के डिफ़ॉल्ट का उपयोग करें"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"उपयोगकर्तानाम या पासवर्ड गलत है."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"उपयोगकर्ता नाम या पासवर्ड गलत है."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"उपयोगकर्ता नाम या पासवर्ड गलत है.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"क्‍लाइंट प्रमाणपत्र आवश्‍यक है. क्‍लाइंट प्रमाणपत्र वाले सर्वर से कनेक्‍ट करें?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"प्रमाणपत्र अमान्‍य है या उस पर पहुंचा नहीं जा सकता."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"सर्वर ने एक त्रुटि के साथ प्रतिसाद दिया. अपना उपयोगकर्ता नाम और पासवर्ड जांचें फिर पुन: प्रयास करें."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"सर्वर से कनेक्‍ट नहीं हो सकता."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"सर्वर से कनेक्‍ट नहीं कर सकता."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"सर्वर से कनेक्‍ट नहीं कर सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS आवश्‍यक है लेकिन सर्वर द्वारा समर्थित नहीं है."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"प्रमाणीकरण की विधियां सर्वर द्वारा समर्थित नहीं हैं."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"सुरक्षा त्रुटि के कारण सर्वर से कनेक्‍शन नहीं खोल सका."</string>

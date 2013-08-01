@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"Skp"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Zadeva"</string>
     <string name="body_hint" msgid="4279864165439577668">"Novo e-poštno sporočilo"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Izvirno sporočilo --------"\n"Zadeva: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Od: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Za: <xliff:g id="TO">%3$s</xliff:g>"\n"Kp: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> je napisal:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Izvirno sporočilo --------\nZadeva: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOd: <xliff:g id="SENDER">%2$s</xliff:g>\nZa: <xliff:g id="TO">%3$s</xliff:g>\nKp: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> je napisal:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Vključite citirano besedilo"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Vključi besedilo"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Dodati morate vsaj enega prejemnika."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Vse"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Uporabi privzeto v računu"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nepravilno uporabniško ime ali geslo."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nepravilno uporabniško ime ali geslo."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nepravilno uporabniško ime ali geslo.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"S strežnikom se ni mogoče varno povezati."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"S strežnikom se ni bilo mogoče varno povezati."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"S strežnikom se ni bilo mogoče varno povezati.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Potrebujete potrdilo odjemalca. Želite povezavo s strežnikom vzpostaviti s potrdilom odjemalca?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Potrdilo je neveljavno ali nedostopno."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Strežnik je odgovoril z napako. Preverite uporabniško ime in geslo in poskusite znova."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Ni se mogoče povezati s strežnikom."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"S strežnikom se ni mogoče povezati."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"S strežnikom se ni mogoče povezati.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Zahtevan je bil TLS, vendar ga strežnik ne podpira."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Strežnik ne podpira načinov preverjanja pristnosti."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Zaradi varnostne napake ni bilo mogoče vzpostaviti povezave s strežnikom."</string>

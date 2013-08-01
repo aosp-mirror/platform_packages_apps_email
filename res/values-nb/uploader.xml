@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Opplasting avbrutt"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Opplastingen er ferdig"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Synkroniser alle"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Siste synkronisering:"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Siste synkronisering:\n%1$s\n%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Listen over fullførte elementer er tom."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"Direkteopplasting"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Opplastinger er fullført"</string>

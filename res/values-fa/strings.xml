@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"گیرندهٔ کپی مخفی"</string>
     <string name="subject_hint" msgid="7253964583324677128">"موضوع"</string>
     <string name="body_hint" msgid="4279864165439577668">"نوشتن ایمیل"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------"\n"موضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"فرستنده: <xliff:g id="SENDER">%2$s</xliff:g>"\n"گیرنده: <xliff:g id="TO">%3$s</xliff:g>"\n"گیرندهٔ کپی: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> نوشت:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------\nموضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>\nفرستنده: <xliff:g id="SENDER">%2$s</xliff:g>\nگیرنده: <xliff:g id="TO">%3$s</xliff:g>\nگیرندهٔ کپی: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> نوشت:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"شامل نوشتار نقل قول شده"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"شامل متن"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"باید حداقل یک گیرنده اضافه کنید."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"همه"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"استفاده از پیش‌فرض حساب"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"نام کاربری یا رمز ورود نادرست است."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"نام کاربری یا رمز ورود نادرست است. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"نام کاربری یا رمز ورود نادرست است. \n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"اتصال امن به سرور امکان‌پذیر نیست."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"اتصال امن به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"اتصال امن به سرور امکان‌پذیر نیست.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"گواهی سرویس‌ گیرنده مورد نیاز است. اتصال به سرور با گواهی سرویس‌ گیرنده؟"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"گواهی‌نامه نامعتبر است و یا غیر قابل‌دسترسی است."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"سرور با یک خطا پاسخ داد. لطفاً نام کاربری و گذرواژهٔ خود را بررسی کرده و دوباره امتحان کنید."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"اتصال به سرور امکان‌پذیر نیست."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکان‌پذیر نیست."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکان‌پذیر نیست.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS لازم است اما توسط سرور پشتیبانی نمی‌شود."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"روش‌های تأیید اعتبار توسط سرور پشتیبانی نمی‌شوند."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"به دلیل خطای امنیتی، اتصال به سرور باز نمی‌شود."</string>

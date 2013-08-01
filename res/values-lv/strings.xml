@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"D. kopija"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Temats"</string>
     <string name="body_hint" msgid="4279864165439577668">"Rakstiet e-pasta ziņojumu"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Sākotnējais ziņojums --------"\n"Temats: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"No: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kam: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopija: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> rakstīja:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Sākotnējais ziņojums --------\nTemats: <xliff:g id="SUBJECT">%1$s</xliff:g>\nNo: <xliff:g id="SENDER">%2$s</xliff:g>\nKam: <xliff:g id="TO">%3$s</xliff:g>\nKopija: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> rakstīja:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Citēta teksta iekļaušana"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Iekļaut tekstu"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Jāpievieno vismaz viens adresāts."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Visi"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Izmantot konta noklusēj."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Lietotājvārds vai parole nav pareiza."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Lietotājvārds vai parole nav pareiza."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Lietotājvārds vai parole nav pareiza.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nevar izveidot drošu savienojumu ar serveri."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Ir nepieciešams klienta sertifikāts. Vai izveidot savienojumu ar serveri, izmantojot klienta sertifikātu?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Sertifikāts nav derīgs vai nav pieejams."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"Serveris atgrieza kļūdu. Pārbaudiet lietotājvārdu un paroli un pēc tam mēģiniet vēlreiz."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nevar izveidot savienojumu ar serveri."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nevar izveidot savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nevar izveidot savienojumu ar serveri.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Protokols TLS ir obligāts, taču serveris to neatbalsta."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serverī netiek atbalstītas autentifikācijas metodes."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nevarēja izveidot savienojumu ar serveri drošības kļūdas dēļ."</string>

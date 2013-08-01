@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Onderwerp"</string>
     <string name="body_hint" msgid="4279864165439577668">"E-mail opstellen"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronkelijk bericht --------"\n"Onderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Van: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Aan: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronkelijk bericht --------\nOnderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>\nVan: <xliff:g id="SENDER">%2$s</xliff:g>\nAan: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>schreef:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Tekst uit oorspronkelijk bericht weergeven"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Tekst opnemen"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"U moet minstens één ontvanger toevoegen."</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alles"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Accountstandaard gebruiken"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikersnaam of wachtwoord is onjuist."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikersnaam of wachtwoord is onjuist.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan geen veilige verbinding met de server tot stand brengen."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan geen veilige verbinding met de server tot stand brengen."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan geen veilige verbinding met de server tot stand brengen.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"Clientcertificaat is vereist. Met clientcertificaat verbinding maken met de server?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"Certificaat is ongeldig of niet toegankelijk."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"De server heeft een fout geretourneerd. Controleer uw gebruikersnaam en wachtwoord en probeer het opnieuw."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan geen verbinding maken met de server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan geen verbinding maken met de server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan geen verbinding maken met de server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS is vereist maar wordt niet ondersteund door de server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Verificatiemethoden worden niet ondersteund door de server."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Kan geen verbinding maken met de server wegens een beveiligingsfout."</string>

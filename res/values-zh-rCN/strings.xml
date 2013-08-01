@@ -131,8 +131,8 @@
     <string name="bcc" msgid="3098643138241111579">"密送"</string>
     <string name="subject_hint" msgid="7253964583324677128">"主题"</string>
     <string name="body_hint" msgid="4279864165439577668">"撰写电子邮件"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 原始邮件 --------"\n"主题：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"发件人：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件人：<xliff:g id="TO">%3$s</xliff:g>"\n"抄送：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>编写："\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 原始邮件 --------\n主题：<xliff:g id="SUBJECT">%1$s</xliff:g>\n发件人：<xliff:g id="SENDER">%2$s</xliff:g>\n收件人：<xliff:g id="TO">%3$s</xliff:g>\n抄送：<xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>编写：\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"包含引用文字"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"包含原文"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"必须至少添加一个收件人。"</string>
@@ -324,14 +324,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"全部"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"使用帐户的默认设置"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"用户名或密码不正确。"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"用户名或密码不正确。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"用户名或密码不正确。\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"无法安全地连接到服务器。"</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"无法安全地连接到服务器。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"无法安全地连接到服务器。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_certificate_required" msgid="1280569002588325367">"需要客户端证书。要通过客户端证书连接到服务器吗？"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="7245835883180762722">"证书无效或无法使用。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="222908719765968691">"该服务器返回了包含错误讯息的响应。请检查您的用户名和密码，然后重试。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"无法连接到服务器。"</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"无法连接到服务器。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"无法连接到服务器。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"需要 TLS，但服务器不支持 TLS。"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"服务器不支持身份验证方法。"</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"由于安全错误，无法连接到服务器。"</string>

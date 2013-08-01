@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"A feltöltés leállítva"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"A feltöltés már befejeződött"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Az összes szinkronizálása"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Utolsó szinkronizálás:"\n\n</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Utolsó szinkronizálás:\n\n"</string>
     <string name="finished_empty" msgid="689924777356099393">"A befejezett elemek listája üres."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"Azonnali feltöltés"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"A feltöltések befejeződtek"</string>

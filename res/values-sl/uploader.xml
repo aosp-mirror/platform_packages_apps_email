@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"Prenos je bil preklican"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"Prenos se je že končal"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"Sinhroniziraj vse"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Zadnja sinhronizacija:"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"Zadnja sinhronizacija:\n%1$s\n%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"Seznam končanih elementov je prazen."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"Takojšnji prenos"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"Prenosi končani"</string>

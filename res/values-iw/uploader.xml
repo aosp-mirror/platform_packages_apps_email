@@ -74,7 +74,7 @@
     <string name="manager_toast_canceled" msgid="2331820022556147571">"ההעלאה בוטלה"</string>
     <string name="manager_toast_not_canceled" msgid="4274246237708259185">"ההעלאה כבר הסתיימה"</string>
     <string name="manager_sync_all" msgid="5207146576940014345">"סנכרן הכל"</string>
-    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"סינכרון אחרון:"\n"%1$s"\n"%2$s"</string>
+    <string name="manager_activity_last_sync_format" msgid="3521722786363963155">"סינכרון אחרון:\n%1$s\n%2$s"</string>
     <string name="finished_empty" msgid="689924777356099393">"רשימת הפריטים שהסתיימו ריקה."</string>
     <string name="notify_uploads" msgid="8593982942665493037">"העלאה מיידית"</string>
     <string name="notify_resolved" msgid="8111194870485485674">"ההעלאות הסתיימו"</string>
