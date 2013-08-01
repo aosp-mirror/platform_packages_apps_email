@@ -192,6 +192,7 @@ public final class QuickResponse extends EmailContent
     /**
      * Implements Parcelable.
      */
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         // mBaseUri is not parceled
         dest.writeLong(mId);
