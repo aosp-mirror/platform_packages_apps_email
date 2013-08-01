@@ -161,7 +161,7 @@ public class EmailBroadcastProcessorService extends IntentService {
      * @param amAccount The account for which to disable syncs.
      * @param authority The authority for which to disable syncs.
      */
-    private void removePeriodicSyncs(final android.accounts.Account amAccount,
+    private static void removePeriodicSyncs(final android.accounts.Account amAccount,
             final String authority) {
         final List<PeriodicSync> syncs =
                 ContentResolver.getPeriodicSyncs(amAccount, authority);

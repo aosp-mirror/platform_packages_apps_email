@@ -37,6 +37,7 @@ public class FolderPickerSelectorAdapter extends HierarchicalFolderSelectorAdapt
      * Return whether the supplied folder meets the requirements to be displayed
      * in the folder list.
      */
+    @Override
     protected boolean meetsRequirements(Folder folder) {
         // We only want to show the non-Trash folders that can accept moved messages
         return folder.supportsCapability(FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES)

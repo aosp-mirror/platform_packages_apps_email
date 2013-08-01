@@ -58,6 +58,7 @@ public class DuplicateAccountDialogFragment extends DialogFragment {
             .setPositiveButton(
                     R.string.okay_action,
                     new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dismiss();
                         }
