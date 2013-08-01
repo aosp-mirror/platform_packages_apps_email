@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.mail.preferences;
+package com.android.email.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -24,6 +24,9 @@ import android.text.TextUtils;
 
 import com.android.email.Preferences;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.mail.preferences.BasePreferenceMigrator;
+import com.android.mail.preferences.FolderPreferences;
+import com.android.mail.preferences.MailPrefs;
 import com.android.mail.providers.Account;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
@@ -37,7 +40,7 @@ import java.util.Set;
 /**
  * Migrates Email settings to UnifiedEmail
  */
-public class PreferenceMigrator extends BasePreferenceMigrator {
+public class EmailPreferenceMigrator extends BasePreferenceMigrator {
     private static final String LOG_TAG = LogTag.getLogTag();
 
     @Override
