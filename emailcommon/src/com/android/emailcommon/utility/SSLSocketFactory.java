@@ -269,6 +269,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
 
     // non-javadoc, see interface org.apache.http.conn.SocketFactory
+    @Override
     public Socket createSocket()
         throws IOException {
 
@@ -278,6 +279,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
 
     // non-javadoc, see interface org.apache.http.conn.SocketFactory
+    @Override
     public Socket connectSocket(
         final Socket sock,
         final String host,
@@ -348,6 +350,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
      *
      * @throws IllegalArgumentException if the argument is invalid
      */
+    @Override
     public boolean isSecure(Socket sock)
         throws IllegalArgumentException {
 
@@ -370,6 +373,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
 
     // non-javadoc, see interface LayeredSocketFactory
+    @Override
     public Socket createSocket(
         final Socket socket,
         final String host,
