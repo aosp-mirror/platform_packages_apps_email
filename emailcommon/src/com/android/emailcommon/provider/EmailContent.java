@@ -1623,8 +1623,7 @@ public abstract class EmailContent {
         public static final String VISIBLE_LIMIT = "visibleLimit";
         // Sync status (can be used as desired by sync services)
         public static final String SYNC_STATUS = "syncStatus";
-        // Number of messages in the mailbox.
-        @Deprecated
+        // Number of messages locally available in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
         // The last time a message in this mailbox has been read (in millis)
         public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
