@@ -18,6 +18,10 @@ package com.android.email;
 
 import android.app.Application;
 
+import com.android.email.preferences.EmailPreferenceMigrator;
+import com.android.mail.preferences.BasePreferenceMigrator;
+import com.android.mail.preferences.PreferenceMigratorHolder;
+import com.android.mail.preferences.PreferenceMigratorHolder.PreferenceMigratorCreator;
 import com.android.mail.utils.LogTag;
 
 public class EmailApplication extends Application {
@@ -25,5 +29,12 @@ public class EmailApplication extends Application {
 
     static {
         LogTag.setLogTag(LOG_TAG);
+
+        PreferenceMigratorHolder.setPreferenceMigratorCreator(new PreferenceMigratorCreator() {
+            @Override
+            public BasePreferenceMigrator createPreferenceMigrator() {
+                return new EmailPreferenceMigrator();
+            }
+        });
     }
 }
