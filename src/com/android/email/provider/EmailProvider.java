@@ -2464,7 +2464,7 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
 
-    private int getCapabilities(Context context, long accountId) {
+    private static int getCapabilities(Context context, long accountId) {
         final EmailServiceProxy service =
                 EmailServiceUtils.getServiceForAccount(context, accountId);
         int capabilities = 0;
@@ -2803,7 +2803,7 @@ public class EmailProvider extends ContentProvider {
         mc.addRow(values);
     }
 
-    private int getConversationListIcon(MailPrefs mailPrefs) {
+    private static int getConversationListIcon(MailPrefs mailPrefs) {
         return mailPrefs.getShowSenderImages() ?
                 UIProvider.ConversationListIcon.SENDER_IMAGE :
                 UIProvider.ConversationListIcon.NONE;
@@ -4602,6 +4602,7 @@ public class EmailProvider extends ContentProvider {
          }
     }
 
+    @Override
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         Context context = getContext();
         writer.println("Installed services:");

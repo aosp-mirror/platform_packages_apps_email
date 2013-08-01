@@ -34,6 +34,7 @@ public class PolicyService extends Service {
     private Context mContext;
 
     private final IPolicyService.Stub mBinder = new IPolicyService.Stub() {
+        @Override
         public boolean isActive(Policy policy) {
             try {
                 return mSecurityPolicy.isActive(policy);
@@ -45,10 +46,12 @@ public class PolicyService extends Service {
             }
         }
 
+        @Override
         public void setAccountHoldFlag(long accountId, boolean newState) {
             SecurityPolicy.setAccountHoldFlag(mContext, accountId, newState);
         }
 
+        @Override
         public void remoteWipe() {
             try {
                 mSecurityPolicy.remoteWipe();
@@ -60,6 +63,7 @@ public class PolicyService extends Service {
             }
         }
 
+        @Override
         public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
             try {
                 mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey);
