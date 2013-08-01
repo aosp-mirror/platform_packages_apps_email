@@ -21,10 +21,12 @@ import com.android.emailcommon.mail.Address;
 import android.widget.AutoCompleteTextView.Validator;
 
 public class EmailAddressValidator implements Validator {
+    @Override
     public CharSequence fixText(CharSequence invalidText) {
         return "";
     }
 
+    @Override
     public boolean isValid(CharSequence text) {
         return Address.parse(text.toString()).length > 0;
     }

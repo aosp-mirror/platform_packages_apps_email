@@ -189,6 +189,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
      *
      * Launches the account checker.  Positive results are reported to onCheckSettingsOk().
      */
+    @Override
     public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
         AccountCheckSettingsFragment checkerFragment =
             AccountCheckSettingsFragment.newInstance(checkMode, target);
@@ -201,6 +202,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
     /**
      * Implements AccountServerBaseFragment.Callback
      */
+    @Override
     public void onEnableProceedButtons(boolean enable) {
         mNextButtonEnabled = enable;
         mNextButton.setEnabled(enable);
@@ -211,6 +213,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
      *
      * If the checked settings are OK, proceed to outgoing settings screen
      */
+    @Override
     public void onCheckSettingsComplete(int result, int setupMode) {
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             if (mServiceInfo.usesSmtp) {

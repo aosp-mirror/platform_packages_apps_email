@@ -85,6 +85,7 @@ public class AccountSetupOutgoing extends Activity
      *
      * Launches the account checker.  Positive results are reported to onCheckSettingsOk().
      */
+    @Override
     public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
         AccountCheckSettingsFragment checkerFragment =
             AccountCheckSettingsFragment.newInstance(checkMode, target);
@@ -97,6 +98,7 @@ public class AccountSetupOutgoing extends Activity
     /**
      * Implements AccountServerBaseFragment.Callback
      */
+    @Override
     public void onEnableProceedButtons(boolean enable) {
         mNextButtonEnabled = enable;
         mNextButton.setEnabled(enable);
@@ -107,6 +109,7 @@ public class AccountSetupOutgoing extends Activity
      *
      * If the checked settings are OK, proceed to options screen
      */
+    @Override
     public void onCheckSettingsComplete(int result, int setupMode) {
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             AccountSetupOptions.actionOptions(this);

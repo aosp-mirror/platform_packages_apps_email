@@ -33,6 +33,7 @@ public class RequireManualSyncDialog extends AlertDialog implements OnClickListe
     }
 
     /** {@inheritDoc} */
+    @Override
     public void onClick(DialogInterface dialog, int which) {
         // No-op.
     }
