@@ -31,11 +31,13 @@ public class MessageMoveRequest extends Request {
 
     // MessageMoveRequests are unique by their message id (i.e. it's meaningless to have two
     // separate message moves queued at the same time)
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof MessageMoveRequest)) return false;
         return ((MessageMoveRequest)o).mMessageId == mMessageId;
     }
 
+    @Override
     public int hashCode() {
         return (int)mMessageId;
     }

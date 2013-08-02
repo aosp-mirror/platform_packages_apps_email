@@ -40,11 +40,13 @@ public class PartRequest extends Request {
 
     // PartRequests are unique by their attachment id (i.e. multiple attachments might be queued
     // for a particular message, but any individual attachment can only be loaded once)
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof PartRequest)) return false;
         return ((PartRequest)o).mAttachment.mId == mAttachment.mId;
     }
 
+    @Override
     public int hashCode() {
         return (int)mAttachment.mId;
     }

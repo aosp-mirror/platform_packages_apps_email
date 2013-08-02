@@ -31,6 +31,8 @@ public abstract class Request {
 
     // Subclasses of Request may have different semantics regarding equality; therefore,
     // we force them to implement the equals method
+    @Override
     public abstract boolean equals(Object o);
+    @Override
     public abstract int hashCode();
 }
