@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.SparseBooleanArray;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
@@ -205,6 +206,28 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     @Deprecated
     public static final int TYPE_EAS_ACCOUNT_MAILBOX = 0x44;
     public static final int TYPE_UNKNOWN = 0x45;
+
+    /**
+     * Specifies which mailbox types may be synced from server, and what the default sync interval
+     * value should be.
+     * If a mailbox type is in this array, then it can be synced.
+     * If the mailbox type is mapped to true in this array, then new mailboxes of that type should
+     * be set to automatically sync (either with the periodic poll, or with push, as determined
+     * by the account's sync settings).
+     * See {@link #isSyncableType} and {@link #getDefaultSyncStateForType} for how to access this
+     * data.
+     */
+    private static final SparseBooleanArray SYNCABLE_TYPES;
+    static {
+        SYNCABLE_TYPES = new SparseBooleanArray(7);
+        SYNCABLE_TYPES.put(TYPE_INBOX, true);
+        SYNCABLE_TYPES.put(TYPE_MAIL, false);
+        SYNCABLE_TYPES.put(TYPE_DRAFTS, true);
+        SYNCABLE_TYPES.put(TYPE_SENT, true);
+        SYNCABLE_TYPES.put(TYPE_TRASH, false);
+        SYNCABLE_TYPES.put(TYPE_CALENDAR, true);
+        SYNCABLE_TYPES.put(TYPE_CONTACTS, true);
+    }
 
     public static final int TYPE_NOT_SYNCABLE = 0x100;
     // A mailbox that holds Messages that are attachments
@@ -392,6 +415,33 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             mailbox = new Mailbox();
         }
         return mailbox;
+    }
+
+    /**
+     * Check if a mailbox type can be synced with the server.
+     * @param mailboxType The type to check.
+     * @return Whether this type is syncable.
+     */
+    public static boolean isSyncableType(final int mailboxType) {
+        return SYNCABLE_TYPES.indexOfKey(mailboxType) >= 0;
+    }
+
+    /**
+     * Check if a mailbox type should sync with the server by default.
+     * @param mailboxType The type to check.
+     * @return Whether this type should default to syncing.
+     */
+    public static boolean getDefaultSyncStateForType(final int mailboxType) {
+        return SYNCABLE_TYPES.get(mailboxType);
+    }
+
+    /**
+     * Check whether this mailbox is syncable. It has to be both a server synced mailbox, and
+     * of a syncable able.
+     * @return Whether this mailbox is syncable.
+     */
+    public boolean isSyncable() {
+        return (mTotalCount >= 0) && isSyncableType(mType);
     }
 
     @Override
