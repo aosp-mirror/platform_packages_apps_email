@@ -210,6 +210,18 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     // A mailbox that holds Messages that are attachments
     public static final int TYPE_ATTACHMENT = 0x101;
 
+    /**
+     * For each of the following folder types, we expect there to be exactly one folder of that
+     * type per account.
+     * Each sync adapter must do the following:
+     * 1) On initial sync: For each type that was not found from the server, create a local folder.
+     * 2) On folder delete: If it's of a required type, convert it to local rather than delete.
+     * 3) On folder add: If it's of a required type, convert the local folder to server.
+     * 4) When adding a duplicate (either initial sync or folder add): Error.
+     */
+    public static final int[] REQUIRED_FOLDER_TYPES =
+            { TYPE_INBOX, TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, TYPE_TRASH };
+
     // Default "touch" time for system mailboxes
     public static final int DRAFTS_DEFAULT_TOUCH_TIME = 2;
     public static final int SENT_DEFAULT_TOUCH_TIME = 1;

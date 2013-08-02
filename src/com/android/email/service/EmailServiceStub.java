@@ -79,15 +79,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     private static final int MAILBOX_COLUMN_SERVER_ID = 1;
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
-    /** System folders that should always exist. */
-    private final int[] DEFAULT_FOLDERS = {
-            Mailbox.TYPE_INBOX,
-            Mailbox.TYPE_DRAFTS,
-            Mailbox.TYPE_OUTBOX,
-            Mailbox.TYPE_SENT,
-            Mailbox.TYPE_TRASH
-    };
-
     /** Small projection for just the columns required for a sync. */
     private static final String[] MAILBOX_PROJECTION = new String[] {
         MailboxColumns.ID,
@@ -351,7 +342,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         Cursor localFolderCursor = null;
         try {
             // Step 0: Make sure the default system mailboxes exist.
-            for (int type : DEFAULT_FOLDERS) {
+            for (final int type : Mailbox.REQUIRED_FOLDER_TYPES) {
                 if (Mailbox.findMailboxOfType(mContext, accountId, type) == Mailbox.NO_MAILBOX) {
                     Mailbox mailbox = Mailbox.newSystemMailbox(mContext, accountId, type);
                     mailbox.save(mContext);
