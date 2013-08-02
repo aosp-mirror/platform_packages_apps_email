@@ -1934,10 +1934,12 @@ public class EmailProvider extends ContentProvider {
             + " ELSE -1 END";
 
     /**
-     * For local folders, use message count instead of total count.
-     * TODO: Improve how we determine this is a local folder.
+     * Local-only folders set totalCount < 0; such folders should substitute message count for
+     * total count.
+     * TODO: IMAP and POP don't adhere to this convention yet so for now we force a few types.
      */
     private static final String TOTAL_COUNT = "CASE WHEN "
+            + MailboxColumns.TOTAL_COUNT + "<0 OR "
             + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS + " OR "
             + MailboxColumns.TYPE + "=" + Mailbox.TYPE_OUTBOX + " OR "
             + MailboxColumns.TYPE + "=" + Mailbox.TYPE_TRASH
