@@ -409,9 +409,12 @@ public class ImapService extends Service {
         // 6. Save folder message count that we got earlier.
         mailbox.updateMessageCount(context, remoteMessageCount);
 
-        // 7. Figure out how big our sync window should be.
-        long startDate = System.currentTimeMillis();
-        long endDate = startDate - DEFAULT_SYNC_WINDOW_MILLIS;
+        // 7. Figure out how big our sync window should be. Leave startDate set to zero, this
+        // indicates we do not want any constraint on the BEFORE parameter sent in our query.
+        // This way, we will always be able to get the most recent messages, even if the
+        // imap server's date is different from ours.
+        long startDate = 0;
+        long endDate = System.currentTimeMillis() - DEFAULT_SYNC_WINDOW_MILLIS;
         LogUtils.d(Logging.LOG_TAG, "original window " + startDate + " - " + endDate);
         Cursor localOldestCursor = null;
         try {
@@ -440,7 +443,6 @@ public class ImapService extends Service {
         }
 
         // Get all messages in our query date range:
-        LogUtils.d(Logging.LOG_TAG, "loading range " + startDate + " - " + endDate);
         Message[] remoteMessages;
         remoteMessages = remoteFolder.getMessages(startDate, endDate, null);
 
@@ -461,8 +463,12 @@ public class ImapService extends Service {
             startDate = endDate - 1;
             Message[] additionalMessages = new Message[0];
             long windowIncreaseSize = INITIAL_WINDOW_SIZE_INCREASE;
-            while  (additionalMessages.length < additionalMessagesNeeded) {
+            while  (additionalMessages.length < additionalMessagesNeeded && endDate > 0) {
                 endDate = endDate - windowIncreaseSize;
+                if (endDate < 0) {
+                    LogUtils.d(Logging.LOG_TAG, "window size too large, this is the last attempt");
+                    endDate = 0;
+                }
                 LogUtils.d(Logging.LOG_TAG, "requesting additional messages from range " +
                         startDate + " - " + endDate);
                 additionalMessages = remoteFolder.getMessages(startDate, endDate, null);
@@ -475,6 +481,13 @@ public class ImapService extends Service {
             }
 
             LogUtils.d(Logging.LOG_TAG, "additionalMessages " + additionalMessages.length);
+            if (additionalMessages.length < additionalMessagesNeeded) {
+                // We have attempted to load a window that goes all the way back to time zero,
+                // but we still don't have as many messages as the server says are in the inbox.
+                // This is not expected to happen.
+                LogUtils.e(Logging.LOG_TAG, "expected to find " + additionalMessagesNeeded +
+                        " more messages, only got " + additionalMessages.length);
+            }
             int additionalToKeep = additionalMessages.length;
             if (additionalMessages.length > LOAD_MORE_MAX_INCREMENT) {
                 // We have way more additional messages than intended, drop some of them.
