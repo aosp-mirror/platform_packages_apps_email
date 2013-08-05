@@ -18,6 +18,7 @@ package com.android.email.mail.store;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Base64DataException;
 
 import com.android.email.mail.store.ImapStore.ImapException;
@@ -62,6 +63,7 @@ import java.util.Locale;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.TimeZone;
 
 class ImapFolder extends Folder {
     private final static Flag[] PERMANENT_FLAGS =
@@ -392,7 +394,6 @@ class ImapFolder extends Folder {
     @VisibleForTesting
     String[] searchForUids(String searchCriteria) throws MessagingException {
         checkOpen();
-        LogUtils.d(Logging.LOG_TAG, "searchForUids '" + searchCriteria + "'");
         try {
             try {
                 final String command = ImapConstants.UID_SEARCH + " " + searchCriteria;
@@ -497,21 +498,35 @@ class ImapFolder extends Folder {
     @VisibleForTesting
     public Message[] getMessages(long startDate, long endDate, MessageRetrievalListener listener)
             throws MessagingException {
-        LogUtils.d(Logging.LOG_TAG, "getMessages since " + startDate + " before " + endDate);
-        // Dates must be formatted like: 7-Feb-1994 21:52:25 -0800
+        // Dates must be formatted like: 7-Feb-1994. Time info within a date is not
+        // universally supported.
         // XXX can I limit the maximum number of results?
-        final String format = String.format("dd-LLL-yyyy HH:mm:ss Z");
-        final SimpleDateFormat formatter = new SimpleDateFormat(format);
+        final SimpleDateFormat formatter = new SimpleDateFormat("dd-LLL-yyyy", Locale.US);
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String sinceDateStr = formatter.format(endDate);
-        final String beforeDateStr = formatter.format(startDate);
 
-        if (startDate < endDate) {
-            throw new MessagingException(String.format("Invalid date range: %s - %s",
-                    sinceDateStr, beforeDateStr));
+        final StringBuilder queryParam = new StringBuilder();
+        queryParam.append( "1:* ");
+        // If the caller requests a startDate of zero, then ignore the BEFORE parameter.
+        // This makes sure that we can always query for the newest messages, even if our
+        // time is different from the imap server's time.
+        if (startDate != 0) {
+            final String beforeDateStr = formatter.format(startDate);
+            if (startDate < endDate) {
+                throw new MessagingException(String.format("Invalid date range: %s - %s",
+                        sinceDateStr, beforeDateStr));
+            }
+            queryParam.append("BEFORE \"")
+                .append(beforeDateStr)
+                .append("\" ");
         }
-        return getMessagesInternal(
-                searchForUids(String.format(Locale.US, "1:* BEFORE \"%s\" SINCE \"%s\"",
-                        beforeDateStr, sinceDateStr)), listener);
+        queryParam.append("SINCE \"")
+             .append(sinceDateStr)
+             .append("\"");
+
+        LogUtils.d(Logging.LOG_TAG, "getMessages dateRange " + queryParam.toString());
+
+        return getMessagesInternal(searchForUids(queryParam.toString()), listener);
     }
 
     @Override
