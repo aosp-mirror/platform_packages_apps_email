@@ -80,6 +80,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public int mUiLastSyncResult;
     public int mTotalCount;
     public String mHierarchicalName;
+    public long mLastFullSyncTime;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -101,6 +102,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final int CONTENT_UI_LAST_SYNC_RESULT_COLUMN = 17;
     public static final int CONTENT_TOTAL_COUNT_COLUMN = 18;
     public static final int CONTENT_HIERARCHICAL_NAME_COLUMN = 19;
+    public static final int CONTENT_LAST_FULL_SYNC_COLUMN = 20;
 
     /**
      * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
@@ -114,7 +116,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         MailboxColumns.FLAGS, MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
         MailboxColumns.LAST_TOUCHED_TIME, MailboxColumns.UI_SYNC_STATUS,
         MailboxColumns.UI_LAST_SYNC_RESULT, MailboxColumns.TOTAL_COUNT,
-        MailboxColumns.HIERARCHICAL_NAME
+        MailboxColumns.HIERARCHICAL_NAME, MailboxColumns.LAST_FULL_SYNC_TIME
     };
 
     /** Selection by server pathname for a given account */
@@ -467,6 +469,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         mUiLastSyncResult = cursor.getInt(CONTENT_UI_LAST_SYNC_RESULT_COLUMN);
         mTotalCount = cursor.getInt(CONTENT_TOTAL_COUNT_COLUMN);
         mHierarchicalName = cursor.getString(CONTENT_HIERARCHICAL_NAME_COLUMN);
+        mLastFullSyncTime = cursor.getInt(CONTENT_LAST_FULL_SYNC_COLUMN);
     }
 
     @Override
@@ -491,6 +494,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         values.put(MailboxColumns.UI_LAST_SYNC_RESULT, mUiLastSyncResult);
         values.put(MailboxColumns.TOTAL_COUNT, mTotalCount);
         values.put(MailboxColumns.HIERARCHICAL_NAME, mHierarchicalName);
+        values.put(MailboxColumns.LAST_FULL_SYNC_TIME, mLastFullSyncTime);
         return values;
     }
 
@@ -504,6 +508,21 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             ContentValues values = new ContentValues();
             values.put(MailboxColumns.TOTAL_COUNT, count);
             update(c, values);
+            mTotalCount = count;
+        }
+    }
+
+    /**
+     * Store the last full sync time in the database.
+     * @param c
+     * @param syncTime
+     */
+    public void updateLastFullSyncTime(final Context c, final long syncTime) {
+        if (syncTime != mLastFullSyncTime) {
+            ContentValues values = new ContentValues();
+            values.put(MailboxColumns.LAST_FULL_SYNC_TIME, syncTime);
+            update(c, values);
+            mLastFullSyncTime = syncTime;
         }
     }
 
@@ -695,6 +714,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         dest.writeInt(mUiLastSyncResult);
         dest.writeInt(mTotalCount);
         dest.writeString(mHierarchicalName);
+        dest.writeLong(mLastFullSyncTime);
     }
 
     public Mailbox(Parcel in) {
@@ -719,6 +739,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         mUiLastSyncResult = in.readInt();
         mTotalCount = in.readInt();
         mHierarchicalName = in.readString();
+        mLastFullSyncTime = in.readLong();
     }
 
     public static final Parcelable.Creator<Mailbox> CREATOR = new Parcelable.Creator<Mailbox>() {
