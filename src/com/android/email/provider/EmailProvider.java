@@ -2877,7 +2877,7 @@ public class EmailProvider extends ContentProvider {
                         + Mailbox.TYPE_TRASH + ")", whereArgs);
                 values[UIProvider.FOLDER_UNREAD_COUNT_COLUMN] = unreadCount;
                 // Add the icon
-                values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_mark_unread;
+                values[UIProvider.FOLDER_ICON_RES_ID_COLUMN] = R.drawable.ic_folder_unread;
                 break;
             } case Mailbox.TYPE_STARRED: {
                 // Add the starred count as the unread count
