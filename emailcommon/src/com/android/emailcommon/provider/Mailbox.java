@@ -508,44 +508,6 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     /**
-     * During sync, updates the remote message count, and determine how many messages to sync down
-     * for this mailbox.
-     * @param c
-     * @param remoteMessageCount the current message count on the server; this might be different
-     * from this object's current message count (in which case it will be written back to the db).
-     * @param deltaMessageCount the minimum number of additional messages to sync for this request.
-     * @return
-     */
-    public int handleCountsForSync(Context c, final int remoteMessageCount,
-            final int deltaMessageCount) {
-        // Write the remote message count to the DB if necessary.
-        if (remoteMessageCount != mTotalCount) {
-            ContentValues values = new ContentValues();
-            values.put(MailboxColumns.TOTAL_COUNT, remoteMessageCount);
-            update(c, values);
-        }
-
-        // TODO: The value computed below is not quite right if the messages we have are not
-        // actually a subset of the server side messages, but it's close enough?
-
-        final int currentMessageCount = getMailboxMessageCount(c, mId);
-
-        // Determine how many "new" messages we have. If we've never synced before, then use a
-        // default value, otherwise it's the actual change in remote count.
-        final int newMessageCount;
-        if (mSyncTime == 0) {
-            newMessageCount = FIRST_SYNC_MESSAGE_COUNT;
-        } else {
-            newMessageCount = Math.max(0, remoteMessageCount - mTotalCount);
-        }
-
-        // Determine the desired number of messages to sync.
-        final int messageCount = currentMessageCount + Math.max(newMessageCount, deltaMessageCount);
-        // Limit to [0, remoteMessageCount].
-        return Math.min(Math.max(0, messageCount), remoteMessageCount);
-    }
-
-    /**
      * Convenience method to return the id of a given type of Mailbox for a given Account; the
      * common Mailbox types (Inbox, Outbox, Sent, Drafts, Trash, and Search) are all cached by
      * EmailProvider; therefore, we warn if the mailbox is not found in the cache
@@ -651,13 +613,6 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                 return true;
         }
         return false; // TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, etc
-    }
-
-    /**
-     * @return true if messages in a mailbox of a type can be replied/forwarded.
-     */
-    public static boolean isMailboxTypeReplyAndForwardable(int type) {
-        return (type != TYPE_TRASH) && (type != TYPE_DRAFTS);
     }
 
     /**
