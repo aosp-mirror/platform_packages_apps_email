@@ -577,13 +577,20 @@ public class EmailProvider extends ContentProvider {
                         db.execSQL(UPDATED_MESSAGE_DELETE + id);
                     }
 
+                    final long accountId;
+                    if (match == MAILBOX_ID) {
+                        accountId = Mailbox.getAccountIdForMailbox(context, id);
+                    } else {
+                        accountId = Account.NO_ACCOUNT;
+                    }
+
                     result = db.delete(tableName, whereWithId(id, selection), selectionArgs);
 
                     if (match == ACCOUNT_ID) {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
-                        notifyUIFolder(id, null);
+                        notifyUIFolder(id, accountId);
                     } else if (match == ATTACHMENT_ID) {
                         notifyUI(UIPROVIDER_ATTACHMENT_NOTIFIER, id);
                     }
@@ -684,26 +691,30 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    // These URIs are used for specific UI notifications. We don't use EmailContent.CONTENT_URI
+    // as the base because that gets spammed.
+    private static final String UI_NOTIFICATION_AUTHORITY =
+            EmailContent.EMAIL_PACKAGE_NAME + ".uinotifications";
     private static final Uri UIPROVIDER_CONVERSATION_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessages");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uimessages");
     private static final Uri UIPROVIDER_FOLDER_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolder");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uifolder");
     private static final Uri UIPROVIDER_FOLDERLIST_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uifolders");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uifolders");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccount");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiaccount");
     public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uisettings");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uisettings");
     private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachment");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiattachments");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiattachments");
     public static final Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uiaccts");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiaccts");
     private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uimessage");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uimessage");
     private static final Uri UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
-            Uri.parse("content://" + UIProvider.AUTHORITY + "/uirecentfolders");
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uirecentfolders");
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -744,24 +755,24 @@ public class EmailProvider extends ContentProvider {
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     switch(match) {
                         case MESSAGE:
+                            final long mailboxId = values.getAsLong(Message.MAILBOX_KEY);
                             if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                                notifyUIConversationMailbox(values.getAsLong(Message.MAILBOX_KEY));
+                                notifyUIConversationMailbox(mailboxId);
                             }
+                            notifyUIFolder(mailboxId, values.getAsLong(Message.ACCOUNT_KEY));
                             break;
                         case MAILBOX:
                             if (values.containsKey(MailboxColumns.TYPE)) {
-                                // Only notify for special mailbox types
-                                int type = values.getAsInteger(MailboxColumns.TYPE);
-                                if (type != Mailbox.TYPE_INBOX && type != Mailbox.TYPE_OUTBOX &&
-                                        type != Mailbox.TYPE_DRAFTS && type != Mailbox.TYPE_SENT &&
-                                        type != Mailbox.TYPE_TRASH && type != Mailbox.TYPE_SEARCH) {
-                                    break;
+                                if (values.getAsInteger(MailboxColumns.TYPE) <
+                                        Mailbox.TYPE_NOT_EMAIL) {
+                                    // Notify the account when a new mailbox is added
+                                    final Long accountId =
+                                            values.getAsLong(MailboxColumns.ACCOUNT_KEY);
+                                    if (accountId != null && accountId.longValue() > 0) {
+                                        notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, accountId);
+                                        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
+                                    }
                                 }
-                            }
-                            // Notify the account when a new mailbox is added
-                            Long accountId = values.getAsLong(MailboxColumns.ACCOUNT_KEY);
-                            if (accountId != null && accountId.longValue() > 0) {
-                                notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, accountId);
                             }
                             break;
                         case ACCOUNT:
@@ -1438,27 +1449,19 @@ public class EmailProvider extends ContentProvider {
                 case QUICK_RESPONSE_ID:
                 case POLICY_ID:
                     id = uri.getPathSegments().get(1);
-                    try {
-                        if (match == SYNCED_MESSAGE_ID) {
-                            // For synced messages, first copy the old message to the updated table
-                            // Note the insert or ignore semantics, guaranteeing that only the first
-                            // update will be reflected in the updated message table; therefore this
-                            // row will always have the "original" data
-                            db.execSQL(UPDATED_MESSAGE_INSERT + id);
-                        } else if (match == MESSAGE_ID) {
-                            db.execSQL(UPDATED_MESSAGE_DELETE + id);
-                        }
-                        result = db.update(tableName, values, whereWithId(id, selection),
-                                selectionArgs);
-                    } catch (SQLiteException e) {
-                        // Null out values (so they aren't cached) and re-throw
-                        values = null;
-                        throw e;
+                    if (match == SYNCED_MESSAGE_ID) {
+                        // For synced messages, first copy the old message to the updated table
+                        // Note the insert or ignore semantics, guaranteeing that only the first
+                        // update will be reflected in the updated message table; therefore this
+                        // row will always have the "original" data
+                        db.execSQL(UPDATED_MESSAGE_INSERT + id);
+                    } else if (match == MESSAGE_ID) {
+                        db.execSQL(UPDATED_MESSAGE_DELETE + id);
                     }
+                    result = db.update(tableName, values, whereWithId(id, selection),
+                            selectionArgs);
                     if (match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-                        if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
-                            notifyUIConversation(uri);
-                        }
+                        handleMessageUpdateNotifications(uri, id, values);
                     } else if (match == ATTACHMENT_ID) {
                         long attId = Integer.parseInt(id);
                         if (values.containsKey(Attachment.FLAGS)) {
@@ -1477,9 +1480,8 @@ public class EmailProvider extends ContentProvider {
                                 notifyUI(UIPROVIDER_ATTACHMENTS_NOTIFIER, att.mMessageKey);
                             }
                         }
-                    } else if (match == MAILBOX_ID && values.containsKey(Mailbox.UI_SYNC_STATUS)) {
-                        // TODO: should this notify on keys other than sync status?
-                        notifyUIFolder(id, null);
+                    } else if (match == MAILBOX_ID) {
+                        notifyUIFolder(id, Mailbox.getAccountIdForMailbox(context, id));
                     } else if (match == ACCOUNT_ID) {
                         updateAccountSyncInterval(Long.parseLong(id), values);
                         // Notify individual account and "all accounts"
@@ -3055,8 +3057,10 @@ public class EmailProvider extends ContentProvider {
             row = getVirtualMailboxRow(acctId, Mailbox.TYPE_UNREAD);
             mc.addRow(row);
 
-            mc.setNotificationUri(context.getContentResolver(), uri);
-            c.setNotificationUri(context.getContentResolver(), uri);
+            final Uri notifyUri =
+                    UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
+            mc.setNotificationUri(context.getContentResolver(), notifyUri);
+            c.setNotificationUri(context.getContentResolver(), notifyUri);
             Cursor[] cursors = new Cursor[] {mc, c};
             return new MergeCursor(cursors);
         }
@@ -3436,8 +3440,11 @@ public class EmailProvider extends ContentProvider {
         Uri notifyUri = null;
         switch(match) {
             case UI_ALL_FOLDERS:
+                // TODO: Should this just do uiFolders()?
                 c = db.rawQuery(genQueryAccountAllMailboxes(uiProjection), new String[] {id});
                 c = getFolderListCursor(db, c, uiProjection);
+                notifyUri =
+                        UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
                 break;
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
@@ -3446,6 +3453,11 @@ public class EmailProvider extends ContentProvider {
             case UI_SUBFOLDERS:
                 c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
                 c = getFolderListCursor(db, c, uiProjection);
+                // Get notifications for any folder changes on this account. This is broader than
+                // we need but otherwise we'd need for every folder change to notify on all relevant
+                // subtrees. For now we opt for simplicity.
+                final long accountId = Mailbox.getAccountIdForMailbox(context, id);
+                notifyUri = ContentUris.withAppendedId(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
                 break;
             case UI_MESSAGES:
                 long mailboxId = Long.parseLong(id);
@@ -4117,7 +4129,46 @@ public class EmailProvider extends ContentProvider {
                             .build();
             addToSequence(uri, op);
         }
+
         return update(ourUri, ourValues, null, null);
+    }
+
+    /**
+     * Projection for use with getting mailbox & account keys for a message.
+     */
+    private static final String[] MESSAGE_KEYS_PROJECTION =
+            { MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY };
+    private static final int MESSAGE_KEYS_MAILBOX_KEY_COLUMN = 0;
+    private static final int MESSAGE_KEYS_ACCOUNT_KEY_COLUMN = 1;
+
+    /**
+     * Notify necessary UI components in response to a message update.
+     * @param uri The {@link Uri} for this message update.
+     * @param messageId The id of the message that's been updated.
+     * @param values The {@link ContentValues} that were updated in the message.
+     */
+    private void handleMessageUpdateNotifications(final Uri uri, final String messageId,
+            final ContentValues values) {
+        if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
+            notifyUIConversation(uri);
+        }
+        // TODO: Ideally, also test that the values actually changed.
+        if (values.containsKey(MessageColumns.FLAG_READ) ||
+                values.containsKey(MessageColumns.MAILBOX_KEY)) {
+            final Cursor c = query(
+                    Message.CONTENT_URI.buildUpon().appendEncodedPath(messageId).build(),
+                    MESSAGE_KEYS_PROJECTION, null, null, null);
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) {
+                        notifyUIFolder(c.getLong(MESSAGE_KEYS_MAILBOX_KEY_COLUMN),
+                                c.getLong(MESSAGE_KEYS_ACCOUNT_KEY_COLUMN));
+                    }
+                } finally {
+                    c.close();
+                }
+            }
+        }
     }
 
     public static final String PICKER_UI_ACCOUNT = "picker_ui_account";
@@ -4248,30 +4299,18 @@ public class EmailProvider extends ContentProvider {
      * Notify about a folder update. Because folder changes can affect the conversation cursor's
      * extras, the conversation must also be notified here.
      * @param folderId the folder id to be notified
-     * @param accountId the account id to be notified (for folder list notification); if null, then
-     * lookup the accountId from the folder.
+     * @param accountId the account id to be notified (for folder list notification).
      */
-    private void notifyUIFolder(String folderId, String accountId) {
+    private void notifyUIFolder(final String folderId, final long accountId) {
         notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, folderId);
         notifyUI(UIPROVIDER_FOLDER_NOTIFIER, folderId);
-        if (accountId == null) {
-            try {
-                final Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(),
-                        Long.parseLong(folderId));
-                if (mailbox != null) {
-                    accountId = Long.toString(mailbox.mAccountKey);
-                }
-            } catch (NumberFormatException e) {
-                // Bad folderId, so we can't lookup account.
-            }
-        }
-        if (accountId != null) {
+        if (accountId != Account.NO_ACCOUNT) {
             notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
         }
     }
 
-    private void notifyUIFolder(long folderId, long accountId) {
-        notifyUIFolder(Long.toString(folderId), Long.toString(accountId));
+    private void notifyUIFolder(final long folderId, final long accountId) {
+        notifyUIFolder(Long.toString(folderId), accountId);
     }
 
     private void notifyUI(Uri uri, String id) {

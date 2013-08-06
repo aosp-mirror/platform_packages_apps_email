@@ -131,6 +131,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             };
     private static final int MAILBOX_DISPLAY_NAME_COLUMN = 0;
 
+    /**
+     * Projection to use when reading {@link MailboxColumns#ACCOUNT_KEY} for a mailbox.
+     */
+    private static final String[] ACCOUNT_KEY_PROJECTION = { MailboxColumns.ACCOUNT_KEY };
+    private static final int ACCOUNT_KEY_PROJECTION_ACCOUNT_KEY_COLUMN = 0;
+
     public static final long NO_MAILBOX = -1;
 
     // Sentinel values for the mSyncInterval field of both Mailbox records
@@ -759,5 +765,19 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         return cr.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
                 OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION,
                 new String[] { Long.toString(accountId) }, null);
+    }
+
+    /**
+     * Get the account id for a mailbox.
+     * @param context The {@link Context}.
+     * @param mailboxId The id of the mailbox we're interested in, as a {@link String}.
+     * @return The account id for the mailbox, or {@link Account#NO_ACCOUNT} if the mailbox doesn't
+     *         exist.
+     */
+    public static long getAccountIdForMailbox(final Context context, final String mailboxId) {
+        return Utility.getFirstRowLong(context,
+                Mailbox.CONTENT_URI.buildUpon().appendEncodedPath(mailboxId).build(),
+                ACCOUNT_KEY_PROJECTION, null, null, null,
+                ACCOUNT_KEY_PROJECTION_ACCOUNT_KEY_COLUMN, Account.NO_ACCOUNT);
     }
 }
