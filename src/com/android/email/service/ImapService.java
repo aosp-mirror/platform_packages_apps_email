@@ -27,7 +27,9 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
@@ -69,7 +71,10 @@ import java.util.HashSet;
 
 public class ImapService extends Service {
     // TODO get these from configurations or settings.
-    private static final long DEFAULT_SYNC_WINDOW_MILLIS = 24 * 60 * 60 * 1000;
+    private static final long QUICK_SYNC_WINDOW_MILLIS = DateUtils.DAY_IN_MILLIS;
+    private static final long FULL_SYNC_WINDOW_MILLIS = 7 * DateUtils.DAY_IN_MILLIS;
+    private static final long FULL_SYNC_INTERVAL_MILLIS = 4 * DateUtils.HOUR_IN_MILLIS;
+
     private static final int MINIMUM_MESSAGES_TO_SYNC = 10;
     private static final int LOAD_MORE_MIN_INCREMENT = 10;
     private static final int LOAD_MORE_MAX_INCREMENT = 20;
@@ -93,7 +98,7 @@ public class ImapService extends Service {
      * shouldn't be an issue
      */
     private static final HashMap<Long, SortableMessage[]> sSearchResults =
-        new HashMap<Long, SortableMessage[]>();
+            new HashMap<Long, SortableMessage[]>();
 
     /**
      * We write this into the serverId field of messages that will never be upsynced.
@@ -154,12 +159,13 @@ public class ImapService extends Service {
      * @throws MessagingException
      */
     public static int synchronizeMailboxSynchronous(Context context, final Account account,
-            final Mailbox folder, final boolean loadMore) throws MessagingException {
+            final Mailbox folder, final boolean loadMore, final boolean uiRefresh)
+            throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         NotificationController nc = NotificationController.getInstance(context);
         try {
             processPendingActionsSynchronous(context, account);
-            synchronizeMailboxGeneric(context, account, folder, loadMore);
+            synchronizeMailboxGeneric(context, account, folder, loadMore, uiRefresh);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
@@ -324,42 +330,190 @@ public class ImapService extends Service {
      *
      * @param account the account to sync
      * @param mailbox the mailbox to sync
-     * @param deltaMessageCount requested change in number of messages to sync
+     * @param loadMore whether we should be loading more older messages
+     * @param uiRefresh whether this request is in response to a user action
      * @return results of the sync pass
      * @throws MessagingException
      */
     private static void synchronizeMailboxGeneric(final Context context, final Account account,
-            final Mailbox mailbox, final boolean loadMore) throws MessagingException {
-        /*
-         * A list of IDs for messages that were downloaded and did not have the seen flag set.
-         * This serves as the "true" new message count reported to the user via notification.
-         */
-        LogUtils.v(Logging.LOG_TAG, "synchronizeMailboxGeneric " + account + " " + mailbox +
-                " " + loadMore);
+            final Mailbox mailbox, final boolean loadMore, final boolean uiRefresh)
+            throws MessagingException {
+
+        LogUtils.v(Logging.LOG_TAG, "synchronizeMailboxGeneric " + account + " " + mailbox + " "
+                + loadMore + " " + uiRefresh);
 
         final ArrayList<Long> unseenMessages = new ArrayList<Long>();
 
         ContentResolver resolver = context.getContentResolver();
 
-        // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
+        // 0. We do not ever sync DRAFTS or OUTBOX (down or up)
         if (mailbox.mType == Mailbox.TYPE_DRAFTS || mailbox.mType == Mailbox.TYPE_OUTBOX) {
             return;
         }
 
-        // 1.  Get the message list from the local store and create an index of the uids
+        // 1. Figure out what our sync window should be.
+        long endDate;
+
+        // We will do a full sync if the user has actively requested a sync, or if it has been
+        // too long since the last full sync.
+        // If we have rebooted since the last full sync, then we may get a negative
+        // timeSinceLastFullSync. In this case, we don't know how long it's been since the last
+        // full sync so we should perform the full sync.
+        final long timeSinceLastFullSync = SystemClock.elapsedRealtime() -
+                mailbox.mLastFullSyncTime;
+        final boolean fullSync = (uiRefresh || loadMore ||
+                timeSinceLastFullSync >= FULL_SYNC_INTERVAL_MILLIS || timeSinceLastFullSync < 0);
+
+        if (fullSync) {
+            // Find the oldest message in the local store. We need our time window to include
+            // all messages that are currently present locally.
+            endDate = System.currentTimeMillis() - FULL_SYNC_WINDOW_MILLIS;
+            Cursor localOldestCursor = null;
+            try {
+                localOldestCursor = resolver.query(EmailContent.Message.CONTENT_URI,
+                        OldestTimestampInfo.PROJECTION,
+                        EmailContent.MessageColumns.ACCOUNT_KEY + "=?" + " AND " +
+                                MessageColumns.MAILBOX_KEY + "=?",
+                        new String[] {String.valueOf(account.mId), String.valueOf(mailbox.mId)},
+                        null);
+                if (localOldestCursor != null && localOldestCursor.moveToFirst()) {
+                    long oldestLocalMessageDate = localOldestCursor.getLong(
+                            OldestTimestampInfo.COLUMN_OLDEST_TIMESTAMP);
+                    if (oldestLocalMessageDate > 0) {
+                        endDate = Math.min(endDate, oldestLocalMessageDate);
+                        LogUtils.d(
+                                Logging.LOG_TAG, "oldest local message " + oldestLocalMessageDate);
+                    }
+                }
+            } finally {
+                if (localOldestCursor != null) {
+                    localOldestCursor.close();
+                }
+            }
+            LogUtils.d(Logging.LOG_TAG, "full sync: original window: now - " + endDate);
+        } else {
+            // We are doing a frequent, quick sync. This only syncs a small time window, so that
+            // we wil get any new messages, but not spend a lot of bandwidth downloading
+            // messageIds that we most likely already have.
+            endDate = System.currentTimeMillis() - QUICK_SYNC_WINDOW_MILLIS;
+            LogUtils.d(Logging.LOG_TAG, "quick sync: original window: now - " + endDate);
+        }
+
+        // 2. Open the remote folder and create the remote folder if necessary
+        Store remoteStore = Store.getInstance(account, context);
+        // The account might have been deleted
+        if (remoteStore == null) return;
+        final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+
+        // If the folder is a "special" folder we need to see if it exists
+        // on the remote server. It if does not exist we'll try to create it. If we
+        // can't create we'll abort. This will happen on every single Pop3 folder as
+        // designed and on Imap folders during error conditions. This allows us
+        // to treat Pop3 and Imap the same in this code.
+        if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_SENT) {
+            if (!remoteFolder.exists()) {
+                if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
+                    return;
+                }
+            }
+        }
+        remoteFolder.open(OpenMode.READ_WRITE);
+
+        // 3. Trash any remote messages that are marked as trashed locally.
+        // TODO - this comment was here, but no code was here.
+
+        // 4. Get the number of messages on the server.
+        final int remoteMessageCount = remoteFolder.getMessageCount();
+
+        // 5. Save folder message count locally.
+        mailbox.updateMessageCount(context, remoteMessageCount);
+
+        // 6. Get all message Ids in our sync window:
+        Message[] remoteMessages;
+        remoteMessages = remoteFolder.getMessages(0, endDate, null);
+        LogUtils.d(Logging.LOG_TAG, "received " + remoteMessages.length + " messages");
+
+        // 7. See if we need any additional messages beyond our date query range results.
+        // If we do, keep increasing the size of our query window until we have
+        // enough, or until we have all messages in the mailbox.
+        int totalCountNeeded;
+        if (loadMore) {
+            totalCountNeeded = remoteMessages.length + LOAD_MORE_MIN_INCREMENT;
+        } else {
+            totalCountNeeded = remoteMessages.length;
+            if (fullSync && totalCountNeeded < MINIMUM_MESSAGES_TO_SYNC) {
+                totalCountNeeded = MINIMUM_MESSAGES_TO_SYNC;
+            }
+        }
+        LogUtils.d(Logging.LOG_TAG, "need " + totalCountNeeded + " total");
+
+        final int additionalMessagesNeeded = totalCountNeeded - remoteMessages.length;
+        if (additionalMessagesNeeded > 0) {
+            LogUtils.d(Logging.LOG_TAG, "trying to get " + additionalMessagesNeeded + " more");
+            long startDate = endDate - 1;
+            Message[] additionalMessages = new Message[0];
+            long windowIncreaseSize = INITIAL_WINDOW_SIZE_INCREASE;
+            while (additionalMessages.length < additionalMessagesNeeded && endDate > 0) {
+                endDate = endDate - windowIncreaseSize;
+                if (endDate < 0) {
+                    LogUtils.d(Logging.LOG_TAG, "window size too large, this is the last attempt");
+                    endDate = 0;
+                }
+                LogUtils.d(Logging.LOG_TAG,
+                        "requesting additional messages from range " + startDate + " - " + endDate);
+                additionalMessages = remoteFolder.getMessages(startDate, endDate, null);
+
+                // If don't get enough messages with the first window size expansion,
+                // we need to accelerate rate at which the window expands. Otherwise,
+                // if there were no messages for several weeks, we'd always end up
+                // performing dozens of queries.
+                windowIncreaseSize *= 2;
+            }
+
+            LogUtils.d(Logging.LOG_TAG, "additionalMessages " + additionalMessages.length);
+            if (additionalMessages.length < additionalMessagesNeeded) {
+                // We have attempted to load a window that goes all the way back to time zero,
+                // but we still don't have as many messages as the server says are in the inbox.
+                // This is not expected to happen.
+                LogUtils.e(Logging.LOG_TAG, "expected to find " + additionalMessagesNeeded
+                        + " more messages, only got " + additionalMessages.length);
+            }
+            int additionalToKeep = additionalMessages.length;
+            if (additionalMessages.length > LOAD_MORE_MAX_INCREMENT) {
+                // We have way more additional messages than intended, drop some of them.
+                // The last messages are the most recent, so those are the ones we need to keep.
+                additionalToKeep = LOAD_MORE_MAX_INCREMENT;
+            }
+
+            // Copy the messages into one array.
+            Message[] allMessages = new Message[remoteMessages.length + additionalToKeep];
+            System.arraycopy(remoteMessages, 0, allMessages, 0, remoteMessages.length);
+            // additionalMessages may have more than we need, only copy the last
+            // several. These are the most recent messages in that set because
+            // of the way IMAP server returns messages.
+            System.arraycopy(additionalMessages, additionalMessages.length - additionalToKeep,
+                    allMessages, remoteMessages.length, additionalToKeep);
+            remoteMessages = allMessages;
+        }
+
+        // 8. Get the all of the local messages within the sync window, and create
+        // an index of the uids.
+        // It's important that we only get local messages that are inside our sync window.
+        // In a later step, we will delete any messages that are in localMessageMap but
+        // are not in our remote message list.
         Cursor localUidCursor = null;
         HashMap<String, LocalMessageInfo> localMessageMap = new HashMap<String, LocalMessageInfo>();
-
         try {
             localUidCursor = resolver.query(
                     EmailContent.Message.CONTENT_URI,
                     LocalMessageInfo.PROJECTION,
-                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                    " AND " + MessageColumns.MAILBOX_KEY + "=?",
+                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?"
+                            + " AND " + MessageColumns.MAILBOX_KEY + "=?"
+                            + " AND " + MessageColumns.TIMESTAMP + ">=?",
                     new String[] {
                             String.valueOf(account.mId),
-                            String.valueOf(mailbox.mId)
-                    },
+                            String.valueOf(mailbox.mId),
+                            String.valueOf(endDate) },
                     null);
             while (localUidCursor.moveToNext()) {
                 LocalMessageInfo info = new LocalMessageInfo(localUidCursor);
@@ -377,148 +531,16 @@ public class ImapService extends Service {
             }
         }
 
-        // 2.  Open the remote folder and create the remote folder if necessary
-        Store remoteStore = Store.getInstance(account, context);
-        // The account might have been deleted
-        if (remoteStore == null) return;
-        final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
-
-        /*
-         * If the folder is a "special" folder we need to see if it exists
-         * on the remote server. It if does not exist we'll try to create it. If we
-         * can't create we'll abort. This will happen on every single Pop3 folder as
-         * designed and on Imap folders during error conditions. This allows us
-         * to treat Pop3 and Imap the same in this code.
-         */
-        if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_SENT) {
-            if (!remoteFolder.exists()) {
-                if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
-                    return;
-                }
-            }
-        }
-
-        // 3, Open the remote folder. This pre-loads certain metadata like message count.
-        remoteFolder.open(OpenMode.READ_WRITE);
-
-        // 4. Trash any remote messages that are marked as trashed locally.
-        // TODO - this comment was here, but no code was here.
-
-        // 5. Get the number of messages on the server.
-        final int remoteMessageCount = remoteFolder.getMessageCount();
-
-        // 6. Save folder message count that we got earlier.
-        mailbox.updateMessageCount(context, remoteMessageCount);
-
-        // 7. Figure out how big our sync window should be. Leave startDate set to zero, this
-        // indicates we do not want any constraint on the BEFORE parameter sent in our query.
-        // This way, we will always be able to get the most recent messages, even if the
-        // imap server's date is different from ours.
-        long startDate = 0;
-        long endDate = System.currentTimeMillis() - DEFAULT_SYNC_WINDOW_MILLIS;
-        LogUtils.d(Logging.LOG_TAG, "original window " + startDate + " - " + endDate);
-        Cursor localOldestCursor = null;
-        try {
-            localOldestCursor = resolver.query(
-                    EmailContent.Message.CONTENT_URI,
-                    OldestTimestampInfo.PROJECTION,
-                    EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                    " AND " + MessageColumns.MAILBOX_KEY + "=?",
-                    new String[] {
-                            String.valueOf(account.mId),
-                            String.valueOf(mailbox.mId)
-                    },
-                    null);
-            if (localOldestCursor != null && localOldestCursor.moveToFirst()) {
-                long oldestLocalMessageDate = localOldestCursor.getLong(
-                        OldestTimestampInfo.COLUMN_OLDEST_TIMESTAMP);
-                if (oldestLocalMessageDate > 0) {
-                    endDate = Math.min(endDate, oldestLocalMessageDate);
-                    LogUtils.d(Logging.LOG_TAG, "oldest local message " + oldestLocalMessageDate);
-                }
-            }
-        } finally {
-            if (localOldestCursor != null) {
-                localOldestCursor.close();
-            }
-        }
-
-        // Get all messages in our query date range:
-        Message[] remoteMessages;
-        remoteMessages = remoteFolder.getMessages(startDate, endDate, null);
-
-        // See if we need any additional messages beyond our date query range results.
-        // If we do, keep increasing the size of our query window until we have
-        // enough, or until we have all messages in the mailbox.
-        LogUtils.d(Logging.LOG_TAG, "received " + remoteMessages.length + " messages");
-        int totalCountNeeded = Math.max(remoteMessages.length, MINIMUM_MESSAGES_TO_SYNC);
-        if (loadMore) {
-            totalCountNeeded += LOAD_MORE_MIN_INCREMENT;
-        }
-        totalCountNeeded = Math.min(remoteMessageCount, totalCountNeeded);
-        LogUtils.d(Logging.LOG_TAG, "need " + totalCountNeeded + " total");
-
-        final int additionalMessagesNeeded = totalCountNeeded - remoteMessages.length;
-        if (additionalMessagesNeeded > 0) {
-            LogUtils.d(Logging.LOG_TAG, "trying to get " + additionalMessagesNeeded + " more");
-            startDate = endDate - 1;
-            Message[] additionalMessages = new Message[0];
-            long windowIncreaseSize = INITIAL_WINDOW_SIZE_INCREASE;
-            while  (additionalMessages.length < additionalMessagesNeeded && endDate > 0) {
-                endDate = endDate - windowIncreaseSize;
-                if (endDate < 0) {
-                    LogUtils.d(Logging.LOG_TAG, "window size too large, this is the last attempt");
-                    endDate = 0;
-                }
-                LogUtils.d(Logging.LOG_TAG, "requesting additional messages from range " +
-                        startDate + " - " + endDate);
-                additionalMessages = remoteFolder.getMessages(startDate, endDate, null);
-
-                // If don't get enough messages with the first window size expansion,
-                // we need to accelerate rate at which the window expands. Otherwise,
-                // if there were no messages for several weeks, we'd always end up
-                // performing dozens of queries.
-                windowIncreaseSize *= 2;
-            }
-
-            LogUtils.d(Logging.LOG_TAG, "additionalMessages " + additionalMessages.length);
-            if (additionalMessages.length < additionalMessagesNeeded) {
-                // We have attempted to load a window that goes all the way back to time zero,
-                // but we still don't have as many messages as the server says are in the inbox.
-                // This is not expected to happen.
-                LogUtils.e(Logging.LOG_TAG, "expected to find " + additionalMessagesNeeded +
-                        " more messages, only got " + additionalMessages.length);
-            }
-            int additionalToKeep = additionalMessages.length;
-            if (additionalMessages.length > LOAD_MORE_MAX_INCREMENT) {
-                // We have way more additional messages than intended, drop some of them.
-                // The last messages are the most recent, so those are the ones we need to keep.
-                additionalToKeep = LOAD_MORE_MAX_INCREMENT;
-            }
-
-            // Copy the messages into one array.
-            Message[] allMessages = new Message[remoteMessages.length + additionalToKeep];
-            System.arraycopy(remoteMessages, 0, allMessages, 0, remoteMessages.length);
-            // additionalMessages may have more than we need, only copy the last
-            // several. These are the most recent messages in that set because of the
-            // way IMAP server returns messages.
-            System.arraycopy(additionalMessages, additionalMessages.length - additionalToKeep,
-                    allMessages, remoteMessages.length, additionalToKeep);
-            remoteMessages = allMessages;
-        }
-
-        /*
-         * 8. Get a list of the messages that are in the remote list but not on the
-         * local store, or messages that are in the local store but failed to download
-         * on the last sync. These are the new messages that we will download.
-         * Note, we also skip syncing messages which are flagged as "deleted message" sentinels,
-         * because they are locally deleted and we don't need or want the old message from
-         * the server.
-         */
+        // 9. Get a list of the messages that are in the remote list but not on the
+        // local store, or messages that are in the local store but failed to download
+        // on the last sync. These are the new messages that we will download.
+        // Note, we also skip syncing messages which are flagged as "deleted message" sentinels,
+        // because they are locally deleted and we don't need or want the old message from
+        // the server.
         final ArrayList<Message> unsyncedMessages = new ArrayList<Message>();
         final HashMap<String, Message> remoteUidMap = new HashMap<String, Message>();
         // Process the messages in the reverse order we received them in. This means that
-        // we process the most recent one first, which gives a better user experience.
+        // we load the most recent one first, which gives a better user experience.
         for (int i = remoteMessages.length - 1; i >= 0; i--) {
             Message message = remoteMessages[i];
             LogUtils.d(Logging.LOG_TAG, "remote message " + message.getUid());
@@ -539,7 +561,7 @@ public class ImapService extends Service {
             }
         }
 
-        // 9. Download basic info about the new/unloaded messages (if any)
+        // 10. Download basic info about the new/unloaded messages (if any)
         /*
          * Fetch the flags and envelope only of the new messages. This is intended to get us
          * critical data as fast as possible, and then we'll fill in the details.
@@ -549,7 +571,8 @@ public class ImapService extends Service {
                     localMessageMap, unseenMessages);
         }
 
-        // 10. Refresh the flags for any messages in the local store that we didn't just download.
+        // 11. Refresh the flags for any messages in the local store that we
+        // didn't just download.
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
         remoteFolder.fetch(remoteMessages, fp, null);
@@ -568,7 +591,7 @@ public class ImapService extends Service {
             }
         }
 
-        // 11. Update SEEN/FLAGGED/ANSWERED (star) flags (if supported remotely - e.g. not for POP3)
+        // 12. Update SEEN/FLAGGED/ANSWERED (star) flags (if supported remotely - e.g. not for POP3)
         if (remoteSupportsSeen || remoteSupportsFlagged || remoteSupportsAnswered) {
             for (Message remoteMessage : remoteMessages) {
                 LocalMessageInfo localMessageInfo = localMessageMap.get(remoteMessage.getUid());
@@ -602,7 +625,8 @@ public class ImapService extends Service {
             }
         }
 
-        // 12. Remove any messages that are in the local store but no longer on the remote store.
+        // 13. Remove messages that are in the local store and in the current sync window,
+        // but no longer on the remote store.
         final HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
         localUidsToDelete.removeAll(remoteUidMap.keySet());
 
@@ -611,8 +635,7 @@ public class ImapService extends Service {
 
             // Delete associated data (attachment files)
             // Attachment & Body records are auto-deleted when we delete the Message record
-            AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
-                    infoToDelete.mId);
+            AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId, infoToDelete.mId);
 
             // Delete the message itself
             Uri uriToDelete = ContentUris.withAppendedId(
@@ -630,7 +653,11 @@ public class ImapService extends Service {
 
         loadUnsyncedMessages(context, account, remoteFolder, unsyncedMessages, mailbox);
 
-        // 13. Clean up and report results
+        if (fullSync) {
+            mailbox.updateLastFullSyncTime(context, SystemClock.elapsedRealtime());
+        }
+
+        // 14. Clean up and report results
         remoteFolder.close(false);
     }
 
@@ -650,7 +677,7 @@ public class ImapService extends Service {
      * @throws MessagingException
      */
     private static void processPendingActionsSynchronous(Context context, Account account)
-           throws MessagingException {
+            throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
 
@@ -667,12 +694,13 @@ public class ImapService extends Service {
     /**
      * Get the mailbox corresponding to the remote location of a message; this will normally be
      * the mailbox whose _id is mailboxKey, except for search results, where we must look it up
-     * by serverId
+     * by serverId.
+     *
      * @param message the message in question
      * @return the mailbox in which the message resides on the server
      */
-    private static Mailbox getRemoteMailboxForMessage(Context context,
-            EmailContent.Message message) {
+    private static Mailbox getRemoteMailboxForMessage(
+            Context context, EmailContent.Message message) {
         // If this is a search result, use the protocolSearchInfo field to get the server info
         if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
             long accountKey = message.mAccountKey;
@@ -683,7 +711,7 @@ public class ImapService extends Service {
             }
             Cursor c = context.getContentResolver().query(Mailbox.CONTENT_URI,
                     Mailbox.CONTENT_PROJECTION, Mailbox.PATH_AND_ACCOUNT_SELECTION,
-                    new String[] {protocolSearchInfo, Long.toString(accountKey)},
+                    new String[] {protocolSearchInfo, Long.toString(accountKey) },
                     null);
             try {
                 if (c.moveToNext()) {
@@ -761,7 +789,7 @@ public class ImapService extends Service {
             // no point in continuing through the rest of the pending updates.
             if (MailActivityEmail.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, "Unable to process pending delete for id="
-                            + lastMessageId + ": " + me);
+                        + lastMessageId + ": " + me);
             }
         } finally {
             deletes.close();
@@ -770,12 +798,12 @@ public class ImapService extends Service {
 
     /**
      * Scan for messages that are in Sent, and are in need of upload,
-     * and send them to the server.  "In need of upload" is defined as:
+     * and send them to the server. "In need of upload" is defined as:
      *  serverId == null (no UID has been assigned)
      * or
      *  message is in the updated list
      *
-     * Note we also look for messages that are moving from drafts->outbox->sent.  They never
+     * Note we also look for messages that are moving from drafts->outbox->sent. They never
      * go through "drafts" or "outbox" on the server, so we hang onto these until they can be
      * uploaded directly to the Sent folder.
      *
@@ -908,10 +936,10 @@ public class ImapService extends Service {
                 boolean changeAnswered = false;
 
                 EmailContent.Message oldMessage =
-                    EmailContent.getContent(updates, EmailContent.Message.class);
+                        EmailContent.getContent(updates, EmailContent.Message.class);
                 lastMessageId = oldMessage.mId;
                 EmailContent.Message newMessage =
-                    EmailContent.Message.restoreMessageWithId(context, oldMessage.mId);
+                        EmailContent.Message.restoreMessageWithId(context, oldMessage.mId);
                 if (newMessage != null) {
                     mailbox = Mailbox.restoreMailboxWithId(context, newMessage.mMailboxKey);
                     if (mailbox == null) {
@@ -927,8 +955,8 @@ public class ImapService extends Service {
                     changeRead = oldMessage.mFlagRead != newMessage.mFlagRead;
                     changeFlagged = oldMessage.mFlagFavorite != newMessage.mFlagFavorite;
                     changeAnswered = (oldMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO) !=
-                        (newMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO);
-               }
+                            (newMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO);
+                }
 
                 // Load the remote store if it will be needed
                 if (remoteStore == null &&
@@ -958,7 +986,7 @@ public class ImapService extends Service {
             // no point in continuing through the rest of the pending updates.
             if (MailActivityEmail.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, "Unable to process pending update for id="
-                            + lastMessageId + ": " + me);
+                        + lastMessageId + ": " + me);
             }
         } finally {
             updates.close();
@@ -966,14 +994,14 @@ public class ImapService extends Service {
     }
 
     /**
-     * Upsync an entire message.  This must also unwind whatever triggered it (either by
+     * Upsync an entire message. This must also unwind whatever triggered it (either by
      * updating the serverId, or by deleting the update record, or it's going to keep happening
      * over and over again.
      *
-     * Note:  If the message is being uploaded into an unexpected mailbox, we *do not* upload.
-     * This is to avoid unnecessary uploads into the trash.  Although the caller attempts to select
+     * Note: If the message is being uploaded into an unexpected mailbox, we *do not* upload.
+     * This is to avoid unnecessary uploads into the trash. Although the caller attempts to select
      * only the Drafts and Sent folders, this can happen when the update record and the current
-     * record mismatch.  In this case, we let the update record remain, because the filters
+     * record mismatch. In this case, we let the update record remain, because the filters
      * in processPendingUpdatesSynchronous() will pick it up as a move and handle it (or drop it)
      * appropriately.
      *
@@ -987,7 +1015,7 @@ public class ImapService extends Service {
             Account account, Mailbox mailbox, long messageId)
             throws MessagingException {
         EmailContent.Message newMessage =
-            EmailContent.Message.restoreMessageWithId(context, messageId);
+                EmailContent.Message.restoreMessageWithId(context, messageId);
         final boolean deleteUpdate;
         if (newMessage == null) {
             deleteUpdate = true;
@@ -1101,6 +1129,7 @@ public class ImapService extends Service {
                     context.getContentResolver().update(ContentUris.withAppendedId(
                             EmailContent.Message.CONTENT_URI, newMessage.mId), cv, null, null);
                 }
+
                 @Override
                 public void onMessageNotFound(Message message) {
                 }
@@ -1173,7 +1202,7 @@ public class ImapService extends Service {
             remoteTrashFolder.create(FolderType.HOLDS_MESSAGES);
         }
 
-        // 7.  Try to copy the message into the remote trash folder
+        // 7. Try to copy the message into the remote trash folder
         // Note, this entire section will be skipped for POP3 because there's no remote trash
         if (remoteTrashFolder.exists()) {
             /*
@@ -1435,7 +1464,7 @@ public class ImapService extends Service {
 
         final int numSearchResults = sortableMessages.length;
         final int numToLoad =
-            Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+                Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
         if (numToLoad <= 0) {
             return 0;
         }
@@ -1457,7 +1486,7 @@ public class ImapService extends Service {
             public void messageRetrieved(Message message) {
                 try {
                     // Determine if the new message was already known (e.g. partial)
-                    // And create or reload the full message info
+                    // And create or reload the full message info.
                     EmailContent.Message localMessage = new EmailContent.Message();
                     try {
                         // Copy the fields that are available into the message

@@ -134,7 +134,7 @@ public class PopImapSyncAdapterService extends Service {
                     final int status;
                     if (protocol.equals(legacyImapProtocol)) {
                         status = ImapService.synchronizeMailboxSynchronous(context, account,
-                                mailbox, deltaMessageCount != 0);
+                                mailbox, deltaMessageCount != 0, uiRefresh);
                     } else {
                         status = Pop3Service.synchronizeMailboxSynchronous(context, account,
                                 mailbox, deltaMessageCount);
