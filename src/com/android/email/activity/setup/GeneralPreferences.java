@@ -42,6 +42,8 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
+    private static final String PREFERENCE_KEY_CONV_LIST_ATTACHMENT_PREVIEWS
+            = "conversation_list_attachment_previews";
 
     private MailPrefs mMailPrefs;
     private Preferences mPreferences;
@@ -55,6 +57,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
     private ListPreference mConvListIcon;
+    private CheckBoxPreference mConvListAttachmentPreviews;
     private CheckBoxPreference mSwipeDelete;
 
     private boolean mSettingsChanged = false;
@@ -113,6 +116,9 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             mMailPrefs.setShowSenderImages(
                     TextUtils.equals((String)newValue, Preferences.CONV_LIST_ICON_SENDER_IMAGE));
             return true;
+        } else if (PREFERENCE_KEY_CONV_LIST_ATTACHMENT_PREVIEWS.equals(key)) {
+            mMailPrefs.setShowAttachmentPreviews((Boolean) newValue);
+            return true;
         }
         return false;
     }
@@ -158,6 +164,11 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
                     Preferences.CONV_LIST_ICON_SENDER_IMAGE : Preferences.CONV_LIST_ICON_NONE);
             mConvListIcon.setOnPreferenceChangeListener(this);
         }
+
+        mConvListAttachmentPreviews = (CheckBoxPreference) findPreference(
+                PREFERENCE_KEY_CONV_LIST_ATTACHMENT_PREVIEWS);
+        mConvListAttachmentPreviews.setChecked(mMailPrefs.getShowAttachmentPreviews());
+        mConvListAttachmentPreviews.setOnPreferenceChangeListener(this);
 
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);

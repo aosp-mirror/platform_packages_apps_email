@@ -55,6 +55,13 @@
         android:entryValues="@array/prefValues_conversationListIcon"
         android:dialogTitle="@string/prefDialogTitle_conversationListIcon" />
 
+    <CheckBoxPreference
+        android:key="conversation_list_attachment_previews"
+        android:persistent="false"
+        android:defaultValue="true"
+        android:title="@string/preference_attachment_previews_title"
+        android:summary="@string/preference_attachment_previews_description" />
+
     <!-- This may be removed in GeneralPreferences.java -->
     <CheckBoxPreference
         android:key="default-reply-all"
