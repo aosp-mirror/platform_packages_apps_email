@@ -2368,8 +2368,11 @@ public class EmailProvider extends ContentProvider {
 
     private static int getFolderCapabilities(EmailServiceInfo info, int flags, int type,
             long mailboxId) {
-        // All folders support delete
-        int caps = UIProvider.FolderCapabilities.DELETE;
+        // All folders support delete, except drafts.
+        int caps = 0;
+        if (type != Mailbox.TYPE_DRAFTS) {
+            caps = UIProvider.FolderCapabilities.DELETE;
+        }
         if (info != null && info.offerLookback) {
             // Protocols supporting lookback support settings
             caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
@@ -4077,6 +4080,14 @@ public class EmailProvider extends ContentProvider {
                 notifyUIConversationMailbox(mailbox.mId);
             } catch (RemoteException e) {
             }
+            return 1;
+        }
+
+        // Another special case - deleting a draft.
+        final String operation = values.getAsString(
+                UIProvider.ConversationOperations.OPERATION_KEY);
+        if (UIProvider.ConversationOperations.DISCARD_DRAFTS.equals(operation)) {
+            uiDeleteMessage(uri);
             return 1;
         }
 
