@@ -50,7 +50,6 @@ import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
-import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AttachmentState;
@@ -61,7 +60,6 @@ import org.apache.james.mime4j.EOLConvertingInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Pop3Service extends Service {
     private static final String TAG = "Pop3Service";
@@ -78,7 +76,8 @@ public class Pop3Service extends Service {
     private final EmailServiceStub mBinder = new EmailServiceStub() {
         @Override
         public int getCapabilities(Account acct) throws RemoteException {
-            return AccountCapabilities.UNDO;
+            return AccountCapabilities.UNDO |
+                    AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
         }
 
         @Override
