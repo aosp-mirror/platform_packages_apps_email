@@ -1649,6 +1649,8 @@ public abstract class EmailContent {
         public static final String TOTAL_COUNT = "totalCount";
         // The full hierarchical name of this folder, in the form a/b/c
         public static final String HIERARCHICAL_NAME = "hierarchicalName";
+        // The last time that we did a full sync. Set from SystemClock.elapsedRealtime().
+        public static final String LAST_FULL_SYNC_TIME = "lastFullSyncTime";
     }
 
     public interface HostAuthColumns {

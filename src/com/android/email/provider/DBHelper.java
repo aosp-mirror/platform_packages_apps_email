@@ -146,8 +146,9 @@ public final class DBHelper {
     // Version 112: Convert Mailbox syncInterval to a boolean (whether or not this mailbox
     //              syncs along with the account).
     // Version 113: Restore message_count to being useful.
+    // Version 114: Add lastFullSyncTime column
 
-    public static final int DATABASE_VERSION = 113;
+    public static final int DATABASE_VERSION = 114;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -435,7 +436,8 @@ public final class DBHelper {
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_KEY + " integer not null default 0, "
             + MailboxColumns.LAST_NOTIFIED_MESSAGE_COUNT + " integer not null default 0, "
             + MailboxColumns.TOTAL_COUNT + " integer, "
-            + MailboxColumns.HIERARCHICAL_NAME + " text"
+            + MailboxColumns.HIERARCHICAL_NAME + " text, "
+            + MailboxColumns.LAST_FULL_SYNC_TIME + " integer"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -1056,6 +1058,19 @@ public final class DBHelper {
                 // compute the correct value at this point as well.
                 recalculateMessageCount(db);
                 createMessageCountTriggers(db);
+            }
+
+            if (oldVersion <= 113) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + MailboxColumns.LAST_FULL_SYNC_TIME +" integer" + ";");
+                    ContentValues cv = new ContentValues();
+                    cv.put(MailboxColumns.LAST_FULL_SYNC_TIME, 0);
+                    db.update(Mailbox.TABLE_NAME, cv, null, null);
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v113 to v114", e);
+                }
             }
         }
 
