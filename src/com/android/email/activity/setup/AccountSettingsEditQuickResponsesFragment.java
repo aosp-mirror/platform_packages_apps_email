@@ -54,8 +54,7 @@ import android.widget.TextView;
  *
  * <p>This fragment is run as a preference panel from AccountSettings.</p>
  */
-public class AccountSettingsEditQuickResponsesFragment extends Fragment
-        implements OnClickListener {
+public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     private ListView mQuickResponsesView;
     private Account mAccount;
     private Context mContext;
@@ -69,33 +68,15 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     private static class ArrayAdapterWithButtons extends ArrayAdapter<QuickResponse> {
         private QuickResponse[] mQuickResponses;
         private final long mAccountId;
-        private final Context mContext;
         private final FragmentManager mFragmentManager;
 
-        private OnClickListener mOnEditListener = new OnClickListener() {
+        private final OnClickListener mOnEditListener = new OnClickListener() {
             @Override
             public void onClick(View view) {
                     QuickResponse quickResponse = (QuickResponse) (view.getTag());
                     EditQuickResponseDialog
                             .newInstance(quickResponse, mAccountId)
                             .show(mFragmentManager, null);
-            }
-        };
-
-        private OnClickListener mOnDeleteListener = new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final QuickResponse quickResponse = (QuickResponse) view.getTag();
-
-                // Delete the QuickResponse from the database. Content watchers used to
-                // update the ListView of QuickResponses upon deletion.
-                EmailAsyncTask.runAsyncParallel(new Runnable() {
-                    @Override
-                    public void run() {
-                        EmailContent.delete(mContext, quickResponse.getBaseUri(),
-                                quickResponse.getId());
-                    }
-                });
             }
         };
 
@@ -116,7 +97,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
             super(context, resourceId, textViewId, quickResponses);
             mQuickResponses = quickResponses;
             mAccountId = accountId;
-            mContext = context;
             mFragmentManager = fragmentManager;
         }
 
@@ -125,10 +105,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
             convertView = super.getView(position, convertView, parent);
             convertView.setTag(mQuickResponses[position]);
             convertView.setOnClickListener(mOnEditListener);
-
-            ImageView deleteIcon = (ImageView) convertView.findViewById(R.id.delete_icon);
-            deleteIcon.setTag(mQuickResponses[position]);
-            deleteIcon.setOnClickListener(mOnDeleteListener);
 
             return convertView;
         }
@@ -241,13 +217,13 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreateView");
         }
-        int layoutId = R.layout.account_settings_edit_quick_responses_fragment;
-        View view = inflater.inflate(layoutId, container, false);
+        View view = inflater.inflate(R.layout.account_settings_edit_quick_responses_fragment,
+                container, false);
         mContext = getActivity();
 
         mQuickResponsesView = UiUtilities.getView(view,
                 R.id.account_settings_quick_responses_list);
-        TextView emptyView = (TextView)
+        TextView emptyView =
                 UiUtilities.getView(((ViewGroup) mQuickResponsesView.getParent()), R.id.empty_view);
         mQuickResponsesView.setEmptyView(emptyView);
 
@@ -265,7 +241,14 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
                     }
                 });
 
-        UiUtilities.getView(view, R.id.create_new).setOnClickListener(this);
+        UiUtilities.getView(view, R.id.create_new).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditQuickResponseDialog
+                        .newInstance(null, mAccount.mId)
+                        .show(getFragmentManager(), null);
+            }
+        });
 
         return view;
     }
@@ -274,17 +257,5 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     public void onDestroy() {
         mTaskTracker.cancellAllInterrupt();
         super.onDestroy();
-    }
-
-    /**
-     * Implements OnClickListener
-     */
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.create_new) {
-            EditQuickResponseDialog
-                    .newInstance(null, mAccount.mId)
-                    .show(getFragmentManager(), null);
-        }
     }
 }
