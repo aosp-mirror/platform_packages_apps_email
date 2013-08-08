@@ -50,7 +50,7 @@ LOCAL_OVERRIDES_PACKAGES := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 18
 
 include $(BUILD_PACKAGE)
 
