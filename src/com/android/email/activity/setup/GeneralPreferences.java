@@ -57,7 +57,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
     private ListPreference mConvListIcon;
-    private CheckBoxPreference mConvListAttachmentPreviews;
+    //private CheckBoxPreference mConvListAttachmentPreviews;
     private CheckBoxPreference mSwipeDelete;
 
     private boolean mSettingsChanged = false;
@@ -165,10 +165,13 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
             mConvListIcon.setOnPreferenceChangeListener(this);
         }
 
+        // TODO: Uncomment this when attachment previews are fully implemented.
+        /*
         mConvListAttachmentPreviews = (CheckBoxPreference) findPreference(
                 PREFERENCE_KEY_CONV_LIST_ATTACHMENT_PREVIEWS);
         mConvListAttachmentPreviews.setChecked(mMailPrefs.getShowAttachmentPreviews());
         mConvListAttachmentPreviews.setOnPreferenceChangeListener(this);
+        */
 
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
         mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
