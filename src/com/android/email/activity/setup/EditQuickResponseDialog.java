@@ -38,8 +38,7 @@ import android.widget.EditText;
 /**
  * Dialog to edit the text of a given or new quick response
  */
-public class EditQuickResponseDialog extends DialogFragment
-        implements DialogInterface.OnClickListener, TextWatcher {
+public class EditQuickResponseDialog extends DialogFragment {
     private EditText mQuickResponseEditText;
     private QuickResponse mQuickResponse;
     private AlertDialog mDialog;
@@ -73,7 +72,7 @@ public class EditQuickResponseDialog extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Context context = getActivity();
         mQuickResponse = (QuickResponse) getArguments().getParcelable(QUICK_RESPONSE);
-        View wrapper = LayoutInflater.from(context)
+        final View wrapper = LayoutInflater.from(context)
                 .inflate(R.layout.quick_response_edit_dialog, null);
         mQuickResponseEditText = (EditText) wrapper.findViewById(R.id.quick_response_text);
         if (savedInstanceState != null) {
@@ -86,13 +85,66 @@ public class EditQuickResponseDialog extends DialogFragment
             mQuickResponseEditText.setText(mQuickResponse.toString());
         }
         mQuickResponseEditText.setSelection(mQuickResponseEditText.length());
-        mQuickResponseEditText.addTextChangedListener(this);
+        mQuickResponseEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
+            }
+        });
+
+        DialogInterface.OnClickListener saveClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final long accountId = getArguments().getLong("accountId");
+                        final String text = mQuickResponseEditText.getText().toString();
+                        final Context context = getActivity();
+                        if (mQuickResponse == null) {
+                            mQuickResponse = new QuickResponse(accountId, text);
+                        }
+
+                        // Insert the new QuickResponse into the database. Content watchers used to
+                        // update the ListView of QuickResponses upon insertion.
+                        EmailAsyncTask.runAsyncParallel(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!mQuickResponse.isSaved()) {
+                                    mQuickResponse.save(context);
+                                } else {
+                                    ContentValues values = new ContentValues();
+                                    values.put(QuickResponseColumns.TEXT, text);
+                                    mQuickResponse.update(context, values);
+                                }
+                            }
+
+                        });
+                    }
+                };
+        DialogInterface.OnClickListener deleteClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mQuickResponse == null) {
+                            return;
+                        }
+                        // TODO: confirm delete
+                        mQuickResponse.delete(context, mQuickResponse.getBaseUri(),
+                                mQuickResponse.getId());
+                    }
+                };
 
         final AlertDialog.Builder b = new AlertDialog.Builder(context);
         b.setTitle(getResources().getString(R.string.edit_quick_response_dialog))
                 .setView(wrapper)
-                .setNegativeButton(R.string.cancel_action, this)
-                .setPositiveButton(R.string.save_action, this);
+                .setNegativeButton(R.string.cancel_action, null)
+                .setPositiveButton(R.string.save_action, saveClickListener)
+                .setNeutralButton(R.string.delete, deleteClickListener);
         mDialog = b.create();
         return mDialog;
     }
@@ -107,61 +159,11 @@ public class EditQuickResponseDialog extends DialogFragment
         }
     }
 
-    // implements TextWatcher
-    @Override
-    public void afterTextChanged(Editable s) {
-            mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
-    }
-
-    // implements TextWatcher
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-    // implements TextWatcher
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
     // Saves contents during orientation change
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(
                 QUICK_RESPONSE_EDITED_STRING, mQuickResponseEditText.getText().toString());
-    }
-
-    /**
-     * Implements DialogInterface.OnClickListener
-     */
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        switch (which) {
-            case DialogInterface.BUTTON_NEGATIVE:
-                dialog.cancel();
-                break;
-            case DialogInterface.BUTTON_POSITIVE:
-                final long accountId = getArguments().getLong("accountId");
-                final String text = mQuickResponseEditText.getText().toString();
-                final Context context = getActivity();
-                if (mQuickResponse == null) {
-                    mQuickResponse = new QuickResponse(accountId, text);
-                }
-
-                // Insert the new QuickResponse into the database. Content watchers used to
-                // update the ListView of QuickResponses upon insertion.
-                EmailAsyncTask.runAsyncParallel(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!mQuickResponse.isSaved()) {
-                            mQuickResponse.save(context);
-                        } else {
-                            ContentValues values = new ContentValues();
-                            values.put(QuickResponseColumns.TEXT, text);
-                            mQuickResponse.update(context, values);
-                        }
-                    }
-
-                });
-                break;
-        }
     }
 }
