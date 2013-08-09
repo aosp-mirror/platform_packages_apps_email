@@ -37,6 +37,7 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -415,17 +416,13 @@ public class EmailProvider extends ContentProvider {
         }
 
         // If we have accounts, we're done
-        Cursor c = mainDatabase.query(Account.TABLE_NAME, EmailContent.ID_PROJECTION, null, null,
-                null, null, null);
-        try {
-            if (c.moveToFirst()) {
-                if (MailActivityEmail.DEBUG) {
-                    LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
-                }
-                return; // At least one account exists.
-            }
-        } finally {
-            c.close();
+        if (DatabaseUtils.longForQuery(mainDatabase,
+                                      "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )", 
+                                      EmailContent.ID_PROJECTION) > 0) {
+          if (MailActivityEmail.DEBUG) {
+              LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
+          }
+          return;
         }
 
         restoreAccounts(context, mainDatabase);
