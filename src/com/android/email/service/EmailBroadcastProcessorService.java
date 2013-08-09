@@ -252,9 +252,8 @@ public class EmailBroadcastProcessorService extends IntentService {
 
         // Fix periodic syncs.
         final Map<String, Integer> syncIntervals = getSyncIntervals();
-        final List<EmailServiceUtils.EmailServiceInfo> serviceList =
-                EmailServiceUtils.getServiceInfoList(this);
-        for (final EmailServiceUtils.EmailServiceInfo service : serviceList) {
+        for (final EmailServiceUtils.EmailServiceInfo service
+                : EmailServiceUtils.getServiceInfoList(this)) {
             fixPeriodicSyncs(service.accountType, syncIntervals);
         }
 

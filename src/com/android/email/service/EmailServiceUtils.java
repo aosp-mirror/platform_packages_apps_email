@@ -55,22 +55,19 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.utils.LogUtils;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
  * Utility functions for EmailService support.
  */
 public class EmailServiceUtils {
-    private static final ArrayList<EmailServiceInfo> sServiceList = Lists.newArrayList();
-    private static final Map<String, EmailServiceInfo> sServiceMap = Maps.newHashMap();
+    private static Map<String, EmailServiceInfo> sServiceMap = null;
 
     /**
      * Starts an EmailService by protocol
@@ -217,20 +214,18 @@ public class EmailServiceUtils {
         return getServiceInfo(context, protocol);
     }
 
-    public static EmailServiceInfo getServiceInfo(Context context, String protocol) {
-        if (sServiceList.isEmpty()) {
+    public static synchronized EmailServiceInfo getServiceInfo(Context context, String protocol) {
+        if (sServiceMap == null) {
             findServices(context);
         }
         return sServiceMap.get(protocol);
     }
 
-    public static List<EmailServiceInfo> getServiceInfoList(Context context) {
-        synchronized(sServiceList) {
-            if (sServiceList.isEmpty()) {
-                findServices(context);
-            }
-            return sServiceList;
+    public static synchronized Collection<EmailServiceInfo> getServiceInfoList(Context context) {
+        if (sServiceMap == null) {
+            findServices(context);
         }
+        return sServiceMap.values();
     }
 
     private static void finishAccountManagerBlocker(AccountManagerFuture<?> future) {
@@ -438,7 +433,13 @@ public class EmailServiceUtils {
      * Parse services.xml file to find our available email services
      */
     @SuppressWarnings("unchecked")
-    private static synchronized void findServices(Context context) {
+    private static synchronized void findServices(final Context context) {
+        if (sServiceMap != null) {
+            return;
+        }
+
+        final ImmutableMap.Builder<String, EmailServiceInfo> builder = ImmutableMap.builder();
+
         try {
             final Resources res = context.getResources();
             final XmlResourceParser xml = res.getXml(R.xml.services);
@@ -512,8 +513,7 @@ public class EmailServiceUtils {
                         throw new IllegalStateException(
                                 "Both class and intent action specified in service descriptor");
                     }
-                    sServiceList.add(info);
-                    sServiceMap.put(info.protocol, info);
+                    builder.put(info.protocol, info);
                 }
             }
         } catch (XmlPullParserException e) {
@@ -521,6 +521,7 @@ public class EmailServiceUtils {
         } catch (IOException e) {
             // ignore
         }
+        sServiceMap = builder.build();
     }
 
     private static Uri asCalendarSyncAdapter(Uri uri, String account, String accountType) {
