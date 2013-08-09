@@ -17,8 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.email.activity.setup.
-        AccountSettingsEditQuickResponsesFragment.QuickResponseFinder;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
@@ -99,8 +97,9 @@ public class InsertQuickResponseDialog extends DialogFragment
 
         Account account = (Account) getArguments().getParcelable(ACCOUNT_KEY);
         mTaskTracker = new EmailAsyncTask.Tracker();
-        new QuickResponseFinder(mTaskTracker, account.mId, mQuickResponsesView,
-                context, null, this, false).executeParallel();
+        // TODO: fix everything
+        //new QuickResponseFinder(mTaskTracker, account.mId, mQuickResponsesView,
+        //        context, null, this, false).executeParallel();
 
         b.setTitle(getResources()
                 .getString(R.string.message_compose_insert_quick_response_list_title))
