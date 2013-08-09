@@ -380,8 +380,8 @@
         <outgoing uri="smtp://smtp.poczta.onet.pl" username="$email" />
     </provider>
     <provider id="wirtualna" label="Wirtualna Polska" domain="wp.pl">
-        <incoming uri="pop3://pop3.wp.pl" username="$user" />
-        <outgoing uri="smtp://smtp.wp.pl" username="$user" />
+        <incoming uri="imap+ssl+://imap.wp.pl" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.wp.pl" username="$user" />
     </provider>
     <provider id="interia" label="Interia" domain="interia.pl">
         <incoming uri="pop3+ssl://poczta.interia.pl" username="$user" />
