@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -610,17 +611,13 @@ public class EmailProvider extends ContentProvider {
         }
 
         // If we have accounts, we're done
-        Cursor c = mainDatabase.query(Account.TABLE_NAME, EmailContent.ID_PROJECTION, null, null,
-                null, null, null);
-        try {
-            if (c.moveToFirst()) {
-                if (Email.DEBUG) {
-                    Log.w(TAG, "restoreIfNeeded: Account exists.");
-                }
-                return; // At least one account exists.
-            }
-        } finally {
-            c.close();
+        if(DatabaseUtils.longForQuery(mainDatabase,
+                                      "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )", 
+                                      EmailContent.ID_PROJECTION) > 0) {
+          if (Email.DEBUG) {
+            Log.w(TAG, "restoreIfNeeded: Account exists.");
+          }
+          return;
         }
 
         restoreAccounts(context, mainDatabase);
@@ -1050,10 +1047,10 @@ public class EmailProvider extends ContentProvider {
         // TODO Make sure attachments are deleted
         if (databaseFile.exists() && !bodyFile.exists()) {
             Log.w(TAG, "Deleting orphaned EmailProvider database...");
-            databaseFile.delete();
+            getContext().deleteDatabase(DATABASE_NAME);
         } else if (bodyFile.exists() && !databaseFile.exists()) {
             Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
-            bodyFile.delete();
+            getContext().deleteDatabase(BODY_DATABASE_NAME);
         }
     }
     @Override
