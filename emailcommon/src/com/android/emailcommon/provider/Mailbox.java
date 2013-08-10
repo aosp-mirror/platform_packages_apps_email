@@ -25,6 +25,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.CalendarContract;
+import android.provider.ContactsContract;
 import android.util.SparseBooleanArray;
 
 import com.android.emailcommon.Logging;
@@ -800,5 +802,21 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                 Mailbox.CONTENT_URI.buildUpon().appendEncodedPath(mailboxId).build(),
                 ACCOUNT_KEY_PROJECTION, null, null, null,
                 ACCOUNT_KEY_PROJECTION_ACCOUNT_KEY_COLUMN, Account.NO_ACCOUNT);
+    }
+
+    /**
+     * Gets the correct authority for a mailbox.
+     * @param mailboxType The type of the mailbox we're interested in.
+     * @return The authority for the mailbox we're interested in.
+     */
+    public static String getAuthority(final int mailboxType) {
+        switch (mailboxType) {
+            case Mailbox.TYPE_CALENDAR:
+                return CalendarContract.AUTHORITY;
+            case Mailbox.TYPE_CONTACTS:
+                return ContactsContract.AUTHORITY;
+            default:
+                return EmailContent.AUTHORITY;
+        }
     }
 }
