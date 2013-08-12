@@ -2638,6 +2638,9 @@ public class EmailProvider extends ContentProvider {
             values.put(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX,
                     uiUriString("uifolder", inboxMailboxId));
         }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SYNC_AUTHORITY)) {
+            values.put(UIProvider.AccountColumns.SYNC_AUTHORITY, EmailContent.AUTHORITY);
+        }
 
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
