@@ -68,6 +68,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class ImapService extends Service {
     // TODO get these from configurations or settings.
@@ -195,11 +197,12 @@ public class ImapService extends Service {
         private static final int COLUMN_FLAG_LOADED = 3;
         private static final int COLUMN_SERVER_ID = 4;
         private static final int COLUMN_FLAGS =  7;
+        private static final int COLUMN_TIMESTAMP =  8;
         private static final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID,
             MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_LOADED,
             SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
-            MessageColumns.FLAGS
+            MessageColumns.FLAGS, MessageColumns.TIMESTAMP
         };
 
         final long mId;
@@ -208,6 +211,7 @@ public class ImapService extends Service {
         final int mFlagLoaded;
         final String mServerId;
         final int mFlags;
+        final long mTimestamp;
 
         public LocalMessageInfo(Cursor c) {
             mId = c.getLong(COLUMN_ID);
@@ -216,6 +220,7 @@ public class ImapService extends Service {
             mFlagLoaded = c.getInt(COLUMN_FLAG_LOADED);
             mServerId = c.getString(COLUMN_SERVER_ID);
             mFlags = c.getInt(COLUMN_FLAGS);
+            mTimestamp = c.getLong(COLUMN_TIMESTAMP);
             // Note: mailbox key and account key not needed - they are projected for the SELECT
         }
     }
@@ -498,12 +503,20 @@ public class ImapService extends Service {
 
         // 8. Get the all of the local messages within the sync window, and create
         // an index of the uids.
-        // It's important that we only get local messages that are inside our sync window.
-        // In a later step, we will delete any messages that are in localMessageMap but
-        // are not in our remote message list.
+        // The IMAP query for messages ignores time, and only looks at the date part of the endDate.
+        // So if we query for messages since Aug 11 at 3:00 PM, we can get messages from any time
+        // on Aug 11. Our IMAP query results can include messages up to 24 hours older than endDate,
+        // or up to 25 hours older at a daylight savings transition.
+        // It is important that we have the Id of any local message that could potentially be
+        // returned by the IMAP query, or we will create duplicate copies of the same messages.
+        // So we will increase our local query range by this much.
+        // Note that this complicates deletion: It's not okay to delete anything that is in the
+        // localMessageMap but not in the remote result, because we know that we may be getting
+        // Ids of local messages that are outside the IMAP query window.
         Cursor localUidCursor = null;
         HashMap<String, LocalMessageInfo> localMessageMap = new HashMap<String, LocalMessageInfo>();
         try {
+            final long queryEndDate = endDate - DateUtils.DAY_IN_MILLIS - DateUtils.HOUR_IN_MILLIS;
             localUidCursor = resolver.query(
                     EmailContent.Message.CONTENT_URI,
                     LocalMessageInfo.PROJECTION,
@@ -513,7 +526,7 @@ public class ImapService extends Service {
                     new String[] {
                             String.valueOf(account.mId),
                             String.valueOf(mailbox.mId),
-                            String.valueOf(endDate) },
+                            String.valueOf(queryEndDate) },
                     null);
             while (localUidCursor.moveToNext()) {
                 LocalMessageInfo info = new LocalMessageInfo(localUidCursor);
@@ -626,29 +639,30 @@ public class ImapService extends Service {
         }
 
         // 13. Remove messages that are in the local store and in the current sync window,
-        // but no longer on the remote store.
-        final HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
-        localUidsToDelete.removeAll(remoteUidMap.keySet());
+        // but no longer on the remote store. Note that localMessageMap can contain messages
+        // that are not actually in our sync window. We need to check the timestamp to ensure
+        // that it is before deleting.
+        for (final LocalMessageInfo info : localMessageMap.values()) {
+            // If this message is inside our sync window, and we cannot find it in our list
+            // of remote messages, then we know it's been deleted from the server.
+            if (info.mTimestamp >= endDate && !remoteUidMap.containsKey(info.mServerId)) {
+                // Delete associated data (attachment files)
+                // Attachment & Body records are auto-deleted when we delete the Message record
+                AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId, info.mId);
 
-        for (String uidToDelete : localUidsToDelete) {
-            LocalMessageInfo infoToDelete = localMessageMap.get(uidToDelete);
+                // Delete the message itself
+                Uri uriToDelete = ContentUris.withAppendedId(
+                        EmailContent.Message.CONTENT_URI, info.mId);
+                resolver.delete(uriToDelete, null, null);
 
-            // Delete associated data (attachment files)
-            // Attachment & Body records are auto-deleted when we delete the Message record
-            AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId, infoToDelete.mId);
-
-            // Delete the message itself
-            Uri uriToDelete = ContentUris.withAppendedId(
-                    EmailContent.Message.CONTENT_URI, infoToDelete.mId);
-            resolver.delete(uriToDelete, null, null);
-
-            // Delete extra rows (e.g. synced or deleted)
-            Uri syncRowToDelete = ContentUris.withAppendedId(
-                    EmailContent.Message.UPDATED_CONTENT_URI, infoToDelete.mId);
-            resolver.delete(syncRowToDelete, null, null);
-            Uri deletERowToDelete = ContentUris.withAppendedId(
-                    EmailContent.Message.UPDATED_CONTENT_URI, infoToDelete.mId);
-            resolver.delete(deletERowToDelete, null, null);
+                // Delete extra rows (e.g. synced or deleted)
+                Uri syncRowToDelete = ContentUris.withAppendedId(
+                        EmailContent.Message.UPDATED_CONTENT_URI, info.mId);
+                resolver.delete(syncRowToDelete, null, null);
+                Uri deletERowToDelete = ContentUris.withAppendedId(
+                        EmailContent.Message.UPDATED_CONTENT_URI, info.mId);
+                resolver.delete(deletERowToDelete, null, null);
+            }
         }
 
         loadUnsyncedMessages(context, account, remoteFolder, unsyncedMessages, mailbox);
