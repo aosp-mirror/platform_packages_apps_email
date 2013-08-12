@@ -28,7 +28,6 @@
             android:id="@+id/quick_response_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             style="@style/accountSetupInfoText"
             android:ellipsize="end"
             android:focusable="false"

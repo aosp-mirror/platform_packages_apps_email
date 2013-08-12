@@ -65,7 +65,7 @@
     <string name="favorite_action">Star</string>
     <!--  Button name used to complete a multi-step process -->
     <string name="done_action">Done</string>
-    <!--  Button name used to create a new quick response [CHAR_LIMIT=16] -->
+    <!--  Menu item used to create a new quick response [CHAR_LIMIT=16] -->
     <string name="create_action">Create new</string>
     <!--  Button name used to delete a quick response [CHAR_LIMIT=16] -->
     <string name="delete_quick_response_action">Delete</string>

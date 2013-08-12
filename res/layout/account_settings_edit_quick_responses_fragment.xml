@@ -18,9 +18,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/settings_fragment_padding_top"
-    android:paddingLeft="@dimen/settings_fragment_padding_left"
-    android:paddingRight="@dimen/settings_fragment_padding_right"
     >
 
     <!-- List of quick responses and empty view for when there are none-->
@@ -40,11 +37,5 @@
         android:focusable="true"
         android:visibility="gone"
         android:text="@string/quick_responses_empty_view"
-        />
-    <Button
-        android:id="@+id/create_new"
-        android:layout_gravity="center"
-        style="@style/accountSettingsButton"
-        android:text="@string/create_action"
         />
 </LinearLayout>

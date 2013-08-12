@@ -22,31 +22,25 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.mail.utils.LogUtils;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -126,6 +120,8 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
 
         Bundle args = getArguments();
         mAccount = args.getParcelable("account");
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -155,16 +151,23 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
                         .show(getFragmentManager(), null);
             }
         });
-        final View createNewView =
-                UiUtilities.getView((ViewGroup) listView.getParent(), R.id.create_new);
-        createNewView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Uri baseUri = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse");
-                EditQuickResponseDialog.newInstance(null, baseUri, mAccount.getId(), true)
-                        .show(getFragmentManager(), null);
-            }
-        });
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.quick_response_prefs_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.create_new) {
+            final Uri baseUri = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse");
+            EditQuickResponseDialog.newInstance(null, baseUri, mAccount.getId(), true)
+                    .show(getFragmentManager(), null);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
