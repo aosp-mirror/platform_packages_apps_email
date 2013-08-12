@@ -165,7 +165,7 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Εμφάνιση εικόνων"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Να εμφανίζονται πάντα"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Να εμφανίζονται πάντα οι εικόνες από αυτόν τον παραλήπτη"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Να εμφανίζονται πάντα οι εικόνες από αυτόν τον αποστολέα"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Οι εικόνες από αυτόν τον αποστολέα θα εμφανίζονται αυτόματα."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Προβολή στο Ημερολόγιο"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"Πρόσκληση ημερολογίου"</string>
