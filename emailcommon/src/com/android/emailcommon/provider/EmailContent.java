@@ -1582,11 +1582,22 @@ public abstract class EmailContent {
     }
 
     public interface QuickResponseColumns {
+        static final String ID = "_id";
         // The QuickResponse text
         static final String TEXT = "quickResponse";
         // A foreign key into the Account table owning the QuickResponse
         static final String ACCOUNT_KEY = "accountKey";
     }
+
+    public static final int QUICK_RESPONSE_COLUMN_ID = 0;
+    public static final int QUICK_RESPONSE_COLUMN_TEXT = 1;
+    public static final int QUICK_RESPONSE_COLUMN_ACCOUNT = 2;
+
+    public static final String [] QUICK_RESPONSE_PROJECTION = new String [] {
+        QuickResponseColumns.ID,
+        QuickResponseColumns.TEXT,
+        QuickResponseColumns.ACCOUNT_KEY
+    };
 
     public interface MailboxColumns {
         public static final String ID = "_id";

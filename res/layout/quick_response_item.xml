@@ -20,8 +20,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/listChoiceBackgroundIndicator"
-    android:focusable="true"
+    android:focusable="false"
     android:padding="7dip"
+    android:minHeight="?android:attr/listPreferredItemHeight"
     >
         <TextView
             android:id="@+id/quick_response_text"
@@ -32,5 +33,6 @@
             android:ellipsize="end"
             android:focusable="false"
             android:maxLines="2"
+            android:textIsSelectable="false"
             />
 </LinearLayout>

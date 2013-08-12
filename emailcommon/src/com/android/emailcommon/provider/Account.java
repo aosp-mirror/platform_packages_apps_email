@@ -255,6 +255,10 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         return Long.parseLong(u.getPathSegments().get(1));
     }
 
+    public long getId() {
+        return mId;
+    }
+
     /**
      * @return the user-visible name for the account
      */
