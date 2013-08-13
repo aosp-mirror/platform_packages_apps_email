@@ -311,6 +311,9 @@ public class AccountSecurity extends Activity {
             implements DialogInterface.OnClickListener {
         private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
 
+        // Public no-args constructor needed for fragment re-instantiation
+        public SecurityNeededDialog() {}
+
         /**
          * Create a new dialog.
          */
@@ -388,6 +391,9 @@ public class AccountSecurity extends Activity {
             dialog.setArguments(b);
             return dialog;
         }
+
+        // Public no-args constructor needed for fragment re-instantiation
+        public PasswordExpirationDialog() {}
 
         /**
          * Note, this actually creates two slightly different dialogs (for expiring vs. expired)

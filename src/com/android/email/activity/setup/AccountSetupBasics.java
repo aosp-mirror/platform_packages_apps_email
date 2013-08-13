@@ -684,6 +684,9 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Argument bundle keys
         private final static String BUNDLE_KEY_NOTE = "NoteDialogFragment.Note";
 
+        // Public no-args constructor needed for fragment re-instantiation
+        public NoteDialogFragment() {}
+
         /**
          * Create the dialog with parameters
          */

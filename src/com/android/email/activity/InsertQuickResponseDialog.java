@@ -54,6 +54,9 @@ public class InsertQuickResponseDialog extends DialogFragment
         public void onQuickResponseSelected(CharSequence quickResponse);
     }
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public InsertQuickResponseDialog() {}
+
     /**
      * Create and returns new dialog.
      *

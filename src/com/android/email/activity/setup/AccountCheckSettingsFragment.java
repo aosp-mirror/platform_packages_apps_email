@@ -123,6 +123,9 @@ public class AccountCheckSettingsFragment extends Fragment {
         public void onAutoDiscoverComplete(int result, HostAuth hostAuth);
     }
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public AccountCheckSettingsFragment() {}
+
     /**
      * Create a retained, invisible fragment that checks accounts
      *
@@ -716,6 +719,9 @@ public class AccountCheckSettingsFragment extends Fragment {
         // UI
         private String mProgressString;
 
+        // Public no-args constructor needed for fragment re-instantiation
+        public CheckingDialog() {}
+
         /**
          * Create a dialog that reports progress
          * @param progress initial progress indication
@@ -905,6 +911,9 @@ public class AccountCheckSettingsFragment extends Fragment {
 
         // Bundle keys for arguments
         private final static String ARGS_HOST_NAME = "SecurityRequiredDialog.HostName";
+
+        // Public no-args constructor needed for fragment re-instantiation
+        public SecurityRequiredDialog() {}
 
         public static SecurityRequiredDialog newInstance(AccountCheckSettingsFragment target,
                 String hostName) {

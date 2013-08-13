@@ -63,6 +63,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     private static final String BUNDLE_KEY_ACTIVITY_TITLE
             = "AccountSettingsEditQuickResponsesFragment.title";
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public AccountSettingsEditQuickResponsesFragment() {}
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);

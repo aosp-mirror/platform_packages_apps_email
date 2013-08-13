@@ -68,6 +68,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private boolean mStarted;
     private boolean mLoaded;
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public AccountSetupOutgoingFragment() {}
+
     /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.

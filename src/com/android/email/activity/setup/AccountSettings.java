@@ -805,8 +805,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         }
 
         // Force usage of newInstance()
-        private UnsavedChangesDialogFragment() {
-        }
+        public UnsavedChangesDialogFragment() {}
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -846,6 +845,9 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
             implements DialogInterface.OnClickListener {
         private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
         private String mReason;
+
+        // Public no-args constructor needed for fragment re-instantiation
+        public LoginWarningDialog() {}
 
         /**
          * Create a new dialog.
