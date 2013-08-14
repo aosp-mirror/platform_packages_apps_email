@@ -58,7 +58,10 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             LogUtils.v(TAG, "isActive: " + ((mReturn == null) ? "null" : mReturn));
         }
         if (mReturn == null) {
-            throw new ServiceUnavailableException("isActive");
+            // This is not a great situation, but it's better to act like the policy isn't enforced
+            // rather than crash.
+            LogUtils.e(TAG, "PolicyService unavailable in isActive; assuming false");
+            return false;
         } else {
             return (Boolean)mReturn;
         }
