@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Subjek"</string>
     <string name="body_hint" msgid="4279864165439577668">"Tulis email"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Pesan Asli --------"\n"Subjek: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Dari: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kepada: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n" <xliff:g id="SENDER">%s</xliff:g> menulis:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Pesan Asli --------\nSubjek: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDari: <xliff:g id="SENDER">%2$s</xliff:g>\nKepada: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n" <xliff:g id="SENDER">%s</xliff:g> menulis:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Sertakan kutipan teks"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Sertakan teks"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Tambahkan setidaknya satu penerima."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Semua"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gunakan default akun"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nama pengguna atau sandi salah."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Gagal masuk."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Gagal masuk.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Tidak dapat tersambung ke server dengan aman."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Tidak dapat tersambung ke server dengan aman."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Tidak dapat tersambung ke server dengan aman.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Diperlukan sertifikat klien. Apakah Anda ingin menyambung ke server dengan sertifikat klien?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifikat tidak valid atau tidak dapat diakses."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Server menanggapi dengan kesalahan. Periksa nama pengguna dan sandi, lalu coba lagi."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Tidak dapat tersambung ke server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Tidak dapat menyambung ke server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Tidak dapat menyambung ke server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS diperlukan, tetapi tidak didukung oleh server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Metode autentikasi tidak didukung oleh server."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Tidak dapat membuka sambungan ke server karena kesalahan keamanan."</string>
