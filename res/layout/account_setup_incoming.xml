@@ -31,7 +31,6 @@
         <fragment
             android:id="@+id/setup_fragment"
             class="com.android.email.activity.setup.AccountSetupIncomingFragment"
-            android:layout_alignParentTop="true"
             android:layout_width="match_parent"
             android:layout_height="0dip"
             android:layout_weight="1"
