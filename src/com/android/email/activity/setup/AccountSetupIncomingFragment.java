@@ -89,6 +89,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private HostAuth mRecvAuth;
     private EmailServiceInfo mServiceInfo;
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public AccountSetupIncomingFragment() {}
+
     /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.

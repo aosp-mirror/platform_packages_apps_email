@@ -47,6 +47,9 @@ public class EditQuickResponseDialog extends DialogFragment {
     private static final String QUICK_RESPONSE_CREATE = "quick_response_create";
     private static final String ACCOUNT_ID = "accountId";
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public EditQuickResponseDialog() {}
+
     /**
      * Creates a new dialog to edit an existing QuickResponse or create a new
      * one.

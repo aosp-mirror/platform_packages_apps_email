@@ -34,6 +34,9 @@ public class DuplicateAccountDialogFragment extends DialogFragment {
     // Argument bundle keys
     private final static String BUNDLE_KEY_ACCOUNT_NAME = "NoteDialogFragment.AccountName";
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public DuplicateAccountDialogFragment() {}
+
     /**
      * Create the dialog with parameters
      */

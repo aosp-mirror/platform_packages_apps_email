@@ -45,6 +45,9 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
 
     private Preferences mPreferences;
 
+    // Public no-args constructor needed for fragment re-instantiation
+    public DebugFragment() {}
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
