@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Skrytá kopie"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Předmět"</string>
     <string name="body_hint" msgid="4279864165439577668">"Napsat zprávu"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------"\n"Předmět: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Odesílatel: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Komu: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopie: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Původní zpráva --------\nPředmět: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOdesílatel: <xliff:g id="SENDER">%2$s</xliff:g>\nKomu: <xliff:g id="TO">%3$s</xliff:g>\nKopie: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>napsal/a:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Zahrnout text v uvozovkách"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Zahrnout text"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Přidejte alespoň jednoho příjemce."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Vše"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Použít výchozí nastavení účtu"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Uživatelské jméno nebo heslo jsou nesprávné."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Přihlášení se nezdařilo."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Přihlášení se nezdařilo.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nelze se bezpečně připojit k serveru."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nelze se bezpečně připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nelze se bezpečně připojit k serveru.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Je vyžadován certifikát klienta. Chcete se k serveru připojit pomocí certifikátu klienta?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certifikát je neplatný nebo nedostupný."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Server odpověděl chybou. Zkontrolujte prosím uživatelské jméno a heslo a zkuste to znovu."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nelze se připojit k serveru."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nelze se připojit k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nelze se připojit k serveru.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Služba TLS je požadována, ale není podporována na serveru."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Metody ověřování nejsou na serveru podporovány."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>

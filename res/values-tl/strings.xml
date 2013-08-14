@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Paksa"</string>
     <string name="body_hint" msgid="4279864165439577668">"Bumuo ng email"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orihinal na Mensahe --------"\n"Paksa: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Mula kay: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para kay: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">"Si "\n\n"<xliff:g id="SENDER">%s</xliff:g> ay sumulat:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orihinal na Mensahe --------\nPaksa: <xliff:g id="SUBJECT">%1$s</xliff:g>\nMula kay: <xliff:g id="SENDER">%2$s</xliff:g>\nPara kay: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">"Si \n\n<xliff:g id="SENDER">%s</xliff:g> ay sumulat:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Isama ang naka-quote na teksto"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Isama ang teksto"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Magdagdag ng hindi bababa sa isang recipient."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Lahat"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gamitin ang default ng account"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Hindi tama ang username o password."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Nabigo ang login."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Nabigo ang login.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Hindi makakonekta nang ligtas sa server."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Hindi makakonekta nang ligtas sa server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Hindi makakonekta nang ligtas sa server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Kinakailangan ng certificate ng client. Nais mo bang kumonekta sa server gamit ang isang certificate ng client?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Di-wasto o hindi naa-access ang certificate."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Tumugon ang server nang may error. Suriin ang iyong username at password, pagkatapos ay subukang muli."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Hindi makakonekta sa server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Hindi makakonekta sa server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Hindi makakonekta sa server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Kinakailangan ang TLS ngunit hindi suportado ng server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Hindi sinusuportahan ng server ang mga pamamaraan sa pagpapatotoo."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Hindi makapagbukas ng koneksyon sa server dahil sa error sa seguridad."</string>

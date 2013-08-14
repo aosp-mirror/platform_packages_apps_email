@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Emne"</string>
     <string name="body_hint" msgid="4279864165439577668">"Skriv e-mail"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oprindelig meddelelse --------"\n"Emne: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Fra: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Til: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oprindelig meddelelse --------\nEmne: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFra: <xliff:g id="SENDER">%2$s</xliff:g>\nTil: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Inkluder citeret tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Medtag tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Tilføj mindst én modtager."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Anvend kontostandarden"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Brugernavn eller adgangskode er forkert."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Login mislykkedes."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Login mislykkedes.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Der kan ikke oprettes en sikker forbindelse til serveren."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Der kan ikke oprettes en sikker forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Der kan ikke oprettes en sikker forbindelse til serveren.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Der kræves et klientcertifikat. Vil du oprette forbindelse til serveren med et klientcertifikat?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certifikatet er ugyldigt eller ikke tilgængeligt."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serveren reagerede med en fejl. Kontroller dit brugernavn og din adgangskode, og prøv igen."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Der kan ikke oprettes forbindelse til serveren."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Der kan ikke oprettes forbindelse til serveren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Der kan ikke oprettes forbindelse til serveren.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS er påkrævet, men understøttes ikke af serveren."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Godkendelsesmetoderne understøttes ikke af serveren."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Der kunne ikke oprettes forbindelse til serveren på grund af en sikkerhedsfejl."</string>

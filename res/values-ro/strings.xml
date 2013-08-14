@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Subiect"</string>
     <string name="body_hint" msgid="4279864165439577668">"Scrieţi un e-mail"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mesajul original --------"\n"Subiect: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De la: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Către: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a scris:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mesajul original --------\nSubiect: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDe la: <xliff:g id="SENDER">%2$s</xliff:g>\nCătre: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> a scris:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Includeţi textul citat"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Includeţi textul"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Adăugaţi cel puţin un destinatar."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Toate"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Setări prestabilite cont"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Numele de utilizator sau parola sunt incorecte."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Conectarea a eşuat."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Conectarea a eşuat.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nu se poate conecta în siguranţă la server."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nu se poate conecta în siguranţă la server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nu se poate conecta în siguranţă la server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Este necesar un certificat de client. Doriţi să vă conectaţi la server cu un certificat de client?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certificat nevalid sau inaccesibil."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serverul a răspuns cu o eroare. Verificaţi numele de utilizator şi parola şi încercaţi din nou."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nu se poate conecta la server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nu se poate conecta la server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nu se poate conecta la server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS solicitat, dar neacceptat de către server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Metodele de autentificare nu sunt acceptate de server."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nu s-a putut deschide conexiunea la server din cauza unei erori de securitate."</string>
