@@ -1589,16 +1589,6 @@ public abstract class EmailContent {
         static final String ACCOUNT_KEY = "accountKey";
     }
 
-    public static final int QUICK_RESPONSE_COLUMN_ID = 0;
-    public static final int QUICK_RESPONSE_COLUMN_TEXT = 1;
-    public static final int QUICK_RESPONSE_COLUMN_ACCOUNT = 2;
-
-    public static final String [] QUICK_RESPONSE_PROJECTION = new String [] {
-        QuickResponseColumns.ID,
-        QuickResponseColumns.TEXT,
-        QuickResponseColumns.ACCOUNT_KEY
-    };
-
     public interface MailboxColumns {
         public static final String ID = "_id";
         // The display name of this mailbox [INDEX]

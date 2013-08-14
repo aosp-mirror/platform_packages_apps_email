@@ -49,6 +49,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.SparseArray;
 
 import com.android.common.content.ProjectionMap;
 import com.android.email.Preferences;
@@ -88,7 +89,6 @@ import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
-import com.android.mail.providers.UIProvider.AccountColumns.SettingsColumns;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
@@ -112,6 +112,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -231,31 +232,28 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 16;
     private static final int UI_ALL_FOLDERS = UI_BASE + 17;
 
-    // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
-    private static final int LAST_EMAIL_PROVIDER_DB_BASE = UI_BASE;
-
-    // DO NOT CHANGE BODY_BASE!!
-    private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
+    private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
 
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
 
-    // TABLE_NAMES MUST remain in the order of the BASE constants above (e.g. ACCOUNT_BASE = 0x0000,
-    // MESSAGE_BASE = 0x1000, etc.)
-    private static final String[] TABLE_NAMES = {
-        Account.TABLE_NAME,
-        Mailbox.TABLE_NAME,
-        Message.TABLE_NAME,
-        Attachment.TABLE_NAME,
-        HostAuth.TABLE_NAME,
-        Message.UPDATED_TABLE_NAME,
-        Message.DELETED_TABLE_NAME,
-        Policy.TABLE_NAME,
-        QuickResponse.TABLE_NAME,
-        null,  // UI
-        Body.TABLE_NAME,
-    };
+    private static final SparseArray<String> TABLE_NAMES;
+    static {
+        SparseArray<String> array = new SparseArray<String>(11);
+        array.put(ACCOUNT_BASE >> BASE_SHIFT, Account.TABLE_NAME);
+        array.put(MAILBOX_BASE >> BASE_SHIFT, Mailbox.TABLE_NAME);
+        array.put(MESSAGE_BASE >> BASE_SHIFT, Message.TABLE_NAME);
+        array.put(ATTACHMENT_BASE >> BASE_SHIFT, Attachment.TABLE_NAME);
+        array.put(HOSTAUTH_BASE >> BASE_SHIFT, HostAuth.TABLE_NAME);
+        array.put(UPDATED_MESSAGE_BASE >> BASE_SHIFT, Message.UPDATED_TABLE_NAME);
+        array.put(DELETED_MESSAGE_BASE >> BASE_SHIFT, Message.DELETED_TABLE_NAME);
+        array.put(POLICY_BASE >> BASE_SHIFT, Policy.TABLE_NAME);
+        array.put(QUICK_RESPONSE_BASE >> BASE_SHIFT, QuickResponse.TABLE_NAME);
+        array.put(UI_BASE >> BASE_SHIFT, null);
+        array.put(BODY_BASE >> BASE_SHIFT, Body.TABLE_NAME);
+        TABLE_NAMES = array;
+    }
 
     private static UriMatcher sURIMatcher = null;
 
@@ -503,7 +501,7 @@ public class EmailProvider extends ContentProvider {
         boolean messageDeletion = false;
         ContentResolver resolver = context.getContentResolver();
 
-        String tableName = TABLE_NAMES[table];
+        String tableName = TABLE_NAMES.valueAt(table);
         int result = -1;
 
         try {
@@ -749,7 +747,7 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH:
                 case POLICY:
                 case QUICK_RESPONSE:
-                    longId = db.insert(TABLE_NAMES[table], "foo", values);
+                    longId = db.insert(TABLE_NAMES.valueAt(table), "foo", values);
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     switch(match) {
                         case MESSAGE:
@@ -793,6 +791,10 @@ public class EmailProvider extends ContentProvider {
                             break;
                     }
                     break;
+                case QUICK_RESPONSE_ACCOUNT_ID:
+                    longId = Long.parseLong(uri.getPathSegments().get(2));
+                    values.put(EmailContent.QuickResponseColumns.ACCOUNT_KEY, longId);
+                    return insert(QuickResponse.CONTENT_URI, values);
                 case MAILBOX_ID:
                     // This implies adding a message to a mailbox
                     // Hmm, a problem here is that we can't link the account as well, so it must be
@@ -812,7 +814,7 @@ public class EmailProvider extends ContentProvider {
                     values.put(MailboxColumns.ACCOUNT_KEY, longId);
                     return insert(Mailbox.CONTENT_URI, values); // Recurse
                 case ATTACHMENTS_MESSAGE_ID:
-                    longId = db.insert(TABLE_NAMES[table], "foo", values);
+                    longId = db.insert(TABLE_NAMES.valueAt(table), "foo", values);
                     resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, longId);
                     break;
                 default:
@@ -1038,7 +1040,7 @@ public class EmailProvider extends ContentProvider {
         String limit = uri.getQueryParameter(EmailContent.PARAMETER_LIMIT);
         String id;
 
-        String tableName = TABLE_NAMES[table];
+        String tableName = TABLE_NAMES.valueAt(table);
 
         try {
             switch (match) {
@@ -1103,9 +1105,11 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                 case POLICY:
-                case QUICK_RESPONSE:
                     c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
+                    break;
+                case QUICK_RESPONSE:
+                    c = uiQuickResponse(projection);
                     break;
                 case BODY_ID:
                 case MESSAGE_ID:
@@ -1116,10 +1120,13 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                 case POLICY_ID:
-                case QUICK_RESPONSE_ID:
                     id = uri.getPathSegments().get(1);
                     c = db.query(tableName, projection, whereWithId(id, selection),
                             selectionArgs, null, null, sortOrder, limit);
+                    break;
+                case QUICK_RESPONSE_ID:
+                    id = uri.getPathSegments().get(1);
+                    c = uiQuickResponseId(projection, id);
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
@@ -1131,9 +1138,7 @@ public class EmailProvider extends ContentProvider {
                 case QUICK_RESPONSE_ACCOUNT_ID:
                     // All quick responses for the given account
                     id = uri.getPathSegments().get(2);
-                    c = db.query(QuickResponse.TABLE_NAME, projection,
-                            whereWith(QuickResponse.ACCOUNT_KEY + "=" + id, selection),
-                            selectionArgs, null, null, sortOrder);
+                    c = uiQuickResponseAccount(projection, id);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1385,7 +1390,7 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.MESSAGE_COUNT);
         }
 
-        String tableName = TABLE_NAMES[table];
+        String tableName = TABLE_NAMES.valueAt(table);
         String id = "0";
 
         try {
@@ -2027,6 +2032,20 @@ public class EmailProvider extends ContentProvider {
     }
     private static ProjectionMap sAccountListMap;
 
+    private static ProjectionMap getQuickResponseMap() {
+        if (sQuickResponseMap == null) {
+            sQuickResponseMap = ProjectionMap.builder()
+                    .add(UIProvider.QuickResponseColumns.TEXT,
+                            EmailContent.QuickResponseColumns.TEXT)
+                    .add(UIProvider.QuickResponseColumns.URI,
+                            "'" + combinedUriString("quickresponse", "") + "'||"
+                                    + EmailContent.QuickResponseColumns.ID)
+                    .build();
+        }
+        return sQuickResponseMap;
+    }
+    private static ProjectionMap sQuickResponseMap;
+
     /**
      * The "ORDER BY" clause for top level folders
      */
@@ -2514,6 +2533,7 @@ public class EmailProvider extends ContentProvider {
      * Generate a "single account" SQLite query, given a projection from UnifiedEmail
      *
      * @param uiProjection as passed from UnifiedEmail
+     * @param id account row ID
      * @return the SQLite query to be executed on the EmailProvider database
      */
     private String genQueryAccount(String[] uiProjection, String id) {
@@ -2640,6 +2660,10 @@ public class EmailProvider extends ContentProvider {
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SYNC_AUTHORITY)) {
             values.put(UIProvider.AccountColumns.SYNC_AUTHORITY, EmailContent.AUTHORITY);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.QUICK_RESPONSE_URI)) {
+            values.put(UIProvider.AccountColumns.QUICK_RESPONSE_URI,
+                    combinedUriString("quickresponse/account", id));
         }
 
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
@@ -2926,11 +2950,9 @@ public class EmailProvider extends ContentProvider {
                 db.rawQuery("select _id from " + Account.TABLE_NAME, new String[0]);
         final MatrixCursor mc;
         try {
-            int numAccounts = accountIdCursor.getCount();
             boolean combinedAccount = false;
-            if (numAccounts > 1) {
+            if (accountIdCursor.getCount() > 1) {
                 combinedAccount = true;
-                numAccounts++;
             }
             final Bundle extras = new Bundle();
             // Email always returns the accurate number of accounts
@@ -2961,6 +2983,35 @@ public class EmailProvider extends ContentProvider {
         mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
 
         return mc;
+    }
+
+    private Cursor uiQuickResponseAccount(String[] uiProjection, String account) {
+        final Context context = getContext();
+        final SQLiteDatabase db = getDatabase(context);
+        final StringBuilder sb = genSelect(getQuickResponseMap(), uiProjection);
+        sb.append(" FROM " + QuickResponse.TABLE_NAME);
+        sb.append(" WHERE " + QuickResponse.ACCOUNT_KEY + "=?");
+        final String query = sb.toString();
+        return db.rawQuery(query, new String[] {account});
+    }
+
+    private Cursor uiQuickResponseId(String[] uiProjection, String id) {
+        final Context context = getContext();
+        final SQLiteDatabase db = getDatabase(context);
+        final StringBuilder sb = genSelect(getQuickResponseMap(), uiProjection);
+        sb.append(" FROM " + QuickResponse.TABLE_NAME);
+        sb.append(" WHERE " + QuickResponse.ID + "=?");
+        final String query = sb.toString();
+        return db.rawQuery(query, new String[] {id});
+    }
+
+    private Cursor uiQuickResponse(String[] uiProjection) {
+        final Context context = getContext();
+        final SQLiteDatabase db = getDatabase(context);
+        final StringBuilder sb = genSelect(getQuickResponseMap(), uiProjection);
+        sb.append(" FROM " + QuickResponse.TABLE_NAME);
+        final String query = sb.toString();
+        return db.rawQuery(query, new String[0]);
     }
 
     /**

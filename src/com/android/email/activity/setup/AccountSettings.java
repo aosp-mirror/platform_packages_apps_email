@@ -599,7 +599,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
             AccountSettings.this.onSettingsChanged(account, preference, value);
         }
         @Override
-        public void onEditQuickResponses(Account account) {
+        public void onEditQuickResponses(com.android.mail.providers.Account account) {
             AccountSettings.this.onEditQuickResponses(account);
         }
         @Override
@@ -667,7 +667,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     /**
      * Dispatch to edit quick responses.
      */
-    public void onEditQuickResponses(Account account) {
+    public void onEditQuickResponses(com.android.mail.providers.Account account) {
         try {
             Bundle args = new Bundle();
             args.putParcelable(QUICK_RESPONSE_ACCOUNT_KEY, account);
