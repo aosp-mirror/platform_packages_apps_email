@@ -144,7 +144,7 @@ public class SSLUtils {
             HostAuth hostAuth, boolean insecure) {
         if (insecure) {
             SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
-                    SSLCertificateSocketFactory.getDefault(0, null);
+                    SSLCertificateSocketFactory.getInsecure(0, null);
             insecureFactory.setTrustManagers(
                     new TrustManager[] {
                             new SameCertificateCheckingTrustManager(context, hostAuth)});
