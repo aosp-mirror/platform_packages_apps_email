@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Cco"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Asunto"</string>
     <string name="body_hint" msgid="4279864165439577668">"Redactar correo"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------\nSubject: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFrom: <xliff:g id="SENDER">%2$s</xliff:g>\nTo: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Incluir texto citado"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Incluir texto"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Añade al menos un destinatario."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Todo"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Predeterminada de cuenta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nombre de usuario o contraseña incorrectos"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Error de inicio de sesión"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Error de inicio de sesión\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No se puede establecer conexión de forma segura con el servidor."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"No se puede establecer conexión de forma segura con el servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"No se puede establecer conexión de forma segura con el servidor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Se necesita un certificado de cliente. ¿Quieres conectarte al servidor con un certificado de cliente?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"El certificado no es válido o no se puede acceder a él."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"El servidor ha devuelto un error. Comprueba tu nombre de usuario y tu contraseña y vuelve a intentarlo."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"No se puede establecer conexión con el servidor."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"No se puede establecer conexión con el servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"No se puede establecer conexión con el servidor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"El protocolo TLS es obligatorio, pero el servidor no lo admite."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"El servidor no admite métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"No se ha podido establecer conexión con el servidor debido a un error de seguridad."</string>

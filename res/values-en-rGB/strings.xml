@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Subject"</string>
     <string name="body_hint" msgid="4279864165439577668">"Compose email"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------\nSubject: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFrom: <xliff:g id="SENDER">%2$s</xliff:g>\nTo: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> wrote:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Include quoted text"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Include text"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Add at least one recipient."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"All"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Use account\'s default"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Your username or password is incorrect."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Login failed."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Login failed.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Can\'t safely connect to server."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Can\'t safely connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Can\'t safely connect to server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"A client certificate is required. Do you want to connect to the server with a client certificate?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"The certificate is invalid or inaccessible."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"The server responded with an error. Check your username and password, then try again."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Can\'t connect to server."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Can\'t connect to server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Can\'t connect to server.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS required but not supported by server."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Authentication methods aren\'t supported by server."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Couldn\'t open connection to server due to security error."</string>

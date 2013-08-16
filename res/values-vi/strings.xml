@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Chủ đề"</string>
     <string name="body_hint" msgid="4279864165439577668">"Soạn email"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Tin nhắn gốc --------"\n"Chủ đề: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Từ: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Tới: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> đã viết:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Tin nhắn gốc --------\nChủ đề: <xliff:g id="SUBJECT">%1$s</xliff:g>\nTừ: <xliff:g id="SENDER">%2$s</xliff:g>\nTới: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> đã viết:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Bao gồm nội dung được trích dẫn"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Bao gồm văn bản"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Thêm ít nhất một người nhận."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tất cả"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Sử dụng mặc định của tài khoản"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Tên người dùng hoặc mật khẩu không chính xác."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Đăng nhập không thành công."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Đăng nhập không thành công.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Không thể kết nối an toàn với máy chủ."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Không thể kết nối an toàn với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Không thể kết nối an toàn với máy chủ.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Cần chứng chỉ ứng dụng khách. Bạn có muốn kết nối với máy chủ bằng chứng chỉ ứng dụng khách không?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Chứng chỉ không hợp lệ hoặc không thể truy cập được."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Máy chủ trả về lỗi. Hãy kiểm tra tên người dùng và mật khẩu rồi thử lại."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Không thể kết nối với máy chủ."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Không thể kết nối với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Không thể kết nối với máy chủ.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS được yêu cầu nhưng không được máy chủ hỗ trợ."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Phương thức xác thực không được máy chủ hỗ trợ."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Không thể mở kết nối với máy chủ do lỗi bảo mật."</string>
