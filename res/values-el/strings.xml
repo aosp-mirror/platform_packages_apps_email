@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Κρυφ. κοιν."</string>
     <string name="subject_hint" msgid="7253964583324677128">"Θέμα"</string>
     <string name="body_hint" msgid="4279864165439577668">"Σύνταξη μηνύματος ηλεκτρονικού ταχυδρομείου"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Αρχικό μήνυμα --------"\n"Θέμα: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Από: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Προς: <xliff:g id="TO">%3$s</xliff:g>"\n"Κοιν.: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Ο χρήστης <xliff:g id="SENDER">%s</xliff:g> έγραψε:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Αρχικό μήνυμα --------\nΘέμα: <xliff:g id="SUBJECT">%1$s</xliff:g>\nΑπό: <xliff:g id="SENDER">%2$s</xliff:g>\nΠρος: <xliff:g id="TO">%3$s</xliff:g>\nΚοιν.: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"Ο χρήστης <xliff:g id="SENDER">%s</xliff:g> έγραψε:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Συμπερίληψη του αναφερόμενου κειμένου"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Συμπερίληψη κειμένου"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Προσθέστε τουλάχιστον έναν παραλήπτη."</string>
@@ -162,7 +162,7 @@
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Εμφάνιση εικόνων"</string>
     <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Να εμφανίζονται πάντα"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Να εμφανίζονται πάντα οι εικόνες από αυτόν τον παραλήπτη"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Να εμφανίζονται πάντα οι εικόνες από αυτόν τον αποστολέα"</string>
     <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Οι εικόνες από αυτόν τον αποστολέα θα εμφανίζονται αυτόματα."</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Προβολή στο Ημερολόγιο"</string>
     <string name="message_view_invite_title" msgid="3418949733434713805">"Πρόσκληση ημερολογίου"</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Όλες"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Χρήση των προεπιλογών του λογαριασμού"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Λάθος όνομα χρήστη ή κωδικός πρόσβασης."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Αποτυχία σύνδεσης."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Αποτυχία σύνδεσης.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Δεν είναι δυνατή η ασφαλής σύνδεση με τον διακομιστή."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Δεν είναι δυνατή η ασφαλής σύνδεση με τον διακομιστή."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Δεν είναι δυνατή η ασφαλής σύνδεση με τον διακομιστή.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Απαιτείται πιστοποιητικό προγράμματος-πελάτη. Θέλετε να συνδεθείτε στο διακομιστή με ένα πιστοποιητικό προγράμματος-πελάτη;"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Το πιστοποιητικό δεν είναι έγκυρο ή δεν είναι δυνατή η πρόσβαση σε αυτό."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Ο διακομιστής ανταποκρίθηκε με σφάλμα. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασης και δοκιμάστε ξανά."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Δεν είναι δυνατή η σύνδεση με τον διακομιστή."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Δεν είναι δυνατή η σύνδεση με τον διακομιστή."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Δεν είναι δυνατή η σύνδεση με τον διακομιστή.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Το TLS απαιτείται αλλά δεν υποστηρίζεται από τον διακομιστή."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Οι μέθοδοι ελέγχου ταυτότητας δεν υποστηρίζονται από τον διακομιστή."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Δεν ήταν δυνατό το άνοιγμα της σύνδεσης στον διακομιστή επειδή προέκυψε σφάλμα ασφάλειας."</string>

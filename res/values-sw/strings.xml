@@ -33,7 +33,7 @@
     <string name="delete_action" msgid="8421026208288857155">"Futa"</string>
     <string name="forward_action" msgid="669174181042344116">"Sambaza"</string>
     <string name="favorite_action" msgid="4664259801498253756">"Nyota"</string>
-    <string name="done_action" msgid="7497990549515580249">"Kwisha"</string>
+    <string name="done_action" msgid="7497990549515580249">"Nimemaliza"</string>
     <string name="create_action" msgid="3062715563215392251">"Unda mpya"</string>
     <string name="delete_quick_response_action" msgid="3076922270182841978">"Futa"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Hakuna majibu ya haraka."</string>
@@ -128,8 +128,8 @@
     <string name="bcc" msgid="3098643138241111579">"Nakala fiche kwa"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Kichwa"</string>
     <string name="body_hint" msgid="4279864165439577668">"Tunga barua pepe"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Ujumbe Asili --------"\n"Kichwa: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Kutoka: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kwa: <xliff:g id="TO">%3$s</xliff:g>"\n"Nakala kwa: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> aliandika:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Ujumbe Asili --------\nKichwa: <xliff:g id="SUBJECT">%1$s</xliff:g>\nKutoka: <xliff:g id="SENDER">%2$s</xliff:g>\nKwa: <xliff:g id="TO">%3$s</xliff:g>\nNakala kwa: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> aliandika:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Jumuisha maandishi yaliyonukuliwa"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Jumuisha maandishi"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Ongeza angalau mpokeaji mmoja."</string>
@@ -316,14 +316,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Zote"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Tumia akaunti chaguo-msingi"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Jina la mtumiaji au nenosiri sio sahihi."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Kuingia kumeshindikana."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Kuingia kumeshindikana.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Imeshindwa kuunganisha kwenye seva kwa usalama."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Imeshindwa kuunganisha kwenye seva kwa usalama."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Imeshindwa kuunganisha kwenye seva kwa usalama.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Cheti cha mteja kinahitajika. Je, unataka kuunganisha kwenye seva na cheti cha mteja?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Cheti ni batili au hakiwezi kufikiwa."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Seva ilijibu na hitilafu. Kagua jina lako la mtumiaji na nenosiri, kisha ujaribu tena."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Imeshindwa kuunganisha kwenye seva."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Imeshindwa kuunganisha kwenye seva."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Imeshindwa kuunganisha kwenye seva.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS inahitajika lakini haihimiliwi na seva."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Mbinu za uthibitishaji haziauniwi na seva."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Haiwezi kufungua muunganisho kwa seva kwa sababu ya hitilafu ya kiusalama."</string>
