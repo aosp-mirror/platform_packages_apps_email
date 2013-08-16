@@ -45,8 +45,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon com.androi
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
 
-LOCAL_PACKAGE_NAME := Email2
-LOCAL_OVERRIDES_PACKAGES := Email
+LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
