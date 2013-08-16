@@ -80,11 +80,14 @@ public class AttachmentProvider extends ContentProvider {
          * We use the cache dir as a temporary directory (since Android doesn't give us one) so
          * on startup we'll clean up any .tmp files from the last run.
          */
-        File[] files = getContext().getCacheDir().listFiles();
-        for (File file : files) {
-            String filename = file.getName();
-            if (filename.endsWith(".tmp") || filename.startsWith("thmb_")) {
-                file.delete();
+
+        final File[] files = getContext().getCacheDir().listFiles();
+        if (files != null) {
+            for (File file : files) {
+                final String filename = file.getName();
+                if (filename.endsWith(".tmp") || filename.startsWith("thmb_")) {
+                    file.delete();
+                }
             }
         }
         return true;
