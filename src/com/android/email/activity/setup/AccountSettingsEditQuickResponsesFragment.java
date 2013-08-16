@@ -18,16 +18,13 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.Account;
-import com.android.mail.utils.LogUtils;
+import com.android.mail.providers.Account;
+import com.android.mail.providers.UIProvider;
+import com.android.mail.utils.Utils;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -38,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -58,7 +54,6 @@ import android.widget.TextView;
  */
 public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     private Account mAccount;
-    private SimpleCursorAdapter mAdapter;
 
     private static final String BUNDLE_KEY_ACTIVITY_TITLE
             = "AccountSettingsEditQuickResponsesFragment.title";
@@ -80,31 +75,30 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
             getActivity().setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
         }
 
-        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.quick_response_item, null,
-                new String [] {EmailContent.QuickResponseColumns.TEXT},
-                new int [] {R.id.quick_response_text}, 0);
+        final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(),
+                R.layout.quick_response_item, null,
+                new String[] {UIProvider.QuickResponseColumns.TEXT},
+                new int[] {R.id.quick_response_text}, 0);
 
         final ListView listView = UiUtilities.getView(getView(),
                 R.id.account_settings_quick_responses_list);
-        listView.setAdapter(mAdapter);
+        listView.setAdapter(adapter);
 
         getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                final Uri baseUri = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse/account");
-                final Uri uri = ContentUris.withAppendedId(baseUri, mAccount.getId());
-                return new CursorLoader(getActivity(), uri, EmailContent.QUICK_RESPONSE_PROJECTION,
-                        null, null, null);
+                return new CursorLoader(getActivity(), mAccount.quickResponseUri,
+                        UIProvider.QUICK_RESPONSE_PROJECTION, null, null, null);
             }
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                mAdapter.swapCursor(data);
+                adapter.swapCursor(data);
             }
 
             @Override
             public void onLoaderReset(Loader<Cursor> loader) {
-                mAdapter.swapCursor(null);
+                adapter.swapCursor(null);
             }
         });
     }
@@ -116,9 +110,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreate");
-        }
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
@@ -130,9 +121,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSettingsEditQuickResponsesFragment onCreateView");
-        }
         final View view = inflater.inflate(R.layout.account_settings_edit_quick_responses_fragment,
                 container, false);
 
@@ -145,12 +133,11 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final Cursor c = (Cursor) listView.getItemAtPosition(position);
-                final int quickResponseId = c.getInt(EmailContent.QUICK_RESPONSE_COLUMN_ID);
                 final String quickResponseText =
-                        c.getString(EmailContent.QUICK_RESPONSE_COLUMN_TEXT);
-                final Uri baseUri = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse");
-                final Uri uri = ContentUris.withAppendedId(baseUri, quickResponseId);
-                EditQuickResponseDialog.newInstance(quickResponseText, uri, mAccount.getId(), false)
+                        c.getString(c.getColumnIndex(UIProvider.QuickResponseColumns.TEXT));
+                final Uri uri = Utils.getValidUri(
+                        c.getString(c.getColumnIndex(UIProvider.QuickResponseColumns.URI)));
+                EditQuickResponseDialog.newInstance(quickResponseText, uri, false)
                         .show(getFragmentManager(), null);
             }
         });
@@ -166,8 +153,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.create_new) {
-            final Uri baseUri = Uri.parse(EmailContent.CONTENT_URI + "/quickresponse");
-            EditQuickResponseDialog.newInstance(null, baseUri, mAccount.getId(), true)
+            EditQuickResponseDialog.newInstance(null, mAccount.quickResponseUri, true)
                     .show(getFragmentManager(), null);
             return true;
         }
