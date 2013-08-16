@@ -247,6 +247,7 @@ public class ImapService extends Service {
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.STRUCTURE);
         remoteFolder.fetch(messages.toArray(new Message[messages.size()]), fp, null);
+        Message [] oneMessageArray = new Message[1];
         for (Message message : messages) {
             // Build a list of parts we are interested in. Text parts will be downloaded
             // right now, attachments will be left for later.
@@ -254,10 +255,11 @@ public class ImapService extends Service {
             ArrayList<Part> attachments = new ArrayList<Part>();
             MimeUtility.collectParts(message, viewables, attachments);
             // Download the viewables immediately
+            oneMessageArray[0] = message;
             for (Part part : viewables) {
                 fp.clear();
                 fp.add(part);
-                remoteFolder.fetch(new Message[] { message }, fp, null);
+                remoteFolder.fetch(oneMessageArray, fp, null);
             }
             // Store the updated message locally and mark it fully loaded
             Utilities.copyOneMessageToProvider(context, message, account, toMailbox,
