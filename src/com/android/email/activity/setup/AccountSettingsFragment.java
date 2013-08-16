@@ -65,6 +65,8 @@ import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.NotificationUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Fragment containing the main logic for account settings.  This also calls out to other
@@ -123,8 +125,14 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private CheckBoxPreference mSyncEmail;
 
     private Context mContext;
+
+    /**
+     * mAccount is email-specific, transition to using mUiAccount instead
+     */
+    @Deprecated
     private Account mAccount;
     private boolean mAccountDirty;
+    private com.android.mail.providers.Account mUiAccount;
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
@@ -146,7 +154,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
      */
     public interface Callback {
         public void onSettingsChanged(Account account, String preference, Object value);
-        public void onEditQuickResponses(Account account);
+        public void onEditQuickResponses(com.android.mail.providers.Account account);
         public void onIncomingSettings(Account account);
         public void onOutgoingSettings(Account account);
         public void abandonEdit();
@@ -155,7 +163,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onSettingsChanged(Account account, String preference, Object value) {}
-        @Override public void onEditQuickResponses(Account account) {}
+        @Override public void onEditQuickResponses(com.android.mail.providers.Account account) {}
         @Override public void onIncomingSettings(Account account) {}
         @Override public void onOutgoingSettings(Account account) {}
         @Override public void abandonEdit() {}
@@ -436,10 +444,13 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
     /**
      * Async task to load account in order to view/edit it
      */
-    private class LoadAccountTask extends AsyncTask<Long, Void, Account> {
+    private class LoadAccountTask extends AsyncTask<Long, Void, Map<String, Object>> {
+        static final String ACCOUNT_KEY = "account";
+        static final String UI_ACCOUNT_KEY = "uiAccount";
+
         @Override
-        protected Account doInBackground(Long... params) {
-            long accountId = params[0];
+        protected Map<String, Object> doInBackground(Long... params) {
+            final long accountId = params[0];
             Account account = Account.restoreAccountWithId(mContext, accountId);
             if (account != null) {
                 account.mHostAuthRecv =
@@ -450,12 +461,34 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     account = null;
                 }
             }
-            return account;
+
+            final Cursor accountCursor = mContext.getContentResolver().query(EmailProvider
+                    .uiUri("uiaccount", accountId), UIProvider.ACCOUNTS_PROJECTION, null,
+                    null, null);
+
+            final com.android.mail.providers.Account uiAccount;
+            try {
+                if (accountCursor != null && accountCursor.moveToFirst()) {
+                    uiAccount = new com.android.mail.providers.Account(accountCursor);
+                } else {
+                    uiAccount = null;
+                }
+            } finally {
+                if (accountCursor != null) {
+                    accountCursor.close();
+                }
+            }
+
+            final Map<String, Object> map = new HashMap<String, Object>(2);
+            map.put(ACCOUNT_KEY, account);
+            map.put(UI_ACCOUNT_KEY, uiAccount);
+            return map;
         }
 
         @Override
-        protected void onPostExecute(Account account) {
+        protected void onPostExecute(Map<String, Object> map) {
             if (!isCancelled()) {
+                final Account account = (Account) map.get(ACCOUNT_KEY);
                 if (account == null) {
                     mSaveOnExit = false;
                     mCallback.abandonEdit();
@@ -465,6 +498,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                         loadSettings();
                     }
                 }
+                mUiAccount = (com.android.mail.providers.Account) map.get(UI_ACCOUNT_KEY);
             }
         }
     }
@@ -517,32 +551,17 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
 
     /**
      * Loads settings that are dependent on a {@link com.android.mail.providers.Account}, which
-     * must be obtained off the main thread. This will also call {@link #loadMainThreadSettings()}.
+     * must be obtained off the main thread.
      */
     private void loadSettingsOffMainThread() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final Cursor accountCursor = mContext.getContentResolver().query(EmailProvider
-                        .uiUri("uiaccount", mAccount.mId), UIProvider.ACCOUNTS_PROJECTION, null,
-                        null, null);
-                if (accountCursor == null) {
+                if (mUiAccount == null) {
                     return;
                 }
-
-                final com.android.mail.providers.Account account;
-                try {
-                    if (accountCursor.moveToFirst()) {
-                        account = new com.android.mail.providers.Account(accountCursor);
-                    } else {
-                        return;
-                    }
-                } finally {
-                    accountCursor.close();
-                }
-
                 final Cursor folderCursor = mContext.getContentResolver().query(
-                        account.settings.defaultInbox, UIProvider.FOLDERS_PROJECTION, null, null,
+                        mUiAccount.settings.defaultInbox, UIProvider.FOLDERS_PROJECTION, null, null,
                         null);
                 if (folderCursor == null) {
                     return;
@@ -559,9 +578,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     folderCursor.close();
                 }
 
-                mAccountPreferences = new AccountPreferences(mContext, account.name);
+                mAccountPreferences = new AccountPreferences(mContext, mUiAccount.name);
                 mInboxFolderPreferences =
-                        new FolderPreferences(mContext, account.name, folder, true);
+                        new FolderPreferences(mContext, mUiAccount.name, folder, true);
 
                 NotificationUtils.moveNotificationSetting(
                         mAccountPreferences, mInboxFolderPreferences);
@@ -637,7 +656,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         mAccountDirty = true;
-                        mCallback.onEditQuickResponses(mAccount);
+                        mCallback.onEditQuickResponses(mUiAccount);
                         return true;
                     }
                 });

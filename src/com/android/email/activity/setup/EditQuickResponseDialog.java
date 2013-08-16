@@ -17,15 +17,12 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
-import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.mail.providers.UIProvider;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,7 +42,6 @@ public class EditQuickResponseDialog extends DialogFragment {
     private static final String QUICK_RESPONSE_STRING = "quick_response_edited_string";
     private static final String QUICK_RESPONSE_CONTENT_URI = "quick_response_content_uri";
     private static final String QUICK_RESPONSE_CREATE = "quick_response_create";
-    private static final String ACCOUNT_ID = "accountId";
 
     // Public no-args constructor needed for fragment re-instantiation
     public EditQuickResponseDialog() {}
@@ -54,17 +50,16 @@ public class EditQuickResponseDialog extends DialogFragment {
      * Creates a new dialog to edit an existing QuickResponse or create a new
      * one.
      *
-     * @param baseUri - The content Uri QuickResponse which the user is editing;
-     * @param accountId - The accountId for the account which holds this QuickResponse
+     * @param baseUri - The content Uri QuickResponse which the user is editing
+     *                or the content Uri for creating a new QuickResponse
      * @param create - True if this is a new QuickResponse
      */
     public static EditQuickResponseDialog newInstance(String text,
-            Uri baseUri, long accountId, boolean create) {
+            Uri baseUri, boolean create) {
         final EditQuickResponseDialog dialog = new EditQuickResponseDialog();
 
         Bundle args = new Bundle(4);
         args.putString(QUICK_RESPONSE_STRING, text);
-        args.putLong(ACCOUNT_ID, accountId);
         args.putParcelable(QUICK_RESPONSE_CONTENT_URI, baseUri);
         args.putBoolean(QUICK_RESPONSE_CREATE, create);
 
@@ -74,7 +69,6 @@ public class EditQuickResponseDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final long accountId = getArguments().getLong(ACCOUNT_ID);
         final Uri uri = getArguments().getParcelable(QUICK_RESPONSE_CONTENT_URI);
         final boolean create = getArguments().getBoolean(QUICK_RESPONSE_CREATE);
 
@@ -114,9 +108,8 @@ public class EditQuickResponseDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         final String text = mQuickResponseEditText.getText().toString();
-                        final ContentValues values = new ContentValues(2);
-                        values.put(QuickResponseColumns.ACCOUNT_KEY, accountId);
-                        values.put(QuickResponseColumns.TEXT, text);
+                        final ContentValues values = new ContentValues(1);
+                        values.put(UIProvider.QuickResponseColumns.TEXT, text);
 
                         if (create) {
                             getActivity().getContentResolver().insert(uri, values);

@@ -312,6 +312,8 @@
     <!-- Title for dialog containing list of quick responses that user may insert
             into message body. [CHAR_LIMIT=30] -->
     <string name="message_compose_insert_quick_response_list_title">Insert quick response</string>
+    <!-- Menu item for inserting quick responses into email compose activity. [CHAR_LIMIT=30] -->
+    <string name="message_compose_insert_quick_response_menu_title">Insert quick response</string>
     <!-- Display name for composed message, indicating the destination of the message.
       e.g. "John and 2 others" -->
     <string name="message_compose_display_name"><xliff:g id="name" example="John">%1$s</xliff:g> and <xliff:g id="number" example="27">%2$d</xliff:g> others</string>
