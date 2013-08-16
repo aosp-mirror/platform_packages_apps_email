@@ -78,7 +78,7 @@
         <meta-data android:name="android.app.default_searchable"
             android:value="com.android.email2.ui.MailActivityEmail" />
         <activity
-            android:name="com.android.mail.compose.ComposeActivity"
+            android:name="com.android.email.activity.ComposeActivityEmail"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Holo.Light">
             <intent-filter>
@@ -131,6 +131,9 @@
                 <data android:scheme="mailto" />
             </intent-filter>
         </activity>
+
+        <activity-alias android:name="com.android.mail.compose.ComposeActivity"
+            android:targetActivity="com.android.email.activity.ComposeActivityEmail"/>
 
         <activity
             android:name=".activity.EventViewer"
