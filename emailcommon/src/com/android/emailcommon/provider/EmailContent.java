@@ -129,7 +129,7 @@ public abstract class EmailContent {
     public static Uri ACCOUNT_CHECK_URI;
     public static String PROVIDER_PERMISSION;
 
-    public static void init(Context context) {
+    public static synchronized void init(Context context) {
         if (AUTHORITY == null) {
             PACKAGE_NAME = context.getPackageName();
             EMAIL_PACKAGE_NAME = PACKAGE_NAME;
