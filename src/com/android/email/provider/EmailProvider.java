@@ -33,11 +33,11 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -112,7 +112,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2880,7 +2879,8 @@ public class EmailProvider extends ContentProvider {
                 getFolderTypeFromMailboxType(mailboxType), "");
                 // default empty string since all of these should use resource strings
         values[UIProvider.FOLDER_HAS_CHILDREN_COLUMN] = 0;
-        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] = UIProvider.FolderCapabilities.IS_VIRTUAL;
+        values[UIProvider.FOLDER_CAPABILITIES_COLUMN] =
+                UIProvider.FolderCapabilities.DELETE | UIProvider.FolderCapabilities.IS_VIRTUAL;
         values[UIProvider.FOLDER_CONVERSATION_LIST_URI_COLUMN] = combinedUriString("uimessages",
                 idString);
 
