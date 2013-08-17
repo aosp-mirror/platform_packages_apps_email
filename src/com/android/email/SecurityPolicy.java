@@ -590,6 +590,15 @@ public class SecurityPolicy {
         if (account.mPolicyKey > 0) {
             oldPolicy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
         }
+
+        // If attachment policies have changed, fix up any affected attachment records
+        if (oldPolicy != null && securityKey != null) {
+            if ((oldPolicy.mDontAllowAttachments != policy.mDontAllowAttachments) ||
+                    (oldPolicy.mMaxAttachmentSize != policy.mMaxAttachmentSize)) {
+                Policy.setAttachmentFlagsForNewPolicy(mContext, account, policy);
+            }
+        }
+
         boolean policyChanged = (oldPolicy == null) || !oldPolicy.equals(policy);
         if (!policyChanged && (TextUtilities.stringOrNullEquals(securityKey,
                 account.mSecuritySyncKey))) {
