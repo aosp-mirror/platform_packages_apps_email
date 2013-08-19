@@ -87,9 +87,9 @@
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Inkassie"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Uitkassie"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Konsepte"</string>
-    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Rommel"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Asblik"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Gestuur"</string>
-    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Rommel"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Gemorspos"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Gester"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Ongelees"</string>
     <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Inkassie (ongelees)"</string>
@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Onderwerp"</string>
     <string name="body_hint" msgid="4279864165439577668">"Skryf e-pos"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronklike boodskap --------"\n"Onderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Van: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Aan: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> het geskryf:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Oorspronklike boodskap --------\nOnderwerp: <xliff:g id="SUBJECT">%1$s</xliff:g>\nVan: <xliff:g id="SENDER">%2$s</xliff:g>\nAan: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> het geskryf:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Sluit aangehaalde teks in"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Sluit teks in"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Voeg ten minste een ontvanger by."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Sekere e-posadresse is ongeldig."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Lêer te groot om aan te heg."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Voer vinnige antwoord in"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> en <xliff:g id="NUMBER">%2$d</xliff:g> ander"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Aan:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Gebruik rekening se verstek"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Gebruikernaam of wagwoord verkeerd."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Aanmelding het misluk."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Aanmelding het misluk.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan nie veilig aan bediener koppel nie."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan nie veilig aan bediener koppel nie."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan nie veilig aan bediener koppel nie.\n<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"\'n Kliëntsertifikaat word vereis. Wil jy aan die bediener koppel met \'n kliëntsertifikaat?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Die sertifikaat is ongeldig of ontoeganklik."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Die bediener het gereageer met \'n foutboodskap. Kontroleer jou gebruikernaam en wagwoord, en herprobeer dan."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Kan nie aan bediener koppel nie."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan nie aan bediener koppel nie."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Kan nie aan bediener koppel nie.\n<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS vereis, maar nie deur bediener ondersteun nie."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Stawingsmetodes word nie deur bediener ondersteun nie."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Kon nie verbinding met bediener open nie vanweë sekuriteitsfout."</string>

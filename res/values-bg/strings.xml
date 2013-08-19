@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Ск"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Тема"</string>
     <string name="body_hint" msgid="4279864165439577668">"Напишете имейл"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Оригинално съобщение --------"\n"Тема: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"От: <xliff:g id="SENDER">%2$s</xliff:g>"\n"До: <xliff:g id="TO">%3$s</xliff:g>"\n"Як: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> написа:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Оригинално съобщение --------\nТема: <xliff:g id="SUBJECT">%1$s</xliff:g>\nОт: <xliff:g id="SENDER">%2$s</xliff:g>\nДо: <xliff:g id="TO">%3$s</xliff:g>\nЯк: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> написа:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Включване на цитирания текст"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Включване на текста"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Добавете поне един получател."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Някои имейл адреси са невалидни."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Файлът е твърде голям за прикачване."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Вмъкване на бърз отговор"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> и още <xliff:g id="NUMBER">%2$d</xliff:g> други"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"До:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Як:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Всички"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Стандартното за профила"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Неправилно потребителско име или парола."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Влизането не бе успешно."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Влизането не бе успешно.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Не може да се осъществи безопасна връзка със сървъра."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не може да се осъществи безопасна връзка със сървъра."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не може да се осъществи безопасна връзка със сървъра.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Изисква се сертификат за клиентска програма. Да се установи ли връзка със сървъра чрез него?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Сертификатът е невалиден или недостъпен."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Сървърът отговори с грешка. Проверете потребителското име и паролата си, след което опитайте отново."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Не може да се осъществи връзка със сървъра."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Не може да се осъществи връзка със сървъра."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Не може да се осъществи връзка със сървъра.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Изисква се TLS, но не се поддържа от сървъра."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Сървърът не поддържа методи за удостоверяване."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Не можа да се установи връзка със сървъра поради грешка със сигурността."</string>

@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"密件副本"</string>
     <string name="subject_hint" msgid="7253964583324677128">"主旨"</string>
     <string name="body_hint" msgid="4279864165439577668">"撰寫電子郵件"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------"\n"主旨：<xliff:g id="SUBJECT">%1$s</xliff:g>"\n"寄件者：<xliff:g id="SENDER">%2$s</xliff:g>"\n"收件者：<xliff:g id="TO">%3$s</xliff:g>"\n"副本：<xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到："\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------原始郵件 --------\n主旨：<xliff:g id="SUBJECT">%1$s</xliff:g>\n寄件者：<xliff:g id="SENDER">%2$s</xliff:g>\n收件者：<xliff:g id="TO">%3$s</xliff:g>\n副本：<xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>提到：\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"包含引用文字"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"包含文字"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"請至少新增一個收件者。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"部分電子郵件地址無效。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"檔案過大，超過附件大小限制。"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"插入快速回應"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 位"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"收件者："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"副本："</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"全部"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"使用帳戶預設值"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"使用者名稱或密碼不正確。"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"登入失敗。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"登入失敗。\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"無法安全連線至伺服器。"</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"無法安全連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"無法安全連線至伺服器。\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"需要用戶端憑證，您要透過用戶端憑證連線到伺服器嗎？"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"憑證無效或無法使用。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"伺服器傳回錯誤，請檢查您的使用者名稱和密碼，然後再試一次。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"無法連線至伺服器。"</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"無法連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"無法連線至伺服器。\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"必須使用 TLS，但此伺服器不支援。"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"伺服器不支援這些驗證方法。"</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"發生安全性錯誤，無法連線至伺服器。"</string>

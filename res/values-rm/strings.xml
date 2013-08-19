@@ -170,8 +170,8 @@
     <skip />
     <!-- no translation found for body_hint (4279864165439577668) -->
     <skip />
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------"\n"Object: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------\nObject: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDa: <xliff:g id="SENDER">%2$s</xliff:g>\nA: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:\n\n"</string>
     <!-- no translation found for message_compose_quoted_text_label (6950097435198536165) -->
     <skip />
     <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
@@ -181,6 +181,8 @@
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Tschertas adressas dad e-mail èn nuncorrectas."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"L\'agiunta è memia gronda."</string>
     <!-- no translation found for message_compose_insert_quick_response_list_title (5314107302508728189) -->
+    <skip />
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
     <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> auters"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"A:"</string>

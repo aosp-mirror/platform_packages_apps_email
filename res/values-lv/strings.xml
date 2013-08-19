@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"D. kopija"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Temats"</string>
     <string name="body_hint" msgid="4279864165439577668">"Rakstiet e-pasta ziņojumu"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Sākotnējais ziņojums --------"\n"Temats: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"No: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kam: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopija: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> rakstīja:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Sākotnējais ziņojums --------\nTemats: <xliff:g id="SUBJECT">%1$s</xliff:g>\nNo: <xliff:g id="SENDER">%2$s</xliff:g>\nKam: <xliff:g id="TO">%3$s</xliff:g>\nKopija: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> rakstīja:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Citēta teksta iekļaušana"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Iekļaut tekstu"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Pievienojiet vismaz vienu adresātu."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Dažas e-pasta adreses nav derīgas."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Failu nevar pievienot, jo tas ir pārāk liels."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Ātrās atbildes ievietošana"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> un citas personas (<xliff:g id="NUMBER">%2$d</xliff:g>)"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Kam:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopija:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Visi"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Izmantot konta noklusēj."</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nepareizs lietotājvārds vai parole."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Neizdevās pieteikties."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Neizdevās pieteikties.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nevar izveidot drošu savienojumu ar serveri."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Ir nepieciešams klienta sertifikāts. Vai vēlaties izveidot savienojumu ar serveri, izmantojot klienta sertifikātu?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifikāts nav derīgs vai nav pieejams."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serveris atgrieza kļūdu. Pārbaudiet lietotājvārdu un paroli un pēc tam mēģiniet vēlreiz."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nevar izveidot savienojumu ar serveri."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nevar izveidot savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nevar izveidot savienojumu ar serveri.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Protokols TLS ir obligāts, taču serveris to neatbalsta."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serverī netiek atbalstītas autentifikācijas metodes."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nevarēja izveidot savienojumu ar serveri drošības kļūdas dēļ."</string>

@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"UDW"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Temat"</string>
     <string name="body_hint" msgid="4279864165439577668">"Napisz e-maila."</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Wiadomość oryginalna --------"\n"Temat: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Od: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Do: <xliff:g id="TO">%3$s</xliff:g>"\n"DW: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> napisał(a):"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Wiadomość oryginalna --------\nTemat: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOd: <xliff:g id="SENDER">%2$s</xliff:g>\nDo: <xliff:g id="TO">%3$s</xliff:g>\nDW: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> napisał(a):\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Dołącz cytowany tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Dołącz tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Dodaj co najmniej jednego adresata."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Niektóre adresy e-mail są nieprawidłowe."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Plik jest zbyt duży do załączenia."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Wstaw szybką odpowiedź"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> i inni (<xliff:g id="NUMBER">%2$d</xliff:g>)"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Do:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"DW:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Wszystkie"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Użyj wartości domyślnej konta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nieprawidłowa nazwa użytkownika lub hasło"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Nie udało się zalogować."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Nie udało się zalogować.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nie można bezpiecznie połączyć się z serwerem."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nie można bezpiecznie połączyć się z serwerem."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nie można bezpiecznie połączyć się z serwerem.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Certyfikat klienta jest wymagany. Czy chcesz się połączyć z serwerem za pomocą certyfikatu klienta?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certyfikat jest nieważny lub niedostępny."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Serwer zgłosił błąd. Sprawdź nazwę użytkownika i hasło, a następnie spróbuj ponownie."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Nie można połączyć się z serwerem."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nie można połączyć się z serwerem."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Nie można połączyć się z serwerem.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Wymagane połączenie TLS nie jest obsługiwane przez serwer."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Serwer nie obsługuje metod uwierzytelniania."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Nie można nawiązać połączenia z serwerem z powodu błędu zabezpieczeń."</string>
