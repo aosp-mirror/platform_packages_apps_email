@@ -136,6 +136,8 @@
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Nekateri e-poštni naslovi niso veljavni."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Datoteke ni mogoče pripeti, ker je prevelika."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Vstavi hiter odgovor"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> in <xliff:g id="NUMBER">%2$d</xliff:g> drugih"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Za:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kp:"</string>
