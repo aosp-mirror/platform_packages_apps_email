@@ -136,6 +136,8 @@
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"ที่อยู่อีเมลบางที่อยู่ไม่ถูกต้อง"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"ไฟล์ใหญ่เกินไปที่จะแนบ"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"ใส่คำตอบด่วน"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> และอื่นๆ อีก <xliff:g id="NUMBER">%2$d</xliff:g> ราย"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"ถึง:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"สำเนา:"</string>
