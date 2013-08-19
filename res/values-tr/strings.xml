@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Konu"</string>
     <string name="body_hint" msgid="4279864165439577668">"E-posta yazın"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orijinal İleti --------"\n"Konu: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Gönderen: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Alıcı:<xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> şunu yazdı:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orijinal İleti --------\nKonu: <xliff:g id="SUBJECT">%1$s</xliff:g>\nGönderen: <xliff:g id="SENDER">%2$s</xliff:g>\nAlıcı:<xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> şunu yazdı:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Alıntılanan metni dahil et"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Metni ekle"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"En az bir alıcı ekleyin."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Bazı e-posta adresleri geçersiz."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Dosya eklenemeyecek kadar büyük."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Hızlı yanıt ekle"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> ve <xliff:g id="NUMBER">%2$d</xliff:g> kişi daha"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Alıcı:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tümü"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Varsayılanı kullan"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Kullanıcı adı veya şifre hatalı."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Giriş yapılamadı."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Giriş yapılamadı.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Sunucuya güvenli biçimde bağlanılamıyor."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sunucuya güvenli biçimde bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sunucuya güvenli biçimde bağlanılamıyor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"İstemci sertifikası gerekli. Sunucuya bir istemci sertifikası ile bağlanmak ister misiniz?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifika geçersiz veya erişilemez."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Sunucu hata gönderdi. Kullanıcı adınızı ve şifrenizi kontrol ettikten sonra tekrar deneyin."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Sunucuya bağlanılamıyor."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Sunucuya bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Sunucuya bağlanılamıyor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS gerekli ancak sunucu tarafından desteklenmiyor."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Kimlik doğrulama yöntemleri sunucu tarafından desteklenmiyor."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Güvenlik hatası nedeniyle sunucu bağlantısı açılamadı."</string>

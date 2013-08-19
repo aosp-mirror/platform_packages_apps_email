@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"숨은참조"</string>
     <string name="subject_hint" msgid="7253964583324677128">"제목"</string>
     <string name="body_hint" msgid="4279864165439577668">"이메일 작성"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 원본 메일 --------"\n"제목: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%2$s</xliff:g>"\n"받는사람: <xliff:g id="TO">%3$s</xliff:g>"\n"참조: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 원본 메일 --------\n제목: <xliff:g id="SUBJECT">%1$s</xliff:g>\n보낸사람: <xliff:g id="SENDER">%2$s</xliff:g>\n받는사람: <xliff:g id="TO">%3$s</xliff:g>\n참조: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"받은메일 포함"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"받은메일 포함"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"받는 사람을 한 명 이상 추가하세요."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"일부 이메일 주소가 올바르지 않습니다."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"빠른 응답 삽입"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> 외 <xliff:g id="NUMBER">%2$d</xliff:g>명"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"참조:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"전체"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"계정 기본값 사용"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"사용자 이름 또는 비밀번호가 잘못되었습니다."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"로그인하지 못했습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"로그인하지 못했습니다.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"서버에 안전하게 연결할 수 없습니다."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"서버에 안전하게 연결할 수 없습니다.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"클라이언트 인증서가 필요합니다. 클라이언트 인증서로 서버에 연결하시겠습니까?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"인증서가 잘못되었거나 액세스할 수 없습니다."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"서버에서 오류를 발견했습니다. 사용자 이름과 비밀번호를 확인한 다음 다시 시도해 주세요."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"서버에 연결할 수 없습니다."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"서버에 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"서버에 연결할 수 없습니다.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS가 필요하지만 서버에서 지원하지 않습니다."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"인증 방법이 서버에서 지원되지 않습니다."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"보안 오류 때문에 서버에 연결하지 못했습니다."</string>

@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Skr. kopija"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Predmet"</string>
     <string name="body_hint" msgid="4279864165439577668">"Stvori novu poruku e-pošte"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Izvorna poruka --------"\n"Predmet: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Šalje: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Prima: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopija: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> je napisao:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Izvorna poruka --------\nPredmet: <xliff:g id="SUBJECT">%1$s</xliff:g>\nŠalje: <xliff:g id="SENDER">%2$s</xliff:g>\nPrima: <xliff:g id="TO">%3$s</xliff:g>\nKopija: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> je napisao:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Obuhvati citirani tekst"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Uključi tekst"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Dodajte barem jednog primatelja."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Neke adrese e-pošte nisu važeće."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Datoteka je prevelika za privitak."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Umetanje brzog odgovora"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> i <xliff:g id="NUMBER">%2$d</xliff:g> ostalih"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Prima:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopija:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Sve"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Upotrijebi zadanu postavku računa"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Korisničko ime ili zaporka nisu ispravni."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Prijava nije uspjela."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Prijava nije uspjela.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Sigurno povezivanje s poslužiteljem nije moguće."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sigurno povezivanje s poslužiteljem nije moguće."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sigurno povezivanje s poslužiteljem nije moguće.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Potrebna je klijentska potvrda. Želite li se povezati s poslužiteljem s klijentskom potvrdom?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Potvrda je neispravna ili nedostupna."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Poslužitelj je odgovorio s pogreškom. Provjerite korisničko ime i zaporku i pokušajte ponovo."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Povezivanje s poslužiteljem nije moguće."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Povezivanje s poslužiteljem nije moguće."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Povezivanje s poslužiteljem nije moguće.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS je obavezan, ali ga poslužitelj ne podržava."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Poslužitelj ne podržava načine autentifikacije."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Otvaranje veze s poslužiteljem nije bilo moguće zbog sigurnosne pogreške."</string>

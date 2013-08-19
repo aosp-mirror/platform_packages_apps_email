@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
     <string name="subject_hint" msgid="7253964583324677128">"件名"</string>
     <string name="body_hint" msgid="4279864165439577668">"メールを作成します"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 元のメッセージ --------"\n"件名: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>: "\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 元のメッセージ --------\n件名: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFrom: <xliff:g id="SENDER">%2$s</xliff:g>\nTo: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>: \n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"元のメッセージを挿入"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"元のメールを入れる"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"宛先を入力してください。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"無効なメールアドレスがあります。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"添付ファイルが大きすぎます。"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"クイック返信の挿入"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>他<xliff:g id="NUMBER">%2$d</xliff:g>件"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"To:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"すべて"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"アカウントのデフォルトを使用"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"ユーザー名またはパスワードが正しくありません。"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"ログインに失敗しました。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"ログインに失敗しました。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"サーバーへの安全な接続を確立できません。"</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"サーバーへの安全な接続を確立できません。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"サーバーへの安全な接続を確立できません。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"クライアント証明書が必要です。クライアント証明書を使用してサーバーに接続しますか？"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"証明書が無効か、証明書にアクセスできません。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"サーバーからエラーが返されました。ユーザー名とパスワードを確認してもう一度お試しください。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"サーバーに接続できません。"</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"サーバーに接続できません。"\n"（<xliff:g id="ERROR">%s</xliff:g>）"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"サーバーに接続できません。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLSが必要ですがサーバーが対応していません。"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"認証方法がサーバーでサポートされていません。"</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"セキュリティエラーのためサーバーに接続できませんでした。"</string>

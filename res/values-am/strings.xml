@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"ስውር ቅጂ"</string>
     <string name="subject_hint" msgid="7253964583324677128">"ርእሰ ጉዳይ"</string>
     <string name="body_hint" msgid="4279864165439577668">"ኢሜይል ፃፍ"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"----------- ዋና መልዕክት---------"\n"ጉዳዩ፡<xliff:g id="SUBJECT">%1$s</xliff:g>"\n" ከ፡<xliff:g id="SENDER">%2$s</xliff:g>"\n"ለ፡<xliff:g id="TO">%3$s</xliff:g>"\n"<xliff:g id="CC_0">%4$s</xliff:g>"\n"  ካርቦን ቅጂ፡"\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>ፃፈ፡"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"----------- ዋና መልዕክት---------\nጉዳዩ፡<xliff:g id="SUBJECT">%1$s</xliff:g>\n ከ፡<xliff:g id="SENDER">%2$s</xliff:g>\nለ፡<xliff:g id="TO">%3$s</xliff:g>\n<xliff:g id="CC_0">%4$s</xliff:g>\n  ካርቦን ቅጂ፡\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>ፃፈ፡\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"የተጠቀሰ ጽሁፍ አካትት"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"ፅሁፍ አካት"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"እባክህን ቢያንስ አንድ ተቀባይ አክል።"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"አንዳንድ ኢሜይል አድራሻዎች ትክክል አይደሉም።"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"የፋይል መጠንለማያያዝ በጣም ትልቅ ነው።"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"ፈጣን ምላሽ አስገባ"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> እና <xliff:g id="NUMBER">%2$d</xliff:g> ሌሎች"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"ለ:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"ካርቦን ቅጂ"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"ሁሉም"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"የመለያ ነባሪ ተጠቀም"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"ተጠቃሚ ስም ወይም ይለፍ ቃል የተሳሳተ ነው።"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"መግባት አልተሳካም።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"መግባት አልተሳካም።\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"ወደ አገልጋዩ በሰላም ማገናኘት አልተቻለም።"</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"ወደ አገልጋዩ በሰላም ማገናኘት አልተቻለም።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"ወደ አገልጋዩ በሰላም ማገናኘት አልተቻለም።\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"የተገልጋይ ሰርቲፊኬት ያስፈልጋል። በተገልጋይ ሰርቲፊኬት ወደ አገልጋይ መገናኘት ትፈልጋለህ?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"የዕውቅና ማረጋገጫው ልክ ያልሆነ  ወይም ተደራሽ ያልሆነ ነው።"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"አገልጋዩ ከስህተት ጋር መልሷል፤ የተጠቃሚ ስምህን እና የይለፍ ቃልህን ተመልከት እና እንደገና ሞክር።"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"ወደ አገልጋይ መገናኘት አይቻልም።"</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"ወደ አገልጋዩ ማገናኘት አይችልም።"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"ወደ አገልጋዩ ማገናኘት አይችልም።\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS ይጠየቃል ነገር ግን በአገልጋይ አይደገፍም።"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"የማረጋገጫ ዘዴዎች በአገልጋዩ አይደገፉም።"</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"በደህንነት ስህተት ምክንያት ወደ አገልጋይ ያለ ግንኙነት መክፈት አልተቻለም::"</string>

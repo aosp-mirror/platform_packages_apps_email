@@ -128,14 +128,16 @@
     <string name="bcc" msgid="3098643138241111579">"Piilokopio"</string>
     <string name="subject_hint" msgid="7253964583324677128">"Aihe"</string>
     <string name="body_hint" msgid="4279864165439577668">"Kirjoita sähköposti"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Alkuperäinen viesti --------"\n"Aihe: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Lähettäjä: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Vastaanottaja: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopio: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> kirjoitti:"\n\n</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Alkuperäinen viesti --------\nAihe: <xliff:g id="SUBJECT">%1$s</xliff:g>\nLähettäjä: <xliff:g id="SENDER">%2$s</xliff:g>\nVastaanottaja: <xliff:g id="TO">%3$s</xliff:g>\nKopio: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> kirjoitti:\n\n"</string>
     <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Lisää lainattu teksti"</string>
     <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Liitä teksti mukaan"</string>
     <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Lisää vähintään yksi vastaanottaja."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Kaikki sähköpostiosoitteet eivät kelpaa."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Tiedosto on liian suuri liitettäväksi."</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Lisää pikavastaus"</string>
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
+    <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> ja <xliff:g id="NUMBER">%2$d</xliff:g> muuta"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Vastaanottaja:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopio:"</string>
@@ -316,14 +318,14 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Kaikki"</string>
     <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Käytä tilin oletusta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Käyttäjänimi tai salasana on virheellinen."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Kirjautuminen epäonnistui."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Kirjautuminen epäonnistui.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Palvelimeen ei voi muodostaa suojattua yhteyttä."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Palvelimeen ei voi muodostaa suojattua yhteyttä."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Palvelimeen ei voi muodostaa suojattua yhteyttä.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Asiakasvarmenne vaaditaan. Haluatko yhdistää palvelimeen asiakasvarmenteen avulla?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Varmenne ei kelpaa tai ole käytettävissä."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Palvelin lähetti virheilmoituksen. Tarkista käyttäjänimesi ja salasanasi ja yritä uudelleen."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Palvelimeen ei voi muodostaa yhteyttä."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Palvelimeen ei voi muodostaa yhteyttä."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Palvelimeen ei voi muodostaa yhteyttä.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS vaaditaan, mutta palvelin ei tue sitä."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Palvelin ei tue todennustapoja."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Palvelimeen ei voi muodostaa yhteyttä suojausvirheen takia."</string>
