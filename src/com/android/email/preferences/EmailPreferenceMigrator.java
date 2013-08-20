@@ -61,8 +61,6 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         migrate(context, oldVersion, newVersion, accounts);
     }
 
-    public static final String REPLY_ALL = "reply_all";
-
     private static final String PREFERENCE_NOTIFY = "account_notify";
     private static final String PREFERENCE_VIBRATE = "account_settings_vibrate";
     private static final String PREFERENCE_VIBRATE_OLD = "account_settings_vibrate_when";
