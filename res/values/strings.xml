@@ -732,19 +732,19 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
         implies loading a 'reasonable' number of messages [CHAR LIMIT=25] -->
     <string name="account_setup_options_mail_window_auto">Automatic</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
-    <string name="account_setup_options_mail_window_1day">One day</string>
+    <string name="account_setup_options_mail_window_1day">Last day</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
-    <string name="account_setup_options_mail_window_3days">Three days</string>
+    <string name="account_setup_options_mail_window_3days">Last three days</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
-    <string name="account_setup_options_mail_window_1week">One week</string>
+    <string name="account_setup_options_mail_window_1week">Last week</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
-    <string name="account_setup_options_mail_window_2weeks">Two weeks</string>
+    <string name="account_setup_options_mail_window_2weeks">Last two weeks</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
-    <string name="account_setup_options_mail_window_1month">One month</string>
+    <string name="account_setup_options_mail_window_1month">Last month</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
     <string name="account_setup_options_mail_window_all">All</string>
     <!-- Per-mailbox sync window setting.  This means "use the account's sync window setting" [CHAR LIMIT=25] -->
-    <string name="account_setup_options_mail_window_default">Use account\'s default</string>
+    <string name="account_setup_options_mail_window_default">Use account default</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
     <string name="account_setup_failed_dlg_auth_message">Username or password is incorrect.</string>
@@ -922,7 +922,7 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Send notification when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
-    <string name="account_settings_mail_check_frequency_label">Inbox check frequency</string>
+    <string name="account_settings_mail_check_frequency_label">Sync frequency</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_incoming_label">Incoming settings</string>
     <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
@@ -1012,13 +1012,12 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="mailbox_settings_activity_title_with_mailbox">Sync options (<xliff:g id="mailboxx_name" example="Family">%s</xliff:g>)</string>
     <!-- Mailbox "sync settings" preference header [CHAR LIMIT=none] -->
     <string name="mailbox_preferences_header">Sync settings</string>
-    <!-- TODO: Finalize the next two strings and set them to translate. -->
     <!-- On mailbox settings screen: Whether to sync this mailbox when the account syncs. -->
-    <string translatable="false" name="mailbox_settings_sync_enabled_label">Auto sync this folder</string>
-    <!-- On mailbox settings screen: Explanatory text for what it means to "auto sync a folder". -->
-    <string translatable="false" name="mailbox_settings_sync_enabled_summary">Sync this folder when the account syncs</string>
+    <string name="mailbox_settings_sync_enabled_label">Sync this folder</string>
+    <!-- On mailbox settings screen: Explanatory text for what it means to "sync this folder". -->
+    <string name="mailbox_settings_sync_enabled_summary">Messages will download when connected</string>
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
-    <string name="mailbox_settings_mailbox_sync_window_label">Days to sync</string>
+    <string name="mailbox_settings_mailbox_sync_window_label">Days of mail to sync</string>
 
     <!-- Settings screen, title for whether to show checkboxes or sender image or neither [CHAR LIMIT=150] -->
     <string name="preference_conversation_list_icon_title">Sender image</string>
