@@ -254,7 +254,14 @@ public class EmailProvider extends ContentProvider {
         TABLE_NAMES = array;
     }
 
-    private static UriMatcher sURIMatcher = null;
+    private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    /**
+     * Functions which manipulate the database connection or files synchronize on this.
+     * It's static because there can be multiple provider objects.
+     * TODO: Do we actually need to synchronize across all DB access, not just connection creation?
+     */
+    private static final Object sDatabaseLock = new Object();
 
     /**
      * Let's only generate these SQL strings once, as they are used frequently
@@ -348,40 +355,42 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private synchronized SQLiteDatabase getDatabase(Context context) {
-        // Always return the cached database, if we've got one
-        if (mDatabase != null) {
+    private SQLiteDatabase getDatabase(Context context) {
+        synchronized (sDatabaseLock) {
+            // Always return the cached database, if we've got one
+            if (mDatabase != null) {
+                return mDatabase;
+            }
+
+            // Whenever we create or re-cache the databases, make sure that we haven't lost one
+            // to corruption
+            checkDatabases();
+
+            DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
+            mDatabase = helper.getWritableDatabase();
+            DBHelper.BodyDatabaseHelper bodyHelper =
+                    new DBHelper.BodyDatabaseHelper(context, BODY_DATABASE_NAME);
+            mBodyDatabase = bodyHelper.getWritableDatabase();
+            if (mBodyDatabase != null) {
+                String bodyFileName = mBodyDatabase.getPath();
+                mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
+            }
+
+            // Restore accounts if the database is corrupted...
+            restoreIfNeeded(context, mDatabase);
+            // Check for any orphaned Messages in the updated/deleted tables
+            deleteMessageOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
+            deleteMessageOrphans(mDatabase, Message.DELETED_TABLE_NAME);
+            // Delete orphaned mailboxes/messages/policies (account no longer exists)
+            deleteUnlinked(mDatabase, Mailbox.TABLE_NAME, MailboxColumns.ACCOUNT_KEY,
+                    AccountColumns.ID, Account.TABLE_NAME);
+            deleteUnlinked(mDatabase, Message.TABLE_NAME, MessageColumns.ACCOUNT_KEY,
+                    AccountColumns.ID, Account.TABLE_NAME);
+            deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID,
+                    AccountColumns.POLICY_KEY, Account.TABLE_NAME);
+            initUiProvider();
             return mDatabase;
         }
-
-        // Whenever we create or re-cache the databases, make sure that we haven't lost one
-        // to corruption
-        checkDatabases();
-
-        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
-        mDatabase = helper.getWritableDatabase();
-        DBHelper.BodyDatabaseHelper bodyHelper =
-                new DBHelper.BodyDatabaseHelper(context, BODY_DATABASE_NAME);
-        mBodyDatabase = bodyHelper.getWritableDatabase();
-        if (mBodyDatabase != null) {
-            String bodyFileName = mBodyDatabase.getPath();
-            mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
-        }
-
-        // Restore accounts if the database is corrupted...
-        restoreIfNeeded(context, mDatabase);
-        // Check for any orphaned Messages in the updated/deleted tables
-        deleteMessageOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
-        deleteMessageOrphans(mDatabase, Message.DELETED_TABLE_NAME);
-        // Delete orphaned mailboxes/messages/policies (account no longer exists)
-        deleteUnlinked(mDatabase, Mailbox.TABLE_NAME, MailboxColumns.ACCOUNT_KEY, AccountColumns.ID,
-                Account.TABLE_NAME);
-        deleteUnlinked(mDatabase, Message.TABLE_NAME, MessageColumns.ACCOUNT_KEY, AccountColumns.ID,
-                Account.TABLE_NAME);
-        deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
-                Account.TABLE_NAME);
-        initUiProvider();
-        return mDatabase;
     }
 
     /**
@@ -836,7 +845,21 @@ public class EmailProvider extends ContentProvider {
     public boolean onCreate() {
         Context context = getContext();
         EmailContent.init(context);
-        if (INTEGRITY_CHECK_URI == null) {
+        init(context);
+        // Do this last, so that EmailContent/EmailProvider are initialized
+        MailActivityEmail.setServicesEnabledAsync(context);
+        return false;
+    }
+
+    private static void init(final Context context) {
+        // Synchronize on the matcher rather than the class object to minimize risk of contention
+        // & deadlock.
+        synchronized (sURIMatcher) {
+            // We use the existence of this variable as indicative of whether this function has
+            // already run.
+            if (INTEGRITY_CHECK_URI != null) {
+                return;
+            }
             INTEGRITY_CHECK_URI = Uri.parse("content://" + EmailContent.AUTHORITY +
                     "/integrityCheck");
             ACCOUNT_BACKUP_URI =
@@ -844,75 +867,66 @@ public class EmailProvider extends ContentProvider {
             FOLDER_STATUS_URI =
                     Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
             EMAIL_APP_MIME_TYPE = context.getString(R.string.application_mime_type);
-        }
-        checkDatabases();
-        initMatcher();
-        // Do this last, so that EmailContent/EmailProvider are initialized
-        MailActivityEmail.setServicesEnabledAsync(context);
-        return false;
-    }
-
-    private static synchronized void initMatcher() {
-        if (sURIMatcher == null) {
-            // Email URI matching table
-            final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
             // All accounts
-            matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
             // A specific account
             // insert into this URI causes a mailbox to be added to the account
-            matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
 
             // Special URI to reset the new message count.  Only update works, and values
             // will be ignored.
-            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount", ACCOUNT_RESET_NEW_COUNT);
-            matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
+                    ACCOUNT_RESET_NEW_COUNT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
                     ACCOUNT_RESET_NEW_COUNT_ID);
 
             // All mailboxes
-            matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
             // A specific mailbox
             // insert into this URI causes a message to be added to the mailbox
             // ** NOTE For now, the accountKey must be set manually in the values!
-            matcher.addURI(EmailContent.AUTHORITY, "mailbox/*", MAILBOX_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#", MAILBOX_NOTIFICATION);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "mailbox/*", MAILBOX_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "mailboxNotification/#",
+                    MAILBOX_NOTIFICATION);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "mailboxMostRecentMessage/#",
                     MAILBOX_MOST_RECENT_MESSAGE);
-            matcher.addURI(EmailContent.AUTHORITY, "mailboxCount/#", MAILBOX_MESSAGE_COUNT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "mailboxCount/#", MAILBOX_MESSAGE_COUNT);
 
             // All messages
-            matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
             // A specific message
             // insert into this URI causes an attachment to be added to the message
-            matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
 
             // A specific attachment
-            matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
             // A specific attachment (the header information)
-            matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
             // The attachments of a specific message (query only) (insert & delete TBD)
-            matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#", ATTACHMENTS_MESSAGE_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "attachment/cachedFile",
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
+                    ATTACHMENTS_MESSAGE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "attachment/cachedFile",
                     ATTACHMENTS_CACHED_FILE_ACCESS);
 
             // All mail bodies
-            matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "body", BODY);
             // A specific mail body
-            matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
 
             // All hostauth records
-            matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
             // A specific hostauth
-            matcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
 
             /**
              * THIS URI HAS SPECIAL SEMANTICS
              * ITS USE IS INTENDED FOR THE UI TO MARK CHANGES THAT NEED TO BE SYNCED BACK
              * TO A SERVER VIA A SYNC ADAPTER
              */
-            matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
-            matcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
 
             /**
              * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
@@ -920,55 +934,54 @@ public class EmailProvider extends ContentProvider {
              * BY THE UI APPLICATION
              */
             // All deleted messages
-            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
             // A specific deleted message
-            matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
 
             // All updated messages
-            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
             // A specific updated message
-            matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
 
             CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
             CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
 
-            matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
-            matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
 
             // All quick responses
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
             // A specific quick response
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
             // All quick responses associated with a particular account id
-            matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
                     QUICK_RESPONSE_ACCOUNT_ID);
 
-            matcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
-            matcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
-            matcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
-            matcher.addURI(EmailContent.AUTHORITY, QUERY_UIREFRESH + "/#", UI_FOLDER_REFRESH);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uimessage/#", UI_MESSAGE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiundo", UI_UNDO);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, QUERY_UIREFRESH + "/#", UI_FOLDER_REFRESH);
             // We listen to everything trailing uifolder/ since there might be an appVersion
             // as in Utils.appendVersionQueryParameter().
-            matcher.addURI(EmailContent.AUTHORITY, "uifolder/*", UI_FOLDER);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
-            matcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
-            matcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
-            matcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
-            matcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
-            matcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
-            matcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uifolder/*", UI_FOLDER);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiconversation/#", UI_CONVERSATION);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uirecentfolders/#", UI_RECENT_FOLDERS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uidefaultrecentfolders/#",
                     UI_DEFAULT_RECENT_FOLDERS);
-            matcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#",  ACCOUNT_PICK_TRASH_FOLDER);
-            matcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#", ACCOUNT_PICK_SENT_FOLDER);
-
-            // Do this last so if someone accidentally the synchronized keyword it will still work
-            sURIMatcher = matcher;
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "pickTrashFolder/#",
+                    ACCOUNT_PICK_TRASH_FOLDER);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#",
+                    ACCOUNT_PICK_SENT_FOLDER);
         }
     }
 
@@ -978,27 +991,30 @@ public class EmailProvider extends ContentProvider {
      * any "orphan" database, so that both will be created together.  Note that an "orphan" database
      * will exist after either of the individual databases is deleted due to data corruption.
      */
-    public synchronized void checkDatabases() {
-        // Uncache the databases
-        if (mDatabase != null) {
-            mDatabase = null;
-        }
-        if (mBodyDatabase != null) {
-            mBodyDatabase = null;
-        }
-        // Look for orphans, and delete as necessary; these must always be in sync
-        final File databaseFile = getContext().getDatabasePath(DATABASE_NAME);
-        final File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
+    public void checkDatabases() {
+        synchronized (sDatabaseLock) {
+            // Uncache the databases
+            if (mDatabase != null) {
+                mDatabase = null;
+            }
+            if (mBodyDatabase != null) {
+                mBodyDatabase = null;
+            }
+            // Look for orphans, and delete as necessary; these must always be in sync
+            final File databaseFile = getContext().getDatabasePath(DATABASE_NAME);
+            final File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
 
-        // TODO Make sure attachments are deleted
-        if (databaseFile.exists() && !bodyFile.exists()) {
-            LogUtils.w(TAG, "Deleting orphaned EmailProvider database...");
-            getContext().deleteDatabase(DATABASE_NAME);
-        } else if (bodyFile.exists() && !databaseFile.exists()) {
-            LogUtils.w(TAG, "Deleting orphaned EmailProviderBody database...");
-            getContext().deleteDatabase(BODY_DATABASE_NAME);
+            // TODO Make sure attachments are deleted
+            if (databaseFile.exists() && !bodyFile.exists()) {
+                LogUtils.w(TAG, "Deleting orphaned EmailProvider database...");
+                getContext().deleteDatabase(DATABASE_NAME);
+            } else if (bodyFile.exists() && !databaseFile.exists()) {
+                LogUtils.w(TAG, "Deleting orphaned EmailProviderBody database...");
+                getContext().deleteDatabase(BODY_DATABASE_NAME);
+            }
         }
     }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
