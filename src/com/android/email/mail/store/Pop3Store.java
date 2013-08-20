@@ -585,13 +585,19 @@ public class Pop3Store extends Store {
                         try {
                             int start = ok + 3;
                             int end = response.indexOf(" ", start);
-                            String intString;
-                            if (end > 0) {
-                                intString = response.substring(start, end);
+                            if (start < response.length()) {
+                                // No length was supplied, this is a protocol error.
+                                LogUtils.e(Logging.LOG_TAG, "No body length supplied");
+                                message.setSize(0);
                             } else {
-                                intString = response.substring(start);
+                                final String intString;
+                                if (end > 0) {
+                                    intString = response.substring(start, end);
+                                } else {
+                                    intString = response.substring(start);
+                                }
+                                message.setSize(Integer.parseInt(intString));
                             }
-                            message.setSize(Integer.parseInt(intString));
                         } catch (NumberFormatException e) {
                             // We tried
                         }
