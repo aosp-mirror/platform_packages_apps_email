@@ -489,6 +489,7 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         protected void onPostExecute(Map<String, Object> map) {
             if (!isCancelled()) {
                 final Account account = (Account) map.get(ACCOUNT_KEY);
+                mUiAccount = (com.android.mail.providers.Account) map.get(UI_ACCOUNT_KEY);
                 if (account == null) {
                     mSaveOnExit = false;
                     mCallback.abandonEdit();
@@ -498,7 +499,6 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                         loadSettings();
                     }
                 }
-                mUiAccount = (com.android.mail.providers.Account) map.get(UI_ACCOUNT_KEY);
             }
         }
     }
@@ -774,6 +774,9 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
         final PreferenceCategory policiesCategory = (PreferenceCategory) findPreference(
                 PREFERENCE_CATEGORY_POLICIES);
+        // TODO: This code for showing policies isn't working. For KLP, just don't even bother
+        // showing this data; we'll fix this later.
+/*
         if (policy != null) {
             if (policy.mProtocolPoliciesEnforced != null) {
                 ArrayList<String> policies = getSystemPoliciesList(policy);
@@ -789,9 +792,11 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
                 policiesCategory.removePreference(retryAccount);
             }
         } else {
-            // Remove the category completely if there are no policies
-            getPreferenceScreen().removePreference(policiesCategory);
-        }
+*/
+        // Remove the category completely if there are no policies
+        getPreferenceScreen().removePreference(policiesCategory);
+
+        //}
 
         retryAccount.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
