@@ -121,6 +121,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public String mSecuritySyncKey;
     public String mSignature;
     public long mPolicyKey;
+    public long mPingDuration;
 
     // Convenience for creating/working with an account
     public transient HostAuth mHostAuthRecv;
@@ -144,7 +145,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 12;
     public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 13;
     public static final int CONTENT_SIGNATURE_COLUMN = 14;
-    public static final int CONTENT_POLICY_KEY = 15;
+    public static final int CONTENT_POLICY_KEY_COLUMN = 15;
+    public static final int CONTENT_PING_DURATION_COLUMN = 16;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -154,7 +156,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
         AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
-        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY
+        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY, AccountColumns.PING_DURATION
     };
 
     public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -248,7 +250,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
         mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
         mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
-        mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY);
+        mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY_COLUMN);
+        mPingDuration = cursor.getLong(CONTENT_PING_DURATION_COLUMN);
     }
 
     private static long getId(Uri u) {
@@ -345,6 +348,20 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      */
     public void setSyncLookback(int value) {
         mSyncLookback = value;
+    }
+
+    /**
+     * @return the current ping duration.
+     */
+    public long getPingDuration() {
+        return mPingDuration;
+    }
+
+    /**
+     * Set the ping duration.  Be sure to call save() to commit to database.
+     */
+    public void setPingDuration(long value) {
+        mPingDuration = value;
     }
 
     /**
@@ -762,6 +779,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
         values.put(AccountColumns.SIGNATURE, mSignature);
         values.put(AccountColumns.POLICY_KEY, mPolicyKey);
+        values.put(AccountColumns.PING_DURATION, mPingDuration);
         return values;
     }
 

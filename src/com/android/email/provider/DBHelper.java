@@ -147,8 +147,9 @@ public final class DBHelper {
     //              syncs along with the account).
     // Version 113: Restore message_count to being useful.
     // Version 114: Add lastFullSyncTime column
+    // Version 115: Add pingDuration column
 
-    public static final int DATABASE_VERSION = 114;
+    public static final int DATABASE_VERSION = 115;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -344,7 +345,8 @@ public final class DBHelper {
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
-            + AccountColumns.POLICY_KEY + " integer"
+            + AccountColumns.POLICY_KEY + " integer, "
+            + AccountColumns.PING_DURATION + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
@@ -1064,10 +1066,23 @@ public final class DBHelper {
                 try {
                     db.execSQL("alter table " + Mailbox.TABLE_NAME
                             + " add column " + MailboxColumns.LAST_FULL_SYNC_TIME +" integer" + ";");
-                    ContentValues cv = new ContentValues();
+                    final ContentValues cv = new ContentValues(1);
                     cv.put(MailboxColumns.LAST_FULL_SYNC_TIME, 0);
                     db.update(Mailbox.TABLE_NAME, cv, null, null);
-                } catch (SQLException e) {
+                } catch (final SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v113 to v114", e);
+                }
+            }
+
+            if (oldVersion <= 114) {
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + AccountColumns.PING_DURATION +" integer" + ";");
+                    final ContentValues cv = new ContentValues(1);
+                    cv.put(AccountColumns.PING_DURATION, 0);
+                    db.update(Account.TABLE_NAME, cv, null, null);
+                } catch (final SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v113 to v114", e);
                 }
