@@ -404,10 +404,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             if (c.moveToFirst()) {
                 mailbox = getContent(c, Mailbox.class);
                 if (c.moveToNext()) {
-                    LogUtils.w(Logging.LOG_TAG, "Multiple mailboxes named \"" + path + "\"");
+                    LogUtils.w(Logging.LOG_TAG, "Multiple mailboxes named \"%s\"", path);
                 }
             } else {
-                LogUtils.i(Logging.LOG_TAG, "Could not find mailbox at \"" + path + "\"");
+                LogUtils.i(Logging.LOG_TAG, "Could not find mailbox at \"%s\"", path);
             }
             return mailbox;
         } finally {
