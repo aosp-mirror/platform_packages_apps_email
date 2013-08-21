@@ -37,4 +37,8 @@
     <string name="mailbox_name_server_starred" translatable="false">Starred</string>
     <!-- Do Not Translate.  This is the system name of the "all unread" folder. -->
     <string name="mailbox_name_server_all_unread" translatable="false">Unread</string>
+
+
+    <!-- Do Not Translate.  This is the authority for the email package name -->
+    <string name="email_package_name" translatable="false">com.android.email</string>
 </resources>
