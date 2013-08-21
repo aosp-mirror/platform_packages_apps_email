@@ -23,6 +23,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -32,6 +33,7 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.R;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -112,7 +114,6 @@ public abstract class EmailContent {
     public abstract void restore (Cursor cursor);
 
 
-    public static String PACKAGE_NAME;
     public static String EMAIL_PACKAGE_NAME;
     public static String AUTHORITY;
     // The notifier authority is used to send notifications regarding changes to messages (insert,
@@ -131,13 +132,8 @@ public abstract class EmailContent {
 
     public static synchronized void init(Context context) {
         if (AUTHORITY == null) {
-            PACKAGE_NAME = context.getPackageName();
-            EMAIL_PACKAGE_NAME = PACKAGE_NAME;
-            // If our package is com...exchange, the provider is com...email.provider
-            if (PACKAGE_NAME.endsWith("exchange")) {
-                int lastDot = EMAIL_PACKAGE_NAME.lastIndexOf('.');
-                EMAIL_PACKAGE_NAME = PACKAGE_NAME.substring(0, lastDot + 1) + "email";
-            }
+            final Resources res = context.getResources();
+            EMAIL_PACKAGE_NAME = res.getString(R.string.email_package_name);
             AUTHORITY = EMAIL_PACKAGE_NAME + ".provider";
             LogUtils.d("EmailContent", "init for " + AUTHORITY);
             NOTIFIER_AUTHORITY = EMAIL_PACKAGE_NAME + ".notifier";
