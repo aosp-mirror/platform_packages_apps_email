@@ -666,7 +666,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * This is overridden only by AccountSetupExchange
      */
     @Override
-    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+    public void onAutoDiscoverComplete(int result) {
         throw new IllegalStateException();
     }
 
