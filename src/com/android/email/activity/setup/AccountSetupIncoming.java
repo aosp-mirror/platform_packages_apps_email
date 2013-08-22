@@ -91,7 +91,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         // Configure fragment
         mFragment.setCallback(this);
 
-        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
+        mNextButton = UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
 
@@ -164,22 +164,18 @@ public class AccountSetupIncoming extends AccountSetupActivity
     /**
      * Implements AccountCheckSettingsFragment.Callbacks
      *
-     * @param result configuration data returned by AD server, or null if no data available
+     * @param result Currently auth failed (bail), ok (move to next), or no data (stay here)
      */
-    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+    public void onAutoDiscoverComplete(int result) {
         // If authentication failed, exit immediately (to re-enter credentials)
         if (result == AccountCheckSettingsFragment.AUTODISCOVER_AUTHENTICATION) {
             finish();
             return;
         }
 
-        // If data was returned, populate the account & populate the UI fields and validate it
+        // If data was returned, proceed to next screen
         if (result == AccountCheckSettingsFragment.AUTODISCOVER_OK) {
-            boolean valid = mFragment.setHostAuthFromAutodiscover(hostAuth);
-            if (valid) {
-                // "click" next to launch server verification
-                mFragment.onNext();
-            }
+            mFragment.onNext();
         }
         // Otherwise, proceed into this activity for manual setup
     }
