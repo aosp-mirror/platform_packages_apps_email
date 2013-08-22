@@ -310,13 +310,19 @@
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"დასრულება ვერ მოხერხდა"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"სინქრონიზაციის დღეები"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ავტომატური"</string>
-    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"ერთი დღე"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"სამი დღე"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"ერთი კვირა"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"ორი კვირა"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"ერთი თვე"</string>
+    <!-- no translation found for account_setup_options_mail_window_1day (7727436096227637646) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_3days (1841106793912850270) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1week (5804121771990249346) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_2weeks (3583478100026382495) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1month (4289585173153789717) -->
+    <skip />
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"ყველა"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"გამოიყენე ანგარიშის ნაგულისხმევი პარამეტრები"</string>
+    <!-- no translation found for account_setup_options_mail_window_default (2540360826995543134) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"მომხმარებლის სახელი ან პაროლი არასწორია."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"შესვლა ვერ მოხერხდა.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"სერვერთან უსაფრთხო კავშირის დამყარება ვერ ხერხდება."</string>
@@ -365,7 +371,8 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ელფოსტის შეტყობინებები"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"სინქრონიზაციის სიხშირე, შეტყობინებები და ა.შ."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"შეტყობინების გაგზავნა ახალი ელფოსტის მიღებისას"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"შემოსულების შემოწმების სიხშირე"</string>
+    <!-- no translation found for account_settings_mail_check_frequency_label (4322235101687302250) -->
+    <skip />
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"შემომავალის პარამეტრები"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"მომხმარებლის სახელი, პაროლი და შემომავალი სერვერის სხვა მონაცემები"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"გამავალი სერვერის პარამეტრები"</string>
@@ -408,7 +415,12 @@
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"სინქრონიზაციის პარამეტრები"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"სინქრონიზაციის პარამეტრები (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_preferences_header" msgid="9077316556563252246">"სინქრონიზაციის პარამეტრები"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"სინქრონიზაციის დპერიოდი"</string>
+    <!-- no translation found for mailbox_settings_sync_enabled_label (1180866791599296994) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_sync_enabled_summary (345878979425044320) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (851180833264474141) -->
+    <skip />
     <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"გამგზავნის სურათი"</string>
   <string-array name="prefEntries_conversationListIconName">
     <item msgid="228585958140385749">"სურათის ჩვენება"</item>
