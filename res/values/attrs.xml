@@ -17,10 +17,6 @@
 <!-- Defines attributes for custom views -->
 
 <resources>
-    <declare-styleable name="SizeBoundingFrameLayout_attributes">
-        <attr name="maxWidth" format="dimension"/>
-        <attr name="maxHeight" format="dimension"/>
-    </declare-styleable>
     <declare-styleable name="EmailServiceInfo">
         <attr name="protocol" format="string"/>
         <attr name="name" format="string"/>

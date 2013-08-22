@@ -18,12 +18,6 @@
 
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
-    <dimen name="message_list_item_height_wide">70sp</dimen>
-    <dimen name="message_list_item_height_normal">70sp</dimen>
-    <dimen name="message_list_item_color_tip_width">35dip</dimen>
-    <dimen name="message_list_item_color_tip_height">6dip</dimen>
-    <dimen name="message_list_badge_margin">4dip</dimen>
-    <dimen name="message_list_icon_padding_compensation">3dip</dimen>
 
     <!-- Account settings fragments -->
     <dimen name="settings_fragment_padding_top">16dip</dimen>
@@ -45,11 +39,6 @@
 
     <!-- Username/password entry -->
     <dimen name="setup_credentials_input_width">340dip</dimen>
-
-    <!-- Message list items -->
-    <dimen name="replystate_margin_left">8dip</dimen>
-    <dimen name="replystate_margin_right">0dip</dimen>
-    <dimen name="replystate_margin_top">10sp</dimen>
 
     <!-- Notification dialog -->
     <dimen name="dialog_text_size">10sp</dimen>
