@@ -101,12 +101,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
-        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
-        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
-        mPortView = (EditText) UiUtilities.getView(view, R.id.account_port);
-        mRequireLoginView = (CheckBox) UiUtilities.getView(view, R.id.account_require_login);
-        mSecurityTypeView = (Spinner) UiUtilities.getView(view, R.id.account_security_type);
+        mUsernameView = UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = UiUtilities.getView(view, R.id.account_password);
+        mServerView = UiUtilities.getView(view, R.id.account_server);
+        mPortView = UiUtilities.getView(view, R.id.account_port);
+        mRequireLoginView = UiUtilities.getView(view, R.id.account_require_login);
+        mSecurityTypeView = UiUtilities.getView(view, R.id.account_security_type);
         mRequireLoginView.setOnCheckedChangeListener(this);
 
         // Note:  Strings are shared with AccountSetupIncomingFragment
@@ -328,8 +328,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     private int getPortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        int port = (securityType & HostAuth.FLAG_SSL) != 0 ? SMTP_PORT_SSL : SMTP_PORT_NORMAL;
-        return port;
+        return (securityType & HostAuth.FLAG_SSL) != 0 ? SMTP_PORT_SSL : SMTP_PORT_NORMAL;
     }
 
     private void updatePortFromSecurityType() {

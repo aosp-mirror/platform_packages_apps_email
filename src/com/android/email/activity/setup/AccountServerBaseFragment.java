@@ -151,7 +151,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected void onCreateViewSettingsMode(View view) {
         if (mSettingsMode) {
             UiUtilities.getView(view, R.id.cancel).setOnClickListener(this);
-            mProceedButton = (Button) UiUtilities.getView(view, R.id.done);
+            mProceedButton = UiUtilities.getView(view, R.id.done);
             mProceedButton.setOnClickListener(this);
             mProceedButton.setEnabled(false);
         }
@@ -336,9 +336,7 @@ public abstract class AccountServerBaseFragment extends Fragment
 
         @Override
         protected Account doInBackground(Void... params) {
-            Account account = Utility.findExistingAccount(mContext, mAccountId,
-                    mCheckHost, mCheckLogin);
-            return account;
+            return Utility.findExistingAccount(mContext, mAccountId, mCheckHost, mCheckLogin);
         }
 
         @Override
@@ -392,7 +390,7 @@ public abstract class AccountServerBaseFragment extends Fragment
      * This is overridden only by AccountSetupExchange
      */
     @Override
-    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+    public void onAutoDiscoverComplete(int result) {
         throw new IllegalStateException();
     }
 
@@ -409,11 +407,6 @@ public abstract class AccountServerBaseFragment extends Fragment
         boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
         return sendChanged || recvChanged;
-    }
-
-    public boolean setHostAuthFromAutodiscover(HostAuth hostAuth) {
-        // This is overridden, if necessary
-        return true;
     }
 
     /**
