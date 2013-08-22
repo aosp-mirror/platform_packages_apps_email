@@ -16,9 +16,9 @@
 
 package com.android.email;
 
-import com.android.emailcommon.mail.Address;
-
 import android.widget.AutoCompleteTextView.Validator;
+
+import com.android.emailcommon.mail.Address;
 
 public class EmailAddressValidator implements Validator {
     @Override
@@ -28,6 +28,6 @@ public class EmailAddressValidator implements Validator {
 
     @Override
     public boolean isValid(CharSequence text) {
-        return Address.parse(text.toString()).length > 0;
+        return Address.parse(text.toString()).length == 1;
     }
 }
