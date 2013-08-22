@@ -60,7 +60,7 @@ public class AccountSetupOutgoing extends Activity
         // Configure fragment
         mFragment.setCallback(this);
 
-        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
+        mNextButton = UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
     }
