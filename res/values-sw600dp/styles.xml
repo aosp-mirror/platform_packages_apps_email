@@ -16,11 +16,6 @@
 
 <!-- Specializations for tablet screens - most colors are in values/colors.xml -->
 <resources>
-    <!-- The headline at the top of every account settings fragments (in preferences) -->
-    <style name="accountSettingsHeadline">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-    </style>
-
     <!-- The large headline at the top of every account setup screen -->
     <style name="accountSetupHeadline">
         <item name="android:textSize">30sp</item>
@@ -45,10 +40,5 @@
         <item name="android:layout_width">208sp</item>
         <item name="android:layout_height">48sp</item>
         <item name="android:textSize">18sp</item>
-    </style>
-
-    <style name="accountSetupTypePrevious" parent="@style/accountSetupButton">
-        <item name="android:layout_toRightOf">@+id/main_content"</item>
-        <item name="android:layout_alignParentRight">true</item>
     </style>
 </resources>
