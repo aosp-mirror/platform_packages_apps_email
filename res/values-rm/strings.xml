@@ -440,14 +440,19 @@
     <skip />
     <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
     <skip />
-    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"In di"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Trais dis"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Ina emna"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Duas emnas"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"In mais"</string>
+    <!-- no translation found for account_setup_options_mail_window_1day (7727436096227637646) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_3days (1841106793912850270) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1week (5804121771990249346) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_2weeks (3583478100026382495) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1month (4289585173153789717) -->
+    <skip />
     <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_default (8321351926520165832) -->
+    <!-- no translation found for account_setup_options_mail_window_default (2540360826995543134) -->
     <skip />
     <!-- no translation found for account_setup_failed_dlg_auth_message (426627755590431364) -->
     <skip />
@@ -540,7 +545,7 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"\"Frequenza da sincronisaziun, avis, etc.\""</string>
     <!-- no translation found for account_settings_notify_summary (8134339460923068254) -->
     <skip />
-    <!-- no translation found for account_settings_mail_check_frequency_label (8271462919214560616) -->
+    <!-- no translation found for account_settings_mail_check_frequency_label (4322235101687302250) -->
     <skip />
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Messadis che entran"</string>
     <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
@@ -611,7 +616,11 @@
     <skip />
     <!-- no translation found for mailbox_preferences_header (9077316556563252246) -->
     <skip />
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <!-- no translation found for mailbox_settings_sync_enabled_label (1180866791599296994) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_sync_enabled_summary (345878979425044320) -->
+    <skip />
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (851180833264474141) -->
     <skip />
     <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
     <skip />
