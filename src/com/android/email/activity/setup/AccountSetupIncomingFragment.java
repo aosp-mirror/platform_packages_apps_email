@@ -86,7 +86,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private boolean mStarted;
     private boolean mLoaded;
     private String mCacheLoginCredential;
-    private HostAuth mRecvAuth;
     private EmailServiceInfo mServiceInfo;
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -122,21 +121,20 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mRecvAuth = SetupData.getAccount().mHostAuthRecv;
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, mRecvAuth.mProtocol);
+        final HostAuth recvAuth = SetupData.getAccount().mHostAuthRecv;
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
 
-        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
-        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
-        mServerLabelView = (TextView) UiUtilities.getView(view, R.id.account_server_label);
-        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
-        mPortView = (EditText) UiUtilities.getView(view, R.id.account_port);
-        mSecurityTypeView = (Spinner) UiUtilities.getView(view, R.id.account_security_type);
-        mDeletePolicyLabelView = (TextView) UiUtilities.getView(view,
-                R.id.account_delete_policy_label);
-        mDeletePolicyView = (Spinner) UiUtilities.getView(view, R.id.account_delete_policy);
+        mUsernameView = UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = UiUtilities.getView(view, R.id.account_password);
+        mServerLabelView = UiUtilities.getView(view, R.id.account_server_label);
+        mServerView = UiUtilities.getView(view, R.id.account_server);
+        mPortView = UiUtilities.getView(view, R.id.account_port);
+        mSecurityTypeView = UiUtilities.getView(view, R.id.account_security_type);
+        mDeletePolicyLabelView = UiUtilities.getView(view, R.id.account_delete_policy_label);
+        mDeletePolicyView = UiUtilities.getView(view, R.id.account_delete_policy);
         mImapPathPrefixSectionView = UiUtilities.getView(view, R.id.imap_path_prefix_section);
         mDeviceIdSectionView = UiUtilities.getView(view, R.id.device_id_section);
-        mImapPathPrefixView = (EditText) UiUtilities.getView(view, R.id.imap_path_prefix);
+        mImapPathPrefixView = UiUtilities.getView(view, R.id.imap_path_prefix);
         mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
 
         // Set up security type spinner
@@ -417,8 +415,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                 && Utility.isPortFieldValid(mPortView);
         enableNextButton(enabled);
 
-        String userName = mUsernameView.getText().toString().trim();
-        mCacheLoginCredential = userName;
+        mCacheLoginCredential = mUsernameView.getText().toString().trim();
 
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
@@ -552,9 +549,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Implements AccountCheckSettingsFragment.Callbacks
      */
     @Override
-    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+    public void onAutoDiscoverComplete(int result) {
         AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
-        activity.onAutoDiscoverComplete(result, hostAuth);
+        activity.onAutoDiscoverComplete(result);
     }
 
     @Override

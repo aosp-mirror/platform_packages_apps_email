@@ -118,9 +118,8 @@ public class AccountCheckSettingsFragment extends Fragment {
         /**
          * Called when autodiscovery completes.
          * @param result autodiscovery result code - success is AUTODISCOVER_OK
-         * @param hostAuth configuration data returned by AD server, or null if no data available
          */
-        public void onAutoDiscoverComplete(int result, HostAuth hostAuth);
+        public void onAutoDiscoverComplete(int result);
     }
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -271,8 +270,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     fm.popBackStack();
                     // 3. report back to target fragment or activity
                     getCallbackTarget().onAutoDiscoverComplete(
-                            (autoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA,
-                            autoDiscoverResult);
+                            (autoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA);
                     break;
                 default:
                     // Display a normal progress message
@@ -349,7 +347,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         Callbacks callbackTarget = getCallbackTarget();
         if (mState == STATE_AUTODISCOVER_AUTH_DIALOG) {
             // report auth error to target fragment or activity
-            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION, null);
+            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION);
         } else {
             // report check settings failure to target fragment or activity
             callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR);
