@@ -23,12 +23,8 @@
     <color name="account_setup_label_text_color">#666666</color>
     <color name="account_setup_divider_color">#CCCCCC</color>
 
-    <!-- Main UI -->
-    <color name="connection_error_banner">#fffff1a8</color>
-
     <!-- Standard text colors -->
     <color name="text_secondary_color">#666666</color>
-    <color name="text_ternary_color">#aaaaaa</color>
 
     <!-- Account color chips on combined view -->
     <color name="combined_view_account_color_1">#ff71aea7</color>

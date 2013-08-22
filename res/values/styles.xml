@@ -16,12 +16,6 @@
 
 <!-- non-xlarge.  See also values-xlarge for specializations for xlarge screens -->
 <resources>
-    <!-- The headline at the top of every account settings fragments (in preferences) -->
-    <!-- TODO these are estimates for the phone UX - final sizes TBD -->
-    <style name="accountSettingsHeadline">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-    </style>
-
     <!-- The large headline at the top of every account setup screen -->
     <!-- TODO these are estimates for the phone UX - final sizes TBD -->
     <style name="accountSetupHeadline">
