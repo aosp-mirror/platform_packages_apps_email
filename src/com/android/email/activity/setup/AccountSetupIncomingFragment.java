@@ -409,8 +409,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     private void validateFields() {
         if (!mLoaded) return;
-        boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
-                && Utility.isTextViewNotEmpty(mPasswordView)
+        final boolean enabled = !TextUtils.isEmpty(mUsernameView.getText())
+                && !TextUtils.isEmpty(mPasswordView.getText())
                 && Utility.isServerNameValid(mServerView)
                 && Utility.isPortFieldValid(mPortView);
         enableNextButton(enabled);
