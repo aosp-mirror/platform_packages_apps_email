@@ -89,6 +89,7 @@ import java.util.concurrent.FutureTask;
 public class AccountSetupBasics extends AccountSetupActivity
         implements OnClickListener, TextWatcher, AccountCheckSettingsFragment.Callbacks {
 
+    // TODO: Set to false before shipping, logs PII b/10446166
     private final static boolean ENTER_DEBUG_SCREEN = true;
 
     /**
