@@ -50,12 +50,20 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         final Cursor accountCursor = context.getContentResolver().query(Uri.parse(
                 EmailContent.CONTENT_URI + "/uiaccts"),
                 UIProvider.ACCOUNTS_PROJECTION_NO_CAPABILITIES, null, null, null);
-        try {
-            while (accountCursor.moveToNext()) {
-                accounts.add(new Account(accountCursor));
+
+        if (accountCursor == null) {
+            LogUtils.wtf(LOG_TAG,
+                    "Null cursor returned from query to %s when migrating accounts from %d to %d",
+                    EmailContent.CONTENT_URI + "/uiaccts",
+                    oldVersion, newVersion);
+        } else {
+            try {
+                while (accountCursor.moveToNext()) {
+                    accounts.add(new Account(accountCursor));
+                }
+            } finally {
+                accountCursor.close();
             }
-        } finally {
-            accountCursor.close();
         }
 
         migrate(context, oldVersion, newVersion, accounts);
