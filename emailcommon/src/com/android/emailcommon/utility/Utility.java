@@ -146,24 +146,6 @@ public class Utility {
         }
         return sb.toString();
     }
-    public static String base64Decode(String encoded) {
-        if (encoded == null) {
-            return null;
-        }
-        byte[] decoded = Base64.decode(encoded, Base64.DEFAULT);
-        return new String(decoded);
-    }
-
-    public static String base64Encode(String s) {
-        if (s == null) {
-            return s;
-        }
-        return Base64.encodeToString(s.getBytes(), Base64.NO_WRAP);
-    }
-
-    public static boolean isTextViewNotEmpty(TextView view) {
-        return !TextUtils.isEmpty(view.getText());
-    }
 
     public static boolean isPortFieldValid(TextView view) {
         CharSequence chars = view.getText();
