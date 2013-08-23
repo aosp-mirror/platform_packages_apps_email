@@ -71,6 +71,7 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.MovedMessagesColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.HostAuth;
@@ -183,6 +184,7 @@ public class EmailProvider extends ContentProvider {
     private static final int MESSAGE_ID = MESSAGE_BASE + 1;
     private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 2;
     private static final int MESSAGE_SELECTION = MESSAGE_BASE + 3;
+    private static final int MOVED_MESSAGES = MESSAGE_BASE + 4;
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
@@ -300,6 +302,43 @@ public class EmailProvider extends ContentProvider {
     private static final String IS_UIPROVIDER = "is_uiprovider";
 
     private static final String SYNC_STATUS_CALLBACK_METHOD = "sync_status";
+
+    /** FROM clause for a SQL query to get info about updated messages. */
+    private static final String GET_CHANGED_MESSAGES_FROM_CLAUSE = "from "
+            + Message.UPDATED_TABLE_NAME + " as u inner join " + Message.TABLE_NAME
+            + " as m using (" + MessageColumns.ID + ")";
+
+    /** FROM clause for a SQL query to get moved messages info. */
+    private static final String GET_MOVED_MESSAGES_FROM_CLAUSE = GET_CHANGED_MESSAGES_FROM_CLAUSE
+            + " inner join " + Mailbox.TABLE_NAME + " as src on u." + MessageColumns.MAILBOX_KEY
+            + "=src." + MailboxColumns.ID
+            + " inner join " + Mailbox.TABLE_NAME + " as dst on m." + MessageColumns.MAILBOX_KEY
+            + "=dst." + MailboxColumns.ID;
+
+    /** WHERE clause for a SQL query to get info about updated messages. */
+    private static final String GET_CHANGED_MESSAGES_WHERE_CLAUSE =
+            "where u." + MessageColumns.ACCOUNT_KEY + "=?";
+
+    /** WHERE clause for a SQL query to get moved messages info. */
+    private static final String GET_MOVED_MESSAGES_WHERE_CLAUSE = GET_CHANGED_MESSAGES_WHERE_CLAUSE
+            + " and src." + MailboxColumns.ID + "!=dst." + MailboxColumns.ID;
+
+    /** SELECT clause for a SQL query to get moved messages info. */
+    private static final String GET_MOVED_MESSAGES_SELECTION = "select "
+            + "u." + SyncColumns.SERVER_ID + " as " + MovedMessagesColumns.MESSAGE_ID
+            + ",u." + MessageColumns.ID + " as " + MovedMessagesColumns.LOCAL_MESSAGE_ID
+            + ",src." + MailboxColumns.SERVER_ID + " as " + MovedMessagesColumns.SOURCE_FOLDER_ID
+            + ",src." + MailboxColumns.ID + " as " + MovedMessagesColumns.LOCAL_SOURCE_FOLDER_ID
+            + ",dst." + MailboxColumns.SERVER_ID + " as " + MovedMessagesColumns.DEST_FOLDER_ID
+            + ",dst." + MailboxColumns.ID + " as " + MovedMessagesColumns.LOCAL_DEST_FOLDER_ID;
+
+    /**
+     * A raw SQL query for getting the moved messages info.
+     * See {@link EmailContent#MOVED_MESSAGES_URI} for details on this query.
+     */
+    private static final String GET_MOVED_MESSAGES_QUERY = GET_MOVED_MESSAGES_SELECTION + " "
+            + GET_MOVED_MESSAGES_FROM_CLAUSE + " " + GET_MOVED_MESSAGES_WHERE_CLAUSE;
+
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -928,6 +967,9 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
 
+            sURIMatcher.addURI(EmailContent.AUTHORITY, EmailContent.MOVED_MESSAGES_PATH + "/#",
+                    MOVED_MESSAGES);
+
             /**
              * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
              * THEY REFER TO DATA CREATED AND MAINTAINED BY CALLS TO THE SYNCED_MESSAGE_ID URI
@@ -1111,6 +1153,8 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_MESSAGE_COUNT:
                     c = getMailboxMessageCount(uri);
                     return c;
+                case MOVED_MESSAGES:
+                    return getMovedMessages(uri.getPathSegments().get(1));
                 case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
@@ -1180,6 +1224,18 @@ public class EmailProvider extends ContentProvider {
             c.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return c;
+    }
+
+    /**
+     * Queries the DB for the moved messages info for an account. See the comments for
+     * {@link EmailContent#MOVED_MESSAGES_URI} for details on what this should return.
+     * TODO: May be convenient to eventually allow a projection, or selection args, etc.
+     * @param accountId The account to query.
+     * @return The moved messages info cursor.
+     */
+    private Cursor getMovedMessages(final String accountId) {
+        return getDatabase(getContext()).rawQuery(GET_MOVED_MESSAGES_QUERY,
+                new String[] { accountId });
     }
 
     private static String whereWithId(String id, String selection) {
