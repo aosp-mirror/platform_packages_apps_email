@@ -67,10 +67,10 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_names);
-        mDescription = (EditText) UiUtilities.getView(this, R.id.account_description);
-        mName = (EditText) UiUtilities.getView(this, R.id.account_name);
+        mDescription = UiUtilities.getView(this, R.id.account_description);
+        mName = UiUtilities.getView(this, R.id.account_name);
         View accountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
-        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
+        mNextButton = UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
 
         TextWatcher validationTextWatcher = new TextWatcher() {
@@ -199,7 +199,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         } else {
             Account account = SetupData.getAccount();
             if (account != null) {
-                AccountSetupBasics.actionAccountCreateFinished(this, account.mId);
+                AccountSetupBasics.actionAccountCreateFinished(this, account);
             } else {
                 // Safety check here;  If mAccount is null (due to external issues or bugs)
                 // just rewind back to Welcome, which can handle any configuration of accounts

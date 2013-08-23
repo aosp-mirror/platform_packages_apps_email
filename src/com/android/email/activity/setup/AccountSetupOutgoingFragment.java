@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
@@ -307,8 +308,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             Utility.isServerNameValid(mServerView) && Utility.isPortFieldValid(mPortView);
 
         if (enabled && mRequireLoginView.isChecked()) {
-            enabled = (Utility.isTextViewNotEmpty(mUsernameView)
-                    && Utility.isTextViewNotEmpty(mPasswordView));
+            enabled = !TextUtils.isEmpty(mUsernameView.getText())
+                    && !TextUtils.isEmpty(mPasswordView.getText());
         }
         enableNextButton(enabled);
         // Warn (but don't prevent) if password has leading/trailing spaces
