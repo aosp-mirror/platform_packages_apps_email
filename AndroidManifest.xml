@@ -80,7 +80,7 @@
         <activity
             android:name="com.android.email.activity.ComposeActivityEmail"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Holo.Light">
+            android:theme="@style/ComposeTheme">
             <intent-filter>
                 <action
                     android:name="android.intent.action.VIEW" />
@@ -138,7 +138,6 @@
         <activity
             android:name=".activity.EventViewer"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Holo.Light"
             >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -268,7 +267,6 @@
         <activity
             android:name=".activity.setup.AccountSettings"
             android:label="@string/settings_activity_title"
-            android:theme="@android:style/Theme.Holo.Light"
             android:exported="true"
             >
             <intent-filter>
@@ -294,7 +292,6 @@
         <activity
             android:name=".provider.FolderPickerActivity"
             android:label="@string/folder_picker_title"
-            android:theme="@android:style/Theme.Holo.Light"
             >
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
@@ -326,7 +323,8 @@
 
         <activity
                 android:name="com.android.mail.browse.EmlViewerActivity"
-                android:label="@string/app_name" >
+                android:label="@string/app_name"
+                android:theme="@style/PlainUnifiedEmailTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
