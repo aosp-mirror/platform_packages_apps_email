@@ -16,21 +16,19 @@
 package com.android.email.preferences;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.android.email.Preferences;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.mail.preferences.BasePreferenceMigrator;
 import com.android.mail.preferences.FolderPreferences;
 import com.android.mail.preferences.MailPrefs;
 import com.android.mail.providers.Account;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
-import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ import java.util.Set;
  * Migrates Email settings to UnifiedEmail
  */
 public class EmailPreferenceMigrator extends BasePreferenceMigrator {
-    private static final String LOG_TAG = LogTag.getLogTag();
+    private static final String LOG_TAG = "EmailPrefMigrator";
 
     @Override
     protected void migrate(final Context context, final int oldVersion, final int newVersion) {
@@ -69,11 +67,6 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         migrate(context, oldVersion, newVersion, accounts);
     }
 
-    private static final String PREFERENCE_NOTIFY = "account_notify";
-    private static final String PREFERENCE_VIBRATE = "account_settings_vibrate";
-    private static final String PREFERENCE_VIBRATE_OLD = "account_settings_vibrate_when";
-    private static final String PREFERENCE_RINGTONE = "account_ringtone";
-
     protected static void migrate(final Context context, final int oldVersion, final int newVersion,
             final List<Account> accounts) {
         final Preferences preferences = Preferences.getPreferences(context);
@@ -100,6 +93,34 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
 
             // Move folder notification settings
             for (final Account account : accounts) {
+                // Get the emailcommon account
+                final Cursor ecAccountCursor = context.getContentResolver().query(
+                        com.android.emailcommon.provider.Account.CONTENT_URI,
+                        com.android.emailcommon.provider.Account.CONTENT_PROJECTION,
+                        AccountColumns.EMAIL_ADDRESS + " = ?", new String[] { account.name },
+                        null);
+                final com.android.emailcommon.provider.Account ecAccount =
+                        new com.android.emailcommon.provider.Account();
+
+
+                if (ecAccountCursor == null) {
+                    LogUtils.e(LOG_TAG, "Null old account cursor for mailbox %s",
+                            LogUtils.sanitizeName(LOG_TAG, account.name));
+                    continue;
+                }
+
+                try {
+                    if (ecAccountCursor.moveToFirst()) {
+                        ecAccount.restore(ecAccountCursor);
+                    } else {
+                        LogUtils.e(LOG_TAG, "Couldn't load old account for mailbox %s",
+                                LogUtils.sanitizeName(LOG_TAG, account.name));
+                        continue;
+                    }
+                } finally {
+                    ecAccountCursor.close();
+                }
+
                 // The only setting in AccountPreferences so far is a global notification toggle,
                 // but we only allow Inbox notifications, so it will remain unused
                 final Cursor folderCursor =
@@ -108,7 +129,8 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
 
                 if (folderCursor == null) {
                     LogUtils.e(LOG_TAG, "Null folder cursor for mailbox %s",
-                            account.settings.defaultInbox);
+                            LogUtils.sanitizeName(LOG_TAG,
+                                    account.settings.defaultInbox.toString()));
                     continue;
                 }
 
@@ -124,28 +146,19 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                 final FolderPreferences folderPreferences =
                         new FolderPreferences(context, account.name, folder, true /* inbox */);
 
-                final SharedPreferences sharedPreferences =
-                        PreferenceManager.getDefaultSharedPreferences(context);
+                @SuppressWarnings("deprecation")
+                final boolean notify = (ecAccount.getFlags()
+                        & com.android.emailcommon.provider.Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
+                folderPreferences.setNotificationsEnabled(notify);
 
-                if (sharedPreferences.contains(PREFERENCE_NOTIFY)) {
-                    final boolean notify = sharedPreferences.getBoolean(PREFERENCE_NOTIFY, true);
-                    folderPreferences.setNotificationsEnabled(notify);
-                }
+                @SuppressWarnings("deprecation")
+                final String ringtoneUri = ecAccount.getRingtone();
+                folderPreferences.setNotificationRingtoneUri(ringtoneUri);
 
-                if (sharedPreferences.contains(PREFERENCE_RINGTONE)) {
-                    final String ringtoneUri =
-                            sharedPreferences.getString(PREFERENCE_RINGTONE, null);
-                    folderPreferences.setNotificationRingtoneUri(ringtoneUri);
-                }
-
-                if (sharedPreferences.contains(PREFERENCE_VIBRATE)) {
-                    final boolean vibrate = sharedPreferences.getBoolean(PREFERENCE_VIBRATE, false);
-                    folderPreferences.setNotificationVibrateEnabled(vibrate);
-                } else if (sharedPreferences.contains(PREFERENCE_VIBRATE_OLD)) {
-                    final boolean vibrate = "always".equals(
-                            sharedPreferences.getString(PREFERENCE_VIBRATE_OLD, ""));
-                    folderPreferences.setNotificationVibrateEnabled(vibrate);
-                }
+                @SuppressWarnings("deprecation")
+                final boolean vibrate = (ecAccount.getFlags()
+                        & com.android.emailcommon.provider.Account.FLAGS_VIBRATE) != 0;
+                folderPreferences.setNotificationVibrateEnabled(vibrate);
 
                 folderPreferences.commit();
             }
