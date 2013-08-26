@@ -1587,7 +1587,7 @@ public abstract class EmailContent {
         /**
          * Ringtone
          *
-         * @deprecated This is no longer used by anything except for creating the database.
+         * @deprecated Only used for creating the database (legacy reasons) and migration.
          */
         @Deprecated
         public static final String RINGTONE_URI = "ringtoneUri";
