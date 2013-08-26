@@ -248,11 +248,7 @@ public class SecurityPolicy {
         int reasons = getInactiveReasons(policy);
         if (MailActivityEmail.DEBUG && (reasons != 0)) {
             StringBuilder sb = new StringBuilder("isActive for " + policy + ": ");
-            if (reasons == 0) {
-                sb.append("true");
-            } else {
-                sb.append("FALSE -> ");
-            }
+            sb.append("FALSE -> ");
             if ((reasons & INACTIVE_NEED_ACTIVATION) != 0) {
                 sb.append("no_admin ");
             }
@@ -465,7 +461,7 @@ public class SecurityPolicy {
      * API: Set/Clear the "hold" flag in any account.  This flag serves a dual purpose:
      * Setting it gives us an indication that it was blocked, and clearing it gives EAS a
      * signal to try syncing again.
-     * @param context
+     * @param context context
      * @param account the account whose hold flag is to be set/cleared
      * @param newState true = security hold, false = free to sync
      */
@@ -775,8 +771,7 @@ public class SecurityPolicy {
     /**
      * For all accounts that require password expiration, put them in security hold and wipe
      * their data.
-     * @param context
-     * @param controller
+     * @param context context
      * @return true if one or more accounts were wiped
      */
     @VisibleForTesting
