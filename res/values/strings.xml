@@ -382,7 +382,7 @@
     <string name="account_setup_options_mail_window_1month">Last month</string>
     <!-- A sync window length setting (i.e. load messages this far back) [CHAR LIMIT=25]  -->
     <string name="account_setup_options_mail_window_all">All</string>
-    <!-- Per-mailbox sync window setting.  This means "use the account's sync window setting" [CHAR LIMIT=25] -->
+    <!-- Per-mailbox sync window setting.  This means "use the account's sync window setting" [CHAR LIMIT=40] -->
     <string name="account_setup_options_mail_window_default">Use account default</string>
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
