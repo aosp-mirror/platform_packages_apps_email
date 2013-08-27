@@ -22,6 +22,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -34,7 +35,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.mail.preferences.MailPrefs;
 import com.android.mail.ui.settings.ClearPictureApprovalsDialogFragment;
 
-public class GeneralPreferences extends EmailPreferenceFragment implements
+public class GeneralPreferences extends PreferenceFragment implements
         OnPreferenceChangeListener {
 
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
@@ -67,6 +68,7 @@ public class GeneralPreferences extends EmailPreferenceFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         mMailPrefs = MailPrefs.get(getActivity());
         getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES_FILE);
