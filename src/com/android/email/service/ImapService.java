@@ -518,7 +518,12 @@ public class ImapService extends Service {
         Cursor localUidCursor = null;
         HashMap<String, LocalMessageInfo> localMessageMap = new HashMap<String, LocalMessageInfo>();
         try {
-            final long queryEndDate = endDate - DateUtils.DAY_IN_MILLIS - DateUtils.HOUR_IN_MILLIS;
+            // FLAG: There is a problem that causes us to store the wrong date on some messages,
+            // so messages get a date of zero. If we filter these messages out and don't put them
+            // in our localMessageMap, then we'll end up loading the same message again.
+            // See b/10508861
+//            final long queryEndDate = endDate - DateUtils.DAY_IN_MILLIS - DateUtils.HOUR_IN_MILLIS;
+            final long queryEndDate = 0;
             localUidCursor = resolver.query(
                     EmailContent.Message.CONTENT_URI,
                     LocalMessageInfo.PROJECTION,
