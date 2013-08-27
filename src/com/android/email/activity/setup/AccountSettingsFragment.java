@@ -35,6 +35,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceFragment;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.Settings;
@@ -76,7 +77,7 @@ import java.util.Map;
  * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
  *       could reduce flicker.
  */
-public class AccountSettingsFragment extends EmailPreferenceFragment
+public class AccountSettingsFragment extends PreferenceFragment
         implements Preference.OnPreferenceChangeListener {
 
     // Keys used for arguments bundle
@@ -199,6 +200,8 @@ public class AccountSettingsFragment extends EmailPreferenceFragment
             LogUtils.d(Logging.LOG_TAG, "AccountSettingsFragment onCreate");
         }
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.account_settings_preferences);
