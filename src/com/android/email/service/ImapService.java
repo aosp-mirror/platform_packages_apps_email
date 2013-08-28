@@ -172,7 +172,7 @@ public class ImapService extends Service {
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
             if (Logging.LOGD) {
-                LogUtils.v(Logging.LOG_TAG, "synchronizeMailboxSynchronous", e);
+                LogUtils.d(Logging.LOG_TAG, "synchronizeMailboxSynchronous", e);
             }
             if (e instanceof AuthenticationFailedException) {
                 // Generate authentication notification
@@ -342,11 +342,11 @@ public class ImapService extends Service {
      * @return results of the sync pass
      * @throws MessagingException
      */
-    private static void synchronizeMailboxGeneric(final Context context, final Account account,
+    private synchronized static void synchronizeMailboxGeneric(final Context context, final Account account,
             final Mailbox mailbox, final boolean loadMore, final boolean uiRefresh)
             throws MessagingException {
 
-        LogUtils.v(Logging.LOG_TAG, "synchronizeMailboxGeneric " + account + " " + mailbox + " "
+        LogUtils.d(Logging.LOG_TAG, "synchronizeMailboxGeneric " + account + " " + mailbox + " "
                 + loadMore + " " + uiRefresh);
 
         final ArrayList<Long> unseenMessages = new ArrayList<Long>();
