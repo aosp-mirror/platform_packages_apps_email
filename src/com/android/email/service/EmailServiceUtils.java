@@ -75,7 +75,8 @@ public class EmailServiceUtils {
     public static void startService(Context context, String protocol) {
         EmailServiceInfo info = getServiceInfo(context, protocol);
         if (info != null && info.intentAction != null) {
-            context.startService(new Intent(info.intentAction));
+            final Intent serviceIntent = getServiceIntent(info);
+            context.startService(serviceIntent);
         }
     }
 
@@ -85,7 +86,8 @@ public class EmailServiceUtils {
     public static void startRemoteServices(Context context) {
         for (EmailServiceInfo info: getServiceInfoList(context)) {
             if (info.intentAction != null) {
-                context.startService(new Intent(info.intentAction));
+                final Intent serviceIntent = getServiceIntent(info);
+                context.startService(serviceIntent);
             }
         }
     }
@@ -128,7 +130,14 @@ public class EmailServiceUtils {
         EmailServiceInfo info = getServiceInfo(context, protocol);
         if (info == null) return false;
         if (info.klass != null) return true;
-        return new EmailServiceProxy(context, info.intentAction).test();
+        final Intent serviceIntent = getServiceIntent(info);
+        return new EmailServiceProxy(context, serviceIntent).test();
+    }
+
+    private static Intent getServiceIntent(EmailServiceInfo info) {
+        final Intent serviceIntent = new Intent(info.intentAction);
+        serviceIntent.setPackage(info.intentPackage);
+        return serviceIntent;
     }
 
     /**
@@ -151,6 +160,7 @@ public class EmailServiceUtils {
         public String accountType;
         Class<? extends Service> klass;
         String intentAction;
+        String intentPackage;
         public int port;
         public int portSsl;
         public boolean defaultSsl;
@@ -205,7 +215,8 @@ public class EmailServiceUtils {
         if (info.klass != null) {
             return new EmailServiceProxy(context, info.klass);
         } else {
-            return new EmailServiceProxy(context, info.intentAction);
+            final Intent serviceIntent = getServiceIntent(info);
+            return new EmailServiceProxy(context, serviceIntent);
         }
     }
 
@@ -456,6 +467,7 @@ public class EmailServiceUtils {
                     info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
                     final String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
                     info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
+                    info.intentPackage = ta.getString(R.styleable.EmailServiceInfo_intentPackage);
                     info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
                     info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
                     info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
