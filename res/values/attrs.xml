@@ -24,6 +24,7 @@
         <attr name="accountType" format="string"/>
         <attr name="serviceClass" format="string"/>
         <attr name="intent" format="string"/>
+        <attr name="intentPackage" format="string"/>
         <attr name="port" format="integer"/>
         <attr name="portSsl" format="integer"/>
         <attr name="defaultSsl" format="boolean"/>
