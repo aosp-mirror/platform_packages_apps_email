@@ -233,7 +233,7 @@ public class Pop3Service extends Service {
      * @param deltaMessageCount the requested change to number of messages to sync
      * @throws MessagingException
      */
-    private static void synchronizePop3Mailbox(final Context context, final Account account,
+    private synchronized static void synchronizePop3Mailbox(final Context context, final Account account,
             final Mailbox mailbox, final int deltaMessageCount) throws MessagingException {
         // TODO Break this into smaller pieces
         ContentResolver resolver = context.getContentResolver();
