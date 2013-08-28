@@ -94,10 +94,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         isRemote = true;
     }
 
-    public EmailServiceProxy(Context _context, String _action) {
-        this(_context, new Intent(_action));
-    }
-
     @Override
     public void onConnected(IBinder binder) {
         mService = IEmailService.Stub.asInterface(binder);
