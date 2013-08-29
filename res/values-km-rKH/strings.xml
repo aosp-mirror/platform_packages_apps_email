@@ -150,9 +150,9 @@
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ថ្ងៃ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ស្វ័យប្រវត្តិ"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"ថ្ងៃ​ចុង​ក្រោយ"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"បី​ថ្ងៃចុង​ក្រោយ"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"ស​ប្តា​ហ៍​ចុង​ក្រោយ"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ពីរ​ស​ប្តា​ហ៍​ចុង​ក្រោយ"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"បី​ថ្ងៃ​ចុង​ក្រោយ"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"សប្ដាហ៍​​ចុង​ក្រោយ"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ពីរ​​សប្ដាហ៍​​ចុង​ក្រោយ"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"ខែ​មុន"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"ទាំងអស់"</string>
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"លំនាំ​ដើម​ប្រើ​គណនី"</string>
@@ -244,7 +244,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"ជម្រើស​សម​កាល​កម្ម ( <xliff:g id="MAILBOXX_NAME">%s</xliff:g> )"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"ធ្វើ​សម​កាល​កម្ម​ថត​នេះ"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"សារ​ទាំងអស់​នឹង​ត្រូវ​បាន​ទាញ​យក ក្រោយ​ពេល​​តភ្ជាប់"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ចំនួន​ថ្ងៃ​សំបុត្រ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ចំនួន​ថ្ងៃ​ដែល​សំបុត្រ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"រូបភាព​អ្នក​ផ្ញើ"</string>
   <string-array name="prefEntries_conversationListIconName">
     <item msgid="228585958140385749">"បង្ហាញ​រូបភាព"</item>
