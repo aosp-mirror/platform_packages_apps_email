@@ -54,8 +54,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"සංයුක්ත දර්ශනය"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- මුල් පණිවිඩය --------\nකාරණය: <xliff:g id="SUBJECT">%1$s</xliff:g>\nවෙතින්: <xliff:g id="SENDER">%2$s</xliff:g>\nවෙත: <xliff:g id="TO">%3$s</xliff:g>\nකා.පි: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"ක්ෂණික ප්‍රතිචාරයක් ඇතුළත් කරන්න"</string>
-    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
-    <skip />
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"ක්ෂණික ප්‍රතිචාරය ඇතුළත් කරන්න"</string>
     <string name="message_view_attachment_background_load" msgid="7906875687519445185">"යැවීමට ප්‍රථමයෙන් ඔබගේ ඉදිරියට යැවූ පණිවිඩයේ ඇමුණුම් එකක් හෝ තව ඇමුණුම් බාගත වෙයි."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"ඇමුණුම බාගැනීමට නොහැක."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"පණිවිඩය විකේතනය කිරීමේදී දෝෂයකි."</string>
@@ -150,19 +149,13 @@
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"අවසන් කිරීමට නොහැකි විය"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"සමමුහුර්ත කිරීමට දින"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ස්වයංක්‍රිය"</string>
-    <!-- no translation found for account_setup_options_mail_window_1day (7727436096227637646) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_window_3days (1841106793912850270) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_window_1week (5804121771990249346) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_window_2weeks (3583478100026382495) -->
-    <skip />
-    <!-- no translation found for account_setup_options_mail_window_1month (4289585173153789717) -->
-    <skip />
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"අවසාන දිනය"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"අවසාන දින තුන"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"අවසාන සතිය"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"අවසාන සති දෙක"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"අවසාන මාසය"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"සියලු"</string>
-    <!-- no translation found for account_setup_options_mail_window_default (2540360826995543134) -->
-    <skip />
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"ගිණුම් සුපුරුද්ද භාවිතා කරන්න"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"පරිශීලක නාමය හෝ මුරපදය වැරදිය."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"පුරනය වීම අසාර්ථකය.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"සේවාදායකය වෙත ආරක්ෂිතව සම්බන්ධ වීමට නොහැකිය."</string>
@@ -211,8 +204,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ඊ-තැපෑල දැනුම්දීම්"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"නිතර සිදු වීම්, දැනුම්දීම් අදීය සමමුහුර්ත කරන්න."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ඊ-තැපෑලක් පැමිණෙන විට දැනුම්දීමක් යවන්න"</string>
-    <!-- no translation found for account_settings_mail_check_frequency_label (4322235101687302250) -->
-    <skip />
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"සමමුහුර්ත කිරීමේ සංඛ්‍යාතය"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"ඇතුළට එන සැකසීම්"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"පරිශීලක නාමය, මුරපදය සහ අනෙකුත් ඇතුළට එන සේවාදායක සැකසීම්"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"පිටතට යන සැකසීම්"</string>
@@ -250,12 +242,9 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"සේවාදායක සැකසීම්"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"සමමුහුර්ත කිරීමේ විකල්ප"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"සමමුහුර්ත කිරීමේ විකල්ප (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <!-- no translation found for mailbox_settings_sync_enabled_label (1180866791599296994) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_sync_enabled_summary (345878979425044320) -->
-    <skip />
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (851180833264474141) -->
-    <skip />
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"මෙම් ෆෝල්ඩරය සමමුහුර්ත කරන්න"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"සම්බන්ධ වූ විටදී පණිවිඩ බාගත වෙයි"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"සමමුහුර්ත කළ යුතු තැපැල් සඳහා දින"</string>
     <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"යවන්නාගේ රුපය"</string>
   <string-array name="prefEntries_conversationListIconName">
     <item msgid="228585958140385749">"රුපය පෙන්වන්න"</item>
