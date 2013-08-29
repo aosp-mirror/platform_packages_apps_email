@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"E-poçt qoşmalarını oxumaq"</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Tətbiqə e-poçt qoşmalarınızı oxumağa imkan verir."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"E-poçt provayder datasına giriş"</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Tətbiqə, qəbul edilmiş mesajlar, göndərilmiş mesajlar, istifadəçi adları və parollar daxil olmaqla, elektron poçt data bazanıza daxil olmağa imkan verir."</string>
+    <string name="app_name" msgid="5815426892327290362">"E-poçt"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Sazlama"</string>
+    <string name="next_action" msgid="3931301986364184415">"Növbəti"</string>
+    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Ləğv et"</string>
+    <string name="previous_action" msgid="5181616311579820981">"Öncəki"</string>
+    <string name="done_action" msgid="7497990549515580249">"Tamam"</string>
+    <string name="create_action" msgid="3062715563215392251">"Yenisini yaradın"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Tez cavab yoxdur."</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Hesab ayarları"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Sinx seçənəkləri"</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Bağlantı problemi"</string>
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Mesajı daşıyın"</item>
+    <item quantity="other" msgid="371256717624461324">"Mesajları daşıyın"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"POP3 hesabları üzərindən daşınma dəstəklənmir."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Seçim çoxsaylı hesab içərdiyi üçün daşımaq mümkün deyil."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Qaralamalarda, Gedənlər Qutusunda və Göndərilənlərdə mesajlar daşına bilməzlər."</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Gələnlər qutusu"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Gedənlər Qutusu"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Qaralamalar"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Zibil qutusu"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Göndərilmiş"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Zir-zibil"</string>
+    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Ulduzlu"</string>
+    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Oxunmamış"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Gələnlər Qutusu"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Ulduzlanıb"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Qaralamalar"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Gedənlər Qutusu"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Birləşmiş görünüş"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Mesaj --------\nMövzu: <xliff:g id="SUBJECT">%1$s</xliff:g>\nKimdən: <xliff:g id="SENDER">%2$s</xliff:g>\nKimə: <xliff:g id="TO">%3$s</xliff:g>\nNüsxəni Alan: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Tez cavab daxil edin"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Çevik cavab daxil edin"</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Yönləndirdiyiniz mesajda bir və ya daha çox qoşma göndərilmədən öncə endiriləcək."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Qoşma endirilə bilmədi."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Mesaj deşifrələnən zaman xəta baş verdi."</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Bir və daha çox qoşma yönləndirilə bilmədi"</string>
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Qoşmalar yönləndirilmədi"</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> giriş uğursuz oldu."</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Daxil ola bilmədi"</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+  </plurals>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Hesab quraşdırma"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-poçt hesabı"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"Sadəcə bir neçə addımda hesabınızı quraşdıra bilərsiniz."</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-poçt ünvanı"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Parol"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Əl ilə quraşdırma"</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Etibarlı e-poçt ünvanı və parol yazın."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Hesabın dublikatını çıxarın"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Siz artıq \"<xliff:g id="DUPLICATE">%s</xliff:g>\" hesabı üçün bu istifadəçi adını istifadə edirsiniz."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Bu parol bir və ya daha çox boş simvol ilə başlayır və ya qurtarır. Çox server boşluğu olan parolları dəstəkləmir."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Hesab məlumatı əldə edilir…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Server xidmətləri təsdiq olunur…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Smtp ayarları təsdiq edilir..."</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Hesab yaradılır…"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Hesab quraşdırma"</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Hesabınız quraşdırıldı və e-məktub yoldadır!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Hesab adı verin (istəyə görə)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Adınız (gedən mesajlarda göstərilir)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Bu sahə boş qala bilməz."</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Hesab quraşdırma"</string>
+    <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Hesab növü"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Bu hansı növ hesabdır?"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Hesab quraşdırma"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Gələn server ayarları"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"İstifadəçi adı"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Parol"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Təhlükəsizlik növü"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Heç biri"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Bütün sertifikatları qəbul et)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (bütün sertifikatları qəbul et)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"E-poçtu serverdən sil"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Heç vaxt"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Gələnlər Qutusundan sildiyim zaman"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP cığır prefiksi"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"İstəyə görə"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Hesab quraşdırma"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Gedən server ayarları"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP server"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Təhlükəsizlik növü"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Daxil olmağı tələb edin"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"İstifadəçi adı"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Parol"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Klient sertifikatı"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Seç"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Klient sertifikatı istifadə edin"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Sil"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Heç biri"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobil Cihaz ID\'si"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Hesab ayarları"</string>
+    <string name="account_setup_options_headline" msgid="4181274232835368085">"Hesab seçənəkləri"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Gələnlər Qutusunun yoxlanma tezliyi"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Heç vaxt"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Avtomatik (Bas)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Hər 5 dəqiqə"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Hər 10 dəqiqə"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Hər 15 dəqiqə"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Hər 30 dəqiqə"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Hər saat"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"E-məktub gələn zaman mənə xəbər ver"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Bu hesabdan kontaktları sinxronlaşdırın"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Bu hesabdan təqvimi sinxronlaşdırın"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Bu hesabdan e-poçtu sinxronlaşdırın"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi qoşulan zaman qoşmaları avtomatik endir"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Qurtarmaq olmur."</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Sinxronizasiya tarixi"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Avtomatik"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Son gün"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Son üç gün"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"Keçən həftə"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Son iki həftə"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Keçən ay"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Hamısı"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Hesab defoltu istifadə edin"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"İstifadəçi adı və ya parol yanlışdır."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Giriş alınmadı.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Serverə təhlükəsiz qoşula bilməz."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Serverə təhlükəsiz qoşula bilməz.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Klient sertifikatı tələb olunur. Klient sertifikatı olan serverə qoşulmaq istəyirsiniz?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifikat etibarsızdır və ya girişsizdir."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Server xəta ilə cavab verdi. İstifadəçi adınızı və parolu yoxlayaraq, yenidən cəhd edin."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Serverə qoşulmaq olmur."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Serverə qoşula bilmir.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS tələb olunur, lakin server tərəfindən dəstəklənmir."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Autentifikasiya metodları server tərəfindən dəstəklənmir."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Təhlükəsizlik xətasına görə server bağlantısı açıla bilmədi."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Serverə bağlantını aça bilmədi."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Siz yanlış server ünvanı və ya E-poçtun dəstəkləmədiyi protokol versiyasını tələb edən server yazmısınız."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Bu serverlə sinxronlaşmağa icazəniz yoxdur. Ətraflı məlumat üçün server administratoru ilə əlaqə saxlayın."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Uzaqdan təhlükəsizlik idarəçiliyi"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> serveri Android cihazınızın özəlliklərini uzaqdan idarə etmək üçün icazə verməyinizi tələb edir. Bu hesabı quraşdırmağı bitirmək istəyirsiniz mi?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Bu server Android cihazınızın dəstəkləmədiyi təhlükəsizlik özəlliklərini tələb edir, həmçinin: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Hesabınızın istifadəçi adını dəyişə bilməzsiniz. Fərqli ad ilə hesab əlavə etmək üçün Hesab Əlavə Edin düyməsinə toxunun."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"XƏBƏRDARLIQ: Cihazınızı idarə etmək üçün e-poçt tətbiq səlahiyyətinin deaktiv olunması bunu tələb edən bütün e-poçt hesablarını siləcək. Buna e-poçt, kontaktlar, təqvim tədbirləri və digər data aiddir."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Təhlükəsizlik güncəllənməsi"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> təhlükəsizlik ayarlarınızı güncəlləməyi tələb edir."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" təhlükəsizlik tələblərinə görə sinxronlaşa bilmir."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" təhlükəsizlik ayarlarının güncəllənməsini tələb edir"</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı təhlükəsizlik ayarlarını dəyişdi; istifadəçidən heç nə tələb olunmur."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Təhlükəsizlik güncəllənməsi tələb olunur"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Təhlükəsizlik siyasəti dəyişdirildi"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Təhlükəsizlik siyasəti təmin edilə bilmir"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Cihaz təhlükəsizliyi"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> serveri Android cihazınızın bəzi təhlükəsizlik özəlliklərini uzaqdan kontrol etmək üçün icazə istəyir."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Detallara düzəliş edin"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" Sizdən kilid ekranı PIN\'ini və ya parolu dəyişməyi tələb edir."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Ekran kilidi parolunun vaxtı keçir"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Ekran kilidi PIN kodunun və parolun vaxtı keçdi."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Ekran kilid kodunun vaxtı keçdi"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Ekran kilidi parolunun vaxtı keçir"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Siz ekran kilidi PIN\'inizi və ya parolunuzu tezliklə dəyişməlisiniz və ya <xliff:g id="ACCOUNT">%s</xliff:g> üçün olan data silinəcək. İndi dəyişdirilsin?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Ekran kilidi parolunun vaxtı keçdi"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"<xliff:g id="ACCOUNT">%s</xliff:g> datası cihazınızdan silinir. Onu bərpa etmək üçün PIN kilid kodunuzu və ya parolunuzu dəyişməlisiniz. İndi dəyişmək istəyirsiniz?"</string>
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Yadda saxlanmamış bütün dəyişiklik ləğv edilsin?"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Daxil olmaq olmadı"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> üçün istifadəçi adı yanlışdır. Onları indi güncəlləmək istəyirsiniz?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Sizin <xliff:g id="ACCOUNT">%s</xliff:g> hesabına girişiniz alınmadı; server dedi: <xliff:g id="REASON">%s</xliff:g> İstifadəçi adı və parolu dəyişmək istəyirsiniz?"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Qoşmaları endirin"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Wi-Fi vasitəsilə sonuncu mesajlara qoşmaları avtomatik endir"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"E-poçt bildirişləri"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"Sinx tezliyi, bildirişlər və sair"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"E-məktub gələn zaman bildiriş göndər"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Sinxronlaşma tezliyi"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gələnlər ayarları"</string>
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"İstifadəçi adı, parol və digər gələn server ayarları"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Gedən ayarlar"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"İstifadəçi adı, parol və digər gedən server ayarları"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Məcburi siyasət"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Heç biri"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Dəstəklənməyən siyasətlər"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Heç biri"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Sinxronlaşdırmağa cəhd edin"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Bu hesabı sinxronlaşdırmaq üçün buraya basın"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Hesab adı"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Adınız"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Qısa cavablar"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"E-məktub yazan zaman tez-tez daxil etdiyiniz mətnə düzəliş edin"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Bildiriş ayarları"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Data istifadəsi"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Təhlükəsizlik siyasəti"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Sistem qovluqları"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Zibil qovluğu"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Serverinizin zibil qovluğunu seçin"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Serverinizin zibil qovluğunu seçin"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Göndərilmiş elementlər qovluğu"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Serverinizin göndərilmiş elementlər qovluğunu seçin"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Serverinizin göndərilmiş elementlər qovluğunu seçin"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Tez cavabı redaktə edin"</string>
+    <string name="save_action" msgid="1988862706623227093">"Yadda saxlayın"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontaktları sinxronlaşdırın"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Bu hesab üçün olan kontaktları sinxronlaşdırın"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Təqvimi sinxronlaşdır"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Bu hesab üçün təqvim tədbirini sinxronlaşdırın"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-poçtu sinxronlaşdır"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"E-poçtu bu hesab üçün sinxronlaşdırın"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrasiya"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Zəng səsi seç"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Server ayarları"</string>
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Sinx seçənəkləri"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Sinx seçənəkləri (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Bu qovluğu sinxronlaşdırın"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Mesajlar qoşulan zaman endirəcək"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Məktubun sinxronlaşma günləri"</string>
+    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Göndərənin təsviri"</string>
+  <string-array name="prefEntries_conversationListIconName">
+    <item msgid="228585958140385749">"Təsvir göstər"</item>
+    <item msgid="2226691218102223696">"Heç nə göstərmə"</item>
+  </string-array>
+    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Söhbət görünüşündə göndəricinin şəkillərinin göstərilməsini və ya göstərilməməsini seçin"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Göndərənin təsviri"</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Yalnız bəzi \"Plus\" hesabları bu proqrama birləşməyə POP giriş icazə verir. Əgər düzgün e-poçt ünvanı və parolu ilə daxil ola bilmirsinizsə, Siz \"Plus\" hesabı ödənişi etməmisiniz. Veb brauzeri bu hesablara giriş əldə etmək üçün işə salın."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Bu e-poçt hesabını ayarlamadan öncə, T-Online saytını ziyarət edin və POP3 e-poçt girişi üçün parol yaradın."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Korporativ"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Hesab yaratmaq mümkün deyil. Yenidən cəhd edin."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"E-poçt"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Server xüsusiyyətli təhlükəsizlik siyasətinə imkan verir"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Ayarlar"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"Ümumi ayarlar"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Silmədən öncə təsdiq edin"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mesajlar"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Göndərmədən öncə təsdiq edin"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mesajlar"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Mesaj mətni ölçüsü"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"Xırda mətn"</item>
+    <item msgid="4415205108584620118">"Kiçik mətn"</item>
+    <item msgid="4550219696381691112">"Normal ölçülü mətn"</item>
+    <item msgid="6227813549949219991">"Böyük mətn"</item>
+    <item msgid="1197917420815786571">"İri mətn"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Mesaj mətni ölçüsü"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Xırda"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Kiçik"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Böyük"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"İri"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_hint" msgid="2200412192574686497">"E-poçt axtarın"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Cihaz kamerasının istifadəsinə icazə verməyin"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Cihaz parolu tələb edin"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Son parolların yenidən istifadəsini məhdudlaşdırın"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Parolların vaxtının keçməsini tələb edin"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"İstifadəsiz qalmış cihazın öz ekranını kilidləməsini tələb edin"</string>
+    <string name="policy_calendar_age" msgid="627405158087482302">"Sinxronlaşmış təqvim tədbirlərinin sayını məhdudlaşdırın"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Sinxronlaşmış e-poçt sayını məhdudlaşdırın"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Təşəkkür edirik!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Xoşuma gəlir!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Bunu sonra oxuyacam və fikrimi bildirəcəm."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Bunu müzakirə etmək üçün görüş təyin edin."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Rominq zamanı bu hesab üçün arxa plan sinxronlaşması deaktiv edilib."</string>
+    <string name="confirm_response" msgid="9151965975158906286">"Cavab göndərilir..."</string>
+    <string name="no_conversations" msgid="5559527390337162819">"Mesaj yoxdur."</string>
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Qovluq seçici"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g> üçün server zibil qovluğu seçin."</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g> hesabı üçün server elementlər göndərdi"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Qovluq siyahısı yüklənir…"</string>
+</resources>
