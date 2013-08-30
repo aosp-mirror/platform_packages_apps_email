@@ -56,141 +56,111 @@ public class SetupData implements Parcelable {
     private int mCheckSettingsMode = 0;
     private boolean mAllowAutodiscover = true;
     private Policy mPolicy;
-    private boolean mAutoSetup = false;
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
 
-    // We only have one instance of SetupData; if/when the process is destroyed, this data will be
-    // saved in the savedInstanceState Bundle
-    private static SetupData INSTANCE = null;
-
-    public static synchronized SetupData getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new SetupData();
-        }
-        return INSTANCE;
+    public interface SetupDataContainer {
+        public SetupData getSetupData();
+        public void setSetupData(SetupData setupData);
     }
 
-    // Don't allow instantiation outside of this class
-    private SetupData() {
-    }
-
-    static public int getFlowMode() {
-        return getInstance().mFlowMode;
-    }
-
-    static public String getFlowAccountType() {
-        return getInstance().mFlowAccountType;
-    }
-
-    static public void setFlowMode(int mFlowMode) {
-        getInstance().mFlowMode = mFlowMode;
-    }
-
-    static public Account getAccount() {
-        return getInstance().mAccount;
-    }
-
-    static public void setAccount(Account mAccount) {
-        getInstance().mAccount = mAccount;
-    }
-
-    static public String getUsername() {
-        return getInstance().mUsername;
-    }
-
-    static public void setUsername(String mUsername) {
-        getInstance().mUsername = mUsername;
-    }
-
-    static public String getPassword() {
-        return getInstance().mPassword;
-    }
-
-    static public void setPassword(String mPassword) {
-        getInstance().mPassword = mPassword;
-    }
-
-    static public void setCheckSettingsMode(int mCheckSettingsMode) {
-        getInstance().mCheckSettingsMode = mCheckSettingsMode;
-    }
-
-    static public boolean isCheckIncoming() {
-        return (getInstance().mCheckSettingsMode & CHECK_INCOMING) != 0;
-    }
-
-    static public boolean isCheckOutgoing() {
-        return (getInstance().mCheckSettingsMode & CHECK_OUTGOING) != 0;
-    }
-    static public boolean isCheckAutodiscover() {
-        return (getInstance().mCheckSettingsMode & CHECK_AUTODISCOVER) != 0;
-    }
-    static public boolean isAllowAutodiscover() {
-        return getInstance().mAllowAutodiscover;
-    }
-
-    static public void setAllowAutodiscover(boolean mAllowAutodiscover) {
-        getInstance().mAllowAutodiscover = mAllowAutodiscover;
-    }
-
-    static public Policy getPolicy() {
-        return getInstance().mPolicy;
-    }
-
-    static public void setPolicy(Policy policy) {
-        SetupData data = getInstance();
-        data.mPolicy = policy;
-        data.mAccount.mPolicy = policy;
-    }
-
-    static public boolean isAutoSetup() {
-        return getInstance().mAutoSetup;
-    }
-
-    static public void setAutoSetup(boolean autoSetup) {
-        getInstance().mAutoSetup = autoSetup;
-    }
-
-    static public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
-        return getInstance().mAccountAuthenticatorResponse;
-    }
-
-    static public void setAccountAuthenticatorResponse(AccountAuthenticatorResponse response) {
-        getInstance().mAccountAuthenticatorResponse = response;
-    }
-
-    public static synchronized void init(SetupData setupData) {
-        INSTANCE = setupData;
-    }
-
-    public static void init(int flowMode) {
-        SetupData data = getInstance();
-        data.commonInit();
-        data.mFlowMode = flowMode;
-    }
-
-    public static void init(int flowMode, String accountType) {
-        SetupData data = getInstance();
-        data.commonInit();
-        data.mFlowMode = flowMode;
-        data.mFlowAccountType = accountType;
-    }
-
-    public static void init(int flowMode, Account account) {
-        SetupData data = getInstance();
-        data.commonInit();
-        data.mFlowMode = flowMode;
-        data.mAccount = account;
-    }
-
-    void commonInit() {
+    public SetupData() {
         mPolicy = null;
-        mAutoSetup = false;
         mAllowAutodiscover = true;
         mCheckSettingsMode = 0;
         mAccount = new Account();
         mUsername = null;
         mPassword = null;
         mAccountAuthenticatorResponse = null;
+    }
+
+    public SetupData(int flowMode) {
+        this();
+        mFlowMode = flowMode;
+    }
+
+    public SetupData(int flowMode, String accountType) {
+        this(flowMode);
+        mFlowAccountType = accountType;
+    }
+
+    public SetupData(int flowMode, Account account) {
+        this(flowMode);
+        mAccount = account;
+    }
+
+    public int getFlowMode() {
+        return mFlowMode;
+    }
+
+    public String getFlowAccountType() {
+        return mFlowAccountType;
+    }
+
+    public void setFlowMode(int flowMode) {
+        mFlowMode = flowMode;
+    }
+
+    public Account getAccount() {
+        return mAccount;
+    }
+
+    public void setAccount(Account account) {
+        mAccount = account;
+    }
+
+    public String getUsername() {
+        return mUsername;
+    }
+
+    public void setUsername(String username) {
+        mUsername = username;
+    }
+
+    public String getPassword() {
+        return mPassword;
+    }
+
+    public void setPassword(String password) {
+        mPassword = password;
+    }
+
+    public void setCheckSettingsMode(int checkSettingsMode) {
+        mCheckSettingsMode = checkSettingsMode;
+    }
+
+    public boolean isCheckIncoming() {
+        return (mCheckSettingsMode & CHECK_INCOMING) != 0;
+    }
+
+    public boolean isCheckOutgoing() {
+        return (mCheckSettingsMode & CHECK_OUTGOING) != 0;
+    }
+    public boolean isCheckAutodiscover() {
+        return (mCheckSettingsMode & CHECK_AUTODISCOVER) != 0;
+    }
+    public boolean isAllowAutodiscover() {
+        return mAllowAutodiscover;
+    }
+
+    public void setAllowAutodiscover(boolean mAllowAutodiscover) {
+        mAllowAutodiscover = mAllowAutodiscover;
+    }
+
+    public Policy getPolicy() {
+        return mPolicy;
+    }
+
+    public void setPolicy(Policy policy) {
+        mPolicy = policy;
+        mAccount.mPolicy = policy;
+    }
+
+    public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
+        return mAccountAuthenticatorResponse;
+    }
+
+    public void setAccountAuthenticatorResponse(AccountAuthenticatorResponse response) {
+        mAccountAuthenticatorResponse = response;
     }
 
     // Parcelable methods
@@ -221,12 +191,11 @@ public class SetupData implements Parcelable {
         dest.writeInt(mCheckSettingsMode);
         dest.writeInt(mAllowAutodiscover ? 1 : 0);
         dest.writeParcelable(mPolicy, 0);
-        dest.writeInt(mAutoSetup ? 1 : 0);
         dest.writeParcelable(mAccountAuthenticatorResponse, 0);
     }
 
     public SetupData(Parcel in) {
-        ClassLoader loader = getClass().getClassLoader();
+        final ClassLoader loader = getClass().getClassLoader();
         mFlowMode = in.readInt();
         mAccount = in.readParcelable(loader);
         mUsername = in.readString();
@@ -234,41 +203,29 @@ public class SetupData implements Parcelable {
         mCheckSettingsMode = in.readInt();
         mAllowAutodiscover = in.readInt() == 1;
         mPolicy = in.readParcelable(loader);
-        mAutoSetup = in.readInt() == 1;
         mAccountAuthenticatorResponse = in.readParcelable(loader);
     }
 
-    // Save/restore our SetupData (used in AccountSetupActivity)
-    static public void save(Bundle bundle) {
-        bundle.putParcelable(EXTRA_SETUP_DATA, getInstance());
-    }
-
-    static public synchronized SetupData restore(Bundle bundle) {
-        if (bundle != null && bundle.containsKey(EXTRA_SETUP_DATA)) {
-            INSTANCE = bundle.getParcelable(EXTRA_SETUP_DATA);
-            return INSTANCE;
-        } else {
-            return getInstance();
+    public String debugString() {
+        final StringBuilder sb = new StringBuilder("SetupData");
+        sb.append(":acct=");
+        sb.append(mAccount == null ? "none" :mAccount.mId);
+        if (mUsername != null) {
+            sb.append(":user=");
+            sb.append(mUsername);
         }
-    }
-
-    public static String debugString() {
-        StringBuilder sb = new StringBuilder("SetupData");
-        SetupData data = getInstance();
-        sb.append(":acct=" + (data.mAccount == null ? "none" : data.mAccount.mId));
-        if (data.mUsername != null) {
-            sb.append(":user=" + data.mUsername);
+        if (mPassword != null) {
+            sb.append(":pass=");
+            sb.append(mPassword);
         }
-        if (data.mPassword != null) {
-            sb.append(":pass=" + data.mPassword);
-        }
-        sb.append(":a/d=" + data.mAllowAutodiscover);
-        sb.append(":auto=" + data.mAutoSetup);
+        sb.append(":a/d=");
+        sb.append(mAllowAutodiscover);
         sb.append(":check=");
-        if (SetupData.isCheckIncoming()) sb.append("in+");
-        if (SetupData.isCheckOutgoing()) sb.append("out+");
-        if (SetupData.isCheckAutodiscover()) sb.append("a/d");
-        sb.append(":policy=" + (data.mPolicy == null ? "none" : "exists"));
+        if (isCheckIncoming()) sb.append("in+");
+        if (isCheckOutgoing()) sb.append("out+");
+        if (isCheckAutodiscover()) sb.append("a/d");
+        sb.append(":policy=");
+        sb.append(mPolicy == null ? "none" : "exists");
         return sb.toString();
     }
 }
