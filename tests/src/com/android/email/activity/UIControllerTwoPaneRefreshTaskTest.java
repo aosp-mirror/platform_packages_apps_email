@@ -16,7 +16,7 @@
 
 package com.android.email.activity;
 
-import com.android.email.Clock;
+import com.android.mail.utils.Clock;
 import com.android.email.Controller;
 import com.android.email.MockClock;
 import com.android.email.RefreshManager;
