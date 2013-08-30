@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.mail.utils.Clock;
+
 public class MockClock extends Clock {
     public static final long DEFAULT_TIME = 10000; // Arbitrary value
 
