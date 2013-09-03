@@ -107,7 +107,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     private static final Boolean DEBUG_ALLOW_NON_TEST_HARNESS_CREATION = false;
 
     private static final String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
-    private static final String STATE_KEY_SETUP_DATA = "AccountSetupBasics.setupData";
 
     // Support for UI
     private EditText mEmailView;
@@ -154,7 +153,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "account flow" (from AccountManager), we want to return to the caller
         // (in the settings app)
-        SetupData.init(SetupData.FLOW_MODE_RETURN_TO_CALLER);
+        i.putExtra(SetupData.EXTRA_SETUP_DATA, new SetupData(SetupData.FLOW_MODE_RETURN_TO_CALLER));
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -166,7 +165,8 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "no accounts" flow, we want to return to the caller with a result
-        SetupData.init(SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT);
+        i.putExtra(SetupData.EXTRA_SETUP_DATA,
+                new SetupData(SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT));
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -175,7 +175,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i = new Intent(fromActivity, AccountSetupBasics.class);
         // If we're not in the "account flow" (from AccountManager), we want to show the
         // message list for the new inbox
-        SetupData.init(SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST, account);
+        i.putExtra(SetupData.EXTRA_SETUP_DATA,
+                new SetupData(SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST, account));
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -190,24 +191,19 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
-        // See if we have SetupData to restore; if so, use it
-        final SetupData intentData = (SetupData) ((savedInstanceState != null)
-                ? savedInstanceState.getParcelable(STATE_KEY_SETUP_DATA)
-                : null);
-        if (intentData != null) {
-            SetupData.init(intentData);
-        } else if (ServiceProxy.getIntentStringForEmailPackage(
+        if (ServiceProxy.getIntentStringForEmailPackage(
                 this, ACTION_CREATE_ACCOUNT).equals(action)) {
-            SetupData.init(SetupData.FLOW_MODE_FORCE_CREATE);
+            mSetupData = new SetupData(SetupData.FLOW_MODE_FORCE_CREATE);
         } else {
             final int intentFlowMode =
                     intent.getIntExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_UNSPECIFIED);
             if (intentFlowMode != SetupData.FLOW_MODE_UNSPECIFIED) {
-                SetupData.init(intentFlowMode, intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
+                mSetupData = new SetupData(intentFlowMode,
+                        intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
             }
         }
 
-        final int flowMode = SetupData.getFlowMode();
+        final int flowMode = mSetupData.getFlowMode();
         if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
             // Return to the caller who initiated account creation
             finish();
@@ -221,7 +217,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             finish();
             return;
         } else if (flowMode == SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST) {
-            final Account account = SetupData.getAccount();
+            final Account account = mSetupData.getAccount();
             if (account != null && account.mId >= 0) {
                 // Show the message list for the new account
                 //***
@@ -253,7 +249,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Set aside incoming AccountAuthenticatorResponse, if there was any
         final AccountAuthenticatorResponse authenticatorResponse =
             getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
-        SetupData.setAccountAuthenticatorResponse(authenticatorResponse);
+        mSetupData.setAccountAuthenticatorResponse(authenticatorResponse);
         if (authenticatorResponse != null) {
             // When this Activity is called as part of account authentification flow,
             // we are responsible for eventually reporting the result (success or failure) to
@@ -264,20 +260,20 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
 
         // Load fields, but only once
-        final String userName = SetupData.getUsername();
+        final String userName = mSetupData.getUsername();
         if (userName != null) {
             mEmailView.setText(userName);
-            SetupData.setUsername(null);
+            mSetupData.setUsername(null);
         }
-        final String password = SetupData.getPassword();
+        final String password = mSetupData.getPassword();
         if (userName != null) {
             mPasswordView.setText(password);
-            SetupData.setPassword(null);
+            mSetupData.setPassword(null);
         }
 
         // Handle force account creation immediately (now that fragment is set up)
         // This is never allowed in a normal user build and will exit immediately.
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
             if (!DEBUG_ALLOW_NON_TEST_HARNESS_CREATION &&
                     !ActivityManager.isRunningInTestHarness()) {
                 LogUtils.e(Logging.LOG_TAG,
@@ -297,7 +293,8 @@ public class AccountSetupBasics extends AccountSetupActivity
                 return;
             }
             forceCreateAccount(email, user, incoming, outgoing);
-            onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK); // calls finish
+            // calls finish
+            onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK, mSetupData);
             return;
         }
 
@@ -329,10 +326,10 @@ public class AccountSetupBasics extends AccountSetupActivity
         // then we assume that we're giving up (for any reason) - report failure.
         if (mReportAccountAuthenticatorError) {
             final AccountAuthenticatorResponse authenticatorResponse =
-                    SetupData.getAccountAuthenticatorResponse();
+                    mSetupData.getAccountAuthenticatorResponse();
             if (authenticatorResponse != null) {
                 authenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
-                SetupData.setAccountAuthenticatorResponse(null);
+                mSetupData.setAccountAuthenticatorResponse(null);
             }
         }
         super.finish();
@@ -344,8 +341,6 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (mProvider != null) {
             outState.putSerializable(STATE_KEY_PROVIDER, mProvider);
         }
-        // Save the current state of our SetupData so we don't re-init it
-        outState.putParcelable(STATE_KEY_SETUP_DATA, SetupData.getInstance());
     }
 
     /**
@@ -445,7 +440,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         try {
             mProvider.expandTemplates(email);
 
-            final Account account = SetupData.getAccount();
+            final Account account = mSetupData.getAccount();
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
 
@@ -568,7 +563,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             return;
         }
 
-        final Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setLogin(user, password);
         recvAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
@@ -579,8 +574,8 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         populateSetupData(getOwnerName(), email);
 
-        SetupData.setAllowAutodiscover(allowAutoDiscover);
-        AccountSetupType.actionSelectAccountType(this);
+        mSetupData.setAllowAutodiscover(allowAutoDiscover);
+        AccountSetupType.actionSelectAccountType(this, mSetupData);
     }
 
     /**
@@ -595,7 +590,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * @param outgoing The URI-style string defining the outgoing account
      */
     private void forceCreateAccount(String email, String user, String incoming, String outgoing) {
-        Account account = SetupData.getAccount();
+        Account account = mSetupData.getAccount();
         try {
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, incoming);
@@ -626,7 +621,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Populate SetupData's account with complete setup info.
      */
     private void populateSetupData(String senderName, String senderEmail) {
-        final Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         account.setSenderName(senderName);
         account.setEmailAddress(senderEmail);
         account.setDisplayName(senderEmail);
@@ -642,9 +637,10 @@ public class AccountSetupBasics extends AccountSetupActivity
      * so we inhibit reporting any error back to the Account manager.
      */
     @Override
-    public void onCheckSettingsComplete(int result) {
+    public void onCheckSettingsComplete(int result, SetupData setupData) {
+        mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupOptions.actionOptions(this);
+            AccountSetupOptions.actionOptions(this, mSetupData);
             mReportAccountAuthenticatorError = false;
             finish();
         }
@@ -652,10 +648,10 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     /**
      * Implements AccountCheckSettingsFragment.Callbacks
-     * This is overridden only by AccountSetupExchange
+     * This is overridden only by AccountSetupIncoming
      */
     @Override
-    public void onAutoDiscoverComplete(int result) {
+    public void onAutoDiscoverComplete(int result, SetupData setupData) {
         throw new IllegalStateException();
     }
 

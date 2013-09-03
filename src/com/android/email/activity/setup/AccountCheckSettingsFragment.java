@@ -69,6 +69,7 @@ public class AccountCheckSettingsFragment extends Fragment {
     private final static int STATE_AUTODISCOVER_AUTH_DIALOG = 7;    // terminal
     private final static int STATE_AUTODISCOVER_RESULT = 8;         // terminal
     private int mState = STATE_START;
+    private SetupData mSetupData;
 
     // Support for UI
     private boolean mAttached;
@@ -105,13 +106,13 @@ public class AccountCheckSettingsFragment extends Fragment {
          * Called when CheckSettings completed
          * @param result check settings result code - success is CHECK_SETTINGS_OK
          */
-        public void onCheckSettingsComplete(int result);
+        public void onCheckSettingsComplete(int result, SetupData setupData);
 
         /**
          * Called when autodiscovery completes.
          * @param result autodiscovery result code - success is AUTODISCOVER_OK
          */
-        public void onAutoDiscoverComplete(int result);
+        public void onAutoDiscoverComplete(int result, SetupData setupData);
     }
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -152,7 +153,10 @@ public class AccountCheckSettingsFragment extends Fragment {
         // If this is the first time, start the AsyncTask
         if (mAccountCheckTask == null) {
             final int checkMode = getTargetRequestCode();
-            final Account checkAccount = SetupData.getAccount();
+            final SetupData.SetupDataContainer container =
+                    (SetupData.SetupDataContainer) getActivity();
+            mSetupData = container.getSetupData();
+            final Account checkAccount = mSetupData.getAccount();
             mAccountCheckTask = (AccountCheckTask)
                     new AccountCheckTask(checkMode, checkAccount)
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -223,7 +227,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     // 2. exit self
                     fm.popBackStack();
                     // 3. report OK back to target fragment or activity
-                    getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_OK);
+                    getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_OK, mSetupData);
                     break;
                 case STATE_CHECK_SHOW_SECURITY:
                     // 1. get rid of progress dialog (if any)
@@ -262,7 +266,8 @@ public class AccountCheckSettingsFragment extends Fragment {
                     fm.popBackStack();
                     // 3. report back to target fragment or activity
                     getCallbackTarget().onAutoDiscoverComplete(
-                            (autoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA);
+                            (autoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA,
+                            mSetupData);
                     break;
                 default:
                     // Display a normal progress message
@@ -324,7 +329,8 @@ public class AccountCheckSettingsFragment extends Fragment {
     }
 
     private void onEditCertificateOk() {
-        getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED);
+        getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_CLIENT_CERTIFICATE_NEEDED,
+                mSetupData);
         finish();
     }
 
@@ -339,10 +345,10 @@ public class AccountCheckSettingsFragment extends Fragment {
         final Callbacks callbackTarget = getCallbackTarget();
         if (mState == STATE_AUTODISCOVER_AUTH_DIALOG) {
             // report auth error to target fragment or activity
-            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION);
+            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION, mSetupData);
         } else {
             // report check settings failure to target fragment or activity
-            callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR);
+            callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR, mSetupData);
         }
         finish();
     }
@@ -363,7 +369,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         // 1. handle OK/cancel - notify that security is OK and we can proceed
         final Callbacks callbackTarget = getCallbackTarget();
         callbackTarget.onCheckSettingsComplete(
-                okPressed ? CHECK_SETTINGS_OK : CHECK_SETTINGS_SECURITY_USER_DENY);
+                okPressed ? CHECK_SETTINGS_OK : CHECK_SETTINGS_SECURITY_USER_DENY, mSetupData);
 
         // 2. kill self if not already killed by callback
         final FragmentManager fm = getFragmentManager();
@@ -476,7 +482,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                         resultCode = MessagingException.NO_ERROR;
                     }
                     if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
-                        SetupData.setPolicy((Policy)bundle.getParcelable(
+                        mSetupData.setPolicy((Policy)bundle.getParcelable(
                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
                         return new MessagingException(resultCode, mStoreHost);
                     } else if (resultCode == MessagingException.SECURITY_POLICIES_UNSUPPORTED) {

@@ -37,9 +37,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 /**
  * Common base class for server settings fragments, so they can be more easily manipulated by
  * AccountSettingsXL.  Provides the following common functionality:
@@ -51,13 +48,10 @@ import java.net.URISyntaxException;
 public abstract class AccountServerBaseFragment extends Fragment
         implements AccountCheckSettingsFragment.Callbacks, OnClickListener {
 
-    public static Bundle sSetupModeArgs = null;
-    protected static URI sDefaultUri;
-
     private static final String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
     private static final String BUNDLE_KEY_ACTIVITY_TITLE = "AccountServerBaseFragment.title";
 
-    protected Context mContext;
+    protected Activity mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
     /**
      * Whether or not we are in "settings mode". We re-use the same screens for both the initial
@@ -68,6 +62,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected boolean mSettingsMode;
     /*package*/ HostAuth mLoadedSendAuth;
     /*package*/ HostAuth mLoadedRecvAuth;
+
+    protected SetupData mSetupData;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     private Button mProceedButton;
@@ -96,39 +92,31 @@ public abstract class AccountServerBaseFragment extends Fragment
          * Called when account checker completes.  Fragments are responsible for saving
          * own edited data;  This is primarily for the activity to do post-check navigation.
          * @param result check settings result code - success is CHECK_SETTINGS_OK
-         * @param setupMode signals if we were editing or creating
+         * @param setupData possibly modified SetupData
          */
-        public void onCheckSettingsComplete(int result, int setupMode);
+        public void onCheckSettingsComplete(int result, SetupData setupData);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onEnableProceedButtons(boolean enable) { }
         @Override public void onProceedNext(int checkMode, AccountServerBaseFragment target) { }
-        @Override public void onCheckSettingsComplete(int result, int setupMode) { }
+        @Override public void onCheckSettingsComplete(int result, SetupData setupData) { }
     }
 
     /**
-     * Get the static arguments bundle that forces a server settings fragment into "settings" mode
-     * (If not included, you'll be in "setup" mode which behaves slightly differently.)
+     * Creates and returns a bundle of arguments in the format we expect
+     *
+     * @param settingsMode True if we're in settings, false if we're in account creation
+     * @return Arg bundle
      */
-    public static synchronized Bundle getSettingsModeArgs() {
-        if (sSetupModeArgs == null) {
-            sSetupModeArgs = new Bundle();
-            sSetupModeArgs.putBoolean(BUNDLE_KEY_SETTINGS, true);
-        }
-        return sSetupModeArgs;
+    public static Bundle getArgs(Boolean settingsMode) {
+        final Bundle setupModeArgs = new Bundle(1);
+        setupModeArgs.putBoolean(BUNDLE_KEY_SETTINGS, settingsMode);
+        return setupModeArgs;
     }
 
-    public AccountServerBaseFragment() {
-        if (sDefaultUri == null) {
-            try {
-                sDefaultUri = new URI("");
-            } catch (URISyntaxException ignore) {
-                // ignore; will never happen
-            }
-        }
-    }
+    public AccountServerBaseFragment() {}
 
     /**
      * At onCreate time, read the fragment arguments
@@ -139,7 +127,9 @@ public abstract class AccountServerBaseFragment extends Fragment
 
         // Get arguments, which modally switch us into "settings" mode (different appearance)
         mSettingsMode = false;
-        if (getArguments() != null) {
+        if (savedInstanceState != null) {
+            mSettingsMode = savedInstanceState.getBoolean(BUNDLE_KEY_SETTINGS);
+        } else if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
         setHasOptionsMenu(true);
@@ -161,21 +151,20 @@ public abstract class AccountServerBaseFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         // startPreferencePanel launches this fragment with the right title initially, but
         // if the device is rotate we must set the title ourselves
+        mContext = getActivity();
         if (mSettingsMode && savedInstanceState != null) {
-            getActivity().setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
+            mContext.setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
         }
+        SetupData.SetupDataContainer container = (SetupData.SetupDataContainer) mContext;
+        mSetupData = container.getSetupData();
+
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mContext = activity;
+        outState.putBoolean(BUNDLE_KEY_SETTINGS, mSettingsMode);
     }
 
     @Override
@@ -189,7 +178,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     @Override
     public void onPause() {
         // Hide the soft keyboard if we lose focus
-        InputMethodManager imm =
+        final InputMethodManager imm =
                 (InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         super.onPause();
@@ -301,7 +290,7 @@ public abstract class AccountServerBaseFragment extends Fragment
                 if (context == null) {
                     return false;
                 }
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(
+                final InputMethodManager imm = (InputMethodManager) context.getSystemService(
                         Context.INPUT_METHOD_SERVICE);
                 if (imm != null && imm.isActive()) {
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
@@ -344,7 +333,7 @@ public abstract class AccountServerBaseFragment extends Fragment
             AccountServerBaseFragment fragment = AccountServerBaseFragment.this;
             if (duplicateAccount != null) {
                 // Show duplicate account warning
-                DuplicateAccountDialogFragment dialogFragment =
+                final DuplicateAccountDialogFragment dialogFragment =
                     DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
                 dialogFragment.show(fragment.getFragmentManager(),
                         DuplicateAccountDialogFragment.TAG);
@@ -363,12 +352,13 @@ public abstract class AccountServerBaseFragment extends Fragment
      * exit to previous fragment.
      */
     @Override
-    public void onCheckSettingsComplete(final int settingsResult) {
+    public void onCheckSettingsComplete(final int settingsResult, SetupData setupData) {
+        mSetupData = setupData;
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 if (settingsResult == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-                    if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                    if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
                         saveSettingsAfterEdit();
                     } else {
                         saveSettingsAfterSetup();
@@ -380,7 +370,7 @@ public abstract class AccountServerBaseFragment extends Fragment
             @Override
             protected void onPostExecute(Void result) {
                 // Signal to owning activity that a settings check completed
-                mCallback.onCheckSettingsComplete(settingsResult, SetupData.getFlowMode());
+                mCallback.onCheckSettingsComplete(settingsResult, mSetupData);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -390,7 +380,7 @@ public abstract class AccountServerBaseFragment extends Fragment
      * This is overridden only by AccountSetupExchange
      */
     @Override
-    public void onAutoDiscoverComplete(int result) {
+    public void onAutoDiscoverComplete(int result, SetupData setupData) {
         throw new IllegalStateException();
     }
 
@@ -398,13 +388,13 @@ public abstract class AccountServerBaseFragment extends Fragment
      * Returns whether or not any settings have changed.
      */
     public boolean haveSettingsChanged() {
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
 
-        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
-        boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        final boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
 
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
         return sendChanged || recvChanged;
     }

@@ -95,12 +95,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onCreateView");
         }
-        int layoutId = mSettingsMode
+        final int layoutId = mSettingsMode
                 ? R.layout.account_settings_outgoing_fragment
                 : R.layout.account_setup_outgoing_fragment;
 
-        View view = inflater.inflate(layoutId, container, false);
-        Context context = getActivity();
+        final View view = inflater.inflate(layoutId, container, false);
+        final Context context = getActivity();
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mPasswordView = UiUtilities.getView(view, R.id.account_password);
@@ -111,7 +111,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         mRequireLoginView.setOnCheckedChangeListener(this);
 
         // Note:  Strings are shared with AccountSetupIncomingFragment
-        SpinnerOption securityTypes[] = {
+        final SpinnerOption securityTypes[] = {
             new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
                     R.string.account_setup_incoming_security_none_label)),
             new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
@@ -124,8 +124,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                     R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
-        ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(context,
-                android.R.layout.simple_spinner_item, securityTypes);
+        final ArrayAdapter<SpinnerOption> securityTypesAdapter =
+                new ArrayAdapter<SpinnerOption>(context, android.R.layout.simple_spinner_item,
+                        securityTypes);
         securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSecurityTypeView.setAdapter(securityTypesAdapter);
 
@@ -149,7 +150,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             }});
 
         // Calls validateFields() which enables or disables the Next button
-        TextWatcher validationTextWatcher = new TextWatcher() {
+        final TextWatcher validationTextWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
@@ -265,29 +266,29 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private void loadSettings() {
         if (mLoaded) return;
 
-        HostAuth sendAuth = SetupData.getAccount().getOrCreateHostAuthSend(mContext);
+        final HostAuth sendAuth = mSetupData.getAccount().getOrCreateHostAuthSend(mContext);
         if ((sendAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
-            String username = sendAuth.mLogin;
+            final String username = sendAuth.mLogin;
             if (username != null) {
                 mUsernameView.setText(username);
                 mRequireLoginView.setChecked(true);
             }
 
-            String password = sendAuth.mPassword;
+            final String password = sendAuth.mPassword;
             if (password != null) {
                 mPasswordView.setText(password);
             }
         }
 
-        int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
+        final int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
 
-        String hostname = sendAuth.mAddress;
+        final String hostname = sendAuth.mAddress;
         if (hostname != null) {
             mServerView.setText(hostname);
         }
 
-        int port = sendAuth.mPort;
+        final int port = sendAuth.mPort;
         if (port != -1) {
             mPortView.setText(Integer.toString(port));
         } else {
@@ -328,12 +329,13 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     }
 
     private int getPortFromSecurityType() {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        final int securityType =
+                (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         return (securityType & HostAuth.FLAG_SSL) != 0 ? SMTP_PORT_SSL : SMTP_PORT_NORMAL;
     }
 
     private void updatePortFromSecurityType() {
-        int port = getPortFromSecurityType();
+        final int port = getPortFromSecurityType();
         mPortView.setText(Integer.toString(port));
     }
 
@@ -343,7 +345,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void saveSettingsAfterEdit() {
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backup(mContext);
@@ -361,18 +363,18 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onNext() {
-        Account account = SetupData.getAccount();
-        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        final Account account = mSetupData.getAccount();
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
 
         if (mRequireLoginView.isChecked()) {
-            String userName = mUsernameView.getText().toString().trim();
-            String userPassword = mPasswordView.getText().toString();
+            final String userName = mUsernameView.getText().toString().trim();
+            final String userPassword = mPasswordView.getText().toString();
             sendAuth.setLogin(userName, userPassword);
         } else {
             sendAuth.setLogin(null, null);
         }
 
-        String serverAddress = mServerView.getText().toString().trim();
+        final String serverAddress = mServerView.getText().toString().trim();
         int serverPort;
         try {
             serverPort = Integer.parseInt(mPortView.getText().toString().trim());
@@ -380,7 +382,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             serverPort = getPortFromSecurityType();
             LogUtils.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        final int securityType =
+                (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         sendAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
         sendAuth.mDomain = null;
 

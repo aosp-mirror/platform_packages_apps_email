@@ -73,7 +73,8 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity {
+public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity,
+        SetupData.SetupDataContainer {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -121,6 +122,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     private Uri mFeedbackUri;
     private MenuItem mFeedbackMenuItem;
 
+    private SetupData mSetupData;
+
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
     private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
@@ -148,7 +151,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
             String loginWarningAccountName, String loginWarningReason) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
         IntentUtilities.setAccountId(b, accountId);
-        Intent i = new Intent(Intent.ACTION_EDIT, b.build());
+        final Intent i = new Intent(Intent.ACTION_EDIT, b.build());
         if (loginWarningAccountName != null) {
             i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
         }
@@ -162,7 +165,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      * Launch generic settings and pre-enable the debug preferences
      */
     public static void actionSettingsWithDebug(Context fromContext) {
-        Intent i = new Intent(fromContext, AccountSettings.class);
+        final Intent i = new Intent(fromContext, AccountSettings.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra(EXTRA_ENABLE_DEBUG, true);
         fromContext.startActivity(i);
@@ -208,10 +211,12 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                     dialog.show(getFragmentManager(), "loginwarning");
                 }
             }
+        } else {
+            mSetupData = savedInstanceState.getParcelable(SetupData.EXTRA_SETUP_DATA);
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
-        String title = i.getStringExtra(EXTRA_TITLE);
+        final String title = i.getStringExtra(EXTRA_TITLE);
         if (title != null) {
             setTitle(title);
         }
@@ -227,6 +232,13 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         };
 
         mFeedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(
+                outState);
+        outState.putParcelable(SetupData.EXTRA_SETUP_DATA, mSetupData);
     }
 
     @Override
@@ -314,16 +326,16 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public Intent onBuildStartFragmentIntent(String fragmentName, Bundle args,
             int titleRes, int shortTitleRes) {
-        Intent result = super.onBuildStartFragmentIntent(
+        final Intent intent = super.onBuildStartFragmentIntent(
                 fragmentName, args, titleRes, shortTitleRes);
 
         // When opening a sub-settings page (e.g. account specific page), see if we want to modify
         // the activity title.
         String title = AccountSettingsFragment.getTitleFromArgs(args);
         if ((titleRes == 0) && (title != null)) {
-            result.putExtra(EXTRA_TITLE, title);
+            intent.putExtra(EXTRA_TITLE, title);
         }
-        return result;
+        return intent;
     }
 
     /**
@@ -339,8 +351,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public void onBackPressed() {
         if (mCurrentFragment instanceof AccountServerBaseFragment) {
-            boolean changed = ((AccountServerBaseFragment) mCurrentFragment).haveSettingsChanged();
-            if (changed) {
+            if (((AccountServerBaseFragment) mCurrentFragment).haveSettingsChanged()) {
                 UnsavedChangesDialogFragment dialogFragment =
                         UnsavedChangesDialogFragment.newInstanceForBack();
                 dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
@@ -351,7 +362,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     }
 
     private void launchMailboxSettings(Intent intent) {
-        final Folder folder = (Folder)intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
+        final Folder folder = intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
 
         // TODO: determine from the account if we should navigate to the mailbox settings.
         // See bug 6242668
@@ -400,7 +411,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
 
         // Then add zero or more account headers as necessary
         if (mAccountListHeaders != null) {
-            int headerCount = mAccountListHeaders.length;
+            final int headerCount = mAccountListHeaders.length;
             for (int index = 0; index < headerCount; index++) {
                 Header header = mAccountListHeaders[index];
                 if (header != null && header.id != HEADER_ID_UNDEFINED) {
@@ -417,7 +428,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // finally, if debug header is enabled, show it
         if (mShowDebugMenu) {
             // setup lightweight header for debugging
-            Header debugHeader = new Header();
+            final Header debugHeader = new Header();
             debugHeader.title = getText(R.string.debug_title);
             debugHeader.summary = null;
             debugHeader.iconRes = 0;
@@ -463,25 +474,24 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         protected Object[] doInBackground(Long... params) {
             Header[] result = null;
             Boolean deletingAccountFound = false;
-            long deletingAccountId = params[0];
+            final long deletingAccountId = params[0];
 
             Cursor c = getContentResolver().query(
                     Account.CONTENT_URI,
                     Account.CONTENT_PROJECTION, null, null, null);
             try {
                 int index = 0;
-                int headerCount = c.getCount();
-                result = new Header[headerCount];
+                result = new Header[c.getCount()];
 
                 while (c.moveToNext()) {
-                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    final long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                     if (accountId == deletingAccountId) {
                         deletingAccountFound = true;
                         continue;
                     }
-                    String name = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-                    String email = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
-                    Header newHeader = new Header();
+                    final String name = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+                    final String email = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
+                    final Header newHeader = new Header();
                     newHeader.id = accountId;
                     newHeader.title = name;
                     newHeader.summary = email;
@@ -503,8 +513,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         protected void onPostExecute(Object[] result) {
             if (isCancelled() || result == null) return;
             // Extract the results
-            Header[] headers = (Header[]) result[0];
-            boolean deletingAccountFound = (Boolean) result[1];
+            final Header[] headers = (Header[]) result[0];
+            final boolean deletingAccountFound = (Boolean) result[1];
             // report the settings
             mAccountListHeaders = headers;
             invalidateHeaders();
@@ -523,14 +533,12 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public void onHeaderClick(Header header, int position) {
         // special case when exiting the server settings fragments
-        if (mCurrentFragment instanceof AccountServerBaseFragment) {
-            boolean changed = ((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged();
-            if (changed) {
-                UnsavedChangesDialogFragment dialogFragment =
-                    UnsavedChangesDialogFragment.newInstanceForHeader(position);
-                dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
-                return;
-            }
+        if ((mCurrentFragment instanceof AccountServerBaseFragment)
+                && (((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged())) {
+            UnsavedChangesDialogFragment dialogFragment =
+                UnsavedChangesDialogFragment.newInstanceForHeader(position);
+            dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
+            return;
         }
 
         // Secret keys:  Click 10x to enable debug settings
@@ -557,8 +565,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         mCurrentFragment = null;
         // Ensure the UI visually shows the correct header selected
         setSelection(position);
-        Header header = mGeneratedHeaders.get(position);
-        switchToHeader(header);
+        switchToHeader(mGeneratedHeaders.get(position));
     }
 
     /**
@@ -575,10 +582,10 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         super.onAttachFragment(f);
 
         if (f instanceof AccountSettingsFragment) {
-            AccountSettingsFragment asf = (AccountSettingsFragment) f;
+            final AccountSettingsFragment asf = (AccountSettingsFragment) f;
             asf.setCallback(mAccountSettingsFragmentCallback);
         } else if (f instanceof AccountServerBaseFragment) {
-            AccountServerBaseFragment asbf = (AccountServerBaseFragment) f;
+            final AccountServerBaseFragment asbf = (AccountServerBaseFragment) f;
             asbf.setCallback(mAccountServerSettingsFragmentCallback);
         } else {
             // Possibly uninteresting fragment, such as a dialog.
@@ -638,7 +645,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
          * simply does a "back" to exit the settings screen.
          */
         @Override
-        public void onCheckSettingsComplete(int result, int setupMode) {
+        public void onCheckSettingsComplete(int result, SetupData setupData) {
             if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
                 // Settings checked & saved; clear current fragment
                 mCurrentFragment = null;
@@ -669,7 +676,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public void onEditQuickResponses(com.android.mail.providers.Account account) {
         try {
-            Bundle args = new Bundle();
+            final Bundle args = new Bundle(1);
             args.putParcelable(QUICK_RESPONSE_ACCOUNT_KEY, account);
             startPreferencePanel(AccountSettingsEditQuickResponsesFragment.class.getName(), args,
                     R.string.account_settings_edit_quick_responses_label, null, null, 0);
@@ -683,10 +690,11 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public void onIncomingSettings(Account account) {
         try {
-            SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-            startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
-                    AccountSetupIncomingFragment.getSettingsModeArgs(),
-                    R.string.account_settings_incoming_label, null, null, 0);
+            mSetupData = new SetupData(SetupData.FLOW_MODE_EDIT, account);
+            final Fragment f = new AccountSetupIncomingFragment();
+            f.setArguments(AccountSetupIncomingFragment.getArgs(true));
+            // Use startPreferenceFragment here because we need to keep this activity instance
+            startPreferenceFragment(f, true);
         } catch (Exception e) {
             LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
@@ -699,18 +707,11 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public void onOutgoingSettings(Account account) {
         try {
-            Sender sender = Sender.getInstance(getApplication(), account);
-            if (sender != null) {
-                Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
-                if (setting != null) {
-                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-                    if (setting.equals(AccountSetupOutgoing.class)) {
-                        startPreferencePanel(AccountSetupOutgoingFragment.class.getName(),
-                                AccountSetupOutgoingFragment.getSettingsModeArgs(),
-                                R.string.account_settings_outgoing_label, null, null, 0);
-                    }
-                }
-            }
+            mSetupData = new SetupData(SetupData.FLOW_MODE_EDIT, account);
+            final Fragment f = new AccountSetupOutgoingFragment();
+            f.setArguments(AccountSetupOutgoingFragment.getArgs(true));
+            // Use startPreferenceFragment here because we need to keep this activity instance
+            startPreferenceFragment(f, true);
         } catch (Exception e) {
             LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke sender settings.", e);
         }
@@ -724,7 +725,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
+                final Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
                 getContentResolver().delete(uri, null, null);
             }}).start();
 
@@ -732,7 +733,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // Then update the UI as appropriate:
         // If single pane, return to the header list.  If multi, rebuild header list
         if (onIsMultiPane()) {
-            Header prefsHeader = getAppPreferencesHeader();
+            final Header prefsHeader = getAppPreferencesHeader();
             this.switchToHeader(prefsHeader.fragment, prefsHeader.fragmentArguments);
             mDeletingAccountId = account.mId;
             updateAccounts();
@@ -752,9 +753,9 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
 
         @Override
         protected Long doInBackground(Intent... params) {
-            Intent intent = params[0];
+            final Intent intent = params[0];
             android.accounts.Account acct =
-                (android.accounts.Account) intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
+                intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
             return Utility.getFirstRowLong(AccountSettings.this, Account.CONTENT_URI,
                     Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS,
                     new String[] {acct.name}, null, Account.ID_PROJECTION_COLUMN, -1L);
@@ -785,8 +786,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
          * must be a valid header index although there is no error checking.
          */
         public static UnsavedChangesDialogFragment newInstanceForHeader(int position) {
-            UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
-            Bundle b = new Bundle();
+            final UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
+            final Bundle b = new Bundle(1);
             b.putInt(BUNDLE_KEY_HEADER, position);
             f.setArguments(b);
             return f;
@@ -797,8 +798,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
          * {@link #onBackPressed()} defines in which case this may be triggered.
          */
         public static UnsavedChangesDialogFragment newInstanceForBack() {
-            UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
-            Bundle b = new Bundle();
+            final UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
+            final Bundle b = new Bundle(1);
             b.putBoolean(BUNDLE_KEY_BACK, true);
             f.setArguments(b);
             return f;
@@ -854,7 +855,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
          */
         public static LoginWarningDialog newInstance(String accountName, String reason) {
             final LoginWarningDialog dialog = new LoginWarningDialog();
-            Bundle b = new Bundle();
+            final Bundle b = new Bundle(1);
             b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
             dialog.setArguments(b);
             dialog.mReason = reason;
@@ -872,17 +873,17 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
             b.setIconAttribute(android.R.attr.alertDialogIcon);
             if (mReason != null) {
                 final TextView message = new TextView(context);
-                String alert = res.getString(
+                final String alert = res.getString(
                         R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
                 SpannableString spannableAlertString = new SpannableString(alert);
                 Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
                 message.setText(spannableAlertString);
                 // There must be a better way than specifying size/padding this way
                 // It does work and look right, though
-                int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
+                final int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
                 message.setTextSize(textSize);
-                int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
-                int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
+                final int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
+                final int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
                 message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
                 message.setMovementMethod(LinkMovementMethod.getInstance());
                 b.setView(message);
@@ -907,5 +908,15 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public Context getActivityContext() {
         return this;
+    }
+
+    @Override
+    public SetupData getSetupData() {
+        return mSetupData;
+    }
+
+    @Override
+    public void setSetupData(SetupData setupData) {
+        mSetupData = setupData;
     }
 }
