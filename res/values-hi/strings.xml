@@ -175,7 +175,7 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"इस सर्वर को ऐसी सुरक्षा सुविधाओं की आवश्यकता है जिनका समर्थन आपका Android उपकरण नहीं करता, जिनमें शामिल हैं: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"आप किसी खाते का उपयोगकर्ता नाम नहीं बदल सकते. किसी दूसरे उपयोगकर्ता नाम से खाता जोड़ने के लिए, खाता जोड़ें को स्‍पर्श करें."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल एप्‍लिकेशन का प्राधिकार निष्क्रिय कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल एप्‍लिकेशन का प्राधिकार प्रयोग में नहीं कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"सुरक्षा अपडेट"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"आपको <xliff:g id="ACCOUNT">%s</xliff:g> के लिए अपनी सुरक्षा सेटिंग अपडेट करने की आवश्यकता है."</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"सुरक्षा आवश्‍यकताओं के कारण खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" समन्‍वयित नहीं किया जा सकता."</string>
@@ -285,7 +285,7 @@
     <string name="policy_require_password" msgid="7177274900480984702">"उपकरण पासवर्ड आवश्‍यक"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"हाल के पासवर्ड का पुन: उपयोग प्रतिबं. करें"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"पासवर्ड के लिए समय सीमा समाप्ति आवश्यक"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"स्क्रीन लॉक के लिए निष्क्रिय उपकरण चाहिए"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"स्क्रीन लॉक के लिए प्रयोग में नहीं उपकरण चाहिए"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"समन्‍वयित कैलेंडर ईवेंट की संख्‍या सीमित करें"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"समन्‍वयित ईमेल की संख्‍या सीमित करें"</string>
     <string name="quick_1" msgid="3426057697353380951">"धन्यवाद!"</string>
