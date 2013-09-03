@@ -35,17 +35,17 @@ import android.widget.Button;
  * Uses AccountSetupOutgoingFragment for primary UI.  Uses AccountCheckSettingsFragment to validate
  * the settings as entered.  If the account is OK, proceeds to AccountSetupOptions.
  */
-public class AccountSetupOutgoing extends Activity
+public class AccountSetupOutgoing extends AccountSetupActivity
         implements AccountSetupOutgoingFragment.Callback, OnClickListener {
 
     /* package */ AccountSetupOutgoingFragment mFragment;
     private Button mNextButton;
     /* package */ boolean mNextButtonEnabled;
 
-    public static void actionOutgoingSettings(Activity fromActivity, int mode, Account account) {
-        SetupData.setFlowMode(mode);
-        SetupData.setAccount(account);
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupOutgoing.class));
+    public static void actionOutgoingSettings(Activity fromActivity, SetupData setupData) {
+        Intent intent = new Intent(fromActivity, AccountSetupOutgoing.class);
+        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        fromActivity.startActivity(intent);
     }
 
     @Override
@@ -81,22 +81,22 @@ public class AccountSetupOutgoing extends Activity
     }
 
     /**
-     * Implements AccountServerBaseFragment.Callback
+     * Implements AccountSetupOugoingFragment.Callback
      *
      * Launches the account checker.  Positive results are reported to onCheckSettingsOk().
      */
     @Override
     public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
-        AccountCheckSettingsFragment checkerFragment =
+        final AccountCheckSettingsFragment checkerFragment =
             AccountCheckSettingsFragment.newInstance(checkMode, target);
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
         transaction.addToBackStack("back");
         transaction.commit();
     }
 
     /**
-     * Implements AccountServerBaseFragment.Callback
+     * Implements AccountSetupOugoingFragment.Callback
      */
     @Override
     public void onEnableProceedButtons(boolean enable) {
@@ -110,9 +110,10 @@ public class AccountSetupOutgoing extends Activity
      * If the checked settings are OK, proceed to options screen
      */
     @Override
-    public void onCheckSettingsComplete(int result, int setupMode) {
+    public void onCheckSettingsComplete(int result, SetupData setupData) {
+        mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupOptions.actionOptions(this);
+            AccountSetupOptions.actionOptions(this, mSetupData);
             finish();
         }
     }

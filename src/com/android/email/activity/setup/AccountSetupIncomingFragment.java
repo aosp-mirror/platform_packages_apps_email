@@ -114,15 +114,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
         }
-        int layoutId = mSettingsMode
+        final int layoutId = mSettingsMode
                 ? R.layout.account_settings_incoming_fragment
                 : R.layout.account_setup_incoming_fragment;
 
-        View view = inflater.inflate(layoutId, container, false);
-        Context context = getActivity();
-
-        final HostAuth recvAuth = SetupData.getAccount().mHostAuthRecv;
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
+        final View view = inflater.inflate(layoutId, container, false);
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mPasswordView = UiUtilities.getView(view, R.id.account_password);
@@ -137,48 +133,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mImapPathPrefixView = UiUtilities.getView(view, R.id.imap_path_prefix);
         mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
 
-        // Set up security type spinner
-        ArrayList<SpinnerOption> securityTypes = new ArrayList<SpinnerOption>();
-        securityTypes.add(
-                new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
-                        R.string.account_setup_incoming_security_none_label)));
-        securityTypes.add(
-                new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
-                        R.string.account_setup_incoming_security_ssl_label)));
-        securityTypes.add(
-                new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
-                        R.string.account_setup_incoming_security_ssl_trust_certificates_label)));
-        if (mServiceInfo.offerTls) {
-            securityTypes.add(
-                    new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
-                            R.string.account_setup_incoming_security_tls_label)));
-            securityTypes.add(
-                    new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL,
-                        context.getString(
-                           R.string.account_setup_incoming_security_tls_trust_certificates_label)));
-        }
-        ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(
-                context, android.R.layout.simple_spinner_item, securityTypes);
-        securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSecurityTypeView.setAdapter(securityTypesAdapter);
-
-        if (mServiceInfo.offerLocalDeletes) {
-            SpinnerOption deletePolicies[] = {
-                    new SpinnerOption(Account.DELETE_POLICY_NEVER,
-                            context.getString(
-                                    R.string.account_setup_incoming_delete_policy_never_label)),
-                    new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
-                            context.getString(
-                                    R.string.account_setup_incoming_delete_policy_delete_label)),
-            };
-            ArrayAdapter<SpinnerOption> deletePoliciesAdapter =
-                    new ArrayAdapter<SpinnerOption>(context,
-                            android.R.layout.simple_spinner_item, deletePolicies);
-            deletePoliciesAdapter.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item);
-            mDeletePolicyView.setAdapter(deletePoliciesAdapter);
-        }
-
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
         mSecurityTypeView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -192,7 +146,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         });
 
         // After any text edits, call validateFields() which enables or disables the Next button
-        TextWatcher validationTextWatcher = new TextWatcher() {
+        final TextWatcher validationTextWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
@@ -229,6 +183,54 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         super.onActivityCreated(savedInstanceState);
         mClientCertificateSelector.setHostActivity(this);
+
+        final Context context = getActivity();
+        final SetupData.SetupDataContainer container = (SetupData.SetupDataContainer) context;
+        mSetupData = container.getSetupData();
+
+        final HostAuth recvAuth = mSetupData.getAccount().mHostAuthRecv;
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
+
+        if (mServiceInfo.offerLocalDeletes) {
+            SpinnerOption deletePolicies[] = {
+                    new SpinnerOption(Account.DELETE_POLICY_NEVER,
+                            context.getString(
+                                    R.string.account_setup_incoming_delete_policy_never_label)),
+                    new SpinnerOption(Account.DELETE_POLICY_ON_DELETE,
+                            context.getString(
+                                    R.string.account_setup_incoming_delete_policy_delete_label)),
+            };
+            ArrayAdapter<SpinnerOption> deletePoliciesAdapter =
+                    new ArrayAdapter<SpinnerOption>(context,
+                            android.R.layout.simple_spinner_item, deletePolicies);
+            deletePoliciesAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            mDeletePolicyView.setAdapter(deletePoliciesAdapter);
+        }
+
+        // Set up security type spinner
+        ArrayList<SpinnerOption> securityTypes = new ArrayList<SpinnerOption>();
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
+                        R.string.account_setup_incoming_security_none_label)));
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_label)));
+        securityTypes.add(
+                new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_trust_certificates_label)));
+        if (mServiceInfo.offerTls) {
+            securityTypes.add(
+                    new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
+                            R.string.account_setup_incoming_security_tls_label)));
+            securityTypes.add(new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL,
+                    context.getString(R.string
+                            .account_setup_incoming_security_tls_trust_certificates_label)));
+        }
+        ArrayAdapter<SpinnerOption> securityTypesAdapter = new ArrayAdapter<SpinnerOption>(
+                context, android.R.layout.simple_spinner_item, securityTypes);
+        securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSecurityTypeView.setAdapter(securityTypesAdapter);
     }
 
     /**
@@ -315,7 +317,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Configure the editor for the account type
      */
     private void configureEditor() {
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         if (account == null || account.mHostAuthRecv == null) {
             LogUtils.e(Logging.LOG_TAG,
                     "null account or host auth. account null: %b host auth null: %b",
@@ -345,10 +347,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private void loadSettings() {
         if (mLoaded) return;
 
-        Account account = SetupData.getAccount();
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final Account account = mSetupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
 
-        String username = recvAuth.mLogin;
+        final String username = recvAuth.mLogin;
         if (username != null) {
             //*** For eas?
             // Add a backslash to the start of the username, but only if the username has no
@@ -358,7 +360,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             //}
             mUsernameView.setText(username);
         }
-        String password = recvAuth.mPassword;
+        final String password = recvAuth.mPassword;
         if (password != null) {
             mPasswordView.setText(password);
             // Since username is uneditable, focus on the next editable field
@@ -368,7 +370,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
 
         if (mServiceInfo.offerPrefix) {
-            String prefix = recvAuth.mDomain;
+            final String prefix = recvAuth.mDomain;
             if (prefix != null && prefix.length() > 0) {
                 mImapPathPrefixView.setText(prefix.substring(1));
             }
@@ -387,12 +389,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
 
-        String hostname = recvAuth.mAddress;
+        final String hostname = recvAuth.mAddress;
         if (hostname != null) {
             mServerView.setText(hostname);
         }
 
-        int port = recvAuth.mPort;
+        final int port = recvAuth.mPort;
         if (port != HostAuth.PORT_UNKNOWN) {
             mPortView.setText(Integer.toString(port));
         } else {
@@ -409,11 +411,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     private void validateFields() {
         if (!mLoaded) return;
-        final boolean enabled = !TextUtils.isEmpty(mUsernameView.getText())
+        enableNextButton(!TextUtils.isEmpty(mUsernameView.getText())
                 && !TextUtils.isEmpty(mPasswordView.getText())
                 && Utility.isServerNameValid(mServerView)
-                && Utility.isPortFieldValid(mPortView);
-        enableNextButton(enabled);
+                && Utility.isPortFieldValid(mPortView));
 
         mCacheLoginCredential = mUsernameView.getText().toString().trim();
 
@@ -422,19 +423,20 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     private int getPortFromSecurityType(boolean useSsl) {
-        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext,
-                SetupData.getAccount().mHostAuthRecv.mProtocol);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext,
+                mSetupData.getAccount().mHostAuthRecv.mProtocol);
         return useSsl ? info.portSsl : info.port;
     }
 
     private boolean getSslSelected() {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        final int securityType =
+                (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         return ((securityType & HostAuth.FLAG_SSL) != 0);
     }
 
     public void onUseSslChanged(boolean useSsl) {
         if (mServiceInfo.offerCerts) {
-            int mode = useSsl ? View.VISIBLE : View.GONE;
+            final int mode = useSsl ? View.VISIBLE : View.GONE;
             mClientCertificateSelector.setVisibility(mode);
             String deviceId = "";
             try {
@@ -450,8 +452,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     private void updatePortFromSecurityType() {
-        boolean sslSelected = getSslSelected();
-        int port = getPortFromSecurityType(sslSelected);
+        final boolean sslSelected = getSslSelected();
+        final int port = getPortFromSecurityType(sslSelected);
         mPortView.setText(Integer.toString(port));
         onUseSslChanged(sslSelected);
     }
@@ -464,7 +466,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     @Override
     public void saveSettingsAfterEdit() {
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         account.update(mContext, account.toContentValues());
         account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
         // Update the backup (side copy) of the accounts
@@ -476,14 +478,14 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     @Override
     public void saveSettingsAfterSetup() {
-        Account account = SetupData.getAccount();
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        final Account account = mSetupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
 
         // Set the username and password for the outgoing settings to the username and
         // password the user just set for incoming.  Use the verified host address to try and
         // pick a smarter outgoing address.
-        String hostName =
+        final String hostName =
                 AccountSettingsUtils.inferServerName(mContext, recvAuth.mAddress, null, "smtp");
         sendAuth.setLogin(recvAuth.mLogin, recvAuth.mPassword);
         sendAuth.setConnection(sendAuth.mProtocol, hostName, sendAuth.mPort, sendAuth.mFlags);
@@ -494,7 +496,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onNext() {
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
 
         // Make sure delete policy is an valid option before using it; otherwise, the results are
         // indeterminate, I suspect...
@@ -503,12 +505,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                     (Integer) ((SpinnerOption) mDeletePolicyView.getSelectedItem()).value);
         }
 
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        String userName = mUsernameView.getText().toString().trim();
-        String userPassword = mPasswordView.getText().toString();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final String userName = mUsernameView.getText().toString().trim();
+        final String userPassword = mPasswordView.getText().toString();
         recvAuth.setLogin(userName, userPassword);
 
-        String serverAddress = mServerView.getText().toString().trim();
+        final String serverAddress = mServerView.getText().toString().trim();
         int serverPort;
         try {
             serverPort = Integer.parseInt(mPortView.getText().toString().trim());
@@ -516,10 +518,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             serverPort = getPortFromSecurityType(getSslSelected());
             LogUtils.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
-        int securityType = (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
+        final int securityType =
+                (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
         recvAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
         if (mServiceInfo.offerPrefix) {
-            String prefix = mImapPathPrefixView.getText().toString().trim();
+            final String prefix = mImapPathPrefixView.getText().toString().trim();
             recvAuth.mDomain = TextUtils.isEmpty(prefix) ? null : ("/" + prefix);
         } else {
             recvAuth.mDomain = null;
@@ -533,13 +536,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     @Override
     public boolean haveSettingsChanged() {
-        boolean deletePolicyChanged = false;
+        final boolean deletePolicyChanged;
 
         // Only verify the delete policy if the control is visible (i.e. is a pop3 account)
         if (mDeletePolicyView.getVisibility() == View.VISIBLE) {
             int newDeletePolicy =
                 (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value;
             deletePolicyChanged = mLoadedDeletePolicy != newDeletePolicy;
+        } else {
+            deletePolicyChanged = false;
         }
 
         return deletePolicyChanged || super.haveSettingsChanged();
@@ -549,14 +554,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Implements AccountCheckSettingsFragment.Callbacks
      */
     @Override
-    public void onAutoDiscoverComplete(int result) {
-        AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
-        activity.onAutoDiscoverComplete(result);
+    public void onAutoDiscoverComplete(int result, SetupData setupData) {
+        mSetupData = setupData;
+        final AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
+        activity.onAutoDiscoverComplete(result, setupData);
     }
 
     @Override
     public void onCertificateRequested() {
-        Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
+        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
         intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
         startActivityForResult(intent, CERTIFICATE_REQUEST);
     }
@@ -564,7 +570,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
-            String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
+            final String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
             if (certAlias != null) {
                 mClientCertificateSelector.setCertificate(certAlias);
             }
