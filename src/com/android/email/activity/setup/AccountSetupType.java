@@ -42,8 +42,9 @@ import com.android.emailcommon.provider.HostAuth;
  */
 public class AccountSetupType extends AccountSetupActivity implements OnClickListener {
 
-    public static void actionSelectAccountType(Activity fromActivity) {
-        Intent i = new ForwardingIntent(fromActivity, AccountSetupType.class);
+    public static void actionSelectAccountType(Activity fromActivity, SetupData setupData) {
+        final Intent i = new ForwardingIntent(fromActivity, AccountSetupType.class);
+        i.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(i);
     }
 
@@ -51,11 +52,10 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-        int flowMode = SetupData.getFlowMode();
 
-        String accountType = SetupData.getFlowAccountType();
+        final String accountType = mSetupData.getFlowAccountType();
         // If we're in account setup flow mode, see if there's just one protocol that matches
-        if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER) {
+        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_ACCOUNT_MANAGER) {
             int matches = 0;
             String protocol = null;
             for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
@@ -73,8 +73,7 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
 
         // Otherwise proceed into this screen
         setContentView(R.layout.account_setup_account_type);
-        ViewGroup parent = UiUtilities.getView(this, R.id.accountTypes);
-        boolean parentRelative = parent instanceof RelativeLayout;
+        final ViewGroup parent = UiUtilities.getView(this, R.id.accountTypes);
         View lastView = parent.getChildAt(0);
         int i = 1;
         for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
@@ -85,9 +84,9 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
                     continue;
                 }
                 LayoutInflater.from(this).inflate(R.layout.account_type, parent);
-                Button button = (Button)parent.getChildAt(i);
-                if (parentRelative) {
-                    LayoutParams params = (LayoutParams)button.getLayoutParams();
+                final Button button = (Button)parent.getChildAt(i);
+                if (parent instanceof RelativeLayout) {
+                    final LayoutParams params = (LayoutParams)button.getLayoutParams();
                     params.addRule(RelativeLayout.BELOW, lastView.getId());
                  }
                 button.setId(i);
@@ -108,19 +107,19 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
      * there is no UI (for exchange), and switch the default sync interval to "push".
      */
     private void onSelect(String protocol) {
-        Account account = SetupData.getAccount();
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        final Account account = mSetupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
-        EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, protocol);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, protocol);
         if (info.usesAutodiscover) {
-            SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
+            mSetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         } else {
-            SetupData.setCheckSettingsMode(
+            mSetupData.setCheckSettingsMode(
                     SetupData.CHECK_INCOMING | (info.usesSmtp ? SetupData.CHECK_OUTGOING : 0));
         }
         recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
         AccountSetupBasics.setDefaultsForProtocol(this, account);
-        AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
+        AccountSetupIncoming.actionIncomingSettings(this, mSetupData);
         // Back from the incoming screen returns to AccountSetupBasics
         finish();
     }

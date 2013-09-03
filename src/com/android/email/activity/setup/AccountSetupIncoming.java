@@ -52,18 +52,11 @@ public class AccountSetupIncoming extends AccountSetupActivity
             "AccountSetupExchange.StartedAutoDiscovery";
 
     // Extras for AccountSetupIncoming intent
-    private final static String FLOW_MODE_EXTRA = "flow-mode-extra";
-    private final static String ACCOUNT_EXTRA = "account-extra";
 
-    public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
-        SetupData.setFlowMode(mode);
-        SetupData.setAccount(account);
-
+    public static void actionIncomingSettings(Activity fromActivity, SetupData setupData) {
         final Intent intent = new Intent(fromActivity, AccountSetupIncoming.class);
         // Add the additional information to the intent, in case the Email process is killed.
-        intent.putExtra(FLOW_MODE_EXTRA, mode);
-        intent.putExtra(ACCOUNT_EXTRA, account);
-
+        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(intent);
     }
 
@@ -72,16 +65,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
-        final Account dataAccount = SetupData.getAccount();
-        if (dataAccount == null) {
-            // The account is not set in the SetupData.  This probably means that the Email
-            // process was killed, and we are in the process of restoring the activity
-            final Bundle extras = getIntent().getExtras();
-            SetupData.setFlowMode(extras.getInt(FLOW_MODE_EXTRA));
-            SetupData.setAccount((Account)extras.getParcelable(ACCOUNT_EXTRA));
-        }
-
-        HostAuth hostAuth = SetupData.getAccount().mHostAuthRecv;
+        final HostAuth hostAuth = mSetupData.getAccount().mHostAuthRecv;
         mServiceInfo = EmailServiceUtils.getServiceInfo(this, hostAuth.mProtocol);
 
         setContentView(R.layout.account_setup_incoming);
@@ -107,7 +91,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         }
 
         // If we've got a default prefix for this protocol, use it
-        String prefix = mServiceInfo.inferPrefix;
+        final String prefix = mServiceInfo.inferPrefix;
         if (prefix != null && !hostAuth.mAddress.startsWith(prefix + ".")) {
             hostAuth.mAddress = prefix + "." + hostAuth.mAddress;
         }
@@ -148,26 +132,22 @@ public class AccountSetupIncoming extends AccountSetupActivity
         // this prevents repeating.
         mStartedAutoDiscovery = true;
 
-        if (!SetupData.isAllowAutodiscover()) {
+        if (!mSetupData.isAllowAutodiscover()) {
             return;
         }
 
-        Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         // If we've got a username and password and we're NOT editing, try autodiscover
-        String username = account.mHostAuthRecv.mLogin;
-        String password = account.mHostAuthRecv.mPassword;
+        final String username = account.mHostAuthRecv.mLogin;
+        final String password = account.mHostAuthRecv.mPassword;
         if (username != null && password != null) {
             onProceedNext(SetupData.CHECK_AUTODISCOVER, mFragment);
         }
     }
 
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     *
-     * @param result Currently auth failed (bail), ok (move to next), or no data (stay here)
-     */
-    public void onAutoDiscoverComplete(int result) {
+    public void onAutoDiscoverComplete(int result, SetupData setupData) {
         // If authentication failed, exit immediately (to re-enter credentials)
+        mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.AUTODISCOVER_AUTHENTICATION) {
             finish();
             return;
@@ -210,13 +190,13 @@ public class AccountSetupIncoming extends AccountSetupActivity
      * If the checked settings are OK, proceed to outgoing settings screen
      */
     @Override
-    public void onCheckSettingsComplete(int result, int setupMode) {
+    public void onCheckSettingsComplete(int result, SetupData setupData) {
+        mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             if (mServiceInfo.usesSmtp) {
-                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
-                        SetupData.getAccount());
+                AccountSetupOutgoing.actionOutgoingSettings(this, mSetupData);
             } else {
-                AccountSetupOptions.actionOptions(this);
+                AccountSetupOptions.actionOptions(this, mSetupData);
                 finish();
             }
         }

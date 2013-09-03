@@ -48,7 +48,7 @@ import com.android.emailcommon.utility.Utility;
 /**
  * Final screen of setup process.  Collect account nickname and/or username.
  */
-public class AccountSetupNames extends AccountSetupActivity implements OnClickListener {
+public class AccountSetupNames extends AccountSetupActivity {
     private static final int REQUEST_SECURITY = 0;
 
     private static final Uri PROFILE_URI = Profile.CONTENT_URI;
@@ -58,8 +58,10 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private Button mNextButton;
     private boolean mRequiresName = true;
 
-    public static void actionSetNames(Activity fromActivity) {
-        fromActivity.startActivity(new ForwardingIntent(fromActivity, AccountSetupNames.class));
+    public static void actionSetNames(Activity fromActivity, SetupData setupData) {
+        ForwardingIntent intent = new ForwardingIntent(fromActivity, AccountSetupNames.class);
+        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        fromActivity.startActivity(intent);
     }
 
     @Override
@@ -69,11 +71,16 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         setContentView(R.layout.account_setup_names);
         mDescription = UiUtilities.getView(this, R.id.account_description);
         mName = UiUtilities.getView(this, R.id.account_name);
-        View accountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
+        final View accountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
         mNextButton = UiUtilities.getView(this, R.id.next);
-        mNextButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onNext();
+            }
+        });
 
-        TextWatcher validationTextWatcher = new TextWatcher() {
+        final TextWatcher validationTextWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
@@ -90,18 +97,19 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         mName.addTextChangedListener(validationTextWatcher);
         mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
 
-        final Account account = SetupData.getAccount();
+        final Account account = mSetupData.getAccount();
         if (account == null) {
             throw new IllegalStateException("unexpected null account");
         }
         if (account.mHostAuthRecv == null) {
             throw new IllegalStateException("unexpected null hostauth");
         }
-        int flowMode = SetupData.getFlowMode();
+
+        final int flowMode = mSetupData.getFlowMode();
 
         if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
                 && flowMode != SetupData.FLOW_MODE_EDIT) {
-            String accountEmail = account.mEmailAddress;
+            final String accountEmail = account.mEmailAddress;
             mDescription.setText(accountEmail);
 
             // Move cursor to the end so it's easier to erase in case the user doesn't like it.
@@ -109,7 +117,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         }
 
         // Remember whether we're an EAS account, since it doesn't require the user name field
-        EmailServiceInfo info =
+        final EmailServiceInfo info =
                 EmailServiceUtils.getServiceInfo(this, account.mHostAuthRecv.mProtocol);
         if (!info.usesSmtp) {
             mRequiresName = false;
@@ -138,7 +146,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         new EmailAsyncTask<Void, Void, String>(null) {
             @Override
             protected String doInBackground(Void... params) {
-                String[] projection = new String[] { Profile.DISPLAY_NAME };
+                final String[] projection = new String[] { Profile.DISPLAY_NAME };
                 return Utility.getFirstRowString(
                         AccountSetupNames.this, PROFILE_URI, projection, null, null, null, 0);
             }
@@ -152,25 +160,13 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     /**
-     * Implements OnClickListener
-     */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.next:
-                onNext();
-                break;
-        }
-    }
-
-    /**
      * Check input fields for legal values and enable/disable next button
      */
     private void validateFields() {
         boolean enableNextButton = true;
         // Validation is based only on the "user name" field, not shown for EAS accounts
         if (mRequiresName) {
-            String userName = mName.getText().toString().trim();
+            final String userName = mName.getText().toString().trim();
             if (TextUtils.isEmpty(userName)) {
                 enableNextButton = false;
                 mName.setError(getString(R.string.account_setup_names_user_name_empty_error));
@@ -192,19 +188,14 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     private void finishActivity() {
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_NO_ACCOUNTS) {
+        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_NO_ACCOUNTS) {
             AccountSetupBasics.actionAccountCreateFinishedWithResult(this);
-        } else if (SetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
+        } else if (mSetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
             AccountSetupBasics.actionAccountCreateFinishedAccountFlow(this);
         } else {
-            Account account = SetupData.getAccount();
+            final Account account = mSetupData.getAccount();
             if (account != null) {
                 AccountSetupBasics.actionAccountCreateFinished(this, account);
-            } else {
-                // Safety check here;  If mAccount is null (due to external issues or bugs)
-                // just rewind back to Welcome, which can handle any configuration of accounts
-                //***
-               //Welcome.actionStart(this);
             }
         }
         finish();
@@ -218,8 +209,8 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         mNextButton.setEnabled(false); // Protect against double-tap.
 
         // Update account object from UI
-        Account account = SetupData.getAccount();
-        String description = mDescription.getText().toString().trim();
+        final Account account = mSetupData.getAccount();
+        final String description = mDescription.getText().toString().trim();
         if (!TextUtils.isEmpty(description)) {
             account.setDisplayName(description);
         }
@@ -259,7 +250,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         @Override
         protected Boolean doInBackground(Void... params) {
             // Update the account in the database
-            ContentValues cv = new ContentValues();
+            final ContentValues cv = new ContentValues();
             cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
             cv.put(AccountColumns.SENDER_NAME, mAccount.getSenderName());
             mAccount.update(mContext, cv);
@@ -274,7 +265,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         protected void onPostExecute(Boolean isSecurityHold) {
             if (!isCancelled()) {
                 if (isSecurityHold) {
-                    Intent i = AccountSecurity.actionUpdateSecurityIntent(
+                    final Intent i = AccountSecurity.actionUpdateSecurityIntent(
                             AccountSetupNames.this, mAccount.mId, false);
                     startActivityForResult(i, REQUEST_SECURITY);
                 } else {
