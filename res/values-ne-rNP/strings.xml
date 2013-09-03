@@ -101,10 +101,10 @@
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"खाता प्रकार"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"यस खाता कुन प्रकारको हो?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"खाता सेटअप"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"आवक सर्वर सेटिंग्स"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"आवक सर्भर सेटिंग्स"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"प्रयोगकर्तानाम"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"पासवर्ड:"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"सर्वर"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"सर्भर"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"पोर्ट"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"सुरक्षा प्रकार"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"कुनै पनि होइन"</string>
@@ -118,8 +118,8 @@
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP पथ उपसर्ग"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"वैकल्पिक"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"खाता सेटअप"</string>
-    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"बाहिर जाने सर्वर सेटिंग्स"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP सर्वर"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"बाहिर जाने सर्भर सेटिंग्स"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP सर्भर"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"पोर्ट"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"सुरक्षा प्रकार"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"साइन इन आवश्यकता"</string>
@@ -165,11 +165,11 @@
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"सर्भरले एक त्रुटिको साथ जवाफ दियो। तपाइँको प्रयोगकर्ता नाम र पासवर्ड परीक्षण गर्नुहोस्, अनि पुनः प्रयास गर्नुहोस्।"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"भ्वाइसमेल सर्वरमा जडान गर्न सकिएन।"</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"सर्भरसँग जोडिन सकेन।\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"टीएलएस आवश्यक तर सर्वर द्वारा समर्थित छैन।"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"टीएलएस आवश्यक तर सर्भर द्वारा समर्थित छैन।"</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"प्रमाणीकरण तरीकाहरु सर्भर द्वारा समर्थित छैन।"</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"सुरक्षा त्रुटिको कारण सर्वरमा कनेक्शन खोल्न सकिएन।"</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"सर्भरसँग जडान खुल्न सकेन।"</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"तपाईंले गलत सर्वर ठेगाना टाईप गर्नुभयो वा सर्वरलाई एउटा प्रोटोकल संस्करणक आवश्यकता छ जुन ईमेलले समर्थन गर्दैन।"</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"तपाईंले गलत सर्भर ठेगाना टाईप गर्नुभयो वा सर्भरलाई एउटा प्रोटोकल संस्करणक आवश्यकता छ जुन ईमेलले समर्थन गर्दैन।"</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"तपाईंलाई यस सर्वरसँग सिंक गर्ने अनुमति छैन। थप जानकारीको लागि आफ्नो सर्वरको ब्यवस्थापकसँग सम्पर्क गर्नुहोला।"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"टाढा सुरक्षा प्रशासन"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"सर्भर <xliff:g id="SERVER">%s</xliff:g> तपाइँले यस भन्दा टाढा तपाइँको Android उपकरणको सुरक्षा सुविधाहरुलाई नियन्त्रण गर्नको लागि अनुमतिको आवश्यकता पर्छ। तपाइँ यस  खाता सेटअपलाई पुरा गर्न चाहानुहुन्छ?"</string>
@@ -185,7 +185,7 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"सुरक्षा नीतिहरू परिवर्तित भयो"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"सुरक्षा नीतिहरु पूरा हुन सकेन"</string>
     <string name="account_security_title" msgid="3511543138560418587">"उपकरण सुरक्षा"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"सर्वर <xliff:g id="SERVER">%s</xliff:g> तपाईं यसलाई आफ्नो एण्ड्रोईड उपकरणको केहि दूर सुरक्षा सुविधाहरूको नियन्त्रण गर्नको लागि अनुमतिको आवश्यकता छ।"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"सर्भर <xliff:g id="SERVER">%s</xliff:g> तपाईं यसलाई आफ्नो एण्ड्रोईड उपकरणको केहि दूर सुरक्षा सुविधाहरूको नियन्त्रण गर्नको लागि अनुमतिको आवश्यकता छ।"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"विवरणहरु सम्पादन गर्नुहोस्"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" लाई तपाईंले आफ्नो लक स्क्रीन वा पासवर्ड परिवर्तन गर्न आवश्यक छ।"</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"लक स्क्रीन पासवर्डको म्याद सकिदैछ"</string>
@@ -239,7 +239,7 @@
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"यस खाताको लागि ईमेल सिंक गर्नुहोस्"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"कम्पन"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"रिङटोन छनौट गर्नुहोस्"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"सर्वर सेटिंग्स"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"सर्भर सेटिंग्स"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"सिंक विकल्पहरू"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"सिङ्क विकल्पहरु (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"यस फोल्डरलाई सिङ्क गर्नुहोस्"</string>
@@ -298,7 +298,7 @@
     <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"फोल्डर पिकर"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>को लागि सर्वर रद्दी फोल्डर चयन गर्नुहोस्"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>को लागि सर्वर पठाईएका आईटमहरू चयन गर्नुहोस्"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>को लागि सर्भर रद्दी फोल्डर चयन गर्नुहोस्"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>को लागि सर्भर पठाईएका आईटमहरू चयन गर्नुहोस्"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"फोल्डर सूची लोड हुँदै..."</string>
 </resources>
