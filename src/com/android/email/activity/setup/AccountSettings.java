@@ -773,7 +773,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     /**
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
-    /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
+    public static class UnsavedChangesDialogFragment extends DialogFragment {
         final static String TAG = "UnsavedChangesDialogFragment";
 
         // Argument bundle keys
