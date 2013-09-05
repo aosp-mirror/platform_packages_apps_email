@@ -141,7 +141,6 @@ public class AccountSettingsFragment extends PreferenceFragment
 
     private Ringtone mRingtone;
 
-    private AccountPreferences mAccountPreferences;
     private FolderPreferences mInboxFolderPreferences;
 
     /** The e-mail of the account being edited. */
@@ -338,9 +337,9 @@ public class AccountSettingsFragment extends PreferenceFragment
 
     /**
      * Listen to all preference changes in this class.
-     * @param preference
-     * @param newValue
-     * @return
+     * @param preference The changed Preference
+     * @param newValue The new value of the Preference
+     * @return True to update the state of the Preference with the new value
      */
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue){
@@ -581,12 +580,13 @@ public class AccountSettingsFragment extends PreferenceFragment
                     folderCursor.close();
                 }
 
-                mAccountPreferences = new AccountPreferences(mContext, mUiAccount.name);
+                final AccountPreferences accountPreferences =
+                        new AccountPreferences(mContext, mUiAccount.name);
                 mInboxFolderPreferences =
                         new FolderPreferences(mContext, mUiAccount.name, folder, true);
 
                 NotificationUtils.moveNotificationSetting(
-                        mAccountPreferences, mInboxFolderPreferences);
+                        accountPreferences, mInboxFolderPreferences);
 
                 final String ringtoneUri = mInboxFolderPreferences.getNotificationRingtoneUri();
                 if (!TextUtils.isEmpty(ringtoneUri)) {
