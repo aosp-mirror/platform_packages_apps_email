@@ -462,7 +462,7 @@ public class EmailProvider extends ContentProvider {
 
         // If we have accounts, we're done
         if (DatabaseUtils.longForQuery(mainDatabase,
-                                      "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )", 
+                                      "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )",
                                       EmailContent.ID_PROJECTION) > 0) {
           if (MailActivityEmail.DEBUG) {
               LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
@@ -1998,6 +1998,8 @@ public class EmailProvider extends ContentProvider {
             + " WHEN " + Mailbox.TYPE_JUNK    + " THEN " + UIProvider.FolderType.SPAM
             + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + UIProvider.FolderType.STARRED
             + " WHEN " + Mailbox.TYPE_UNREAD + " THEN " + UIProvider.FolderType.UNREAD
+            + " WHEN " + Mailbox.TYPE_SEARCH + " THEN "
+                    + getFolderTypeFromMailboxType(Mailbox.TYPE_SEARCH)
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
@@ -3550,6 +3552,9 @@ public class EmailProvider extends ContentProvider {
                 return UIProvider.FolderType.STARRED;
             case Mailbox.TYPE_UNREAD:
                 return UIProvider.FolderType.UNREAD;
+            case Mailbox.TYPE_SEARCH:
+                // TODO Can the DEFAULT type be removed from SEARCH folders?
+                return UIProvider.FolderType.DEFAULT | UIProvider.FolderType.SEARCH;
             default:
                 return UIProvider.FolderType.DEFAULT;
         }
