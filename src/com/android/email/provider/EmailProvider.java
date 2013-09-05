@@ -3300,18 +3300,17 @@ public class EmailProvider extends ContentProvider {
             if (params.containsKey(setVisibilityKey)) {
                 final boolean visible = params.getBoolean(setVisibilityKey);
                 if (visible) {
+                    // Mark all messages as seen
+                    final ContentResolver resolver = mContext.getContentResolver();
+                    final ContentValues contentValues = new ContentValues(1);
+                    contentValues.put(MessageColumns.FLAG_SEEN, true);
+                    final Uri uri = EmailContent.Message.CONTENT_URI;
+                    resolver.update(uri, contentValues, MessageColumns.MAILBOX_KEY + " = ?",
+                            new String[] {String.valueOf(mMailboxId)});
                     if (params.containsKey(
                             UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                         Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
                         if (mailbox != null) {
-                            final ContentResolver resolver = mContext.getContentResolver();
-                            // Mark all messages as seen
-                            // TODO: should this happen even if the mailbox couldn't be restored?
-                            final ContentValues contentValues = new ContentValues(1);
-                            contentValues.put(MessageColumns.FLAG_SEEN, true);
-                            final Uri uri = EmailContent.Message.CONTENT_URI;
-                            resolver.update(uri, contentValues, MessageColumns.MAILBOX_KEY + " = ?",
-                                    new String[] {String.valueOf(mailbox.mId)});
                             // For non-push mailboxes, if it's stale (i.e. last sync was a while
                             // ago), force a sync.
                             // TODO: Fix the check for whether we're non-push? Right now it checks
