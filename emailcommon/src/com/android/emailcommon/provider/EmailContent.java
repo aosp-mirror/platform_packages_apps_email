@@ -129,33 +129,6 @@ public abstract class EmailContent {
     public static Uri MAILBOX_MOST_RECENT_MESSAGE_URI;
     public static Uri ACCOUNT_CHECK_URI;
 
-    /** The path for the query to get the moved message info for an account. */
-    public static final String MOVED_MESSAGES_PATH = "movedMessages";
-    /**
-     * The URI to query for information regarding messages that have been moved on the client
-     * where this move has not yet been synced to the server.
-     * This query will return the columns in {@link MovedMessagesColumns}.
-     */
-    public static Uri MOVED_MESSAGES_URI;
-
-    /**
-     * Columns returned by the moved messages query.
-     */
-    public static final class MovedMessagesColumns {
-        /** The server side message id for the message that is moving. */
-        public static final String MESSAGE_ID = "messageId";
-        /** The local message id for the message that is moving. */
-        public static final String LOCAL_MESSAGE_ID = "localMessageId";
-        /** The server side folder id for the folder the message was in. */
-        public static final String SOURCE_FOLDER_ID = "sourceFolderId";
-        /** The local folder id for the folder the message was in. */
-        public static final String LOCAL_SOURCE_FOLDER_ID = "localSourceFolderId";
-        /** The server side folder id for the folder the message is moving to. */
-        public static final String DEST_FOLDER_ID = "destFolderId";
-        /** The local folder id for the folder the message is moving to. */
-        public static final String LOCAL_DEST_FOLDER_ID = "localDestFolderId";
-    }
-
     public static String PROVIDER_PERMISSION;
 
     public static synchronized void init(Context context) {
@@ -173,8 +146,6 @@ public abstract class EmailContent {
             MAILBOX_MOST_RECENT_MESSAGE_URI = Uri.parse("content://" + AUTHORITY +
                     "/mailboxMostRecentMessage");
             ACCOUNT_CHECK_URI = Uri.parse("content://" + AUTHORITY + "/accountCheck");
-            MOVED_MESSAGES_URI =
-                    CONTENT_URI.buildUpon().appendEncodedPath("/" + MOVED_MESSAGES_PATH).build();
             PROVIDER_PERMISSION = EMAIL_PACKAGE_NAME + ".permission.ACCESS_PROVIDER";
             // Initialize subclasses
             Account.initAccount();
@@ -183,6 +154,8 @@ public abstract class EmailContent {
             HostAuth.initHostAuth();
             Policy.initPolicy();
             Message.initMessage();
+            MessageMove.init();
+            MessageStateChange.init();
             Body.initBody();
             Attachment.initAttachment();
         }

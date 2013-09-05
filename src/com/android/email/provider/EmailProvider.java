@@ -71,11 +71,13 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.EmailContent.MovedMessagesColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.MessageChangeLogTable;
+import com.android.emailcommon.provider.MessageMove;
+import com.android.emailcommon.provider.MessageStateChange;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.EmailServiceProxy;
@@ -114,6 +116,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -184,7 +187,8 @@ public class EmailProvider extends ContentProvider {
     private static final int MESSAGE_ID = MESSAGE_BASE + 1;
     private static final int SYNCED_MESSAGE_ID = MESSAGE_BASE + 2;
     private static final int MESSAGE_SELECTION = MESSAGE_BASE + 3;
-    private static final int MOVED_MESSAGES = MESSAGE_BASE + 4;
+    private static final int MESSAGE_MOVE = MESSAGE_BASE + 4;
+    private static final int MESSAGE_STATE_CHANGE = MESSAGE_BASE + 5;
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
@@ -302,43 +306,6 @@ public class EmailProvider extends ContentProvider {
     private static final String IS_UIPROVIDER = "is_uiprovider";
 
     private static final String SYNC_STATUS_CALLBACK_METHOD = "sync_status";
-
-    /** FROM clause for a SQL query to get info about updated messages. */
-    private static final String GET_CHANGED_MESSAGES_FROM_CLAUSE = "from "
-            + Message.UPDATED_TABLE_NAME + " as u inner join " + Message.TABLE_NAME
-            + " as m using (" + MessageColumns.ID + ")";
-
-    /** FROM clause for a SQL query to get moved messages info. */
-    private static final String GET_MOVED_MESSAGES_FROM_CLAUSE = GET_CHANGED_MESSAGES_FROM_CLAUSE
-            + " inner join " + Mailbox.TABLE_NAME + " as src on u." + MessageColumns.MAILBOX_KEY
-            + "=src." + MailboxColumns.ID
-            + " inner join " + Mailbox.TABLE_NAME + " as dst on m." + MessageColumns.MAILBOX_KEY
-            + "=dst." + MailboxColumns.ID;
-
-    /** WHERE clause for a SQL query to get info about updated messages. */
-    private static final String GET_CHANGED_MESSAGES_WHERE_CLAUSE =
-            "where u." + MessageColumns.ACCOUNT_KEY + "=?";
-
-    /** WHERE clause for a SQL query to get moved messages info. */
-    private static final String GET_MOVED_MESSAGES_WHERE_CLAUSE = GET_CHANGED_MESSAGES_WHERE_CLAUSE
-            + " and src." + MailboxColumns.ID + "!=dst." + MailboxColumns.ID;
-
-    /** SELECT clause for a SQL query to get moved messages info. */
-    private static final String GET_MOVED_MESSAGES_SELECTION = "select "
-            + "u." + SyncColumns.SERVER_ID + " as " + MovedMessagesColumns.MESSAGE_ID
-            + ",u." + MessageColumns.ID + " as " + MovedMessagesColumns.LOCAL_MESSAGE_ID
-            + ",src." + MailboxColumns.SERVER_ID + " as " + MovedMessagesColumns.SOURCE_FOLDER_ID
-            + ",src." + MailboxColumns.ID + " as " + MovedMessagesColumns.LOCAL_SOURCE_FOLDER_ID
-            + ",dst." + MailboxColumns.SERVER_ID + " as " + MovedMessagesColumns.DEST_FOLDER_ID
-            + ",dst." + MailboxColumns.ID + " as " + MovedMessagesColumns.LOCAL_DEST_FOLDER_ID;
-
-    /**
-     * A raw SQL query for getting the moved messages info.
-     * See {@link EmailContent#MOVED_MESSAGES_URI} for details on this query.
-     */
-    private static final String GET_MOVED_MESSAGES_QUERY = GET_MOVED_MESSAGES_SELECTION + " "
-            + GET_MOVED_MESSAGES_FROM_CLAUSE + " " + GET_MOVED_MESSAGES_WHERE_CLAUSE;
-
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -656,7 +623,12 @@ public class EmailProvider extends ContentProvider {
                 case POLICY:
                     result = db.delete(tableName, selection, selectionArgs);
                     break;
-
+                case MESSAGE_MOVE:
+                    db.delete(MessageMove.TABLE_NAME, selection, selectionArgs);
+                    break;
+                case MESSAGE_STATE_CHANGE:
+                    db.delete(MessageStateChange.TABLE_NAME, selection, selectionArgs);
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -967,8 +939,9 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "messageBySelection", MESSAGE_SELECTION);
 
-            sURIMatcher.addURI(EmailContent.AUTHORITY, EmailContent.MOVED_MESSAGES_PATH + "/#",
-                    MOVED_MESSAGES);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, MessageMove.PATH, MESSAGE_MOVE);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, MessageStateChange.PATH,
+                    MESSAGE_STATE_CHANGE);
 
             /**
              * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
@@ -1153,8 +1126,12 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_MESSAGE_COUNT:
                     c = getMailboxMessageCount(uri);
                     return c;
-                case MOVED_MESSAGES:
-                    return getMovedMessages(uri.getPathSegments().get(1));
+                case MESSAGE_MOVE:
+                    return db.query(MessageMove.TABLE_NAME, projection, selection, selectionArgs,
+                            null, null, sortOrder, limit);
+                case MESSAGE_STATE_CHANGE:
+                    return db.query(MessageStateChange.TABLE_NAME, projection, selection,
+                            selectionArgs, null, null, sortOrder, limit);
                 case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
@@ -1224,18 +1201,6 @@ public class EmailProvider extends ContentProvider {
             c.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return c;
-    }
-
-    /**
-     * Queries the DB for the moved messages info for an account. See the comments for
-     * {@link EmailContent#MOVED_MESSAGES_URI} for details on what this should return.
-     * TODO: May be convenient to eventually allow a projection, or selection args, etc.
-     * @param accountId The account to query.
-     * @return The moved messages info cursor.
-     */
-    private Cursor getMovedMessages(final String accountId) {
-        return getDatabase(getContext()).rawQuery(GET_MOVED_MESSAGES_QUERY,
-                new String[] { accountId });
     }
 
     private static String whereWithId(String id, String selection) {
@@ -1427,6 +1392,65 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+    private static final String MESSAGE_CHANGE_LOG_TABLE_INSERT_PREFIX = "insert into %s ("
+            + MessageChangeLogTable.MESSAGE_KEY + "," + MessageChangeLogTable.SERVER_ID + ","
+            + MessageChangeLogTable.ACCOUNT_KEY + "," + MessageChangeLogTable.STATUS + ",";
+
+    private static final String MESSAGE_CHANGE_LOG_TABLE_VALUES_PREFIX = ") values (%s, "
+            + "(select " + Message.SERVER_ID + " from " + Message.TABLE_NAME + " where _id=%s),"
+            + "(select " + Message.ACCOUNT_KEY + " from " + Message.TABLE_NAME + " where _id=%s),"
+            + MessageMove.STATUS_NONE_STRING + ",";
+
+    /**
+     * Formatting string to generate the SQL statement for inserting into MessageMove.
+     * The formatting parameters are:
+     * table name, message id x 4, destination folder id, message id, destination folder id.
+     * Duplications are needed for sub-selects.
+     */
+    private static final String MESSAGE_MOVE_INSERT = MESSAGE_CHANGE_LOG_TABLE_INSERT_PREFIX
+            + MessageMove.SRC_FOLDER_KEY + "," + MessageMove.DST_FOLDER_KEY + ","
+            + MessageMove.SRC_FOLDER_SERVER_ID + "," + MessageMove.DST_FOLDER_SERVER_ID
+            + MESSAGE_CHANGE_LOG_TABLE_VALUES_PREFIX
+            + "(select " + Message.MAILBOX_KEY + " from " + Message.TABLE_NAME + " where _id=%s),"
+            + "%d,"
+            + "(select " + Mailbox.SERVER_ID + " from " + Mailbox.TABLE_NAME + " where _id=(select "
+            + Message.MAILBOX_KEY + " from " + Message.TABLE_NAME + " where _id=%s)),"
+            + "(select " + Mailbox.SERVER_ID + " from " + Mailbox.TABLE_NAME + " where _id=%d))";
+
+    /**
+     * Insert a row into the MessageMove table when that message is moved.
+     * @param db The {@link SQLiteDatabase}.
+     * @param messageId The id of the message being moved.
+     * @param dstFolderKey The folder to which the message is being moved.
+     */
+    private void addToMessageMove(final SQLiteDatabase db, final String messageId,
+            final long dstFolderKey) {
+        db.execSQL(String.format(Locale.US, MESSAGE_MOVE_INSERT, MessageMove.TABLE_NAME,
+                messageId, messageId, messageId, messageId, dstFolderKey, messageId, dstFolderKey));
+    }
+
+    /**
+     * Formatting string to generate the SQL statement for inserting into MessageStateChange.
+     * The formatting parameters are:
+     * table name, message id x 4, new flag read, message id, new flag favorite.
+     * Duplications are needed for sub-selects.
+     */
+    private static final String MESSAGE_STATE_CHANGE_INSERT = MESSAGE_CHANGE_LOG_TABLE_INSERT_PREFIX
+            + MessageStateChange.OLD_FLAG_READ + "," + MessageStateChange.NEW_FLAG_READ + ","
+            + MessageStateChange.OLD_FLAG_FAVORITE + "," + MessageStateChange.NEW_FLAG_FAVORITE
+            + MESSAGE_CHANGE_LOG_TABLE_VALUES_PREFIX
+            + "(select " + Message.FLAG_READ + " from " + Message.TABLE_NAME + " where _id=%s),"
+            + "%d,"
+            + "(select " + Message.FLAG_FAVORITE + " from " + Message.TABLE_NAME + " where _id=%s),"
+            + "%d)";
+
+    private void addToMessageStateChange(final SQLiteDatabase db, final String messageId,
+            final int newFlagRead, final int newFlagFavorite) {
+        db.execSQL(String.format(Locale.US, MESSAGE_STATE_CHANGE_INSERT,
+                MessageStateChange.TABLE_NAME, messageId, messageId, messageId, messageId,
+                newFlagRead, messageId, newFlagFavorite));
+    }
+
     // select count(*) from (select count(*) as dupes from Mailbox where accountKey=?
     // group by serverId) where dupes > 1;
     private static final String ACCOUNT_INTEGRITY_SQL =
@@ -1529,6 +1553,20 @@ public class EmailProvider extends ContentProvider {
                         // update will be reflected in the updated message table; therefore this
                         // row will always have the "original" data
                         db.execSQL(UPDATED_MESSAGE_INSERT + id);
+
+                        Long dstFolderId = values.getAsLong(MessageColumns.MAILBOX_KEY);
+                        if (dstFolderId != null) {
+                            addToMessageMove(db, id, dstFolderId);
+                        }
+                        Integer flagRead = values.getAsInteger(MessageColumns.FLAG_READ);
+                        Integer flagFavorite = values.getAsInteger(MessageColumns.FLAG_FAVORITE);
+                        int flagReadValue = (flagRead != null) ?
+                                flagRead : MessageStateChange.VALUE_UNCHANGED;
+                        int flagFavoriteValue = (flagFavorite != null) ?
+                                flagFavorite : MessageStateChange.VALUE_UNCHANGED;
+                        if (flagRead != null || flagFavorite != null) {
+                            addToMessageStateChange(db, id, flagReadValue, flagFavoriteValue);
+                        }
                     } else if (match == MESSAGE_ID) {
                         db.execSQL(UPDATED_MESSAGE_DELETE + id);
                     }
@@ -1593,6 +1631,13 @@ public class EmailProvider extends ContentProvider {
                             selection, selectionArgs);
                     // Affects all accounts.  Just invalidate all account cache.
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
+                    break;
+                case MESSAGE_MOVE:
+                    result = db.update(MessageMove.TABLE_NAME, values, selection, selectionArgs);
+                    break;
+                case MESSAGE_STATE_CHANGE:
+                    result = db.update(MessageStateChange.TABLE_NAME, values, selection,
+                            selectionArgs);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
