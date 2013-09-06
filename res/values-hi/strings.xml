@@ -254,7 +254,7 @@
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"प्रेषक का चित्र"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"केवल कुछ \"प्लस\" खातों को POP पहुंच प्राप्त होती है जो इस प्रोग्राम को कनेक्‍ट करने देती है. यदि आप अपने सही ईमेल पते और पासवर्ड द्वारा प्रवेश नहीं कर पा रहे हैं, तो हो सकता है कि आपके पास सशुल्‍क \"प्लस\" खाता न हो. इन ईमेल खातों में पहुंच प्राप्‍त करने के लिए वेब ब्राउज़र लॉन्च करें."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"यह ईमेल खाता सेट करने से पहले, T-Online वेबसाइट पर जाएं और POP3 ईमेल पहुंच के लिए पासवर्ड बनाएं."</string>
-    <string name="exchange_name" msgid="1190783774800310346">"कार्पोरेट"</string>
+    <string name="exchange_name" msgid="1190783774800310346">"कोर्पोरेट"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"खाता नहीं बनाया जा सका. पुन: प्रयास करें."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"ईमेल"</string>
