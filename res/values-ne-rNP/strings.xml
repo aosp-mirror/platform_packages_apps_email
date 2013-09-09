@@ -90,7 +90,7 @@
     <string name="account_password_spaces_error" msgid="8928309156658903257">"यो पासवर्ड एक वा एक भन्दा अधिक स्थान पात्रहरूको साथ सुरू वा समाप्त हुन्छ। धेरै सर्वरहरू रिक्त स्थानको साथ पासवर्डको समर्थन गर्दैन।"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"खाताको जानकारी प्राप्त भइरहेछ..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"सर्भर सेटिङ लाई प्रमाणित गरियस ..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"एसएमटीपी सेटिंग्स मान्य गरिँदै..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"एसएमटीपी सेटिङ्स मान्य गरिँदै..."</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"खाता सिर्जना गरिँदै..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"खाता सेटअप"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"तपाईंको खाता सेट अप भयो र ईमेल यसको मार्गमा छ!"</string>
@@ -101,7 +101,7 @@
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"खाता प्रकार"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"यस खाता कुन प्रकारको हो?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"खाता सेटअप"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"आवक सर्भर सेटिंग्स"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"आवक सर्भर सेटिङ्स"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"प्रयोगकर्तानाम"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"पासवर्ड:"</string>
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"सर्भर"</string>
@@ -118,7 +118,7 @@
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP पथ उपसर्ग"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"वैकल्पिक"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"खाता सेटअप"</string>
-    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"बाहिर जाने सर्भर सेटिंग्स"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"बाहिर जाने सर्भर सेटिङ्स"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP सर्भर"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"पोर्ट"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"सुरक्षा प्रकार"</string>
@@ -179,7 +179,7 @@
     <string name="account_security_dialog_title" msgid="430041952584831904">"सुरक्षा अद्यावधिक"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> तपाइँले तपाइँको त्यस सुरक्षा सेटिङ अद्यावधिक गर्न आवश्यकता छ।"</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" सुरक्षा आवश्यकताहरूको कारण सिंक गर्न सकिँदैन।"</string>
-    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" लाई सुरक्षा सेटिंग्स अपडेट आवश्यकता छ।"</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" लाई सुरक्षा सेटिङ्स अपडेट आवश्यकता छ।"</string>
     <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\"यस को सुरक्षा सेटिङ परिवर्तन भयो, कुनै प्रयोगकर्ता कारवाही आवश्यकता छैन।"</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"सुरक्षा अपडेटको आवश्यकता"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"सुरक्षा नीतिहरू परिवर्तित भयो"</string>
@@ -207,7 +207,7 @@
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"सिङ्क बाराम्बारता"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"आगमन सेटिङ"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"प्रयोगकर्ता नाम, पासवर्ड, र अन्य आगमन सर्भर सेटिङ"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"बाहिर जाने सेटिंग्स"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"बाहिर जाने सेटिङ्स"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"प्रयोगकर्ता नाम, पासवर्ड, र अन्य बहिर्गमन सर्भर सेटिङहरु"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"नीतिहरू लागू गरियो"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"कुनै पनि होइन"</string>
@@ -239,7 +239,7 @@
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"यस खाताको लागि ईमेल सिंक गर्नुहोस्"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"कम्पन"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"रिङटोन छनौट गर्नुहोस्"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"सर्भर सेटिंग्स"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"सर्भर सेटिङ्स"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"सिंक विकल्पहरू"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"सिङ्क विकल्पहरु (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"यस फोल्डरलाई सिङ्क गर्नुहोस्"</string>
