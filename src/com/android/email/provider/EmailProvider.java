@@ -370,7 +370,7 @@ public class EmailProvider extends ContentProvider {
      * Creates a URI string from a database ID (guaranteed to be unique).
      * @param type of the resource: uifolder, message, etc.
      * @param id the id of the resource.
-     * @return
+     * @return uri string
      */
     public static String uiUriString(String type, long id) {
         return "content://" + EmailContent.AUTHORITY + "/" + type + ((id == -1) ? "" : ("/" + id));
@@ -2166,18 +2166,18 @@ public class EmailProvider extends ContentProvider {
 
     private static StringBuilder genSelect(ProjectionMap map, String[] projection,
             ContentValues values) {
-        StringBuilder sb = new StringBuilder("SELECT ");
+        final StringBuilder sb = new StringBuilder("SELECT ");
         boolean first = true;
-        for (String column: projection) {
+        for (final String column: projection) {
             if (first) {
                 first = false;
             } else {
                 sb.append(',');
             }
-            String val = null;
+            final String val;
             // First look at values; this is an override of default behavior
             if (values.containsKey(column)) {
-                String value = values.getAsString(column);
+                final String value = values.getAsString(column);
                 if (value == null) {
                     val = "NULL AS " + column;
                 } else if (value.startsWith("@")) {
@@ -2187,10 +2187,13 @@ public class EmailProvider extends ContentProvider {
                 }
             } else {
                 // Now, get the standard value for the column from our projection map
-                val = map.get(column);
+                final String mapVal = map.get(column);
                 // If we don't have the column, return "NULL AS <column>", and warn
-                if (val == null) {
+                if (mapVal == null) {
                     val = "NULL AS " + column;
+                    LogUtils.w(TAG, "column " + column + " missing from projection map");
+                } else {
+                    val = mapVal;
                 }
             }
             sb.append(val);
@@ -2565,7 +2568,8 @@ public class EmailProvider extends ContentProvider {
         StringBuilder sb = new StringBuilder(" ");
         for (int i = 0; i < 32; i++, bitField >>= 1) {
             if ((bitField & 1) != 0) {
-                sb.append("" + i + " ");
+                sb.append(i)
+                        .append(" ");
             }
         }
         return sb.toString();
@@ -3101,8 +3105,11 @@ public class EmailProvider extends ContentProvider {
         ContentValues values = new ContentValues(1);
         values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
         StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
-        sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.MESSAGE_KEY +
-                " =? ");
+        sb.append(" FROM ")
+                .append(Attachment.TABLE_NAME)
+                .append(" WHERE ")
+                .append(AttachmentColumns.MESSAGE_KEY)
+                .append(" =? ");
 
         // Filter for certain content types.
         // The filter works by adding LIKE operators for each
@@ -3114,7 +3121,10 @@ public class EmailProvider extends ContentProvider {
             sb.append("AND (");
             for (int i = 0; i < size; i++) {
                 final String contentType = contentTypeQueryParameters.get(i);
-                sb.append(AttachmentColumns.MIME_TYPE + " LIKE '" + contentType + "%'");
+                sb.append(AttachmentColumns.MIME_TYPE)
+                        .append(" LIKE '")
+                        .append(contentType)
+                        .append("%'");
 
                 if (i != size - 1) {
                     sb.append(" OR ");
@@ -3140,7 +3150,11 @@ public class EmailProvider extends ContentProvider {
                 AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
         values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
         StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
-        sb.append(" FROM " + Attachment.TABLE_NAME + " WHERE " + AttachmentColumns.ID + " =? ");
+        sb.append(" FROM ")
+                .append(Attachment.TABLE_NAME)
+                .append(" WHERE ")
+                .append(AttachmentColumns.ID)
+                .append(" =? ");
         return sb.toString();
     }
 
@@ -3163,9 +3177,9 @@ public class EmailProvider extends ContentProvider {
     /**
      * Returns a cursor over all the folders for a specific URI which corresponds to a single
      * account.
-     * @param uri
-     * @param uiProjection
-     * @return
+     * @param uri uri to query
+     * @param uiProjection projection
+     * @return query result cursor
      */
     private Cursor uiFolders(Uri uri, String[] uiProjection) {
         Context context = getContext();
@@ -3206,8 +3220,8 @@ public class EmailProvider extends ContentProvider {
      * Returns an array of the default recent folders for a given URI which is unique for an
      * account. Some accounts might not have default recent folders, in which case an empty array
      * is returned.
-     * @param id
-     * @return
+     * @param id account id
+     * @return array of URIs
      */
     private Uri[] defaultRecentFolders(final String id) {
         final SQLiteDatabase db = getDatabase(getContext());
@@ -3220,13 +3234,21 @@ public class EmailProvider extends ContentProvider {
 
         // Sent, Drafts, and Starred are the default recents.
         final StringBuilder sb = genSelect(getFolderListMap(), idAndType);
-        sb.append(" FROM " + Mailbox.TABLE_NAME
-                + " WHERE " + MailboxColumns.ACCOUNT_KEY + " = " + id
-                + " AND "
-                + MailboxColumns.TYPE + " IN (" + Mailbox.TYPE_SENT +
-                    ", " + Mailbox.TYPE_DRAFTS +
-                    ", " + Mailbox.TYPE_STARRED
-                + ")");
+        sb.append(" FROM ")
+                .append(Mailbox.TABLE_NAME)
+                .append(" WHERE ")
+                .append(MailboxColumns.ACCOUNT_KEY)
+                .append(" = ")
+                .append(id)
+                .append(" AND ")
+                .append(MailboxColumns.TYPE)
+                .append(" IN (")
+                .append(Mailbox.TYPE_SENT)
+                .append(", ")
+                .append(Mailbox.TYPE_DRAFTS)
+                .append(", ")
+                .append(Mailbox.TYPE_STARRED)
+                .append(")");
         LogUtils.d(TAG, "defaultRecentFolders: Query is %s", sb);
         final Cursor c = db.rawQuery(sb.toString(), null);
         if (c == null || c.getCount() <= 0 || !c.moveToFirst()) {
@@ -3293,8 +3315,6 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public Bundle respond(Bundle params) {
-            final Bundle response = new Bundle();
-
             final String setVisibilityKey =
                     UIProvider.ConversationCursorCommand.COMMAND_KEY_SET_VISIBILITY;
             if (params.containsKey(setVisibilityKey)) {
@@ -3329,6 +3349,8 @@ public class EmailProvider extends ContentProvider {
                 }
             }
             // Return success
+            final Bundle response = new Bundle(2);
+
             response.putString(setVisibilityKey,
                     UIProvider.ConversationCursorCommand.COMMAND_RESPONSE_OK);
 
@@ -3344,7 +3366,7 @@ public class EmailProvider extends ContentProvider {
 
     /**
      * Convenience method to create a {@link Folder}
-     * @param context to get a {@ContentResolver}
+     * @param context to get a {@link ContentResolver}
      * @param mailboxId id of the {@link Mailbox} that we want
      * @return the {@link Folder} or null
      */
@@ -3411,6 +3433,7 @@ public class EmailProvider extends ContentProvider {
     /**
      * For debugging purposes; shouldn't be used in production code
      */
+    @SuppressWarnings("unused")
     static class CloseDetectingCursor extends CursorWrapper {
 
         public CloseDetectingCursor(Cursor cursor) {
@@ -3495,7 +3518,7 @@ public class EmailProvider extends ContentProvider {
      * @return a {@link String} to use as the display name for the folder
      */
     private String getFolderDisplayName(int folderType, String defaultName) {
-        int resId = -1;
+        final int resId;
         switch (folderType) {
             case UIProvider.FolderType.INBOX:
                 resId = R.string.mailbox_name_display_inbox;
@@ -3801,8 +3824,7 @@ public class EmailProvider extends ContentProvider {
         if (ref != null && msg.mQuotedTextStartPos >= 0) {
             String refId = Uri.parse(ref).getLastPathSegment();
             try {
-                long sourceKey = Long.parseLong(refId);
-                msg.mSourceKey = sourceKey;
+                msg.mSourceKey = Long.parseLong(refId);
             } catch (NumberFormatException e) {
                 // This will be zero; the default
             }
@@ -3880,6 +3902,7 @@ public class EmailProvider extends ContentProvider {
             try {
                 applyBatch(ops);
             } catch (OperationApplicationException e) {
+                LogUtils.d(TAG, "applyBatch exception");
             }
         }
         if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
@@ -3962,7 +3985,7 @@ public class EmailProvider extends ContentProvider {
 
     /**
      * Update the timestamps for the folders specified and notifies on the recent folder URI.
-     * @param folders
+     * @param folders array of folder Uris to update
      * @return number of folders updated
      */
     private static int updateTimestamp(final Context context, String id, Uri[] folders){
@@ -3986,7 +4009,7 @@ public class EmailProvider extends ContentProvider {
      * Updates the recent folders. The values to be updated are specified as ContentValues pairs
      * of (Folder URI, access timestamp). Returns nonzero if successful, always.
      * @param uri
-     * @param values
+     * @param values uri, timestamp pairs
      * @return nonzero value always.
      */
     private int uiUpdateRecentFolders(Uri uri, ContentValues values) {
@@ -4032,7 +4055,7 @@ public class EmailProvider extends ContentProvider {
                 // Went away; ah, well...
                 return result;
             }
-            int state = stateValue.intValue();
+            int state = stateValue;
             ContentValues values = new ContentValues();
             if (state == UIProvider.AttachmentState.NOT_SAVED
                     || state == UIProvider.AttachmentState.REDOWNLOADING) {
@@ -4259,7 +4282,7 @@ public class EmailProvider extends ContentProvider {
         }
         final Boolean suppressUndo =
                 values.getAsBoolean(UIProvider.ConversationOperations.Parameters.SUPPRESS_UNDO);
-        if (suppressUndo == null || !suppressUndo.booleanValue()) {
+        if (suppressUndo == null || !suppressUndo) {
             final ContentProviderOperation op =
                     ContentProviderOperation.newUpdate(convertToEmailProviderUri(
                             uri, ourBaseUri, false))
@@ -4389,6 +4412,7 @@ public class EmailProvider extends ContentProvider {
                 mLastSequenceOps.clear();
                 return c;
             } catch (OperationApplicationException e) {
+                LogUtils.d(TAG, "applyBatch exception");
             }
         }
         return new MatrixCursorWithCachedColumns(projection, 0);
