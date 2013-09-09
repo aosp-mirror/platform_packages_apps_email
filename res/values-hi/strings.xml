@@ -38,18 +38,18 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"POP3 खातों पर स्थानांतरण समर्थित नहीं है."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"चयन में एकाधिक खाते होने के कारण स्‍थानांतरित नहीं हो सकता."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"ड्राफ़्ट, आउट-बॉक्‍स और भेजे गए के संदेशों को स्‍थानांतरित नहीं किया जा सकता."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"अधूरा ईमेल, आउट-बॉक्‍स और भेजे गए के संदेशों को स्‍थानांतरित नहीं किया जा सकता."</string>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"इनबॉक्स"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"आउट-बॉक्स"</string>
-    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"ड्राफ़्ट"</string>
-    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ट्रैश"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"अधूरा ईमेल"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"मिटाया हुआ"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"भेजा गया"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"जंक"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"तारांकित"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"अपठित"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"इनबॉक्स"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"तारांकित"</string>
-    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"ड्राफ़्ट"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"अधूरा ईमेल"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"आउट-बॉक्स"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"संयोजित दृश्‍य"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
@@ -96,7 +96,7 @@
     <string name="account_setup_names_headline" msgid="914858472109729140">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"इस खाते को कोई नाम दें (वैकल्पिक)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"आपका नाम (आउटगोइंग संदेशों में प्रदर्शित)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"यह फ़ील्ड रिक्त नहीं हो सकती."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"यह फ़ील्ड खाली मत छोड़िए."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"खाता सेटअप"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"खाता प्रकार"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"यह किस प्रकार का खाता है?"</string>
@@ -223,9 +223,9 @@
     <string name="account_settings_data_usage" msgid="6669107430575866736">"डेटा उपयोग"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"सुरक्षा नीतियां"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"सिस्टम फ़ोल्डर"</string>
-    <string name="system_folders_trash_title" msgid="8470058000681188327">"ट्रैश फ़ोल्डर"</string>
-    <string name="system_folders_trash_summary" msgid="1258919809198485244">"अपने सर्वर का ट्रैश फ़ोल्डर चुनें"</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"अपने सर्वर का ट्रैश फ़ोल्डर चुनें"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"मिटाया हुआ फ़ोल्डर"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
     <string name="system_folders_sent_title" msgid="4265722817877075367">"भेजे गए आइटम फ़ोल्डर"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
@@ -298,7 +298,7 @@
     <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
     <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
     <string name="folder_picker_title" msgid="860241987640527156">"फ़ोल्डर पिकर"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g> का सर्वर ट्रैश फ़ोल्डर चुनें"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g> का सर्वर मिटाया हुआ फ़ोल्डर चुनें"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g> हेतु सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"फ़ोल्डर सूची लोड कर रहा है…"</string>
 </resources>
