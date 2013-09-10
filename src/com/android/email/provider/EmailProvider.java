@@ -2236,7 +2236,8 @@ public class EmailProvider extends ContentProvider {
                 // If we don't have the column, return "NULL AS <column>", and warn
                 if (mapVal == null) {
                     val = "NULL AS " + column;
-                    LogUtils.w(TAG, "column " + column + " missing from projection map");
+                    // Apparently there's a lot of these, so don't spam the log with warnings
+                    // LogUtils.w(TAG, "column " + column + " missing from projection map");
                 } else {
                     val = mapVal;
                 }
