@@ -47,6 +47,9 @@ import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.MessageChangeLogTable;
+import com.android.emailcommon.provider.MessageMove;
+import com.android.emailcommon.provider.MessageStateChange;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.provider.QuickResponse;
 import com.android.emailcommon.service.LegacyPolicySet;
@@ -148,8 +151,9 @@ public final class DBHelper {
     // Version 113: Restore message_count to being useful.
     // Version 114: Add lastFullSyncTime column
     // Version 115: Add pingDuration column
+    // Version 116: Add MessageMove & MessageStateChange tables.
 
-    public static final int DATABASE_VERSION = 115;
+    public static final int DATABASE_VERSION = 116;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -323,6 +327,79 @@ public final class DBHelper {
         } catch (SQLException e) {
         }
         createMessageTable(db);
+    }
+
+    /**
+     * Common columns for all {@link MessageChangeLogTable} tables.
+     */
+    private static String MESSAGE_CHANGE_LOG_COLUMNS =
+            MessageChangeLogTable.ID + " integer primary key autoincrement, "
+            + MessageChangeLogTable.MESSAGE_KEY + " integer, "
+            + MessageChangeLogTable.SERVER_ID + " text, "
+            + MessageChangeLogTable.ACCOUNT_KEY + " integer, "
+            + MessageChangeLogTable.STATUS + " integer, ";
+
+    /**
+     * Create indices common to all {@link MessageChangeLogTable} tables.
+     * @param db The {@link SQLiteDatabase}.
+     * @param tableName The name of this particular table.
+     */
+    private static void createMessageChangeLogTableIndices(final SQLiteDatabase db,
+            final String tableName) {
+        db.execSQL(createIndex(tableName, MessageChangeLogTable.MESSAGE_KEY));
+        db.execSQL(createIndex(tableName, MessageChangeLogTable.ACCOUNT_KEY));
+    }
+
+    /**
+     * Create triggers common to all {@link MessageChangeLogTable} tables.
+     * @param db The {@link SQLiteDatabase}.
+     * @param tableName The name of this particular table.
+     */
+    private static void createMessageChangeLogTableTriggers(final SQLiteDatabase db,
+            final String tableName) {
+        // Trigger to delete from the change log when a message is deleted.
+        db.execSQL("create trigger " + tableName + "_delete_message before delete on "
+                + Message.TABLE_NAME + " for each row begin delete from " + tableName
+                + " where " + MessageChangeLogTable.MESSAGE_KEY + "=old." + MessageColumns.ID
+                + "; end");
+
+        // Trigger to delete from the change log when an account is deleted.
+        db.execSQL("create trigger " + tableName + "_delete_account before delete on "
+                + Account.TABLE_NAME + " for each row begin delete from " + tableName
+                + " where " + MessageChangeLogTable.ACCOUNT_KEY + "=old." + AccountColumns.ID
+                + "; end");
+    }
+
+    /**
+     * Create the MessageMove table.
+     * @param db The {@link SQLiteDatabase}.
+     */
+    private static void createMessageMoveTable(final SQLiteDatabase db) {
+        db.execSQL("create table " + MessageMove.TABLE_NAME + " ("
+                + MESSAGE_CHANGE_LOG_COLUMNS
+                + MessageMove.SRC_FOLDER_KEY + " integer, "
+                + MessageMove.DST_FOLDER_KEY + " integer, "
+                + MessageMove.SRC_FOLDER_SERVER_ID + " text, "
+                + MessageMove.DST_FOLDER_SERVER_ID + " text);");
+
+        createMessageChangeLogTableIndices(db, MessageMove.TABLE_NAME);
+        createMessageChangeLogTableTriggers(db, MessageMove.TABLE_NAME);
+    }
+
+    /**
+     * Create the MessageStateChange table.
+     * @param db The {@link SQLiteDatabase}.
+     */
+    private static void createMessageStateChangeTable(final SQLiteDatabase db) {
+        db.execSQL("create table " + MessageStateChange.TABLE_NAME + " ("
+                + MESSAGE_CHANGE_LOG_COLUMNS
+                + MessageStateChange.OLD_FLAG_READ + " integer, "
+                + MessageStateChange.NEW_FLAG_READ + " integer, "
+                + MessageStateChange.OLD_FLAG_FAVORITE + " integer, "
+                + MessageStateChange.NEW_FLAG_FAVORITE + " integer);");
+
+        createMessageChangeLogTableIndices(db, MessageStateChange.TABLE_NAME);
+        createMessageChangeLogTableTriggers(db, MessageStateChange.TABLE_NAME);
     }
 
     @SuppressWarnings("deprecation")
@@ -594,6 +671,8 @@ public final class DBHelper {
             createMailboxTable(db);
             createHostAuthTable(db);
             createAccountTable(db);
+            createMessageMoveTable(db);
+            createMessageStateChangeTable(db);
             createPolicyTable(db);
             createQuickResponseTable(db);
         }
@@ -1086,6 +1165,11 @@ public final class DBHelper {
                     // Shouldn't be needed unless we're debugging and interrupt the process
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v113 to v114", e);
                 }
+            }
+
+            if (oldVersion <= 115) {
+                createMessageMoveTable(db);
+                createMessageStateChangeTable(db);
             }
         }
 
