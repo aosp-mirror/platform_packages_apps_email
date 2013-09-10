@@ -88,11 +88,14 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
+import com.android.mail.providers.ConversationInfo;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
+import com.android.mail.providers.MessageInfo;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
+import com.android.mail.providers.UIProvider.ConversationColumns;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
@@ -2416,6 +2419,11 @@ public class EmailProvider extends ContentProvider {
      */
     private static String genQueryMailboxMessages(String[] uiProjection, final boolean unseenOnly) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
+
+        // TODO(skennedy) I need these columns for the respond call for ConversationInfo :(
+        sb.append(',').append(MessageColumns.DISPLAY_NAME)
+                .append(',').append(MessageColumns.FROM_LIST);
+
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
                 Message.FLAG_LOADED_SELECTION + " AND " +
                 Message.MAILBOX_KEY + "=? ");
@@ -2684,6 +2692,9 @@ public class EmailProvider extends ContentProvider {
         if (res.getBoolean(R.bool.feedback_supported)) {
             capabilities |= UIProvider.AccountCapabilities.SEND_FEEDBACK;
         }
+
+        capabilities |= UIProvider.AccountCapabilities.NESTED_FOLDERS;
+
         return capabilities;
     }
 
@@ -3456,7 +3467,32 @@ public class EmailProvider extends ContentProvider {
                 response.putParcelable(rawFoldersKey, mFolderList);
             }
 
+            final String convInfoKey =
+                    UIProvider.ConversationCursorCommand.COMMAND_GET_CONVERSATION_INFO;
+            if (params.containsKey(convInfoKey)) {
+                response.putParcelable(convInfoKey, generateConversationInfo());
+            }
+
             return response;
+        }
+
+        private ConversationInfo generateConversationInfo() {
+            // TODO This populates a very minimal ConversationInfo because it is currently only
+            // needed by NestedFolderTeaserView
+            final int numMessages = getInt(getColumnIndex(ConversationColumns.NUM_MESSAGES));
+            final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
+
+            final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
+            final boolean isStarred = getInt(getColumnIndex(ConversationColumns.STARRED)) != 0;
+            final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
+            // TODO We probably want to parse out the email from this
+            final String email = getString(getColumnIndex(MessageColumns.FROM_LIST));
+
+            final MessageInfo messageInfo = new MessageInfo(isRead, isStarred, senderString,
+                    0 /* priority */, email);
+            conversationInfo.addMessage(messageInfo);
+
+            return conversationInfo;
         }
     }
 
@@ -4267,6 +4303,8 @@ public class EmailProvider extends ContentProvider {
             } else if (columnName.equals(UIProvider.ConversationColumns.VIEWED) ||
                     columnName.equals(UIProvider.ConversationOperations.Parameters.SUPPRESS_UNDO)) {
                 // Ignore for now
+            } else if (UIProvider.ConversationColumns.CONVERSATION_INFO.equals(columnName)) {
+                // Email's conversation info is generated, not stored, so just ignore this update
             } else {
                 throw new IllegalArgumentException("Can't update " + columnName + " in message");
             }
