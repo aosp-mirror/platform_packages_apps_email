@@ -31,6 +31,7 @@ imported_unified_email_files := \
 
 LOCAL_MODULE := com.android.emailcommon
 LOCAL_STATIC_JAVA_LIBRARIES := guava android-common
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
 LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IEmailService.aidl \
