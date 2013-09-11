@@ -3233,6 +3233,10 @@ public class EmailProvider extends ContentProvider {
             mc.addRow(row);
             row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_UNREAD);
             mc.addRow(row);
+
+            final Uri notifyUri =
+                    UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
+            mc.setNotificationUri(context.getContentResolver(), notifyUri);
             return mc;
         } else {
             Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
@@ -3702,6 +3706,7 @@ public class EmailProvider extends ContentProvider {
                 mailboxId = Long.parseLong(id);
                 if (isVirtualMailbox(mailboxId)) {
                     c = getVirtualMailboxCursor(mailboxId);
+                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
                 } else {
                     c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[]{id});
                     final List<String> projectionList = Arrays.asList(uiProjection);
@@ -4517,6 +4522,12 @@ public class EmailProvider extends ContentProvider {
         if (accountId != Account.NO_ACCOUNT) {
             notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
         }
+
+        // Notify for combined account too
+        // TODO: might be nice to only notify when an inbox changes
+        notifyUI(UIPROVIDER_FOLDER_NOTIFIER,
+                getVirtualMailboxId(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX));
+        notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, COMBINED_ACCOUNT_ID);
     }
 
     private void notifyUIFolder(final long folderId, final long accountId) {
