@@ -718,8 +718,9 @@ public class EmailProvider extends ContentProvider {
             Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uifolders");
     private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
             Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiaccount");
-    public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uisettings");
+    // Not currently used
+    /*public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
+            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uisettings");*/
     private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
             Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiattachment");
     private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
@@ -750,7 +751,7 @@ public class EmailProvider extends ContentProvider {
             values.put(MailboxColumns.MESSAGE_COUNT, 0);
         }
 
-        Uri resultUri = null;
+        final Uri resultUri;
 
         try {
             switch (match) {
@@ -783,7 +784,7 @@ public class EmailProvider extends ContentProvider {
                                     // Notify the account when a new mailbox is added
                                     final Long accountId =
                                             values.getAsLong(MailboxColumns.ACCOUNT_KEY);
-                                    if (accountId != null && accountId.longValue() > 0) {
+                                    if (accountId != null && accountId > 0) {
                                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, accountId);
                                         notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
                                     }
@@ -1033,10 +1034,6 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-        long time = 0L;
-        if (MailActivityEmail.DEBUG) {
-            time = System.nanoTime();
-        }
         Cursor c = null;
         int match;
         try {
@@ -1099,12 +1096,8 @@ public class EmailProvider extends ContentProvider {
                     }
 
                     final String seenParam = uri.getQueryParameter(UIProvider.SEEN_QUERY_PARAMETER);
-                    final boolean unseenOnly;
-                    if (seenParam != null && Boolean.FALSE.toString().equals(seenParam)) {
-                        unseenOnly = true;
-                    } else {
-                        unseenOnly = false;
-                    }
+                    final boolean unseenOnly =
+                            seenParam != null && Boolean.FALSE.toString().equals(seenParam);
 
                     c = uiQuery(match, uri, projection, unseenOnly);
                     return c;
@@ -4039,10 +4032,10 @@ public class EmailProvider extends ContentProvider {
         final long now = System.currentTimeMillis();
         final ContentResolver resolver = context.getContentResolver();
         final ContentValues touchValues = new ContentValues();
-        for (int i=0, size=folders.length; i < size; ++i) {
+        for (final Uri folder : folders) {
             touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, now);
-            LogUtils.d(TAG, "updateStamp: %s updated", folders[i]);
-            updated += resolver.update(folders[i], touchValues, null, null);
+            LogUtils.d(TAG, "updateStamp: %s updated", folder);
+            updated += resolver.update(folder, touchValues, null, null);
         }
         final Uri toNotify =
                 UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
@@ -4054,7 +4047,7 @@ public class EmailProvider extends ContentProvider {
     /**
      * Updates the recent folders. The values to be updated are specified as ContentValues pairs
      * of (Folder URI, access timestamp). Returns nonzero if successful, always.
-     * @param uri
+     * @param uri provider query uri
      * @param values uri, timestamp pairs
      * @return nonzero value always.
      */
@@ -4072,7 +4065,7 @@ public class EmailProvider extends ContentProvider {
 
     /**
      * Populates the recent folders according to the design.
-     * @param uri
+     * @param uri provider query uri
      * @return the number of recent folders were populated.
      */
     private int uiPopulateRecentFolders(Uri uri) {
@@ -4298,6 +4291,7 @@ public class EmailProvider extends ContentProvider {
                 // Notify box has changed so the deletion is reflected in the UI
                 notifyUIConversationMailbox(mailbox.mId);
             } catch (RemoteException e) {
+                LogUtils.d(TAG, "Remote exception while sending meeting response");
             }
             return 1;
         }
@@ -4378,11 +4372,11 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    public static final String PICKER_UI_ACCOUNT = "picker_ui_account";
-    public static final String PICKER_MAILBOX_TYPE = "picker_mailbox_type";
-    public static final String PICKER_MESSAGE_ID = "picker_message_id";
-    public static final String PICKER_HEADER_ID = "picker_header_id";
-
+    /**
+     * Perform a "Delete" operation
+     * @param uri message to delete
+     * @return number of rows affected
+     */
     private int uiDeleteMessage(Uri uri) {
         final Context context = getContext();
         Message msg = getMessageFromLastSegment(uri);
@@ -4392,9 +4386,10 @@ public class EmailProvider extends ContentProvider {
         if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_DRAFTS) {
             // We actually delete these, including attachments
             AttachmentUtilities.deleteAllAttachmentFiles(context, msg.mAccountKey, msg.mId);
-            notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
-            return context.getContentResolver().delete(
+            final int r = context.getContentResolver().delete(
                     ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg.mId), null, null);
+            notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
+            return r;
         }
         Mailbox trashMailbox =
                 Mailbox.restoreMailboxOfType(context, msg.mAccountKey, Mailbox.TYPE_TRASH);
@@ -4403,9 +4398,16 @@ public class EmailProvider extends ContentProvider {
         }
         ContentValues values = new ContentValues();
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
+        final int r = uiUpdateMessage(uri, values, true);
         notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
-        return uiUpdateMessage(uri, values, true);
+        return r;
     }
+
+    public static final String PICKER_UI_ACCOUNT = "picker_ui_account";
+    public static final String PICKER_MAILBOX_TYPE = "picker_mailbox_type";
+    // Currently unused
+    //public static final String PICKER_MESSAGE_ID = "picker_message_id";
+    public static final String PICKER_HEADER_ID = "picker_header_id";
 
     private int pickFolder(Uri uri, int type, int headerId) {
         Context context = getContext();
