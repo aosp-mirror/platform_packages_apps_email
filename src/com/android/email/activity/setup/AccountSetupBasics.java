@@ -458,7 +458,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
             // Stop here if the login credentials duplicate an existing account
             // Launch an Async task to do the work
-            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername)
+            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername, true)
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } catch (URISyntaxException e) {
             /*
@@ -479,13 +479,16 @@ public class AccountSetupBasics extends AccountSetupActivity
         private final Context mContext;
         private final String mCheckHost;
         private final String mCheckLogin;
+        private final boolean mAutoSetup;
 
-        public DuplicateCheckTask(Context context, String checkHost, String checkLogin) {
+        public DuplicateCheckTask(Context context, String checkHost, String checkLogin,
+                boolean autoSetup) {
             mContext = context;
             mCheckHost = checkHost;
             mCheckLogin = checkLogin;
             // Prevent additional clicks on the next button during Async lookup
             mNextButtonInhibit = true;
+            mAutoSetup = autoSetup;
         }
 
         @Override
@@ -504,13 +507,17 @@ public class AccountSetupBasics extends AccountSetupActivity
                     DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
                 dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
             } else {
-                final AccountCheckSettingsFragment checkerFragment =
-                    AccountCheckSettingsFragment.newInstance(
-                        SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
-                final FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
-                transaction.addToBackStack("back");
-                transaction.commit();
+                if (mAutoSetup) {
+                    final AccountCheckSettingsFragment checkerFragment =
+                        AccountCheckSettingsFragment.newInstance(
+                            SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
+                    final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
+                    transaction.addToBackStack("back");
+                    transaction.commit();
+                } else {
+                    onManualSetup(true);
+                }
             }
         }
     }
@@ -522,6 +529,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Try auto-configuration from XML providers (unless in EAS mode, we can skip it)
         final String email = mEmailView.getText().toString().trim();
         final String[] emailParts = email.split("@");
+        final String user = emailParts[0].trim();
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider != null) {
@@ -533,10 +541,11 @@ public class AccountSetupBasics extends AccountSetupActivity
             } else {
                 finishAutoSetup();
             }
-            return;
-        }
+        } else {
         // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
-        onManualSetup(true);
+            new DuplicateCheckTask(this, domain, user, false)
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
     }
 
     /**
