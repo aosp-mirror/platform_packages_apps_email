@@ -708,29 +708,18 @@ public class EmailProvider extends ContentProvider {
 
     // These URIs are used for specific UI notifications. We don't use EmailContent.CONTENT_URI
     // as the base because that gets spammed.
-    private static final String UI_NOTIFICATION_AUTHORITY =
-            EmailContent.EMAIL_PACKAGE_NAME + ".uinotifications";
-    private static final Uri UIPROVIDER_CONVERSATION_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uimessages");
-    private static final Uri UIPROVIDER_FOLDER_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uifolder");
-    private static final Uri UIPROVIDER_FOLDERLIST_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uifolders");
-    private static final Uri UIPROVIDER_ACCOUNT_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiaccount");
+    // These can't be statically initialized because they depend on EmailContent.AUTHORITY
+    private static Uri UIPROVIDER_CONVERSATION_NOTIFIER;
+    private static Uri UIPROVIDER_FOLDER_NOTIFIER;
+    private static Uri UIPROVIDER_FOLDERLIST_NOTIFIER;
+    private static Uri UIPROVIDER_ACCOUNT_NOTIFIER;
     // Not currently used
-    /*public static final Uri UIPROVIDER_SETTINGS_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uisettings");*/
-    private static final Uri UIPROVIDER_ATTACHMENT_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiattachment");
-    private static final Uri UIPROVIDER_ATTACHMENTS_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiattachments");
-    public static final Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uiaccts");
-    private static final Uri UIPROVIDER_MESSAGE_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uimessage");
-    private static final Uri UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
-            Uri.parse("content://" + UI_NOTIFICATION_AUTHORITY + "/uirecentfolders");
+    //public static Uri UIPROVIDER_SETTINGS_NOTIFIER;
+    private static Uri UIPROVIDER_ATTACHMENT_NOTIFIER;
+    private static Uri UIPROVIDER_ATTACHMENTS_NOTIFIER;
+    public static Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER;
+    private static Uri UIPROVIDER_MESSAGE_NOTIFIER;
+    private static Uri UIPROVIDER_RECENT_FOLDERS_NOTIFIER;
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -879,6 +868,31 @@ public class EmailProvider extends ContentProvider {
             FOLDER_STATUS_URI =
                     Uri.parse("content://" + EmailContent.AUTHORITY + "/status");
             EMAIL_APP_MIME_TYPE = context.getString(R.string.application_mime_type);
+
+            final String uiNotificationAuthority =
+                    EmailContent.EMAIL_PACKAGE_NAME + ".uinotifications";
+            UIPROVIDER_CONVERSATION_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uimessages");
+            UIPROVIDER_FOLDER_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uifolder");
+            UIPROVIDER_FOLDERLIST_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uifolders");
+            UIPROVIDER_ACCOUNT_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uiaccount");
+            // Not currently used
+            /* UIPROVIDER_SETTINGS_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uisettings");*/
+            UIPROVIDER_ATTACHMENT_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uiattachment");
+            UIPROVIDER_ATTACHMENTS_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uiattachments");
+            UIPROVIDER_ALL_ACCOUNTS_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uiaccts");
+            UIPROVIDER_MESSAGE_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uimessage");
+            UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
+                    Uri.parse("content://" + uiNotificationAuthority + "/uirecentfolders");
+
 
             // All accounts
             sURIMatcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
