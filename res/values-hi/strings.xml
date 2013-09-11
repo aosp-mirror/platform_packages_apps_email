@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"ईमेल अनुलग्‍नक पढ़ें"</string>
-    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"एप्लिकेशन को आपके ईमेल अनुलग्नक पढ़ने देता है."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"एप्स को आपके ईमेल अनुलग्नक पढ़ने देता है."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"इस एप्‍लिकेशन को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
     <string name="app_name" msgid="5815426892327290362">"ईमेल"</string>
