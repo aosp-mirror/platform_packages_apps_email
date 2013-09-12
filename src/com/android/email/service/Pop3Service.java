@@ -333,8 +333,8 @@ public class Pop3Service extends Service {
              * older messages.
              * 3. We have some local messages, but after examining the most recent
              * DEFAULT_SYNC_COUNT remote messages, we still have not encountered any that exist
-             * locally. In this case, we'll abort, leaving a gap between the ones we've just loaded
-             * and the ones we already had.
+             * locally. In this case, we'll stop adding new messages to sync, leaving a gap between
+             * the ones we've just loaded and the ones we already had.
              * 4. We examine all of the remote messages before running into any of our count
              * limitations.
              */
@@ -353,6 +353,10 @@ public class Pop3Service extends Service {
             for (final Pop3Message message : remoteMessages) {
                 final String uid = message.getUid();
                 remoteUidMap.put(uid, message);
+            }
+
+            for (final Pop3Message message : remoteMessages) {
+                final String uid = message.getUid();
 
                 final LocalMessageInfo localMessage = localMessageMap.get(uid);
                 if (localMessage == null) {
@@ -381,7 +385,6 @@ public class Pop3Service extends Service {
                     LogUtils.d(Logging.LOG_TAG, "loaded " + count + " messages, stopping");
                     break;
                 }
-
             }
         } else {
             if (MailActivityEmail.DEBUG) {
