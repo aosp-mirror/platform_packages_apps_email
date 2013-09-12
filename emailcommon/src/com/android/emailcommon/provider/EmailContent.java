@@ -687,6 +687,8 @@ public abstract class EmailContent {
         public static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
 
+        public static final String[] MAILBOX_KEY_PROJECTION = new String[] { MAILBOX_KEY };
+
         /**
          * Selection for messages that are loaded
          *

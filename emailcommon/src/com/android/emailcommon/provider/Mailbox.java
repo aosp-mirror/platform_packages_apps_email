@@ -141,6 +141,18 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     private static final String[] ACCOUNT_KEY_PROJECTION = { MailboxColumns.ACCOUNT_KEY };
     private static final int ACCOUNT_KEY_PROJECTION_ACCOUNT_KEY_COLUMN = 0;
 
+    /**
+     * Projection for querying data needed during a sync.
+     */
+    public interface ProjectionSyncData {
+        public static final int COLUMN_SERVER_ID = 0;
+        public static final int COLUMN_SYNC_KEY = 1;
+
+        public static final String[] PROJECTION = {
+                MailboxColumns.SERVER_ID, MailboxColumns.SYNC_KEY
+        };
+    };
+
     public static final long NO_MAILBOX = -1;
 
     // Sentinel values for the mSyncInterval field of both Mailbox records
