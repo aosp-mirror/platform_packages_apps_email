@@ -697,12 +697,14 @@
     <string name="general_preference_confirm_delete_label">Confirm before deleting</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=64] -->
+    <!-- TODO: Delete this string, no longer used -->
     <string name="general_preference_confirm_delete_summary">Messages</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_send_label">Confirm before sending</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
+    <!-- TODO: Delete this string, no longer used -->
     <string name="general_preference_confirm_send_summary">Messages</string>
 
     <!-- General preference: Label of the setting for the text zoom.  [CHAR LIMIT=32] -->
