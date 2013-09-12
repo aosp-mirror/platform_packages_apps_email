@@ -102,14 +102,15 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     @Override
     public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
             throws RemoteException {
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
         if (mailbox == null) return;
-        Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+        final Account account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
         if (account == null) return;
-        EmailServiceInfo info = EmailServiceUtils.getServiceInfoForAccount(mContext, account.mId);
-        android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
+        final EmailServiceInfo info =
+                EmailServiceUtils.getServiceInfoForAccount(mContext, account.mId);
+        final android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
                 info.accountType);
-        Bundle extras = new Bundle();
+        final Bundle extras = new Bundle(5);
         if (userRequest) {
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
@@ -133,7 +134,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         try {
             // 1. Resample the message, in case it disappeared or synced while
             // this command was in queue
-            EmailContent.Message message =
+            final EmailContent.Message message =
                 EmailContent.Message.restoreMessageWithId(mContext, messageId);
             if (message == null) {
                 return;
@@ -145,27 +146,29 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
             // 2. Open the remote folder.
             // TODO combine with common code in loadAttachment
-            Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+            final Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+            final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
             if (account == null || mailbox == null) {
                 //mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
                 return;
             }
             TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
 
-            Store remoteStore = Store.getInstance(account, mContext);
-            String remoteServerId = mailbox.mServerId;
+            final Store remoteStore = Store.getInstance(account, mContext);
+            final String remoteServerId;
             // If this is a search result, use the protocolSearchInfo field to get the
             // correct remote location
             if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
                 remoteServerId = message.mProtocolSearchInfo;
+            } else {
+                remoteServerId = mailbox.mServerId;
             }
-            Folder remoteFolder = remoteStore.getFolder(remoteServerId);
+            final Folder remoteFolder = remoteStore.getFolder(remoteServerId);
             remoteFolder.open(OpenMode.READ_WRITE);
 
             // 3. Set up to download the entire message
-            Message remoteMessage = remoteFolder.getMessage(message.mServerId);
-            FetchProfile fp = new FetchProfile();
+            final Message remoteMessage = remoteFolder.getMessage(message.mServerId);
+            final FetchProfile fp = new FetchProfile();
             fp.add(FetchProfile.Item.BODY);
             remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
 
@@ -176,7 +179,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
 
         } catch (RuntimeException rte) {
-
+            LogUtils.d(Logging.LOG_TAG, "RTE During loadMore");
         }
     }
 
@@ -192,17 +195,19 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         EmailServiceStatus.ATTACHMENT_NOT_FOUND, 0);
                 return;
             }
-            long messageId = attachment.mMessageKey;
+            final long messageId = attachment.mMessageKey;
 
-            EmailContent.Message message =
+            final EmailContent.Message message =
                     EmailContent.Message.restoreMessageWithId(mContext, attachment.mMessageKey);
             if (message == null) {
                 cb.loadAttachmentStatus(messageId, attachmentId,
                         EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
+                return;
             }
 
             // If the message is loaded, just report that we're finished
-            if (Utility.attachmentExists(mContext, attachment)) {
+            if (Utility.attachmentExists(mContext, attachment)
+                    && attachment.mUiState == UIProvider.AttachmentState.SAVED) {
                 cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS,
                         0);
                 return;
@@ -212,7 +217,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.IN_PROGRESS, 0);
 
             // 2. Open the remote folder.
-            Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+            final Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
             Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
 
             if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
@@ -239,14 +244,14 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             TrafficStats.setThreadStatsTag(
                     TrafficFlags.getAttachmentFlags(mContext, account));
 
-            Store remoteStore = Store.getInstance(account, mContext);
-            Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+            final Store remoteStore = Store.getInstance(account, mContext);
+            final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
             remoteFolder.open(OpenMode.READ_WRITE);
 
             // 3. Generate a shell message in which to retrieve the attachment,
             // and a shell BodyPart for the attachment.  Then glue them together.
-            Message storeMessage = remoteFolder.createMessage(message.mServerId);
-            MimeBodyPart storePart = new MimeBodyPart();
+            final Message storeMessage = remoteFolder.createMessage(message.mServerId);
+            final MimeBodyPart storePart = new MimeBodyPart();
             storePart.setSize((int)attachment.mSize);
             storePart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA,
                     attachment.mLocation);
@@ -258,7 +263,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // true encoding along the way
             storePart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
 
-            MimeMultipart multipart = new MimeMultipart();
+            final MimeMultipart multipart = new MimeMultipart();
             multipart.setSubType("mixed");
             multipart.addBodyPart(storePart);
 
@@ -266,7 +271,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             storeMessage.setBody(multipart);
 
             // 4. Now ask for the attachment to be fetched
-            FetchProfile fp = new FetchProfile();
+            final FetchProfile fp = new FetchProfile();
             fp.add(storePart);
             remoteFolder.fetch(new Message[] { storeMessage }, fp,
                     new MessageRetrievalListenerBridge(messageId, attachmentId, cb));
@@ -291,9 +296,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
             // TODO: Fix this up; consider the best approach
 
-            ContentValues cv = new ContentValues();
+            final ContentValues cv = new ContentValues(1);
             cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
-            Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
+            final Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             mContext.getContentResolver().update(uri, cv, null, null);
 
             cb.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
@@ -303,7 +308,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     /**
      * Bridge to intercept {@link MessageRetrievalListener#loadAttachmentProgress} and
-     * pass down to {@link Result}.
+     * pass down to {@link IEmailServiceCallback}.
      */
     public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
         private final long mMessageId;
@@ -335,7 +340,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
     @Override
     public void updateFolderList(long accountId) throws RemoteException {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
         long inboxId = -1;
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
@@ -344,7 +349,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // Step 0: Make sure the default system mailboxes exist.
             for (final int type : Mailbox.REQUIRED_FOLDER_TYPES) {
                 if (Mailbox.findMailboxOfType(mContext, accountId, type) == Mailbox.NO_MAILBOX) {
-                    Mailbox mailbox = Mailbox.newSystemMailbox(mContext, accountId, type);
+                    final Mailbox mailbox = Mailbox.newSystemMailbox(mContext, accountId, type);
                     mailbox.save(mContext);
                     if (type == Mailbox.TYPE_INBOX) {
                         inboxId = mailbox.mId;
@@ -353,11 +358,11 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             }
 
             // Step 1: Get remote mailboxes
-            Store store = Store.getInstance(account, mContext);
-            Folder[] remoteFolders = store.updateFolders();
-            HashSet<String> remoteFolderNames = new HashSet<String>();
-            for (int i = 0, count = remoteFolders.length; i < count; i++) {
-                remoteFolderNames.add(remoteFolders[i].getName());
+            final Store store = Store.getInstance(account, mContext);
+            final Folder[] remoteFolders = store.updateFolders();
+            final HashSet<String> remoteFolderNames = new HashSet<String>();
+            for (final Folder remoteFolder : remoteFolders) {
+                remoteFolderNames.add(remoteFolder.getName());
             }
 
             // Step 2: Get local mailboxes
@@ -370,14 +375,14 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
 
             // Step 3: Remove any local mailbox not on the remote list
             while (localFolderCursor.moveToNext()) {
-                String mailboxPath = localFolderCursor.getString(MAILBOX_COLUMN_SERVER_ID);
+                final String mailboxPath = localFolderCursor.getString(MAILBOX_COLUMN_SERVER_ID);
                 // Short circuit if we have a remote mailbox with the same name
                 if (remoteFolderNames.contains(mailboxPath)) {
                     continue;
                 }
 
-                int mailboxType = localFolderCursor.getInt(MAILBOX_COLUMN_TYPE);
-                long mailboxId = localFolderCursor.getLong(MAILBOX_COLUMN_ID);
+                final int mailboxType = localFolderCursor.getInt(MAILBOX_COLUMN_TYPE);
+                final long mailboxId = localFolderCursor.getLong(MAILBOX_COLUMN_ID);
                 switch (mailboxType) {
                     case Mailbox.TYPE_INBOX:
                     case Mailbox.TYPE_DRAFTS:
@@ -475,16 +480,16 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     public static void sendMailImpl(Context context, long accountId) {
-        Account account = Account.restoreAccountWithId(context, accountId);
+        final Account account = Account.restoreAccountWithId(context, accountId);
         TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(context, account));
-        NotificationController nc = NotificationController.getInstance(context);
+        final NotificationController nc = NotificationController.getInstance(context);
         // 1.  Loop through all messages in the account's outbox
-        long outboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_OUTBOX);
+        final long outboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_OUTBOX);
         if (outboxId == Mailbox.NO_MAILBOX) {
             return;
         }
-        ContentResolver resolver = context.getContentResolver();
-        Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
+        final ContentResolver resolver = context.getContentResolver();
+        final Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
                 EmailContent.Message.ID_COLUMN_PROJECTION,
                 EmailContent.Message.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
                 null);
@@ -493,20 +498,21 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (c.getCount() <= 0) {
                 return;
             }
-            Sender sender = Sender.getInstance(context, account);
-            Store remoteStore = Store.getInstance(account, context);
-            boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
-            ContentValues moveToSentValues = null;
-            if (requireMoveMessageToSentFolder) {
+            final Sender sender = Sender.getInstance(context, account);
+            final Store remoteStore = Store.getInstance(account, context);
+            final ContentValues moveToSentValues;
+            if (remoteStore.requireCopyMessageToSentFolder()) {
                 Mailbox sentFolder =
                     Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_SENT);
                 moveToSentValues = new ContentValues();
                 moveToSentValues.put(MessageColumns.MAILBOX_KEY, sentFolder.mId);
+            } else {
+                moveToSentValues = null;
             }
 
             // 3.  loop through the available messages and send them
             while (c.moveToNext()) {
-                long messageId = -1;
+                final long messageId;
                 if (moveToSentValues != null) {
                     moveToSentValues.remove(EmailContent.MessageColumns.FLAGS);
                 }
@@ -533,13 +539,12 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
                 // Delete all cached files
                 AttachmentUtilities.deleteAllCachedAttachmentFiles(context, account.mId, messageId);
-                if (requireMoveMessageToSentFolder) {
+                if (moveToSentValues != null) {
                     // If this is a forwarded message and it has attachments, delete them, as they
                     // duplicate information found elsewhere (on the server).  This saves storage.
                     final EmailContent.Message msg =
                         EmailContent.Message.restoreMessageWithId(context, messageId);
-                    if (msg != null &&
-                            ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0)) {
+                    if ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0) {
                         AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId,
                                 messageId);
                     }
