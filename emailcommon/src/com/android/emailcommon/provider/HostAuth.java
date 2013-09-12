@@ -427,4 +427,9 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         setConnection(protocol, host, port, flags, clientCertAlias);
     }
 
+    @Override
+    public String toString() {
+        return "[protocol " + mProtocol + "]";
+    }
+
 }
