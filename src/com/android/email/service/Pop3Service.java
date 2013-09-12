@@ -50,6 +50,7 @@ import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AttachmentState;
@@ -60,6 +61,7 @@ import org.apache.james.mime4j.EOLConvertingInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Pop3Service extends Service {
     private static final String TAG = "Pop3Service";
@@ -323,20 +325,6 @@ public class Pop3Service extends Service {
             /*
              * Get all messageIds in the mailbox.
              * We don't necessarily need to sync all of them.
-             *
-             * There are four end conditions:
-             * 1. We currently have zero local messages. In this case, we will sync the most recent
-             * DEFAULT_SYNC_COUNT, then stop.
-             * 2. We have some local messages, and after encountering them, we find some older
-             * messages that do not yet exist locally. In this case, we will load whichever came
-             * before the ones we already had locally, and also deltaMessageCount additional
-             * older messages.
-             * 3. We have some local messages, but after examining the most recent
-             * DEFAULT_SYNC_COUNT remote messages, we still have not encountered any that exist
-             * locally. In this case, we'll stop adding new messages to sync, leaving a gap between
-             * the ones we've just loaded and the ones we already had.
-             * 4. We examine all of the remote messages before running into any of our count
-             * limitations.
              */
             remoteMessages = remoteFolder.getMessages(remoteMessageCount, remoteMessageCount);
             LogUtils.d(Logging.LOG_TAG, "remoteMessageCount " + remoteMessageCount);
@@ -355,9 +343,24 @@ public class Pop3Service extends Service {
                 remoteUidMap.put(uid, message);
             }
 
+            /*
+             * Figure out which messages we need to sync. Start at the most recent ones, and keep
+             * going until we hit one of four end conditions:
+             * 1. We currently have zero local messages. In this case, we will sync the most recent
+             * DEFAULT_SYNC_COUNT, then stop.
+             * 2. We have some local messages, and after encountering them, we find some older
+             * messages that do not yet exist locally. In this case, we will load whichever came
+             * before the ones we already had locally, and also deltaMessageCount additional
+             * older messages.
+             * 3. We have some local messages, but after examining the most recent
+             * DEFAULT_SYNC_COUNT remote messages, we still have not encountered any that exist
+             * locally. In this case, we'll stop adding new messages to sync, leaving a gap between
+             * the ones we've just loaded and the ones we already had.
+             * 4. We examine all of the remote messages before running into any of our count
+             * limitations.
+             */
             for (final Pop3Message message : remoteMessages) {
                 final String uid = message.getUid();
-
                 final LocalMessageInfo localMessage = localMessageMap.get(uid);
                 if (localMessage == null) {
                     count++;
@@ -444,10 +447,6 @@ public class Pop3Service extends Service {
         }
 
         // Remove any messages that are in the local store but no longer on the remote store.
-        // TODO: This is disabled for now, because it could be that the local copy of the
-        // message is the only one that exists. We should find a way to handle intentional
-        // deletions coming from the server.
-        /*
         HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
         localUidsToDelete.removeAll(remoteUidMap.keySet());
         for (String uidToDelete : localUidsToDelete) {
@@ -472,7 +471,7 @@ public class Pop3Service extends Service {
             Uri deleteRowToDelete = ContentUris.withAppendedId(
                     EmailContent.Message.DELETED_CONTENT_URI, infoToDelete.mId);
             resolver.delete(deleteRowToDelete, null, null);
-        } */
+        }
 
         LogUtils.d(TAG, "loadUnsynchedMessages " + unsyncedMessages.size());
         // Load messages we need to sync
