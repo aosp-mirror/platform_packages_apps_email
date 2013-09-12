@@ -82,6 +82,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     // Delete policy as loaded from the device
     private int mLoadedDeletePolicy;
 
+    private TextWatcher mValidationTextWatcher;
+
     // Support for lifecycle
     private boolean mStarted;
     private boolean mLoaded;
@@ -146,7 +148,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         });
 
         // After any text edits, call validateFields() which enables or disables the Next button
-        final TextWatcher validationTextWatcher = new TextWatcher() {
+        mValidationTextWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 validateFields();
@@ -162,10 +164,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             makeTextViewUneditable(mUsernameView,
                     getString(R.string.account_setup_username_uneditable_error));
         }
-        mUsernameView.addTextChangedListener(validationTextWatcher);
-        mPasswordView.addTextChangedListener(validationTextWatcher);
-        mServerView.addTextChangedListener(validationTextWatcher);
-        mPortView.addTextChangedListener(validationTextWatcher);
+        mUsernameView.addTextChangedListener(mValidationTextWatcher);
+        mPasswordView.addTextChangedListener(mValidationTextWatcher);
+        mServerView.addTextChangedListener(mValidationTextWatcher);
+        mPortView.addTextChangedListener(mValidationTextWatcher);
 
         // Only allow digits in the port field.
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
@@ -277,6 +279,41 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         super.onStop();
         mStarted = false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        // Make sure we don't get callbacks after the views are supposed to be destroyed
+        // and also don't hold onto them longer than we need
+        if (mUsernameView != null) {
+            mUsernameView.removeTextChangedListener(mValidationTextWatcher);
+        }
+        mUsernameView = null;
+        if (mPasswordView != null) {
+            mPasswordView.removeTextChangedListener(mValidationTextWatcher);
+        }
+        mPasswordView = null;
+        mServerLabelView = null;
+        if (mServerView != null) {
+            mServerView.removeTextChangedListener(mValidationTextWatcher);
+        }
+        mServerView = null;
+        if (mPortView != null) {
+            mPortView.removeTextChangedListener(mValidationTextWatcher);
+        }
+        mPortView = null;
+        if (mSecurityTypeView != null) {
+            mSecurityTypeView.setOnItemSelectedListener(null);
+        }
+        mSecurityTypeView = null;
+        mDeletePolicyLabelView = null;
+        mDeletePolicyView = null;
+        mImapPathPrefixSectionView = null;
+        mDeviceIdSectionView = null;
+        mImapPathPrefixView = null;
+        mClientCertificateSelector = null;
+
+        super.onDestroyView();
     }
 
     /**
