@@ -53,6 +53,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
+import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.ImmutableMap;
@@ -68,6 +69,23 @@ import java.util.Map;
  */
 public class EmailServiceUtils {
     private static Map<String, EmailServiceInfo> sServiceMap = null;
+
+    /**
+     * Ask a service to kill its process. This is used when an account is deleted so that
+     * no background thread that happens to be running will continue, possibly hitting an
+     * NPE or other error when trying to operate on an account that no longer exists.
+     * TODO: This is kind of a hack, it's only needed because we fail so badly if an account
+     * is deleted out from under us while a sync or other operation is in progress. It would
+     * be a lot cleaner if our background services could handle this without crashing.
+     */
+    public static void killService(Context context, String protocol) {
+        EmailServiceInfo info = getServiceInfo(context, protocol);
+        if (info != null && info.intentAction != null) {
+            final Intent serviceIntent = getServiceIntent(info);
+            serviceIntent.putExtra(ServiceProxy.EXTRA_FORCE_SHUTDOWN, true);
+            context.startService(serviceIntent);
+        }
+    }
 
     /**
      * Starts an EmailService by protocol
