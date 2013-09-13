@@ -439,6 +439,10 @@ public class Pop3Service extends Service {
                         // Get rid of the temporary attachment
                         resolver.delete(attUri, null, null);
 
+                    } else {
+                        // TODO: Should we mark this attachment as failed so we don't
+                        // keep trying to download?
+                        LogUtils.e(TAG, "Could not find message for attachment " + uid);
                     }
                 }
             }
