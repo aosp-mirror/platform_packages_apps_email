@@ -42,6 +42,8 @@ import com.android.mail.utils.LogUtils;
  */
 
 public abstract class ServiceProxy {
+    public static final String EXTRA_FORCE_SHUTDOWN = "ServiceProxy.FORCE_SHUTDOWN";
+
     private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
     private final String mTag;
 

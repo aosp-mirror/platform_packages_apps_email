@@ -22,12 +22,15 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 import com.android.email.NotificationController;
 import com.android.email.R;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.ImmutableList;
@@ -142,6 +145,10 @@ public class AccountReconciler {
             final List<android.accounts.Account> accountManagerAccounts,
             final boolean performReconciliation) {
         boolean needsReconciling = false;
+        boolean accountDeleted = false;
+        boolean exchangeAccountDeleted = false;
+
+        LogUtils.d(Logging.LOG_TAG, "reconcileAccountsInternal");
 
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account
@@ -171,11 +178,20 @@ public class AccountReconciler {
                     LogUtils.d(Logging.LOG_TAG,
                             "Account deleted in AccountManager; deleting from provider: " +
                             providerAccountName);
+                    // See if this is an exchange account
+                    final HostAuth auth = providerAccount.getOrCreateHostAuthRecv(context);
+                    LogUtils.d(Logging.LOG_TAG, "deleted account with hostAuth " + auth);
+                    if (auth != null && TextUtils.equals(auth.mProtocol,
+                            context.getString(R.string.protocol_eas))) {
+                        exchangeAccountDeleted = true;
+                    }
                     context.getContentResolver().delete(
                             EmailProvider.uiUri("uiaccount", providerAccount.mId), null, null);
 
                     // Cancel all notifications for this account
                     NotificationController.cancelNotifications(context, providerAccount);
+                    accountDeleted = true;
+
                 }
             }
         }
@@ -207,6 +223,20 @@ public class AccountReconciler {
                     }
                 }
             }
+        }
+
+        // If an account has been deleted, the simplest thing is just to kill our process.
+        // Otherwise we might have a service running trying to do something for the account
+        // which has been deleted, which can get NPEs. It's not as clean is it could be, but
+        // it still works pretty well because there is nowhere in the email app to delete the
+        // account. You have to go to Settings, so it's not user visible that the Email app
+        // has been killed.
+        if (accountDeleted) {
+            LogUtils.i(Logging.LOG_TAG, "Restarting because account deleted");
+            if (exchangeAccountDeleted) {
+                EmailServiceUtils.killService(context, context.getString(R.string.protocol_eas));
+            }
+            System.exit(-1);
         }
 
         return needsReconciling;
