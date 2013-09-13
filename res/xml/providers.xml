@@ -378,6 +378,12 @@
         <outgoing uri="smtp+ssl://poczta.o2.pl" username="$user" />
     </provider>
 
+    <!-- Russia -->
+    <provider id="mail.ru" label="Mail.ru" domain="mail.ru">
+        <incoming uri="imap+tls+://imap.mail.ru" username="$email" />
+        <outgoing uri="smtp+ssl+://smtp.mail.ru" username="$email" />
+    </provider>
+
     <!-- Korea -->
     <provider id="daum" label="Daum Hanmail" domain="hanmail.net">
         <incoming uri="imap+ssl+://imap.hanmail.net" username="$user" />
