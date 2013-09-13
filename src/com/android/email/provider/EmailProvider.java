@@ -2716,7 +2716,7 @@ public class EmailProvider extends ContentProvider {
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ATTACHMENT_PREVIEWS)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ATTACHMENT_PREVIEWS,
-                    mailPrefs.getShowAttachmentPreviews() ? "1" : "0");
+                    "0");
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             int autoAdvance = prefs.getAutoAdvanceDirection();
@@ -2958,9 +2958,8 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(
                 UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ATTACHMENT_PREVIEWS)) {
-            values[colPosMap
-                    .get(UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ATTACHMENT_PREVIEWS)] =
-                    mailPrefs.getShowAttachmentPreviews() ? 1 : 0;
+            values[colPosMap.get(
+                    UIProvider.AccountColumns.SettingsColumns.CONV_LIST_ATTACHMENT_PREVIEWS)] = 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
