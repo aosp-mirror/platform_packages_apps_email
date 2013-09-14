@@ -80,7 +80,7 @@
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"帳戶設定"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"電子郵件帳戶"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"只要幾個步驟即可設定您的帳戶。"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"只要幾個步驟即可完成帳戶設定。"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"電子郵件地址"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"密碼"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動設定"</string>
@@ -147,7 +147,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"同步處理這個帳戶的電子郵件"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"連上 Wi-Fi 時自動下載附件。"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"無法完成"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"同步處理的天數"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"要同步的天數"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"自動"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"前一天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"前三天"</string>
@@ -172,7 +172,7 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"您輸入的伺服器位址不正確，或是電子郵件不支援伺服器所需的通訊協定版本。"</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"您沒有與這個伺服器保持同步的權限。如要瞭解詳情，請與您的伺服器管理員聯絡。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要完成這個帳戶的設定程序嗎？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"您的 Android 裝置不支援這個伺服器所需的安全性功能，包括：<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"您無法變更帳戶的使用者名稱。如要以其他使用者名稱新增帳戶，請輕觸 [新增帳戶]。"</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中所有的電子郵件、聯絡人、日曆活動和其他資料。"</string>
@@ -291,7 +291,7 @@
     <string name="quick_1" msgid="3426057697353380951">"感謝您！"</string>
     <string name="quick_2" msgid="4188036352885736617">"這主意不錯！"</string>
     <string name="quick_3" msgid="8061819976353395585">"我稍晚看過後回覆您。"</string>
-    <string name="quick_4" msgid="3988974084396883051">"開會討論吧。"</string>
+    <string name="quick_4" msgid="3988974084396883051">"開會討論吧！"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"系統會在漫遊時停用這個帳戶的背景同步處理。"</string>
     <string name="confirm_response" msgid="9151965975158906286">"正在傳送回應…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"沒有任何郵件。"</string>
