@@ -135,7 +135,7 @@
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opções da conta"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frequência de verificação da caixa de entrada"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
-    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automático (envio)"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Instantânea (envio)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"A cada 5 minutos"</string>
     <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"A cada 10 minutos"</string>
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"A cada 15 minutos"</string>
@@ -218,7 +218,7 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nome da conta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Seu nome"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Respostas rápidas"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Edite o texto que você costuma inserir ao compor e-mails"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Edite o texto que você costuma inserir em seus e-mails"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Configurações de notificação"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de dados"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Políticas de segurança"</string>

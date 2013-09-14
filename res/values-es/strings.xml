@@ -30,7 +30,7 @@
     <string name="create_action" msgid="3062715563215392251">"Crear nueva"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"No hay respuestas rápidas."</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Ajustes de la cuenta"</string>
-    <string name="menu_folder_options" msgid="2871906096248843471">"Opciones de sincronización"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Ajustes de sincronización"</string>
     <string name="status_network_error" msgid="2611654064403817391">"Error de conexión"</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Mover mensaje"</item>
@@ -38,9 +38,9 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Las cuentas POP3 no permiten mover mensajes."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"No se puede mover porque la selección contiene varias cuentas."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"No se pueden mover los mensajes de las carpetas Borradores, Bandeja de salida ni Enviados."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"No se pueden mover los mensajes de las carpetas Borradores, Por enviar ni Enviados."</string>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Recibidos"</string>
-    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Enviados"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Por enviar"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Borradores"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviados"</string>
@@ -50,7 +50,7 @@
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Recibidos"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Destacados"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
-    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Enviados"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Por enviar"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vista combinada"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------\nSubject: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFrom: <xliff:g id="SENDER">%2$s</xliff:g>\nTo: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Usar respuesta rápida"</string>
@@ -78,36 +78,36 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuración de cuenta"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Ajustes de la cuenta"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cuenta de correo electrónico"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Puedes configurar tu cuenta en pocos pasos."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo electrónico"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Config. manual"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ajustes manuales"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Introduce una dirección de correo electrónico y una contraseña válidas."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Cuenta duplicada"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ya estás usando este nombre de usuario para la cuenta \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Esta contraseña contiene uno o varios espacios al principio o al final. Muchos servidores no admiten contraseñas con espacios."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando la información de la cuenta..."</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando ajustes del servidor…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validando ajustes de SMTP…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando los ajustes del servidor…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validando los ajustes de SMTP…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Creando cuenta…"</string>
-    <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de cuenta"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Ajustes de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Tu cuenta ya está configurada y en breve verás tu correo."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Asigna un nombre a esta cuenta (opcional)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (aparece en los mensajes enviados)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (en los mensajes enviados)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Este campo no puede estar vacío."</string>
-    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuración de cuenta"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Ajustes de la cuenta"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo de cuenta"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta tienes?"</string>
-    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuración de cuenta"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Ajustes de la cuenta"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Ajustes del servidor de entrada"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nombre de usuario"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Contraseña"</string>
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Servidor"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Puerto"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de seguridad"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguna"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos los certif.)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceptar todos los certif.)"</string>
@@ -117,7 +117,7 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Al borrar mensajes"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
-    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuración de cuenta"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Ajustes de la cuenta"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Ajustes del servidor de salida"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Puerto"</string>
@@ -145,17 +145,17 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sincronizar contactos de esta cuenta"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sincronizar calendario de esta cuenta"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sincronizar correo de esta cuenta"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descargar adjuntos automáticamente al conectar a una red WiFi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descargar adjuntos automáticamente al conectar a una red Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Error al completar la configuración"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Días para sincronizar"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automática"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Último día"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Los últimos tres días"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"La semana pasada"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"La última pasada"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Las últimas dos semanas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"El mes pasado"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Todo"</string>
-    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar predeterminada"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar valores predeterminados de la cuenta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nombre de usuario o contraseña incorrectos"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Error de inicio de sesión\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No se puede establecer conexión de forma segura con el servidor."</string>
@@ -215,7 +215,7 @@
     <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Ninguno"</string>
     <string name="account_settings_retry_label" msgid="1104680719299842829">"Intentar sincronización"</string>
     <string name="account_settings_retry_summary" msgid="2703599639846201913">"Toca para sincronizar esta cuenta."</string>
-    <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de cuenta"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de la cuenta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tu nombre"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Respuestas rápidas"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Texto que sueles usar en tus correos"</string>
@@ -240,8 +240,8 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Seleccionar tono"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Ajustes del servidor"</string>
-    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Opciones de sincronización"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opciones de sincronización (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Ajustes de sincronización"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Ajustes de sincronización (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sincronizar esta carpeta"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Los mensajes se descargarán automáticamente al conectarte"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Días para sincronizar correo"</string>
@@ -290,8 +290,8 @@
     <string name="policy_email_age" msgid="7144148367145424963">"Limitar número de correos que se sincronizan"</string>
     <string name="quick_1" msgid="3426057697353380951">"¡Gracias!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Me parece bien, ¡gracias!"</string>
-    <string name="quick_3" msgid="8061819976353395585">"Lo leeré más tarde y te enviaré una respuesta."</string>
-    <string name="quick_4" msgid="3988974084396883051">"Vamos a reunirnos para hablar de este tema."</string>
+    <string name="quick_3" msgid="8061819976353395585">"Luego lo leo y te respondo."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Hagamos una reunión para hablar de este tema."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Se ha inhabilitado la sincronización en segundo plano de esta cuenta en itinerancia."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Enviando respuesta…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"No hay ningún mensaje."</string>
