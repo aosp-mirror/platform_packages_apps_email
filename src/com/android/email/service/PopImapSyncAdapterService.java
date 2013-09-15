@@ -204,16 +204,21 @@ public class PopImapSyncAdapterService extends Service {
                 } else {
                     LogUtils.d(TAG, "Sync request for " + acct.mDisplayName);
                     LogUtils.d(TAG, extras.toString());
-                    long mailboxId =
-                            extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
 
                     // We update our folder structure on every sync.
                     final EmailServiceProxy service =
                             EmailServiceUtils.getServiceForAccount(context, acct.mId);
                     service.updateFolderList(acct.mId);
-                    mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
-                            Mailbox.TYPE_INBOX);
 
+                    // Get the id for the mailbox we want to sync.
+                    long mailboxId =
+                            extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
+                    if (mailboxId == Mailbox.NO_MAILBOX) {
+                        // If the extras didn't specify a mailbox, assume we want the inbox.
+                        // TODO: IMAP may eventually want to allow multiple auto-sync mailboxes.
+                        mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
+                                Mailbox.TYPE_INBOX);
+                    }
                     if (mailboxId == Mailbox.NO_MAILBOX) return;
                     boolean uiRefresh =
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
