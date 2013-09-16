@@ -67,9 +67,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class ImapService extends Service {
     // TODO get these from configurations or settings.
@@ -127,6 +124,7 @@ public class ImapService extends Service {
                 return searchMailboxImpl(getApplicationContext(), accountId, searchParams,
                         destMailboxId);
             } catch (MessagingException e) {
+                // Ignore
             }
             return 0;
         }
@@ -155,8 +153,6 @@ public class ImapService extends Service {
      * Start foreground synchronization of the specified folder. This is called by
      * synchronizeMailbox or checkMail.
      * TODO this should use ID's instead of fully-restored objects
-     * @param account
-     * @param folder
      * @return The status code for whether this operation succeeded.
      * @throws MessagingException
      */
@@ -236,7 +232,7 @@ public class ImapService extends Service {
      * Load the structure and body of messages not yet synced
      * @param account the account we're syncing
      * @param remoteFolder the (open) Folder we're working on
-     * @param unsyncedMessages an array of Message's we've got headers for
+     * @param messages an array of Messages we've got headers for
      * @param toMailbox the destination mailbox we're syncing
      * @throws MessagingException
      */
@@ -282,7 +278,7 @@ public class ImapService extends Service {
             localMapCopy = new HashMap<String, LocalMessageInfo>();
         }
 
-        remoteFolder.fetch(unsyncedMessages.toArray(new Message[0]), fp,
+        remoteFolder.fetch(unsyncedMessages.toArray(new Message[unsyncedMessages.size()]), fp,
                 new MessageRetrievalListener() {
                     @Override
                     public void messageRetrieved(Message message) {
@@ -291,7 +287,7 @@ public class ImapService extends Service {
                             // And create or reload the full message info
                             LocalMessageInfo localMessageInfo =
                                 localMapCopy.get(message.getUid());
-                            EmailContent.Message localMessage = null;
+                            EmailContent.Message localMessage;
                             if (localMessageInfo == null) {
                                 localMessage = new EmailContent.Message();
                             } else {
@@ -339,11 +335,11 @@ public class ImapService extends Service {
      * @param mailbox the mailbox to sync
      * @param loadMore whether we should be loading more older messages
      * @param uiRefresh whether this request is in response to a user action
-     * @return results of the sync pass
      * @throws MessagingException
      */
-    private synchronized static void synchronizeMailboxGeneric(final Context context, final Account account,
-            final Mailbox mailbox, final boolean loadMore, final boolean uiRefresh)
+    private synchronized static void synchronizeMailboxGeneric(final Context context,
+            final Account account, final Mailbox mailbox, final boolean loadMore,
+            final boolean uiRefresh)
             throws MessagingException {
 
         LogUtils.d(Logging.LOG_TAG, "synchronizeMailboxGeneric " + account + " " + mailbox + " "
@@ -756,10 +752,6 @@ public class ImapService extends Service {
     /**
      * Scan for messages that are in the Message_Deletes table, look for differences that
      * we can deal with, and do the work.
-     *
-     * @param account
-     * @param resolver
-     * @param accountIdArgs
      */
     private static void processPendingDeletesSynchronous(Context context, Account account,
             String[] accountIdArgs) {
@@ -774,8 +766,6 @@ public class ImapService extends Service {
             Store remoteStore = null;
             // loop through messages marked as deleted
             while (deletes.moveToNext()) {
-                boolean deleteFromTrash = false;
-
                 EmailContent.Message oldMessage =
                         EmailContent.getContent(deletes, EmailContent.Message.class);
 
@@ -786,7 +776,7 @@ public class ImapService extends Service {
                     if (mailbox == null) {
                         continue; // Mailbox removed. Move to the next message.
                     }
-                    deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
+                    final boolean deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
 
                     // Load the remote store if it will be needed
                     if (remoteStore == null && deleteFromTrash) {
@@ -796,14 +786,14 @@ public class ImapService extends Service {
                     // Dispatch here for specific change types
                     if (deleteFromTrash) {
                         // Move message to trash
-                        processPendingDeleteFromTrash(remoteStore, account, mailbox, oldMessage);
+                        processPendingDeleteFromTrash(remoteStore, mailbox, oldMessage);
                     }
-                }
 
-                // Finally, delete the update
-                Uri uri = ContentUris.withAppendedId(EmailContent.Message.DELETED_CONTENT_URI,
-                        oldMessage.mId);
-                context.getContentResolver().delete(uri, null, null);
+                    // Finally, delete the update
+                    Uri uri = ContentUris.withAppendedId(EmailContent.Message.DELETED_CONTENT_URI,
+                            oldMessage.mId);
+                    context.getContentResolver().delete(uri, null, null);
+                }
             }
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
@@ -827,10 +817,6 @@ public class ImapService extends Service {
      * Note we also look for messages that are moving from drafts->outbox->sent. They never
      * go through "drafts" or "outbox" on the server, so we hang onto these until they can be
      * uploaded directly to the Sent folder.
-     *
-     * @param account
-     * @param resolver
-     * @param accountIdArgs
      */
     private static void processPendingUploadsSynchronous(Context context, Account account,
             String[] accountIdArgs) {
@@ -876,7 +862,7 @@ public class ImapService extends Service {
                         // upsync the message
                         long id = upsyncs1.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
                         lastMessageId = id;
-                        processUploadMessage(context, remoteStore, account, mailbox, id);
+                        processUploadMessage(context, remoteStore, mailbox, id);
                     }
                 } finally {
                     if (upsyncs1 != null) {
@@ -905,7 +891,7 @@ public class ImapService extends Service {
                         // upsync the message
                         long id = upsyncs2.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
                         lastMessageId = id;
-                        processUploadMessage(context, remoteStore, account, mailbox, id);
+                        processUploadMessage(context, remoteStore, mailbox, id);
                     }
                 } finally {
                     if (upsyncs2 != null) {
@@ -930,10 +916,6 @@ public class ImapService extends Service {
     /**
      * Scan for messages that are in the Message_Updates table, look for differences that
      * we can deal with, and do the work.
-     *
-     * @param account
-     * @param resolver
-     * @param accountIdArgs
      */
     private static void processPendingUpdatesSynchronous(Context context, Account account,
             String[] accountIdArgs) {
@@ -989,7 +971,7 @@ public class ImapService extends Service {
                 // Dispatch here for specific change types
                 if (changeMoveToTrash) {
                     // Move message to trash
-                    processPendingMoveToTrash(context, remoteStore, account, mailbox, oldMessage,
+                    processPendingMoveToTrash(context, remoteStore, mailbox, oldMessage,
                             newMessage);
                 } else if (changeRead || changeFlagged || changeMailbox || changeAnswered) {
                     processPendingDataChange(context, remoteStore, mailbox, changeRead,
@@ -1026,14 +1008,10 @@ public class ImapService extends Service {
      * in processPendingUpdatesSynchronous() will pick it up as a move and handle it (or drop it)
      * appropriately.
      *
-     * @param resolver
-     * @param remoteStore
-     * @param account
      * @param mailbox the actual mailbox
-     * @param messageId
      */
-    private static void processUploadMessage(Context context, Store remoteStore,
-            Account account, Mailbox mailbox, long messageId)
+    private static void processUploadMessage(Context context, Store remoteStore, Mailbox mailbox,
+            long messageId)
             throws MessagingException {
         EmailContent.Message newMessage =
                 EmailContent.Message.restoreMessageWithId(context, messageId);
@@ -1055,7 +1033,7 @@ public class ImapService extends Service {
             LogUtils.d(Logging.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
         } else {
             LogUtils.d(Logging.LOG_TAG, "Upsyc triggered for message id=" + messageId);
-            deleteUpdate = processPendingAppend(context, remoteStore, account, mailbox, newMessage);
+            deleteUpdate = processPendingAppend(context, remoteStore, mailbox, newMessage);
         }
         if (deleteUpdate) {
             // Finally, delete the update (if any)
@@ -1166,13 +1144,12 @@ public class ImapService extends Service {
      * Process a pending trash message command.
      *
      * @param remoteStore the remote store we're working in
-     * @param account The account in which we are working
      * @param newMailbox The local trash mailbox
      * @param oldMessage The message copy that was saved in the updates shadow table
      * @param newMessage The message that was moved to the mailbox
      */
     private static void processPendingMoveToTrash(final Context context, Store remoteStore,
-            Account account, Mailbox newMailbox, EmailContent.Message oldMessage,
+            Mailbox newMailbox, EmailContent.Message oldMessage,
             final EmailContent.Message newMessage) throws MessagingException {
 
         // 0. No remote move if the message is local-only
@@ -1270,12 +1247,11 @@ public class ImapService extends Service {
      * Process a pending trash message command.
      *
      * @param remoteStore the remote store we're working in
-     * @param account The account in which we are working
      * @param oldMailbox The local trash mailbox
      * @param oldMessage The message that was deleted from the trash
      */
     private static void processPendingDeleteFromTrash(Store remoteStore,
-            Account account, Mailbox oldMailbox, EmailContent.Message oldMessage)
+            Mailbox oldMailbox, EmailContent.Message oldMessage)
             throws MessagingException {
 
         // 1. We only support delete-from-trash here
@@ -1313,15 +1289,13 @@ public class ImapService extends Service {
      * server, first checking to be sure that the server message is not newer than
      * the local message.
      *
-     * @param context
      * @param remoteStore the remote store we're working in
-     * @param account The account in which we are working
      * @param mailbox The mailbox we're appending to
      * @param message The message we're appending
      * @return true if successfully uploaded
      */
-    private static boolean processPendingAppend(Context context, Store remoteStore, Account account,
-            Mailbox mailbox, EmailContent.Message message)
+    private static boolean processPendingAppend(Context context, Store remoteStore, Mailbox mailbox,
+            EmailContent.Message message)
             throws MessagingException {
         boolean updateInternalDate = false;
         boolean updateMessage = false;
@@ -1352,8 +1326,8 @@ public class ImapService extends Service {
             Message localMessage = LegacyConversions.makeMessage(context, message);
 
             // 3b. Upload it
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.BODY);
+            //FetchProfile fp = new FetchProfile();
+            //fp.add(FetchProfile.Item.BODY);
             remoteFolder.appendMessages(new Message[] { localMessage });
 
             // 3b. And record the UID from the server
@@ -1486,6 +1460,7 @@ public class ImapService extends Service {
         final int numSearchResults = sortableMessages.length;
         final int numToLoad =
                 Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+        destMailbox.updateMessageCount(context, numSearchResults);
         if (numToLoad <= 0) {
             return 0;
         }
@@ -1501,7 +1476,7 @@ public class ImapService extends Service {
         fp.add(FetchProfile.Item.ENVELOPE);
         fp.add(FetchProfile.Item.STRUCTURE);
         fp.add(FetchProfile.Item.BODY_SANE);
-        remoteFolder.fetch(messageList.toArray(new Message[0]), fp,
+        remoteFolder.fetch(messageList.toArray(new Message[messageList.size()]), fp,
                 new MessageRetrievalListener() {
             @Override
             public void messageRetrieved(Message message) {
