@@ -43,7 +43,7 @@ public class MessageStateChange extends MessageChangeLogTable {
     /**
      * Projection for a query to get all columns necessary for an actual change.
      */
-    private static final class ProjectionChangeQuery {
+    private interface ProjectionChangeQuery {
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MESSAGE_KEY = 1;
         public static final int COLUMN_SERVER_ID = 2;
@@ -64,15 +64,32 @@ public class MessageStateChange extends MessageChangeLogTable {
     private int mNewFlagRead;
     private final int mOldFlagFavorite;
     private int mNewFlagFavorite;
+    private final long mMailboxId;
 
     private MessageStateChange(final long messageKey,final String serverId, final long id,
             final int oldFlagRead, final int newFlagRead,
-            final int oldFlagFavorite, final int newFlagFavorite) {
+            final int oldFlagFavorite, final int newFlagFavorite,
+            final long mailboxId) {
         super(messageKey, serverId, id);
         mOldFlagRead = oldFlagRead;
         mNewFlagRead = newFlagRead;
         mOldFlagFavorite = oldFlagFavorite;
         mNewFlagFavorite = newFlagFavorite;
+        mMailboxId = mailboxId;
+    }
+
+    public final int getNewFlagRead() {
+        if (mOldFlagRead == mNewFlagRead) {
+            return VALUE_UNCHANGED;
+        }
+        return mNewFlagRead;
+    }
+
+    public final int getNewFlagFavorite() {
+        if (mOldFlagFavorite == mNewFlagFavorite) {
+            return VALUE_UNCHANGED;
+        }
+        return mNewFlagFavorite;
     }
 
     /**
@@ -82,7 +99,18 @@ public class MessageStateChange extends MessageChangeLogTable {
         CONTENT_URI = EmailContent.CONTENT_URI.buildUpon().appendEncodedPath(PATH).build();
     }
 
-    public static List<MessageStateChange> getChanges(final Context context, final long accountId) {
+    /**
+     * Gets final state changes to upsync to the server, setting the status in the DB for all rows
+     * to {@link #STATUS_PROCESSING} that are being updated and to {@link #STATUS_FAILED} for any
+     * old updates. Messages whose sequence of changes results in a no-op are cleared from the DB
+     * without any upsync.
+     * @param context A {@link Context}.
+     * @param accountId The account we want to update.
+     * @param ignoreFavorites Whether to ignore changes to the favorites flag.
+     * @return The final chnages to send to the server, or null if there are none.
+     */
+    public static List<MessageStateChange> getChanges(final Context context, final long accountId,
+            final boolean ignoreFavorites) {
         final ContentResolver cr = context.getContentResolver();
         final Cursor c = getCursor(cr, CONTENT_URI, ProjectionChangeQuery.PROJECTION, accountId);
         if (c == null) {
@@ -105,8 +133,9 @@ public class MessageStateChange extends MessageChangeLogTable {
                         c.getInt(ProjectionChangeQuery.COLUMN_OLD_FLAG_FAVORITE);
                 final int newFlagFavoriteTable =
                         c.getInt(ProjectionChangeQuery.COLUMN_NEW_FLAG_FAVORITE);
-                final int newFlagFavorite = (newFlagFavoriteTable == VALUE_UNCHANGED) ?
-                        oldFlagFavorite : newFlagFavoriteTable;
+                final int newFlagFavorite =
+                        (ignoreFavorites || newFlagFavoriteTable == VALUE_UNCHANGED) ?
+                                oldFlagFavorite : newFlagFavoriteTable;
                 final MessageStateChange existingChange = changesMap.get(messageKey);
                 if (existingChange != null) {
                     if (existingChange.mLastId >= id) {
@@ -120,8 +149,15 @@ public class MessageStateChange extends MessageChangeLogTable {
                     existingChange.mNewFlagFavorite = newFlagFavorite;
                     existingChange.mLastId = id;
                 } else {
-                    changesMap.put(messageKey, new MessageStateChange(messageKey, serverId, id,
-                            oldFlagRead, newFlagRead, oldFlagFavorite, newFlagFavorite));
+                    final long mailboxId = MessageMove.getLastSyncedMailboxForMessage(cr,
+                            messageKey);
+                    if (mailboxId == Mailbox.NO_MAILBOX) {
+                        LogUtils.e(LOG_TAG, "No mailbox id for message %d", messageKey);
+                    } else {
+                        changesMap.put(messageKey, new MessageStateChange(messageKey, serverId, id,
+                                oldFlagRead, newFlagRead, oldFlagFavorite, newFlagFavorite,
+                                mailboxId));
+                    }
                 }
             }
         } finally {
@@ -136,8 +172,10 @@ public class MessageStateChange extends MessageChangeLogTable {
         final ArrayList<MessageStateChange> changes = new ArrayList(count);
         for (int i = 0; i < changesMap.size(); ++i) {
             final MessageStateChange change = changesMap.valueAt(i);
-            if (change.mOldFlagRead == change.mNewFlagRead &&
-                    change.mOldFlagFavorite == change.mNewFlagFavorite) {
+            // We also treat changes without a server id as a no-op.
+            if ((change.mServerId == null || change.mServerId.length() == 0) ||
+                    (change.mOldFlagRead == change.mNewFlagRead &&
+                            change.mOldFlagFavorite == change.mNewFlagFavorite)) {
                 unchangedMessages[unchangedMessagesCount] = change.mMessageKey;
                 ++unchangedMessagesCount;
             } else {
@@ -151,5 +189,52 @@ public class MessageStateChange extends MessageChangeLogTable {
             return null;
         }
         return changes;
+    }
+
+    /**
+     * Rearrange the changes list to a map by mailbox id.
+     * @return The final changes to send to the server, or null if there are none.
+     */
+    public static LongSparseArray<List<MessageStateChange>> convertToChangesMap(
+            final List<MessageStateChange> changes) {
+        if (changes == null) {
+            return null;
+        }
+
+        final LongSparseArray<List<MessageStateChange>> changesMap = new LongSparseArray();
+        for (final MessageStateChange change : changes) {
+            List<MessageStateChange> list = changesMap.get(change.mMailboxId);
+            if (list == null) {
+                list = new ArrayList();
+                changesMap.put(change.mMailboxId, list);
+            }
+            list.add(change);
+        }
+        if (changesMap.size() == 0) {
+            return null;
+        }
+        return changesMap;
+    }
+
+    /**
+     * Clean up the table to reflect a successful set of upsyncs.
+     * @param cr A {@link ContentResolver}
+     * @param messageKeys The messages to update.
+     * @param count The number of messages.
+     */
+    public static void upsyncSuccessful(final ContentResolver cr, final long[] messageKeys,
+            final int count) {
+        deleteRowsForMessages(cr, CONTENT_URI, messageKeys, count);
+    }
+
+    /**
+     * Clean up the table to reflect upsyncs that need to be retried.
+     * @param cr A {@link ContentResolver}
+     * @param messageKeys The messages to update.
+     * @param count The number of messages.
+     */
+    public static void upsyncRetry(final ContentResolver cr, final long[] messageKeys,
+            final int count) {
+        retryMessages(cr, CONTENT_URI, messageKeys, count);
     }
 }

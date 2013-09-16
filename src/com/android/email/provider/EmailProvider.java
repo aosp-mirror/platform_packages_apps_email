@@ -1464,6 +1464,16 @@ public class EmailProvider extends ContentProvider {
             "select count(*) from (select count(*) as dupes from " + Mailbox.TABLE_NAME +
             " where accountKey=? group by " + MailboxColumns.SERVER_ID + ") where dupes > 1";
 
+
+    // Query to get the protocol for a message. Temporary to switch between new and old upsync
+    // behavior; should go away when IMAP gets converted.
+    private static final String GET_PROTOCOL_FOR_MESSAGE = "select h."
+            + EmailContent.HostAuthColumns.PROTOCOL + " from "
+            + Message.TABLE_NAME + " m inner join " + Account.TABLE_NAME + " a on m."
+            + MessageColumns.ACCOUNT_KEY + "=a." + AccountColumns.ID + " inner join "
+            + HostAuth.TABLE_NAME + " h on a." + AccountColumns.HOST_AUTH_KEY_RECV + "=h."
+            + EmailContent.HostAuthColumns.ID + " where m." + MessageColumns.ID + "=?";
+
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Handle this special case the fastest possible way
@@ -1555,24 +1565,43 @@ public class EmailProvider extends ContentProvider {
                 case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     if (match == SYNCED_MESSAGE_ID) {
-                        // For synced messages, first copy the old message to the updated table
-                        // Note the insert or ignore semantics, guaranteeing that only the first
-                        // update will be reflected in the updated message table; therefore this
-                        // row will always have the "original" data
-                        db.execSQL(UPDATED_MESSAGE_INSERT + id);
-
-                        Long dstFolderId = values.getAsLong(MessageColumns.MAILBOX_KEY);
-                        if (dstFolderId != null) {
-                            addToMessageMove(db, id, dstFolderId);
+                        // TODO: Migrate IMAP to use MessageMove/MessageStateChange as well.
+                        boolean isEas = false;
+                        final Cursor c = db.rawQuery(GET_PROTOCOL_FOR_MESSAGE, new String[] {id});
+                        if (c != null) {
+                            try {
+                                if (c.moveToFirst()) {
+                                    final String protocol = c.getString(0);
+                                    isEas = context.getString(R.string.protocol_eas)
+                                            .equals(protocol);
+                                }
+                            } finally {
+                                c.close();
+                            }
                         }
-                        Integer flagRead = values.getAsInteger(MessageColumns.FLAG_READ);
-                        Integer flagFavorite = values.getAsInteger(MessageColumns.FLAG_FAVORITE);
-                        int flagReadValue = (flagRead != null) ?
-                                flagRead : MessageStateChange.VALUE_UNCHANGED;
-                        int flagFavoriteValue = (flagFavorite != null) ?
-                                flagFavorite : MessageStateChange.VALUE_UNCHANGED;
-                        if (flagRead != null || flagFavorite != null) {
-                            addToMessageStateChange(db, id, flagReadValue, flagFavoriteValue);
+
+                        if (isEas) {
+                            // EAS uses the new upsync classes.
+                            Long dstFolderId = values.getAsLong(MessageColumns.MAILBOX_KEY);
+                            if (dstFolderId != null) {
+                                addToMessageMove(db, id, dstFolderId);
+                            }
+                            Integer flagRead = values.getAsInteger(MessageColumns.FLAG_READ);
+                            Integer flagFavorite = values.getAsInteger(MessageColumns.FLAG_FAVORITE);
+                            int flagReadValue = (flagRead != null) ?
+                                    flagRead : MessageStateChange.VALUE_UNCHANGED;
+                            int flagFavoriteValue = (flagFavorite != null) ?
+                                    flagFavorite : MessageStateChange.VALUE_UNCHANGED;
+                            if (flagRead != null || flagFavorite != null) {
+                                addToMessageStateChange(db, id, flagReadValue, flagFavoriteValue);
+                            }
+                        } else {
+                            // Old way of doing upsync.
+                            // For synced messages, first copy the old message to the updated table
+                            // Note the insert or ignore semantics, guaranteeing that only the first
+                            // update will be reflected in the updated message table; therefore this
+                            // row will always have the "original" data
+                            db.execSQL(UPDATED_MESSAGE_INSERT + id);
                         }
                     } else if (match == MESSAGE_ID) {
                         db.execSQL(UPDATED_MESSAGE_DELETE + id);

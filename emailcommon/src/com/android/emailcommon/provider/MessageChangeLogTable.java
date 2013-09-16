@@ -37,6 +37,7 @@ public abstract class MessageChangeLogTable {
     public static final String STATUS_PROCESSING_STRING = String.valueOf(STATUS_PROCESSING);
     /** Status value indicating this move failed to upsync. */
     public static final int STATUS_FAILED = 2;
+    public static final String STATUS_FAILED_STRING = String.valueOf(STATUS_FAILED);
 
     /** Selection string for querying this table. */
     private static final String SELECTION_BY_ACCOUNT_KEY_AND_STATUS =
