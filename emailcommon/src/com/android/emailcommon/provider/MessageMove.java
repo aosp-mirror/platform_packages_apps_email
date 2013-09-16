@@ -1,6 +1,7 @@
 package com.android.emailcommon.provider;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -37,10 +38,14 @@ public class MessageMove extends MessageChangeLogTable {
     /** Column name for the server-side id for dstFolderKey. */
     public static final String DST_FOLDER_SERVER_ID = "dstFolderServerId";
 
+    /** Selection to get the last synced folder for a message. */
+    private static final String SELECTION_LAST_SYNCED_MAILBOX = MESSAGE_KEY + "=? and " + STATUS
+            + "!=" + STATUS_FAILED_STRING;
+
     /**
      * Projection for a query to get all columns necessary for an actual move.
      */
-    private static final class ProjectionMoveQuery {
+    private interface ProjectionMoveQuery {
         public static final int COLUMN_ID = 0;
         public static final int COLUMN_MESSAGE_KEY = 1;
         public static final int COLUMN_SERVER_ID = 2;
@@ -54,6 +59,16 @@ public class MessageMove extends MessageChangeLogTable {
                 SRC_FOLDER_KEY, DST_FOLDER_KEY,
                 SRC_FOLDER_SERVER_ID, DST_FOLDER_SERVER_ID
         };
+    }
+
+    /**
+     * Projection for a query to get the original folder id for a message.
+     */
+    private interface ProjectionLastSyncedMailboxQuery {
+        public static final int COLUMN_ID = 0;
+        public static final int COLUMN_SRC_FOLDER_KEY = 1;
+
+        public static final String[] PROJECTION = new String[] { ID, SRC_FOLDER_KEY };
     }
 
     // The actual fields.
@@ -151,7 +166,9 @@ public class MessageMove extends MessageChangeLogTable {
         final ArrayList<MessageMove> moves = new ArrayList(moveCount);
         for (int i = 0; i < movesMap.size(); ++i) {
             final MessageMove move = movesMap.valueAt(i);
-            if (move.mSrcFolderKey == move.mDstFolderKey) {
+            // We also treat changes without a server id as a no-op.
+            if ((move.mServerId == null || move.mServerId.length() == 0) ||
+                    move.mSrcFolderKey == move.mDstFolderKey) {
                 unmovedMessages[unmovedMessagesCount] = move.mMessageKey;
                 ++unmovedMessagesCount;
             } else {
@@ -198,5 +215,46 @@ public class MessageMove extends MessageChangeLogTable {
     public static void upsyncFail(final ContentResolver cr, final long[] messageKeys,
             final int count) {
         failMessages(cr, CONTENT_URI, messageKeys, count);
+    }
+
+    /**
+     * Get the id for the mailbox this message is in (from the server's point of view).
+     * @param cr A {@link ContentResolver}.
+     * @param messageId The message we're interested in.
+     * @return The id for the mailbox this message was in.
+     */
+    public static long getLastSyncedMailboxForMessage(final ContentResolver cr,
+            final long messageId) {
+        // Check if there's a pending move and get the original mailbox id.
+        final String[] selectionArgs = { String.valueOf(messageId) };
+        final Cursor moveCursor = cr.query(CONTENT_URI, ProjectionLastSyncedMailboxQuery.PROJECTION,
+                SELECTION_LAST_SYNCED_MAILBOX, selectionArgs, ID + " ASC");
+        if (moveCursor != null) {
+            try {
+                if (moveCursor.moveToFirst()) {
+                    // We actually only care about the oldest one, i.e. the one we last got
+                    // from the server before we started mucking with it.
+                    return moveCursor.getLong(
+                            ProjectionLastSyncedMailboxQuery.COLUMN_SRC_FOLDER_KEY);
+                }
+            } finally {
+                moveCursor.close();
+            }
+        }
+
+        // There are no pending moves for this message, so use the one in the Message table.
+        final Cursor messageCursor = cr.query(ContentUris.withAppendedId(
+                EmailContent.Message.CONTENT_URI, messageId),
+                EmailContent.Message.MAILBOX_KEY_PROJECTION, null, null, null);
+        if (messageCursor != null) {
+            try {
+                if (messageCursor.moveToFirst()) {
+                    return messageCursor.getLong(0);
+                }
+            } finally {
+                messageCursor.close();
+            }
+        }
+        return Mailbox.NO_MAILBOX;
     }
 }
