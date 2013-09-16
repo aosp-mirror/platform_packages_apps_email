@@ -4737,7 +4737,7 @@ public class EmailProvider extends ContentProvider {
             ContentResolver resolver = context.getContentResolver();
             resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
                     null);
-            final ContentValues cv = new ContentValues();
+            final ContentValues cv = new ContentValues(1);
             // For now, use the actual query as the name of the mailbox
             cv.put(Mailbox.DISPLAY_NAME, mSearchParams.mFilter);
             resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
