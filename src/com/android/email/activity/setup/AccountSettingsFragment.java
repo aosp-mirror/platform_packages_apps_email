@@ -624,6 +624,11 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         loadSettingsOffMainThread();
 
+        final String protocol = Account.getProtocol(mContext, mAccount.mId);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+        final android.accounts.Account androidAcct = new android.accounts.Account(
+                mAccount.mEmailAddress, info.accountType);
+
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
         mAccountDescription.setSummary(mAccount.getDisplayName());
         mAccountDescription.setText(mAccount.getDisplayName());
@@ -644,13 +649,29 @@ public class AccountSettingsFragment extends PreferenceFragment
         SettingsUtils.updatePreferenceSummary(mAccountSignature, accountSignature,
                 R.string.preferences_signature_summary_not_set);
 
-
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-        final String protocol = Account.getProtocol(mContext, mAccount.mId);
-        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
         mCheckFrequency.setEntries(info.syncIntervalStrings);
         mCheckFrequency.setEntryValues(info.syncIntervals);
-        mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
+        if (info.syncContacts || info.syncCalendar) {
+            // This account allows syncing of contacts and/or calendar, so we will always have
+            // separate preferences to enable or disable syncing of email, contacts, and calendar.
+            // The "sync frequency" preference really just needs to control the frequency value
+            // in our database.
+            mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
+        } else {
+            // This account only syncs email (not contacts or calendar), which means that we will
+            // hide the preference to turn syncing on and off. In this case, we want the sync
+            // frequency preference to also control whether or not syncing is enabled at all. If
+            // sync is turned off, we will display "sync never" regardless of what the numeric
+            // value we have stored says.
+            boolean synced = ContentResolver.getSyncAutomatically(androidAcct,
+                    EmailContent.AUTHORITY);
+            if (synced) {
+                mCheckFrequency.setValue(String.valueOf(mAccount.getSyncInterval()));
+            } else {
+                mCheckFrequency.setValue(String.valueOf(Account.CHECK_INTERVAL_NEVER));
+            }
+        }
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(this);
 
@@ -849,11 +870,9 @@ public class AccountSettingsFragment extends PreferenceFragment
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
         if (info.syncContacts || info.syncCalendar) {
-            android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    info.accountType);
             if (info.syncContacts) {
                 mSyncContacts.setChecked(ContentResolver
-                        .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
+                        .getSyncAutomatically(androidAcct, ContactsContract.AUTHORITY));
                 mSyncContacts.setOnPreferenceChangeListener(this);
             } else {
                 mSyncContacts.setChecked(false);
@@ -861,14 +880,14 @@ public class AccountSettingsFragment extends PreferenceFragment
             }
             if (info.syncCalendar) {
                 mSyncCalendar.setChecked(ContentResolver
-                        .getSyncAutomatically(acct, CalendarContract.AUTHORITY));
+                        .getSyncAutomatically(androidAcct, CalendarContract.AUTHORITY));
                 mSyncCalendar.setOnPreferenceChangeListener(this);
             } else {
                 mSyncCalendar.setChecked(false);
                 mSyncCalendar.setEnabled(false);
             }
             mSyncEmail.setChecked(ContentResolver
-                    .getSyncAutomatically(acct, EmailContent.AUTHORITY));
+                    .getSyncAutomatically(androidAcct, EmailContent.AUTHORITY));
             mSyncEmail.setOnPreferenceChangeListener(this);
         } else {
             dataUsageCategory.removePreference(mSyncContacts);
@@ -895,27 +914,51 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         newFlags |= mAccountBackgroundAttachments.isChecked() ?
                 Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
+
+        final EmailServiceInfo info =
+                EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
+        final android.accounts.Account androidAcct = new android.accounts.Account(
+                mAccount.mEmailAddress, info.accountType);
+
         // If the display name has been cleared, we'll reset it to the default value (email addr)
         mAccount.setDisplayName(mAccountDescription.getText().trim());
         // The sender name must never be empty (this is enforced by the preference editor)
         mAccount.setSenderName(mAccountName.getText().trim());
         mAccount.setSignature(mAccountSignature.getText());
-        mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
+        int freq = Integer.parseInt(mCheckFrequency.getValue());
+        if (info.syncContacts || info.syncCalendar) {
+            // This account allows syncing of contacts and/or calendar, so we will always have
+            // separate preferences to enable or disable syncing of email, contacts, and calendar.
+            // The "sync frequency" preference really just needs to control the frequency value
+            // in our database.
+            mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
+        } else {
+            // This account only syncs email (not contacts or calendar), which means that we will
+            // hide the preference to turn syncing on and off. In this case, we want the sync
+            // frequency preference to also control whether or not syncing is enabled at all. If
+            // sync is turned off, we will display "sync never" regardless of what the numeric
+            // value we have stored says.
+            if (freq == Account.CHECK_INTERVAL_NEVER) {
+                // Disable syncing from the account manager. Leave the current sync frequency
+                // in the database.
+                ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY, false);
+            } else {
+                // Enable syncing from the account manager.
+                ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY, true);
+                mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
+            }
+        }
         if (mSyncWindow != null) {
             mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
         }
         mAccount.setFlags(newFlags);
 
-        EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
         if (info.syncContacts || info.syncCalendar) {
-            android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    info.accountType);
-            ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
+            ContentResolver.setSyncAutomatically(androidAcct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
-            ContentResolver.setSyncAutomatically(acct, CalendarContract.AUTHORITY,
+            ContentResolver.setSyncAutomatically(androidAcct, CalendarContract.AUTHORITY,
                     mSyncCalendar.isChecked());
-            ContentResolver.setSyncAutomatically(acct, EmailContent.AUTHORITY,
+            ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
                     mSyncEmail.isChecked());
         }
 
