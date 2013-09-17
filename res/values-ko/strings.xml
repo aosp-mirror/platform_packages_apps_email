@@ -151,7 +151,7 @@
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"자동"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"지난 1일"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"지난 3일"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"지난 주"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"지난 1주"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"지난 2주"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"지난 달"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"전체"</string>
