@@ -156,20 +156,9 @@ public class AccountReconciler {
             final String providerAccountName = providerAccount.mEmailAddress;
             if (!hasAmAccount(accountManagerAccounts, providerAccountName)) {
                 if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                    // Do another test before giving up; an incomplete account shouldn't have
-                    // any mailboxes (the incomplete flag is used to prevent reconciliation
-                    // between the time the EP account is created and when the AM account is
-                    // asynchronously created)
-                    if (EmailContent.count(context, Mailbox.CONTENT_URI,
-                            Mailbox.ACCOUNT_KEY + "=?",
-                            new String[] { Long.toString(providerAccount.mId) } ) > 0) {
-                        LogUtils.w(Logging.LOG_TAG,
-                                "Account reconciler found wrongly incomplete account");
-                    } else {
-                        LogUtils.w(Logging.LOG_TAG,
-                                "Account reconciler noticed incomplete account; ignoring");
-                        continue;
-                    }
+                    LogUtils.w(Logging.LOG_TAG,
+                            "Account reconciler noticed incomplete account; ignoring");
+                    continue;
                 }
 
                 needsReconciling = true;
