@@ -3731,6 +3731,7 @@ public class EmailProvider extends ContentProvider {
                 } else {
                     c = db.rawQuery(sql, new String[] {id});
                 }
+                notifyUri = UIPROVIDER_MESSAGE_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ATTACHMENTS:
                 final List<String> contentTypeQueryParameters =
@@ -3991,6 +3992,8 @@ public class EmailProvider extends ContentProvider {
                 LogUtils.d(TAG, "applyBatch exception");
             }
         }
+        notifyUIMessage(msg.mId);
+
         if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
             startSync(mailbox, 0);
             final long originalMsgId = msg.mSourceKey;
@@ -4538,6 +4541,14 @@ public class EmailProvider extends ContentProvider {
                     EmailProvider.combinedMailboxId(Mailbox.TYPE_INBOX));
         }
         notifyWidgets(id);
+    }
+
+    /**
+     * Notify about the message id passed in
+     * @param id the message id to be notified
+     */
+    private void notifyUIMessage(long id) {
+        notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, id);
     }
 
     /**
