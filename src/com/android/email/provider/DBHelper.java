@@ -152,8 +152,9 @@ public final class DBHelper {
     // Version 114: Add lastFullSyncTime column
     // Version 115: Add pingDuration column
     // Version 116: Add MessageMove & MessageStateChange tables.
+    // Version 117: Add trigger to delete duplicate messages on sync.
 
-    public static final int DATABASE_VERSION = 116;
+    public static final int DATABASE_VERSION = 117;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -204,6 +205,19 @@ public final class DBHelper {
                 '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
                 " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
                 "; end");
+    }
+
+    /**
+     * Add a trigger to delete duplicate server side messages before insertion.
+     * @param db The {@link SQLiteDatabase}
+     */
+    static void createDeleteDuplicateMessagesTrigger(final SQLiteDatabase db) {
+        db.execSQL("create trigger message_delete_duplicates_on_insert before insert on "
+                + Message.TABLE_NAME + " for each row when new." + SyncColumns.SERVER_ID
+                + " is not null begin delete from " + Message.TABLE_NAME + " where new."
+                + SyncColumns.SERVER_ID + "=" + SyncColumns.SERVER_ID + " and new."
+                + MessageColumns.ACCOUNT_KEY + "=" + MessageColumns.ACCOUNT_KEY + "; end");
+
     }
 
     static void createMessageTable(SQLiteDatabase db) {
@@ -317,6 +331,7 @@ public final class DBHelper {
 
         // Add triggers to maintain message_count.
         createMessageCountTriggers(db);
+        createDeleteDuplicateMessagesTrigger(db);
     }
 
     static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1170,6 +1185,10 @@ public final class DBHelper {
             if (oldVersion <= 115) {
                 createMessageMoveTable(db);
                 createMessageStateChangeTable(db);
+            }
+
+            if (oldVersion < 117) {
+                createDeleteDuplicateMessagesTrigger(db);
             }
         }
 
