@@ -403,6 +403,12 @@ public class EmailServiceUtils {
                     finishAccountManagerBlocker(amFuture);
                     LogUtils.w(Logging.LOG_TAG, "Created new AccountManager account");
 
+
+                    // XXX:
+                    // It would be nice if we could copy or move all of the old account's data over
+                    // to the new account here. b/10805685
+
+
                     // Delete the AccountManager account
                     amFuture = AccountManager.get(context)
                             .removeAccount(amAccount, null, null);
@@ -410,6 +416,10 @@ public class EmailServiceUtils {
                     LogUtils.w(Logging.LOG_TAG, "Deleted old AccountManager account");
 
                     // Restore sync keys for contacts/calendar
+                    // XXX See b/10211620
+                    // Disable this for now. We want to clear the sync keys so that the next
+                    // sync will get everything.
+/*
                     // TODO: Clean up how we determine the type.
                     final String accountType = protocolMap.get(hostAuth.mProtocol + "_type");
                     if (accountType != null &&
@@ -443,6 +453,7 @@ public class EmailServiceUtils {
                             LogUtils.w(Logging.LOG_TAG, "Set contacts key FAILED");
                         }
                     }
+*/
 
                     // That's all folks!
                     LogUtils.w(Logging.LOG_TAG, "Account update completed.");
