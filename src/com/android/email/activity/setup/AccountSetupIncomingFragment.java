@@ -576,7 +576,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final boolean deletePolicyChanged;
 
         // Only verify the delete policy if the control is visible (i.e. is a pop3 account)
-        if (mDeletePolicyView.getVisibility() == View.VISIBLE) {
+        if (mDeletePolicyView != null && mDeletePolicyView.getVisibility() == View.VISIBLE) {
             int newDeletePolicy =
                 (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value;
             deletePolicyChanged = mLoadedDeletePolicy != newDeletePolicy;
