@@ -3709,8 +3709,9 @@ public class EmailProvider extends ContentProvider {
                 long mailboxId = Long.parseLong(id);
                 final Folder folder = getFolder(context, mailboxId);
                 if (folder == null) {
-                    // This mailboxId is bogus.
-                    return null;
+                    // This mailboxId is bogus. Return an empty cursor
+                    // TODO: Make callers of this query handle null cursors instead b/10819309
+                    return new MatrixCursor(uiProjection);
                 }
                 if (isVirtualMailbox(mailboxId)) {
                     c = getVirtualMailboxMessagesCursor(db, uiProjection, mailboxId, unseenOnly);
