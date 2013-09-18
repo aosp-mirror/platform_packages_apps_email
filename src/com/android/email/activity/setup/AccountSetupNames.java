@@ -57,6 +57,7 @@ public class AccountSetupNames extends AccountSetupActivity {
     private EditText mName;
     private Button mNextButton;
     private boolean mRequiresName = true;
+    private boolean mIsCompleting = false;
 
     public static void actionSetNames(Activity fromActivity, SetupData setupData) {
         ForwardingIntent intent = new ForwardingIntent(fromActivity, AccountSetupNames.class);
@@ -182,7 +183,7 @@ public class AccountSetupNames extends AccountSetupActivity {
      */
     @Override
     public void onBackPressed() {
-        if (mNextButton.isEnabled()) {
+        if (!mIsCompleting) {
             finishActivity();
         }
     }
@@ -207,6 +208,7 @@ public class AccountSetupNames extends AccountSetupActivity {
      */
     private void onNext() {
         mNextButton.setEnabled(false); // Protect against double-tap.
+        mIsCompleting = true;
 
         // Update account object from UI
         final Account account = mSetupData.getAccount();
