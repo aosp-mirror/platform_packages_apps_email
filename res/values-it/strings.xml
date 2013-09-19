@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sincronizza questa cartella"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"I messaggi verranno scaricati dopo la connessione"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Numero di giorni da sincronizzare"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Immagine mittente"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Mostra immagine"</item>
-    <item msgid="2226691218102223696">"Non mostrare niente"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Scegli se mostrare le immagini dei mittenti in visualizzazione conversazione"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Immagine mittente"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Solo alcuni account \"Plus\" includono l\'accesso POP che consente la connessione del programma. Se non riesci ad accedere con l\'indirizzo email e la password corretti, potresti non disporre di un account \"Plus\" a pagamento. Avvia il browser web per avere accesso a questi account email."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Prima di configurare questo account email, visita il sito web T-Online e crea una password per l\'accesso email POP3."</string>
