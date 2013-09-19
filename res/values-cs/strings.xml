@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synchronizovat tuto složku"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Zprávy se stáhnou, jakmile bude k dispozici připojení"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Počet dní k synchronizaci pošty"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Obrázek odesílatele"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Zobrazit obrázek"</item>
-    <item msgid="2226691218102223696">"Nezobrazit nic"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Zvolte, zda se mají v zobrazení konverzací zobrazovat obrázky odesílatelů."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Obrázek odesílatele"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Přístup POP, který umožňuje připojení pomocí tohoto programu, zahrnují pouze některé účty typu Plus. Pokud zadáváte správnou e-mailovou adresu a heslo, ale nemůžete se přihlásit, pravděpodobně nemáte placený účet Plus. K těmto e-mailovým účtům můžete přistupovat prostřednictvím webového prohlížeče."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Před nastavením tohoto e-mailového účtu navštivte stránky T-Online a vytvořte heslo pro přístup k e-mailu prostřednictvím protokolu POP3."</string>

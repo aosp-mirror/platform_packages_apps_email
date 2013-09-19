@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Bu klasörü senkronize et"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Bağlandığında iletiler indirilir"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Postanın senkronize edileceği gün sayısı"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Gönderen resmi"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Resmi göster"</item>
-    <item msgid="2226691218102223696">"Hiçbir şey gösterme"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"İleti dizisi görünümünde gönderen resimlerinin gösterilip gösterilmeyeceğini seçin"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Gönderen resmi"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Yalnızca bazı \"Plus\" hesapları bu programın bağlanmasına izin veren POP erişimi içerir. Doğru e-posta adresinizle ve şifrenizle oturum açamıyorsanız, ödemeli bir \"Plus\" hesabına sahip olmayabilirsiniz. Bu e-posta hesaplarına erişmek için web tarayıcıyı başlatın."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Bu e-posta hesabını ayarlamadan önce T-Online web sitesini ziyaret edin ve POP3 e-posta erişimi için bir şifre oluşturun."</string>

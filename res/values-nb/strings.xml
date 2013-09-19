@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synkroniser denne mappen"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Alle e-postene lastes ned når du er tilkoblet"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Antall dager med e-post å synkronisere"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Avsenderbilder"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Vis bilder"</item>
-    <item msgid="2226691218102223696">"Ikke vis noe"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Velg om du vil vise avsenderbilder i samtalevisningen"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Avsenderbilder"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Bare noen «Pluss»-kontoer tilbyr POP-tilgangen denne appen trenger for å koble til. Hvis du ikke klarer å logge på med riktig e-postadresse og passord, kan det være du ikke har en betalt «Pluss»-konto. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Før du konfigurerer denne e-postkontoen, må du gå til nettstedet for T-Online og opprette et passord for e-posttilgang via POP3."</string>

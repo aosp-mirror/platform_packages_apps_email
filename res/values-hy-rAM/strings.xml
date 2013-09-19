@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Համաժամել այս թղթապանակը"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Հաղորդագրությունները կներբեռնվեն միանալուն պես"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Փոստի համաժամեցման օրեր"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Ուղարկողի պատկերը"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Ցուցադրել պատկերը"</item>
-    <item msgid="2226691218102223696">"Ցուցադրել ոչինչ"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Ընտրեք` ցուցադրել արդյոք ուղարկողի պատկերները զրույցի ժամանակ"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Ուղարկողի պատկերը"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Միայն որոշ «Plus» հաշիվներ են ներառում POP մուտք` թույլատրելով այս ծրագրին միանալ: Եթե ​​դուք չեք կարող մուտք գործել ձեր ճիշտ էլփոստի հասցեով և գաղտնաբառով, դուք հնարավոր է չունեք վճարովի «Plus» հաշիվ: Գործարկեք վեբ զննարկիչը` այս էլփոստի հաշիվներ մուտք ստանալու համար:"</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Նախքան այս էլփոստի հաշիվը ստեղծելը խնդրում ենք այցելել T-Online կայքէջը և ստեղծել գաղտնաբառ` POP3 էլփոստի մուտքի համար:"</string>
