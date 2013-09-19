@@ -646,19 +646,6 @@
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
     <string name="mailbox_settings_mailbox_sync_window_label">Days of mail to sync</string>
 
-    <!-- Settings screen, title for whether to show checkboxes or sender image or neither [CHAR LIMIT=150] -->
-    <string name="preference_conversation_list_icon_title">Sender image</string>
-    <!-- Options to select from for whether to show checkboxes or sender images [CHAR LIMIT=50] -->
-    <string-array name="prefEntries_conversationListIconName">
-        <item>Show image</item>
-        <item>Show nothing</item>
-    </string-array>
-    <!-- Description of setting for whether to show checkboxes or sender images [CHAR LIMIT=200] -->
-    <string name="preference_conversation_list_icon_summary">Choose whether to show sender images in conversation view</string>
-    <string-array translatable="false" name="prefValues_conversationListIcon">
-        <item>senderimage</item>
-        <item>none</item>
-    </string-array>
     <!-- Dialog title for the choosing whether to show checkboxes or sender image [CHAR LIMIT=200] -->
     <string name="prefDialogTitle_conversationListIcon">Sender image</string>
 
