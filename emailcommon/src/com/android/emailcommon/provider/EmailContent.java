@@ -748,6 +748,8 @@ public abstract class EmailContent {
         public static final String PER_ACCOUNT_FAVORITE_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
 
+        public static final String MAILBOX_SELECTION = MAILBOX_KEY + "=?";
+
         // _id field is in AbstractContent
         public String mDisplayName;
         public long mTimeStamp;
