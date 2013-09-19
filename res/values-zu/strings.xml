@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Vumelanisa le folda"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Imilayezo izolanda uma kuxhunyiwe"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Izinsuku ze-imeyili ukuya ekuvumelaniseni"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Isithombe somthumeli"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Bonisa isithombe"</item>
-    <item msgid="2226691218102223696">"Ungabonisi lutho"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Khetha ukuthi uzobonisa izithombe zomthumeli ekubukweni kwengxoxo"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Isithombe somthumeli"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Kuphela amanye ama-akhawunti \"Okuhlanganisa\" ahlanganisa ukufinyelela i-POP okuvumela lolu hlelo ukuxhuma. Uma ungakwazi ukungena ngekheli lakho le-imeyili elilungile kanye nephasiwedi, kungase kwenzeke awunayo i-akhawunti ekhokhelwe \"Hlanganisa\". Sicela uqalise isipheqululis seWebhu ukuthola ukufinyelela kulama akhawunti e-imeyili."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Ngaphambi kokuhlela le-akhawunti ye-imeyili, sicela uvakashele Iwebhusayithi ye-T-Online bese wenza iphasiwedi ukufinyelela kwi-imeyili ye-POP3."</string>

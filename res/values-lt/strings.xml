@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sinchronizuoti šį aplanką"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Prisijungus pranešimai bus atsisiųsti"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Dienų, per kurias gauti laiškai sinchronizuojami, skaičius"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Siuntėjo vaizdas"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Rodyti vaizdą"</item>
-    <item msgid="2226691218102223696">"Nieko nerodyti"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Pasirinkite, ar pokalbio peržiūroje rodyti siuntėjo vaizdus"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Siuntėjo vaizdas"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Tik kai kuriose „Plus“ paskyrose yra POP prieiga, leidžianti prisijungti šiai programai. Jei negalite prisijungti naudodami tinkamą el. pašto adresą ir slaptažodį, galbūt neapmokėjote „Plus“ paskyros. Paleiskite žiniatinklio naršyklę, kad gautumėte prieigą prie šių el. pašto paskyrų."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Prieš nustatydami šią el. pašto paskyrą apsilankykite „T-Online“ svetainėje ir sukurkite POP3 el. pašto prieigos slaptažodį."</string>

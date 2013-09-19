@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"이 폴더 동기화"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"연결되면 메일이 다운로드됩니다."</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"메일 동기화 일 수"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"발신자 이미지"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"이미지 표시"</item>
-    <item msgid="2226691218102223696">"표시 안함"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"대화형식으로 보기에 발신자 이미지를 표시할지 여부를 선택합니다."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"발신자 이미지"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"일부 \'Plus\' 계정에만 이 프로그램에 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 유료 \'Plus\' 계정이 없기 때문일 수 있습니다. 이러한 이메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"이메일 계정을 설정하기 전에 T-Online 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
@@ -262,9 +256,9 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"설정"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"일반 설정"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"삭제하기 전에 확인"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"메일"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"메일 삭제 확인 메시지 표시"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"보내기 전에 확인"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"메일"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"메일 전송 확인 메시지 표시"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"글꼴 크기"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"아주 작은 텍스트"</item>
