@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sinkroniziraj ovu mapu"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Poruke će se preuzeti prilikom povezivanja"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Broj dana pošte za sinkronizaciju"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Slika pošiljatelja"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Prikaži sliku"</item>
-    <item msgid="2226691218102223696">"Ne prikazuj ništa"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Odaberite hoće li se u prikazu razgovora prikazivati slike pošiljatelja"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Slika pošiljatelja"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Samo neki računi usluge \"Plus\" uključuju POP pristup koji ovom programu omogućuje povezivanje. Ako se ne možete prijaviti sa svojom ispravnom adresom e-pošte i zaporkom, možda nemate plaćeni račun usluge \"Plus\". Pokrenite web-preglednik kako biste dobili pristup tim računima e-pošte."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Prije postavljanja ovog računa e-pošte posjetite web-lokaciju T-Online i stvorite zaporku za POP3 pristup e-pošti."</string>

@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"مزامنة هذا المجلد"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"تنزيل الرسائل عند الاتصال"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"أيام مزامنة البريد"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"صورة المرسل"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"عرض الصورة"</item>
-    <item msgid="2226691218102223696">"عدم عرض شيء"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"اختيار ما إذا كان سيتم عرض صورة المرسل في عرض المحادثات"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"صورة المرسل"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"تتضمن بعض حسابات \"Plus\" الوصول عبر بروتوكول POP والذي يسمح لهذا البرنامج بالاتصال. إذا تعذر عليك تسجيل الدخول باستخدام عنوان البريد الإلكتروني وكلمة المرور الصحيحين، فقد تكون غير ممتلك لحساب \"Plus\" مدفوع. يمكنك تشغيل متصفح الويب لتتمكن من الدخول إلى حسابات البريد هذه."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"قبل إعداد حساب البريد الإلكتروني هذا، انتقل إلى موقع ويب T-Online وأنشئ كلمة مرور للدخول إلى البريد الإلكتروني عبر بروتوكول POP3."</string>
