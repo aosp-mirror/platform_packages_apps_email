@@ -17,16 +17,21 @@
 
 package com.android.emailcommon.provider;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 
 import com.android.emailcommon.Logging;
@@ -34,6 +39,8 @@ import com.android.emailcommon.R;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
+
+import java.util.ArrayList;
 
 public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
     /**
@@ -829,6 +836,58 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                 return ContactsContract.AUTHORITY;
             default:
                 return EmailContent.AUTHORITY;
+        }
+    }
+
+    public static void resyncMailbox(
+            final ContentResolver cr,
+            final android.accounts.Account account,
+            final long mailboxId) {
+        final Cursor cursor = cr.query(Mailbox.CONTENT_URI,
+                new String[]{
+                        Mailbox.TYPE,
+                        Mailbox.SERVER_ID,
+                },
+                Mailbox.RECORD_ID + "=?",
+                new String[] {String.valueOf(mailboxId)},
+                null);
+        if (cursor == null || cursor.getCount() == 0) {
+            LogUtils.w(Logging.LOG_TAG, "Mailbox %d not found", mailboxId);
+            return;
+        }
+        try {
+            cursor.moveToFirst();
+            final int type = cursor.getInt(0);
+            if (type >= TYPE_NOT_EMAIL) {
+                throw new IllegalArgumentException(
+                        String.format("Mailbox %d is not an Email mailbox", mailboxId));
+            }
+            final String serverId = cursor.getString(1);
+            if (TextUtils.isEmpty(serverId)) {
+                throw new IllegalArgumentException(
+                        String.format("Mailbox %d has no server id", mailboxId));
+            }
+            final ArrayList<ContentProviderOperation> ops =
+                    new ArrayList<ContentProviderOperation>();
+            ops.add(ContentProviderOperation.newDelete(Message.CONTENT_URI)
+                    .withSelection(Message.MAILBOX_SELECTION,
+                            new String[]{String.valueOf(mailboxId)})
+                    .build());
+            ops.add(ContentProviderOperation.newUpdate(
+                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId))
+                    .withValue(Mailbox.SYNC_KEY, "0").build());
+
+            cr.applyBatch(AUTHORITY, ops);
+            final Bundle extras = new Bundle();
+            extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
+            extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
+            ContentResolver.requestSync(account, AUTHORITY, extras);
+        } catch (RemoteException e) {
+            LogUtils.w(Logging.LOG_TAG, e, "Failed to wipe mailbox %d", mailboxId);
+        } catch (OperationApplicationException e) {
+            LogUtils.w(Logging.LOG_TAG, e, "Failed to wipe mailbox %d", mailboxId);
+        } finally {
+            cursor.close();
         }
     }
 }
