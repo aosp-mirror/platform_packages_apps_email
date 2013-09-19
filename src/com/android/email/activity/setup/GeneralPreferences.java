@@ -55,7 +55,6 @@ public class GeneralPreferences extends PreferenceFragment implements
     private ListPreference mTextZoom;
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
-    private ListPreference mConvListIcon;
     //private CheckBoxPreference mConvListAttachmentPreviews;
     private CheckBoxPreference mSwipeDelete;
 
@@ -112,9 +111,7 @@ public class GeneralPreferences extends PreferenceFragment implements
             mMailPrefs.setDefaultReplyAll((Boolean) newValue);
             return true;
         } else if (PREFERENCE_KEY_CONV_LIST_ICON.equals(key)) {
-            // TODO: Fix this to use a checkbox, instead of a list
-            mMailPrefs.setShowSenderImages(
-                    TextUtils.equals((String)newValue, Preferences.CONV_LIST_ICON_SENDER_IMAGE));
+            mMailPrefs.setShowSenderImages((Boolean) newValue);
             return true;
         }
         return false;
@@ -153,13 +150,12 @@ public class GeneralPreferences extends PreferenceFragment implements
             mTextZoom.setOnPreferenceChangeListener(this);
         }
 
-        mConvListIcon = (ListPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
-        if (mConvListIcon != null) {
-            // TODO: Fix this to use a checkbox, instead of a list
+        final CheckBoxPreference convListIcon =
+                (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
+        if (convListIcon != null) {
             final boolean showSenderImage = mMailPrefs.getShowSenderImages();
-            mConvListIcon.setValue(showSenderImage ?
-                    Preferences.CONV_LIST_ICON_SENDER_IMAGE : Preferences.CONV_LIST_ICON_NONE);
-            mConvListIcon.setOnPreferenceChangeListener(this);
+            convListIcon.setChecked(showSenderImage);
+            convListIcon.setOnPreferenceChangeListener(this);
         }
 
         mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
