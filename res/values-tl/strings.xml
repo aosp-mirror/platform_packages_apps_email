@@ -83,7 +83,7 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"Mase-set up mo ang iyong account sa ilang hakbang lang."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Email address"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Password"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manu-manong pag-setup"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manwal na setup"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Mag-type ng wastong email address at password."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicate na account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ginagamit mo na ang username na ito para sa account na \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -234,7 +234,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"I-sync ang mga contact"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sync ang contact sa account na ito"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"I-sync ang kalendaryo"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sync ganap kalendaryo para ito acct"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sync ganap kalendaryo para acct ito"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"I-sync ang email"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"I-sync ang email sa account na ito"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"I-vibrate"</string>
@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"I-sync ang folder na ito"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Ida-download ang mga mensahe kapag nakakonekta"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Mga araw ng mail na isi-sync"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Larawan ng nagpadala"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Ipakita ang larawan"</item>
-    <item msgid="2226691218102223696">"Walang ipakita"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Piliin kung magpapakita ng mga larawan ng nagpadala sa view ng pag-uusap"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Larawan ng nagpadala"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Ilang mga \"Plus\" account lamang ang kinabibilangan ng access sa POP nag nagbibigay-daan sa program na ito na makakonekta. Kung hindi mo magawang mag-sign in gamit ang iyong tamang email address at password, maaaring wala kang may bayad na \"Plus\" account. Ilunsad ang web browser upang makakuha ng access sa mga email account na ito."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Bago i-set up ng email account na ito, bisitahin ang T-Online website at lumikha ng password para sa access sa POP3 email."</string>

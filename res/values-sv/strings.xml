@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synkronisera den här mappen"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Meddelandena hämtas när du är ansluten"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Dagar med e-post som ska synkroniseras"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Bild på avsändare"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Visa bild"</item>
-    <item msgid="2226691218102223696">"Visa ingenting"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Välj om du vill visa bilder på avsändarna i konversationsvyn"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Bild på avsändare"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"POP-åtkomst, som gör att denna app kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst till dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>

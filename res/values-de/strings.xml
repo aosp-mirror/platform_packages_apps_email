@@ -85,7 +85,7 @@
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Passwort"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuell einrichten"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Geben Sie eine gültige E-Mail-Adresse und ein gültiges Passwort ein."</string>
-    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dupliziertes Konto"</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Identisches Konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Sie verwenden diesen Nutzernamen bereits für das Konto \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Dieses Passwort beginnt oder endet mit einem oder mehreren Leerzeichen. Viele Server unterstützen keine Passwörter mit Leerzeichen."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Kontoinformationen werden abgerufen..."</string>
@@ -114,7 +114,7 @@
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"E-Mail von Server löschen"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nie"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Wenn ich sie aus dem Posteingang lösche"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Wenn ich sie aus Posteingang lösche"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP-Pfadpräfix"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Optional"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Kontoeinrichtung"</string>
@@ -231,11 +231,11 @@
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Ordner \"Gesendete Elemente\" des Servers auswählen"</string>
     <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Kurzantwort bearbeiten"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchr."</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchronisieren"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Kontakte dieses Kontos synchronisieren"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Kalender synchr"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Kalender synchronisieren"</string>
     <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Termin für dieses Kontos synchronisieren"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-Mails synchr."</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-Mails synchronisieren"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"E-Mails dieses Kontos synchronisieren"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibration"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Klingelton auswählen"</string>
@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Diesen Ordner synchronisieren"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Bei einer aktiven Verbindung werden die E-Mails heruntergeladen."</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"E-Mails: zu synchronisierende Tage"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Bild des Absenders"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Bild anzeigen"</item>
-    <item msgid="2226691218102223696">"Nichts anzeigen"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Wählen Sie aus, ob das Bild des Absenders in der Konversationsansicht angezeigt werden soll."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Bild des Absenders"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Nur einige \"Plus\"-Konten haben einen POP-Zugang, der diesem Programm ermöglicht, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Passwort anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um auf diese Konten zuzugreifen."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Richten Sie vor der Erstellung des E-Mail-Kontos ein Passwort für den POP3-E-Mail-Zugang auf der T-Online-Website ein."</string>

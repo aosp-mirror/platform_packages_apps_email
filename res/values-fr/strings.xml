@@ -80,7 +80,7 @@
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurer un compte"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Compte de messagerie"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"Vous pouvez configurer votre compte en quelques étapes seulement."</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"Quelques étapes suffisent pour configurer votre compte."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresse e-mail"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Mot de passe"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Config. manuelle"</string>
@@ -147,14 +147,14 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Synchroniser les e-mails de ce compte"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Télécharger automatiquement les pièces jointes une fois connecté au Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Impossible de terminer"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Jours à synchroniser"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Synchroniser depuis"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatique"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Hier"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Les trois derniers jours"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"La semaine dernière"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Les 2 dernières semaines"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Le mois dernier"</string>
-    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tous"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Toujours"</string>
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Utiliser fréq. par défaut"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nom d\'utilisateur ou mot de passe incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Échec de la connexion.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synchroniser ce dossier"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Tous les messages sont téléchargés lorsque vous vous connectez"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Nombre de jours à synchroniser"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Image de l\'expéditeur"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Afficher l\'image"</item>
-    <item msgid="2226691218102223696">"Ne rien afficher"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Indiquez si vous souhaitez afficher les images de l\'expéditeur en mode Conversation."</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Image de l\'expéditeur"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Seuls certains comptes \"Plus\" disposent d\'un accès POP permettant à ce programme de se connecter. Si vous ne parvenez pas à vous connecter avec l\'adresse e-mail et le mot de passe corrects, vous ne possédez peut-être pas de compte payant \"Plus\". Pour accéder à ces comptes de messagerie, lancez le navigateur Web."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Avant de configurer ce compte de messagerie, consultez le site Web de T-Online et créez un mot de passe d\'accès à la messagerie POP3."</string>

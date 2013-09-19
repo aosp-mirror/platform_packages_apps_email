@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"ធ្វើ​សម​កាល​កម្ម​ថត​នេះ"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"សារ​ទាំងអស់​នឹង​ត្រូវ​បាន​ទាញ​យក ក្រោយ​ពេល​​តភ្ជាប់"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ចំនួន​ថ្ងៃ​ដែល​សំបុត្រ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"រូបភាព​អ្នក​ផ្ញើ"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"បង្ហាញ​រូបភាព"</item>
-    <item msgid="2226691218102223696">"គ្មាន​អ្វី​បង្ហាញ"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"ជ្រើស​ថា​តើ​ត្រូវ​បង្ហាញ​រូបភាព​របស់​អ្នក​ផ្ញើ​នៅ​ក្នុង​ទិដ្ឋភាព​ការ​សន្ទនា"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"រូបភាព​អ្នក​ផ្ញើ"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"មាន​​​គណនី \"Plus\" តែ​មួយ​ចំនួន រួម​បញ្ចូល​នូវ​ការ​ចូល​ដំណើរ​ការ POP អនុញ្ញាត​​ឲ្យ​​កម្មវិធី​នេះ​ត្រូវ​​តភ្ជាប់​។ ​បើ​អ្នក​មិន​អាច​ចុះ​ហត្ថលេខា​​ដោយ​ប្រើ​​អាសយដ្ឋាន​អ៊ីមែល​ត្រឹមត្រូវ​និង​ពាក្យ​សម្ងាត់​របស់​អ្នក,​ អ្នក​ប្រហែល​ជា​មិន​​ចាំបាច់​បង់​ប្រាក់​​គណនី \"Plus\" ។ បើក​ដំណើរការ​កម្មវិធី​អ៊ីនធឺណិត​បណ្ដាញ​ដើម្បី​ទទួល​បាន​នូវ​ការ​ចូល​ដំណើរ​ការ​ទៅ​កាន់​គណនី​អ៊ីមែល​ទាំងនេះ​។"</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"មុន​ពេល​រៀបចំ​គណនី​អ៊ីមែល​​នេះ សូម​​មើល​តំបន់​បណ្ដាញ T-Online ហើយ​​បង្កើត​ពាក្យ​សម្ងាត់​សម្រាប់​ចូល​ដំណើរ​ការ​អ៊ីមែល POP3 ។"</string>

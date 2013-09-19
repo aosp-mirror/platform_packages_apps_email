@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Энэ фолдерийг синк хийх"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Холбогдсон үед бүх зурвасууд татагдах болно"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Мэйл синк хийх хугацаа"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Илгээгчийн зураг"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Зургийг харуулах"</item>
-    <item msgid="2226691218102223696">"Юуг ч харуулахгүй"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Харилааг харахад илгээгчийн дүрсийг харуулах эсэхийг сонгох"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Илгээгчийн зураг"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Зөвхөн зарим \"Plus\" акаунтууд энэ програмыг холбогдохыг зөвшөөрдөг POP хандалтыг агуулна. Та өөрийн зөв имэйл хаяг болон нууц үгээрээ нэвтрэх боломжгүй байгаа бол та төлбөртэй \"Plus\" акаунтгүй байна. Эдгээр имэйл акаунтын хандалттай болохын тулд вэб хөтчийг ажиллуулна уу."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Та энэ имэйл акаунтыг тохируулахын өмнө T-Online Вэбсайтруу зочилж POP3 имэйл хандалтын нууц үг үүсгэнэ үү."</string>
