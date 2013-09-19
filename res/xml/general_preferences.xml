@@ -45,13 +45,12 @@
         android:entryValues="@array/general_preference_text_zoom_values"
         android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
-    <ListPreference
+    <CheckBoxPreference
         android:key="conversation_list_icon"
-        android:title="@string/preference_conversation_list_icon_title"
-        android:summary="@string/preference_conversation_list_icon_summary"
-        android:entries="@array/prefEntries_conversationListIconName"
-        android:entryValues="@array/prefValues_conversationListIcon"
-        android:dialogTitle="@string/prefDialogTitle_conversationListIcon" />
+        android:persistent="false"
+        android:defaultValue="true"
+        android:title="@string/preference_sender_image_title"
+        android:summary="@string/preference_sender_image_description" />
 
     <!-- This may be removed in GeneralPreferences.java -->
     <CheckBoxPreference
