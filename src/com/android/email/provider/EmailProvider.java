@@ -3370,20 +3370,31 @@ public class EmailProvider extends ContentProvider {
             mFolderList = FolderList.copyOf(Lists.newArrayList(folder));
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
 
-            // We assume that all message lists are complete
-            // since we don't do any live lists in email.
-            mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                    UIProvider.CursorStatus.COMPLETE);
             if (mailbox != null) {
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         mailbox.mUiLastSyncResult);
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
+                 if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_BACKGROUND
+                        || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_USER) {
+                    mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                            UIProvider.CursorStatus.LOADING);
+                } else if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_NONE) {
+                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                             UIProvider.CursorStatus.COMPLETE);
+                 } else {
+                     LogUtils.d(Logging.LOG_TAG,
+                             "Unknown mailbox sync status" + mailbox.mUiSyncStatus);
+                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                             UIProvider.CursorStatus.COMPLETE);
+                 }
             } else {
                 // TODO for virtual mailboxes, we may want to do something besides just fake it
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         UIProvider.LastSyncResult.SUCCESS);
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT,
                         cursor != null ? cursor.getCount() : 0);
+                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                        UIProvider.CursorStatus.COMPLETE);
             }
         }
 
