@@ -257,12 +257,6 @@
     <skip />
     <!-- no translation found for mailbox_settings_mailbox_sync_window_label (851180833264474141) -->
     <skip />
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Выява адпраўнiка"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Паказваць выяву"</item>
-    <item msgid="2226691218102223696">"Нічога не паказваць"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Выбраць, ці паказваць выявы адпраўнікоў падчас прагляду размовы"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Выява адпраўнiка"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Толькі некаторыя ўліковыя запісы Google Plus маюць доступ да пратаколу POP, які дазваляе падключэнне гэтай праграме. Калі не атрымліваецца ўвайсці ў сістэму з правільным адрасам электроннай пошты і паролем, магчыма, уліковы запіс Plus не аплачаны. Запусціце вэб-браўзэр, каб атрымаць доступ да гэтых уліковых запісаў."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Перад наладай гэтага ўліковага запісу электроннай пошты наведайце вэб-сайт T-Online і стварыце пароль для доступу да электроннай пошты па пратаколу POP3."</string>

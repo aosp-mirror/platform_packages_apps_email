@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synkroniser denne mappe"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Meddelelser downloades, når der er oprettet forbindelse"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Antal dages e-mail, der synkroniseres"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Afsenderbillede"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Vis billede"</item>
-    <item msgid="2226691218102223696">"Vis ikke noget"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Vælg, om der skal vises afsenderbilleder i samtalevisning"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Afsenderbillede"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Det er kun nogle \"Plus\"-konti med POP-adgang, der tillader, at dette program opretter forbindelse. Hvis du ikke kan logge ind med din rigtige e-mailadresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Åbn webbrowseren igen for at få adgang til disse e-mailkonti."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Inden du konfigurerer denne e-mailkonto, skal du gå til T-Onlines website og oprette en adgangskode for e-mailadgang via POP3."</string>

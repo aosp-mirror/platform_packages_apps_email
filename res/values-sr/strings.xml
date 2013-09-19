@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Синхронизуј овај директоријум"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Поруке ће бити преузете после повезивања"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Дани поште за синхронизацију"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Слика пошиљаоца"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Прикажи слику"</item>
-    <item msgid="2226691218102223696">"Не приказуј ништа"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Изаберите да ли ћете приказивати слике пошиљалаца у приказу преписки"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Слика пошиљаоца"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Пре него што подесите овај налог е-поште, посетите T-Online веб сајт и направите лозинку за приступ е-пошти преко POP3 протокола."</string>
