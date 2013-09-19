@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sincronitza aquesta carpeta"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Els missatges es baixaran quan estiguis connectat"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Dies de correu per sincronitzar"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Imatge del remitent"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Mostra la imatge"</item>
-    <item msgid="2226691218102223696">"No mostris res"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Tria si es mostren les imatges del remitent a la visualització de conversa"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Imatge del remitent"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Només alguns comptes \"Plus\" inclouen l\'accés POP que permet que aquest programa s\'hi connecti. Si no pots iniciar la sessió amb l\'adreça electrònica i la contrasenya correctes, pot ser que no tinguis un compte \"Plus\" de pagament. Inicia el navegador web per accedir a aquests comptes de correu."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Abans de configurar aquest compte de correu electrònic, visita el lloc web de T-Online i crea una contrasenya per a l\'accés al correu electrònic POP3."</string>

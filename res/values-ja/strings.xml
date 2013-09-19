@@ -144,7 +144,7 @@
     <string name="account_setup_options_notify_label" msgid="7046146571560728829">"メールの着信を知らせる"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"このアカウントから連絡先を同期"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"このアカウントからカレンダーを同期"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"このアカウントからメールを同期"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"このアカウントからメールを同期する"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fiへの接続時に添付ファイルを自動的にダウンロードする"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"完了できませんでした"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"同期する日数"</string>
@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"このフォルダを同期"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"接続時にメッセージをダウンロード"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"同期するメールの日数"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"送信者の画像"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"画像を表示する"</item>
-    <item msgid="2226691218102223696">"何も表示しない"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"スレッド表示で送信者の画像を表示するかどうかを選択します"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"送信者の画像"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのメールアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"このメールアカウントをセットアップする前に、T-Onlineウェブサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>

@@ -245,12 +245,6 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"סנכרן את התיקיה הזו"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"לאחר שתחחבר תתבצע הורדה של ההודעות"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"כמה ימי דואר לסנכרן"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"תמונת השולח"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"הצג תמונה"</item>
-    <item msgid="2226691218102223696">"אל תציג דבר"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"בחר אם להציג תמונות של שולחים בתצוגת השיחות"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"תמונת השולח"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"רק חשבונות \"Plus\" מסוימים כוללים גישה ל-POP, שמאפשרת לתוכנית זו להתחבר. אם אינך מצליח להיכנס עם כתובת הדוא\"ל והסיסמה הנכונות שלך, ייתכן שאין לך חשבון \"Plus\" בתשלום. הפעל את דפדפן האינטרנט כדי לקבל גישה לחשבונות דוא\"ל אלה."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"לפני הגדרת חשבון דוא\"ל זה, בקר באתר T-Online וצור סיסמה לגישה לדוא\"ל מסוג POP3."</string>
