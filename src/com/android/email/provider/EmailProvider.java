@@ -3362,6 +3362,12 @@ public class EmailProvider extends ContentProvider {
         private final FolderList mFolderList;
         private final Bundle mExtras = new Bundle();
 
+        /**
+         * When showing a folder, if it's been at least this long since the last sync,
+         * force a folder refresh.
+         */
+        private static final long AUTO_REFRESH_INTERVAL_MS = 5 * DateUtils.MINUTE_IN_MILLIS;
+
         public EmailConversationCursor(final Context context, final Cursor cursor,
                 final Folder folder, final long mailboxId) {
             super(cursor);
@@ -3379,8 +3385,16 @@ public class EmailProvider extends ContentProvider {
                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
                             UIProvider.CursorStatus.LOADING);
                 } else if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_NONE) {
+                     if (mailbox.mSyncInterval == 0 &&
+                             System.currentTimeMillis() - mailbox.mSyncTime
+                                     > AUTO_REFRESH_INTERVAL_MS) {
+                         // This will be syncing momentarily
+                         mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
+                                 UIProvider.CursorStatus.LOADING);
+                     } else {
                      mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
                              UIProvider.CursorStatus.COMPLETE);
+                     }
                  } else {
                      LogUtils.d(Logging.LOG_TAG,
                              "Unknown mailbox sync status" + mailbox.mUiSyncStatus);
@@ -3402,12 +3416,6 @@ public class EmailProvider extends ContentProvider {
         public Bundle getExtras() {
             return mExtras;
         }
-
-        /**
-         * When showing a folder, if it's been at least this long since the last sync,
-         * force a folder refresh.
-         */
-        private static final long AUTO_REFRESH_INTERVAL_MS = 5 * DateUtils.MINUTE_IN_MILLIS;
 
         @Override
         public Bundle respond(Bundle params) {
