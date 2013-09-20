@@ -235,7 +235,8 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_CONVERSATION = UI_BASE + 14;
     private static final int UI_RECENT_FOLDERS = UI_BASE + 15;
     private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 16;
-    private static final int UI_ALL_FOLDERS = UI_BASE + 17;
+    private static final int UI_FULL_FOLDERS = UI_BASE + 17;
+    private static final int UI_ALL_FOLDERS = UI_BASE + 18;
 
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
@@ -988,6 +989,7 @@ public class EmailProvider extends ContentProvider {
                     QUICK_RESPONSE_ACCOUNT_ID);
 
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uifolders/#", UI_FOLDERS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uifullfolders/#", UI_FULL_FOLDERS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiallfolders/#", UI_ALL_FOLDERS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uisubfolders/#", UI_SUBFOLDERS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uimessages/#", UI_MESSAGES);
@@ -1103,6 +1105,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_ATTACHMENTS:
                 case UI_CONVERSATION:
                 case UI_RECENT_FOLDERS:
+                case UI_FULL_FOLDERS:
                 case UI_ALL_FOLDERS:
                     // For now, we don't allow selection criteria within these queries
                     if (selection != null || selectionArgs != null) {
@@ -2146,7 +2149,8 @@ public class EmailProvider extends ContentProvider {
             final ProjectionMap.Builder builder = ProjectionMap.builder()
                     .add(BaseColumns._ID, AccountColumns.ID)
                     .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
-                    .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
+                    .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uifullfolders"))
+                    .add(UIProvider.AccountColumns.ALL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
                     .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
                     .add(UIProvider.AccountColumns.UNDO_URI,
                             ("'content://" + EmailContent.AUTHORITY + "/uiundo'"))
@@ -3020,6 +3024,7 @@ public class EmailProvider extends ContentProvider {
                 UIProvider.ConversationListIcon.NONE;
     }
 
+    // TODO: Pass in projection b/10912870
     private Cursor getVirtualMailboxCursor(long mailboxId) {
         MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 1);
         mc.addRow(getVirtualMailboxRow(getVirtualMailboxAccountId(mailboxId),
@@ -3027,6 +3032,7 @@ public class EmailProvider extends ContentProvider {
         return mc;
     }
 
+    // TODO: Pass in projection b/10912870
     private Object[] getVirtualMailboxRow(long accountId, int mailboxType) {
         final long id = getVirtualMailboxId(accountId, mailboxType);
         final String idString = Long.toString(id);
@@ -3262,43 +3268,41 @@ public class EmailProvider extends ContentProvider {
      * @param uiProjection projection
      * @return query result cursor
      */
-    private Cursor uiFolders(Uri uri, String[] uiProjection) {
-        Context context = getContext();
-        SQLiteDatabase db = getDatabase(context);
-        String id = uri.getPathSegments().get(1);
-        if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
-            MatrixCursor mc = new MatrixCursorWithCachedColumns(UIProvider.FOLDERS_PROJECTION, 3);
-            Object[] row;
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX);
-            mc.addRow(row);
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED);
-            mc.addRow(row);
-            row = getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_UNREAD);
-            mc.addRow(row);
+    private Cursor uiFolders(final Uri uri, final String[] uiProjection) {
+        final Context context = getContext();
+        final SQLiteDatabase db = getDatabase(context);
+        final String id = uri.getPathSegments().get(1);
 
-            final Uri notifyUri =
-                    UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
-            mc.setNotificationUri(context.getContentResolver(), notifyUri);
-            return mc;
+        final Uri notifyUri =
+                UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
+
+        final Cursor vc = uiVirtualMailboxes(id, uiProjection);
+        vc.setNotificationUri(context.getContentResolver(), notifyUri);
+        if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+            return vc;
         } else {
             Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
             c = getFolderListCursor(db, c, uiProjection);
-            // Add starred virtual folder to the cursor
-            // Show number of messages as unread count (for backward compatibility)
-            MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection, 2);
-            final long acctId = Long.parseLong(id);
-            Object[] row = getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED);
-            mc.addRow(row);
-            row = getVirtualMailboxRow(acctId, Mailbox.TYPE_UNREAD);
-            mc.addRow(row);
-
-            final Uri notifyUri =
-                    UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
-            mc.setNotificationUri(context.getContentResolver(), notifyUri);
             c.setNotificationUri(context.getContentResolver(), notifyUri);
-            Cursor[] cursors = new Cursor[] {mc, c};
+            Cursor[] cursors = new Cursor[] {vc, c};
             return new MergeCursor(cursors);
         }
+    }
+
+    private Cursor uiVirtualMailboxes(final String id, final String[] uiProjection) {
+        final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
+
+        if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+            mc.addRow(getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX));
+            mc.addRow(getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_STARRED));
+            mc.addRow(getVirtualMailboxRow(COMBINED_ACCOUNT_ID, Mailbox.TYPE_UNREAD));
+        } else {
+            final long acctId = Long.parseLong(id);
+            mc.addRow(getVirtualMailboxRow(acctId, Mailbox.TYPE_STARRED));
+            mc.addRow(getVirtualMailboxRow(acctId, Mailbox.TYPE_UNREAD));
+        }
+
+        return mc;
     }
 
     /**
@@ -3705,7 +3709,22 @@ public class EmailProvider extends ContentProvider {
         Uri notifyUri = null;
         switch(match) {
             case UI_ALL_FOLDERS:
-                // TODO: Should this just do uiFolders()?
+                notifyUri =
+                        UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
+                final Cursor vc = uiVirtualMailboxes(id, uiProjection);
+                if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
+                    // There's no real mailboxes, so just return the virtual ones
+                    c = vc;
+                } else {
+                    // Return real and virtual mailboxes alike
+                    final Cursor rawc = db.rawQuery(genQueryAccountAllMailboxes(uiProjection),
+                            new String[] {id});
+                    rawc.setNotificationUri(context.getContentResolver(), notifyUri);
+                    vc.setNotificationUri(context.getContentResolver(), notifyUri);
+                    c = new MergeCursor(new Cursor[] {rawc, vc});
+                }
+                break;
+            case UI_FULL_FOLDERS:
                 c = db.rawQuery(genQueryAccountAllMailboxes(uiProjection), new String[] {id});
                 c = getFolderListCursor(db, c, uiProjection);
                 notifyUri =

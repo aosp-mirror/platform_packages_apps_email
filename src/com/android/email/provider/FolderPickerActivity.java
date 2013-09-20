@@ -53,7 +53,7 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
         Intent i = getIntent();
         Uri uri = i.getData();
         int headerId;
-        com.android.mail.providers.Account uiAccount = null;
+        final com.android.mail.providers.Account uiAccount;
         // If we've gotten a Uri, then this is a call from the UI in response to setupIntentUri
         // in an account (meaning the account requires setup)
         if (uri != null) {
@@ -167,7 +167,7 @@ public class FolderPickerActivity extends Activity implements FolderPickerCallba
 
     private void startPickerForAccount() {
         int headerId = R.string.trash_folder_selection_title;
-        Uri uri = Uri.parse("content://" + EmailContent.AUTHORITY + "/uiallfolders/" + mAccountId);
+        Uri uri = Uri.parse("content://" + EmailContent.AUTHORITY + "/uifullfolders/" + mAccountId);
         startPicker(uri, headerId);
     }
 
