@@ -2229,6 +2229,7 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.AttachmentColumns.DOWNLOADED_SIZE,
                         AttachmentColumns.UI_DOWNLOADED_SIZE)
                 .add(UIProvider.AttachmentColumns.CONTENT_URI, AttachmentColumns.CONTENT_URI)
+                .add(UIProvider.AttachmentColumns.FLAGS, AttachmentColumns.FLAGS)
                 .build();
         }
         return sAttachmentMap;
@@ -2383,6 +2384,7 @@ public class EmailProvider extends ContentProvider {
                     uiAtt.setContentType(att.mMimeType);
                     uiAtt.size = (int) att.mSize;
                     uiAtt.uri = uiUri("uiattachment", att.mId);
+                    uiAtt.flags = att.mFlags;
                     uiAtts.add(uiAtt);
                 }
                 values.put(UIProvider.MessageColumns.ATTACHMENTS, "@?"); // @ for literal

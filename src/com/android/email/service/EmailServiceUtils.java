@@ -408,7 +408,6 @@ public class EmailServiceUtils {
                     // It would be nice if we could copy or move all of the old account's data over
                     // to the new account here. b/10805685
 
-
                     // Delete the AccountManager account
                     amFuture = AccountManager.get(context)
                             .removeAccount(amAccount, null, null);
