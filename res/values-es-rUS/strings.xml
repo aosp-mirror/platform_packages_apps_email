@@ -43,7 +43,7 @@
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Bandeja de salida"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Borradores"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviado"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviados"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"No solicitado"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Destacados"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"No leídos"</string>
@@ -95,7 +95,7 @@
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Se ha configurado tu cuenta y el correo está en camino."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Asigna un nombre a esta cuenta (opcional)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (mostrado en mensajes salientes)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (en mensajes salientes)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Este campo no puede estar vacío."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuración de la cuenta"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo de cuenta"</string>
@@ -234,7 +234,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contactos"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronizar contactos de esta cuenta"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizar calendario"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincr. evento calen. de esta cuenta"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincronizar evento de calendario de esta cuenta"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronizar correo"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronizar el correo de esta cuenta"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>

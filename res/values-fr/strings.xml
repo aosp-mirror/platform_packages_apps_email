@@ -107,7 +107,7 @@
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Serveur"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Type de sécurité"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Aucun"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Aucune"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (accepter tous les certificats)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (accepter tous les certificats)"</string>
@@ -155,7 +155,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Les 2 dernières semaines"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Le mois dernier"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Toujours"</string>
-    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Utiliser fréq. par défaut"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Utiliser paramètre par défaut"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nom d\'utilisateur ou mot de passe incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Échec de la connexion.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Impossible d\'établir une connexion sécurisée avec le serveur."</string>
@@ -218,7 +218,7 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nom du compte"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Votre nom"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Réponses rapides"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Modifier texte fréquemment inséré lors de la rédaction d\'e-mails"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Modifier les réponses rapides"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paramètres de notification"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Consommation des données"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Règles de sécurité"</string>
@@ -244,7 +244,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Options de synchronisation (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synchroniser ce dossier"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Tous les messages sont téléchargés lorsque vous vous connectez"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Nombre de jours à synchroniser"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Synchroniser depuis"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Image de l\'expéditeur"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Seuls certains comptes \"Plus\" disposent d\'un accès POP permettant à ce programme de se connecter. Si vous ne parvenez pas à vous connecter avec l\'adresse e-mail et le mot de passe corrects, vous ne possédez peut-être pas de compte payant \"Plus\". Pour accéder à ces comptes de messagerie, lancez le navigateur Web."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Avant de configurer ce compte de messagerie, consultez le site Web de T-Online et créez un mot de passe d\'accès à la messagerie POP3."</string>

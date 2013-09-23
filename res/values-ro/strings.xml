@@ -43,7 +43,7 @@
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Mesaje de trimis"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Mesaje nefinalizate"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Coş de gunoi"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Trimis"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Trimise"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Mesaje nedorite"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Cu stea"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Necitite"</string>
@@ -110,7 +110,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Niciunul"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Acceptaţi toate certificatele)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (acceptaţi toate certificatele)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (Acceptați toate certificatele)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Ștergeţi mesajul de e-mail de pe server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Niciodată"</string>
