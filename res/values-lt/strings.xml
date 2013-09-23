@@ -234,7 +234,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sinchronizuoti adresatus"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sinchron. šios paskyros kontaktus"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sinchronizuoti kalendorių"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sinchron. šios paskyros kalendorių"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sinchronizuoti šios paskyros kalendorių"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sinchron. el. paštą"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sinchron. šios paskyros el. paštą"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibruoti"</string>
