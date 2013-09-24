@@ -30,6 +30,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
@@ -139,12 +140,21 @@ public class Utilities {
                     LegacyConversions.updateAttachments(context, localMessage, attachments);
                 } else {
                     EmailContent.Attachment att = new EmailContent.Attachment();
-                    // STOPSHIP: Redo UI or localize
-                    att.mFileName = "Click to load entire message";
+                    // Since we haven't actually loaded the attachment, we're just putting
+                    // a dummy placeholder here. When the user taps on it, we'll load the attachment
+                    // for real.
+                    // TODO: This is not really a great way to model this.... could we at least get
+                    // the file names and mime types from the attachments? Then we could display
+                    // something sensible at least. This may be impossible in POP, but maybe
+                    // we could put a flag on the message indicating that there are undownloaded
+                    // attachments, rather than this dummy placeholder, which causes a lot of
+                    // special case handling in a lot of places.
+                    att.mFileName = "";
                     att.mSize = message.getSize();
                     att.mMimeType = "text/plain";
                     att.mMessageKey = localMessage.mId;
                     att.mAccountKey = localMessage.mAccountKey;
+                    att.mFlags = Attachment.FLAG_DUMMY_ATTACHMENT;
                     att.save(context);
                     localMessage.mFlagAttachment = true;
                 }
