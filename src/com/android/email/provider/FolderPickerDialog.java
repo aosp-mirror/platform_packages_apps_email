@@ -61,7 +61,7 @@ public class FolderPickerDialog implements OnClickListener, OnMultiChoiceClickLi
         final Cursor foldersCursor = context.getContentResolver().query(
                 uri, UIProvider.FOLDERS_PROJECTION, null, null, null);
         try {
-            mAdapter = new SeparatedFolderListAdapter(context);
+            mAdapter = new SeparatedFolderListAdapter();
             String[] headers = context.getResources()
                     .getStringArray(R.array.moveto_folder_sections);
             mAdapter.addSection(new FolderPickerSelectorAdapter(context, foldersCursor,
