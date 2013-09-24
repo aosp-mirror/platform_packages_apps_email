@@ -2410,6 +2410,14 @@ public class EmailProvider extends ContentProvider {
         return new MessageQuery(sql, attachmentJson);
     }
 
+    private static void appendConversationInfoColumns(final StringBuilder stringBuilder) {
+        // TODO(skennedy) These columns are needed for the respond call for ConversationInfo :(
+        // There may be a better way to do this, but since the projection is specified by the
+        // unified UI code, it can't ask for these columns.
+        stringBuilder.append(',').append(MessageColumns.DISPLAY_NAME)
+                .append(',').append(MessageColumns.FROM_LIST);
+    }
+
     /**
      * Generate the "message list" SQLite query, given a projection from UnifiedEmail
      *
@@ -2419,11 +2427,7 @@ public class EmailProvider extends ContentProvider {
      */
     private static String genQueryMailboxMessages(String[] uiProjection, final boolean unseenOnly) {
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection);
-
-        // TODO(skennedy) I need these columns for the respond call for ConversationInfo :(
-        sb.append(',').append(MessageColumns.DISPLAY_NAME)
-                .append(',').append(MessageColumns.FROM_LIST);
-
+        appendConversationInfoColumns(sb);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
                 Message.FLAG_LOADED_SELECTION + " AND " +
                 Message.MAILBOX_KEY + "=? ");
@@ -2450,6 +2454,7 @@ public class EmailProvider extends ContentProvider {
         final int virtualMailboxId = getVirtualMailboxType(mailboxId);
         final String[] selectionArgs;
         StringBuilder sb = genSelect(getMessageListMap(), uiProjection, values);
+        appendConversationInfoColumns(sb);
         sb.append(" FROM " + Message.TABLE_NAME + " WHERE " +
                 Message.FLAG_LOADED_SELECTION + " AND ");
         if (isCombinedMailbox(mailboxId)) {
