@@ -199,7 +199,7 @@
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Не можах да вляза в профила си"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Неправилно потребителско име или парола за <xliff:g id="ACCOUNT">%s</xliff:g>. Искате ли да ги актуализирате сега?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Влизането ви в/ъв <xliff:g id="ACCOUNT">%s</xliff:g> не бе успешно, сървърът отговори със: <xliff:g id="REASON">%s</xliff:g> Искате ли да актуализирате своето потребителско име и/или парола?"</string>
-    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Изтегляне на прикачените файлове"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Изтегляне на прик. файлове"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автоизтегляне на прик. файлове към скорошни съобщения през Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Известия за имейл"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Честота на синхронизиране, известия и т.н."</string>
@@ -255,7 +255,7 @@
     <string name="device_admin_description" msgid="426727923791430306">"Активира определени от сървъра защитни правила"</string>
     <string name="settings_activity_title" msgid="5185915603716333904">"Настройки"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Общи настройки"</string>
-    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потвърждаване преди изтриване"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потвърждаване преди изтр."</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Съобщения"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потвърждаване преди изпращане"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Съобщения"</string>
