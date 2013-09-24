@@ -1297,6 +1297,9 @@ public abstract class EmailContent {
         public static final int FLAG_SMART_FORWARD = 1<<8;
         // Indicates that the attachment cannot be forwarded due to a policy restriction
         public static final int FLAG_POLICY_DISALLOWS_DOWNLOAD = 1<<9;
+        // Indicates that this is a dummy placeholder attachment.
+        public static final int FLAG_DUMMY_ATTACHMENT = 1<<10;
+
         /**
          * no public constructor since this is a utility class
          */
