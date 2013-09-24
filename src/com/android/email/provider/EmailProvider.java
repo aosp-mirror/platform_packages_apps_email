@@ -2155,6 +2155,8 @@ public class EmailProvider extends ContentProvider {
                     .add(UIProvider.AccountColumns.FULL_FOLDER_LIST_URI, uriWithId("uifullfolders"))
                     .add(UIProvider.AccountColumns.ALL_FOLDER_LIST_URI, uriWithId("uiallfolders"))
                     .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
+                    .add(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME,
+                            AccountColumns.EMAIL_ADDRESS)
                     .add(UIProvider.AccountColumns.UNDO_URI,
                             ("'content://" + EmailContent.AUTHORITY + "/uiundo'"))
                     .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
@@ -2956,7 +2958,11 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.NAME)) {
             values[colPosMap.get(UIProvider.AccountColumns.NAME)] = getContext().getString(
-                R.string.mailbox_list_account_selector_combined_view);
+                    R.string.mailbox_list_account_selector_combined_view);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME)) {
+            values[colPosMap.get(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME)] =
+                    getContext().getString(R.string.mailbox_list_account_selector_combined_view);
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.TYPE)) {
             values[colPosMap.get(UIProvider.AccountColumns.TYPE)] = "unknown";
