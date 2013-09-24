@@ -234,7 +234,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"I-sync ang mga contact"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sync ang contact sa account na ito"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"I-sync ang kalendaryo"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sync ganap kalendaryo para acct ito"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"I-sync ang kalendaryo ng kaganapan para sa account"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"I-sync ang email"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"I-sync ang email sa account na ito"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"I-vibrate"</string>
