@@ -153,8 +153,9 @@ public final class DBHelper {
     // Version 115: Add pingDuration column
     // Version 116: Add MessageMove & MessageStateChange tables.
     // Version 117: Add trigger to delete duplicate messages on sync.
+    // Version 118: Set syncInterval to 0 for all IMAP mailboxes
 
-    public static final int DATABASE_VERSION = 117;
+    public static final int DATABASE_VERSION = 118;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -733,6 +734,7 @@ public final class DBHelper {
                     LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v5 to v6", e);
                 }
             }
+            // TODO: Change all these to strict inequalities
             if (oldVersion <= 6) {
                 // Use the newer mailbox_delete trigger
                 db.execSQL("drop trigger mailbox_delete;");
@@ -1187,8 +1189,27 @@ public final class DBHelper {
                 createMessageStateChangeTable(db);
             }
 
-            if (oldVersion < 117) {
+            if (oldVersion <= 116) {
                 createDeleteDuplicateMessagesTrigger(db);
+            }
+
+            /**
+             * This statement changes the syncInterval column to 0 for all IMAP mailboxes.
+             * It does this by matching mailboxes against all account IDs whose receive auth is
+             * either R.string.protocol_legacy_imap, R.string.protocol_imap or "imap"
+             */
+            if (oldVersion <= 117) {
+                db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
+                        + "=0 where " + MailboxColumns.ACCOUNT_KEY + " in (select "
+                        + Account.TABLE_NAME + "." + AccountColumns.ID + " from "
+                        + Account.TABLE_NAME + " join " + HostAuth.TABLE_NAME + " where "
+                        + HostAuth.TABLE_NAME + "." + HostAuth.ID + "=" + Account.TABLE_NAME + "."
+                        + Account.HOST_AUTH_KEY_RECV + " and (" + HostAuth.TABLE_NAME + "."
+                        + HostAuthColumns.PROTOCOL + "='"
+                        + mContext.getString(R.string.protocol_legacy_imap) + "' or "
+                        + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='"
+                        + mContext.getString(R.string.protocol_imap) + "' or "
+                        + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='imap'));");
             }
         }
 
