@@ -4523,6 +4523,7 @@ public class EmailProvider extends ContentProvider {
             final int r = context.getContentResolver().delete(
                     ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, msg.mId), null, null);
             notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
+            notifyUIMessage(msg.mId);
             return r;
         }
         Mailbox trashMailbox =
@@ -4534,6 +4535,7 @@ public class EmailProvider extends ContentProvider {
         values.put(MessageColumns.MAILBOX_KEY, trashMailbox.mId);
         final int r = uiUpdateMessage(uri, values, true);
         notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
+        notifyUIMessage(msg.mId);
         return r;
     }
 
