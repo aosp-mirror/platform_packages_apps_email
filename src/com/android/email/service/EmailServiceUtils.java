@@ -36,11 +36,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.SyncState;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.RawContacts;
 import android.provider.SyncStateContract;
+import android.text.TextUtils;
 
 import com.android.email.R;
 import com.android.emailcommon.Api;
@@ -403,10 +407,12 @@ public class EmailServiceUtils {
                     finishAccountManagerBlocker(amFuture);
                     LogUtils.w(Logging.LOG_TAG, "Created new AccountManager account");
 
-
-                    // XXX:
-                    // It would be nice if we could copy or move all of the old account's data over
-                    // to the new account here. b/10805685
+                    // TODO: Clean up how we determine the type.
+                    final String accountType = protocolMap.get(hostAuth.mProtocol + "_type");
+                    // Move calendar and contacts data from the old account to the new one.
+                    // We must do this before deleting the old account or the data is lost.
+                    moveCalendarData(context.getContentResolver(), amName, oldType, accountType);
+                    moveContactsData(context.getContentResolver(), amName, oldType, accountType);
 
                     // Delete the AccountManager account
                     amFuture = AccountManager.get(context)
@@ -415,12 +421,7 @@ public class EmailServiceUtils {
                     LogUtils.w(Logging.LOG_TAG, "Deleted old AccountManager account");
 
                     // Restore sync keys for contacts/calendar
-                    // XXX See b/10211620
-                    // Disable this for now. We want to clear the sync keys so that the next
-                    // sync will get everything.
-/*
-                    // TODO: Clean up how we determine the type.
-                    final String accountType = protocolMap.get(hostAuth.mProtocol + "_type");
+
                     if (accountType != null &&
                             calendarSyncKey != null && calendarSyncKey.length != 0) {
                         client = context.getContentResolver()
@@ -452,7 +453,6 @@ public class EmailServiceUtils {
                             LogUtils.w(Logging.LOG_TAG, "Set contacts key FAILED");
                         }
                     }
-*/
 
                     // That's all folks!
                     LogUtils.w(Logging.LOG_TAG, "Account update completed.");
@@ -466,6 +466,36 @@ public class EmailServiceUtils {
         } finally {
             c.close();
         }
+    }
+
+    private static void moveCalendarData(final ContentResolver resolver, final String name,
+            final String oldType, final String newType) {
+        final Uri oldCalendars = Calendars.CONTENT_URI.buildUpon()
+                .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                .appendQueryParameter(Calendars.ACCOUNT_NAME, name)
+                .appendQueryParameter(Calendars.ACCOUNT_TYPE, oldType)
+                .build();
+
+        // Update this calendar to have the new account type.
+        final ContentValues values = new ContentValues();
+        values.put(CalendarContract.Calendars.ACCOUNT_TYPE, newType);
+        resolver.update(oldCalendars, values,
+                Calendars.ACCOUNT_NAME + "=? AND " + Calendars.ACCOUNT_TYPE + "=?",
+                new String[] {name, oldType});
+    }
+
+    private static void moveContactsData(final ContentResolver resolver, final String name,
+            final String oldType, final String newType) {
+        final Uri oldContacts = RawContacts.CONTENT_URI.buildUpon()
+                .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
+                .appendQueryParameter(RawContacts.ACCOUNT_NAME, name)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, oldType)
+                .build();
+
+        // Update this calendar to have the new account type.
+        final ContentValues values = new ContentValues();
+        values.put(CalendarContract.Calendars.ACCOUNT_TYPE, newType);
+        resolver.update(oldContacts, values, null, null);
     }
 
     /**
