@@ -609,8 +609,8 @@
     <string name="system_folders_sent_summary">Select your server\'s sent items folder</string>
     <string name="system_folders_sent_dlg">Select your server\'s sent items folder</string>
 
-    <!-- On settings screen, dialog heading informing user to edit a quick response -->
-    <string name="edit_quick_response_dialog">Edit quick response</string>
+    <!-- On settings screen, dialog heading informing user to create or edit a quick response -->
+    <string name="edit_quick_response_dialog">Quick response</string>
     <!-- On settings screen, edit quick response dialog's "save" button -->
     <string name="save_action">Save</string>
 
