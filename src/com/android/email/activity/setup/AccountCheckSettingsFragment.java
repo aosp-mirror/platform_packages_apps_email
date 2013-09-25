@@ -193,6 +193,8 @@ public class AccountCheckSettingsFragment extends Fragment {
             Utility.cancelTaskInterrupt(mAccountCheckTask);
             mAccountCheckTask = null;
         }
+        // Make doubly sure that the dialog is gone before we're removed from the fragment manager
+        recoverAndDismissCheckingDialog();
     }
 
     /**
