@@ -110,9 +110,9 @@ public class AccountReconciler {
      * @return Whether the account is in the list.
      */
     private static boolean hasAmAccount(final List<android.accounts.Account> accounts,
-            final String name) {
+            final String name, final String type) {
         for (final android.accounts.Account account : accounts) {
-            if (account.name.equalsIgnoreCase(name)) {
+            if (account.name.equalsIgnoreCase(name) && account.type.equalsIgnoreCase(type)) {
                 return true;
             }
         }
@@ -154,7 +154,10 @@ public class AccountReconciler {
         // AccountManager account
         for (final Account providerAccount : emailProviderAccounts) {
             final String providerAccountName = providerAccount.mEmailAddress;
-            if (!hasAmAccount(accountManagerAccounts, providerAccountName)) {
+            final String providerAccountType =
+                    EmailServiceUtils.getServiceInfoForAccount(context, providerAccount.mId)
+                            .accountType;
+            if (!hasAmAccount(accountManagerAccounts, providerAccountName, providerAccountType)) {
                 if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
                     LogUtils.w(Logging.LOG_TAG,
                             "Account reconciler noticed incomplete account; ignoring");
