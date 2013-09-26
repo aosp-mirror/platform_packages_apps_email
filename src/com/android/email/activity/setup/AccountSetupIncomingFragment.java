@@ -565,10 +565,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             recvAuth.mDomain = null;
         }
 
-        // Check for a duplicate account (requires async DB work) and if OK,
-        // proceed with check
-        startDuplicateTaskCheck(
-                account.mId, serverAddress, mCacheLoginCredential, SetupData.CHECK_INCOMING);
+        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
+        clearButtonBounce();
     }
 
     @Override

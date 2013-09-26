@@ -278,6 +278,46 @@ public class Utility {
     }
 
     /**
+     * This only actually matches against the email address. It's technically kosher to allow the
+     * same address across different account types, but that's a pretty rare use case and isn't well
+     * handled in the UI.
+     *
+     * @param context context
+     * @param syncAuthority the account manager type to check against or null for all types
+     * @param address email address to match against
+     * @return account name for match found or null
+     */
+   public static String findExistingAccount(final Context context, final String syncAuthority,
+           final String address) {
+       final ContentResolver resolver = context.getContentResolver();
+       final Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
+               AccountColumns.EMAIL_ADDRESS + "=?", new String[] {address}, null);
+       try {
+           if (!c.moveToFirst()) {
+               return null;
+           }
+           return c.getString(c.getColumnIndex(Account.DISPLAY_NAME));
+           /*
+           do {
+               if (syncAuthority != null) {
+                   // TODO: actually compare the sync authority to allow creating the same account
+                   // on different protocols. Sadly this code can't directly access the service info
+               } else {
+                   final Account account = new Account();
+                   account.restore(c);
+                   return account.mDisplayName;
+               }
+           } while (c.moveToNext());
+           */
+       } finally {
+           c.close();
+       }
+       /*
+       return null;
+       */
+   }
+
+    /**
      * Generate a random message-id header for locally-generated messages.
      */
     public static String generateMessageId() {

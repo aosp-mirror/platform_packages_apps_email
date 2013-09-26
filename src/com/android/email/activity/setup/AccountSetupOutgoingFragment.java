@@ -388,5 +388,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         sendAuth.mDomain = null;
 
         mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
+        clearButtonBounce();
     }
 }
