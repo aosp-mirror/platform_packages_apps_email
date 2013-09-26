@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,8 @@ import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 /**
  * Prompts the user to select an account type. The account type, along with the
@@ -41,6 +44,8 @@ import com.android.emailcommon.provider.HostAuth;
  * AccountSetupIncoming activity.
  */
 public class AccountSetupType extends AccountSetupActivity implements OnClickListener {
+
+    private boolean mButtonPressed;
 
     public static void actionSelectAccountType(Activity fromActivity, SetupData setupData) {
         final Intent i = new ForwardingIntent(fromActivity, AccountSetupType.class);
@@ -111,6 +116,15 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, protocol);
+
+        new DuplicateCheckTask(account.mEmailAddress, info.accountType)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    private void onProceedNext() {
+        final Account account = mSetupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
         if (info.usesAutodiscover) {
             mSetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         } else {
@@ -131,8 +145,47 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
                 finish();
                 break;
             default:
-                onSelect((String)v.getTag());
+                if (!mButtonPressed) {
+                    mButtonPressed = true;
+                    onSelect((String)v.getTag());
+                }
                 break;
+        }
+    }
+
+    private class DuplicateCheckTask extends AsyncTask<Void, Void, String> {
+        private final String mAddress;
+        private final String mAuthority;
+
+        public DuplicateCheckTask(String address, String authority) {
+            mAddress = address;
+            mAuthority = authority;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return Utility.findExistingAccount(AccountSetupType.this, mAuthority, mAddress);
+        }
+
+        @Override
+        protected void onPostExecute(String duplicateAccountName) {
+            mButtonPressed = false;
+            if (duplicateAccountName != null) {
+                // Show duplicate account warning
+                final DuplicateAccountDialogFragment dialogFragment =
+                        DuplicateAccountDialogFragment.newInstance(duplicateAccountName);
+                dialogFragment.show(AccountSetupType.this.getFragmentManager(),
+                        DuplicateAccountDialogFragment.TAG);
+            } else {
+                // Otherwise, proceed with the save/check
+                onProceedNext();
+            }
+        }
+
+        @Override
+        protected void onCancelled(String s) {
+            mButtonPressed = false;
+            LogUtils.d(LogUtils.TAG, "Duplicate account check cancelled (AccountSetupType)");
         }
     }
 }
