@@ -35,7 +35,6 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
 
 /**
  * Common base class for server settings fragments, so they can be more easily manipulated by
@@ -228,18 +227,6 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     /**
-     * Performs async operations as part of saving changes to the settings.
-     *      Check for duplicate account
-     *      Display dialog if necessary
-     *      Else, proceed via mCallback.onProceedNext
-     */
-    protected void startDuplicateTaskCheck(long accountId, String checkHost, String checkLogin,
-            int checkSettingsMode) {
-        new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    /**
      * Make the given text view uneditable. If the text view is ever focused, the specified
      * error message will be displayed.
      */
@@ -304,45 +291,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     /**
      * Clears the "next" button de-bounce flags and allows the "next" button to activate.
      */
-    private void clearButtonBounce() {
+    protected void clearButtonBounce() {
         mProceedButtonPressed = false;
-    }
-
-    private class DuplicateCheckTask extends AsyncTask<Void, Void, Account> {
-
-        private final long mAccountId;
-        private final String mCheckHost;
-        private final String mCheckLogin;
-        private final int mCheckSettingsMode;
-
-        public DuplicateCheckTask(long accountId, String checkHost, String checkLogin,
-                int checkSettingsMode) {
-            mAccountId = accountId;
-            mCheckHost = checkHost;
-            mCheckLogin = checkLogin;
-            mCheckSettingsMode = checkSettingsMode;
-        }
-
-        @Override
-        protected Account doInBackground(Void... params) {
-            return Utility.findExistingAccount(mContext, mAccountId, mCheckHost, mCheckLogin);
-        }
-
-        @Override
-        protected void onPostExecute(Account duplicateAccount) {
-            AccountServerBaseFragment fragment = AccountServerBaseFragment.this;
-            if (duplicateAccount != null) {
-                // Show duplicate account warning
-                final DuplicateAccountDialogFragment dialogFragment =
-                    DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
-                dialogFragment.show(fragment.getFragmentManager(),
-                        DuplicateAccountDialogFragment.TAG);
-            } else {
-                // Otherwise, proceed with the save/check
-                mCallback.onProceedNext(mCheckSettingsMode, fragment);
-            }
-            clearButtonBounce();
-        }
     }
 
     /**

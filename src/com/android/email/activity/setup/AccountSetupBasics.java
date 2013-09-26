@@ -445,7 +445,8 @@ public class AccountSetupBasics extends AccountSetupActivity
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
 
             recvAuth.setLogin(mProvider.incomingUsername, password);
-            final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
+            final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this,
+                    recvAuth.mProtocol);
             recvAuth.mPort =
                     ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
 
@@ -458,7 +459,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
             // Stop here if the login credentials duplicate an existing account
             // Launch an Async task to do the work
-            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername, true)
+            new DuplicateCheckTask(this, email, true)
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } catch (URISyntaxException e) {
             /*
@@ -475,36 +476,34 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Async task that continues the work of finishAutoSetup().  Checks for a duplicate
      * account and then either alerts the user, or continues.
      */
-    private class DuplicateCheckTask extends AsyncTask<Void, Void, Account> {
+    private class DuplicateCheckTask extends AsyncTask<Void, Void, String> {
         private final Context mContext;
-        private final String mCheckHost;
-        private final String mCheckLogin;
+        private final String mCheckAddress;
         private final boolean mAutoSetup;
 
-        public DuplicateCheckTask(Context context, String checkHost, String checkLogin,
+        public DuplicateCheckTask(Context context, String checkAddress,
                 boolean autoSetup) {
             mContext = context;
-            mCheckHost = checkHost;
-            mCheckLogin = checkLogin;
+            mCheckAddress = checkAddress;
             // Prevent additional clicks on the next button during Async lookup
             mNextButtonInhibit = true;
             mAutoSetup = autoSetup;
         }
 
         @Override
-        protected Account doInBackground(Void... params) {
-            return Utility.findExistingAccount(mContext, -1, mCheckHost, mCheckLogin);
+        protected String doInBackground(Void... params) {
+            return Utility.findExistingAccount(mContext, null, mCheckAddress);
         }
 
         @Override
-        protected void onPostExecute(Account duplicateAccount) {
+        protected void onPostExecute(String duplicateAccountName) {
             mNextButtonInhibit = false;
             // Exit immediately if the user left before we finished
             if (mPaused) return;
             // Show duplicate account warning, or proceed
-            if (duplicateAccount != null) {
+            if (duplicateAccountName != null) {
                 final DuplicateAccountDialogFragment dialogFragment =
-                    DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
+                    DuplicateAccountDialogFragment.newInstance(duplicateAccountName);
                 dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
             } else {
                 if (mAutoSetup) {
@@ -520,6 +519,12 @@ public class AccountSetupBasics extends AccountSetupActivity
                 }
             }
         }
+
+        @Override
+        protected void onCancelled(String s) {
+            mNextButtonInhibit = false;
+            LogUtils.d(LogUtils.TAG, "DuplicateCheckTask cancelled (AccountSetupBasics)");
+        }
     }
 
     /**
@@ -529,7 +534,6 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Try auto-configuration from XML providers (unless in EAS mode, we can skip it)
         final String email = mEmailView.getText().toString().trim();
         final String[] emailParts = email.split("@");
-        final String user = emailParts[0].trim();
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider != null) {
@@ -543,7 +547,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             }
         } else {
         // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
-            new DuplicateCheckTask(this, domain, user, false)
+            new DuplicateCheckTask(this, email, false)
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
