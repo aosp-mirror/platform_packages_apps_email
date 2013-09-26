@@ -94,7 +94,7 @@ public class WidgetProvider extends BaseWidgetProvider {
         // Legacy support; if preferences haven't been saved for this widget, load something
         if (accountId == Account.NO_ACCOUNT || mailboxId == Mailbox.NO_MAILBOX) {
             LogUtils.d(LOG_TAG, "Couldn't load account or mailbox.  accountId: %d" +
-                    " mailboxId: %d widgetId %d", accountId, mailboxId);
+                    " mailboxId: %d widgetId %d", accountId, mailboxId, widgetId);
             return;
         }
 
