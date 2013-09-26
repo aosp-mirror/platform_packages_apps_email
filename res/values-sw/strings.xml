@@ -30,7 +30,7 @@
     <string name="create_action" msgid="3062715563215392251">"Unda mpya"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Hakuna majibu ya haraka."</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Mipangilio ya akaunti"</string>
-    <string name="menu_folder_options" msgid="2871906096248843471">"Chaguo za ulandanishi"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Chaguo za usawazishaji"</string>
     <string name="status_network_error" msgid="2611654064403817391">"Tatizo la kuunganisha."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Hamisha ujumbe"</item>
@@ -286,7 +286,7 @@
     <string name="quick_2" msgid="4188036352885736617">"Nakubali!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Nitaisoma baadaye kisha nikujibu."</string>
     <string name="quick_4" msgid="3988974084396883051">"Tupange mkutano wa kujadili haya."</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"Ulandanishi wa mandharinyuma ya akaunti hii imelemazwa wakati wa kuzurura."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"Usawazishaji wa chinichini wa akaunti hii imezimwa wakati uko nje ya mtandao wako wa kawaida."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Inatuma mwitikio…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Hakuna barua pepe."</string>
     <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
