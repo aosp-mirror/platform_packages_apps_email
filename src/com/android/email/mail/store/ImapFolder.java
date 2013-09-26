@@ -696,15 +696,32 @@ class ImapFolder extends Folder {
                     if (fetchPart != null && fetchPart.getSize() > 0) {
                         InputStream bodyStream =
                                 fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
-                        String contentTransferEncoding = fetchPart.getHeader(
-                                MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING)[0];
+                        String encodings[] = fetchPart.getHeader(
+                                MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING);
 
-                        // TODO Don't create 2 temp files.
-                        // decodeBody creates BinaryTempFileBody, but we could avoid this
-                        // if we implement ImapStringBody.
-                        // (We'll need to share a temp file.  Protect it with a ref-count.)
-                        fetchPart.setBody(decodeBody(bodyStream, contentTransferEncoding,
-                                fetchPart.getSize(), listener));
+                        String contentTransferEncoding = null;
+                        if (encodings != null && encodings.length > 0) {
+                            contentTransferEncoding = encodings[0];
+                        } else {
+                            // According to http://tools.ietf.org/html/rfc2045#section-6.1
+                            // "7bit" is the default.
+                            contentTransferEncoding = "7bit";
+                        }
+
+                        try {
+                            // TODO Don't create 2 temp files.
+                            // decodeBody creates BinaryTempFileBody, but we could avoid this
+                            // if we implement ImapStringBody.
+                            // (We'll need to share a temp file.  Protect it with a ref-count.)
+                            fetchPart.setBody(decodeBody(bodyStream, contentTransferEncoding,
+                                    fetchPart.getSize(), listener));
+                        } catch(Exception e) {
+                            // TODO: Figure out what kinds of exceptions might actually be thrown
+                            // from here. This blanket catch-all is because we're not sure what to
+                            // do if we don't have a contentTransferEncoding, and we don't have
+                            // time to figure out what exceptions might be thrown.
+                            LogUtils.e(Logging.LOG_TAG, "Error fetching body %s", e);
+                        }
                     }
 
                     if (listener != null) {
