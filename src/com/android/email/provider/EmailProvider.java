@@ -42,6 +42,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -49,6 +51,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.common.content.ProjectionMap;
@@ -68,6 +71,7 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -118,6 +122,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -131,6 +136,9 @@ import java.util.regex.Pattern;
 public class EmailProvider extends ContentProvider {
 
     private static final String TAG = LogTag.getLogTag();
+
+    // Time to delay upsync requests.
+    public static final long SYNC_DELAY_MILLIS = 30 * DateUtils.SECOND_IN_MILLIS;
 
     public static String EMAIL_APP_MIME_TYPE;
 
@@ -333,6 +341,9 @@ public class EmailProvider extends ContentProvider {
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
 
+    private Handler mDelayedSyncHandler;
+    private final Set<SyncRequestMessage> mDelayedSyncRequests = new HashSet<SyncRequestMessage>();
+
     public static Uri uiUri(String type, long id) {
         return Uri.parse(uiUriString(type, id));
     }
@@ -507,6 +518,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        Log.d(TAG, "Delete: " + uri);
         final int match = findMatch(uri, "delete");
         Context context = getContext();
         // Pick the correct database for this operation
@@ -727,6 +739,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        Log.d(TAG, "Insert: " + uri);
         int match = findMatch(uri, "insert");
         Context context = getContext();
         ContentResolver resolver = context.getContentResolver();
@@ -1473,15 +1486,23 @@ public class EmailProvider extends ContentProvider {
 
     // Query to get the protocol for a message. Temporary to switch between new and old upsync
     // behavior; should go away when IMAP gets converted.
-    private static final String GET_PROTOCOL_FOR_MESSAGE = "select h."
-            + EmailContent.HostAuthColumns.PROTOCOL + " from "
-            + Message.TABLE_NAME + " m inner join " + Account.TABLE_NAME + " a on m."
-            + MessageColumns.ACCOUNT_KEY + "=a." + AccountColumns.ID + " inner join "
-            + HostAuth.TABLE_NAME + " h on a." + AccountColumns.HOST_AUTH_KEY_RECV + "=h."
-            + EmailContent.HostAuthColumns.ID + " where m." + MessageColumns.ID + "=?";
+    private static final String GET_MESSAGE_DETAILS = "SELECT"
+            + " h." + HostAuthColumns.PROTOCOL + ","
+            + " m." + Message.MAILBOX_KEY + ","
+            + " a." + AccountColumns.ID
+            + " FROM " + Message.TABLE_NAME + " AS m"
+            + " INNER JOIN " + Account.TABLE_NAME + " AS a"
+            + " ON m." + MessageColumns.ACCOUNT_KEY + "=a." + AccountColumns.ID
+            + " INNER JOIN " + HostAuth.TABLE_NAME + " AS h"
+            + " ON a." + AccountColumns.HOST_AUTH_KEY_RECV + "=h." + HostAuthColumns.ID
+            + " WHERE m." + MessageColumns.ID + "=?";
+    private static int INDEX_PROTOCOL = 0;
+    private static int INDEX_MAILBOX_KEY = 1;
+    private static int INDEX_ACCOUNT_KEY = 2;
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        Log.d(TAG, "Update: " + uri);
         // Handle this special case the fastest possible way
         if (uri == INTEGRITY_CHECK_URI) {
             checkDatabases();
@@ -1573,13 +1594,17 @@ public class EmailProvider extends ContentProvider {
                     if (match == SYNCED_MESSAGE_ID) {
                         // TODO: Migrate IMAP to use MessageMove/MessageStateChange as well.
                         boolean isEas = false;
-                        final Cursor c = db.rawQuery(GET_PROTOCOL_FOR_MESSAGE, new String[] {id});
+                        long mailboxId = -1;
+                        long accountId = -1;
+                        final Cursor c = db.rawQuery(GET_MESSAGE_DETAILS, new String[] {id});
                         if (c != null) {
                             try {
                                 if (c.moveToFirst()) {
-                                    final String protocol = c.getString(0);
+                                    final String protocol = c.getString(INDEX_PROTOCOL);
                                     isEas = context.getString(R.string.protocol_eas)
                                             .equals(protocol);
+                                    mailboxId = c.getLong(INDEX_MAILBOX_KEY);
+                                    accountId = c.getLong(INDEX_ACCOUNT_KEY);
                                 }
                             } finally {
                                 c.close();
@@ -1600,6 +1625,30 @@ public class EmailProvider extends ContentProvider {
                                     flagFavorite : MessageStateChange.VALUE_UNCHANGED;
                             if (flagRead != null || flagFavorite != null) {
                                 addToMessageStateChange(db, id, flagReadValue, flagFavoriteValue);
+                            }
+
+                            // Request a sync for the messages mailbox so the update will upsync.
+                            // This is normally done with ContentResolver.notifyUpdate() but doesn't
+                            // work for Exchange because the Sync Adapter is declared as
+                            // android:supportsUploading="false". Changing it to true is not trivial
+                            // because that would require us to protect all calls to notifyUpdate()
+                            // with syncToServer=false except in cases where we actually want to
+                            // upsync.
+                            // TODO: Look into making Exchange Sync Adapter supportsUploading=true
+                            // Since we can't use the Sync Manager "delayed-sync" feature which
+                            // applies only to UPLOAD syncs, we need to do this ourselves. The
+                            // purpose of this is not to spam syncs when making frequent
+                            // modifications.
+                            final Handler handler = getDelayedSyncHandler();
+                            final SyncRequestMessage request = new SyncRequestMessage(
+                                    uri.getAuthority(), accountId, mailboxId);
+                            synchronized (mDelayedSyncRequests) {
+                                if (!mDelayedSyncRequests.contains(request)) {
+                                    mDelayedSyncRequests.add(request);
+                                    final android.os.Message message =
+                                            handler.obtainMessage(0, request);
+                                    handler.sendMessageDelayed(message, SYNC_DELAY_MILLIS);
+                                }
                             }
                         } else {
                             // Old way of doing upsync.
@@ -5059,6 +5108,71 @@ public class EmailProvider extends ContentProvider {
             }
         } finally {
             cursor.close();
+        }
+    }
+
+    synchronized public Handler getDelayedSyncHandler() {
+        if (mDelayedSyncHandler == null) {
+            mDelayedSyncHandler = new Handler(getContext().getMainLooper(), new Callback() {
+                @Override
+                public boolean handleMessage(android.os.Message msg) {
+                    synchronized (mDelayedSyncRequests) {
+                        final SyncRequestMessage request = (SyncRequestMessage) msg.obj;
+                        final Bundle extras = new Bundle();
+                        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
+                        ContentResolver.requestSync(getAccountManagerAccount(request.mMailboxId),
+                                request.mAuthority, extras);
+                        mDelayedSyncRequests.remove(request);
+                        return true;
+                    }
+                }
+            });
+        }
+        return mDelayedSyncHandler;
+    }
+
+    private class SyncRequestMessage {
+        private final String mAuthority;
+        private final long mAccountId;
+        private final long mMailboxId;
+
+        private SyncRequestMessage(String authority, long accountId, long mailboxId) {
+            mAuthority = authority;
+            mAccountId = accountId;
+            mMailboxId = mailboxId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            SyncRequestMessage that = (SyncRequestMessage) o;
+
+            if (mAccountId != that.mAccountId) {
+                return false;
+            }
+            if (mMailboxId != that.mMailboxId) {
+                return false;
+            }
+            //noinspection RedundantIfStatement
+            if (!mAuthority.equals(that.mAuthority)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mAuthority.hashCode();
+            result = 31 * result + (int) (mAccountId ^ (mAccountId >>> 32));
+            result = 31 * result + (int) (mMailboxId ^ (mMailboxId >>> 32));
+            return result;
         }
     }
 }
