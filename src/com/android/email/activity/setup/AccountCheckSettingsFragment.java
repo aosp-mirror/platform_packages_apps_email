@@ -56,7 +56,7 @@ import com.android.mail.utils.LogUtils;
  */
 public class AccountCheckSettingsFragment extends Fragment {
 
-    public final static String TAG = "AccountCheckSettingsFragment";
+    public final static String TAG = "AccountCheckStgFrag";
 
     // State
     private final static int STATE_START = 0;
