@@ -1496,9 +1496,85 @@ public class EmailProvider extends ContentProvider {
             + " INNER JOIN " + HostAuth.TABLE_NAME + " AS h"
             + " ON a." + AccountColumns.HOST_AUTH_KEY_RECV + "=h." + HostAuthColumns.ID
             + " WHERE m." + MessageColumns.ID + "=?";
-    private static int INDEX_PROTOCOL = 0;
-    private static int INDEX_MAILBOX_KEY = 1;
-    private static int INDEX_ACCOUNT_KEY = 2;
+    private static final int INDEX_PROTOCOL = 0;
+    private static final int INDEX_MAILBOX_KEY = 1;
+    private static final int INDEX_ACCOUNT_KEY = 2;
+
+    /**
+     * Query to get the protocol and email address for an account. Note that this uses
+     * {@link #INDEX_PROTOCOL} and {@link #INDEX_EMAIL_ADDRESS} for its columns.
+     */
+    private static final String GET_ACCOUNT_DETAILS = "SELECT"
+            + " h." + HostAuthColumns.PROTOCOL + ","
+            + " a." + AccountColumns.EMAIL_ADDRESS
+            + " FROM " + Account.TABLE_NAME + " AS a"
+            + " INNER JOIN " + HostAuth.TABLE_NAME + " AS h"
+            + " ON a." + AccountColumns.HOST_AUTH_KEY_RECV + "=h." + HostAuthColumns.ID
+            + " WHERE a." + AccountColumns.ID + "=?";
+    private static final int INDEX_EMAIL_ADDRESS = 1;
+
+    /**
+     * Restart push if we need it (currently only for Exchange accounts).
+     * @param context A {@link Context}.
+     * @param db The {@link SQLiteDatabase}.
+     * @param id The id of the thing we're looking for.
+     * @return Whether or not we sent a request to restart the push.
+     */
+    private static boolean restartPush(final Context context, final SQLiteDatabase db,
+            final String id) {
+        final Cursor c = db.rawQuery(GET_ACCOUNT_DETAILS, new String[] {id});
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    final String protocol = c.getString(INDEX_PROTOCOL);
+                    final String emailAddress = c.getString(INDEX_EMAIL_ADDRESS);
+                    if (context.getString(R.string.protocol_eas).equals(protocol)) {
+                        final android.accounts.Account account =
+                                getAccountManagerAccount(context, emailAddress, protocol);
+                        restartPush(account);
+                        return true;
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Restart push if a mailbox's settings change in a way that requires it.
+     * @param context A {@link Context}.
+     * @param db The {@link SQLiteDatabase}.
+     * @param values The {@link ContentValues} that were updated for the mailbox.
+     * @param accountId The id of the account for this mailbox.
+     * @return Whether or not the push was restarted.
+     */
+    private static boolean restartPushForMailbox(final Context context, final SQLiteDatabase db,
+            final ContentValues values, final String accountId) {
+        if (values.containsKey(MailboxColumns.SYNC_LOOKBACK) ||
+                values.containsKey(MailboxColumns.SYNC_INTERVAL)) {
+            return restartPush(context, db, accountId);
+        }
+        return false;
+    }
+
+    /**
+     * Restart push if an account's settings change in a way that requires it.
+     * @param context A {@link Context}.
+     * @param db The {@link SQLiteDatabase}.
+     * @param values The {@link ContentValues} that were updated for the account.
+     * @param accountId The id of the account.
+     * @return Whether or not the push was restarted.
+     */
+    private static boolean restartPushForAccount(final Context context, final SQLiteDatabase db,
+            final ContentValues values, final String accountId) {
+        if (values.containsKey(AccountColumns.SYNC_LOOKBACK) ||
+                values.containsKey(AccountColumns.SYNC_INTERVAL)) {
+            return restartPush(context, db, accountId);
+        }
+        return false;
+    }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
@@ -1684,12 +1760,15 @@ public class EmailProvider extends ContentProvider {
                             }
                         }
                     } else if (match == MAILBOX_ID) {
-                        notifyUIFolder(id, Mailbox.getAccountIdForMailbox(context, id));
+                        final long accountId = Mailbox.getAccountIdForMailbox(context, id);
+                        notifyUIFolder(id, accountId);
+                        restartPushForMailbox(context, db, values, Long.toString(accountId));
                     } else if (match == ACCOUNT_ID) {
                         updateAccountSyncInterval(Long.parseLong(id), values);
                         // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
                         resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+                        restartPushForAccount(context, db, values, id);
                     }
                     break;
                 case BODY:
@@ -4751,9 +4830,21 @@ public class EmailProvider extends ContentProvider {
         final Context context = getContext();
         final Account account = Account.restoreAccountWithId(context, accountId);
         if (account == null) return null;
-        EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(context, account.getProtocol(context));
-        return new android.accounts.Account(account.mEmailAddress, info.accountType);
+        return getAccountManagerAccount(context, account.mEmailAddress,
+                account.getProtocol(context));
+    }
+
+    /**
+     * Create an android.accounts.Account object for an emailAddress/protocol pair.
+     * @param context A {@link Context}.
+     * @param emailAddress The email address we're interested in.
+     * @param protocol The protocol we're intereted in.
+     * @return an {@link android.accounts.Account} for this info.
+     */
+    private static android.accounts.Account getAccountManagerAccount(final Context context,
+            final String emailAddress, final String protocol) {
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+        return new android.accounts.Account(emailAddress, info.accountType);
     }
 
     /**
@@ -4791,13 +4882,21 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private void startSync(final Mailbox mailbox, final int deltaMessageCount) {
-        android.accounts.Account account = getAccountManagerAccount(mailbox.mAccountKey);
-        Bundle extras = new Bundle(7);
+    /**
+     * Request a sync.
+     * @param account The {@link android.accounts.Account} we want to sync.
+     * @param mailboxId The mailbox id we want to sync (or one of the special constants in
+     *                  {@link Mailbox}).
+     * @param deltaMessageCount If we're requesting a load more, the number of additional messages
+     *                          to sync.
+     */
+    private static void startSync(final android.accounts.Account account, final long mailboxId,
+            final int deltaMessageCount) {
+        final Bundle extras = new Bundle(7);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailbox.mId);
+        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailboxId);
         if (deltaMessageCount != 0) {
             extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
@@ -4806,6 +4905,25 @@ public class EmailProvider extends ContentProvider {
         extras.putString(EmailServiceStatus.SYNC_EXTRAS_CALLBACK_METHOD,
                 SYNC_STATUS_CALLBACK_METHOD);
         ContentResolver.requestSync(account, EmailContent.AUTHORITY, extras);
+    }
+
+    /**
+     * Request a sync.
+     * @param mailbox The {@link Mailbox} we want to sync.
+     * @param deltaMessageCount If we're requesting a load more, the number of additional messages
+     *                          to sync.
+     */
+    private void startSync(final Mailbox mailbox, final int deltaMessageCount) {
+        final android.accounts.Account account = getAccountManagerAccount(mailbox.mAccountKey);
+        startSync(account, mailbox.mId, deltaMessageCount);
+    }
+
+    /**
+     * Restart any push operations for an account.
+     * @param account The {@link android.accounts.Account} we're interested in.
+     */
+    private static void restartPush(final android.accounts.Account account) {
+        startSync(account, Mailbox.SYNC_EXTRA_MAILBOX_ID_PUSH_ONLY, 0);
     }
 
     private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
