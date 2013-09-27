@@ -564,6 +564,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         } else {
             recvAuth.mDomain = null;
         }
+        recvAuth.mClientCertAlias = mClientCertificateSelector.getCertificate();
 
         mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
         clearButtonBounce();
