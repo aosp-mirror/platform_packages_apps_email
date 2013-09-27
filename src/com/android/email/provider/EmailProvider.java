@@ -4848,6 +4848,12 @@ public class EmailProvider extends ContentProvider {
     }
 
     /**
+     * The amount of time between periodic syncs intended to ensure that push hasn't died.
+     */
+    private static final long KICK_SYNC_INTERVAL =
+            DateUtils.HOUR_IN_MILLIS / DateUtils.SECOND_IN_MILLIS;
+
+    /**
      * Update an account's periodic sync if the sync interval has changed.
      * @param accountId id for the account to update.
      * @param values the ContentValues for this update to the account.
@@ -4879,6 +4885,13 @@ public class EmailProvider extends ContentProvider {
         if (syncInterval > 0) {
             ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, Bundle.EMPTY,
                     syncInterval * DateUtils.MINUTE_IN_MILLIS / DateUtils.SECOND_IN_MILLIS);
+        } else if (syncInterval == Account.CHECK_INTERVAL_PUSH) {
+            // Schedule a periodic sync to restart the push in case it fails.
+            // TODO: Make this unnecessary by having push not break.
+            final Bundle extras = new Bundle(1);
+            extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.SYNC_EXTRA_MAILBOX_ID_PUSH_ONLY);
+            ContentResolver.addPeriodicSync(account, EmailContent.AUTHORITY, extras,
+                    KICK_SYNC_INTERVAL);
         }
     }
 
