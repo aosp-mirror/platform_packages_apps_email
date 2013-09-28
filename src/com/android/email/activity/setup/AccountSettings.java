@@ -42,7 +42,6 @@ import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
-import com.android.email.mail.Sender;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -149,7 +148,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public static Intent createAccountSettingsIntent(long accountId,
             String loginWarningAccountName, String loginWarningReason) {
-        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
+        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
+                IntentUtilities.PATH_SETTINGS);
         IntentUtilities.setAccountId(b, accountId);
         final Intent i = new Intent(Intent.ACTION_EDIT, b.build());
         if (loginWarningAccountName != null) {
@@ -160,6 +160,24 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         }
         return i;
     }
+
+    @Override
+    public Intent getIntent() {
+        final Intent intent = super.getIntent();
+        final long accountId = IntentUtilities.getAccountIdFromIntent(intent);
+        if (accountId < 0) {
+            return intent;
+        }
+        Intent modIntent = new Intent(intent);
+        modIntent.putExtra(EXTRA_SHOW_FRAGMENT, AccountSettingsFragment.class.getCanonicalName());
+        modIntent.putExtra(
+                EXTRA_SHOW_FRAGMENT_ARGUMENTS,
+                AccountSettingsFragment.buildArguments(
+                        accountId, IntentUtilities.getAccountNameFromIntent(intent)));
+        modIntent.putExtra(EXTRA_NO_HEADERS, true);
+        return modIntent;
+    }
+
 
     /**
      * Launch generic settings and pre-enable the debug preferences
