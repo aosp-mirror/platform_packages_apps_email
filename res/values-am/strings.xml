@@ -24,7 +24,7 @@
     <string name="debug_title" msgid="5175710493691536719">"አርም"</string>
     <string name="next_action" msgid="3931301986364184415">"ቀጥል"</string>
     <string name="okay_action" msgid="8365197396795675617">"እሺ"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"ይቅር"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"ሰርዝ"</string>
     <string name="previous_action" msgid="5181616311579820981">"ቀዳሚ"</string>
     <string name="done_action" msgid="7497990549515580249">"ተከናውኗል"</string>
     <string name="create_action" msgid="3062715563215392251">"አዲስ ፍጠር"</string>
@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"የተላኩ ንጥሎች አቃፊ"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"የአገልጋይዎ የተላኩ ንጥሎች አቃፊውን ይምረጡ"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"የአገልጋይዎ የተላኩ ንጥሎች አቃፊውን ይምረጡ"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"ፈጣን ምላሽ አርትዕ"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"ፈጣን ምላሽ"</string>
     <string name="save_action" msgid="1988862706623227093">"አስቀምጥ"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ዕውቂያዎች አስምር"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ለእዚህ መለያ እውቂያዎች አስምር"</string>
