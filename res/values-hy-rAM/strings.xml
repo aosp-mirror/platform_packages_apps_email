@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Ուղարկված նյութերի թղթապանակ"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Ընտրեք ձեր սերվերի ուղարկած նյութերի թղթապանակը"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Ընտրեք ձեր սերվերի կողմից ուղարկված նյութերի թղթապանակը"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Խմբագրել արագ պատասխանը"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Արագ պատասխան"</string>
     <string name="save_action" msgid="1988862706623227093">"Պահել"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Համաժամեցնել կոնտակտները"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Համաժամեցնել այս հաշվի կոնտակտները"</string>

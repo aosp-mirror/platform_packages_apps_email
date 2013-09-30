@@ -229,7 +229,8 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Dosar articole trimise"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Editaţi răspunsul rapid"</string>
+    <!-- no translation found for edit_quick_response_dialog (6479106007607928450) -->
+    <skip />
     <string name="save_action" msgid="1988862706623227093">"Salvaţi"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizaţi persoanele din agendă"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincron. agenda pt. acest cont"</string>
