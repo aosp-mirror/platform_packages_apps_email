@@ -229,7 +229,8 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Dossier des éléments envoyés"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sélectionnez le dossier des éléments envoyés de votre serveur."</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sélectionner le dossier des éléments envoyés du serveur"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Modifier une réponse rapide"</string>
+    <!-- no translation found for edit_quick_response_dialog (6479106007607928450) -->
+    <skip />
     <string name="save_action" msgid="1988862706623227093">"Enregistrer"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchroniser les contacts"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Synchroniser les contacts pour ce compte"</string>
