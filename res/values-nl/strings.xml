@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Map \'Verzonden items\'"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Map \'Verzonden items\' van uw server selecteren"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Map \'Verzonden items\' van uw server selecteren"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Snelle reactie bewerken"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Snelle reactie"</string>
     <string name="save_action" msgid="1988862706623227093">"Opslaan"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Contacten synchroniseren"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Contacten voor dit account synchroniseren"</string>
