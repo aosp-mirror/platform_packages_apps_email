@@ -143,6 +143,8 @@ public class PopImapSyncAdapterService extends Service {
                 }
             } catch (MessagingException e) {
                 int cause = e.getExceptionType();
+                // XXX It's no good to put the MessagingException.cause here, that's not the
+                // same set of values that we use in EmailServiceStatus.
                 EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0);
                 switch(cause) {
                     case MessagingException.IOERROR:
