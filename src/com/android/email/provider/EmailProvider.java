@@ -3547,7 +3547,8 @@ public class EmailProvider extends ContentProvider {
                         mailbox.mUiLastSyncResult);
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
                  if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_BACKGROUND
-                        || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_USER) {
+                         || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_USER
+                         || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_LIVE) {
                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
                             UIProvider.CursorStatus.LOADING);
                 } else if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_NONE) {
