@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import android.app.Activity;
 import android.os.Bundle;
 
+import com.android.emailcommon.Logging;
 import com.android.mail.utils.LogUtils;
 
 /**
@@ -45,7 +46,7 @@ public class AccountSetupActivity extends Activity implements SetupData.SetupDat
 
         super.onCreate(savedInstanceState);
         if (DEBUG_SETUP_FLOWS) {
-            LogUtils.d(getClass().getName(), mSetupData.debugString());
+            LogUtils.d(Logging.LOG_TAG, "%s onCreate %s", getClass().getName(), mSetupData.debugString());
         }
     }
 
