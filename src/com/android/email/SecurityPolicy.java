@@ -574,6 +574,8 @@ public class SecurityPolicy {
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(amAccount, EmailContent.AUTHORITY, extras);
+        LogUtils.i(TAG, "requestSync SecurityPolicy syncAccount %s, %s", account.toString(),
+                extras.toString());
     }
 
     public void syncAccount(final Account account) {
