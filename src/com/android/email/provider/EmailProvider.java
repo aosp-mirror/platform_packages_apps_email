@@ -5251,7 +5251,7 @@ public class EmailProvider extends ContentProvider {
                         final SyncRequestMessage request = (SyncRequestMessage) msg.obj;
                         final Bundle extras = new Bundle();
                         extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
-                        ContentResolver.requestSync(getAccountManagerAccount(request.mMailboxId),
+                        ContentResolver.requestSync(getAccountManagerAccount(request.mAccountId),
                                 request.mAuthority, extras);
                         mDelayedSyncRequests.remove(request);
                         return true;
