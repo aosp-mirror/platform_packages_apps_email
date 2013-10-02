@@ -24,11 +24,15 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 public final class IntentUtilities {
+
+    public static final String PATH_SETTINGS = "settings";
+
     // Format for activity URIs: content://ui.email.android.com/...
     private static final String ACTIVITY_INTENT_SCHEME = "content";
     private static final String ACTIVITY_INTENT_HOST = "ui.email.android.com";
 
     private static final String ACCOUNT_ID_PARAM = "ACCOUNT_ID";
+    private static final String ACCOUNT_NAME_PARAM = "ACCOUNT_NAME";
     private static final String MAILBOX_ID_PARAM = "MAILBOX_ID";
     private static final String MESSAGE_ID_PARAM = "MESSAGE_ID";
     private static final String ACCOUNT_UUID_PARAM = "ACCOUNT_UUID";
@@ -53,6 +57,15 @@ public final class IntentUtilities {
     public static void setAccountId(Uri.Builder b, long accountId) {
         if (accountId != -1) {
             b.appendQueryParameter(ACCOUNT_ID_PARAM, Long.toString(accountId));
+        }
+    }
+
+    /**
+     * Add the account name parameter.
+     */
+    public static void setAccountName(Uri.Builder b, String accountName) {
+        if (accountName != null) {
+            b.appendQueryParameter(ACCOUNT_NAME_PARAM, accountName);
         }
     }
 
@@ -92,6 +105,13 @@ public final class IntentUtilities {
     }
 
     /**
+     * Retrieve the account name.
+     */
+    public static String getAccountNameFromIntent(Intent intent) {
+        return getStringFromIntent(intent, ACCOUNT_NAME_PARAM);
+    }
+
+    /**
      * Retrieve the mailbox ID.
      */
     public static long getMailboxIdFromIntent(Intent intent) {
@@ -125,6 +145,14 @@ public final class IntentUtilities {
         return value;
     }
 
+    private static String getStringFromIntent(Intent intent, String paramName) {
+        String value = null;
+        if (intent.getData() != null) {
+            value = getStringParamFromUri(intent.getData(), paramName, null);
+        }
+        return value;
+    }
+
     private static long getLongParamFromUri(Uri uri, String paramName, long defaultValue) {
         final String value = uri.getQueryParameter(paramName);
         if (!TextUtils.isEmpty(value)) {
@@ -135,6 +163,14 @@ public final class IntentUtilities {
             }
         }
         return defaultValue;
+    }
+
+    private static String getStringParamFromUri(Uri uri, String paramName, String defaultValue) {
+        final String value = uri.getQueryParameter(paramName);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
     }
 
     /**
