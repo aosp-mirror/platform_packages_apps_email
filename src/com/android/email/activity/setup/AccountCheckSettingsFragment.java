@@ -347,7 +347,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         final Callbacks callbackTarget = getCallbackTarget();
         if (mState == STATE_AUTODISCOVER_AUTH_DIALOG) {
             // report auth error to target fragment or activity
-            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION, mSetupData);
+            callbackTarget.onAutoDiscoverComplete(CHECK_SETTINGS_SERVER_ERROR, mSetupData);
         } else {
             // report check settings failure to target fragment or activity
             callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR, mSetupData);
@@ -589,9 +589,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 break;
             case MessagingException.AUTHENTICATION_FAILED:
             case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
-                id = TextUtils.isEmpty(message)
-                        ? R.string.account_setup_failed_dlg_auth_message
-                        : R.string.account_setup_failed_dlg_auth_message_fmt;
+                id = R.string.account_settings_login_dialog_title;
                 break;
             case MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR:
                 id = R.string.account_setup_failed_check_credentials_message;
@@ -798,10 +796,14 @@ public class AccountCheckSettingsFragment extends Fragment {
                     (AccountCheckSettingsFragment) getTargetFragment();
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle(context.getString(R.string.account_setup_failed_dlg_title))
                 .setMessage(message)
                 .setCancelable(true);
+
+            // Hide title when we get MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED
+            if (exceptionId != MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED) {
+                builder.setIconAttribute(android.R.attr.alertDialogIcon)
+                    .setTitle(context.getString(R.string.account_setup_failed_dlg_title));
+            }
 
             if (exceptionId == MessagingException.CLIENT_CERTIFICATE_REQUIRED) {
                 // Certificate error - show two buttons so the host fragment can auto pop
