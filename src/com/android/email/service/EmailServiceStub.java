@@ -121,6 +121,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
         ContentResolver.requestSync(acct, EmailContent.AUTHORITY, extras);
+        LogUtils.i(Logging.LOG_TAG, "requestSync EmailServiceStub startSync %s, %s",
+                account.toString(), extras.toString());
     }
 
     @Override
