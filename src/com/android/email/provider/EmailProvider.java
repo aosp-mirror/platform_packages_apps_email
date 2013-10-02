@@ -3703,6 +3703,9 @@ public class EmailProvider extends ContentProvider {
                 final long id = Long.parseLong(uri.getLastPathSegment());
                 final Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
                 if (att == null) return "";
+                if (!TextUtils.isEmpty(att.getCachedFileUri())) {
+                    return att.getCachedFileUri();
+                }
 
                 final String contentUri;
                 // Until the package installer can handle opening apks from a content:// uri, for
@@ -3717,6 +3720,7 @@ public class EmailProvider extends ContentProvider {
                             AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString();
                 }
                 return contentUri;
+
             } else {
                 return super.getString(column);
             }
@@ -4016,9 +4020,12 @@ public class EmailProvider extends ContentProvider {
      */
     // TODO(pwestbro): once the Attachment contains the cached uri, the second parameter can be
     // removed
+    // TODO(mhibdon): if the UI Attachment containded the account key, the third parameter could
+    // be removed.
     private static Attachment convertUiAttachmentToAttachment(
-            com.android.mail.providers.Attachment uiAtt, String cachedFile) {
+            com.android.mail.providers.Attachment uiAtt, String cachedFile, long accountKey) {
         final Attachment att = new Attachment();
+
         att.setContentUri(uiAtt.contentUri.toString());
 
         if (!TextUtils.isEmpty(cachedFile)) {
@@ -4028,7 +4035,7 @@ public class EmailProvider extends ContentProvider {
             cachedFileBuilder.appendQueryParameter(Attachment.CACHED_FILE_QUERY_PARAM, cachedFile);
             att.setCachedFileUri(cachedFileBuilder.build().toString());
         }
-
+        att.mAccountKey = accountKey;
         att.mFileName = uiAtt.getName();
         att.mMimeType = uiAtt.getContentType();
         att.mSize = uiAtt.size;
@@ -4176,12 +4183,12 @@ public class EmailProvider extends ContentProvider {
                 }
             } else {
                 // Cache the attachment.  This will allow us to send it, if the permissions are
-                // revoked
+                // revoked.
                 final String cachedFileUri =
                         AttachmentUtils.cacheAttachmentUri(context, uiAtt, attachmentFds);
 
                 // Convert external attachment to one of ours and add to the list
-                atts.add(convertUiAttachmentToAttachment(uiAtt, cachedFileUri));
+                atts.add(convertUiAttachmentToAttachment(uiAtt, cachedFileUri, msg.mAccountKey));
             }
         }
         if (!atts.isEmpty()) {
