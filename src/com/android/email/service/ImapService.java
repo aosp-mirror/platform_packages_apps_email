@@ -1427,15 +1427,15 @@ public class ImapService extends Service {
 
         // Tell UI that we're loading messages
 
-        Store remoteStore = Store.getInstance(account, context);
-        Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+        final Store remoteStore = Store.getInstance(account, context);
+        final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
         remoteFolder.open(OpenMode.READ_WRITE);
 
         SortableMessage[] sortableMessages = new SortableMessage[0];
         if (searchParams.mOffset == 0) {
             // Get the "bare" messages (basically uid)
-            Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
-            int remoteCount = remoteMessages.length;
+            final Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
+            final int remoteCount = remoteMessages.length;
             if (remoteCount > 0) {
                 sortableMessages = new SortableMessage[remoteCount];
                 int i = 0;
