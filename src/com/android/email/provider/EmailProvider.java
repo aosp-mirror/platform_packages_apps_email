@@ -1716,15 +1716,23 @@ public class EmailProvider extends ContentProvider {
                             // purpose of this is not to spam syncs when making frequent
                             // modifications.
                             final Handler handler = getDelayedSyncHandler();
-                            final SyncRequestMessage request = new SyncRequestMessage(
-                                    uri.getAuthority(), accountId, mailboxId);
-                            synchronized (mDelayedSyncRequests) {
-                                if (!mDelayedSyncRequests.contains(request)) {
-                                    mDelayedSyncRequests.add(request);
-                                    final android.os.Message message =
-                                            handler.obtainMessage(0, request);
-                                    handler.sendMessageDelayed(message, SYNC_DELAY_MILLIS);
+                            final android.accounts.Account amAccount =
+                                    getAccountManagerAccount(accountId);
+                            if (amAccount != null) {
+                                final SyncRequestMessage request = new SyncRequestMessage(
+                                        uri.getAuthority(), amAccount, mailboxId);
+                                synchronized (mDelayedSyncRequests) {
+                                    if (!mDelayedSyncRequests.contains(request)) {
+                                        mDelayedSyncRequests.add(request);
+                                        final android.os.Message message =
+                                                handler.obtainMessage(0, request);
+                                        handler.sendMessageDelayed(message, SYNC_DELAY_MILLIS);
+                                    }
                                 }
+                            } else {
+                                LogUtils.d(TAG,
+                                        "Attempted to start delayed sync for invalid account %d",
+                                        accountId);
                             }
                         } else {
                             // Old way of doing upsync.
@@ -5249,13 +5257,12 @@ public class EmailProvider extends ContentProvider {
                 public boolean handleMessage(android.os.Message msg) {
                     synchronized (mDelayedSyncRequests) {
                         final SyncRequestMessage request = (SyncRequestMessage) msg.obj;
-                        final android.accounts.Account account =
-                                getAccountManagerAccount(request.mAccountId);
-                        if (account != null) {
-                            final Bundle extras = new Bundle();
-                            extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
-                            ContentResolver.requestSync(account, request.mAuthority, extras);
-                        }
+                        // TODO: It's possible that the account is deleted by the time we get here
+                        // It would be nice if we could validate it before trying to sync
+                        final android.accounts.Account account = request.mAccount;
+                        final Bundle extras = new Bundle();
+                        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
+                        ContentResolver.requestSync(account, request.mAuthority, extras);
                         mDelayedSyncRequests.remove(request);
                         return true;
                     }
@@ -5267,12 +5274,13 @@ public class EmailProvider extends ContentProvider {
 
     private class SyncRequestMessage {
         private final String mAuthority;
-        private final long mAccountId;
+        private final android.accounts.Account mAccount;
         private final long mMailboxId;
 
-        private SyncRequestMessage(String authority, long accountId, long mailboxId) {
+        private SyncRequestMessage(final String authority, final android.accounts.Account account,
+                final long mailboxId) {
             mAuthority = authority;
-            mAccountId = accountId;
+            mAccount = account;
             mMailboxId = mailboxId;
         }
 
@@ -5287,24 +5295,15 @@ public class EmailProvider extends ContentProvider {
 
             SyncRequestMessage that = (SyncRequestMessage) o;
 
-            if (mAccountId != that.mAccountId) {
-                return false;
-            }
-            if (mMailboxId != that.mMailboxId) {
-                return false;
-            }
-            //noinspection RedundantIfStatement
-            if (!mAuthority.equals(that.mAuthority)) {
-                return false;
-            }
-
-            return true;
+            return mAccount.equals(that.mAccount)
+                    && mMailboxId == that.mMailboxId
+                    && mAuthority.equals(that.mAuthority);
         }
 
         @Override
         public int hashCode() {
             int result = mAuthority.hashCode();
-            result = 31 * result + (int) (mAccountId ^ (mAccountId >>> 32));
+            result = 31 * result + mAccount.hashCode();
             result = 31 * result + (int) (mMailboxId ^ (mMailboxId >>> 32));
             return result;
         }
