@@ -5249,10 +5249,13 @@ public class EmailProvider extends ContentProvider {
                 public boolean handleMessage(android.os.Message msg) {
                     synchronized (mDelayedSyncRequests) {
                         final SyncRequestMessage request = (SyncRequestMessage) msg.obj;
-                        final Bundle extras = new Bundle();
-                        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
-                        ContentResolver.requestSync(getAccountManagerAccount(request.mAccountId),
-                                request.mAuthority, extras);
+                        final android.accounts.Account account =
+                                getAccountManagerAccount(request.mAccountId);
+                        if (account != null) {
+                            final Bundle extras = new Bundle();
+                            extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
+                            ContentResolver.requestSync(account, request.mAuthority, extras);
+                        }
                         mDelayedSyncRequests.remove(request);
                         return true;
                     }
