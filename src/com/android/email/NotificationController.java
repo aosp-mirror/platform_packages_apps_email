@@ -514,7 +514,7 @@ public class NotificationController {
      * as well as special login/security notifications.
      */
     public static void cancelNotifications(final Context context, final Account account) {
-        NotificationUtils.clearAccountNotifications(context, account.mEmailAddress);
+        NotificationUtils.clearAccountNotifications(context, account.mAmAccount);
 
         final NotificationManager notificationManager = getInstance(context).mNotificationManager;
 
@@ -557,6 +557,12 @@ public class NotificationController {
                 }
             } finally {
                 accountCursor.close();
+            }
+
+            if (account == null) {
+                LogUtils.d(LOG_TAG, "Tried to create a notification for a missing account %d",
+                        mAccountId);
+                return;
             }
 
             final Cursor mailboxCursor = contentResolver.query(
@@ -678,6 +684,7 @@ public class NotificationController {
                     try {
                         mLock.wait();
                     } catch (InterruptedException ex) {
+                        // Loop around and wait again
                     }
                 }
             }
