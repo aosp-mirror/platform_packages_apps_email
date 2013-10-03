@@ -229,8 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Ordner \"Gesendete Elemente\""</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Ordner \"Gesendete Elemente\" des Servers auswählen"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Ordner \"Gesendete Elemente\" des Servers auswählen"</string>
-    <!-- no translation found for edit_quick_response_dialog (6479106007607928450) -->
-    <skip />
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Kurzantwort"</string>
     <string name="save_action" msgid="1988862706623227093">"Speichern"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kontakte synchronisieren"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Kontakte dieses Kontos synchronisieren"</string>
