@@ -134,7 +134,7 @@
     <string name="account_setup_options_title" msgid="9016600767888846051">"ການຕັ້ງຄ່າບັນຊີ"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"ຕົວເລືອກບັນຊີ"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"ຄວາມຖີ່ໃນການກວດກ່ອງຮັບອີເມວ"</string>
-    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"ບໍ່ເຄີຍ"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"ບໍ່ຕ້ອງກວດ"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"ອັດຕະໂນມັດ (ຕ້ອງກົດ)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"ທຸກໆ 5 ນາທີ"</string>
     <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"ທຸກໆ 10 ນາທີ"</string>
@@ -229,8 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"ໂຟນເດີລາຍການສົ່ງ"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"ເລືອກໂຟນເດີສົ່ງລາຍການຂອງເຊີບເວີຂອງທ່ານ"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"ເລືອກໂຟນເດີລາຍການສົ່ງສຳລັບເຊີບເວີ"</string>
-    <!-- no translation found for edit_quick_response_dialog (6479106007607928450) -->
-    <skip />
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"ການຕອບດ່ວນ"</string>
     <string name="save_action" msgid="1988862706623227093">"ບັນທຶກ"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"ຊິ້ງຂໍ້ມູນລາຍຊື່"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ຊິ້ງຂໍ້ມູນລາຍຊື່ຈາກບັນຊີນີ້"</string>
