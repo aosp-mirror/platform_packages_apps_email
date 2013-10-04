@@ -2308,10 +2308,6 @@ public class EmailProvider extends ContentProvider {
                             AccountColumns.SIGNATURE)
                     .add(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS,
                             Integer.toString(UIProvider.SnapHeaderValue.ALWAYS))
-                    .add(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
-                            Integer.toString(mailPrefs.getDefaultReplyAll()
-                                    ? UIProvider.DefaultReplyBehavior.REPLY_ALL
-                                    : UIProvider.DefaultReplyBehavior.REPLY))
                     .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
                     .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
                             Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
@@ -2997,6 +2993,12 @@ public class EmailProvider extends ContentProvider {
         if (projectionColumns.contains(UIProvider.AccountColumns.QUICK_RESPONSE_URI)) {
             values.put(UIProvider.AccountColumns.QUICK_RESPONSE_URI,
                     combinedUriString("quickresponse/account", id));
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
+                    mailPrefs.getDefaultReplyAll()
+                            ? UIProvider.DefaultReplyBehavior.REPLY_ALL
+                            : UIProvider.DefaultReplyBehavior.REPLY);
         }
 
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
