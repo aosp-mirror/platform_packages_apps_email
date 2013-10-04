@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"ელფოსტის დანართების წაკითხვა"</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"აპს ეძლევა ელფოსტაზე მიმაგრებული დანართების წაკითხვის უფლება."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"წვდომა ელფოსტის პროვაიდერის მონაცემებზე"</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"აპს უფლება ექნება მიწვდეს თქვენი ელფოსტის მონაცემთა ბაზას. მათ შორის მიღებულ და გაგზავნილ შეტყობინებებს, ასევე მომხმარებლის სახელებსა და პაროლებს."</string>
+    <string name="app_name" msgid="5815426892327290362">"ელფოსტა"</string>
+    <string name="debug_title" msgid="5175710493691536719">"გამართვა"</string>
+    <string name="next_action" msgid="3931301986364184415">"შემდეგი"</string>
+    <string name="okay_action" msgid="8365197396795675617">"კარგი"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"გაუქმება"</string>
+    <string name="previous_action" msgid="5181616311579820981">"წინა"</string>
+    <string name="done_action" msgid="7497990549515580249">"დასრულება"</string>
+    <string name="create_action" msgid="3062715563215392251">"ახლის შექმნა"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"სწრაფი პასუხები არ არის.."</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"ანგარიშის პარამეტრები"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"სინქრონიზაციის პარამეტრები"</string>
+    <string name="status_network_error" msgid="2611654064403817391">"კავშირის პრობლემა."</string>
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"შეტყობინების გადატანა"</item>
+    <item quantity="other" msgid="371256717624461324">"შეტყობინებების გადატანა"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"გადაადგილება მხარდაუჭერელია POP3 ანგარიშებისთვის."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"გადაადგილება შეუძლებელია, რადგან მონიშვნა შეიცავს რამდენიმე ანგარიშს."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"მონახაზებში, გასაგზავნში და გაგზავნილებში მოთავსებული შეტყობინებების გადაადგილება შეუძლებელია."</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"შემოსულები"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"გასაგზავნი"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"მონახაზები"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"წაშლილები"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"გაგზავნილი"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"არასასურველი"</string>
+    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"ვარსკვლავიანი"</string>
+    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"წაუკითხავი"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"შემოსულები"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ვარსკვლავიანი"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"მონახაზები"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"გასაგზავნი"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"კომბინირებული ხედი"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- შეტყობინების ორიგინალი --------\nთემა: <xliff:g id="SUBJECT">%1$s</xliff:g>\nგამგზავნი: <xliff:g id="SENDER">%2$s</xliff:g>\nმიმღები: <xliff:g id="TO">%3$s</xliff:g>\nასლი: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"სწრაფი პასუხის ჩასმა"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"სწრაფი პასუხის ჩასმა"</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"თქვენს გადაგზავნილ შეტყობინების ერთი, ან რამდენიმე დანართი გაგზავნამდე ჩამოიტვირთება."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"დანართის ჩამოტვირთვა ვერ მოხერხდა."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"შეტყობინების გაშიფრვისას წარმოიშვა შეცდომა."</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"ერთი ან რამდენიმე დანართის გადაგზავნა ვერ მოხერხდა."</string>
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"დანართი ვერ გადაიგზავნა"</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> შესვლა წარუმატებლად დასრულდა."</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"შესვლა ვერ მოხერხდა"</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>ბაიტი"</item>
+    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>ბაიტი"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>კბაიტი"</item>
+    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>კბაიტი"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>მბაიტი"</item>
+    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>მბაიტი"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>გბაიტი"</item>
+    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>გბაიტი"</item>
+  </plurals>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"ანგარიშის დაყენება"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"ელფოსტის ანგარიში"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"თქვენ შეგიძლიათ ანგარიშის დაყენება რამდენიმე მარტივი მოქმედებით."</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ელფოსტის მისამართი"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"პაროლი"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"ხელით დაყენება"</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"აკრიფეთ ნამდვილი ელფოსტის მისამართი და პაროლი."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"დუბლირებული ანგარიში"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"თქვენ უკვე იყენებთ მომხმარებლის სახელს ანგარიშისთვის \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"ეს პაროლი იწყება ან მთავრდება შორისის სიმბოლოთი. ბევრ სერვერს არ აქვს მსგავსი პაროლის გამოყენების მხარდაჭერა."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"ანგარიშის შესახებ ინფორმაციის ამოღება…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"სერვერის პარამეტრების გადამოწმება…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"smtp პარამეტრების გადამოწმება…"</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"ანგარიშის შექმნა…"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"ანგარიშის დაყენება"</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"თქვენი ანგარიში დაყენებულია და მალე ელფოსტაც გექნებათ!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"ანგარიშისთვის სახელის დარქმევა (არასავალდებულო)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"თქვენი სახელი (ჩანს გამავალ წერილებში)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"ეს ველი არ შეიძლება ცარიელი იყოს."</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"ანგარიშის დაყენება"</string>
+    <string name="account_setup_account_type_headline" msgid="3574102329184831086">"ანგარიშის ტიპი"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"ეს რა ტიპის ანგარიშია?"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"ანგარიშის დაყენება"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"შემომავალი სერვერის პარამეტრები"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"მომხმარებლის სახელი"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"პაროლი"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"სერვერი"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"პორტი"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"უსაფრთხოების ტიპი"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"არცერთი"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (ყველა სერტიფიკატის დაშვება)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (ყველა სერტიფიკატის დაშვება)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"შეტყობინებების წაშლა სერვერიდან"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"არასოდეს"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"შემომავალში წაშლისას"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP გზის პრეფიქსი"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"სურვილისამებრ"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"ანგარიშის დაყენება"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"გამავალი სერვერის პარამეტრები"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP სერვერი"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"პორტი"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"უსაფრთხოების ტიპი"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"მოითხოვე სისტემაში შესვლა"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"მომხმარებლის სახელი"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"პაროლი"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"კლიენტის სერტიფიკატი"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"არჩევა"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"კლიენტის სერტიფიკატის გამოყენება"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"ამოშლა"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"არცერთი"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"მობილური მოწყობილობის ID"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"ანგარიშის პარამეტრები"</string>
+    <string name="account_setup_options_headline" msgid="4181274232835368085">"ანგარიშის პარამეტრები"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"შემოსულების შემოწმების სიხშირე"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"არასოდეს"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"ავტომატურად (Push)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"5 წუთში ერთხელ"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"10 წუთში ერთხელ"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"ყოველ 15 წუთში"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"30  წუთში ერთხელ"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"ყოველ საათს"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"შემატყობინე, როცა წერილი მიუვა ადრესატს"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"ანგარიშის კონტაქტების სინქრონიზაცია"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"ანგარიშის კალენდრის სინქრონიზაცია"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"ანგარიშის ელფოსტის სინქრონიზაცია"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"დანართების ავტომატური გადმოწერა Wi-Fi-სთან დაკავშირებისას"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"დასრულება ვერ მოხერხდა"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"სინქრონიზაციის დღეები"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ავტომატური"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"ბოლო დღე"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"ბოლო სამი დღე"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"გასული კვირა"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ბოლო ორი კვირა"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"გასული თვე"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"ყველა"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"ანგარიშის ნაგულისხმევი პარამეტრის გამოყენება"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"მომხმარებლის სახელი ან პაროლი არასწორია."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"შესვლა ვერ მოხერხდა.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"სერვერთან უსაფრთხო კავშირის დამყარება ვერ ხერხდება."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"სერვერთან უსაფრთხო კავშირის დამყარება ვერ ხერხდება.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"აუცილებელია კლიენტის სერტიფიკატი. გსურთ დაუკავშირდეთ სერვერს კლიენტის სერტიფიკატით?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"სერტიფიკატი არასწორია, ან მიუწვდომელია."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"სერვერის პასუხი შეიცავს შეცდომას. შეამოწმეთ თქვენი მომხმარებლის სახელი და პაროლი და სცადეთ ხელახლა."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"სერვერთან დაკავშირება ვერ მოხერხდა."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"სერვერთან დაკავშირება ვერ ხერხდება.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"აუცილებელია TLS, მაგრამ ის მხარდაუჭერელია სერვერის მიერ."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"ავტორიზაციის მეთოდები მხარდაუჭერელია სერვერის მიერ."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"უსაფრთხოების შეცდომის გამო სერვერთან კავშირი ვერ დამყარდება."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"სერვერთან კავშირის დამყარება ვერ ხერხდება."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"თქვენ აკრიფეთ სერვერის არასწორი მისამართი, ან სერვერი ითხოვს პროტოკოლის ისეთ ვერსიას, რომლის მხარდაჭერაც ელფოსტას არ აქვს."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"თქვენ არ გაქვთ ამ სერვერთან სინქრონიზაციის უფლება. დამატებითი ინფორმაციისთვის დაუკავშირდეთ თქვენი სერვერის ადმინისტრატორს."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"უსაფრთხოების დისტანციური ადმინისტრირება"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> სერვერს ესაჭიროება თქვენი Android მოწყობილობის უსაფრთხოების ზოგიერთი პარამეტრის დისტანციური მართვის ნებართვა. გსურთ ამ ანგარიშის დაყენების დასრულება?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"სერვერი მოითხოვს უსაფრთხოების ისეთ პარამეტრებს, რომელიც არ არის მხარდაჭერილი თქვენი Android მოწყობილობის მიერ. მათ შორის: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"თქვენ არ შეგიძლიათ ანგარიშის მომხმარებლის სახელის შეცვლა. სხვა სახელის ანგარიშის დასამატებლად შეეხეთ „ანგარიშის დამატებას“."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"გაფრთხილება: თქვენს მოწყობილობაზე ადმინისტრირების უფლების გამორთვა ელფოსტის აპისთვის გამოიწვევს ყველა იმ ელფოსტის ანგარიშის წაშლას, რომელიც იყენებს ამ ფუნქციას. მათ შორის წაიშლება ყველა კონტაქტი, შეტყობინება, კალენდრის ღონისძიებები და სხვა მონაცემები."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"უსაფრთხოების განახლება"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> ითხოვს, რომ შეცვალოთ თქვენი უსაფრთხოების პარამეტრები."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"ანგარიშის „<xliff:g id="ACCOUNT">%s</xliff:g>“ სინქრონიზაცია ვერ ხერხდება უსაფრთხოების მოთხოვნათა გამო."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"ანგარიში „<xliff:g id="ACCOUNT">%s</xliff:g>“ საჭიროებს უსაფრთხოების პარამეტრების განახლებას."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ ანგარიშმა შეცვალა უსაფრთხოების პარამეტრები; მომხმარებლის მოქმედება საჭირო არ არის."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"აუცილებელია უსაფრთხოების განახლება"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"უსაფრთხოების წესები შეიცვალა"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"უსაფრთხოების პარამეტრები არ არის დაცული"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"მოწყობილობის უსაფრთხოება"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"სერვერს <xliff:g id="SERVER">%s</xliff:g> ესაჭიროება თქვენი Android მოწყობილობის უსაფრთხოების ზოგიერთი პარამეტრის დისტანციური მართვის ნებართვა."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"დეტალების რედაქტირება"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ საჭიროებს, რომ შეცვალოთ ეკრანის განბლოკვის PIN კოდი ან პაროლი."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"ეკრანის დაბლოკვის პაროლს გასდის ვადა"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"თქვენი ეკრანის დამბლოკველის PIN კოდს, ან პაროლს ვადა გაუვიდა."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"განბლოკვის პაროლი ამოიწურა"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"ეკრანის დაბლოკვის პაროლს გასდის ვადა"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"თქვენ სასაწრაფოდ უნდა შეცვალოთ ეკრანის განბლოკვის PIN კოდი ან პაროლი. წინააღმდეგ შემთხვევაში <xliff:g id="ACCOUNT">%s</xliff:g>-ის ყველა მონაცემი წაიშლება. გსურთ მისი ახლავე შეცვლა?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"განბლოკვის პაროლი ამოიწურა"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"<xliff:g id="ACCOUNT">%s</xliff:g> ანგარიშის მონაცემები წაიშლება თქვენი მოწყობილობიდან. თქვენ შეგიძიათ აღდგინოთ ისინი თქვენი ეკრანის დამბლოკველის PIN კოდის ან პაროლის შეცვლით. შევცვალო ახლავე?"</string>
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"გაუქმდეს შესანახი ცვლილებები?"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"შესვლა ვერ მოხერხდა"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"მომხმარებლის სახელი ან პაროლი ანგარიშისთვის <xliff:g id="ACCOUNT">%s</xliff:g> არასწორია. ახლავე გსურთ მათი განახლება?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g>-ში შესვლა ვერ მოხერხდა; სერვერის პასუხია: <xliff:g id="REASON">%s</xliff:g> გსურთ თქვენი მომხმარებლის სახელისა და პაროლის განახლება?"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"დანართების ჩამოტვირთვა"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"ნანახი წერილების დანართების ავტომატური გადმოწერა Wi-Fi-ის გამოყენებით"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"ელფოსტის შეტყობინებები"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"სინქრონიზაციის სიხშირე, შეტყობინებები და ა.შ."</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"შეტყობინების გაგზავნა ახალი ელფოსტის მიღებისას"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"სინქრონიზაციის სიხშირე"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"შემომავალის პარამეტრები"</string>
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"მომხმარებლის სახელი, პაროლი და შემომავალი სერვერის სხვა მონაცემები"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"გამავალი სერვერის პარამეტრები"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"მომხმარებლის სახელი, პაროლი და გამავალი სერვერის სხვა მონაცემები."</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"პოლიტიკა გამოყენებულია"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"არცერთი"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"მხარდაუჭერელი პოლიტიკა"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"არცერთი"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"სინქრონიზაციის მცდელობა"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"ანგარიშის სინქრონიზაციისთვის შეეხეთ აქ"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"ანგარიშის სახელი"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"თქვენი სახელი"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"სწრაფი პასუხი"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"წერილების შედგენისას ხშირად გამოყენებული ტექსტის რედაქტირება"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"შეტყობინების პარამეტრები"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"მონაცემთა გადაცემის მოხმარება"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"უსაფრთხოების პოლიტიკა"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"სისტემური საქაღალდეები"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"წაშლილების საქაღლდე"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"აირჩიეთ თქვენი სერვერის წაშლილების საქაღალდე"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"აირჩიეთ თქვენი სერვერის საქაღალდე წაშლილებისთვის"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"გაგზავნილების საქაღალდე"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"აირჩიეთ თქვენი სერვერის გაგზავნილების საქაღალდე"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"აირჩიეთ თქვენი სერვერის საქაღალდე გაგზავნილებისთვის"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"სწრაფი პასუხი"</string>
+    <string name="save_action" msgid="1988862706623227093">"შენახვა"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"კონტაქტების სინქრონიზაცია"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ანგარიშის კონტაქტების სინქრონიზაცია"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"კალენდრის სინქრონიზაცია"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"ამ ანგარიშისთვის კალენდრის ღონისძიების სინქრონიზაცია"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"ელფოსტის სინქრონიზაცია"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"ანგარიშის ელფოსტის სინქრონიზაცია"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"ვიბრაცია"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"ზარის მელოდიის არჩევა"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"სერვერის პარამეტრები"</string>
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"სინქრონიზაციის პარამეტრები"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"სინქრონიზაციის პარამეტრები (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"ამ საქაღალდის სინქრონიზაცია"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"შეტყობინებები დაკავშირებისას ჩამოიტვირთება"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ფოსტის სინქრონიზაციისათვის დღეების რაოდენობა"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"გამგზავნის სურათი"</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"მხოლოდ ზოგ „Plus“ ანგარიშს აქვს წვდომა POP პროტოკოლზე, რომელიც პროგრამას დაკავშირების საშუალებას აძლევს. თუ თქვენ არ შეგიძლიათ თქვენი პაროლითა და ელფოსტის მისამართით ავტორიზაცია, ე.ი. არ იყენებთ „Plus“ ფასიან ანგარიშს. ელფოსტის ანგარიშებში შესასვლელად, გამოიყენოთ ვებ ბრაუზერი."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"ელფოსტის ანგარიშის დაყენებამდე ეწვიეთ T-Online-ს ვებ-გვერდს და შექმენით პაროლი POP3 ელფოსტაზე წვდომისთვის."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"კორპორატიული"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"ანგარიშის შექმნა ვერ მოხერხდა. სცადეთ ხელახლა."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"ელფოსტა"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"სერვერის უსაფრთხოების პოლიტიკის ჩართვა"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"პარამეტრები"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"ძირითადი პარამეტრები"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"დაადასტურეთ წაშლამდე"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"შეტყობინებები"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"დაადასტურეთ გაგზავნამდე"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"შეტყობინებები"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"შეტყობინების ტექსტის ზომა"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"ძალიან პატარა შრიფტი"</item>
+    <item msgid="4415205108584620118">"პატარა შრიფტი"</item>
+    <item msgid="4550219696381691112">"ნორმალური ზომის შრიფტი"</item>
+    <item msgid="6227813549949219991">"დიდი შრიფტი"</item>
+    <item msgid="1197917420815786571">"უზარმაზარი ტექსტი"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"შეტყობინების ტექსტის ზომა"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"პაწაწინა"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"პატარა"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"ჩვეულებრივი"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"დიდი"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"უზარმაზარი"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_hint" msgid="2200412192574686497">"ელფოსტის ძიება"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"აიკრძალოს მოწყობკობის კამერის გამოყენება"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"მოითხოვე მოწყობილობის პაროლი"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"გამოყენებული პაროლების ხელმეორედ გამოყენების აკრძალვა"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"პაროლის მოქმედების ვადის შეზღუდვა"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"ეკრანის ჩაკეტვა უქმ რეჟიმში"</string>
+    <string name="policy_calendar_age" msgid="627405158087482302">"კალენდრის სინქრ. ღონისძიებების რაოდენობის შეზღუდვა"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"ელფოსტის სინქრ. შეტყობინებების რაოდენობის შეზღუდვა"</string>
+    <string name="quick_1" msgid="3426057697353380951">"მადლობა!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"კარგად ჟღერს!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"მოგვიანებით წავიკითხავ და დაგიბრუნდებით."</string>
+    <string name="quick_4" msgid="3988974084396883051">"ამის განსახილველად დავგეგმოთ პირისპირ შეხვედრა."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"ამ ანგარიშისთვის როუმინგისას ფონური სინქრონიზაცია გამორთულია"</string>
+    <string name="confirm_response" msgid="9151965975158906286">"პასუხის გაგზავნა..."</string>
+    <string name="no_conversations" msgid="5559527390337162819">"წერილები არ არის."</string>
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"საქაღალდის ასარჩევი"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"სერვერზე წაშლილების საქაღალდის არჩევა <xliff:g id="ACCOUNT">%s</xliff:g>-ისთვის"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"აირჩიეთ სერვერის გაგზავნილების საქაღალდე ანგარიშისთვის: <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"საქაღალდეების სიის ჩამოტვირთვა…"</string>
+</resources>
