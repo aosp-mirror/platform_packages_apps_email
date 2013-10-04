@@ -75,6 +75,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -292,13 +293,19 @@ public abstract class SyncManager extends Service implements Runnable {
     public class AccountList extends ArrayList<Account> {
         private static final long serialVersionUID = 1L;
 
+        private final WeakHashMap<Account, android.accounts.Account> mAmMap =
+                new WeakHashMap<Account, android.accounts.Account>();
+
         @Override
         public boolean add(Account account) {
             // Cache the account manager account
-            account.mAmAccount = new android.accounts.Account(
-                    account.mEmailAddress, getAccountManagerType());
+            mAmMap.put(account, account.getAccountManagerAccount(getAccountManagerType()));
             super.add(account);
             return true;
+        }
+
+        public android.accounts.Account getAmAccount(Account account) {
+            return mAmMap.get(account);
         }
 
         public boolean contains(long id) {
@@ -1766,7 +1773,8 @@ public abstract class SyncManager extends Service implements Runnable {
                 }
             }
             // See if "sync automatically" is set; if not, punt
-            if (!ContentResolver.getSyncAutomatically(account.mAmAccount, authority)) {
+            if (!ContentResolver.getSyncAutomatically(mAccountList.getAmAccount(account),
+                    authority)) {
                 return false;
             // See if the calendar is enabled from the Calendar app UI; if not, punt
             } else if ((type == Mailbox.TYPE_CALENDAR) && !isCalendarEnabled(account.mId)) {
@@ -1778,7 +1786,7 @@ public abstract class SyncManager extends Service implements Runnable {
         // For non-outbox, non-account mail, we do two checks:
         // 1) are we restricted by policy (i.e. manual sync only),
         // 2) has the user checked the "Sync Email" box in Account Settings, and
-        } else if (!canAutoSync(account) || !canSyncEmail(account.mAmAccount)) {
+        } else if (!canAutoSync(account) || !canSyncEmail(mAccountList.getAmAccount(account))) {
             return false;
         }
         return true;
