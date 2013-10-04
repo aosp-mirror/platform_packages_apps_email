@@ -2520,9 +2520,22 @@ public class EmailProvider extends ContentProvider {
                 ArrayList<com.android.mail.providers.Attachment> uiAtts =
                         new ArrayList<com.android.mail.providers.Attachment>();
                 for (Attachment att : atts) {
-                    if (att.mContentId != null && att.getContentUri() != null) {
-                        continue;
-                    }
+                    // TODO: This code is intended to strip out any inlined attachments (which
+                    // would have a non-null contentId) so that they will not display at the bottom
+                    // along with the non-inlined attachments.
+                    // The problem is that the UI_ATTACHMENTS query does not behave the same way,
+                    // which causes crazy formatting.
+                    // There is an open question here, should attachments that are inlined
+                    // ALSO appear in the list of attachments at the bottom with the non-inlined
+                    // attachments?
+                    // Either way, the two queries need to behave the same way.
+                    // As of now, they will. If we decide to stop this, then we need to enable
+                    // the code below, and then also make the UI_ATTACHMENTS query behave
+                    // the same way.
+//
+//                    if (att.mContentId != null && att.getContentUri() != null) {
+//                        continue;
+//                    }
                     com.android.mail.providers.Attachment uiAtt =
                             new com.android.mail.providers.Attachment();
                     uiAtt.setName(att.mFileName);
@@ -4023,7 +4036,7 @@ public class EmailProvider extends ContentProvider {
      */
     // TODO(pwestbro): once the Attachment contains the cached uri, the second parameter can be
     // removed
-    // TODO(mhibdon): if the UI Attachment containded the account key, the third parameter could
+    // TODO(mhibdon): if the UI Attachment contained the account key, the third parameter could
     // be removed.
     private static Attachment convertUiAttachmentToAttachment(
             com.android.mail.providers.Attachment uiAtt, String cachedFile, long accountKey) {
