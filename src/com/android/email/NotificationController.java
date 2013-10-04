@@ -515,9 +515,15 @@ public class NotificationController {
      * as well as special login/security notifications.
      */
     public static void cancelNotifications(final Context context, final Account account) {
+        final EmailServiceUtils.EmailServiceInfo serviceInfo
+                = EmailServiceUtils.getServiceInfoForAccount(context, account.mId);
+        if (serviceInfo == null) {
+            LogUtils.d(LOG_TAG, "Can't cancel notification for missing account %d", account.mId);
+            return;
+        }
         final android.accounts.Account notifAccount
-                = account.getAccountManagerAccount(
-                EmailServiceUtils.getServiceInfoForAccount(context, account.mId).accountType);
+                = account.getAccountManagerAccount(serviceInfo.accountType);
+
         NotificationUtils.clearAccountNotifications(context, notifAccount);
 
         final NotificationManager notificationManager = getInstance(context).mNotificationManager;
