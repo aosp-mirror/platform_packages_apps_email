@@ -31,9 +31,11 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,8 +147,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public transient HostAuth mHostAuthRecv;
     public transient HostAuth mHostAuthSend;
     public transient Policy mPolicy;
-    // Might hold the corresponding AccountManager account structure
-    public transient android.accounts.Account mAmAccount;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -600,6 +600,16 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             return hostAuth.mProtocol;
         }
         return null;
+    }
+
+    /**
+     * Return a corresponding account manager object using the passed in type
+     *
+     * @param type We can't look up the account type from here, so pass it in
+     * @return system account object
+     */
+    public android.accounts.Account getAccountManagerAccount(String type) {
+        return new android.accounts.Account(mEmailAddress, type);
     }
 
     /**
