@@ -188,9 +188,14 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
         " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
 
-    /** Selection for all mailboxes that explicitly say they want to sync for an account. */
-    private static final String SYNCING_AND_ACCOUNT_SELECTION =
-            MailboxColumns.SYNC_INTERVAL + "=1 and " + MailboxColumns.ACCOUNT_KEY + "=?";
+    /**
+     * Selection for mailboxes that should receive push for an account. A mailbox should receive
+     * push if it has a valid, non-initial sync key and is opted in for sync.
+     */
+    private static final String PUSH_MAILBOXES_FOR_ACCOUNT_SELECTION =
+            MailboxColumns.SYNC_KEY + "not null and " + MailboxColumns.SYNC_KEY + "!='' and " +
+                    MailboxColumns.SYNC_KEY + "!='0'" + MailboxColumns.SYNC_INTERVAL + "=1 and " +
+                    MailboxColumns.ACCOUNT_KEY + "=?";
 
     /** Selection for mailboxes that say they want to sync, plus outbox, for an account. */
     private static final String OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION = "("
@@ -787,14 +792,15 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     /**
-     * Get the mailboxes that want to receive push updates for an account.
+     * Get the mailboxes that should receive push updates for an account.
      * @param cr The {@link ContentResolver}.
      * @param accountId The id for the account that is pushing.
      * @return A cursor (suitable for use with {@link #restore}) with all mailboxes we should sync.
      */
     public static Cursor getMailboxesForPush(final ContentResolver cr, final long accountId) {
         return cr.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
-                SYNCING_AND_ACCOUNT_SELECTION, new String[] { Long.toString(accountId) }, null);
+                PUSH_MAILBOXES_FOR_ACCOUNT_SELECTION, new String[] { Long.toString(accountId) },
+                null);
     }
 
     /**
