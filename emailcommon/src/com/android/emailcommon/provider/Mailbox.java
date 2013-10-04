@@ -193,7 +193,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * push if it has a valid, non-initial sync key and is opted in for sync.
      */
     private static final String PUSH_MAILBOXES_FOR_ACCOUNT_SELECTION =
-            MailboxColumns.SYNC_KEY + "not null and " + MailboxColumns.SYNC_KEY + "!='' and " +
+            MailboxColumns.SYNC_KEY + " is not null and " + MailboxColumns.SYNC_KEY + "!='' and " +
                     MailboxColumns.SYNC_KEY + "!='0'" + MailboxColumns.SYNC_INTERVAL + "=1 and " +
                     MailboxColumns.ACCOUNT_KEY + "=?";
 
