@@ -194,8 +194,8 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      */
     private static final String PUSH_MAILBOXES_FOR_ACCOUNT_SELECTION =
             MailboxColumns.SYNC_KEY + " is not null and " + MailboxColumns.SYNC_KEY + "!='' and " +
-                    MailboxColumns.SYNC_KEY + "!='0'" + MailboxColumns.SYNC_INTERVAL + "=1 and " +
-                    MailboxColumns.ACCOUNT_KEY + "=?";
+                    MailboxColumns.SYNC_KEY + "!='0' and " + MailboxColumns.SYNC_INTERVAL +
+                    "=1 and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
     /** Selection for mailboxes that say they want to sync, plus outbox, for an account. */
     private static final String OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION = "("
