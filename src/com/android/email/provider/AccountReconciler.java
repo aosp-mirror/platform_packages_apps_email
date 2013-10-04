@@ -177,11 +177,12 @@ public class AccountReconciler {
                             context.getString(R.string.protocol_eas))) {
                         exchangeAccountDeleted = true;
                     }
+                    // Cancel all notifications for this account
+                    NotificationController.cancelNotifications(context, providerAccount);
+
                     context.getContentResolver().delete(
                             EmailProvider.uiUri("uiaccount", providerAccount.mId), null, null);
 
-                    // Cancel all notifications for this account
-                    NotificationController.cancelNotifications(context, providerAccount);
                     accountDeleted = true;
 
                 }
