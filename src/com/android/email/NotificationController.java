@@ -38,6 +38,7 @@ import android.text.TextUtils;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.email.provider.EmailProvider;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -514,7 +515,10 @@ public class NotificationController {
      * as well as special login/security notifications.
      */
     public static void cancelNotifications(final Context context, final Account account) {
-        NotificationUtils.clearAccountNotifications(context, account.mAmAccount);
+        final android.accounts.Account notifAccount
+                = account.getAccountManagerAccount(
+                EmailServiceUtils.getServiceInfoForAccount(context, account.mId).accountType);
+        NotificationUtils.clearAccountNotifications(context, notifAccount);
 
         final NotificationManager notificationManager = getInstance(context).mNotificationManager;
 
