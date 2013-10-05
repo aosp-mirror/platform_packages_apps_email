@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Folder item terkirim"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Pilih folder item terkirim server Anda"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Pilih folder item terkirim server Anda"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Edit tanggapan cepat"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Respons cepat"</string>
     <string name="save_action" msgid="1988862706623227093">"Simpan"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sinkronkan kontak"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sinkronkan kontak untuk akun ini"</string>

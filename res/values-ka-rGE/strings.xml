@@ -155,7 +155,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ბოლო ორი კვირა"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"გასული თვე"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"ყველა"</string>
-    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"ანგარიშის ნაგულისხმევი პარამეტრი"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"ანგარიშის ნაგულისხმევი პარამეტრის გამოყენება"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"მომხმარებლის სახელი ან პაროლი არასწორია."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"შესვლა ვერ მოხერხდა.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"სერვერთან უსაფრთხო კავშირის დამყარება ვერ ხერხდება."</string>
@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"გაგზავნილების საქაღალდე"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"აირჩიეთ თქვენი სერვერის გაგზავნილების საქაღალდე"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"აირჩიეთ თქვენი სერვერის საქაღალდე გაგზავნილებისთვის"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"სწრაფი პასუხის რედაქტირება"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"სწრაფი პასუხი"</string>
     <string name="save_action" msgid="1988862706623227093">"შენახვა"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"კონტაქტების სინქრონიზაცია"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"ანგარიშის კონტაქტების სინქრონიზაცია"</string>
@@ -244,7 +244,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"სინქრონიზაციის პარამეტრები (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"ამ საქაღალდის სინქრონიზაცია"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"შეტყობინებები დაკავშირებისას ჩამოიტვირთება"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ფოსტის დღეების რაოდენობა სინქრონიზაციისათვის"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ფოსტის სინქრონიზაციისათვის დღეების რაოდენობა"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"გამგზავნის სურათი"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"მხოლოდ ზოგ „Plus“ ანგარიშს აქვს წვდომა POP პროტოკოლზე, რომელიც პროგრამას დაკავშირების საშუალებას აძლევს. თუ თქვენ არ შეგიძლიათ თქვენი პაროლითა და ელფოსტის მისამართით ავტორიზაცია, ე.ი. არ იყენებთ „Plus“ ფასიან ანგარიშს. ელფოსტის ანგარიშებში შესასვლელად, გამოიყენოთ ვებ ბრაუზერი."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"ელფოსტის ანგარიშის დაყენებამდე ეწვიეთ T-Online-ს ვებ-გვერდს და შექმენით პაროლი POP3 ელფოსტაზე წვდომისთვის."</string>

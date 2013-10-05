@@ -186,7 +186,7 @@
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Sera za kiusalama haziwezi kufikiwa"</string>
     <string name="account_security_title" msgid="3511543138560418587">"Usalama wa kifaa"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Seva ya <xliff:g id="SERVER">%s</xliff:g> inahitaji uiruhusu idhibiti kwa umbali baadhi ya vipengele vya usalama vya simu yako."</string>
-    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Hariri maelezo"</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Badilisha maelezo"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" inahitaji ubadilishe kifungio chako cha skrini au nenosiri."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Nenosiri la kufunga skrini linaisha muda"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"PIN au nenosiri lako la kufunga skrini yako limekwisha muda."</string>
@@ -218,7 +218,7 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Jina la akaunti"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jina lako"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Majibu ya haraka"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Hariri maandishi unayoyaingiza mara kwa mara unapoandika barua pepe"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Badilisha maandishi unayoyaingiza mara kwa mara unapoandika barua pepe"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Mipangilio ya Arifa"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Matumizi ya data"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Sera za kiusalama"</string>
@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Folda ya vipengee iliyotumwa"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Chagua folda yako  ya seva ya vipengee vilivyotumwa"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Chagua folda yako  ya seva ya vipengee vilivyotumwa"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Hariri majibu ya haraka"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Jibu la haraka"</string>
     <string name="save_action" msgid="1988862706623227093">"Hifadhi"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sawazisha anwani"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sawazisha anwani za akaunti hii"</string>

@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"已发邮件文件夹"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"选择您在服务器上的已发邮件文件夹"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"选择您在服务器上的已发邮件文件夹"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"编辑快速回复"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"快速回复"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"同步联系人"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"同步此帐户的联系人"</string>
