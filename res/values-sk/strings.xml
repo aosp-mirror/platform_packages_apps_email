@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Priečinok odoslaných položiek"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Vyberte priečinok odoslaných položiek na vašom serveri"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Vyberte priečinok odoslaných položiek na vašom serveri"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Upraviť rýchlu odpoveď"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Rýchla odpoveď"</string>
     <string name="save_action" msgid="1988862706623227093">"Uložiť"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synchronizovať kontakty"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Synchr. kontakty pre tento účet."</string>

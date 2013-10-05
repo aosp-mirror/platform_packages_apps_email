@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Gönderilen öğeler klasörü"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sunucunuzun gönderilen öğeler klasörünü seçin"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sunucunuzun gönderilen öğeler klasörünü seçin"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Hızlı yanıtı düzenle"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Hızlı yanıt"</string>
     <string name="save_action" msgid="1988862706623227093">"Kaydet"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kişileri senkronize et"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Bu hesaba ilişkin kişileri senkronize et"</string>

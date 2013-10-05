@@ -229,7 +229,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"送信済みフォルダ"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"サーバーの送信済みフォルダを選択"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"サーバーの送信済みフォルダを選択"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"クイック返信の編集"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"クイック返信"</string>
     <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"連絡先を同期"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"このアカウントの連絡先を同期"</string>
