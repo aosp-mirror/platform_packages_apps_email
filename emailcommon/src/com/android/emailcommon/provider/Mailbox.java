@@ -810,9 +810,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return A cursor (with one column, containing ids) with all mailbox ids we should sync.
      */
     public static Cursor getMailboxIdsForSync(final ContentResolver cr, final long accountId) {
+        // We're sorting by mailbox type. The reason is that the inbox is type 0, other types
+        // (e.g. Calendar and Contacts) are all higher numbers. Upon initial sync, we'd like to
+        // sync the inbox first to improve perceived performance.
         return cr.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
                 OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION,
-                new String[] { Long.toString(accountId) }, null);
+                new String[] { Long.toString(accountId) }, MailboxColumns.TYPE + " ASC");
     }
 
     /**
