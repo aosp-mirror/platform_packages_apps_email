@@ -162,6 +162,10 @@ public abstract class EmailContent {
         }
     }
 
+    public static boolean isInitialSyncKey(final String syncKey) {
+        return syncKey == null || syncKey.isEmpty() || syncKey.equals("0");
+    }
+
     // The Uri is lazily initialized
     public Uri getUri() {
         if (mUri == null) {
