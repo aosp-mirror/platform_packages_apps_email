@@ -3665,6 +3665,8 @@ public class EmailProvider extends ContentProvider {
             final int numMessages = getInt(getColumnIndex(ConversationColumns.NUM_MESSAGES));
             final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
 
+            conversationInfo.firstSnippet = getString(getColumnIndex(ConversationColumns.SNIPPET));
+
             final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
             final boolean isStarred = getInt(getColumnIndex(ConversationColumns.STARRED)) != 0;
             final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
