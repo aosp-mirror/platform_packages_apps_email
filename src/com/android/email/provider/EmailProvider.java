@@ -2753,11 +2753,8 @@ public class EmailProvider extends ContentProvider {
      */
     private String genQueryMailbox(String[] uiProjection, String id) {
         long mailboxId = Long.parseLong(id);
-        ContentValues values = new ContentValues();
+        ContentValues values = new ContentValues(3);
         if (mSearchParams != null && mailboxId == mSearchParams.mSearchMailboxId) {
-            // This is the current search mailbox; use the total count
-            values = new ContentValues();
-            values.put(UIProvider.FolderColumns.TOTAL_COUNT, mSearchParams.mTotalCount);
             // "load more" is valid for search results
             values.put(UIProvider.FolderColumns.LOAD_MORE_URI,
                     uiUriString("uiloadmore", mailboxId));
@@ -5027,12 +5024,16 @@ public class EmailProvider extends ContentProvider {
                         EmailServiceUtils.getServiceForAccount(context, accountId);
                 if (service != null) {
                     try {
-                        // Save away the total count
-                        mSearchParams.mTotalCount =
+                        final int totalCount =
                                 service.searchMessages(accountId, mSearchParams, searchMailboxId);
+
+                        // Save away the total count
+                        final ContentValues cv = new ContentValues(1);
+                        cv.put(MailboxColumns.TOTAL_COUNT, totalCount);
+                        update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId), cv,
+                                null, null);
                         LogUtils.d(TAG, "EmailProvider#runSearchQuery. TotalCount to UI: %d",
-                                mSearchParams.mTotalCount);
-                        notifyUIFolder(searchMailboxId, accountId);
+                                totalCount);
                     } catch (RemoteException e) {
                         LogUtils.e("searchMessages", "RemoteException", e);
                     }
