@@ -866,6 +866,14 @@ public class EmailProvider extends ContentProvider {
         init(context);
         // Do this last, so that EmailContent/EmailProvider are initialized
         MailActivityEmail.setServicesEnabledAsync(context);
+
+        // Update widgets
+        final Intent updateAllWidgetsIntent =
+                new Intent(com.android.mail.utils.Utils.ACTION_NOTIFY_DATASET_CHANGED);
+        updateAllWidgetsIntent.putExtra(BaseWidgetProvider.EXTRA_UPDATE_ALL_WIDGETS, true);
+        updateAllWidgetsIntent.setType(context.getString(R.string.application_mime_type));
+        context.sendBroadcast(updateAllWidgetsIntent);
+
         return false;
     }
 
