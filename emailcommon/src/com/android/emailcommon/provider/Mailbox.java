@@ -56,6 +56,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      */
     public static final long SYNC_EXTRA_MAILBOX_ID_PUSH_ONLY = -3;
     /**
+     * Sync extras key to specify that only a specific mailbox type should be synced.
+     */
+    public static final String SYNC_EXTRA_MAILBOX_TYPE = "__mailboxType__";
+    /**
      * Sync extras key when syncing a mailbox to specify how many additional messages to sync.
      */
     public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
@@ -201,6 +205,11 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     private static final String OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION = "("
             + MailboxColumns.TYPE + "=" + Mailbox.TYPE_OUTBOX + " or "
             + MailboxColumns.SYNC_INTERVAL + "=1) and " + MailboxColumns.ACCOUNT_KEY + "=?";
+
+    /** Selection for mailboxes that are configured for sync of a certain type for an account. */
+    private static final String SYNCING_AND_TYPE_FOR_ACCOUNT_SELECTION =
+            MailboxColumns.SYNC_INTERVAL + "=1 and " + MailboxColumns.TYPE + "=? and " +
+                    MailboxColumns.ACCOUNT_KEY + "=?";
 
     // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
     // placing the inbox at the top.
@@ -816,6 +825,19 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         return cr.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
                 OUTBOX_PLUS_SYNCING_AND_ACCOUNT_SELECTION,
                 new String[] { Long.toString(accountId) }, MailboxColumns.TYPE + " ASC");
+    }
+
+    /**
+     * Get the mailbox ids for an account that are configured for sync and have a specific type.
+     * @param accountId The id for the account that is syncing.
+     * @param mailboxType The type of the mailbox we're interested in.
+     * @return A cursor (with one column, containing ids) with all mailbox ids that match.
+     */
+    public static Cursor getMailboxIdsForSyncByType(final ContentResolver cr, final long accountId,
+            final int mailboxType) {
+        return cr.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
+                SYNCING_AND_TYPE_FOR_ACCOUNT_SELECTION,
+                new String[] { Integer.toString(mailboxType), Long.toString(accountId) }, null);
     }
 
     /**
