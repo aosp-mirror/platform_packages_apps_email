@@ -188,6 +188,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     @Override
     public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
             final boolean background) throws RemoteException {
+        Folder remoteFolder = null;
         try {
             //1. Check if the attachment is already here and return early in that case
             Attachment attachment =
@@ -247,7 +248,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     TrafficFlags.getAttachmentFlags(mContext, account));
 
             final Store remoteStore = Store.getInstance(account, mContext);
-            final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+            remoteFolder = remoteStore.getFolder(mailbox.mServerId);
             remoteFolder.open(OpenMode.READ_WRITE);
 
             // 3. Generate a shell message in which to retrieve the attachment,
@@ -291,12 +292,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // 6. Report success
             cb.loadAttachmentStatus(messageId, attachmentId, EmailServiceStatus.SUCCESS, 0);
 
-            // Close the connection
-            remoteFolder.close(false);
-        }
-        catch (MessagingException me) {
-            if (Logging.LOGD) LogUtils.v(Logging.LOG_TAG, "", me);
-            // TODO: Fix this up; consider the best approach
+        } catch (MessagingException me) {
+            LogUtils.i(Logging.LOG_TAG, me, "Error loading attachment");
 
             final ContentValues cv = new ContentValues(1);
             cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
@@ -304,6 +301,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             mContext.getContentResolver().update(uri, cv, null, null);
 
             cb.loadAttachmentStatus(0, attachmentId, EmailServiceStatus.CONNECTION_ERROR, 0);
+        } finally {
+            if (remoteFolder != null) {
+                remoteFolder.close(false);
+            }
         }
 
     }
