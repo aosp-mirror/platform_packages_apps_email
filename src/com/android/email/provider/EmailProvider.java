@@ -113,7 +113,7 @@ import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.MimeType;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
-import com.android.mail.widget.WidgetProvider;
+import com.android.email.provider.WidgetProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -5204,7 +5204,7 @@ public class EmailProvider extends ContentProvider {
         // Lazily initialize these
         if (mAppWidgetManager == null) {
             mAppWidgetManager = AppWidgetManager.getInstance(context);
-            mEmailComponent = new ComponentName(context, WidgetProvider.PROVIDER_NAME);
+            mEmailComponent = new ComponentName(context, WidgetProvider.getProviderName(context));
         }
 
         // See if we have to populate our array of mailboxes used in widgets
@@ -5216,7 +5216,7 @@ public class EmailProvider extends ContentProvider {
             mWidgetNotifyMailboxes.clear();
             for (String[] widgetInfo: widgetInfos) {
                 try {
-                    if (widgetInfo == null) continue;
+                    if (widgetInfo == null || TextUtils.isEmpty(widgetInfo[1])) continue;
                     long id = Long.parseLong(Uri.parse(widgetInfo[1]).getLastPathSegment());
                     if (!isCombinedMailbox(id)) {
                         // For a regular mailbox, just add it to the list
