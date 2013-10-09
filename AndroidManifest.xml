@@ -41,6 +41,8 @@
     <!-- This needs to be present when we are doing unbundled releases. -->
     <uses-sdk android:targetSdkVersion="18" android:minSdkVersion="14" />
 
+    <!-- additional uses -->
+
     <original-package android:name="com.android.email" />
 
     <!-- Grant permission to other apps to view attachments -->
