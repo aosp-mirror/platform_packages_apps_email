@@ -50,6 +50,8 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -3657,8 +3659,6 @@ public class EmailProvider extends ContentProvider {
         }
 
         private ConversationInfo generateConversationInfo() {
-            // TODO This populates a very minimal ConversationInfo because it is currently only
-            // needed by NestedFolderTeaserView
             final int numMessages = getInt(getColumnIndex(ConversationColumns.NUM_MESSAGES));
             final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
 
@@ -3667,8 +3667,16 @@ public class EmailProvider extends ContentProvider {
             final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
             final boolean isStarred = getInt(getColumnIndex(ConversationColumns.STARRED)) != 0;
             final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
-            // TODO We probably want to parse out the email from this
-            final String email = getString(getColumnIndex(MessageColumns.FROM_LIST));
+
+            final String fromString = getString(getColumnIndex(MessageColumns.FROM_LIST));
+            final Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(fromString);
+            final String email;
+            if (tokens.length > 0) {
+                email = tokens[0].getAddress();
+            } else {
+                LogUtils.d(TAG, "Couldn't parse email address");
+                email = fromString;
+            }
 
             final MessageInfo messageInfo = new MessageInfo(isRead, isStarred, senderString,
                     0 /* priority */, email);
