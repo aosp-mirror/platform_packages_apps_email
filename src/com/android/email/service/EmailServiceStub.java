@@ -407,7 +407,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         break;
                 }
             }
-        } catch (MessagingException e) {
+        } catch (MessagingException me) {
+            LogUtils.i(Logging.LOG_TAG, me, "Error in updateFolderList");
             // We'll hope this is temporary
         } finally {
             if (localFolderCursor != null) {
