@@ -367,6 +367,9 @@ public class ImapStore extends Store {
 
     @Override
     public Folder[] updateFolders() throws MessagingException {
+        // TODO: There is nothing that ever closes this connection. Trouble is, it's not exactly
+        // clear when we should close it, we'd like to keep it open until we're really done
+        // using it.
         ImapConnection connection = getConnection();
         try {
             HashMap<String, ImapFolder> mailboxes = new HashMap<String, ImapFolder>();
