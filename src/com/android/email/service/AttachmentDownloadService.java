@@ -29,6 +29,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.text.format.DateUtils;
 
 import com.android.email.AttachmentInfo;
@@ -59,6 +60,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AttachmentDownloadService extends Service implements Runnable {
     public static final String TAG = "AttachmentService";
+
+    // Minimum wait time before retrying a download that failed due to connection error
+    private static final long CONNECTION_ERROR_RETRY_MILLIS = 10 * DateUtils.SECOND_IN_MILLIS;
+    // Number of retries before we start delaying between
+    private static final long CONNECTION_ERROR_DELAY_THRESHOLD = 5;
+    // Maximum time to retry for connection errors.
+    private static final long CONNECTION_ERROR_MAX_RETRIES = 10;
 
     // Our idle time, waiting for notifications; this is something of a failsafe
     private static final int PROCESS_QUEUE_WAIT_TIME = 30 * ((int)DateUtils.MINUTE_IN_MILLIS);
@@ -175,6 +183,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
         int lastProgress;
         long lastCallbackTime;
         long startTime;
+        long retryCount;
+        long retryStartTime;
 
         private DownloadRequest(Context context, Attachment attachment) {
             attachmentId = attachment.mId;
@@ -335,6 +345,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     continue;
                 }
                 if (!req.inProgress) {
+                    final long currentTime = SystemClock.elapsedRealtime();
+                    if (req.retryCount > 0 && req.retryStartTime > currentTime) {
+                        LogUtils.d(TAG, "== waiting to retry attachment %d", req.attachmentId);
+                        setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
+                        continue;
+                    }
                     mDownloadSet.tryStartDownload(req);
                 }
             }
@@ -428,7 +444,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     if (MailActivityEmail.DEBUG) {
                         LogUtils.d(TAG, "== Download of " + req.attachmentId + " timed out");
                     }
-                   cancelDownload(req);
+                    cancelDownload(req);
                 }
             }
             // Check whether we can start new downloads...
@@ -475,7 +491,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return mDownloadsInProgress.get(attachmentId);
         }
 
-        private void setWatchdogAlarm() {
+        private void setWatchdogAlarm(final long delay) {
             // Lazily initialize the pending intent
             if (mWatchdogPendingIntent == null) {
                 Intent intent = new Intent(mContext, Watchdog.class);
@@ -484,8 +500,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }
             // Set the alarm
             AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL,
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay,
                     mWatchdogPendingIntent);
+        }
+
+        private void setWatchdogAlarm() {
+            setWatchdogAlarm(WATCHDOG_CHECK_INTERVAL);
         }
 
         /**
@@ -539,14 +559,31 @@ public class AttachmentDownloadService extends Service implements Runnable {
             DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
             if (statusCode == EmailServiceStatus.CONNECTION_ERROR) {
                 // If this needs to be retried, just process the queue again
-                if (MailActivityEmail.DEBUG) {
-                    LogUtils.d(TAG, "== The download for attachment #" + attachmentId +
-                            " will be retried");
-                }
                 if (req != null) {
-                    req.inProgress = false;
+                    req.retryCount++;
+                    if (req.retryCount > CONNECTION_ERROR_MAX_RETRIES) {
+                        LogUtils.d(TAG, "Connection Error #%d, giving up", attachmentId);
+                        remove(req);
+                    } else if (req.retryCount > CONNECTION_ERROR_DELAY_THRESHOLD) {
+                        // TODO: I'm not sure this is a great retry/backoff policy, but we're
+                        // afraid of changing behavior too much in case something relies upon it.
+                        // So now, for the first five errors, we'll retry immediately. For the next
+                        // five tries, we'll add a ten second delay between each. After that, we'll
+                        // give up.
+                        LogUtils.d(TAG, "ConnectionError #%d, retried %d times, adding delay",
+                                attachmentId, req.retryCount);
+                        req.inProgress = false;
+                        req.retryStartTime = SystemClock.elapsedRealtime() +
+                                CONNECTION_ERROR_RETRY_MILLIS;
+                        setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
+                    } else {
+                        LogUtils.d(TAG, "ConnectionError #%d, retried %d times, adding delay",
+                                attachmentId, req.retryCount);
+                        req.inProgress = false;
+                        req.retryStartTime = 0;
+                        kick();
+                    }
                 }
-                kick();
                 return;
             }
 
@@ -610,6 +647,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
                     } else {
                         // If there really is a message, retry
+                        // TODO: How will this get retried? It's still marked as inProgress?
                         kick();
                         return;
                     }
@@ -665,6 +703,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
             // Record status and progress
+            LogUtils.d(TAG, "loadAttachmentStatus %d %d %d", messageId, attachmentId, statusCode);
             DownloadRequest req = mDownloadSet.getDownloadInProgress(attachmentId);
             if (req != null) {
                 if (MailActivityEmail.DEBUG) {
