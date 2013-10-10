@@ -3677,13 +3677,18 @@ public class EmailProvider extends ContentProvider {
             final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
 
             final String fromString = getString(getColumnIndex(MessageColumns.FROM_LIST));
-            final Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(fromString);
             final String email;
-            if (tokens.length > 0) {
-                email = tokens[0].getAddress();
+
+            if (fromString != null) {
+                final Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(fromString);
+                if (tokens.length > 0) {
+                    email = tokens[0].getAddress();
+                } else {
+                    LogUtils.d(TAG, "Couldn't parse email address");
+                    email = fromString;
+                }
             } else {
-                LogUtils.d(TAG, "Couldn't parse email address");
-                email = fromString;
+                email = null;
             }
 
             final MessageInfo messageInfo = new MessageInfo(isRead, isStarred, senderString,
