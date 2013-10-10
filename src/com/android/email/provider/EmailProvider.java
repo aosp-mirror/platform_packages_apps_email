@@ -4972,11 +4972,10 @@ public class EmailProvider extends ContentProvider {
      */
     private static void startSync(final android.accounts.Account account, final long mailboxId,
             final int deltaMessageCount) {
-        final Bundle extras = new Bundle(7);
+        final Bundle extras = Mailbox.createSyncBundle(mailboxId);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailboxId);
         if (deltaMessageCount != 0) {
             extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
@@ -5005,7 +5004,18 @@ public class EmailProvider extends ContentProvider {
      * @param account The {@link android.accounts.Account} we're interested in.
      */
     private static void restartPush(final android.accounts.Account account) {
-        startSync(account, Mailbox.SYNC_EXTRA_MAILBOX_ID_PUSH_ONLY, 0);
+        final Bundle extras = new Bundle();
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        extras.putBoolean(Mailbox.SYNC_EXTRA_PUSH_ONLY, true);
+        extras.putString(EmailServiceStatus.SYNC_EXTRAS_CALLBACK_URI,
+                EmailContent.CONTENT_URI.toString());
+        extras.putString(EmailServiceStatus.SYNC_EXTRAS_CALLBACK_METHOD,
+                SYNC_STATUS_CALLBACK_METHOD);
+        ContentResolver.requestSync(account, EmailContent.AUTHORITY, extras);
+        LogUtils.i(TAG, "requestSync EmailProvider startSync %s, %s", account.toString(),
+                extras.toString());
     }
 
     private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
@@ -5325,8 +5335,7 @@ public class EmailProvider extends ContentProvider {
                         // TODO: It's possible that the account is deleted by the time we get here
                         // It would be nice if we could validate it before trying to sync
                         final android.accounts.Account account = request.mAccount;
-                        final Bundle extras = new Bundle();
-                        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, request.mMailboxId);
+                        final Bundle extras = Mailbox.createSyncBundle(request.mMailboxId);
                         ContentResolver.requestSync(account, request.mAuthority, extras);
                         LogUtils.i(TAG, "requestSync getDelayedSyncHandler %s, %s",
                                 account.toString(), extras.toString());
