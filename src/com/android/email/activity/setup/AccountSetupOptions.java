@@ -55,6 +55,8 @@ import com.android.mail.utils.LogUtils;
 import java.io.IOException;
 
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
+    private static final String EXTRA_IS_PROCESSING_KEY = "com.android.email.is_processing";
+
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
     private CheckBox mNotifyView;
@@ -65,6 +67,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private View mAccountSyncWindowRow;
     private boolean mDonePressed = false;
     private EmailServiceInfo mServiceInfo;
+    private boolean mIsProcessing = false;
 
     private ProgressDialog mCreateAccountDialog;
 
@@ -141,21 +144,25 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                     View.GONE);
         }
 
-        // If we are just visiting here to fill in details, exit immediately
-        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+        mIsProcessing = savedInstanceState != null &&
+                savedInstanceState.getBoolean(EXTRA_IS_PROCESSING_KEY, false);
+        if (mIsProcessing) {
+            // We are already processing, so just show the dialog until we finish
+            showCreateAccountDialog();
+        } else if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+            // If we are just visiting here to fill in details, exit immediately
             onDone();
         }
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_IS_PROCESSING_KEY, mIsProcessing);
+    }
+
+    @Override
     public void finish() {
-
-        // If we're showing "Creating account...", dismiss it
-        if (mCreateAccountDialog != null) {
-            mCreateAccountDialog.dismiss();
-            mCreateAccountDialog = null;
-        }
-
         // If the account manager initiated the creation, and success was not reported,
         // then we assume that we're giving up (for any reason) - report failure.
         final AccountAuthenticatorResponse authenticatorResponse =
@@ -201,7 +208,11 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             // Disrupting the normal flow could get us here, but if the account is already
             // saved, we've done this work
             return;
+        } else if (account.mHostAuthRecv == null) {
+            throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");
         }
+
+        mIsProcessing = true;
         account.setDisplayName(account.getEmailAddress());
         int newFlags = account.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
         if (mServiceInfo.offerAttachmentPreload && mBackgroundAttachmentsView.isChecked()) {
@@ -213,10 +224,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         if (mAccountSyncWindowRow.getVisibility() == View.VISIBLE) {
             account.setSyncLookback(
                     (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value);
-        }
-
-        if (account.mHostAuthRecv == null) {
-            throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");
         }
 
         // Finish setting up the account, and commit it to the database
@@ -235,12 +242,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         final boolean calendar = mServiceInfo.syncCalendar && mSyncCalendarView.isChecked();
         final boolean contacts = mServiceInfo.syncContacts && mSyncContactsView.isChecked();
 
-        /// Show "Creating account..." dialog
-        mCreateAccountDialog = new ProgressDialog(this);
-        mCreateAccountDialog.setIndeterminate(true);
-        mCreateAccountDialog.setMessage(getString(R.string.account_setup_creating_account_msg));
-        mCreateAccountDialog.show();
-
+        showCreateAccountDialog();
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -256,6 +258,14 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 accountPreferences.setDefaultInboxNotificationsEnabled(mNotifyView.isChecked());
             }
         });
+    }
+
+    private void showCreateAccountDialog() {
+        /// Show "Creating account..." dialog
+        mCreateAccountDialog = new ProgressDialog(this);
+        mCreateAccountDialog.setIndeterminate(true);
+        mCreateAccountDialog.setMessage(getString(R.string.account_setup_creating_account_msg));
+        mCreateAccountDialog.show();
     }
 
     /**
@@ -303,7 +313,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                       finish();
+                                        finish();
                                     }
                                 })
                         .show();
