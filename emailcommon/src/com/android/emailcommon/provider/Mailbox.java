@@ -44,17 +44,25 @@ import java.util.ArrayList;
 
 public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
     /**
-     * Sync extras key when syncing a mailbox to specify which mailbox to sync.
+     * Sync extras key when syncing one or more mailboxes to specify how many
+     * mailboxes are included in the extra.
      */
-    public static final String SYNC_EXTRA_MAILBOX_ID = "__mailboxId__";
+    public static final String SYNC_EXTRA_MAILBOX_COUNT = "__mailboxCount__";
     /**
-     * Value for {@link #SYNC_EXTRA_MAILBOX_ID} when requesting an account only sync.
+     * Sync extras key pattern when syncing one or more mailboxes to specify
+     * which mailbox to sync. Is intentionally private, we have helper functions
+     * to set up an appropriate bundle, or read its contents.
      */
-    public static final long SYNC_EXTRA_MAILBOX_ID_ACCOUNT_ONLY = -2;
+    private static final String SYNC_EXTRA_MAILBOX_ID_PATTERN = "__mailboxId%d__";
     /**
-     * Value for {@link #SYNC_EXTRA_MAILBOX_ID} when (re)starting push.
+     * Sync extra key indicating that we are doing a sync of the folder structure for an account.
      */
-    public static final long SYNC_EXTRA_MAILBOX_ID_PUSH_ONLY = -3;
+    public static final String SYNC_EXTRA_ACCOUNT_ONLY = "__account_only__";
+    /**
+     * Sync extra key indicating that we are only starting a ping.
+     */
+    public static final String SYNC_EXTRA_PUSH_ONLY = "__push_only__";
+
     /**
      * Sync extras key to specify that only a specific mailbox type should be synced.
      */
@@ -64,7 +72,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      */
     public static final String SYNC_EXTRA_DELTA_MESSAGE_COUNT = "__deltaMessageCount__";
 
+    public static final String SYNC_EXTRA_NOOP = "__noop__";
+
     public static final String TABLE_NAME = "Mailbox";
+
 
     public static Uri CONTENT_URI;
     public static Uri MESSAGE_COUNT_URI;
@@ -72,6 +83,77 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static void initMailbox() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
         MESSAGE_COUNT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailboxCount");
+    }
+
+    private static String formatMailboxIdExtra(final int index) {
+        return String.format(SYNC_EXTRA_MAILBOX_ID_PATTERN, index);
+    }
+
+    public static Bundle createSyncBundle(final ArrayList<Long> mailboxIds) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, mailboxIds.size());
+        for (int i = 0; i < mailboxIds.size(); i++) {
+            bundle.putLong(formatMailboxIdExtra(i), mailboxIds.get(i));
+        }
+        return bundle;
+    }
+
+    public static Bundle createSyncBundle(final long[] mailboxIds) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, mailboxIds.length);
+        for (int i = 0; i < mailboxIds.length; i++) {
+            bundle.putLong(formatMailboxIdExtra(i), mailboxIds[i]);
+        }
+        return bundle;
+    }
+
+    public static Bundle createSyncBundle(final long mailboxId) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, 1);
+        bundle.putLong(formatMailboxIdExtra(0), mailboxId);
+        return bundle;
+    }
+
+    public static long[] getMailboxIdsFromBundle(Bundle bundle) {
+        final int count = bundle.getInt(SYNC_EXTRA_MAILBOX_COUNT, 0);
+        if (count > 0) {
+            if (bundle.getBoolean(SYNC_EXTRA_PUSH_ONLY, false)) {
+                LogUtils.w(Logging.LOG_TAG, "Mailboxes specified in a push only sync");
+            }
+            if (bundle.getBoolean(SYNC_EXTRA_ACCOUNT_ONLY, false)) {
+                LogUtils.w(Logging.LOG_TAG, "Mailboxes specified in an account only sync");
+            }
+            long [] result = new long[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = bundle.getLong(formatMailboxIdExtra(i), 0);
+            }
+
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    public static boolean isAccountOnlyExtras(Bundle bundle) {
+        final boolean result = bundle.getBoolean(SYNC_EXTRA_ACCOUNT_ONLY, false);
+        if (result) {
+            final int count = bundle.getInt(SYNC_EXTRA_MAILBOX_COUNT, 0);
+            if (count != 0) {
+                LogUtils.w(Logging.LOG_TAG, "Mailboxes specified in an account only sync");
+            }
+        }
+        return result;
+    }
+
+    public static boolean isPushOnlyExtras(Bundle bundle) {
+        final boolean result = bundle.getBoolean(SYNC_EXTRA_PUSH_ONLY, false);
+        if (result) {
+            final int count = bundle.getInt(SYNC_EXTRA_MAILBOX_COUNT, 0);
+            if (count != 0) {
+                LogUtils.w(Logging.LOG_TAG, "Mailboxes specified in a push only sync");
+            }
+        }
+        return result;
     }
 
     public String mDisplayName;
@@ -909,8 +991,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                     .withValue(Mailbox.SYNC_KEY, "0").build());
 
             cr.applyBatch(AUTHORITY, ops);
-            final Bundle extras = new Bundle();
-            extras.putLong(SYNC_EXTRA_MAILBOX_ID, mailboxId);
+            final Bundle extras = createSyncBundle(mailboxId);
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
             ContentResolver.requestSync(account, AUTHORITY, extras);
             LogUtils.i(Logging.LOG_TAG, "requestSync resyncMailbox %s, %s",

@@ -110,13 +110,12 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 EmailServiceUtils.getServiceInfoForAccount(mContext, account.mId);
         final android.accounts.Account acct = new android.accounts.Account(account.mEmailAddress,
                 info.accountType);
-        final Bundle extras = new Bundle(5);
+        final Bundle extras = Mailbox.createSyncBundle(mailboxId);
         if (userRequest) {
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
             extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         }
-        extras.putLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, mailboxId);
         if (deltaMessageCount != 0) {
             extras.putInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, deltaMessageCount);
         }
