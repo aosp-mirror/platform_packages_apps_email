@@ -154,8 +154,8 @@ public final class DBHelper {
     // Version 116: Add MessageMove & MessageStateChange tables.
     // Version 117: Add trigger to delete duplicate messages on sync.
     // Version 118: Set syncInterval to 0 for all IMAP mailboxes
-
-    public static final int DATABASE_VERSION = 118;
+    // Version 119: Disable syncing of DRAFTS type folders.
+    public static final int DATABASE_VERSION = 119;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1210,6 +1210,29 @@ public final class DBHelper {
                         + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='"
                         + mContext.getString(R.string.protocol_imap) + "' or "
                         + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='imap'));");
+            }
+
+            /**
+             * This statement changes the sync interval column to 0 for all DRAFTS type mailboxes,
+             * and deletes any messages that are:
+             *   * synced from the server, and
+             *   * in an exchange account draft folder
+             *
+             * This is primary for Exchange (b/11158759) but we don't sync draft folders for any
+             * other account type anyway.
+             * This will only affect people who used intermediate builds between email1 and email2,
+             * it should be a no-op for most users.
+             */
+            if (oldVersion <= 118) {
+                db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.SYNC_INTERVAL
+                        + "=0 where " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS);
+
+                db.execSQL("delete from " + Message.TABLE_NAME + " where "
+                        + "(" + SyncColumns.SERVER_ID + " not null and "
+                        + SyncColumns.SERVER_ID + "!='') and "
+                        + MessageColumns.MAILBOX_KEY + " in (select "
+                        + MailboxColumns.ID + " from " + Mailbox.TABLE_NAME + " where "
+                        + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS + ")");
             }
         }
 
