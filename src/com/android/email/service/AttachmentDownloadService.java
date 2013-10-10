@@ -267,14 +267,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
             DownloadRequest req = findDownloadRequest(att.mId);
             long priority = getPriority(att);
             if (priority == PRIORITY_NONE) {
-                if (MailActivityEmail.DEBUG) {
+                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                     LogUtils.d(TAG, "== Attachment changed: " + att.mId);
                 }
                 // In this case, there is no download priority for this attachment
                 if (req != null) {
                     // If it exists in the map, remove it
                     // NOTE: We don't yet support deleting downloads in progress
-                    if (MailActivityEmail.DEBUG) {
+                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                         LogUtils.d(TAG, "== Attachment " + att.mId + " was in queue, removing");
                     }
                     remove(req);
@@ -289,7 +289,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
                 // If the request already existed, we'll update the priority (so that the time is
                 // up-to-date); otherwise, we create a new request
-                if (MailActivityEmail.DEBUG) {
+                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                     LogUtils.d(TAG, "== Download queued for attachment " + att.mId + ", class " +
                             req.priority + ", priority time " + req.time);
                 }
@@ -324,7 +324,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * the limit on maximum downloads
          */
         /*package*/ synchronized void processQueue() {
-            if (MailActivityEmail.DEBUG) {
+            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                 LogUtils.d(TAG, "== Checking attachment queue, " + mDownloadSet.size()
                         + " entries");
             }
@@ -336,7 +336,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 DownloadRequest req = iterator.next();
                  // Enforce per-account limit here
                 if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
-                    if (MailActivityEmail.DEBUG) {
+                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                         LogUtils.d(TAG, "== Skip #" + req.attachmentId + "; maxed for acct #" +
                                 req.accountId);
                     }
@@ -441,7 +441,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 // Check how long it's been since receiving a callback
                 long timeSinceCallback = now - req.lastCallbackTime;
                 if (timeSinceCallback > CALLBACK_TIMEOUT) {
-                    if (MailActivityEmail.DEBUG) {
+                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                         LogUtils.d(TAG, "== Download of " + req.attachmentId + " timed out");
                     }
                     cancelDownload(req);
@@ -453,7 +453,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }
             // If there are downloads in progress, reset alarm
             if (!mDownloadsInProgress.isEmpty()) {
-                if (MailActivityEmail.DEBUG) {
+                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                     LogUtils.d(TAG, "Reschedule watchdog...");
                 }
                 setWatchdogAlarm();
@@ -475,7 +475,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (alreadyInProgress) return false;
 
             try {
-                if (MailActivityEmail.DEBUG) {
+                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                     LogUtils.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
                 }
                 startDownload(service, req);
@@ -591,7 +591,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (req != null) {
                 remove(req);
             }
-            if (MailActivityEmail.DEBUG) {
+            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                 long secs = 0;
                 if (req != null) {
                     secs = (System.currentTimeMillis() - req.time) / 1000;
@@ -627,7 +627,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     // try to send pending mail now (as mediated by MailService)
                     if ((req != null) &&
                             !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
-                        if (MailActivityEmail.DEBUG) {
+                        if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                             LogUtils.d(TAG, "== Downloads finished for outgoing msg #"
                                     + req.messageId);
                         }
@@ -703,10 +703,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
             // Record status and progress
-            LogUtils.d(TAG, "loadAttachmentStatus %d %d %d", messageId, attachmentId, statusCode);
             DownloadRequest req = mDownloadSet.getDownloadInProgress(attachmentId);
             if (req != null) {
-                if (MailActivityEmail.DEBUG) {
+                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                     String code;
                     switch(statusCode) {
                         case EmailServiceStatus.SUCCESS: code = "Success"; break;
@@ -761,7 +760,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ boolean dequeue(long attachmentId) {
         DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
         if (req != null) {
-            if (MailActivityEmail.DEBUG) {
+            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                 LogUtils.d(TAG, "Dequeued attachmentId:  " + attachmentId);
             }
             mDownloadSet.remove(req);
@@ -882,7 +881,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         if (accountStorage < perAccountMaxStorage) {
             return true;
         } else {
-            if (MailActivityEmail.DEBUG) {
+            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
                 LogUtils.d(TAG, ">> Prefetch not allowed for account " + account.mId + "; used " +
                         accountStorage + ", limit " + perAccountMaxStorage);
             }
