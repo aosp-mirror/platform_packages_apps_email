@@ -213,20 +213,27 @@ public class PopImapSyncAdapterService extends Service {
                     service.updateFolderList(acct.mId);
 
                     // Get the id for the mailbox we want to sync.
-                    long mailboxId =
-                            extras.getLong(Mailbox.SYNC_EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
-                    if (mailboxId == Mailbox.NO_MAILBOX) {
-                        // If the extras didn't specify a mailbox, assume we want the inbox.
+                    long [] mailboxIds = Mailbox.getMailboxIdsFromBundle(extras);
+                    if (mailboxIds == null || mailboxIds.length == 0) {
+                        // No mailbox specified, just sync the inbox.
                         // TODO: IMAP may eventually want to allow multiple auto-sync mailboxes.
-                        mailboxId = Mailbox.findMailboxOfType(context, acct.mId,
+                        final long inboxId = Mailbox.findMailboxOfType(context, acct.mId,
                                 Mailbox.TYPE_INBOX);
+                        if (inboxId != Mailbox.NO_MAILBOX) {
+                            mailboxIds = new long[1];
+                            mailboxIds[0] = inboxId;
+                        }
                     }
-                    if (mailboxId == Mailbox.NO_MAILBOX) return;
-                    boolean uiRefresh =
+
+                    if (mailboxIds != null) {
+                        boolean uiRefresh =
                             extras.getBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
-                    int deltaMessageCount =
-                            extras.getInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
-                    sync(context, mailboxId, extras, syncResult, uiRefresh, deltaMessageCount);
+                        int deltaMessageCount =
+                                extras.getInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
+                        for (long mailboxId : mailboxIds) {
+                            sync(context, mailboxId, extras, syncResult, uiRefresh, deltaMessageCount);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
