@@ -44,6 +44,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -4835,6 +4836,12 @@ public class EmailProvider extends ContentProvider {
         notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
     }
 
+    // TODO: temporary workaround for ConversationCursor
+    @Deprecated
+    private static final int NOTIFY_FOLDER_LOOP_MESSAGE_ID = 0;
+    @Deprecated
+    private Handler mFolderNotifierHandler;
+
     /**
      * Notify about a folder update. Because folder changes can affect the conversation cursor's
      * extras, the conversation must also be notified here.
@@ -4853,6 +4860,27 @@ public class EmailProvider extends ContentProvider {
         notifyUI(UIPROVIDER_FOLDER_NOTIFIER,
                 getVirtualMailboxId(COMBINED_ACCOUNT_ID, Mailbox.TYPE_INBOX));
         notifyUI(UIPROVIDER_FOLDERLIST_NOTIFIER, COMBINED_ACCOUNT_ID);
+
+        // TODO: temporary workaround for ConversationCursor
+        synchronized (this) {
+            if (mFolderNotifierHandler == null) {
+                mFolderNotifierHandler = new Handler(Looper.getMainLooper(),
+                        new Callback() {
+                            @Override
+                            public boolean handleMessage(final android.os.Message message) {
+                                final String folderId = (String) message.obj;
+                                LogUtils.d(TAG, "Notifying conversation Uri %s twice", folderId);
+                                notifyUI(UIPROVIDER_CONVERSATION_NOTIFIER, folderId);
+                                return true;
+                            }
+                        });
+            }
+        }
+        mFolderNotifierHandler.removeMessages(NOTIFY_FOLDER_LOOP_MESSAGE_ID);
+        android.os.Message message = android.os.Message.obtain(mFolderNotifierHandler,
+                NOTIFY_FOLDER_LOOP_MESSAGE_ID);
+        message.obj = folderId;
+        mFolderNotifierHandler.sendMessageDelayed(message, 2000);
     }
 
     private void notifyUIFolder(final long folderId, final long accountId) {
