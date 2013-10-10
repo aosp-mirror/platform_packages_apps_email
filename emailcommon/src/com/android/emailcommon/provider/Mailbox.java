@@ -347,7 +347,9 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         SYNCABLE_TYPES = new SparseBooleanArray(7);
         SYNCABLE_TYPES.put(TYPE_INBOX, true);
         SYNCABLE_TYPES.put(TYPE_MAIL, false);
-        SYNCABLE_TYPES.put(TYPE_DRAFTS, true);
+        // TODO: b/11158759
+        // For now, drafts folders are not syncable.
+        //SYNCABLE_TYPES.put(TYPE_DRAFTS, true);
         SYNCABLE_TYPES.put(TYPE_SENT, true);
         SYNCABLE_TYPES.put(TYPE_TRASH, false);
         SYNCABLE_TYPES.put(TYPE_CALENDAR, true);
