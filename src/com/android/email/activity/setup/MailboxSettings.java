@@ -192,7 +192,9 @@ public class MailboxSettings extends PreferenceActivity {
             mSyncEnabledPref.setChecked(mMailbox.mSyncInterval != 0);
             mSyncLookbackPref.setValue(String.valueOf(mMailbox.mSyncLookback));
             onDataLoaded();
-            enablePreferences(true);
+            if (mMailbox.mType != Mailbox.TYPE_DRAFTS) {
+                enablePreferences(true);
+            }
         }
     }
 
