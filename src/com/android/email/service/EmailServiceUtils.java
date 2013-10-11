@@ -28,6 +28,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -36,15 +38,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.provider.BaseColumns;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.SyncState;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.SyncStateContract;
-import android.text.TextUtils;
 
 import com.android.email.R;
 import com.android.emailcommon.Api;
@@ -72,8 +71,6 @@ import java.util.Map;
  * Utility functions for EmailService support.
  */
 public class EmailServiceUtils {
-    private static Map<String, EmailServiceInfo> sServiceMap = null;
-
     /**
      * Ask a service to kill its process. This is used when an account is deleted so that
      * no background thread that happens to be running will continue, possibly hitting an
@@ -166,7 +163,7 @@ public class EmailServiceUtils {
      * For a given account id, return a service proxy if applicable, or null.
      *
      * @param accountId the message of interest
-     * @result service proxy, or null if n/a
+     * @return service proxy, or null if n/a
      */
     public static EmailServiceProxy getServiceForAccount(Context context, long accountId) {
         return getService(context, Account.getProtocol(context, accountId));
@@ -247,18 +244,12 @@ public class EmailServiceUtils {
         return getServiceInfo(context, protocol);
     }
 
-    public static synchronized EmailServiceInfo getServiceInfo(Context context, String protocol) {
-        if (sServiceMap == null) {
-            findServices(context);
-        }
-        return sServiceMap.get(protocol);
+    public static EmailServiceInfo getServiceInfo(Context context, String protocol) {
+        return getServiceMap(context).get(protocol);
     }
 
-    public static synchronized Collection<EmailServiceInfo> getServiceInfoList(Context context) {
-        if (sServiceMap == null) {
-            findServices(context);
-        }
-        return sServiceMap.values();
+    public static Collection<EmailServiceInfo> getServiceInfoList(Context context) {
+        return getServiceMap(context).values();
     }
 
     private static void finishAccountManagerBlocker(AccountManagerFuture<?> future) {
@@ -498,100 +489,125 @@ public class EmailServiceUtils {
         resolver.update(oldContacts, values, null, null);
     }
 
+    private static final Configuration sOldConfiguration = new Configuration();
+    private static Map<String, EmailServiceInfo> sServiceMap = null;
+    private static final Object sServiceMapLock = new Object();
+
     /**
      * Parse services.xml file to find our available email services
      */
-    @SuppressWarnings("unchecked")
-    private static synchronized void findServices(final Context context) {
-        if (sServiceMap != null) {
-            return;
-        }
-
-        final ImmutableMap.Builder<String, EmailServiceInfo> builder = ImmutableMap.builder();
-
-        try {
-            final Resources res = context.getResources();
-            final XmlResourceParser xml = res.getXml(R.xml.services);
-            int xmlEventType;
-            // walk through senders.xml file.
-            while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
-                if (xmlEventType == XmlResourceParser.START_TAG &&
-                        "emailservice".equals(xml.getName())) {
-                    final EmailServiceInfo info = new EmailServiceInfo();
-                    final TypedArray ta = res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
-                    info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
-                    info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
-                    info.name = ta.getString(R.styleable.EmailServiceInfo_name);
-                    info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
-                    final String klass = ta.getString(R.styleable.EmailServiceInfo_serviceClass);
-                    info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
-                    info.intentPackage = ta.getString(R.styleable.EmailServiceInfo_intentPackage);
-                    info.defaultSsl = ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
-                    info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
-                    info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
-                    info.offerTls = ta.getBoolean(R.styleable.EmailServiceInfo_offerTls, false);
-                    info.offerCerts = ta.getBoolean(R.styleable.EmailServiceInfo_offerCerts, false);
-                    info.offerLocalDeletes =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_offerLocalDeletes, false);
-                    info.defaultLocalDeletes =
-                        ta.getInteger(R.styleable.EmailServiceInfo_defaultLocalDeletes,
-                                Account.DELETE_POLICY_ON_DELETE);
-                    info.offerPrefix =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_offerPrefix, false);
-                    info.usesSmtp = ta.getBoolean(R.styleable.EmailServiceInfo_usesSmtp, false);
-                    info.usesAutodiscover =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_usesAutodiscover, false);
-                    info.offerLookback =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_offerLookback, false);
-                    info.defaultLookback =
-                        ta.getInteger(R.styleable.EmailServiceInfo_defaultLookback,
-                                SyncWindow.SYNC_WINDOW_3_DAYS);
-                    info.syncChanges =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_syncChanges, false);
-                    info.syncContacts =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_syncContacts, false);
-                    info.syncCalendar =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_syncCalendar, false);
-                    info.offerAttachmentPreload =
-                        ta.getBoolean(R.styleable.EmailServiceInfo_offerAttachmentPreload, false);
-                    info.syncIntervalStrings =
-                        ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervalStrings);
-                    info.syncIntervals =
-                        ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervals);
-                    info.defaultSyncInterval =
-                        ta.getInteger(R.styleable.EmailServiceInfo_defaultSyncInterval, 15);
-                    info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
-                    info.offerLoadMore =
-                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLoadMore, false);
-                    info.requiresSetup =
-                            ta.getBoolean(R.styleable.EmailServiceInfo_requiresSetup, false);
-
-                    // Must have either "class" (local) or "intent" (remote)
-                    if (klass != null) {
-                        try {
-                            info.klass = (Class<? extends Service>) Class.forName(klass);
-                        } catch (ClassNotFoundException e) {
-                            throw new IllegalStateException(
-                                    "Class not found in service descriptor: " + klass);
-                        }
-                    }
-                    if (info.klass == null && info.intentAction == null) {
-                        throw new IllegalStateException(
-                                "No class or intent action specified in service descriptor");
-                    }
-                    if (info.klass != null && info.intentAction != null) {
-                        throw new IllegalStateException(
-                                "Both class and intent action specified in service descriptor");
-                    }
-                    builder.put(info.protocol, info);
-                }
+    private static Map<String, EmailServiceInfo> getServiceMap(final Context context) {
+        synchronized (sServiceMapLock) {
+            /**
+             * We cache localized strings here, so make sure to regenerate the service map if
+             * the locale changes
+             */
+            if (sServiceMap == null) {
+                sOldConfiguration.setTo(context.getResources().getConfiguration());
             }
-        } catch (XmlPullParserException e) {
-            // ignore
-        } catch (IOException e) {
-            // ignore
+
+            final int delta =
+                    sOldConfiguration.updateFrom(context.getResources().getConfiguration());
+
+            if (sServiceMap != null
+                    && !Configuration.needNewResources(delta, ActivityInfo.CONFIG_LOCALE)) {
+                return sServiceMap;
+            }
+
+            final ImmutableMap.Builder<String, EmailServiceInfo> builder = ImmutableMap.builder();
+
+            try {
+                final Resources res = context.getResources();
+                final XmlResourceParser xml = res.getXml(R.xml.services);
+                int xmlEventType;
+                // walk through senders.xml file.
+                while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+                    if (xmlEventType == XmlResourceParser.START_TAG &&
+                            "emailservice".equals(xml.getName())) {
+                        final EmailServiceInfo info = new EmailServiceInfo();
+                        final TypedArray ta =
+                                res.obtainAttributes(xml, R.styleable.EmailServiceInfo);
+                        info.protocol = ta.getString(R.styleable.EmailServiceInfo_protocol);
+                        info.accountType = ta.getString(R.styleable.EmailServiceInfo_accountType);
+                        info.name = ta.getString(R.styleable.EmailServiceInfo_name);
+                        info.hide = ta.getBoolean(R.styleable.EmailServiceInfo_hide, false);
+                        final String klass =
+                                ta.getString(R.styleable.EmailServiceInfo_serviceClass);
+                        info.intentAction = ta.getString(R.styleable.EmailServiceInfo_intent);
+                        info.intentPackage =
+                                ta.getString(R.styleable.EmailServiceInfo_intentPackage);
+                        info.defaultSsl =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_defaultSsl, false);
+                        info.port = ta.getInteger(R.styleable.EmailServiceInfo_port, 0);
+                        info.portSsl = ta.getInteger(R.styleable.EmailServiceInfo_portSsl, 0);
+                        info.offerTls = ta.getBoolean(R.styleable.EmailServiceInfo_offerTls, false);
+                        info.offerCerts =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_offerCerts, false);
+                        info.offerLocalDeletes =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLocalDeletes, false);
+                        info.defaultLocalDeletes =
+                            ta.getInteger(R.styleable.EmailServiceInfo_defaultLocalDeletes,
+                                    Account.DELETE_POLICY_ON_DELETE);
+                        info.offerPrefix =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerPrefix, false);
+                        info.usesSmtp = ta.getBoolean(R.styleable.EmailServiceInfo_usesSmtp, false);
+                        info.usesAutodiscover =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_usesAutodiscover, false);
+                        info.offerLookback =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerLookback, false);
+                        info.defaultLookback =
+                            ta.getInteger(R.styleable.EmailServiceInfo_defaultLookback,
+                                    SyncWindow.SYNC_WINDOW_3_DAYS);
+                        info.syncChanges =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_syncChanges, false);
+                        info.syncContacts =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_syncContacts, false);
+                        info.syncCalendar =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_syncCalendar, false);
+                        info.offerAttachmentPreload =
+                            ta.getBoolean(R.styleable.EmailServiceInfo_offerAttachmentPreload,
+                                    false);
+                        info.syncIntervalStrings =
+                            ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervalStrings);
+                        info.syncIntervals =
+                            ta.getTextArray(R.styleable.EmailServiceInfo_syncIntervals);
+                        info.defaultSyncInterval =
+                            ta.getInteger(R.styleable.EmailServiceInfo_defaultSyncInterval, 15);
+                        info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
+                        info.offerLoadMore =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_offerLoadMore, false);
+                        info.requiresSetup =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_requiresSetup, false);
+
+                        // Must have either "class" (local) or "intent" (remote)
+                        if (klass != null) {
+                            try {
+                                // noinspection unchecked
+                                info.klass = (Class<? extends Service>) Class.forName(klass);
+                            } catch (ClassNotFoundException e) {
+                                throw new IllegalStateException(
+                                        "Class not found in service descriptor: " + klass);
+                            }
+                        }
+                        if (info.klass == null && info.intentAction == null) {
+                            throw new IllegalStateException(
+                                    "No class or intent action specified in service descriptor");
+                        }
+                        if (info.klass != null && info.intentAction != null) {
+                            throw new IllegalStateException(
+                                    "Both class and intent action specified in service descriptor");
+                        }
+                        builder.put(info.protocol, info);
+                    }
+                }
+            } catch (XmlPullParserException e) {
+                // ignore
+            } catch (IOException e) {
+                // ignore
+            }
+            sServiceMap = builder.build();
+            return sServiceMap;
         }
-        sServiceMap = builder.build();
     }
 
     private static Uri asCalendarSyncAdapter(Uri uri, String account, String accountType) {
