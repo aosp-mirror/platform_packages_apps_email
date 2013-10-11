@@ -1656,7 +1656,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        Log.d(TAG, "Update: " + uri);
+        LogUtils.d(TAG, "Update: " + uri);
         // Handle this special case the fastest possible way
         if (uri == INTEGRITY_CHECK_URI) {
             checkDatabases();
