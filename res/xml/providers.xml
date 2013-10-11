@@ -267,16 +267,16 @@
         <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
     </provider>
     <provider id="btinternet" label="BT Internet" domain="btinternet.com">
-        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+        <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
     </provider>
     <provider id="btopenworld" label="BT Open World" domain="btopenworld.com">
-        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+        <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
     </provider>
     <provider id="talk21" label="BT Talk 21" domain="talk21.com">
-        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
-        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+        <incoming uri="imap+ssl+://mail.btinternet.com" username="$email" />
+        <outgoing uri="smtp+ssl+://mail.btinternet.com" username="$email" />
     </provider>
     <provider id="rogers" label="Rogers" domain="rogers.com">
         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
