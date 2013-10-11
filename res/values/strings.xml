@@ -811,4 +811,7 @@
 
     <!-- Provider name for widgets -->
     <string name="widget_provider" translatable="false">com.android.email.provider.WidgetProvider</string>
+
+    <string name="print_job_name" translatable="false">Email - <xliff:g id="subject">%1$s</xliff:g></string>
+
 </resources>
