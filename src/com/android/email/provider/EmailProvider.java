@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentCallbacks;
 import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -29,6 +30,8 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.PeriodicSync;
 import android.content.UriMatcher;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -876,6 +879,22 @@ public class EmailProvider extends ContentProvider {
         updateAllWidgetsIntent.putExtra(BaseWidgetProvider.EXTRA_UPDATE_ALL_WIDGETS, true);
         updateAllWidgetsIntent.setType(context.getString(R.string.application_mime_type));
         context.sendBroadcast(updateAllWidgetsIntent);
+
+        // The combined account name changes on locale changes
+        final Configuration oldConfiguration =
+                new Configuration(context.getResources().getConfiguration());
+        context.registerComponentCallbacks(new ComponentCallbacks() {
+            @Override
+            public void onConfigurationChanged(Configuration configuration) {
+                int delta = oldConfiguration.updateFrom(configuration);
+                if (Configuration.needNewResources(delta, ActivityInfo.CONFIG_LOCALE)) {
+                    notifyUIAccount(COMBINED_ACCOUNT_ID);
+                }
+            }
+
+            @Override
+            public void onLowMemory() {}
+        });
 
         return false;
     }
