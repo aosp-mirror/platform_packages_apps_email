@@ -82,6 +82,7 @@ import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.MailboxUtilities;
 import com.android.emailcommon.provider.MessageChangeLogTable;
 import com.android.emailcommon.provider.MessageMove;
 import com.android.emailcommon.provider.MessageStateChange;
@@ -379,6 +380,48 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
+
+    /**
+     * Make sure that parentKeys match with parentServerId.
+     * When we sync folders, we do two passes: First to create the mailbox rows, and second
+     * to set the parentKeys. Two passes are needed because we won't know the parent's Id
+     * until that row is inserted, and the order in which the rows are given is arbitrary.
+     * If we crash while this operation is in progress, the parent keys can be left uninitialized.
+     * @param db
+     */
+    private void fixParentKeys(SQLiteDatabase db) {
+        LogUtils.d(TAG, "Fixing parent keys");
+
+        // Update the parentKey for each mailbox row to match the _id of the row whose
+        // serverId matches our parentServerId. This will leave parentKey blank for any
+        // row that does not have a parentServerId
+
+        // This is kind of a confusing sql statement, so here's the actual text of it,
+        // for reference:
+        //
+        //   update mailbox set parentKey = (select _id from mailbox as b where
+        //   mailbox.parentServerId=b.serverId and mailbox.parentServerId not null and
+        //   mailbox.accountKey=b.accountKey)
+        db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.PARENT_KEY + "="
+                + "(select " + Mailbox.ID + " from " + Mailbox.TABLE_NAME + " as b where "
+                + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_SERVER_ID + "="
+                + "b." + MailboxColumns.SERVER_ID + " and "
+                + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_SERVER_ID + " not null and "
+                + Mailbox.TABLE_NAME + "." + MailboxColumns.ACCOUNT_KEY
+                + "=b." + Mailbox.ACCOUNT_KEY + ")");
+
+        // Top level folders can still have uninitialized parent keys. Update these
+        // to indicate that the parent is -1.
+        //
+        //   update mailbox set parentKey = -1 where parentKey=0 or parentKey is null;
+        db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.PARENT_KEY
+                + "=" + Mailbox.NO_MAILBOX + " where " + MailboxColumns.PARENT_KEY
+                + "=" + Mailbox.PARENT_KEY_UNINITIALIZED + " or " + MailboxColumns.PARENT_KEY
+                + " is null");
+
+    }
+
+
     private SQLiteDatabase getDatabase(Context context) {
         synchronized (sDatabaseLock) {
             // Always return the cached database, if we've got one
@@ -412,6 +455,7 @@ public class EmailProvider extends ContentProvider {
                     AccountColumns.ID, Account.TABLE_NAME);
             deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID,
                     AccountColumns.POLICY_KEY, Account.TABLE_NAME);
+            fixParentKeys(mDatabase);
             initUiProvider();
             return mDatabase;
         }
@@ -1862,12 +1906,17 @@ public class EmailProvider extends ContentProvider {
             updateSyncStatus(extras);
             return null;
         }
+        if (TextUtils.equals(method, MailboxUtilities.FIX_PARENT_KEYS_METHOD)) {
+            fixParentKeys(getDatabase(getContext()));
+            return null;
+        }
 
         // Handle send & save.
         final Uri accountUri = Uri.parse(arg);
         final long accountId = Long.parseLong(accountUri.getPathSegments().get(1));
 
         Uri messageUri = null;
+
         if (TextUtils.equals(method, UIProvider.AccountCallMethods.SEND_MESSAGE)) {
             messageUri = uiSendDraftMessage(accountId, extras);
             Preferences.getPreferences(getContext()).setLastUsedAccountId(accountId);
