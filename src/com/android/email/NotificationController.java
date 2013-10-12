@@ -321,7 +321,7 @@ public class NotificationController {
 
                 if (folder != null) {
                     final FolderPreferences folderPreferences = new FolderPreferences(
-                            mContext, uiAccount.name, folder, true /* inbox */);
+                            mContext, uiAccount.getEmailAddress(), folder, true /* inbox */);
 
                     ringtoneUri = folderPreferences.getNotificationRingtoneUri();
                     vibrate = folderPreferences.isNotificationVibrateEnabled();
