@@ -254,7 +254,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 // We can move the notification setting to the inbox FolderPreferences later, once
                 // we know what the inbox is
                 final AccountPreferences accountPreferences =
-                        new AccountPreferences(context, account.mEmailAddress);
+                        new AccountPreferences(context, account.getEmailAddress());
                 accountPreferences.setDefaultInboxNotificationsEnabled(mNotifyView.isChecked());
             }
         });
