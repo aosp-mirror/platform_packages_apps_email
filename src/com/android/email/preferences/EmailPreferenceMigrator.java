@@ -144,7 +144,8 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                 }
 
                 final FolderPreferences folderPreferences =
-                        new FolderPreferences(context, account.name, folder, true /* inbox */);
+                        new FolderPreferences(context, account.getEmailAddress(), folder,
+                                true /* inbox */);
 
                 @SuppressWarnings("deprecation")
                 final boolean notify = (ecAccount.getFlags()
