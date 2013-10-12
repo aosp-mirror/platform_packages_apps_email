@@ -246,8 +246,8 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Холбогдсон үед бүх зурвасууд татагдах болно"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Мэйл синк хийх хугацаа"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Илгээгчийн зураг"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Зөвхөн зарим \"Plus\" акаунтууд энэ програмыг холбогдохыг зөвшөөрдөг POP хандалтыг агуулна. Та өөрийн зөв имэйл хаяг болон нууц үгээрээ нэвтрэх боломжгүй байгаа бол та төлбөртэй \"Plus\" акаунтгүй байна. Эдгээр имэйл акаунтын хандалттай болохын тулд вэб хөтчийг ажиллуулна уу."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"Та энэ имэйл акаунтыг тохируулахын өмнө T-Online Вэбсайтруу зочилж POP3 имэйл хандалтын нууц үг үүсгэнэ үү."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Зөвхөн зарим \"Plus\" акаунтууд энэ програмыг холбогдохыг зөвшөөрдөг POP хандалтыг агуулна. Та өөрийн зөв имэйл хаяг болон нууц үгээрээ нэвтрэх боломжгүй байгаа бол та төлбөртэй \"Plus\" акаунтгүй байна. Эдгээр имэйл акаунтын хандалттай болохын тулд веб хөтчийг ажиллуулна уу."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Та энэ имэйл акаунтыг тохируулахын өмнө T-Online Вебсайтруу зочилж POP3 имэйл хандалтын нууц үг үүсгэнэ үү."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Байгууллагын"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Солигч АктивСинк"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Акаунтыг үүсгэж чадсангүй. Дахин оролдоно уу."</string>
