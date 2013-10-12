@@ -581,9 +581,9 @@ public class AccountSettingsFragment extends PreferenceFragment
                 }
 
                 final AccountPreferences accountPreferences =
-                        new AccountPreferences(mContext, mUiAccount.name);
+                        new AccountPreferences(mContext, mUiAccount.getEmailAddress());
                 mInboxFolderPreferences =
-                        new FolderPreferences(mContext, mUiAccount.name, folder, true);
+                        new FolderPreferences(mContext, mUiAccount.getEmailAddress(), folder, true);
 
                 NotificationUtils.moveNotificationSetting(
                         accountPreferences, mInboxFolderPreferences);
