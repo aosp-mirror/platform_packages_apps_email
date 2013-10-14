@@ -30,6 +30,9 @@ import com.android.mail.utils.LogUtils;
 import java.util.HashMap;
 
 public class MailboxUtilities {
+
+    public static final String FIX_PARENT_KEYS_METHOD = "fix_parent_keys";
+
     public static final String WHERE_PARENT_KEY_UNINITIALIZED =
         "(" + MailboxColumns.PARENT_KEY + " isnull OR " + MailboxColumns.PARENT_KEY + "=" +
         Mailbox.PARENT_KEY_UNINITIALIZED + ")";
