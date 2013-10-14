@@ -405,7 +405,10 @@ public class ImapService extends Service {
         // 2. Open the remote folder and create the remote folder if necessary
         Store remoteStore = Store.getInstance(account, context);
         // The account might have been deleted
-        if (remoteStore == null) return;
+        if (remoteStore == null) {
+            LogUtils.d(Logging.LOG_TAG, "account is apparently deleted");
+            return;
+        }
         final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         // If the folder is a "special" folder we need to see if it exists
@@ -416,6 +419,8 @@ public class ImapService extends Service {
         if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_SENT) {
             if (!remoteFolder.exists()) {
                 if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
+                    LogUtils.w(Logging.LOG_TAG, "could not create remote folder type %d",
+                        mailbox.mType);
                     return;
                 }
             }

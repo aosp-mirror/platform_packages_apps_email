@@ -391,8 +391,23 @@ class ImapFolder extends Folder {
         return uids.toArray(Utility.EMPTY_STRINGS);
     }
 
-    @VisibleForTesting
     String[] searchForUids(String searchCriteria) throws MessagingException {
+        return searchForUids(searchCriteria, true);
+    }
+
+    /**
+     * I'm not a fan of having a parameter that determines whether to throw exceptions or
+     * consume them, but getMessage() for a date range needs to differentiate between
+     * a failure and just a legitimate empty result.
+     * See b/11183568.
+     * TODO:
+     * Either figure out how to make getMessage() with a date range work without this
+     * exception information, or make all users of searchForUids() handle the ImapException.
+     * It's too late in the release cycle to add this risk right now.
+     */
+    @VisibleForTesting
+    String[] searchForUids(String searchCriteria, boolean swallowException)
+            throws MessagingException {
         checkOpen();
         try {
             try {
@@ -401,12 +416,15 @@ class ImapFolder extends Folder {
                 LogUtils.d(Logging.LOG_TAG, "searchForUids '" + searchCriteria + "' results: " +
                         result.length);
                 return result;
-            } catch (ImapException e) {
-                LogUtils.d(Logging.LOG_TAG, "ImapException in search: " + searchCriteria +
-                        " :" + e.toString() + ":", e);
-                return Utility.EMPTY_STRINGS; // not found;
+            } catch (ImapException me) {
+                LogUtils.d(Logging.LOG_TAG, me, "ImapException in search: " + searchCriteria);
+                if (swallowException) {
+                    return Utility.EMPTY_STRINGS; // Not found
+                } else {
+                    throw me;
+                }
             } catch (IOException ioe) {
-                LogUtils.d(Logging.LOG_TAG, "IOException in search: " + searchCriteria, ioe);
+                LogUtils.d(Logging.LOG_TAG, ioe, "IOException in search: " + searchCriteria);
                 throw ioExceptionHandler(mConnection, ioe);
             }
         } finally {
@@ -494,9 +512,8 @@ class ImapFolder extends Folder {
                 searchForUids(String.format(Locale.US, "%d:%d NOT DELETED", start, end)), listener);
     }
 
-    @Override
-    @VisibleForTesting
-    public Message[] getMessages(long startDate, long endDate, MessageRetrievalListener listener)
+    private String generateDateRangeCommand(final long startDate, final long endDate,
+            boolean useQuotes)
             throws MessagingException {
         // Dates must be formatted like: 7-Feb-1994. Time info within a date is not
         // universally supported.
@@ -505,7 +522,7 @@ class ImapFolder extends Folder {
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String sinceDateStr = formatter.format(endDate);
 
-        final StringBuilder queryParam = new StringBuilder();
+        StringBuilder queryParam = new StringBuilder();
         queryParam.append( "1:* ");
         // If the caller requests a startDate of zero, then ignore the BEFORE parameter.
         // This makes sure that we can always query for the newest messages, even if our
@@ -516,17 +533,47 @@ class ImapFolder extends Folder {
                 throw new MessagingException(String.format("Invalid date range: %s - %s",
                         sinceDateStr, beforeDateStr));
             }
-            queryParam.append("BEFORE \"")
-                .append(beforeDateStr)
-                .append("\" ");
+            queryParam.append("BEFORE ");
+            if (useQuotes) queryParam.append('\"');
+            queryParam.append(beforeDateStr);
+            if (useQuotes) queryParam.append('\"');
+            queryParam.append(" ");
         }
-        queryParam.append("SINCE \"")
-             .append(sinceDateStr)
-             .append("\"");
+        queryParam.append("SINCE ");
+        if (useQuotes) queryParam.append('\"');
+        queryParam.append(sinceDateStr);
+        if (useQuotes) queryParam.append('\"');
 
-        LogUtils.d(Logging.LOG_TAG, "getMessages dateRange " + queryParam.toString());
+        return queryParam.toString();
+    }
 
-        return getMessagesInternal(searchForUids(queryParam.toString()), listener);
+    @Override
+    @VisibleForTesting
+    public Message[] getMessages(long startDate, long endDate, MessageRetrievalListener listener)
+            throws MessagingException {
+        String [] uids = null;
+        String command = generateDateRangeCommand(startDate, endDate, false);
+        LogUtils.d(Logging.LOG_TAG, "getMessages dateRange " + command.toString());
+
+        try {
+            uids = searchForUids(command.toString(), false);
+        } catch (ImapException e) {
+            // TODO: This is a last minute hack to make certain servers work. Some servers
+            // demand that the date in the date range be surrounded by double quotes, other
+            // servers won't accept that. So if we can an ImapException using one method,
+            // try the other.
+            // See b/11183568
+            LogUtils.d(Logging.LOG_TAG, e, "query failed %s, trying alternate",
+                    command.toString());
+            command = generateDateRangeCommand(startDate, endDate, true);
+            try {
+                uids = searchForUids(command, true);
+            } catch (ImapException e2) {
+                LogUtils.w(Logging.LOG_TAG, e2, "query failed %s, fatal", command);
+                uids = null;
+            }
+        }
+        return getMessagesInternal(uids, listener);
     }
 
     @Override
