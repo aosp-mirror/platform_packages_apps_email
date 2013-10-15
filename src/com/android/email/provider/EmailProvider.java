@@ -2221,7 +2221,7 @@ public class EmailProvider extends ContentProvider {
     private static final String MESSAGE_DRAFT_TYPE =
         "CASE WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_ORIGINAL +
             ") !=0 THEN " + UIProvider.DraftType.COMPOSE +
-        " WHEN (" + MessageColumns.FLAGS + "&" + (1<<20) +
+        " WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_REPLY_ALL +
             ") !=0 THEN " + UIProvider.DraftType.REPLY_ALL +
         " WHEN (" + MessageColumns.FLAGS + "&" + Message.FLAG_TYPE_REPLY +
             ") !=0 THEN " + UIProvider.DraftType.REPLY +

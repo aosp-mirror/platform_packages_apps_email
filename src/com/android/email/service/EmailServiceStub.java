@@ -63,6 +63,7 @@ import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.providers.UIProvider.DraftType;
 import com.android.mail.utils.LogUtils;
 
 import java.util.HashSet;
@@ -552,7 +553,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                                 messageId);
                     }
                     final int flags = msg.mFlags & ~(EmailContent.Message.FLAG_TYPE_REPLY |
-                            EmailContent.Message.FLAG_TYPE_FORWARD);
+                            EmailContent.Message.FLAG_TYPE_FORWARD |
+                            EmailContent.Message.FLAG_TYPE_REPLY_ALL |
+                            EmailContent.Message.FLAG_TYPE_ORIGINAL);
+
                     moveToSentValues.put(EmailContent.MessageColumns.FLAGS, flags);
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
