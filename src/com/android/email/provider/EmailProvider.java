@@ -118,7 +118,6 @@ import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.MimeType;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
-import com.android.email.provider.WidgetProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -2350,6 +2349,7 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.FolderColumns.LAST_SYNC_RESULT, MailboxColumns.UI_LAST_SYNC_RESULT)
                 .add(UIProvider.FolderColumns.TYPE, FOLDER_TYPE)
                 .add(UIProvider.FolderColumns.ICON_RES_ID, FOLDER_ICON)
+                .add(UIProvider.FolderColumns.LOAD_MORE_URI, uriWithId("uiloadmore"))
                 .add(UIProvider.FolderColumns.HIERARCHICAL_DESC, MailboxColumns.HIERARCHICAL_NAME)
                 .add(UIProvider.FolderColumns.PARENT_URI, "case when " + MailboxColumns.PARENT_KEY
                         + "=" + Mailbox.NO_MAILBOX + " then NULL else " +
@@ -2794,8 +2794,12 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
 
-    private static int getFolderCapabilities(EmailServiceInfo info, int flags, int type,
-            long mailboxId) {
+    private static int getFolderCapabilities(EmailServiceInfo info, int type, long mailboxId) {
+        // Special case for Search folders: only permit delete, do not try to give any other caps.
+        if (type == Mailbox.TYPE_SEARCH) {
+            return UIProvider.FolderCapabilities.DELETE;
+        }
+
         // All folders support delete, except drafts.
         int caps = 0;
         if (type != Mailbox.TYPE_DRAFTS) {
@@ -2805,7 +2809,9 @@ public class EmailProvider extends ContentProvider {
             // Protocols supporting lookback support settings
             caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
         }
-        if ((flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0) {
+
+        if (type == Mailbox.TYPE_MAIL || type == Mailbox.TYPE_TRASH ||
+                type == Mailbox.TYPE_JUNK || type == Mailbox.TYPE_INBOX) {
             // If the mailbox can accept moved mail, report that as well
             caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
             caps |= UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION;
@@ -2852,7 +2858,7 @@ public class EmailProvider extends ContentProvider {
                             uiUriString("uiloadmore", mailboxId));
                 }
                 values.put(UIProvider.FolderColumns.CAPABILITIES,
-                        getFolderCapabilities(info, mailbox.mFlags, mailbox.mType, mailboxId));
+                        getFolderCapabilities(info, mailbox.mType, mailboxId));
                 // The persistent id is used to form a filename, so we must ensure that it doesn't
                 // include illegal characters (such as '/'). Only perform the encoding if this
                 // query wants the persistent id.
@@ -3538,8 +3544,9 @@ public class EmailProvider extends ContentProvider {
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
             return vc;
         } else {
-            Cursor c = db.rawQuery(genQueryAccountMailboxes(uiProjection), new String[] {id});
-            c = getFolderListCursor(db, c, uiProjection);
+            Cursor c = db.rawQuery(genQueryAccountMailboxes(UIProvider.FOLDERS_PROJECTION),
+                    new String[] {id});
+            c = getFolderListCursor(c, Long.valueOf(id), uiProjection);
             c.setNotificationUri(context.getContentResolver(), notifyUri);
             Cursor[] cursors = new Cursor[] {vc, c};
             return new MergeCursor(cursors);
@@ -3859,35 +3866,6 @@ public class EmailProvider extends ContentProvider {
     }
 
     /**
-     * We need to do individual queries for the mailboxes in order to get correct
-     * folder capabilities.
-     */
-    private Cursor getFolderListCursor(SQLiteDatabase db, Cursor c, String[] uiProjection) {
-        final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
-        final String[] args = new String[1];
-        final int projectionLength = uiProjection.length;
-        final List<String> projectionList = Arrays.asList(uiProjection);
-        final int nameColumn = projectionList.indexOf(UIProvider.FolderColumns.NAME);
-        final int typeColumn = projectionList.indexOf(UIProvider.FolderColumns.TYPE);
-
-        try {
-            // Loop through mailboxes, building matrix cursor
-            while (c.moveToNext()) {
-                final String id = c.getString(0);
-                args[0] = id;
-                final Cursor mailboxCursor = db.rawQuery(genQueryMailbox(uiProjection, id), args);
-                if (mailboxCursor.moveToNext()) {
-                    getUiFolderCursorRowFromMailboxCursorRow(
-                            mc, projectionLength, mailboxCursor, nameColumn, typeColumn);
-                }
-            }
-        } finally {
-            c.close();
-        }
-       return mc;
-    }
-
-    /**
      * Converts a mailbox in a row of the mailboxCursor into a row
      * in the supplied {@link MatrixCursor} in the format required for {@link Folder}.
      * As a convenience, the modified {@link MatrixCursor} is also returned.
@@ -3915,6 +3893,107 @@ public class EmailProvider extends ContentProvider {
                 builder.add(getFolderDisplayName(type, mailboxCursor.getString(i)));
             } else {
                 builder.add(mailboxCursor.getString(i));
+            }
+        }
+        return mc;
+    }
+
+    /**
+     * Takes a uifolder cursor (that was generated with a full projection) and remaps values for
+     * columns that are difficult to generate in the SQL query. This currently includes:
+     * - Folder name (due to system folder localization).
+     * - Capabilities (due to this varying by account protocol).
+     * - Persistent id (due to needing to base64 encode it).
+     * - Load more uri (due to this varying by account protocol).
+     * TODO: This would be better as a CursorWrapper, rather than doing a copy.
+     * @param inputCursor A cursor containing all columns of {@link UIProvider.FolderColumns}.
+     *                    Strictly speaking doesn't need all, but simpler if we assume that.
+     * @param outputCursor A MatrixCursor which this function will populate.
+     * @param accountId The account id for the mailboxes in this query.
+     * @param uiProjection The projection specified by the query.
+     */
+    private void remapFolderCursor(final Cursor inputCursor, final MatrixCursor outputCursor,
+            final long accountId, final String[] uiProjection) {
+        // Return early if our input cursor is empty.
+        if (inputCursor == null || inputCursor.getCount() == 0) {
+            return;
+        }
+        // Get the column indices for the columns we need during remapping.
+        // While we currently could assume the column indicies for UIProvider.FOLDERS_PROJECTION
+        // and therefore avoid the calls to getColumnIndex, this at least tries to future-proof a
+        // bit.
+        // Note that id and type MUST be present for this function to work correctly.
+        final int idColumn = inputCursor.getColumnIndex(BaseColumns._ID);
+        final int typeColumn = inputCursor.getColumnIndex(UIProvider.FolderColumns.TYPE);
+        final int nameColumn = inputCursor.getColumnIndex(UIProvider.FolderColumns.NAME);
+        final int capabilitiesColumn =
+                inputCursor.getColumnIndex(UIProvider.FolderColumns.CAPABILITIES);
+        final int persistentIdColumn =
+                inputCursor.getColumnIndex(UIProvider.FolderColumns.PERSISTENT_ID);
+        final int loadMoreUriColumn =
+                inputCursor.getColumnIndex(UIProvider.FolderColumns.LOAD_MORE_URI);
+
+        // Get the EmailServiceInfo for the current account.
+        final Context context = getContext();
+        final String protocol = Account.getProtocol(context, accountId);
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+
+        // Build the return cursor. We iterate over all rows of the input cursor and construct
+        // a row in the output using the columns in uiProjection.
+        while (inputCursor.moveToNext()) {
+            final MatrixCursor.RowBuilder builder = outputCursor.newRow();
+            final int type = inputCursor.getInt(typeColumn);
+            for (int i = 0; i < uiProjection.length; i++) {
+                // Find the index in the input cursor corresponding the column requested in the
+                // output projection.
+                final int index = inputCursor.getColumnIndex(uiProjection[i]);
+                if (index == -1) {
+                    // We don't have this value, so put a blank in the output and move on.
+                    builder.add(null);
+                    continue;
+                }
+                final String value = inputCursor.getString(index);
+                // remapped indicates whether we've written a value to the output for this column.
+                final boolean remapped;
+                if (nameColumn == index) {
+                    // Remap folder name for system folders.
+                    builder.add(getFolderDisplayName(type, value));
+                    remapped = true;
+                } else if (capabilitiesColumn == index) {
+                    // Get the correct capabilities for this folder.
+                    builder.add(getFolderCapabilities(info, type, inputCursor.getLong(idColumn)));
+                    remapped = true;
+                } else if (persistentIdColumn == index) {
+                    // Hash the persistent id.
+                    builder.add(Base64.encodeToString(value.getBytes(),
+                            Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING));
+                    remapped = true;
+                } else if (loadMoreUriColumn == index && type != Mailbox.TYPE_SEARCH &&
+                        (info == null || !info.offerLoadMore)) {
+                    // Blank the load more uri for account types that don't offer it.
+                    // Note that all account types permit load more for search results.
+                    builder.add(null);
+                    remapped = true;
+                } else {
+                    remapped = false;
+                }
+                // If the above logic didn't write some other value to the output, use the value
+                // from the input cursor.
+                if (!remapped) {
+                    builder.add(value);
+                }
+            }
+        }
+    }
+
+    private Cursor getFolderListCursor(final Cursor inputCursor, final long accountId,
+            final String[] uiProjection) {
+        final MatrixCursor mc = new MatrixCursorWithCachedColumns(uiProjection);
+        if (inputCursor != null) {
+            try {
+                remapFolderCursor(inputCursor, mc, accountId, uiProjection);
+            } finally {
+                inputCursor.close();
             }
         }
         return mc;
@@ -4028,8 +4107,9 @@ public class EmailProvider extends ContentProvider {
                 }
                 break;
             case UI_FULL_FOLDERS:
-                c = db.rawQuery(genQueryAccountAllMailboxes(uiProjection), new String[] {id});
-                c = getFolderListCursor(db, c, uiProjection);
+                c = db.rawQuery(genQueryAccountAllMailboxes(UIProvider.FOLDERS_PROJECTION),
+                        new String[] {id});
+                c = getFolderListCursor(c, Long.valueOf(id), uiProjection);
                 notifyUri =
                         UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
                 break;
@@ -4038,8 +4118,10 @@ public class EmailProvider extends ContentProvider {
                 notifyUri = UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_SUBFOLDERS:
-                c = db.rawQuery(genQuerySubfolders(uiProjection), new String[] {id});
-                c = getFolderListCursor(db, c, uiProjection);
+                c = db.rawQuery(genQuerySubfolders(UIProvider.FOLDERS_PROJECTION),
+                        new String[] {id});
+                c = getFolderListCursor(c, Mailbox.getAccountIdForMailbox(context, id),
+                        uiProjection);
                 // Get notifications for any folder changes on this account. This is broader than
                 // we need but otherwise we'd need for every folder change to notify on all relevant
                 // subtrees. For now we opt for simplicity.
