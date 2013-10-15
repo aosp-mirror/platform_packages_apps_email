@@ -921,7 +921,15 @@ public class AttachmentDownloadService extends Service implements Runnable {
         // Loop until stopped, with a 30 minute wait loop
         while (!mStop) {
             // Here's where we run our attachment loading logic...
-            mConnectivityManager.waitForConnectivity();
+            // Make a local copy of the variable so we don't null-crash on service shutdown
+            final EmailConnectivityManager ecm = mConnectivityManager;
+            if (ecm != null) {
+                ecm.waitForConnectivity();
+            }
+            if (mStop) {
+                // We might be bailing out here due to the service shutting down
+                break;
+            }
             mDownloadSet.processQueue();
             if (mDownloadSet.isEmpty()) {
                 LogUtils.d(TAG, "*** All done; shutting down service");
@@ -938,8 +946,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         // Unregister now that we're done
-        if (mConnectivityManager != null) {
-            mConnectivityManager.unregister();
+        // Make a local copy of the variable so we don't null-crash on service shutdown
+        final EmailConnectivityManager ecm = mConnectivityManager;
+        if (ecm != null) {
+            ecm.unregister();
         }
     }
 
@@ -975,6 +985,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
         if (mConnectivityManager != null) {
             mConnectivityManager.unregister();
+            mConnectivityManager.stopWait();
             mConnectivityManager = null;
         }
     }
