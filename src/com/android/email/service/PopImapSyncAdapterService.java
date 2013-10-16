@@ -115,7 +115,7 @@ public class PopImapSyncAdapterService extends Service {
                     new String[] {Long.toString(mailbox.mId)});
             return;
         }
-        LogUtils.d(TAG, "Mailbox: " + mailbox.mDisplayName);
+        LogUtils.d(TAG, "About to sync mailbox: " + mailbox.mDisplayName);
 
         Uri mailboxUri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         ContentValues values = new ContentValues();
