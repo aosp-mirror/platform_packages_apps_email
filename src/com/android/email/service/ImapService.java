@@ -156,9 +156,9 @@ public class ImapService extends Service {
      * @return The status code for whether this operation succeeded.
      * @throws MessagingException
      */
-    public static int synchronizeMailboxSynchronous(Context context, final Account account,
-            final Mailbox folder, final boolean loadMore, final boolean uiRefresh)
-            throws MessagingException {
+    public static synchronized int synchronizeMailboxSynchronous(Context context,
+            final Account account, final Mailbox folder, final boolean loadMore,
+            final boolean uiRefresh) throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         NotificationController nc = NotificationController.getInstance(context);
         try {
@@ -192,13 +192,12 @@ public class ImapService extends Service {
         private static final int COLUMN_FLAG_FAVORITE = 2;
         private static final int COLUMN_FLAG_LOADED = 3;
         private static final int COLUMN_SERVER_ID = 4;
-        private static final int COLUMN_FLAGS =  7;
-        private static final int COLUMN_TIMESTAMP =  8;
+        private static final int COLUMN_FLAGS =  5;
+        private static final int COLUMN_TIMESTAMP =  6;
         private static final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID,
-            MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_LOADED,
-            SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
-            MessageColumns.FLAGS, MessageColumns.TIMESTAMP
+            EmailContent.RECORD_ID, MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE,
+            MessageColumns.FLAG_LOADED, SyncColumns.SERVER_ID, MessageColumns.FLAGS,
+            MessageColumns.TIMESTAMP
         };
 
         final long mId;
@@ -874,35 +873,6 @@ public class ImapService extends Service {
                         upsyncs1.close();
                     }
                 }
-
-                // Next, handle any updates (e.g. edited in place, although this shouldn't happen)
-                Cursor upsyncs2 = resolver.query(EmailContent.Message.UPDATED_CONTENT_URI,
-                        EmailContent.Message.ID_PROJECTION,
-                        EmailContent.MessageColumns.MAILBOX_KEY + "=?", mailboxKeyArgs,
-                        null);
-                try {
-                    while (upsyncs2.moveToNext()) {
-                        // Load the remote store if it will be needed
-                        if (remoteStore == null) {
-                            remoteStore = Store.getInstance(account, context);
-                        }
-                        // Load the mailbox if it will be needed
-                        if (mailbox == null) {
-                            mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-                            if (mailbox == null) {
-                                continue; // Mailbox removed. Move to the next message.
-                            }
-                        }
-                        // upsync the message
-                        long id = upsyncs2.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
-                        lastMessageId = id;
-                        processUploadMessage(context, remoteStore, mailbox, id);
-                    }
-                } finally {
-                    if (upsyncs2 != null) {
-                        upsyncs2.close();
-                    }
-                }
             }
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
@@ -1327,12 +1297,15 @@ public class ImapService extends Service {
 
         // 3. If a remote message could not be found, upload our local message
         if (remoteMessage == null) {
+            // TODO:
+            // if we have a serverId and remoteMessage is still null, then probably the message
+            // has been deleted and we should delete locally.
             // 3a. Create a legacy message to upload
             Message localMessage = LegacyConversions.makeMessage(context, message);
-
             // 3b. Upload it
             //FetchProfile fp = new FetchProfile();
             //fp.add(FetchProfile.Item.BODY);
+            // Note that this operation will assign the Uid to localMessage
             remoteFolder.appendMessages(new Message[] { localMessage });
 
             // 3b. And record the UID from the server
@@ -1341,6 +1314,10 @@ public class ImapService extends Service {
             updateMessage = true;
         } else {
             // 4. If the remote message exists we need to determine which copy to keep.
+            // TODO:
+            // I don't see a good reason we should be here. If the message already has a serverId,
+            // then we should be handling it in processPendingUpdates(),
+            // not processPendingUploads()
             FetchProfile fp = new FetchProfile();
             fp.add(FetchProfile.Item.ENVELOPE);
             remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
@@ -1355,6 +1332,9 @@ public class ImapService extends Service {
                 // 4b. Otherwise we'll upload our message and then delete the remote message.
 
                 // Create a legacy message to upload
+                // TODO: This strategy has a problem: This will create a second message,
+                // so that at least temporarily, we will have two messages for what the
+                // user would think of as one.
                 Message localMessage = LegacyConversions.makeMessage(context, message);
 
                 // 4c. Upload it
@@ -1368,7 +1348,7 @@ public class ImapService extends Service {
                 updateInternalDate = true;
                 updateMessage = true;
 
-                // 4e. And delete the old copy of the message from the server
+                // 4e. And delete the old copy of the message from the server.
                 remoteMessage.setFlag(Flag.DELETED, true);
             }
         }
