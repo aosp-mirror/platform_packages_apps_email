@@ -146,6 +146,11 @@ public class EmailBroadcastProcessorService extends IntentService {
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
+    private boolean isComponentDisabled(final Class<?> klass) {
+        return getPackageManager().getComponentEnabledSetting(new ComponentName(this, klass))
+                == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+    }
+
     private void updateAccountManagerAccountsOfType(final String amAccountType,
             final Map<String, String> protocolMap) {
         final android.accounts.Account[] amAccounts =
@@ -227,6 +232,9 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void onAppUpgrade() {
+        if (isComponentDisabled(EmailUpgradeBroadcastReceiver.class)) {
+            return;
+        }
         // TODO: Only do this for Email2Google.
         // When upgrading to Email2Google, we need to essentially rename the account manager
         // type for all existing accounts, so we add new ones and delete the old.
@@ -270,6 +278,11 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void reconcileAndStartServices() {
+        /**
+         *  We can get here before the ACTION_UPGRADE_BROADCAST is received, so make sure the
+         *  accounts are converted otherwise terrible, horrible things will happen.
+         */
+        onAppUpgrade();
         // Reconcile accounts
         AccountReconciler.reconcileAccounts(this);
         // Starts remote services, if any
