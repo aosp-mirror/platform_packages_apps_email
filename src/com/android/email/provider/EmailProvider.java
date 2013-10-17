@@ -3654,8 +3654,10 @@ public class EmailProvider extends ContentProvider {
                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
                             UIProvider.CursorStatus.LOADING);
                 } else if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_NONE) {
-                     if (mailbox.mSyncInterval == 0 && Mailbox.isSyncableType(mailbox.mType) &&
-                             !TextUtils.isEmpty(mailbox.mServerId) &&
+                     if (mailbox.mSyncInterval == 0
+                             && (Mailbox.isSyncableType(mailbox.mType)
+                                    || mailbox.mType == Mailbox.TYPE_SEARCH)
+                             && !TextUtils.isEmpty(mailbox.mServerId) &&
                              // TODO: There's potentially a race condition here.
                              // Consider merging this check with the auto-sync code in respond.
                              System.currentTimeMillis() - mailbox.mSyncTime
