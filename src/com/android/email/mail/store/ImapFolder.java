@@ -740,7 +740,7 @@ class ImapFolder extends Folder {
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }
-                    if (fetchPart != null && fetchPart.getSize() > 0) {
+                    if (fetchPart != null) {
                         InputStream bodyStream =
                                 fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
                         String encodings[] = fetchPart.getHeader(
@@ -801,7 +801,12 @@ class ImapFolder extends Folder {
                 out.write(buffer, 0, n);
                 count += n;
                 if (listener != null) {
-                    listener.loadAttachmentProgress(count * 100 / size);
+                    if (size == 0) {
+                        // We don't know how big the file is, so just fake it.
+                        listener.loadAttachmentProgress((int)Math.ceil(100 * (1-1.0/count)));
+                    } else {
+                        listener.loadAttachmentProgress(count * 100 / size);
+                    }
                 }
             }
         } catch (Base64DataException bde) {
