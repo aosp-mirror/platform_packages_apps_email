@@ -60,6 +60,7 @@ public abstract class EmailServiceStatus {
     public static final String SYNC_STATUS_TYPE = "type";
     public static final String SYNC_STATUS_ID = "id";
     public static final String SYNC_STATUS_CODE = "status_code";
+    public static final String SYNC_RESULT = "result";
     public static final String SYNC_STATUS_PROGRESS = "progress";
 
     // Values for the SYNC_STATUS_TYPE to specify what kind of sync status we're returning.
@@ -88,6 +89,7 @@ public abstract class EmailServiceStatus {
      */
     private static void syncStatus(final ContentResolver cr, final Bundle syncExtras,
             final int statusType, final long id, final int statusCode, final int progress,
+            int syncResult,
             final StatusWriter writer) {
         final String callbackUri = syncExtras.getString(SYNC_EXTRAS_CALLBACK_URI);
         final String callbackMethod = syncExtras.getString(SYNC_EXTRAS_CALLBACK_METHOD);
@@ -97,6 +99,9 @@ public abstract class EmailServiceStatus {
             statusExtras.putInt(SYNC_STATUS_TYPE, statusType);
             statusExtras.putLong(SYNC_STATUS_ID, id);
             statusExtras.putInt(SYNC_STATUS_CODE, statusCode);
+            if (statusCode != IN_PROGRESS) {
+                statusExtras.putInt(SYNC_RESULT, syncResult);
+            }
             statusExtras.putInt(SYNC_STATUS_PROGRESS, progress);
             if (writer != null) {
                 writer.addToStatus(statusExtras);
@@ -116,8 +121,9 @@ public abstract class EmailServiceStatus {
      * @param progress The progress of this sync operation.
      */
     public static void syncMailboxStatus(final ContentResolver cr, final Bundle syncExtras,
-            final long mailboxId, final int statusCode, final int progress) {
-        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX, mailboxId, statusCode, progress, null);
+            final long mailboxId, final int statusCode, final int progress, int syncResult) {
+        syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX, mailboxId, statusCode, progress,
+                syncResult, null);
     }
 
 }

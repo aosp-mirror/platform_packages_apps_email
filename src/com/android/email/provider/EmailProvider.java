@@ -1911,8 +1911,22 @@ public class EmailProvider extends ContentProvider {
 
     private void updateSyncStatus(final Bundle extras) {
         final long id = extras.getLong(EmailServiceStatus.SYNC_STATUS_ID);
+        final int statusCode = extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE);
         final Uri uri = ContentUris.withAppendedId(FOLDER_STATUS_URI, id);
         EmailProvider.this.getContext().getContentResolver().notifyChange(uri, null);
+        final boolean inProgress = statusCode == EmailServiceStatus.IN_PROGRESS;
+        if (inProgress) {
+            RefreshStatusMonitor.getInstance(getContext()).setSyncStarted(id);
+        } else {
+            final int result = extras.getInt(EmailServiceStatus.SYNC_RESULT);
+            final ContentValues values = new ContentValues();
+            values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
+            mDatabase.update(
+                    Mailbox.TABLE_NAME,
+                    values,
+                    WHERE_ID,
+                    new String[] { String.valueOf(id) });
+        }
     }
 
     @Override
@@ -5178,6 +5192,26 @@ public class EmailProvider extends ContentProvider {
 
     private Cursor uiFolderRefresh(final Mailbox mailbox, final int deltaMessageCount) {
         if (mailbox != null) {
+            RefreshStatusMonitor.getInstance(getContext())
+                    .monitorRefreshStatus(mailbox.mId, new RefreshStatusMonitor.Callback() {
+                @Override
+                public void onRefreshCompleted(long mailboxId, int result) {
+                    final ContentValues values = new ContentValues();
+                    values.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
+                    values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
+                    mDatabase.update(
+                            Mailbox.TABLE_NAME,
+                            values,
+                            WHERE_ID,
+                            new String[] { String.valueOf(mailboxId) });
+                    notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
+                }
+
+                @Override
+                public void onTimeout(long mailboxId) {
+                    // todo
+                }
+            });
             startSync(mailbox, deltaMessageCount);
         }
         return null;
