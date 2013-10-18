@@ -40,6 +40,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class PopImapSyncAdapterService extends Service {
                     EmailServiceStub.sendMailImpl(context, account.mId);
                 } else {
                     EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
-                            EmailServiceStatus.IN_PROGRESS, 0);
+                            EmailServiceStatus.IN_PROGRESS, 0, UIProvider.LastSyncResult.SUCCESS);
                     final int status;
                     if (protocol.equals(legacyImapProtocol)) {
                         status = ImapService.synchronizeMailboxSynchronous(context, account,
@@ -139,20 +140,28 @@ public class PopImapSyncAdapterService extends Service {
                         status = Pop3Service.synchronizeMailboxSynchronous(context, account,
                                 mailbox, deltaMessageCount);
                     }
-                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, status, 0);
+                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, status, 0,
+                            UIProvider.LastSyncResult.SUCCESS);
                 }
             } catch (MessagingException e) {
                 int cause = e.getExceptionType();
                 // XXX It's no good to put the MessagingException.cause here, that's not the
                 // same set of values that we use in EmailServiceStatus.
-                EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0);
                 switch(cause) {
                     case MessagingException.IOERROR:
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
+                                UIProvider.LastSyncResult.CONNECTION_ERROR);
                         syncResult.stats.numIoExceptions++;
                         break;
                     case MessagingException.AUTHENTICATION_FAILED:
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
+                                UIProvider.LastSyncResult.AUTH_ERROR);
                         syncResult.stats.numAuthExceptions++;
                         break;
+
+                    default:
+                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
+                            UIProvider.LastSyncResult.INTERNAL_ERROR);
                 }
             }
         } finally {
