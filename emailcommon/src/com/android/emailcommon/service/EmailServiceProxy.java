@@ -423,20 +423,11 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMail");
     }
 
+    @Deprecated
     @Override
     public int getCapabilities(final Account acct) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException{
-                mReturn = mService.getCapabilities(acct);
-            }
-        }, "getCapabilities");
-        waitForCompletion();
-        if (mReturn == null) {
-            return 0;
-        } else {
-            return (Integer)mReturn;
-        }
+        //This function should not be used; see {@link EmailProvider#getCapabilities} instead.
+        return 0;
     }
     /**
      * Request that the account be updated for this service; this call is synchronous
