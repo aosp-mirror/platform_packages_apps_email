@@ -2926,33 +2926,60 @@ public class EmailProvider extends ContentProvider {
     }
 
     private static int getCapabilities(Context context, long accountId) {
-        final EmailServiceProxy service =
-                EmailServiceUtils.getServiceForAccount(context, accountId);
-        int capabilities = 0;
-        Account acct = null;
-        try {
-            service.setTimeout(10);
-            acct = Account.restoreAccountWithId(context, accountId);
-            if (acct == null) {
-                LogUtils.d(TAG, "getCapabilities() for " + accountId
-                        + ": returning 0x0 (no account)");
-                return 0;
-            }
-            capabilities = service.getCapabilities(acct);
-            LogUtils.d(TAG, "getCapabilities() for %s: 0x%x %s",
-                    LogUtils.sanitizeAccountName(acct.mDisplayName),
-                    capabilities, getBits(capabilities));
-       } catch (RemoteException e) {
-            // Nothing to do
-           LogUtils.w(TAG, "getCapabilities() for " + acct.mDisplayName + ": RemoteException");
+        final Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) {
+            LogUtils.d(TAG, "Account %d not found during getCapabilities", accountId);
+            return 0;
         }
+        // Account capabilities are based on protocol -- different protocols (and, for EAS,
+        // different protocol versions) support different feature sets.
+        final String protocol = account.getProtocol(context);
+        int capabilities;
+        if (TextUtils.equals(context.getString(R.string.protocol_imap), protocol) ||
+                TextUtils.equals(context.getString(R.string.protocol_legacy_imap), protocol)) {
+            capabilities = AccountCapabilities.SYNCABLE_FOLDERS |
+                    AccountCapabilities.FOLDER_SERVER_SEARCH |
+                    AccountCapabilities.UNDO |
+                    AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
+        } else if (TextUtils.equals(context.getString(R.string.protocol_pop3), protocol)) {
+            capabilities = AccountCapabilities.UNDO |
+                    AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
+        } else if (TextUtils.equals(context.getString(R.string.protocol_eas), protocol)) {
+            final String easVersion = account.mProtocolVersion;
+            double easVersionDouble = 2.5D;
+            if (easVersion != null) {
+                try {
+                    easVersionDouble = Double.parseDouble(easVersion);
+                } catch (final NumberFormatException e) {
+                    // Use the default (lowest) set of capabilities.
+                }
+            }
+            if (easVersionDouble >= 12.0D) {
+                capabilities = AccountCapabilities.SYNCABLE_FOLDERS |
+                        AccountCapabilities.SERVER_SEARCH |
+                        AccountCapabilities.FOLDER_SERVER_SEARCH |
+                        AccountCapabilities.SMART_REPLY |
+                        AccountCapabilities.UNDO |
+                        AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
+            } else {
+                capabilities = AccountCapabilities.SYNCABLE_FOLDERS |
+                        AccountCapabilities.SMART_REPLY |
+                        AccountCapabilities.UNDO |
+                        AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
+            }
+        } else {
+            LogUtils.w(TAG, "Unknown protocol for account %d", accountId);
+            return 0;
+        }
+        LogUtils.d(TAG, "getCapabilities() for %d (protocol %s): 0x%x %s", accountId, protocol,
+                capabilities, getBits(capabilities));
 
         // If the configuration states that feedback is supported, add that capability
         final Resources res = context.getResources();
         if (res.getBoolean(R.bool.feedback_supported)) {
             capabilities |= UIProvider.AccountCapabilities.SEND_FEEDBACK;
         }
-
+        // TODO: Should this be stored per-account, or some other mechanism?
         capabilities |= UIProvider.AccountCapabilities.NESTED_FOLDERS;
 
         return capabilities;
