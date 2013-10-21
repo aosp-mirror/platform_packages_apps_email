@@ -59,6 +59,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.utils.LogUtils;
 
@@ -1411,6 +1412,9 @@ public class ImapService extends Service {
         }
 
         // Tell UI that we're loading messages
+        final ContentValues statusValues = new ContentValues(2);
+        statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.LIVE_QUERY);
+        destMailbox.update(context, statusValues);
 
         final Store remoteStore = Store.getInstance(account, context);
         final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
@@ -1500,6 +1504,11 @@ public class ImapService extends Service {
             public void loadAttachmentProgress(int progress) {
             }
         });
+        // Tell UI that we're done loading messages
+        statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+        statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
+        destMailbox.update(context, statusValues);
+
         return numSearchResults;
     }
 }
