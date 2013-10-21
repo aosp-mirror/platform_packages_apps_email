@@ -2390,6 +2390,8 @@ public class EmailProvider extends ContentProvider {
                     .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
                     .add(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME,
                             AccountColumns.EMAIL_ADDRESS)
+                    .add(UIProvider.AccountColumns.SENDER_NAME,
+                            AccountColumns.SENDER_NAME)
                     .add(UIProvider.AccountColumns.UNDO_URI,
                             ("'content://" + EmailContent.AUTHORITY + "/uiundo'"))
                     .add(UIProvider.AccountColumns.URI, uriWithId("uiaccount"))
@@ -4325,14 +4327,19 @@ public class EmailProvider extends ContentProvider {
      *     - UIProvider.MessageColumns.SNIPPET
      *     - UIProvider.MessageColumns.REPLY_TO
      *     - UIProvider.MessageColumns.FROM
-     *     - UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS
      */
     private Uri uiSaveMessage(Message msg, Mailbox mailbox, Bundle extras) {
         final Context context = getContext();
         // Fill in the message
         final Account account = Account.restoreAccountWithId(context, mailbox.mAccountKey);
         if (account == null) return null;
-        msg.mFrom = account.mEmailAddress;
+        final String customFromAddress =
+                extras.getString(UIProvider.MessageColumns.CUSTOM_FROM_ADDRESS);
+        if (!TextUtils.isEmpty(customFromAddress)) {
+            msg.mFrom = customFromAddress;
+        } else {
+            msg.mFrom = account.getEmailAddress();
+        }
         msg.mTimeStamp = System.currentTimeMillis();
         msg.mTo = extras.getString(UIProvider.MessageColumns.TO);
         msg.mCc = extras.getString(UIProvider.MessageColumns.CC);
