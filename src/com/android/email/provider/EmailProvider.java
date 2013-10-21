@@ -1857,6 +1857,16 @@ public class EmailProvider extends ContentProvider {
                     }
                     break;
                 case BODY:
+                    result = db.update(tableName, values, selection, selectionArgs);
+                    if (result == 0 && selection.equals(Body.SELECTION_BY_MESSAGE_KEY)) {
+                        // TODO: This is a hack. Notably, the selection equality test above
+                        // is hokey at best.
+                        LogUtils.i(TAG, "Body Update to non-existent row, morphing to insert");
+                        final ContentValues insertValues = new ContentValues(values);
+                        insertValues.put(EmailContent.Body.MESSAGE_KEY, selectionArgs[0]);
+                        insert(EmailContent.Body.CONTENT_URI, insertValues);
+                    }
+                    break;
                 case MESSAGE:
                 case UPDATED_MESSAGE:
                 case ATTACHMENT:
