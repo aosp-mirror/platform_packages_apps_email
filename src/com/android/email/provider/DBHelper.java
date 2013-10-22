@@ -155,7 +155,8 @@ public final class DBHelper {
     // Version 117: Add trigger to delete duplicate messages on sync.
     // Version 118: Set syncInterval to 0 for all IMAP mailboxes
     // Version 119: Disable syncing of DRAFTS type folders.
-    public static final int DATABASE_VERSION = 119;
+    // Version 120: Changed duplicateMessage deletion trigger to ignore search mailboxes.
+    public static final int DATABASE_VERSION = 120;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -208,17 +209,33 @@ public final class DBHelper {
                 "; end");
     }
 
+    static void dropDeleteDuplicateMessagesTrigger(final SQLiteDatabase db) {
+        db.execSQL("drop trigger message_delete_duplicates_on_insert");
+    }
+
     /**
      * Add a trigger to delete duplicate server side messages before insertion.
-     * @param db The {@link SQLiteDatabase}
+     * Here is the plain text of this sql:
+     *   create trigger message_delete_duplicates_on_insert before insert on
+     *   Message for each row when new.serverId is not null and
+     *   (select Mailbox.type from Mailbox where _id=new.mailboxKey) != 8
+     *   begin delete from Message where new.serverId=severId and
+     *   new.accountKey=accountKey and
+     *   (select Mailbox.type from Mailbox where _id=mailboxKey) != 8; end
      */
     static void createDeleteDuplicateMessagesTrigger(final SQLiteDatabase db) {
         db.execSQL("create trigger message_delete_duplicates_on_insert before insert on "
                 + Message.TABLE_NAME + " for each row when new." + SyncColumns.SERVER_ID
-                + " is not null begin delete from " + Message.TABLE_NAME + " where new."
+                + " is not null and "
+                + "(select " + Mailbox.TABLE_NAME + "." + MailboxColumns.TYPE + " from "
+                + Mailbox.TABLE_NAME + " where " + MailboxColumns.ID + "=new."
+                + MessageColumns.MAILBOX_KEY + ")!=" + Mailbox.TYPE_SEARCH
+                + " begin delete from " + Message.TABLE_NAME + " where new."
                 + SyncColumns.SERVER_ID + "=" + SyncColumns.SERVER_ID + " and new."
-                + MessageColumns.ACCOUNT_KEY + "=" + MessageColumns.ACCOUNT_KEY + "; end");
-
+                + MessageColumns.ACCOUNT_KEY + "=" + MessageColumns.ACCOUNT_KEY
+                + " and (select " + Mailbox.TABLE_NAME + "." + MailboxColumns.TYPE + " from "
+                + Mailbox.TABLE_NAME + " where " + MailboxColumns.ID + "="
+                + MessageColumns.MAILBOX_KEY + ")!=" + Mailbox.TYPE_SEARCH +"; end");
     }
 
     static void createMessageTable(SQLiteDatabase db) {
@@ -1189,9 +1206,11 @@ public final class DBHelper {
                 createMessageStateChangeTable(db);
             }
 
-            if (oldVersion <= 116) {
-                createDeleteDuplicateMessagesTrigger(db);
-            }
+            /**
+             * Originally, at 116, we added a trigger to delete duplicate messages.
+             * But we needed to change that trigger for version 120, so when we get
+             * there, we'll drop the trigger if it exists and create a new version.
+             */
 
             /**
              * This statement changes the syncInterval column to 0 for all IMAP mailboxes.
@@ -1234,6 +1253,19 @@ public final class DBHelper {
                         + MailboxColumns.ID + " from " + Mailbox.TABLE_NAME + " where "
                         + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS + ")");
             }
+
+            if (oldVersion <= 119) {
+                if (oldVersion >= 116) {
+                    /**
+                     * This trigger was originally created at version 116, but we needed to change
+                     * it for version 120. So if our oldVersion is 116 or more, we know we have that
+                     * trigger and must drop it before re creating it.
+                     */
+                    dropDeleteDuplicateMessagesTrigger(db);
+                }
+                createDeleteDuplicateMessagesTrigger(db);
+            }
+
         }
 
         @Override
