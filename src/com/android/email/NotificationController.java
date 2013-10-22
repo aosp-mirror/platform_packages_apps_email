@@ -34,6 +34,7 @@ import android.os.Process;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
@@ -209,10 +210,50 @@ public class NotificationController {
     /**
      * Ensures the notification handler exists and is ready to handle requests.
      */
+
+    /**
+     * TODO: Notifications jump around too much because we get too many content updates.
+     * We should try to make the provider generate fewer updates instead.
+     */
+
+    private static final int NOTIFICATION_DELAYED_MESSAGE = 0;
+    private static final long NOTIFICATION_DELAY = 15 * DateUtils.SECOND_IN_MILLIS;
+    // True if we're coalescing notification updates
+    private static boolean sNotificationDelayedMessagePending;
+    // True if accounts have changed and we need to refresh everything
+    private static boolean sRefreshAllNeeded;
+    // Set of accounts we need to regenerate notifications for
+    private static final HashSet<Long> sRefreshAccountSet = new HashSet<Long>();
+    // These should all be accessed on-thread, but just in case...
+    private static final Object sNotificationDelayedMessageLock = new Object();
+
     private static synchronized void ensureHandlerExists() {
         if (sNotificationThread == null) {
             sNotificationThread = new NotificationThread();
-            sNotificationHandler = new Handler(sNotificationThread.getLooper());
+            sNotificationHandler = new Handler(sNotificationThread.getLooper(),
+                    new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(final android.os.Message message) {
+                            /**
+                             * To reduce spamming the notifications, we quiesce updates for a few
+                             * seconds to batch them up, then handle them here.
+                             */
+                            LogUtils.d(LOG_TAG, "Delayed notification processing");
+                            synchronized (sNotificationDelayedMessageLock) {
+                                sNotificationDelayedMessagePending = false;
+                                final Context context = (Context)message.obj;
+                                if (sRefreshAllNeeded) {
+                                    sRefreshAllNeeded = false;
+                                    refreshAllNotificationsInternal(context);
+                                }
+                                for (final Long accountId : sRefreshAccountSet) {
+                                    refreshNotificationsForAccountInternal(context, accountId);
+                                }
+                                sRefreshAccountSet.clear();
+                            }
+                            return true;
+                        }
+                    });
         }
     }
 
@@ -533,6 +574,118 @@ public class NotificationController {
         notificationManager.cancel((int) (NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
     }
 
+    private static void refreshNotificationsForAccount(final Context context,
+            final long accountId) {
+        synchronized (sNotificationDelayedMessageLock) {
+            if (sNotificationDelayedMessagePending) {
+                sRefreshAccountSet.add(accountId);
+            } else {
+                ensureHandlerExists();
+                sNotificationHandler.sendMessageDelayed(
+                        android.os.Message.obtain(sNotificationHandler,
+                                NOTIFICATION_DELAYED_MESSAGE, context), NOTIFICATION_DELAY);
+                sNotificationDelayedMessagePending = true;
+                refreshNotificationsForAccountInternal(context, accountId);
+            }
+        }
+    }
+
+    private static void refreshNotificationsForAccountInternal(final Context context,
+            final long accountId) {
+        final ContentResolver contentResolver = context.getContentResolver();
+
+        final Cursor accountCursor = contentResolver.query(
+                EmailProvider.uiUri("uiaccount", accountId), UIProvider.ACCOUNTS_PROJECTION,
+                null, null, null);
+
+        if (accountCursor == null) {
+            LogUtils.e(LOG_TAG, "Null account cursor for account id %d", accountId);
+            return;
+        }
+
+        com.android.mail.providers.Account account = null;
+        try {
+            if (accountCursor.moveToFirst()) {
+                account = new com.android.mail.providers.Account(accountCursor);
+            }
+        } finally {
+            accountCursor.close();
+        }
+
+        if (account == null) {
+            LogUtils.d(LOG_TAG, "Tried to create a notification for a missing account %d",
+                    accountId);
+            return;
+        }
+
+        final Cursor mailboxCursor = contentResolver.query(
+                ContentUris.withAppendedId(EmailContent.MAILBOX_NOTIFICATION_URI, accountId),
+                null, null, null, null);
+        try {
+            while (mailboxCursor.moveToNext()) {
+                final long mailboxId =
+                        mailboxCursor.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
+                if (mailboxId == 0) continue;
+
+                final int unreadCount = mailboxCursor.getInt(
+                        EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
+                final int unseenCount = mailboxCursor.getInt(
+                        EmailContent.NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN);
+
+                final Cursor folderCursor = contentResolver.query(
+                        EmailProvider.uiUri("uifolder", mailboxId),
+                        UIProvider.FOLDERS_PROJECTION, null, null, null);
+
+                if (folderCursor == null) {
+                    LogUtils.e(LOG_TAG, "Null folder cursor for account %d, mailbox %d",
+                            accountId, mailboxId);
+                    continue;
+                }
+
+                Folder folder = null;
+                try {
+                    if (folderCursor.moveToFirst()) {
+                        folder = new Folder(folderCursor);
+                    } else {
+                        LogUtils.e(LOG_TAG, "Empty folder cursor for account %d, mailbox %d",
+                                accountId, mailboxId);
+                        continue;
+                    }
+                } finally {
+                    folderCursor.close();
+                }
+
+                LogUtils.d(LOG_TAG, "Changes to account " + account.name + ", folder: "
+                        + folder.name + ", unreadCount: " + unreadCount + ", unseenCount: "
+                        + unseenCount);
+
+                NotificationUtils.setNewEmailIndicator(context, unreadCount, unseenCount,
+                        account, folder, true);
+            }
+        } finally {
+            mailboxCursor.close();
+        }
+    }
+
+    private static void refreshAllNotifications(final Context context) {
+        synchronized (sNotificationDelayedMessageLock) {
+            if (sNotificationDelayedMessagePending) {
+                sRefreshAllNeeded = true;
+            } else {
+                ensureHandlerExists();
+                sNotificationHandler.sendMessageDelayed(
+                        android.os.Message.obtain(sNotificationHandler,
+                                NOTIFICATION_DELAYED_MESSAGE, context), NOTIFICATION_DELAY);
+                sNotificationDelayedMessagePending = true;
+                refreshAllNotificationsInternal(context);
+            }
+        }
+    }
+
+    private static void refreshAllNotificationsInternal(final Context context) {
+        NotificationUtils.resendNotifications(context, false, null, null);
+    }
+
     /**
      * Observer invoked whenever a message we're notifying the user about changes.
      */
@@ -549,79 +702,7 @@ public class NotificationController {
 
         @Override
         public void onChange(final boolean selfChange) {
-            final ContentResolver contentResolver = mContext.getContentResolver();
-
-            final Cursor accountCursor = contentResolver.query(
-                    EmailProvider.uiUri("uiaccount", mAccountId), UIProvider.ACCOUNTS_PROJECTION,
-                    null, null, null);
-
-            if (accountCursor == null) {
-                LogUtils.e(LOG_TAG, "Null account cursor for mAccountId %d", mAccountId);
-                return;
-            }
-
-            com.android.mail.providers.Account account = null;
-            try {
-                if (accountCursor.moveToFirst()) {
-                    account = new com.android.mail.providers.Account(accountCursor);
-                }
-            } finally {
-                accountCursor.close();
-            }
-
-            if (account == null) {
-                LogUtils.d(LOG_TAG, "Tried to create a notification for a missing account %d",
-                        mAccountId);
-                return;
-            }
-
-            final Cursor mailboxCursor = contentResolver.query(
-                    ContentUris.withAppendedId(EmailContent.MAILBOX_NOTIFICATION_URI, mAccountId),
-                    null, null, null, null);
-            try {
-                while (mailboxCursor.moveToNext()) {
-                    final long mailboxId =
-                            mailboxCursor.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
-                    if (mailboxId == 0) continue;
-
-                    final int unreadCount = mailboxCursor.getInt(
-                            EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
-                    final int unseenCount = mailboxCursor.getInt(
-                            EmailContent.NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN);
-
-                    final Cursor folderCursor = contentResolver.query(
-                            EmailProvider.uiUri("uifolder", mailboxId),
-                            UIProvider.FOLDERS_PROJECTION, null, null, null);
-
-                    if (folderCursor == null) {
-                        LogUtils.e(LOG_TAG, "Null folder cursor for account %d, mailbox %d",
-                                mAccountId, mailboxId);
-                        continue;
-                    }
-
-                    Folder folder = null;
-                    try {
-                        if (folderCursor.moveToFirst()) {
-                            folder = new Folder(folderCursor);
-                        } else {
-                            LogUtils.e(LOG_TAG, "Empty folder cursor for account %d, mailbox %d",
-                                    mAccountId, mailboxId);
-                            continue;
-                        }
-                    } finally {
-                        folderCursor.close();
-                    }
-
-                    LogUtils.d(LOG_TAG, "Changes to account " + account.name + ", folder: "
-                            + folder.name + ", unreadCount: " + unreadCount + ", unseenCount: "
-                            + unseenCount);
-
-                    NotificationUtils.setNewEmailIndicator(mContext, unreadCount, unseenCount,
-                            account, folder, true);
-                }
-            } finally {
-                mailboxCursor.close();
-            }
+            refreshNotificationsForAccount(mContext, mAccountId);
         }
     }
 
@@ -674,7 +755,7 @@ public class NotificationController {
                 sInstance.unregisterMessageNotification(accountId);
             }
 
-            NotificationUtils.resendNotifications(mContext, false, null, null);
+            refreshAllNotifications(mContext);
         }
     }
 
