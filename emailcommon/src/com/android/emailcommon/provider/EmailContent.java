@@ -314,6 +314,8 @@ public abstract class EmailContent {
     public static final class Body extends EmailContent implements BodyColumns {
         public static final String TABLE_NAME = "Body";
 
+        public static final String SELECTION_BY_MESSAGE_KEY = MESSAGE_KEY + "=?";
+
         public static Uri CONTENT_URI;
 
         public static void initBody() {
