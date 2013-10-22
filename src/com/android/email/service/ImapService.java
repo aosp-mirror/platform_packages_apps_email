@@ -1477,8 +1477,6 @@ public class ImapService extends Service {
                         // Copy the fields that are available into the message
                         LegacyConversions.updateMessageFields(localMessage,
                                 message, account.mId, mailbox.mId);
-                        // Commit the message to the local store
-                        Utilities.saveOrUpdate(localMessage, context);
                         localMessage.mMailboxKey = destMailboxId;
                         // We load 50k or so; maybe it's complete, maybe not...
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
