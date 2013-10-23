@@ -2378,6 +2378,18 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.FolderColumns.PARENT_URI, "case when " + MailboxColumns.PARENT_KEY
                         + "=" + Mailbox.NO_MAILBOX + " then NULL else " +
                         uriWithColumn("uifolder", MailboxColumns.PARENT_KEY) + " end")
+                /**
+                 * SELECT group_concat(fromList) FROM
+                 * (SELECT fromList FROM message WHERE mailboxKey=? AND flagRead=0
+                 *  GROUP BY fromList ORDER BY timestamp DESC)
+                 */
+                .add(UIProvider.FolderColumns.UNREAD_SENDERS,
+                        "(SELECT group_concat(" + MessageColumns.FROM_LIST + ") FROM " +
+                        "(SELECT " + MessageColumns.FROM_LIST + " FROM " + Message.TABLE_NAME +
+                        " WHERE " + MessageColumns.MAILBOX_KEY + "=" + Mailbox.TABLE_NAME + "." +
+                        MailboxColumns.ID + " AND " + MessageColumns.FLAG_READ + "=0" +
+                        " GROUP BY " + MessageColumns.FROM_LIST + " ORDER BY " +
+                        MessageColumns.TIMESTAMP + " DESC))")
                 .build();
         }
         return sFolderListMap;
@@ -4128,6 +4140,22 @@ public class EmailProvider extends ContentProvider {
     }
 
     /**
+     * We need a reasonably full projection for getFolderListCursor to work, but don't always want
+     * to do the subquery needed for FolderColumns.UNREAD_SENDERS
+     * @param uiProjection The projection we actually want
+     * @return Full projection, possibly with or without FolderColumns.UNREAD_SENDERS
+     */
+    private String[] folderProjectionFromUiProjection(final String[] uiProjection) {
+        final Set<String> columns = ImmutableSet.copyOf(uiProjection);
+        final String[] folderProjection;
+        if (columns.contains(UIProvider.FolderColumns.UNREAD_SENDERS)) {
+            return UIProvider.FOLDERS_PROJECTION_WITH_UNREAD_SENDERS;
+        } else {
+            return UIProvider.FOLDERS_PROJECTION;
+        }
+    }
+
+    /**
      * Handle UnifiedEmail queries here (dispatched from query())
      *
      * @param match the UriMatcher match for the original uri passed in from UnifiedEmail
@@ -4161,20 +4189,23 @@ public class EmailProvider extends ContentProvider {
                     c = new MergeCursor(new Cursor[] {rawc, vc});
                 }
                 break;
-            case UI_FULL_FOLDERS:
-                c = db.rawQuery(genQueryAccountAllMailboxes(UIProvider.FOLDERS_PROJECTION),
-                        new String[] {id});
+            case UI_FULL_FOLDERS: {
+                // We need a full projection for getFolderListCursor
+                final String[] folderProjection = folderProjectionFromUiProjection(uiProjection);
+                c = db.rawQuery(genQueryAccountAllMailboxes(folderProjection), new String[] {id});
                 c = getFolderListCursor(c, Long.valueOf(id), uiProjection);
                 notifyUri =
                         UIPROVIDER_FOLDERLIST_NOTIFIER.buildUpon().appendEncodedPath(id).build();
                 break;
+            }
             case UI_RECENT_FOLDERS:
                 c = db.rawQuery(genQueryRecentMailboxes(uiProjection), new String[] {id});
                 notifyUri = UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
-            case UI_SUBFOLDERS:
-                c = db.rawQuery(genQuerySubfolders(UIProvider.FOLDERS_PROJECTION),
-                        new String[] {id});
+            case UI_SUBFOLDERS: {
+                // We need a full projection for getFolderListCursor
+                final String[] folderProjection = folderProjectionFromUiProjection(uiProjection);
+                c = db.rawQuery(genQuerySubfolders(folderProjection), new String[] {id});
                 c = getFolderListCursor(c, Mailbox.getAccountIdForMailbox(context, id),
                         uiProjection);
                 // Get notifications for any folder changes on this account. This is broader than
@@ -4183,6 +4214,7 @@ public class EmailProvider extends ContentProvider {
                 final long accountId = Mailbox.getAccountIdForMailbox(context, id);
                 notifyUri = ContentUris.withAppendedId(UIPROVIDER_FOLDERLIST_NOTIFIER, accountId);
                 break;
+            }
             case UI_MESSAGES:
                 long mailboxId = Long.parseLong(id);
                 final Folder folder = getFolder(context, mailboxId);
