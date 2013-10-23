@@ -1443,10 +1443,13 @@ public class ImapService extends Service {
                 sSearchResults.put(accountId, sortableMessages);
             }
         } else {
+            // It seems odd for this to happen, but if the previous query returned zero results,
+            // but the UI somehow still attempted to load more, then sSearchResults will have
+            // a null value for this account. We need to handle this below.
             sortableMessages = sSearchResults.get(accountId);
         }
 
-        final int numSearchResults = sortableMessages.length;
+        final int numSearchResults = (sortableMessages != null ? sortableMessages.length : 0);
         final int numToLoad =
                 Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
         destMailbox.updateMessageCount(context, numSearchResults);
