@@ -306,8 +306,9 @@ public class ImapStore extends Store {
             final Mailbox mailbox = folder.mMailbox;
             int delimiterIdx = mailbox.mServerId.lastIndexOf(mailbox.mDelimiter);
             long parentKey = Mailbox.NO_MAILBOX;
+            String parentPath = null;
             if (delimiterIdx != -1) {
-                String parentPath = path.substring(0, delimiterIdx);
+                parentPath = path.substring(0, delimiterIdx);
                 final ImapFolder parentFolder = mailboxes.get(parentPath);
                 final Mailbox parentMailbox = (parentFolder == null) ? null : parentFolder.mMailbox;
                 if (parentMailbox != null) {
@@ -317,6 +318,7 @@ public class ImapStore extends Store {
                 }
             }
             mailbox.mParentKey = parentKey;
+            mailbox.mParentServerId = parentPath;
         }
     }
 
