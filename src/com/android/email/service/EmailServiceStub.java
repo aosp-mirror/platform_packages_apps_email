@@ -228,7 +228,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
                         BodyColumns.MESSAGE_KEY + "=?",
                         new String[] {Long.toString(messageId)}, null, 0, -1L);
-                if (sourceId != -1 ) {
+                if (sourceId != -1) {
                     EmailContent.Message sourceMsg =
                             EmailContent.Message.restoreMessageWithId(mContext, sourceId);
                     if (sourceMsg != null) {
@@ -236,6 +236,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                         message.mServerId = sourceMsg.mServerId;
                     }
                 }
+            } else if (mailbox.mType == Mailbox.TYPE_SEARCH && message.mMainMailboxKey != 0) {
+                mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMainMailboxKey);
             }
 
             if (account == null || mailbox == null) {
@@ -262,6 +264,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     String.format("%s;\n name=\"%s\"",
                     attachment.mMimeType,
                     attachment.mFileName));
+
             // TODO is this always true for attachments?  I think we dropped the
             // true encoding along the way
             storePart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");

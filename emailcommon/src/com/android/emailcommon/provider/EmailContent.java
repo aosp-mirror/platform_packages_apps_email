@@ -554,6 +554,10 @@ public abstract class EmailContent {
 
         // References to other Email objects in the database
         // Foreign key to the Mailbox holding this message [INDEX]
+        // TODO: This column is used in a complicated way: Usually, this refers to the mailbox
+        // the server considers this message to be in. In the case of search results, this key
+        // will refer to a special "search" mailbox, which does not exist on the server.
+        // This is confusing and causes problems, see b/11294681.
         public static final String MAILBOX_KEY = "mailboxKey";
         // Foreign key to the Account holding this message
         public static final String ACCOUNT_KEY = "accountKey";
@@ -580,6 +584,15 @@ public abstract class EmailContent {
 
         /** Boolean, unseen = 0, seen = 1 [INDEX] */
         public static final String FLAG_SEEN = "flagSeen";
+
+        // References to other Email objects in the database
+        // Foreign key to the Mailbox holding this message [INDEX]
+        // In cases where mailboxKey is NOT the real mailbox the server considers this message in,
+        // this will be set. See b/11294681
+        // We'd like to get rid of this column when the other changes mentioned in that bug
+        // can be addressed.
+        public static final String MAIN_MAILBOX_KEY = "mainMailboxKey";
+
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -641,6 +654,7 @@ public abstract class EmailContent {
         public static final int CONTENT_THREAD_TOPIC_COLUMN = 23;
         public static final int CONTENT_SYNC_DATA_COLUMN = 24;
         public static final int CONTENT_FLAG_SEEN_COLUMN = 25;
+        public static final int CONTENT_MAIN_MAILBOX_KEY_COLUMN = 26;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -655,7 +669,8 @@ public abstract class EmailContent {
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
             MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO,
-            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA, MessageColumns.FLAG_SEEN
+            MessageColumns.THREAD_TOPIC, MessageColumns.SYNC_DATA,
+            MessageColumns.FLAG_SEEN, MessageColumns.MAIN_MAILBOX_KEY
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -775,6 +790,7 @@ public abstract class EmailContent {
 
         public long mMailboxKey;
         public long mAccountKey;
+        public long mMainMailboxKey;
 
         public String mFrom;
         public String mTo;
@@ -905,6 +921,7 @@ public abstract class EmailContent {
             values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
             values.put(MessageColumns.THREAD_TOPIC, mThreadTopic);
             values.put(MessageColumns.SYNC_DATA, mSyncData);
+            values.put(MessageColumns.MAIN_MAILBOX_KEY, mMainMailboxKey);
             return values;
         }
 
@@ -931,6 +948,7 @@ public abstract class EmailContent {
             mDraftInfo = cursor.getInt(CONTENT_DRAFT_INFO_COLUMN);
             mMessageId = cursor.getString(CONTENT_MESSAGE_ID_COLUMN);
             mMailboxKey = cursor.getLong(CONTENT_MAILBOX_KEY_COLUMN);
+            mMainMailboxKey = cursor.getLong(CONTENT_MAIN_MAILBOX_KEY_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             mFrom = cursor.getString(CONTENT_FROM_LIST_COLUMN);
             mTo = cursor.getString(CONTENT_TO_LIST_COLUMN);
