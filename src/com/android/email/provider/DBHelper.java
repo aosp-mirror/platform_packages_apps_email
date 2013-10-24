@@ -156,7 +156,10 @@ public final class DBHelper {
     // Version 118: Set syncInterval to 0 for all IMAP mailboxes
     // Version 119: Disable syncing of DRAFTS type folders.
     // Version 120: Changed duplicateMessage deletion trigger to ignore search mailboxes.
-    public static final int DATABASE_VERSION = 120;
+    // Version 121: Add mainMailboxKey, which will be set for messages that are in the fake
+    //              "search_results" folder to reflect the mailbox that the server considers
+    //              the message to be in. Also, wipe out any stale search_result folders.
+    public static final int DATABASE_VERSION = 121;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -261,7 +264,8 @@ public final class DBHelper {
             + MessageColumns.PROTOCOL_SEARCH_INFO + " text, "
             + MessageColumns.THREAD_TOPIC + " text, "
             + MessageColumns.SYNC_DATA + " text, "
-            + MessageColumns.FLAG_SEEN + " integer"
+            + MessageColumns.FLAG_SEEN + " integer, "
+            + MessageColumns.MAIN_MAILBOX_KEY + " integer"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -1266,6 +1270,22 @@ public final class DBHelper {
                 createDeleteDuplicateMessagesTrigger(db);
             }
 
+
+            // Add the mainMailboxKey column, and get rid of any messages in the search_results
+            // folder.
+            //
+
+            if (oldVersion <= 120) {
+                db.execSQL("alter table " + Message.TABLE_NAME
+                        + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
+
+                // Delete all TYPE_SEARCH mailboxes. These will be for stale queries anyway, and
+                // the messages in them will not have the mainMailboxKey column correctly populated.
+                // We have a trigger (See TRIGGER_MAILBOX_DELETE) that will delete any messages
+                // in the deleted mailboxes.
+                db.execSQL("delete from " + Mailbox.TABLE_NAME + " where "
+                        + Mailbox.TYPE + "=" + Mailbox.TYPE_SEARCH);
+            }
         }
 
         @Override

@@ -1480,6 +1480,10 @@ public class ImapService extends Service {
                         // Copy the fields that are available into the message
                         LegacyConversions.updateMessageFields(localMessage,
                                 message, account.mId, mailbox.mId);
+                        // Save off the mailbox that this message *really* belongs in.
+                        // We need this information if we need to do more lookups
+                        // (like loading attachments) for this message. See b/11294681
+                        localMessage.mMainMailboxKey = localMessage.mMailboxKey;
                         localMessage.mMailboxKey = destMailboxId;
                         // We load 50k or so; maybe it's complete, maybe not...
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
