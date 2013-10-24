@@ -5369,7 +5369,7 @@ public class EmailProvider extends ContentProvider {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    // TODO: Handle searching for more...
+    // This handles an initial search query. More results are loaded using uiFolderLoadMore.
     private Cursor uiSearch(Uri uri, String[] projection) {
         LogUtils.d(TAG, "runSearchQuery in search %s", uri);
         final long accountId = Long.parseLong(uri.getLastPathSegment());
@@ -5396,6 +5396,8 @@ public class EmailProvider extends ContentProvider {
 
         final Context context = getContext();
         if (mSearchParams.mOffset == 0) {
+            // TODO: This conditional is unnecessary, just two lines earlier we created
+            // mSearchParams using a constructor that never sets mOffset.
             LogUtils.d(TAG, "deleting existing search results.");
 
             // Delete existing contents of search mailbox
