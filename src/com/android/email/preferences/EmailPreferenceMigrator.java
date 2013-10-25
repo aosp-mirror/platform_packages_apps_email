@@ -97,7 +97,8 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                 final Cursor ecAccountCursor = context.getContentResolver().query(
                         com.android.emailcommon.provider.Account.CONTENT_URI,
                         com.android.emailcommon.provider.Account.CONTENT_PROJECTION,
-                        AccountColumns.EMAIL_ADDRESS + " = ?", new String[] { account.name },
+                        AccountColumns.EMAIL_ADDRESS + " = ?",
+                        new String[] { account.getEmailAddress() },
                         null);
                 final com.android.emailcommon.provider.Account ecAccount =
                         new com.android.emailcommon.provider.Account();
