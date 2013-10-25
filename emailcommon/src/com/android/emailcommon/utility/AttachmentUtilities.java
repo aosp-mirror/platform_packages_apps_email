@@ -395,6 +395,13 @@ public class AttachmentUtilities {
                 size = copyFile(in, resolver.openOutputStream(attUri));
                 contentUri = attUri.toString();
             } else if (Utility.isExternalStorageMounted()) {
+                if (attachment.mFileName == null) {
+                    // TODO: This will prevent a crash but does not surface the underlying problem
+                    // to the user correctly.
+                    LogUtils.w(Logging.LOG_TAG, "Trying to save an attachment with no name: %d",
+                            attachmentId);
+                    throw new IOException("Can't save an attachment with no name");
+                }
                 File downloads = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS);
                 downloads.mkdirs();
