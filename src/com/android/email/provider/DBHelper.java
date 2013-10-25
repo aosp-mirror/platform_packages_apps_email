@@ -159,7 +159,8 @@ public final class DBHelper {
     // Version 121: Add mainMailboxKey, which will be set for messages that are in the fake
     //              "search_results" folder to reflect the mailbox that the server considers
     //              the message to be in. Also, wipe out any stale search_result folders.
-    public static final int DATABASE_VERSION = 121;
+    // Version 122: Need to update Message_Updates and Message_Deletes to match previous.
+    public static final int DATABASE_VERSION = 122;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1285,6 +1286,15 @@ public final class DBHelper {
                 // in the deleted mailboxes.
                 db.execSQL("delete from " + Mailbox.TABLE_NAME + " where "
                         + Mailbox.TYPE + "=" + Mailbox.TYPE_SEARCH);
+            }
+
+            if (oldVersion <= 121) {
+                // The previous update omitted making these changes to the Message_Updates and
+                // Message_Deletes tables. The app will actually crash in between these versions!
+                db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                        + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
+                db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                        + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
             }
         }
 
