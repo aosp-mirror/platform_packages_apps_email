@@ -40,6 +40,7 @@
         <attr name="usesAutodiscover" format="boolean"/>
         <attr name="offerLookback" format="boolean"/>
         <attr name="offerLoadMore" format="boolean"/>
+        <attr name="offerMoveTo" format="boolean"/>
         <attr name="defaultLookback">
             <enum name="auto" value="-2"/>
             <enum name="days1" value="1"/>
