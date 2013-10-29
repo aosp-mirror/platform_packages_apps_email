@@ -201,6 +201,7 @@ public class EmailServiceUtils {
         public int defaultSyncInterval;
         public String inferPrefix;
         public boolean offerLoadMore;
+        public boolean offerMoveTo;
         public boolean requiresSetup;
         public boolean hide;
 
@@ -576,6 +577,8 @@ public class EmailServiceUtils {
                         info.inferPrefix = ta.getString(R.styleable.EmailServiceInfo_inferPrefix);
                         info.offerLoadMore =
                                 ta.getBoolean(R.styleable.EmailServiceInfo_offerLoadMore, false);
+                        info.offerMoveTo =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_offerMoveTo, false);
                         info.requiresSetup =
                                 ta.getBoolean(R.styleable.EmailServiceInfo_requiresSetup, false);
 

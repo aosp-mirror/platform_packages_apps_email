@@ -2832,7 +2832,7 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
 
-    private static int getFolderCapabilities(EmailServiceInfo info, int type, long mailboxId) {
+    private int getFolderCapabilities(EmailServiceInfo info, int type, long mailboxId) {
         // Special case for Search folders: only permit delete, do not try to give any other caps.
         if (type == Mailbox.TYPE_SEARCH) {
             return UIProvider.FolderCapabilities.DELETE;
@@ -2864,6 +2864,12 @@ public class EmailProvider extends ContentProvider {
         }
         if (isVirtualMailbox(mailboxId)) {
             caps |= UIProvider.FolderCapabilities.IS_VIRTUAL;
+        }
+
+        if (!info.offerMoveTo) {
+            caps &= ~UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES &
+                    ~UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION &
+                    ~UIProvider.FolderCapabilities.ALLOWS_MOVE_TO_INBOX;
         }
         return caps;
     }
