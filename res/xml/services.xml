@@ -64,6 +64,7 @@
         email:offerLocalDeletes="true"
         email:inferPrefix="pop"
         email:offerLoadMore="true"
+        email:offerMoveTo="false"
          />
     <emailservice
         email:protocol="imap"
@@ -83,6 +84,7 @@
         email:syncChanges="true"
         email:inferPrefix="imap"
         email:offerLoadMore="true"
+        email:offerMoveTo="true"
          />
     <emailservice
         email:protocol="@string/protocol_eas"
@@ -105,5 +107,6 @@
         email:defaultLookback="auto"
         email:syncContacts="true"
         email:syncCalendar="true"
+        email:offerMoveTo="true"
          />
 </emailservices>
