@@ -154,11 +154,16 @@ public class AccountReconciler {
         // AccountManager account
         for (final Account providerAccount : emailProviderAccounts) {
             final String providerAccountName = providerAccount.mEmailAddress;
-            final String providerAccountType =
-                    EmailServiceUtils.getServiceInfoForAccount(context, providerAccount.mId)
-                            .accountType;
-            if (!hasAmAccount(accountManagerAccounts, providerAccountName, providerAccountType)) {
-                if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
+            final EmailServiceUtils.EmailServiceInfo infoForAccount = EmailServiceUtils
+                    .getServiceInfoForAccount(context, providerAccount.mId);
+
+            // We want to delete the account if there is no matching Account Manager account for it
+            // unless it is flagged as incomplete. We also want to delete it if we can't find
+            // an accountInfo object for it.
+            if (infoForAccount == null || !hasAmAccount(
+                    accountManagerAccounts, providerAccountName, infoForAccount.accountType)) {
+                if (infoForAccount != null &&
+                        (providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
                     LogUtils.w(Logging.LOG_TAG,
                             "Account reconciler noticed incomplete account; ignoring");
                     continue;
