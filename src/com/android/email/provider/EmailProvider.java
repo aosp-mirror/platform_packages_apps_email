@@ -44,6 +44,7 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -1943,6 +1944,15 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
         LogUtils.d(TAG, "EmailProvider#call(%s, %s)", method, arg);
+
+        // Handle queries for the device friendly name.
+        // TODO: This should eventually be a device property, not defined by the app.
+        if (TextUtils.equals(method, EmailContent.DEVICE_FRIENDLY_NAME)) {
+            final Bundle bundle = new Bundle(1);
+            // TODO: For now, just use the model name since we don't yet have a user-supplied name.
+            bundle.putString(EmailContent.DEVICE_FRIENDLY_NAME, Build.MODEL);
+            return bundle;
+        }
 
         // Handle sync status callbacks.
         if (TextUtils.equals(method, SYNC_STATUS_CALLBACK_METHOD)) {
