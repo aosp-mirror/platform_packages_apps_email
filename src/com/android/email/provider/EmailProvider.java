@@ -103,6 +103,7 @@ import com.android.mail.providers.ConversationInfo;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.MessageInfo;
+import com.android.mail.providers.Settings;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
@@ -3341,6 +3342,10 @@ public class EmailProvider extends ContentProvider {
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.MOVE_TO_INBOX)] =
                     combinedUriString("uifolder", combinedMailboxId(Mailbox.TYPE_INBOX));
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SHOW_IMAGES)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SHOW_IMAGES)] =
+                    Settings.ShowImages.ASK_FIRST;
         }
 
         mc.addRow(values);
