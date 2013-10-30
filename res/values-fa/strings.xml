@@ -36,7 +36,7 @@
     <item quantity="one" msgid="320885379869442589">"انتقال پیام"</item>
     <item quantity="other" msgid="371256717624461324">"انتقال پیام‌ها"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"انتقال در حساب‌های POP3 پشتیبانی نمی‌شود."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"‏انتقال در حساب‌های POP3 پشتیبانی نمی‌شود."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"انتقال امکان‌پذیر نیست. مورد انتخابی شامل چندین حساب است."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"پیام‌های موجود در پیش‌نویس‌ها، صندوق خروجی و موارد ارسالی قابل انتقال نیستند."</string>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"صندوق ورودی"</string>
@@ -90,7 +90,7 @@
     <string name="account_password_spaces_error" msgid="8928309156658903257">"این رمز ورود دارای یک یا چند نویسه فاصله در ابتدا یا انتهای خود است. بسیاری از سرورها از رمز ورودهای دارای فاصله پشتیبانی نمی‌کنند."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"در حال بازیابی اطلاعات حساب..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"درحال تأیید اعتبار تنظیمات سرور..."</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"درحال تأیید اعتبار تنظیمات smtp..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"‏درحال تأیید اعتبار تنظیمات smtp..."</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"ایجاد کردن حساب..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"تنظیم حساب"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"حساب شما تنظیم شد و ایمیل در راه است!"</string>
@@ -108,18 +108,18 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"درگاه"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"نوع امنیت"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"هیچکدام"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (پذیرش همه گواهی‌ها)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"‏SSL/TLS (پذیرش همه گواهی‌ها)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (پذیرش همه گواهی‌ها)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"‏STARTTLS (پذیرش همه گواهی‌ها)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"حذف ایمیل از سرور"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"هرگز"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"هنگامی که من از صندوق ورودی حذف می‌کنم"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"پیشوند مسیر IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"‏پیشوند مسیر IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"اختیاری"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"تنظیم حساب"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"تنظیمات سرور خروجی"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"سرور SMTP"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"‏سرور SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"درگاه"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"نوع امنیت"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"ورود به سیستم لازم است"</string>
@@ -145,7 +145,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"همگام‌سازی مخاطبین از این حساب"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"همگام‌سازی تقویم از این حساب"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"همگام‌سازی ایمیل از این حساب"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"دانلود خودکار پیوست‌ها هنگام اتصال به Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"‏دانلود خودکار پیوست‌ها هنگام اتصال به Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"پایان نیافت"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"روزهای همگام‌سازی"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"خودکار"</string>
@@ -165,16 +165,16 @@
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"سرور با یک خطا پاسخ داد. نام کاربری و گذرواژهٔ خود را بررسی کرده و دوباره امتحان کنید."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"اتصال به سرور امکان‌پذیر نیست."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"اتصال به سرور امکان‌پذیر نیست.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS لازم است اما توسط سرور پشتیبانی نمی‌شود."</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"‏TLS لازم است اما توسط سرور پشتیبانی نمی‌شود."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"روش‌های تأیید اعتبار توسط سرور پشتیبانی نمی‌شوند."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"به دلیل خطای امنیتی، اتصال به سرور باز نمی‌شود."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"اتصال به سرور برقرار نمی‌شود."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"آدرس سرور را اشتباه وارد کرده‌اید یا سرور به نسخه پروتکلی احتیاج دارد که ایمیل پشتیبانی نمی‌کند."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"شما اجازه همگام‌سازی با این سرور را ندارید. برای کسب اطلاعات بیشتر با سرپرست سرور خود تماس بگیرید."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"مدیریت امنیت راه دور"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می‌خواهد که به آن اجازه دهید برخی از ویژگی‌های امنیتی دستگاه Android شما را از راه دور کنترل کند. آیا می‌خواهید تنظیم این حساب را به پایان برسانید؟"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"این سرور نیاز به ویژگی‌های امنیتی دارد که دستگاه Android شما پشتیبانی‌ نمی‌کند، از جمله:<xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"شما نمی‎توانید نام کاربری یک حساب را تغییر دهید. برای افزودن یک حساب با یک نام کاربری دیگر، \"افزودن حساب\" را لمس کنید."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"‏سرور <xliff:g id="SERVER">%s</xliff:g> از شما می‌خواهد که به آن اجازه دهید برخی از ویژگی‌های امنیتی دستگاه Android شما را از راه دور کنترل کند. آیا می‌خواهید تنظیم این حساب را به پایان برسانید؟"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"‏این سرور نیاز به ویژگی‌های امنیتی دارد که دستگاه Android شما پشتیبانی‌ نمی‌کند، از جمله:<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"‏شما نمی‎توانید نام کاربری یک حساب را تغییر دهید. برای افزودن یک حساب با یک نام کاربری دیگر، \"افزودن حساب\" را لمس کنید."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"اخطار: غیرفعال کردن اختیار برنامه ایمیل برای سرپرستی دستگاه شما، همه حساب‌های ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده‌های آن‌ها را حذف می‌کند."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"به‌روزرسانی امنیتی"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> از شما می‌خواهد تنظیمات امنیتی خود را به‌روزرسانی کنید."</string>
@@ -185,7 +185,7 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"خط‌مشی‌های امنیتی تغییر کرده‌اند"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"از خط‌مشی‌های امنیتی تبعیت نمی‌شود"</string>
     <string name="account_security_title" msgid="3511543138560418587">"امنیت دستگاه"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می‌خواهد که به آن اجازه دهید برخی از ویژگی‌های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"‏سرور <xliff:g id="SERVER">%s</xliff:g> از شما می‌خواهد که به آن اجازه دهید برخی از ویژگی‌های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" از شما می‌خواهد کد پین یا گذرواژه قفل صفحه را تغییر دهید."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"رمز ورود قفل صفحه در حال انقضا"</string>
@@ -200,7 +200,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"نام کاربری یا گذرواژه <xliff:g id="ACCOUNT">%s</xliff:g> نادرست است. آیا می‌خواهید هم‌اکنون آن‌ها را به‌روز کنید؟"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"ورود به سیستم شما به <xliff:g id="ACCOUNT">%s</xliff:g> انجام نشد؛ سرور این پیام را داد: <xliff:g id="REASON">%s</xliff:g> آیا می‌خواهید نام کاربری و/یا  گذرواژه خود را به‌روزرسانی کنید؟"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"دانلود پیوست‌ها"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"دانلود خودکار پیوست‌ها به پیام‌های اخیر از طریق Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"‏دانلود خودکار پیوست‌ها به پیام‌های اخیر از طریق Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"اعلان‌های ایمیل"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"تکرار همگام‌سازی، اعلان‌ها، موارد دیگر"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ارسال اعلان هنگام ورود ایمیل"</string>
@@ -246,8 +246,8 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"پس از برقراری اتصال، پیام‌ها دانلود می‌شوند"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"تعداد روزها برای همگام‌سازی نامه‌ها"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"تصویر فرستنده"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"فقط برخی از حساب‌های \"Plus\" از جمله دسترسی POP به این برنامه اجازه می‌دهند متصل شود. اگر نمی‌توانید با گذرواژه و آدرس ایمیل درست خود به سیستم وارد شوید، ممکن است فاقد یک حساب \"Plus\" غیر رایگان باشید. لطفاً مرورگر وب را برای دسترسی به این حساب‌های ایمیل راه‌اندازی کنید."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"قبل از تنظیم این حساب ایمیل، از وبسایت T-Online بازدید کرده و یک گذرواژه برای دسترسی ایمیل POP3 ایجاد کنید."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"‏فقط برخی از حساب‌های \"Plus\" از جمله دسترسی POP به این برنامه اجازه می‌دهند متصل شود. اگر نمی‌توانید با گذرواژه و آدرس ایمیل درست خود به سیستم وارد شوید، ممکن است فاقد یک حساب \"Plus\" غیر رایگان باشید. لطفاً مرورگر وب را برای دسترسی به این حساب‌های ایمیل راه‌اندازی کنید."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"‏قبل از تنظیم این حساب ایمیل، از وبسایت T-Online بازدید کرده و یک گذرواژه برای دسترسی ایمیل POP3 ایجاد کنید."</string>
     <string name="exchange_name" msgid="1190783774800310346">"شرکت"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"حساب ایجاد نشد. دوباره امتحان کنید."</string>
