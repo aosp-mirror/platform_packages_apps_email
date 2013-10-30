@@ -130,6 +130,13 @@ public abstract class EmailContent {
     public static Uri MAILBOX_MOST_RECENT_MESSAGE_URI;
     public static Uri ACCOUNT_CHECK_URI;
 
+    /**
+     * String for both the EmailProvider call, and the key for the value in the response.
+     * TODO: Eventually this ought to be a device property, not defined by the app.
+     */
+    public static String DEVICE_FRIENDLY_NAME = "deviceFriendlyName";
+
+
     public static String PROVIDER_PERMISSION;
 
     public static synchronized void init(Context context) {
