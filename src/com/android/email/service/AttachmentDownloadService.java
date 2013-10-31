@@ -59,7 +59,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AttachmentDownloadService extends Service implements Runnable {
-    public static final String TAG = "AttachmentService";
+    public static final String TAG = LogUtils.TAG;
 
     // Minimum wait time before retrying a download that failed due to connection error
     private static final long CONNECTION_ERROR_RETRY_MILLIS = 10 * DateUtils.SECOND_IN_MILLIS;
@@ -714,7 +714,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     }
                     if (statusCode != EmailServiceStatus.IN_PROGRESS) {
                         LogUtils.d(TAG, ">> Attachment " + attachmentId + ": " + code);
-                    } else if (progress >= (req.lastProgress + 15)) {
+                    } else if (progress >= (req.lastProgress + 10)) {
                         LogUtils.d(TAG, ">> Attachment " + attachmentId + ": " + progress + "%");
                     }
                 }
