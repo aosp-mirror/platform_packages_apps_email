@@ -24,15 +24,21 @@ import android.widget.EditText;
 
 import com.android.email.R;
 import com.android.mail.compose.ComposeActivity;
+import com.android.mail.utils.LogUtils;
 
 public class ComposeActivityEmail extends ComposeActivity
         implements InsertQuickResponseDialog.Callback {
     static final String insertQuickResponseDialogTag = "insertQuickResponseDialog";
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.email_compose_menu_extras, menu);
-        return true;
+        final boolean superCreated = super.onCreateOptionsMenu(menu);
+        if (mReplyFromAccount != null) {
+            getMenuInflater().inflate(R.menu.email_compose_menu_extras, menu);
+            return true;
+        } else {
+            LogUtils.d(LogUtils.TAG, "mReplyFromAccount is null, not adding Quick Response menu");
+            return superCreated;
+        }
     }
 
     @Override
