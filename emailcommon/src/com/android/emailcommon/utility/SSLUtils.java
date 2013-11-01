@@ -175,6 +175,18 @@ public class SSLUtils {
         return wrapped;
     }
 
+    // Character.isLetter() is locale-specific, and will potentially return true for characters
+    // outside of ascii a-z,A-Z
+    private static boolean isAsciiLetter(char c) {
+        return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+    }
+
+    // Character.isDigit() is locale-specific, and will potentially return true for characters
+    // outside of ascii 0-9
+    private static boolean isAsciiNumber(char c) {
+        return ('0' <= c && c <= '9');
+    }
+
     /**
      * Escapes the contents a string to be used as a safe scheme name in the URI according to
      * http://tools.ietf.org/html/rfc3986#section-3.1
@@ -189,7 +201,7 @@ public class SSLUtils {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (Character.isLetter(c) || Character.isDigit(c)
+            if (isAsciiLetter(c) || isAsciiNumber(c)
                     || ('-' == c) || ('.' == c)) {
                 // Safe - use as is.
                 sb.append(c);
