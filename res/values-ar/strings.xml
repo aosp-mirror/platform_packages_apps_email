@@ -36,7 +36,7 @@
     <item quantity="one" msgid="320885379869442589">"نقل رسالة"</item>
     <item quantity="other" msgid="371256717624461324">"نقل رسائل"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"النقل غير معتمد مع حسابات POP3."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"‏النقل غير معتمد مع حسابات POP3."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"تعذر النقل نظرًا لاحتواء التحديد على عدة حسابات."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"لا يمكن نقل الرسائل الموجودة في المسودات والبريد الصادر والبريد المرسل."</string>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"البريد الوارد"</string>
@@ -90,7 +90,7 @@
     <string name="account_password_spaces_error" msgid="8928309156658903257">"تبدأ كلمة المرور هذه وتنتهي بحرف مسافة واحد أو أكثر. لا تتوافق العديد من الخوادم مع كلمات المرور التي تحتوي على مسافات."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"جارٍ استرداد معلومات الحساب…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"جارٍ التحقق من إعدادات الخادم…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"جارٍ التحقق من إعدادات smtp…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"‏جارٍ التحقق من إعدادات smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"جارٍ إنشاء الحساب..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"إعداد الحساب"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"تمّ إعداد حسابك، وستصلك رسالة إلكترونية بعد قليل."</string>
@@ -110,16 +110,16 @@
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"لا شيء"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"طبقة المقابس الآمنة/طبقة النقل الآمنة (قبول جميع الشهادات)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"طبقة المقابس الآمنة/طبقة النقل الآمنة"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (قبول جميع الشهادات)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"‏STARTTLS (قبول جميع الشهادات)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"حذف البريد إلكتروني من الخادم"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"مطلقًا"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"عند الحذف من بريد الوارد"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"بادئة مسار IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"‏بادئة مسار IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"اختياري"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"إعداد الحساب"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"إعدادات خادم البريد الصادر"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"خادم SMTP"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"‏خادم SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"المنفذ"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"نوع الأمان"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"طلب تسجيل الدخول"</string>
@@ -145,7 +145,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"مزامنة جهات الاتصال من هذا الحساب"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"مزامنة التقويم من هذا الحساب"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"مزامنة البريد الإلكتروني من هذا الحساب"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"تنزيل المرفقات تلقائيًا عند الاتصال بشبكة Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"‏تنزيل المرفقات تلقائيًا عند الاتصال بشبكة Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"تعذر الإنهاء"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"الأيام المطلوب مزامنتها"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"تلقائي"</string>
@@ -165,15 +165,15 @@
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"لقد استجاب الخادم بخطأ. تحقق من اسم المستخدم وكلمة المرور ثم أعد المحاولة."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"لا يمكن الاتصال بالخادم."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"لا يمكن الاتصال بالخادم.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"يلزم وجود TLS لكن لا يتيح الخادم استخدامه."</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"‏يلزم وجود TLS لكن لا يتيح الخادم استخدامه."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"لا يتيح الخادم استخدام أساليب المصادقة."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"تعذر الاتصال بالخادم نظرًا لحدوث خطأ بالأمان."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"تعذر فتح الاتصال بالخادم."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"لقد كتبت عنوان خادم غير صحيح أو أن الخادم يتطلب إصدار بروتوكول لا يتوافق مع البريد الإلكتروني."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"ليس لديك إذن للمزامنة مع هذا الخادم. اتصل بمشرف الخادم للحصول على مزيد من المعلومات."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"التحكم عن بعد في إدارة الأمان"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان بجهاز Android عن بعد. هل تريد إنهاء إعداد هذا الحساب؟"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"يتطلب هذا الخادم ميزات أمان غير معتمدة على جهاز Android، تتضمن: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"‏يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان بجهاز Android عن بعد. هل تريد إنهاء إعداد هذا الحساب؟"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"‏يتطلب هذا الخادم ميزات أمان غير معتمدة على جهاز Android، تتضمن: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"لا يمكنك تغيير اسم المستخدم لأحد الحسابات. لإضافة حساب باسم مستخدم مختلف، المس \"إضافة حساب\"."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"تحذير: سيؤدي إلغاء تنشيط صلاحية تطبيق البريد الإلكتروني لإدارة الجهاز إلى حذف جميع حسابات البريد الإلكتروني التي تتطلب الصلاحية، وأيضًا حذف البريد الإلكتروني وجهات الاتصال وأحداث التقويم وغيرها من البيانات."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"تحديث أمني"</string>
@@ -185,11 +185,11 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"لقد تغيرت سياسات الأمان"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"لا يمكن تلبية سياسات الأمان"</string>
     <string name="account_security_title" msgid="3511543138560418587">"أمان الجهاز"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان في جهاز Android عن بعد."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"‏يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان في جهاز Android عن بعد."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"تعديل التفاصيل"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"يتطلب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" تغيير رقم التعريف الشخصي أو كلمة المرور الخاصة بتأمين الشاشة."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"ستنتهي صلاحية كلمة مرور تأمين الشاشة"</string>
-    <string name="password_expired_ticker" msgid="4230570412974108968">"لقد انتهت صلاحية رقم التعريف الشخصي (PIN) أو كلمة مرور لتأمين الشاشة."</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"‏لقد انتهت صلاحية رقم التعريف الشخصي (PIN) أو كلمة مرور لتأمين الشاشة."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"انتهت كلمة مرور تأمين الشاشة"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"ستنتهي صلاحية كلمة مرور تأمين الشاشة"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"يلزمك تغيير رقم التعريف الشخصي لشاشة التأمين أو كلمة المرور قريبًا، وإلا فسيتم محو بيانات <xliff:g id="ACCOUNT">%s</xliff:g>. هل تريد تغييره الآن؟"</string>
@@ -200,7 +200,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"اسم المستخدم أو كلمة المرور للحساب <xliff:g id="ACCOUNT">%s</xliff:g> غير صحيح؟. هل تريد تحديثهما الآن؟"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"أخفق تسجيل دخولك إلى <xliff:g id="ACCOUNT">%s</xliff:g> ؛ رسالة الخادم: <xliff:g id="REASON">%s</xliff:g> هل تريد تحديث اسم المستخدم وكلمة المرور؟"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"تنزيل المرفقات"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"تنزيل مرفقات الرسائل الأخيرة تلقائيًا عبر Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"‏تنزيل مرفقات الرسائل الأخيرة تلقائيًا عبر Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"إشعارات البريد إلكتروني"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"معدل المزامنة والتنبيهات وما إلى ذلك"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"إرسال إشعار عند وصول بريد إلكتروني"</string>
@@ -246,8 +246,8 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"تنزيل الرسائل عند الاتصال"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"أيام مزامنة البريد"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"صورة المرسل"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"تتضمن بعض حسابات \"Plus\" الوصول عبر بروتوكول POP والذي يسمح لهذا البرنامج بالاتصال. إذا تعذر عليك تسجيل الدخول باستخدام عنوان البريد الإلكتروني وكلمة المرور الصحيحين، فقد تكون غير ممتلك لحساب \"Plus\" مدفوع. يمكنك تشغيل متصفح الويب لتتمكن من الدخول إلى حسابات البريد هذه."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"قبل إعداد حساب البريد الإلكتروني هذا، انتقل إلى موقع ويب T-Online وأنشئ كلمة مرور للدخول إلى البريد الإلكتروني عبر بروتوكول POP3."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"‏تتضمن بعض حسابات \"Plus\" الوصول عبر بروتوكول POP والذي يسمح لهذا البرنامج بالاتصال. إذا تعذر عليك تسجيل الدخول باستخدام عنوان البريد الإلكتروني وكلمة المرور الصحيحين، فقد تكون غير ممتلك لحساب \"Plus\" مدفوع. يمكنك تشغيل متصفح الويب لتتمكن من الدخول إلى حسابات البريد هذه."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"‏قبل إعداد حساب البريد الإلكتروني هذا، انتقل إلى موقع ويب T-Online وأنشئ كلمة مرور للدخول إلى البريد الإلكتروني عبر بروتوكول POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"الشركة"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"تعذر إنشاء الحساب. أعد المحاولة."</string>
