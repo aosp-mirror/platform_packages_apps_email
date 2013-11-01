@@ -36,7 +36,7 @@
     <item quantity="one" msgid="320885379869442589">"העבר הודעה"</item>
     <item quantity="other" msgid="371256717624461324">"העבר הודעות"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"העברה אינה נתמכת בחשבונות POP3."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"‏העברה אינה נתמכת בחשבונות POP3."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"לא ניתן לבצע העברה מכיוון שהבחירה כוללת מספר חשבונות."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"לא ניתן להעביר הודעות שנמצאות בתיקיות \'טיוטות\', \'תיבת דואר יוצא\' ו\'פריטים שנשלחו\'."</string>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"תיבת דואר נכנס"</string>
@@ -90,7 +90,7 @@
     <string name="account_password_spaces_error" msgid="8928309156658903257">"סיסמה זו מתחילה או מסתיימת בתו רווח אחד או יותר. שרתים רבים אינם תומכים בסיסמאות המכילות רווחים."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"מאחזר פרטי חשבון..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"מאמת הגדרות שרת…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"מאמת הגדרות smtp…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"‏מאמת הגדרות smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"יוצר חשבון…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"הגדרת חשבון"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"החשבון שלך הוגדר והדוא\"ל בדרך!"</string>
@@ -108,18 +108,18 @@
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"יציאה"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"סוג אבטחה"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"ללא"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (קבל את כל האישורים)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"‏SSL/TLS (קבל את כל האישורים)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (קבל את כל האישורים)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"‏STARTTLS (קבל את כל האישורים)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"מחק דוא\"ל מהשרת"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"אף פעם"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"בעת מחיקה מתיבת דואר נכנס"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"קידומת נתיב IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"‏קידומת נתיב IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"אופציונלי"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"הגדרת חשבון"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"הגדרות של שרת דואר יוצא"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"שרת SMTP"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"‏שרת SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"יציאה"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"סוג אבטחה"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"דרושה כניסה"</string>
@@ -135,7 +135,7 @@
     <string name="account_setup_options_headline" msgid="4181274232835368085">"אפשרויות חשבון"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"תדירות הבדיקה של דואר נכנס"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"אף פעם"</string>
-    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"אוטומטית (Push)"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"‏אוטומטית (Push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"כל 5 דקות"</string>
     <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"כל 10 דקות"</string>
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"כל 15 דקות"</string>
@@ -145,7 +145,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"סנכרן אנשי קשר מחשבון זה"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"סנכרן את לוח השנה מחשבון זה"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"סנכרן דוא\"ל מחשבון זה"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"הורד קבצים מצורפים באופן אוטומטי כאשר יש חיבור ל-Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"‏הורד קבצים מצורפים באופן אוטומטי כאשר יש חיבור ל-Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"לא ניתן להשלים את הפעולה"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ימים לסינכרון"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"אוטומטי"</string>
@@ -165,15 +165,15 @@
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"השרת הגיב עם שגיאה. בדוק את שם המשתמש והסיסמה ונסה שוב."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"לא ניתן להתחבר לשרת."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"לא ניתן להתחבר לשרת.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS נדרש אך אינו נתמך בשרת."</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"‏TLS נדרש אך אינו נתמך בשרת."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"השרת אינו תומך בשיטות האימות."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"לא ניתן לפתוח חיבור לשרת בשל שגיאת אבטחה."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"לא ניתן לפתוח חיבור לשרת."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"הקלדת כתובת שרת שגויה, או שהשרת דורש גירסת פרוטוקול שאינה נתמכת על ידי הדוא\"ל."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"אין לך אישור לסנכרן באמצעות שרת זה. צור קשר עם מנהל המערכת של השרת לקבלת מידע נוסף."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"ניהול אבטחה מרחוק"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר Android שלך. האם ברצונך לסיים הגדרת חשבון זה?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"שרת זה מחייב תכונות אבטחה שמכשיר ה-Android שלך אינו תומך בהן, כולל: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"‏השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר Android שלך. האם ברצונך לסיים הגדרת חשבון זה?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"‏שרת זה מחייב תכונות אבטחה שמכשיר ה-Android שלך אינו תומך בהן, כולל: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"לא ניתן לשנות את שם המשתמש של חשבון. כדי להוסיף חשבון עם שם משתמש אחר, גע באפשרות \'הוסף חשבון\'."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"אזהרה: השבתת ההרשאה של יישום הדוא\"ל לטפל במכשיר תגרום למחיקת כל חשבונות הדוא\"ל שמחייבים הרשאה זו, כולל הודעות הדוא\"ל, אנשי הקשר, האירועים בלוח השנה ונתונים אחרים."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"עדכון אבטחה"</string>
@@ -185,22 +185,22 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"מדיניות האבטחה השתנתה"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"לא ניתן לקיים את הוראות מדיניות האבטחה"</string>
     <string name="account_security_title" msgid="3511543138560418587">"אבטחת המכשיר"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר ה-Android שלך."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"‏השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר ה-Android שלך."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ערוך פרטים"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" מחייב שתשנה את קוד ה-PIN או הסיסמה שלך לנעילת המסך."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"‏\"<xliff:g id="ACCOUNT">%s</xliff:g>\" מחייב שתשנה את קוד ה-PIN או הסיסמה שלך לנעילת המסך."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"תוקף הסיסמה של נעילת המסך עומד לפוג"</string>
-    <string name="password_expired_ticker" msgid="4230570412974108968">"פג תוקף ה-PIN או הסיסמה של נעילת המסך שלך."</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"‏פג תוקף ה-PIN או הסיסמה של נעילת המסך שלך."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"פג תוקף הסיסמה של נעילת המסך"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"תוקף הסיסמה של נעילת המסך עומד לפוג"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"עליך לשנות את ה-PIN או הסיסמה המשמשים לנעילת מסך, אחרת הנתונים של <xliff:g id="ACCOUNT">%s</xliff:g> יימחקו. האם ברצונך להשנות כעת?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"‏עליך לשנות את ה-PIN או הסיסמה המשמשים לנעילת מסך, אחרת הנתונים של <xliff:g id="ACCOUNT">%s</xliff:g> יימחקו. האם ברצונך להשנות כעת?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"פג תוקף הסיסמה של נעילת המסך"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"הנתונים עבור <xliff:g id="ACCOUNT">%s</xliff:g> נמחקים מהמכשיר שלך. תוכל לשחזר אותם על ידי שינוי ה-PIN או הסיסמה של נעילת המסך. האם ברצונך לשנות כעת?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"‏הנתונים עבור <xliff:g id="ACCOUNT">%s</xliff:g> נמחקים מהמכשיר שלך. תוכל לשחזר אותם על ידי שינוי ה-PIN או הסיסמה של נעילת המסך. האם ברצונך לשנות כעת?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"למחוק שינויים שלא נשמרו?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"לא ניתן להיכנס"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"שם המשתמש או הסיסמה עבור <xliff:g id="ACCOUNT">%s</xliff:g> שגוי. האם ברצונך לעדכן כעת?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"הכניסה שלך אל <xliff:g id="ACCOUNT">%s</xliff:g> נכשלה. השרת החזיר את הסיבה: <xliff:g id="REASON">%s</xliff:g> האם אתה רוצה לעדכן את שם המשתמש ו/או הסיסמה שלך?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"הורד קבצים מצורפים"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"הורד באופן אוטומטי קבצים מצורפים להודעות שהתקבלו לאחרונה באמצעות Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"‏הורד באופן אוטומטי קבצים מצורפים להודעות שהתקבלו לאחרונה באמצעות Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"התראות דוא\"ל"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"תדירות סינכרון, התראות וכדומה"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"שלח הודעה כשמגיע דוא\"ל"</string>
@@ -246,8 +246,8 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"לאחר שתחחבר תתבצע הורדה של ההודעות"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"כמה ימי דואר לסנכרן"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"תמונת השולח"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"רק חשבונות \"Plus\" מסוימים כוללים גישה ל-POP, שמאפשרת לתוכנית זו להתחבר. אם אינך מצליח להיכנס עם כתובת הדוא\"ל והסיסמה הנכונות שלך, ייתכן שאין לך חשבון \"Plus\" בתשלום. הפעל את דפדפן האינטרנט כדי לקבל גישה לחשבונות דוא\"ל אלה."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"לפני הגדרת חשבון דוא\"ל זה, בקר באתר T-Online וצור סיסמה לגישה לדוא\"ל מסוג POP3."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"‏רק חשבונות \"Plus\" מסוימים כוללים גישה ל-POP, שמאפשרת לתוכנית זו להתחבר. אם אינך מצליח להיכנס עם כתובת הדוא\"ל והסיסמה הנכונות שלך, ייתכן שאין לך חשבון \"Plus\" בתשלום. הפעל את דפדפן האינטרנט כדי לקבל גישה לחשבונות דוא\"ל אלה."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"‏לפני הגדרת חשבון דוא\"ל זה, בקר באתר T-Online וצור סיסמה לגישה לדוא\"ל מסוג POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"תאגידי"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"לא ניתן ליצור את החשבון. נסה שוב."</string>
