@@ -863,6 +863,9 @@ public class EmailProvider extends ContentProvider {
                                 flags = values.getAsInteger(Attachment.FLAGS);
                             }
                             // Report all new attachments to the download service
+                            if (TextUtils.isEmpty(values.getAsString(Attachment.LOCATION))) {
+                                LogUtils.w(TAG, new Throwable(), "attachment with blank location");
+                            }
                             mAttachmentService.attachmentChanged(getContext(), longId, flags);
                             break;
                     }
@@ -1875,6 +1878,12 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                 case POLICY:
+                    if (match == ATTACHMENT) {
+                        if (values.containsKey(AttachmentColumns.LOCATION) &&
+                                TextUtils.isEmpty(values.getAsString(AttachmentColumns.LOCATION))) {
+                            LogUtils.w(TAG, new Throwable(), "attachment with blank location");
+                        }
+                    }
                     result = db.update(tableName, values, selection, selectionArgs);
                     break;
 
@@ -4700,6 +4709,12 @@ public class EmailProvider extends ContentProvider {
                         destinationValue == null ? 0 : destinationValue);
                 values.put(AttachmentColumns.FLAGS,
                         attachment.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
+
+                if (values.containsKey(AttachmentColumns.LOCATION) &&
+                        TextUtils.isEmpty(values.getAsString(AttachmentColumns.LOCATION))) {
+                    LogUtils.w(TAG, new Throwable(), "attachment with blank location");
+                }
+
                 attachment.update(context, values);
                 result = 1;
             }
