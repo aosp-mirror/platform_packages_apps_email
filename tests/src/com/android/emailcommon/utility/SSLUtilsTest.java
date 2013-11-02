@@ -48,6 +48,8 @@ public class SSLUtilsTest extends AndroidTestCase {
         assertSchemeNameValid(SSLUtils.escapeForSchemeName("name with spaces"));
         assertSchemeNameValid(SSLUtils.escapeForSchemeName("odd * & characters"));
         assertSchemeNameValid(SSLUtils.escapeForSchemeName("f3v!l;891023-47 +"));
+        assertSchemeNameValid(
+                SSLUtils.escapeForSchemeName("\u304d\u307f\u3092\u611b\u3057\u3066\u308b"));
     }
 
     private static final char[] RANDOM_DICT = new char[] {
