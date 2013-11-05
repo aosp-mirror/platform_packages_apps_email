@@ -1260,10 +1260,10 @@ public final class DBHelper {
             }
 
             if (oldVersion <= 119) {
-                if (oldVersion >= 116) {
+                if (oldVersion >= 117) {
                     /**
-                     * This trigger was originally created at version 116, but we needed to change
-                     * it for version 120. So if our oldVersion is 116 or more, we know we have that
+                     * This trigger was originally created at version 117, but we needed to change
+                     * it for version 120. So if our oldVersion is 117 or more, we know we have that
                      * trigger and must drop it before re creating it.
                      */
                     dropDeleteDuplicateMessagesTrigger(db);
