@@ -390,6 +390,15 @@
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect\n(ERR01 Account does not exist) -->
     <string name="account_setup_failed_dlg_auth_message_fmt">Login failed.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
+    <!-- Account setup autodiscover auth failure dialog title. This is shown when autodiscover hits
+        an "access denied" server error, which could imply incorrect username/password or that no
+        autodiscover service has been configured for the domain [CHAR LIMIT=40] -->
+    <string name="account_setup_autodiscover_dlg_authfail_title">Problem with account setup</string>
+    <!-- Account setup autodiscover auth failure dialog message. This is shown when autodiscover hits
+        an "access denied" server error, which could imply incorrect username/password or that no
+        autodiscover service has been configured for the domain [CHAR LIMIT=NONE] -->
+    <string name="account_setup_autodiscover_dlg_authfail_message">Confirm username, password, and account settings are correct.</string>
+
     <!-- An error message presented to the user when the server's identity
          cannot be established or trusted [CHAR LIMIT=NONE] -->
     <string name="account_setup_failed_dlg_certificate_message"
