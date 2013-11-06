@@ -158,6 +158,10 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Utiliser paramètre par défaut"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nom d\'utilisateur ou mot de passe incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Échec de la connexion.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Impossible d\'établir une connexion sécurisée avec le serveur."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Impossible d\'établir une connexion sécurisée avec le serveur.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Certificat client requis. Voulez-vous vous connecter au serveur avec un certificat client ?"</string>
