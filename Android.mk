@@ -51,7 +51,7 @@ LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
-LOCAL_SDK_VERSION := 18
+LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)
 
