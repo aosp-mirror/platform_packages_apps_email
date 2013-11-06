@@ -581,7 +581,7 @@ public class AccountCheckSettingsFragment extends Fragment {
     }
 
     private static String getErrorString(Context context, MessagingException ex) {
-        int id;
+        final int id;
         String message = ex.getMessage();
         if (message != null) {
             message = message.trim();
@@ -595,8 +595,10 @@ public class AccountCheckSettingsFragment extends Fragment {
                         : R.string.account_setup_failed_dlg_certificate_message_fmt;
                 break;
             case MessagingException.AUTHENTICATION_FAILED:
+                id = R.string.account_setup_failed_dlg_auth_message;
+                break;
             case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
-                id = R.string.account_settings_login_dialog_title;
+                id = R.string.account_setup_autodiscover_dlg_authfail_message;
                 break;
             case MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR:
                 id = R.string.account_setup_failed_check_credentials_message;
@@ -811,8 +813,11 @@ public class AccountCheckSettingsFragment extends Fragment {
                 .setMessage(message)
                 .setCancelable(true);
 
-            // Hide title when we get MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED
-            if (exceptionId != MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED) {
+            // Use a different title when we get
+            // MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED
+            if (exceptionId == MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED) {
+                builder.setTitle(R.string.account_setup_autodiscover_dlg_authfail_title);
+            } else {
                 builder.setIconAttribute(android.R.attr.alertDialogIcon)
                     .setTitle(context.getString(R.string.account_setup_failed_dlg_title));
             }
