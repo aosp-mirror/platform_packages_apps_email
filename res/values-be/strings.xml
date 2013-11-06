@@ -166,6 +166,10 @@
     <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Няправiльны пароль цi iмя карыстальнiка."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Памылка ўваходу.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Не атрымлiваецца ўсталяваць бяспечнае злучэнне з серверам."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Не атрымліваецца ўсталяваць бяспечнае злучэнне з серверам.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Патрабуецца сертыфікат кліента. Жадаеце падключыцца да сервера з сертыфікатам кліента?"</string>
