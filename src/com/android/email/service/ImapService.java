@@ -310,7 +310,6 @@ public class ImapService extends Service {
                                     LogUtils.e(Logging.LOG_TAG,
                                             "Error while copying downloaded message." + me);
                                 }
-
                             }
                         }
                         catch (Exception e) {
@@ -592,8 +591,9 @@ public class ImapService extends Service {
                     localMessageMap, unseenMessages);
         }
 
-        // 11. Refresh the flags for any messages in the local store that we
-        // didn't just download.
+        // 11. Refresh the flags for any messages in the local store that we didn't just download.
+        // TODO This is a bit wasteful because we're also updating any messages we already did get
+        // the flags and envelope for previously.
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
         remoteFolder.fetch(remoteMessages, fp, null);
@@ -1461,21 +1461,25 @@ public class ImapService extends Service {
         for (int i = searchParams.mOffset; i < numToLoad + searchParams.mOffset; i++) {
             messageList.add(sortableMessages[i].mMessage);
         }
-        // Get everything in one pass, rather than two (as in sync); this starts getting us
-        // usable results quickly.
-        FetchProfile fp = new FetchProfile();
+        // First fetch FLAGS and ENVELOPE. In a second pass, we'll fetch STRUCTURE and
+        // the first body part.
+        final FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
         fp.add(FetchProfile.Item.ENVELOPE);
-        fp.add(FetchProfile.Item.STRUCTURE);
-        fp.add(FetchProfile.Item.BODY_SANE);
-        remoteFolder.fetch(messageList.toArray(new Message[messageList.size()]), fp,
-                new MessageRetrievalListener() {
+
+        Message[] messageArray = messageList.toArray(new Message[messageList.size()]);
+
+        // TODO: Why should we do this with a messageRetrievalListener? It updates the messages
+        // directly in the messageArray. After making this call, we could simply walk it
+        // and do all of these operations ourselves.
+        remoteFolder.fetch(messageArray, fp, new MessageRetrievalListener() {
             @Override
             public void messageRetrieved(Message message) {
+                // TODO: Why do we have two separate try/catch blocks here?
+                // After MR1, we should consolidate this.
                 try {
-                    // Determine if the new message was already known (e.g. partial)
-                    // And create or reload the full message info.
                     EmailContent.Message localMessage = new EmailContent.Message();
+
                     try {
                         // Copy the fields that are available into the message
                         LegacyConversions.updateMessageFields(localMessage,
@@ -1491,10 +1495,8 @@ public class ImapService extends Service {
                         // This will be used by loadMessageForView, etc. to use the proper remote
                         // folder
                         localMessage.mProtocolSearchInfo = mailbox.mServerId;
-                        if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
-                            flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
-                        }
-                        Utilities.copyOneMessageToProvider(context, message, localMessage, flag);
+                        // Commit the message to the local store
+                        Utilities.saveOrUpdate(localMessage, context);
                     } catch (MessagingException me) {
                         LogUtils.e(Logging.LOG_TAG,
                                 "Error while copying downloaded message." + me);
@@ -1509,6 +1511,34 @@ public class ImapService extends Service {
             public void loadAttachmentProgress(int progress) {
             }
         });
+
+        // Now load the structure for all of the messages:
+        fp.clear();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        remoteFolder.fetch(messageArray, fp, null);
+
+        // Finally, load the first body part (i.e. message text).
+        // This means attachment contents are not yet loaded, but that's okay,
+        // we'll load them as needed, same as in synced messages.
+        Message [] oneMessageArray = new Message[1];
+        for (Message message : messageArray) {
+            // Build a list of parts we are interested in. Text parts will be downloaded
+            // right now, attachments will be left for later.
+            ArrayList<Part> viewables = new ArrayList<Part>();
+            ArrayList<Part> attachments = new ArrayList<Part>();
+            MimeUtility.collectParts(message, viewables, attachments);
+            // Download the viewables immediately
+            oneMessageArray[0] = message;
+            for (Part part : viewables) {
+                fp.clear();
+                fp.add(part);
+                remoteFolder.fetch(oneMessageArray, fp, null);
+            }
+            // Store the updated message locally and mark it fully loaded
+            Utilities.copyOneMessageToProvider(context, message, account, destMailbox,
+                    EmailContent.Message.FLAG_LOADED_COMPLETE);
+        }
+
         // Tell UI that we're done loading messages
         statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
         statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);

@@ -98,7 +98,6 @@ public class Utilities {
     public static void copyOneMessageToProvider(Context context, Message message,
             EmailContent.Message localMessage, int loadStatus) {
         try {
-
             EmailContent.Body body = null;
             if (localMessage.mId != EmailContent.Message.NO_MESSAGE) {
                 body = EmailContent.Body.restoreBodyWithMessageId(context, localMessage.mId);
@@ -143,12 +142,19 @@ public class Utilities {
                     // Since we haven't actually loaded the attachment, we're just putting
                     // a dummy placeholder here. When the user taps on it, we'll load the attachment
                     // for real.
-                    // TODO: This is not really a great way to model this.... could we at least get
-                    // the file names and mime types from the attachments? Then we could display
-                    // something sensible at least. This may be impossible in POP, but maybe
-                    // we could put a flag on the message indicating that there are undownloaded
-                    // attachments, rather than this dummy placeholder, which causes a lot of
-                    // special case handling in a lot of places.
+                    // TODO: This is not a great way to model this. What we're saying is, we don't
+                    // have the complete message, without paying any attention to what we do have.
+                    // Did the main body exceed the maximum initial size? If so, we really might
+                    // not have any attachments at all, and we just need a button somewhere that
+                    // says "load the rest of the message".
+                    // Or, what if we were able to load some, but not all of the attachments?
+                    // Then we should ideally not be dropping the data we have on the floor.
+                    // Also, what behavior we have here really should be based on what protocol
+                    // we're dealing with. If it's POP, then we don't actually know how many
+                    // attachments we have until we've loaded the complete message.
+                    // If it's IMAP, we should know that, and we should load all attachment
+                    // metadata we can get, regardless of whether or not we have the complete
+                    // message body.
                     att.mFileName = "";
                     att.mSize = message.getSize();
                     att.mMimeType = "text/plain";
