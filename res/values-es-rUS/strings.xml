@@ -158,6 +158,10 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar cta. predeterminada"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"El nombre de usuario o la contraseña son incorrectos."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Se produjo un error al acceder.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No se puede conectar de forma segura al servidor."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"No se puede conectar de forma segura al servidor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Se necesita un certificado de cliente. ¿Quieres conectarte al servidor con un certificado de cliente?"</string>
