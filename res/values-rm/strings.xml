@@ -233,6 +233,10 @@
     <skip />
     <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
     <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
+    <skip />
     <!-- no translation found for account_setup_failed_dlg_certificate_message (3836152264696108805) -->
     <skip />
     <!-- no translation found for account_setup_failed_dlg_certificate_message_fmt (2121921642915593041) -->
