@@ -158,6 +158,10 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Utilitza opcions predeterminades del compte"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"El nom d\'usuari o la contrasenya no són correctes."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"S\'ha produït un error en iniciar la sessió.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
+    <skip />
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"No es pot establir una connexió segura amb el servidor."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"No es pot establir una connexió segura amb el servidor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Es necessita un certificat de client. Et vols connectar al servidor amb un certificat de client?"</string>
