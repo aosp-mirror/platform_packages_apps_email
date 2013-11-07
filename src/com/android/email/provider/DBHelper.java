@@ -68,6 +68,7 @@ public final class DBHelper {
     private static final String LEGACY_SCHEME_POP3 = "pop3";
     private static final String LEGACY_SCHEME_EAS = "eas";
 
+
     private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
 
     private static final String TRIGGER_MAILBOX_DELETE =
@@ -160,7 +161,9 @@ public final class DBHelper {
     //              "search_results" folder to reflect the mailbox that the server considers
     //              the message to be in. Also, wipe out any stale search_result folders.
     // Version 122: Need to update Message_Updates and Message_Deletes to match previous.
-    public static final int DATABASE_VERSION = 122;
+    // Version 123: Changed the duplicateMesage deletion trigger to ignore accounts that aren't
+    //              exchange accounts.
+    public static final int DATABASE_VERSION = 123;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -219,21 +222,37 @@ public final class DBHelper {
 
     /**
      * Add a trigger to delete duplicate server side messages before insertion.
+     * This should delete any messages older messages that have the same serverId and account as
+     * the new message, if:
+     *    Neither message is in a SEARCH type mailbox, and
+     *    The new message's mailbox's account is an exchange account.
+     *
      * Here is the plain text of this sql:
      *   create trigger message_delete_duplicates_on_insert before insert on
-     *   Message for each row when new.serverId is not null and
-     *   (select Mailbox.type from Mailbox where _id=new.mailboxKey) != 8
-     *   begin delete from Message where new.serverId=severId and
+     *   Message for each row when new.syncServerId is not null and
+     *    (select type from Mailbox where _id=new.mailboxKey) != 8 and
+     *    (select HostAuth.protocol from HostAuth, Account where
+     *       new.accountKey=account._id and account.hostAuthKeyRecv=hostAuth._id) = 'gEas'
+     *   begin delete from Message where new.syncServerId=syncSeverId and
      *   new.accountKey=accountKey and
-     *   (select Mailbox.type from Mailbox where _id=mailboxKey) != 8; end
+     *    (select Mailbox.type from Mailbox where _id=mailboxKey) != 8; end
      */
-    static void createDeleteDuplicateMessagesTrigger(final SQLiteDatabase db) {
+    static void createDeleteDuplicateMessagesTrigger(final Context context,
+            final SQLiteDatabase db) {
         db.execSQL("create trigger message_delete_duplicates_on_insert before insert on "
                 + Message.TABLE_NAME + " for each row when new." + SyncColumns.SERVER_ID
                 + " is not null and "
-                + "(select " + Mailbox.TABLE_NAME + "." + MailboxColumns.TYPE + " from "
-                + Mailbox.TABLE_NAME + " where " + MailboxColumns.ID + "=new."
+                + "(select " + MailboxColumns.TYPE + " from " + Mailbox.TABLE_NAME
+                + " where " + MailboxColumns.ID + "=new."
                 + MessageColumns.MAILBOX_KEY + ")!=" + Mailbox.TYPE_SEARCH
+                + " and (select "
+                + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + " from "
+                + HostAuth.TABLE_NAME + "," + Account.TABLE_NAME
+                + " where new." + MessageColumns.ACCOUNT_KEY
+                + "=" + Account.TABLE_NAME + "." + AccountColumns.ID
+                + " and " + Account.TABLE_NAME + "." + AccountColumns.HOST_AUTH_KEY_RECV
+                + "=" + HostAuth.TABLE_NAME + "." + HostAuthColumns.ID
+                + ")='" + context.getString(R.string.protocol_eas) + "'"
                 + " begin delete from " + Message.TABLE_NAME + " where new."
                 + SyncColumns.SERVER_ID + "=" + SyncColumns.SERVER_ID + " and new."
                 + MessageColumns.ACCOUNT_KEY + "=" + MessageColumns.ACCOUNT_KEY
@@ -242,7 +261,7 @@ public final class DBHelper {
                 + MessageColumns.MAILBOX_KEY + ")!=" + Mailbox.TYPE_SEARCH +"; end");
     }
 
-    static void createMessageTable(SQLiteDatabase db) {
+    static void createMessageTable(Context context, SQLiteDatabase db) {
         String messageColumns = MessageColumns.DISPLAY_NAME + " text, "
             + MessageColumns.TIMESTAMP + " integer, "
             + MessageColumns.SUBJECT + " text, "
@@ -354,17 +373,18 @@ public final class DBHelper {
 
         // Add triggers to maintain message_count.
         createMessageCountTriggers(db);
-        createDeleteDuplicateMessagesTrigger(db);
+        createDeleteDuplicateMessagesTrigger(context, db);
     }
 
-    static void resetMessageTable(SQLiteDatabase db, int oldVersion, int newVersion) {
+    static void resetMessageTable(Context context, SQLiteDatabase db,
+            int oldVersion, int newVersion) {
         try {
             db.execSQL("drop table " + Message.TABLE_NAME);
             db.execSQL("drop table " + Message.UPDATED_TABLE_NAME);
             db.execSQL("drop table " + Message.DELETED_TABLE_NAME);
         } catch (SQLException e) {
         }
-        createMessageTable(db);
+        createMessageTable(context, db);
     }
 
     /**
@@ -704,7 +724,7 @@ public final class DBHelper {
         public void onCreate(SQLiteDatabase db) {
             LogUtils.d(TAG, "Creating EmailProvider database");
             // Create all tables here; each class has its own method
-            createMessageTable(db);
+            createMessageTable(mContext, db);
             createAttachmentTable(db);
             createMailboxTable(db);
             createHostAuthTable(db);
@@ -731,11 +751,11 @@ public final class DBHelper {
             // Versions >= 5 require that data be preserved!
             if (oldVersion < 5) {
                 android.accounts.Account[] accounts = AccountManager.get(mContext)
-                        .getAccountsByType("eas");
+                        .getAccountsByType(LEGACY_SCHEME_EAS);
                 for (android.accounts.Account account: accounts) {
                     AccountManager.get(mContext).removeAccount(account, null, null);
                 }
-                resetMessageTable(db, oldVersion, newVersion);
+                resetMessageTable(mContext, db, oldVersion, newVersion);
                 resetAttachmentTable(db, oldVersion, newVersion);
                 resetMailboxTable(db, oldVersion, newVersion);
                 resetHostAuthTable(db, oldVersion, newVersion);
@@ -1259,23 +1279,12 @@ public final class DBHelper {
                         + MailboxColumns.TYPE + "=" + Mailbox.TYPE_DRAFTS + ")");
             }
 
-            if (oldVersion <= 119) {
-                if (oldVersion >= 117) {
-                    /**
-                     * This trigger was originally created at version 117, but we needed to change
-                     * it for version 120. So if our oldVersion is 117 or more, we know we have that
-                     * trigger and must drop it before re creating it.
-                     */
-                    dropDeleteDuplicateMessagesTrigger(db);
-                }
-                createDeleteDuplicateMessagesTrigger(db);
-            }
-
+            // We originally dropped and recreated the deleteDuplicateMessagesTrigger here at
+            // version 120. We needed to update it again at version 123, so there's no reason
+            // to do it twice.
 
             // Add the mainMailboxKey column, and get rid of any messages in the search_results
             // folder.
-            //
-
             if (oldVersion <= 120) {
                 db.execSQL("alter table " + Message.TABLE_NAME
                         + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
@@ -1295,6 +1304,18 @@ public final class DBHelper {
                         + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
                 db.execSQL("alter table " + Message.DELETED_TABLE_NAME
                         + " add " + MessageColumns.MAIN_MAILBOX_KEY + " integer");
+            }
+
+            if (oldVersion <= 122) {
+                if (oldVersion >= 117) {
+                    /**
+                     * This trigger was originally created at version 117, but we needed to change
+                     * it for version 122. So if our oldVersion is 117 or more, we know we have that
+                     * trigger and must drop it before re creating it.
+                     */
+                    dropDeleteDuplicateMessagesTrigger(db);
+                }
+                createDeleteDuplicateMessagesTrigger(mContext, db);
             }
         }
 
