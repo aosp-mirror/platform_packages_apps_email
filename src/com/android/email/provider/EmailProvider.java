@@ -2695,6 +2695,16 @@ public class EmailProvider extends ContentProvider {
                 values.put(UIProvider.MessageColumns.EVENT_INTENT_URI,
                         "content://ui.email2.android.com/event/" + msg.mId);
             }
+            /**
+             * HACK: override the attachment uri to contain a query parameter
+             * This forces the message footer to reload the attachment display when the message is
+             * fully loaded.
+             */
+            final Uri attachmentListUri = uiUri("uiattachments", messageId).buildUpon()
+                    .appendQueryParameter("MessageLoaded",
+                            msg.mFlagLoaded == Message.FLAG_LOADED_COMPLETE ? "true" : "false")
+                    .build();
+            values.put(UIProvider.MessageColumns.ATTACHMENT_LIST_URI, attachmentListUri.toString());
         }
         StringBuilder sb = genSelect(getMessageViewMap(), uiProjection, values);
         sb.append(" FROM " + Message.TABLE_NAME + " LEFT JOIN " + Body.TABLE_NAME + " ON " +
@@ -4960,6 +4970,7 @@ public class EmailProvider extends ContentProvider {
         if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
             notifyUIConversation(uri);
         }
+        notifyUIMessage(messageId);
         // TODO: Ideally, also test that the values actually changed.
         if (values.containsKey(MessageColumns.FLAG_READ) ||
                 values.containsKey(MessageColumns.MAILBOX_KEY)) {
@@ -5107,6 +5118,14 @@ public class EmailProvider extends ContentProvider {
      * @param id the message id to be notified
      */
     private void notifyUIMessage(long id) {
+        notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, id);
+    }
+
+    /**
+     * Notify about the message id passed in
+     * @param id the message id to be notified
+     */
+    private void notifyUIMessage(String id) {
         notifyUI(UIPROVIDER_MESSAGE_NOTIFIER, id);
     }
 
