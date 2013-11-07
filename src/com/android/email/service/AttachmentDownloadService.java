@@ -713,9 +713,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         default: code = Integer.toString(statusCode); break;
                     }
                     if (statusCode != EmailServiceStatus.IN_PROGRESS) {
-                        LogUtils.d(TAG, ">> Attachment " + attachmentId + ": " + code);
+                        LogUtils.d(TAG, ">> Attachment status " + attachmentId + ": " + code);
                     } else if (progress >= (req.lastProgress + 10)) {
-                        LogUtils.d(TAG, ">> Attachment " + attachmentId + ": " + progress + "%");
+                        LogUtils.d(TAG, ">> Attachment progress %d: %d%%", attachmentId, progress);
                     }
                 }
                 req.lastStatusCode = statusCode;
