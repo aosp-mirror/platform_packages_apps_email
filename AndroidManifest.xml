@@ -76,7 +76,7 @@
         android:requiredAccountType="com.android.exchange,com.android.email"
         android:theme="@style/UnifiedEmailTheme"
         android:hardwareAccelerated="true"
-        android:supportsRtl="false" >
+        android:supportsRtl="true" >
         <!-- Enable search in all activities -->
         <meta-data android:name="android.app.default_searchable"
             android:value="com.android.email2.ui.MailActivityEmail" />
