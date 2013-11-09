@@ -372,10 +372,12 @@ public class ImapService extends Service {
             endDate = System.currentTimeMillis() - FULL_SYNC_WINDOW_MILLIS;
             Cursor localOldestCursor = null;
             try {
+                // b/11520812 Ignore message with timestamp = 0 (which includes NULL)
                 localOldestCursor = resolver.query(EmailContent.Message.CONTENT_URI,
                         OldestTimestampInfo.PROJECTION,
                         EmailContent.MessageColumns.ACCOUNT_KEY + "=?" + " AND " +
-                                MessageColumns.MAILBOX_KEY + "=?",
+                                MessageColumns.MAILBOX_KEY + "=? AND " +
+                                MessageColumns.TIMESTAMP + "!=0",
                         new String[] {String.valueOf(account.mId), String.valueOf(mailbox.mId)},
                         null);
                 if (localOldestCursor != null && localOldestCursor.moveToFirst()) {
