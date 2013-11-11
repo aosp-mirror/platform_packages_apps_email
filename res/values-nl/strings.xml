@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Accountstandaard gebruiken"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Gebruikersnaam of wachtwoord is onjuist."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Aanmelden mislukt.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Probleem met instellen van account"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Controleer of de gebruikersnaam, het wachtwoord en de accountinstellingen correct zijn."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan geen veilige verbinding met de server tot stand brengen."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Kan geen veilige verbinding met de server tot stand brengen.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Er is een client-certificaat vereist. Wilt u verbinding maken met de server met een client-certificaat?"</string>
