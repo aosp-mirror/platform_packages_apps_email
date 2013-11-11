@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Акаунтын үн.утга ашиглах"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Хэрэглэгчийн нэр эсвэл нууц үг буруу."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Нэвтрэлт амжилтгүй.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Акаунтын тохируулгад асуудал байна"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Хэрэглэгчийн нэр, нууц үг, акаунтын тохиргоо зөв эсэхийг баталгаажуулна уу."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Сервертэй аюулгүйгээр холбогдох боломжгүй."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Серверт аюулгүйгээр холбогдох боломжгүй.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Клиент сертификат шаардлагатай. Та серверт клиент сертификатаар холбогдохыг хүсэж байна уу?"</string>

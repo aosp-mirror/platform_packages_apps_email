@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"ໃຊ້ຄ່າເລີ່ມຕົ້ນບັນຊີ"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"ຊື່ຜູ່ໃຊ້ ຫລື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"ການເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"ມີບັນຫາກັບການຕິດຕັ້ງບັນຊີ"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"ຢືນຢັນວ່າຊື່ຜູ່ໃຊ້, ລະຫັດຜ່ານ ແລະການຕັ້ງຄ່າບັນຊີນັ້ນຖືກຕ້ອງ."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບເຊີບເວີຢ່າງປອດໄພໄດ້."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບເຊີບເວີຢ່າງປອດໄພໄດ້.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"ຕ້ອງໃຊ້ໃບຮັບຮອງໄຄຼເອນ. ທ່ານຕ້ອງການເຊື່ອມຕໍ່ກັບເຊີບເວີດ້ວຍໃບຮັບຮອງໄຄຼເອນຫຼືບໍ່?"</string>

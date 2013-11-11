@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"उपयोगकर्ता खाता डिफ़ॉल्ट"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"उपयोगकर्ता नाम या पासवर्ड गलत है."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"प्रवेश विफल रहा.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"खाता सेटअप के साथ समस्या"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"पुष्टि करें कि उपयोगकर्तानाम, पासवर्ड, और खाता सेटिंग सही हैं."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"एक क्लाइंट प्रमाणपत्र की आवश्यकता है. क्या आप क्लाइंट प्रमाणपत्र के साथ सर्वर से कनेक्ट होना चाहते हैं?"</string>
