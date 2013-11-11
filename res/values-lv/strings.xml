@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Lietot konta noklusējumu"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nepareizs lietotājvārds vai parole."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Neizdevās pieteikties.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Problēma ar konta iestatīšanu"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Apstipriniet, ka lietotājvārds, parole un konta iestatījumi ir pareizi."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Nevar izveidot drošu savienojumu ar serveri."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Nevar izveidot drošu savienojumu ar serveri.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Ir nepieciešams klienta sertifikāts. Vai vēlaties izveidot savienojumu ar serveri, izmantojot klienta sertifikātu?"</string>

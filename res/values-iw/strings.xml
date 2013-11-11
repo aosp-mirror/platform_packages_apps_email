@@ -158,10 +158,8 @@
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"השתמש בברירת המחדל של החשבון"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"שם המשתמש או הסיסמה שגויים."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"ההתחברות נכשלה.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
-    <skip />
-    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
-    <skip />
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"בעיה בהגדרת החשבון"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"אשר ששם המשתמש, הסיסמה והגדרות החשבון נכונים."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"לא ניתן להתחבר לשרת באופן בטוח."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"לא ניתן להתחבר לשרת באופן בטוח.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"דרוש אישרו לקוח. האם אתה רוצה להתחבר לשרת עם אישור לקוח?"</string>
