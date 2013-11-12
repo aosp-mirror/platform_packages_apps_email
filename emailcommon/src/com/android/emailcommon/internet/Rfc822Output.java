@@ -94,11 +94,16 @@ public class Rfc822Output {
             return new String[2];
         }
         String[] messageBody = new String[] { body.mTextContent, body.mHtmlContent };
-        if (useSmartReply && body.mQuotedTextStartPos > 0) {
+        final int pos = body.mQuotedTextStartPos;
+        if (useSmartReply && pos > 0) {
             if (messageBody[0] != null) {
-                messageBody[0] = messageBody[0].substring(0, body.mQuotedTextStartPos);
+                if (pos < messageBody[0].length()) {
+                    messageBody[0] = messageBody[0].substring(0, pos);
+                }
             } else if (messageBody[1] != null) {
-                messageBody[1] = messageBody[1].substring(0, body.mQuotedTextStartPos);
+                if (pos < messageBody[1].length()) {
+                    messageBody[1] = messageBody[1].substring(0, pos);
+                }
             }
         }
         return messageBody;
