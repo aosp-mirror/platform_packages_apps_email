@@ -196,8 +196,24 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 accountId = messageId = -1;
             }
             priority = getPriority(attachment);
-            time = System.currentTimeMillis();
+            time = SystemClock.elapsedRealtime();
         }
+
+        private DownloadRequest(DownloadRequest orig, long newTime) {
+            priority = orig.priority;
+            attachmentId = orig.attachmentId;
+            messageId = orig.messageId;
+            accountId = orig.accountId;
+            time = newTime;
+            inProgress = orig.inProgress;
+            lastStatusCode = orig.lastStatusCode;
+            lastProgress = orig.lastProgress;
+            lastCallbackTime = orig.lastCallbackTime;
+            startTime = orig.startTime;
+            retryCount = orig.retryCount;
+            retryStartTime = orig.retryStartTime;
+        }
+
 
         @Override
         public int hashCode() {
@@ -527,8 +543,24 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         private void cancelDownload(DownloadRequest req) {
-            mDownloadsInProgress.remove(req.attachmentId);
+            LogUtils.d(TAG, "cancelDownload #%d", req.attachmentId);
             req.inProgress = false;
+            mDownloadsInProgress.remove(req.attachmentId);
+            // Remove the download from our queue, and then decide whether or not to add it back.
+            remove(req);
+            req.retryCount++;
+            if (req.retryCount > CONNECTION_ERROR_MAX_RETRIES) {
+                LogUtils.d(TAG, "too many failures, giving up");
+            } else {
+                LogUtils.d(TAG, "moving to end of queue, will retry");
+                // The time field of DownloadRequest is final, because it's unsafe to change it
+                // as long as the DownloadRequest is in the DownloadSet. It's needed for the
+                // comparator, so changing time would make the request unfindable.
+                // Instead, we'll create a new DownloadRequest with an updated time.
+                // This will sort at the end of the set.
+                req = new DownloadRequest(req, SystemClock.elapsedRealtime());
+                add(req);
+            }
         }
 
         /**
