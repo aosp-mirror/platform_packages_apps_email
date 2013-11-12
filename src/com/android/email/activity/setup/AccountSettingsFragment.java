@@ -598,6 +598,10 @@ public class AccountSettingsFragment extends PreferenceFragment
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if (mInboxNotify == null) {
+                                // Should only happen if we've aborted the settings screen
+                                return;
+                            }
                             mInboxNotify.setChecked(
                                     mInboxFolderPreferences.areNotificationsEnabled());
                             mInboxVibrate.setChecked(
@@ -626,6 +630,13 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         final String protocol = Account.getProtocol(mContext, mAccount.mId);
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+        if (info == null) {
+            LogUtils.e(Logging.LOG_TAG, "Could not find service info for account " + mAccount.mId
+                    + " with protocol " + protocol);
+            getActivity().onBackPressed();
+            // TODO: put up some sort of dialog here to tell the user something went wrong
+            return;
+        }
         final android.accounts.Account androidAcct = new android.accounts.Account(
                 mAccount.mEmailAddress, info.accountType);
 
