@@ -988,6 +988,8 @@ public abstract class EmailContent {
                 if (doSave) {
                     return super.save(context);
                 } else {
+                    // FLAG: Should we be doing this? In the base class, if someone calls "save" on
+                    // an EmailContent that is already saved, it throws an exception.
                     // Call update, rather than super.update in case we ever override it
                     if (update(context, toContentValues()) == 1) {
                         return getUri();
