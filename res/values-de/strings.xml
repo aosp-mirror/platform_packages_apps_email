@@ -245,7 +245,7 @@
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Synchronisierungsoptionen"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Synchronisierungsoptionen (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Diesen Ordner synchronisieren"</string>
-    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Bei einer aktiven Verbindung werden die E-Mails heruntergeladen."</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Bei aktiver Verbindung werden die E-Mails heruntergeladen."</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"E-Mails: zu synchronisierende Tage"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Bild des Absenders"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Nur einige \"Plus\"-Konten haben einen POP-Zugang, der diesem Programm ermöglicht, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Passwort anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um auf diese Konten zuzugreifen."</string>
