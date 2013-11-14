@@ -92,6 +92,9 @@ public class LegacyConversions {
         }
         if (sentDate != null) {
             localMessage.mTimeStamp = sentDate.getTime();
+        } else if (internalDate != null) {
+            LogUtils.w(Logging.LOG_TAG, "No sentDate, falling back to internalDate");
+            localMessage.mTimeStamp = internalDate.getTime();
         }
         if (subject != null) {
             localMessage.mSubject = subject;
