@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.android.email.Preferences;
@@ -45,11 +46,14 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -231,13 +235,23 @@ public class EmailBroadcastProcessorService extends IntentService {
         return Collections.emptyMap();
     }
 
+    @VisibleForTesting
+    protected static void removeNoopUpgrades(final Map<String, String> protocolMap) {
+        final Set<String> keySet = new HashSet<String>(protocolMap.keySet());
+        for (final String key : keySet) {
+            if (TextUtils.equals(key, protocolMap.get(key))) {
+                protocolMap.remove(key);
+            }
+        }
+    }
+
     private void onAppUpgrade() {
         if (isComponentDisabled(EmailUpgradeBroadcastReceiver.class)) {
             return;
         }
-        // TODO: Only do this for Email2Google.
-        // When upgrading to Email2Google, we need to essentially rename the account manager
-        // type for all existing accounts, so we add new ones and delete the old.
+        // When upgrading to a version that changes the protocol strings, we need to essentially
+        // rename the account manager type for all existing accounts, so we add new ones and delete
+        // the old.
         // We specify the translations in this map. We map from old protocol name to new protocol
         // name, and from protocol name + "_type" to new account manager type name. (Email1 did
         // not use distinct account manager types for POP and IMAP, but Email2 does, hence this
@@ -245,14 +259,20 @@ public class EmailBroadcastProcessorService extends IntentService {
         final Map<String, String> protocolMap = Maps.newHashMapWithExpectedSize(4);
         protocolMap.put("imap", getString(R.string.protocol_legacy_imap));
         protocolMap.put("pop3", getString(R.string.protocol_pop3));
-        protocolMap.put("imap_type", getString(R.string.account_manager_type_legacy_imap));
-        protocolMap.put("pop3_type", getString(R.string.account_manager_type_pop3));
-        updateAccountManagerAccountsOfType("com.android.email", protocolMap);
+        removeNoopUpgrades(protocolMap);
+        if (!protocolMap.isEmpty()) {
+            protocolMap.put("imap_type", getString(R.string.account_manager_type_legacy_imap));
+            protocolMap.put("pop3_type", getString(R.string.account_manager_type_pop3));
+            updateAccountManagerAccountsOfType("com.android.email", protocolMap);
+        }
 
         protocolMap.clear();
         protocolMap.put("eas", getString(R.string.protocol_eas));
-        protocolMap.put("eas_type", getString(R.string.account_manager_type_exchange));
-        updateAccountManagerAccountsOfType("com.android.exchange", protocolMap);
+        removeNoopUpgrades(protocolMap);
+        if (!protocolMap.isEmpty()) {
+            protocolMap.put("eas_type", getString(R.string.account_manager_type_exchange));
+            updateAccountManagerAccountsOfType("com.android.exchange", protocolMap);
+        }
 
         // Disable the old authenticators.
         disableComponent(LegacyEmailAuthenticatorService.class);
