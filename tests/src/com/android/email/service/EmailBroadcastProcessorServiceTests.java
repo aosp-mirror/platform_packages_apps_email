@@ -135,4 +135,17 @@ public class EmailBroadcastProcessorServiceTests extends AccountTestCase {
         assertEquals(0x00000008, accountFlags6);
     }
 
+    public void testNoopRemover() {
+        final Map<String, String> protocolMap = Maps.newHashMap();
+        protocolMap.put("imap", "imap");
+        protocolMap.put("pop3", "gPop3");
+
+        EmailBroadcastProcessorService.removeNoopUpgrades(protocolMap);
+
+        final Map<String, String> protocolMapExpected = Maps.newHashMap();
+        protocolMapExpected.put("pop3", "gPop3");
+
+        assertEquals(protocolMap, protocolMapExpected);
+    }
+
 }
