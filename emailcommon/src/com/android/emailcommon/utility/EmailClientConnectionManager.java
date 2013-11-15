@@ -18,6 +18,7 @@
 package com.android.emailcommon.utility;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.HostAuth;
@@ -90,6 +91,9 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
      */
     public synchronized void registerClientCert(Context context, HostAuth hostAuth)
             throws CertificateException {
+        if (TextUtils.isEmpty(hostAuth.mClientCertAlias)) {
+            return;
+        }
         SchemeRegistry registry = getSchemeRegistry();
         String schemeName = makeSchemeForClientCert(hostAuth.mClientCertAlias,
                 hostAuth.shouldTrustAllServerCerts());
