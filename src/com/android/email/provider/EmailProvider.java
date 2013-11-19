@@ -2895,7 +2895,9 @@ public class EmailProvider extends ContentProvider {
             caps |= UIProvider.FolderCapabilities.IS_VIRTUAL;
         }
 
-        if (!info.offerMoveTo) {
+        // If we don't know the protocol or the protocol doesn't support it, don't allow moving
+        // messages
+        if (info == null || !info.offerMoveTo) {
             caps &= ~UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES &
                     ~UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION &
                     ~UIProvider.FolderCapabilities.ALLOWS_MOVE_TO_INBOX;
