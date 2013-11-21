@@ -18,6 +18,7 @@ package com.android.email;
 import android.content.Intent;
 
 import com.android.mail.MailIntentService;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 
@@ -34,6 +35,10 @@ public class EmailIntentService extends MailIntentService {
     @Override
     protected void onHandleIntent(final Intent intent) {
         super.onHandleIntent(intent);
+
+        if (UIProvider.ACTION_UPDATE_NOTIFICATION.equals(intent.getAction())) {
+            NotificationController.handleUpdateNotificationIntent(this, intent);
+        }
 
         LogUtils.v(LOG_TAG, "Handling intent %s", intent);
     }

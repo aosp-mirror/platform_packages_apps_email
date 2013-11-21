@@ -34,6 +34,7 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
+import com.android.email.EmailIntentService;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -45,6 +46,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -136,6 +138,9 @@ public class EmailBroadcastProcessorService extends IntentService {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
+            } else if (UIProvider.ACTION_UPDATE_NOTIFICATION.equals((broadcastAction))) {
+                broadcastIntent.setClass(this, EmailIntentService.class);
+                startService(broadcastIntent);
             }
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);

@@ -592,14 +592,73 @@ public class NotificationController {
 
     private static void refreshNotificationsForAccountInternal(final Context context,
             final long accountId) {
+        final Uri accountUri = EmailProvider.uiUri("uiaccount", accountId);
+
         final ContentResolver contentResolver = context.getContentResolver();
 
-        final Cursor accountCursor = contentResolver.query(
-                EmailProvider.uiUri("uiaccount", accountId), UIProvider.ACCOUNTS_PROJECTION,
-                null, null, null);
+        final Cursor mailboxCursor = contentResolver.query(
+                ContentUris.withAppendedId(EmailContent.MAILBOX_NOTIFICATION_URI, accountId),
+                null, null, null, null);
+        try {
+            while (mailboxCursor.moveToNext()) {
+                final long mailboxId =
+                        mailboxCursor.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
+                if (mailboxId == 0) continue;
+
+                final int unseenCount = mailboxCursor.getInt(
+                        EmailContent.NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN);
+
+                final int unreadCount;
+                // If nothing is unseen, clear the notification
+                if (unseenCount == 0) {
+                    unreadCount = 0;
+                } else {
+                    unreadCount = mailboxCursor.getInt(
+                            EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
+                }
+
+                final Uri folderUri = EmailProvider.uiUri("uifolder", mailboxId);
+
+
+                LogUtils.d(LOG_TAG, "Changes to account " + accountId + ", folder: "
+                        + mailboxId + ", unreadCount: " + unreadCount + ", unseenCount: "
+                        + unseenCount);
+
+                final Intent intent = new Intent(UIProvider.ACTION_UPDATE_NOTIFICATION);
+                intent.setPackage(context.getPackageName());
+                intent.setType(EmailProvider.EMAIL_APP_MIME_TYPE);
+
+                intent.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT, accountUri);
+                intent.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_FOLDER, folderUri);
+                intent.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNREAD_COUNT,
+                        unreadCount);
+                intent.putExtra(UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNSEEN_COUNT,
+                        unseenCount);
+
+                context.sendOrderedBroadcast(intent, null);
+            }
+        } finally {
+            mailboxCursor.close();
+        }
+    }
+
+    public static void handleUpdateNotificationIntent(Context context, Intent intent) {
+        final Uri accountUri =
+                intent.getParcelableExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT);
+        final Uri folderUri =
+                intent.getParcelableExtra(UIProvider.UpdateNotificationExtras.EXTRA_FOLDER);
+        final int unreadCount = intent.getIntExtra(
+                UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNREAD_COUNT, 0);
+        final int unseenCount = intent.getIntExtra(
+                UIProvider.UpdateNotificationExtras.EXTRA_UPDATED_UNSEEN_COUNT, 0);
+
+        final ContentResolver contentResolver = context.getContentResolver();
+
+        final Cursor accountCursor = contentResolver.query(accountUri,
+                UIProvider.ACCOUNTS_PROJECTION,  null, null, null);
 
         if (accountCursor == null) {
-            LogUtils.e(LOG_TAG, "Null account cursor for account id %d", accountId);
+            LogUtils.e(LOG_TAG, "Null account cursor for account " + accountUri);
             return;
         }
 
@@ -613,58 +672,37 @@ public class NotificationController {
         }
 
         if (account == null) {
-            LogUtils.d(LOG_TAG, "Tried to create a notification for a missing account %d",
-                    accountId);
+            LogUtils.d(LOG_TAG, "Tried to create a notification for a missing account "
+                    + accountUri);
             return;
         }
 
-        final Cursor mailboxCursor = contentResolver.query(
-                ContentUris.withAppendedId(EmailContent.MAILBOX_NOTIFICATION_URI, accountId),
-                null, null, null, null);
+        final Cursor folderCursor = contentResolver.query(folderUri, UIProvider.FOLDERS_PROJECTION,
+                null, null, null);
+
+        if (folderCursor == null) {
+            LogUtils.e(LOG_TAG, "Null folder cursor for account " + accountUri + ", mailbox "
+                    + folderUri);
+            return;
+        }
+
+        Folder folder = null;
         try {
-            while (mailboxCursor.moveToNext()) {
-                final long mailboxId =
-                        mailboxCursor.getLong(EmailContent.NOTIFICATION_MAILBOX_ID_COLUMN);
-                if (mailboxId == 0) continue;
-
-                final int unreadCount = mailboxCursor.getInt(
-                        EmailContent.NOTIFICATION_MAILBOX_UNREAD_COUNT_COLUMN);
-                final int unseenCount = mailboxCursor.getInt(
-                        EmailContent.NOTIFICATION_MAILBOX_UNSEEN_COUNT_COLUMN);
-
-                final Cursor folderCursor = contentResolver.query(
-                        EmailProvider.uiUri("uifolder", mailboxId),
-                        UIProvider.FOLDERS_PROJECTION, null, null, null);
-
-                if (folderCursor == null) {
-                    LogUtils.e(LOG_TAG, "Null folder cursor for account %d, mailbox %d",
-                            accountId, mailboxId);
-                    continue;
-                }
-
-                Folder folder = null;
-                try {
-                    if (folderCursor.moveToFirst()) {
-                        folder = new Folder(folderCursor);
-                    } else {
-                        LogUtils.e(LOG_TAG, "Empty folder cursor for account %d, mailbox %d",
-                                accountId, mailboxId);
-                        continue;
-                    }
-                } finally {
-                    folderCursor.close();
-                }
-
-                LogUtils.d(LOG_TAG, "Changes to account " + account.name + ", folder: "
-                        + folder.name + ", unreadCount: " + unreadCount + ", unseenCount: "
-                        + unseenCount);
-
-                NotificationUtils.setNewEmailIndicator(context, unreadCount, unseenCount,
-                        account, folder, true);
+            if (folderCursor.moveToFirst()) {
+                folder = new Folder(folderCursor);
+            } else {
+                LogUtils.e(LOG_TAG, "Empty folder cursor for account " + accountUri + ", mailbox "
+                        + folderUri);
+                return;
             }
         } finally {
-            mailboxCursor.close();
+            folderCursor.close();
         }
+
+        // TODO: we don't always want getAttention to be true, but we don't necessarily have a
+        // good heuristic for when it should or shouldn't be.
+        NotificationUtils.setNewEmailIndicator(context, unreadCount, unseenCount, account, folder,
+                true /* getAttention */);
     }
 
     private static void refreshAllNotifications(final Context context) {

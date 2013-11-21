@@ -682,6 +682,11 @@
                 <action android:name="com.android.mail.action.CLEAR_NEW_MAIL_NOTIFICATIONS" />
                 <data android:scheme="content" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.mail.action.update_notification"
+                        android:priority="-10"/>
+                <data android:mimeType="@string/application_mime_type" />
+            </intent-filter>
         </service>
 
         <service android:name="com.android.mail.NotificationActionIntentService"
