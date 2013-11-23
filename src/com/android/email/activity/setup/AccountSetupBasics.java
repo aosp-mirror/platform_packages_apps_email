@@ -54,7 +54,6 @@ import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.service.ServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
@@ -71,7 +70,7 @@ import java.net.URISyntaxException;
  * AccountSetupAccountType activity where the user can begin to manually configure the account.
  *
  * === Support for automated testing ==
- * This activity can also be launched directly via ACTION_CREATE_ACCOUNT.  This is intended
+ * This activity can also be launched directly via INTENT_CREATE_ACCOUNT.  This is intended
  * only for use by continuous test systems, and is currently only available when
  * {@link ActivityManager#isRunningInTestHarness()} is set.  To use this mode, you must construct
  * an intent which contains all necessary information to create the account.  No connection
@@ -97,7 +96,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Direct access for forcing account creation
      * For use by continuous automated test system (e.g. in conjunction with monkey tests)
      */
-    private static final String ACTION_CREATE_ACCOUNT = "com.android.email.CREATE_ACCOUNT";
+    private static String INTENT_CREATE_ACCOUNT;
     private static final String EXTRA_FLOW_MODE = "FLOW_MODE";
     private static final String EXTRA_FLOW_ACCOUNT_TYPE = "FLOW_ACCOUNT_TYPE";
     private static final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
@@ -191,8 +190,10 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
-        if (ServiceProxy.getIntentStringForEmailPackage(
-                this, ACTION_CREATE_ACCOUNT).equals(action)) {
+        if (INTENT_CREATE_ACCOUNT == null) {
+            INTENT_CREATE_ACCOUNT = getString(R.string.intent_create_account);
+        }
+        if (INTENT_CREATE_ACCOUNT.equals(action)) {
             mSetupData = new SetupData(SetupData.FLOW_MODE_FORCE_CREATE);
         } else {
             final int intentFlowMode =
