@@ -375,6 +375,10 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
                 mService.deleteAccountPIMData(emailAddress);
             }
         }, "deleteAccountPIMData");
+        // This can be called when deleting accounts. After making this call, the caller will
+        // ask for account reconciliation, which will kill the processes. We wait for completion
+        // to avoid the race.
+        waitForCompletion();
     }
 
     /**

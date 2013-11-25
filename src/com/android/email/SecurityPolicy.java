@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.android.email.provider.AccountReconciler;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.email.service.EmailServiceUtils;
@@ -699,13 +700,14 @@ public class SecurityPolicy {
                     " secured account(s)");
             while (c.moveToNext()) {
                 long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
-                Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
+                Uri uri = EmailProvider.uiUri("uiaccount", accountId);
                 cr.delete(uri, null, null);
             }
         } finally {
             c.close();
         }
         policiesUpdated();
+        AccountReconciler.reconcileAccounts(context);
     }
 
     /**

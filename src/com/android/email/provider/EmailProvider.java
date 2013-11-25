@@ -5499,6 +5499,8 @@ public class EmailProvider extends ContentProvider {
             AccountBackupRestore.backup(context);
             SecurityPolicy.getInstance(context).reducePolicies();
             MailActivityEmail.setServicesEnabledSync(context);
+            // TODO: We ought to reconcile accounts here, but some callers do this in a loop,
+            // which would be a problem when the first account reconciliation shuts us down.
             return 1;
         } catch (Exception e) {
             LogUtils.w(Logging.LOG_TAG, "Exception while deleting account", e);
