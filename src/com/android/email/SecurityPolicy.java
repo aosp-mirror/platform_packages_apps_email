@@ -583,7 +583,8 @@ public class SecurityPolicy {
         syncAccount(mContext, account);
     }
 
-    public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
+    public void setAccountPolicy(long accountId, Policy policy, String securityKey,
+            boolean notify) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         Policy oldPolicy = null;
         if (account.mPolicyKey > 0) {
@@ -613,8 +614,10 @@ public class SecurityPolicy {
             LogUtils.d(Logging.LOG_TAG,
                     "Notify policies for " + account.mDisplayName + " not supported.");
             setHold = true;
-            NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
-                    account);
+            if (notify) {
+                NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
+                        account);
+            }
             // Erase data
             Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
             mContext.getContentResolver().delete(uri, null, null);
@@ -622,9 +625,11 @@ public class SecurityPolicy {
             if (policyChanged) {
                 LogUtils.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName
                         + " changed.");
-                // Notify that policies changed
-                NotificationController.getInstance(mContext).showSecurityChangedNotification(
-                        account);
+                if (notify) {
+                    // Notify that policies changed
+                    NotificationController.getInstance(mContext).showSecurityChangedNotification(
+                            account);
+                }
             } else {
                 LogUtils.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
             }
@@ -632,8 +637,11 @@ public class SecurityPolicy {
             setHold = true;
             LogUtils.d(Logging.LOG_TAG, "Notify policies for " + account.mDisplayName +
                     " are not being enforced.");
-            // Put up a notification
-            NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
+            if (notify) {
+                // Put up a notification
+                NotificationController.getInstance(mContext).showSecurityNeededNotification(
+                        account);
+            }
         }
         // Set/clear the account hold.
         setAccountHoldFlag(mContext, account, setHold);

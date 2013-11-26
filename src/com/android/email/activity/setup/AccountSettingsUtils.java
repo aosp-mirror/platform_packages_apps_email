@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.widget.EditText;
 
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
@@ -32,6 +33,7 @@ import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.QuickResponse;
+import com.android.emailcommon.service.PolicyServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -54,6 +56,22 @@ public class AccountSettingsUtils {
     public static void commitSettings(Context context, Account account) {
         if (!account.isSaved()) {
             account.save(context);
+
+            if (account.mPolicy != null) {
+                // TODO: we need better handling for unsupported policies
+                // For now, just clear the unsupported policies, as the server will (hopefully)
+                // just reject our sync attempts if it's not happy with half-measures
+                if (account.mPolicy.mProtocolPoliciesUnsupported != null) {
+                    LogUtils.d(LogUtils.TAG, "Clearing unsupported policies "
+                            + account.mPolicy.mProtocolPoliciesUnsupported);
+                    account.mPolicy.mProtocolPoliciesUnsupported = null;
+                }
+                PolicyServiceProxy.setAccountPolicy2(context,
+                        account.getId(),
+                        account.mPolicy,
+                        account.mSecuritySyncKey == null ? "" : account.mSecuritySyncKey,
+                        false /* notify */);
+            }
 
             // Set up default quick responses here...
             String[] defaultQuickResponses =

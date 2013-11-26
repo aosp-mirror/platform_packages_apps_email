@@ -20,6 +20,9 @@ import com.android.emailcommon.provider.Policy;
 interface IPolicyService {
     boolean isActive(in Policy policies);
     void setAccountHoldFlag(long accountId, boolean newState);
+    // Legacy compatability for Exchange shipped with KK
     void setAccountPolicy(long accountId, in Policy policy, String securityKey);
+    // New version
+    void setAccountPolicy2(long accountId, in Policy policy, String securityKey, boolean notify);
     oneway void remoteWipe();
 }

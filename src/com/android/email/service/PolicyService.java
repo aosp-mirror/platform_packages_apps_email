@@ -20,6 +20,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import com.android.email.SecurityPolicy;
 import com.android.emailcommon.provider.Policy;
@@ -65,8 +66,14 @@ public class PolicyService extends Service {
 
         @Override
         public void setAccountPolicy(long accountId, Policy policy, String securityKey) {
+            setAccountPolicy2(accountId, policy, securityKey, true /* notify */);
+        }
+
+        @Override
+        public void setAccountPolicy2(long accountId, Policy policy, String securityKey,
+                boolean notify) {
             try {
-                mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey);
+                mSecurityPolicy.setAccountPolicy(accountId, policy, securityKey, notify);
             } catch (RuntimeException e) {
                 // Catch, log and rethrow the exception, as otherwise when the exception is
                 // ultimately handled, the complete stack trace is losk

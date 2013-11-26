@@ -70,12 +70,18 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     @Override
     public void setAccountPolicy(final long accountId, final Policy policy,
             final String securityKey) throws RemoteException {
+        setAccountPolicy2(accountId, policy, securityKey, true /* notify */);
+    }
+
+    @Override
+    public void setAccountPolicy2(final long accountId, final Policy policy,
+            final String securityKey, final boolean notify) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.setAccountPolicy(accountId, policy, securityKey);
+                mService.setAccountPolicy2(accountId, policy, securityKey, notify);
             }
-        }, "setAccountPolicy");
+        }, "setAccountPolicy2");
         waitForCompletion();
     }
 
@@ -126,8 +132,14 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
 
     public static void setAccountPolicy(Context context, long accountId, Policy policy,
             String securityKey) {
+        setAccountPolicy2(context, accountId, policy, securityKey, true /* notify */);
+    }
+
+    public static void setAccountPolicy2(Context context, long accountId, Policy policy,
+            String securityKey, boolean notify) {
         try {
-            new PolicyServiceProxy(context).setAccountPolicy(accountId, policy, securityKey);
+            new PolicyServiceProxy(context).setAccountPolicy2(accountId, policy, securityKey,
+                    notify);
             return;
         } catch (RemoteException e) {
         }
