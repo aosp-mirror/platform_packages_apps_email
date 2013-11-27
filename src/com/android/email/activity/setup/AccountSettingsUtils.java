@@ -178,7 +178,7 @@ public class AccountSettingsUtils {
      * part (i.e. substring demarcated by a period, '.')
      */
     @VisibleForTesting
-    static boolean matchProvider(String testDomain, String providerDomain) {
+    public static boolean matchProvider(String testDomain, String providerDomain) {
         String[] testParts = testDomain.split(DOMAIN_SEPARATOR);
         String[] providerParts = providerDomain.split(DOMAIN_SEPARATOR);
         if (testParts.length != providerParts.length) {
