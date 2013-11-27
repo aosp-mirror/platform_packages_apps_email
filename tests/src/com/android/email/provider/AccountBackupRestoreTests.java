@@ -62,9 +62,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         assertEquals(" mSyncLookback", expect.mSyncLookback, actual.mSyncLookback);
         assertEquals(" mSyncInterval", expect.mSyncInterval, actual.mSyncInterval);
         assertEquals(" mFlags", expect.mFlags, actual.mFlags);
-        assertEquals(" mIsDefault", expect.mIsDefault, actual.mIsDefault);
         assertEquals(" mSenderName", expect.mSenderName, actual.mSenderName);
-        assertEquals(" mRingtoneUri", expect.mRingtoneUri, actual.mRingtoneUri);
         assertEquals(" mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);
         assertEquals(" mNewMessageCount", expect.mNewMessageCount,
@@ -88,7 +86,6 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
             ProviderTestUtils.setupHostAuth("legacy-recv", 0, false, mMockContext);
         saved1.mHostAuthSend =
             ProviderTestUtils.setupHostAuth("legacy-send", 0, false, mMockContext);
-        saved1.setDefaultAccount(true);
         saved1.save(mMockContext);
         Account saved2 =
             ProviderTestUtils.setupAccount("testBackup2", false, mMockContext);
@@ -96,7 +93,6 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
             ProviderTestUtils.setupHostAuth("legacy-recv", 0, false, mMockContext);
         saved2.mHostAuthSend =
             ProviderTestUtils.setupHostAuth("legacy-send", 0, false, mMockContext);
-        saved2.setDefaultAccount(false);
         saved2.save(mMockContext);
         // Make sure they're in the database
         assertEquals(2, EmailContent.count(mMockContext, Account.CONTENT_URI));

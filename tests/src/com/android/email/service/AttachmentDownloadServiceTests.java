@@ -17,14 +17,12 @@
 package com.android.email.service;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.android.email.AccountTestCase;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.AttachmentDownloadService.DownloadRequest;
 import com.android.email.service.AttachmentDownloadService.DownloadSet;
-import com.android.email.service.EmailServiceUtils.NullEmailService;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -70,8 +68,9 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Use the NullEmailService so that the loadAttachment calls become no-ops
         mService = new AttachmentDownloadService();
         mService.mContext = mMockContext;
-        mService.addServiceIntentForTest(mAccountId, new Intent(mContext,
-                NullEmailService.class));
+        // there's no NullEmailService class
+        /*mService.addServiceIntentForTest(mAccountId, new Intent(mContext,
+                NullEmailService.class));*/
         mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
         mService.mAccountManagerStub = mAccountManagerStub;
         mService.mConnectivityManager = new MockConnectivityManager(mContext, "mock");

@@ -149,8 +149,10 @@ public class EmailProvider extends ContentProvider {
 
     public static String EMAIL_APP_MIME_TYPE;
 
-    private static final String DATABASE_NAME = "EmailProvider.db";
-    private static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+    // exposed for testing
+    public static final String DATABASE_NAME = "EmailProvider.db";
+    public static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+
     private static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
 
     /**
@@ -341,7 +343,9 @@ public class EmailProvider extends ContentProvider {
         return match;
     }
 
-    private static Uri INTEGRITY_CHECK_URI;
+    // exposed for testing
+    public static Uri INTEGRITY_CHECK_URI;
+
     public static Uri ACCOUNT_BACKUP_URI;
     private static Uri FOLDER_STATUS_URI;
 
@@ -368,13 +372,14 @@ public class EmailProvider extends ContentProvider {
     /**
      * Orphan record deletion utility.  Generates a sqlite statement like:
      *  delete from <table> where <column> not in (select <foreignColumn> from <foreignTable>)
+     * Exposed for testing.
      * @param db the EmailProvider database
      * @param table the table whose orphans are to be removed
      * @param column the column deletion will be based on
      * @param foreignColumn the column in the foreign table whose absence will trigger the deletion
      * @param foreignTable the foreign table
      */
-    private static void deleteUnlinked(SQLiteDatabase db, String table, String column,
+    public static void deleteUnlinked(SQLiteDatabase db, String table, String column,
             String foreignColumn, String foreignTable) {
         int count = db.delete(table, column + " not in (select " + foreignColumn + " from " +
                 foreignTable + ")", null);
@@ -424,8 +429,8 @@ public class EmailProvider extends ContentProvider {
 
     }
 
-
-    private SQLiteDatabase getDatabase(Context context) {
+    // exposed for testing
+    public SQLiteDatabase getDatabase(Context context) {
         synchronized (sDatabaseLock) {
             // Always return the cached database, if we've got one
             if (mDatabase != null) {
@@ -518,7 +523,8 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private static void deleteMessageOrphans(SQLiteDatabase database, String tableName) {
+    // exposed for testing
+    public static void deleteMessageOrphans(SQLiteDatabase database, String tableName) {
         if (database != null) {
             // We'll look at all of the items in the table; there won't be many typically
             Cursor c = database.query(tableName, ORPHANS_PROJECTION, null, null, null, null, null);
@@ -2132,7 +2138,13 @@ public class EmailProvider extends ContentProvider {
             AttachmentDownloadService.attachmentChanged(context, id, flags);
         }
     };
-    private final AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
+    private AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
+
+    // exposed for testing
+    public void injectAttachmentService(AttachmentService attachmentService) {
+        mAttachmentService =
+            attachmentService == null ? DEFAULT_ATTACHMENT_SERVICE : attachmentService;
+    }
 
     private Cursor notificationQuery(final Uri uri) {
         final SQLiteDatabase db = getDatabase(getContext());

@@ -16,11 +16,12 @@
 
 package com.android.email;
 
-import com.android.email.activity.setup.AccountSettingsUtils.Provider;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
+
+import com.android.emailcommon.VendorPolicyLoader;
+import com.android.emailcommon.VendorPolicyLoader.Provider;
 
 public class VendorPolicyLoaderTest extends AndroidTestCase {
     private String mTestApkPackageName;

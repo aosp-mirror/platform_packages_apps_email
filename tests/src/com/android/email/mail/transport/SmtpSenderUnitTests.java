@@ -21,7 +21,6 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.email.DBTestHelper;
-import com.android.email.mail.Transport;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
@@ -48,6 +47,7 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
     EmailProvider mProvider;
     Context mProviderContext;
     Context mContext;
+    HostAuth mHostAuth;
     private static final String LOCAL_ADDRESS = "1.2.3.4";
 
     /* These values are provided by setUp() */
@@ -67,12 +67,12 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
                 getContext());
         mContext = getContext();
 
-        HostAuth testAuth = new HostAuth();
+        mHostAuth = new HostAuth();
         Account testAccount = new Account();
 
-        testAuth.setLogin("user", "password");
-        testAuth.setConnection("smtp", "server", 999);
-        testAccount.mHostAuthSend = testAuth;
+        mHostAuth.setLogin("user", "password");
+        mHostAuth.setConnection("smtp", "server", 999);
+        testAccount.mHostAuthSend = mHostAuth;
         mSender = (SmtpSender) SmtpSender.newInstance(testAccount, mProviderContext);
     }
 
@@ -195,7 +195,7 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
         attachment.mMimeType = "image/jpg";
         attachment.mSize = 0;
         attachment.mContentId = null;
-        attachment.mContentUri = "content://com.android.email/1/1";
+        attachment.setContentUri("content://com.android.email/1/1");
         attachment.mMessageKey = messageId;
         attachment.mLocation = null;
         attachment.mEncoding = null;
@@ -214,7 +214,8 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
         mockTransport.expect(" filename=\"" + attachment.mFileName + "\";");
         mockTransport.expect(" size=" + Long.toString(attachment.mSize));
         mockTransport.expect("");
-        if (attachment.mContentUri != null && attachment.mContentUri.startsWith("file://")) {
+        String attachmentContentUri = attachment.getContentUri();
+        if (attachmentContentUri != null && attachmentContentUri.startsWith("file://")) {
             mockTransport.expect(TEST_STRING_BASE64);
         }
     }
@@ -248,8 +249,8 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
      */
     private MockTransport openAndInjectMockTransport() throws UnknownHostException {
         // Create mock transport and inject it into the SmtpSender that's already set up
-        MockTransport mockTransport = new MockTransport();
-        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
+        MockTransport mockTransport = new MockTransport(mContext, mHostAuth);
+        mockTransport.setSecurity(HostAuth.FLAG_NONE, false);
         mSender.setTransport(mockTransport);
         mockTransport.setMockLocalAddress(InetAddress.getByName(LOCAL_ADDRESS));
         return mockTransport;

@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.google.android.collect.Maps;
+import com.google.common.collect.Maps;
 
 import android.content.SharedPreferences;
 

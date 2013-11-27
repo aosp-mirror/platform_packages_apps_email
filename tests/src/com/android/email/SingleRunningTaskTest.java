@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 public class SingleRunningTaskTest extends TestCase {
 
-    private static class NormalTask extends SingleRunningTask<Void> {
+    /*private static class NormalTask extends SingleRunningTask<Void> {
         // # of times the task has actually run.
         public final AtomicInteger mCalledCount = new AtomicInteger(0);
 
@@ -71,12 +71,12 @@ public class SingleRunningTaskTest extends TestCase {
         protected void runInternal(Void param) {
             throw new RuntimeException("Intentional exception");
         }
-    }
+    }*/
 
     /**
      * Run 3 tasks sequentially.
      */
-    public void testSequential() {
+    /*public void testSequential() {
         final NormalTask e = new NormalTask();
 
         e.run(null);
@@ -84,12 +84,12 @@ public class SingleRunningTaskTest extends TestCase {
         e.run(null);
 
         assertEquals(3, e.mCalledCount.get());
-    }
+    }*/
 
     /**
      * Run 2 tasks in parallel, and then another call.
      */
-    public void testParallel() {
+    /*public void testParallel() {
         final NormalTask e = new NormalTask();
 
         // Block the first task
@@ -133,12 +133,12 @@ public class SingleRunningTaskTest extends TestCase {
         e.run(null);
 
         assertEquals(2, e.mCalledCount.get());
-    }
+    }*/
 
     /**
      * If a task throws, isRunning should become false.
      */
-    public void testException() {
+    /*public void testException() {
         final FailTask e = new FailTask();
 
         try {
@@ -147,5 +147,5 @@ public class SingleRunningTaskTest extends TestCase {
         } catch (RuntimeException expected) {
         }
         assertFalse(e.isRunningForTest());
-    }
+    }*/
 }

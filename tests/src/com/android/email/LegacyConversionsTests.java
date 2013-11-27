@@ -16,6 +16,12 @@
 
 package com.android.email;
 
+import android.content.ContentUris;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.test.ProviderTestCase2;
+
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -36,12 +42,7 @@ import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.ConversionUtilities;
-
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.test.ProviderTestCase2;
+import com.android.emailcommon.utility.ConversionUtilities.BodyFieldData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -410,7 +411,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
 
     /**
      * Compare attachment that was converted from Part (expected) to Provider Attachment (actual)
-     * 
+     *
      * TODO content URI should only be set if we also saved a file
      * TODO other data encodings
      */
@@ -431,7 +432,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag, expectedName, actual.mFileName);
 
         // content URI should be null
-        assertNull(tag, actual.mContentUri);
+        assertNull(tag, actual.getContentUri());
 
         assertTrue(tag, 0 != actual.mMessageKey);
 

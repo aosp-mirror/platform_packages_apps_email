@@ -44,27 +44,5 @@ public class QuickResponseTests extends ProviderTestCase2<EmailProvider> {
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
     }
-
-    // This class no longer has any content
-    public void brokenTestParcelling() {
-        QuickResponse original = new QuickResponse(7, "quick response text");
-
-        Parcel p = Parcel.obtain();
-        original.writeToParcel(p, 0);
-
-        // Reset.
-        p.setDataPosition(0);
-
-        QuickResponse unparcelled = QuickResponse.CREATOR.createFromParcel(p);
-        assert(original.equals(unparcelled));
-
-        QuickResponse phony = new QuickResponse(17, "quick response text");
-        assert(!(phony.equals(unparcelled)));
-
-        QuickResponse phony2 = new QuickResponse(7, "different text");
-        assert(!(phony2.equals(unparcelled)));
-
-        p.recycle();
-    }
 }
 
