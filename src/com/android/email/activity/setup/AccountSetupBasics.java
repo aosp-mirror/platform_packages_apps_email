@@ -24,11 +24,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -39,7 +44,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.email.EmailAddressValidator;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
@@ -51,14 +55,10 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.ServiceProxy;
-import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
 import java.net.URISyntaxException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 /**
  * Prompts the user for the email address and password. Also prompts for "Use this account as
@@ -119,8 +119,8 @@ public class AccountSetupBasics extends AccountSetupActivity
     private boolean mPaused;
     private boolean mReportAccountAuthenticatorError;
 
-    // FutureTask to look up the owner
-    FutureTask<String> mOwnerLookupTask;
+    private static final int OWNER_NAME_LOADER_ID = 0;
+    private String mOwnerName;
 
     public static void actionNewAccount(Activity fromActivity) {
         final Intent i = new Intent(fromActivity, AccountSetupBasics.class);
@@ -302,10 +302,30 @@ public class AccountSetupBasics extends AccountSetupActivity
             mProvider = (Provider) savedInstanceState.getSerializable(STATE_KEY_PROVIDER);
         }
 
-        // Launch a worker to look up the owner name.  It should be ready well in advance of
+        // Launch a loader to look up the owner name.  It should be ready well in advance of
         // the time the user clicks next or manual.
-        mOwnerLookupTask = new FutureTask<String>(mOwnerLookupCallable);
-        EmailAsyncTask.runAsyncParallel(mOwnerLookupTask);
+        getLoaderManager().initLoader(OWNER_NAME_LOADER_ID, null,
+                new LoaderManager.LoaderCallbacks<Cursor>() {
+                    @Override
+                    public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+                        return new CursorLoader(AccountSetupBasics.this,
+                                ContactsContract.Profile.CONTENT_URI,
+                                new String[] {ContactsContract.Profile.DISPLAY_NAME_PRIMARY},
+                                null, null, null);
+                    }
+
+                    @Override
+                    public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+                        if (data != null && data.moveToFirst()) {
+                            mOwnerName = data.getString(data.getColumnIndex(
+                                    ContactsContract.Profile.DISPLAY_NAME_PRIMARY));
+                        }
+                    }
+
+                    @Override
+                    public void onLoaderReset(final Loader<Cursor> loader) {
+                    }
+                });
     }
 
     @Override
@@ -398,37 +418,8 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Return an existing username if found, or null.  This is the result of the Callable (below).
      */
     private String getOwnerName() {
-        try {
-            return mOwnerLookupTask.get();
-        } catch (InterruptedException e) {
-            return null;
-        } catch (ExecutionException e) {
-            return null;
-        }
+        return mOwnerName;
     }
-
-    /**
-     * Callable that returns the username (based on other accounts) or null.
-     */
-    private final Callable<String> mOwnerLookupCallable = new Callable<String>() {
-        @Override
-        public String call() {
-            final Context context = AccountSetupBasics.this;
-
-            final long lastUsedAccountId =
-                    Preferences.getPreferences(context).getLastUsedAccountId();
-            final long defaultId = Account.getDefaultAccountId(context, lastUsedAccountId);
-
-            if (defaultId != -1) {
-                final Account account = Account.restoreAccountWithId(context, defaultId);
-                if (account != null) {
-                    return account.getSenderName();
-                }
-            }
-
-            return null;
-        }
-    };
 
     /**
      * Finish the auto setup process, in some cases after showing a warning dialog.
