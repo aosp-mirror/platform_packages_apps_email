@@ -21,18 +21,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.app.LoaderManager;
 import android.app.admin.DevicePolicyManager;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.text.TextUtils;
 
-import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.ActivityHelper;
@@ -105,14 +100,12 @@ public class AccountSecurity extends Activity {
         return intent;
     }
 
-    private static final int ACCOUNT_POLICY_LOADER = 0;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
-        Intent i = getIntent();
+        final Intent i = getIntent();
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final boolean showDialog = i.getBooleanExtra(EXTRA_SHOW_DIALOG, false);
         final boolean passwordExpiring = i.getBooleanExtra(EXTRA_PASSWORD_EXPIRING, false);
@@ -124,80 +117,24 @@ public class AccountSecurity extends Activity {
             return;
         }
 
-        final Bundle b = new Bundle(1);
-        b.putLong(EXTRA_ACCOUNT_ID, accountId);
+        // TODO: don't do all these provider calls in the foreground
+        final Account account = Account.restoreAccountWithId(AccountSecurity.this,
+                accountId);
 
-        getLoaderManager().initLoader(ACCOUNT_POLICY_LOADER, b,
-                new LoaderManager.LoaderCallbacks<Account>() {
-            @Override
-            public Loader<Account> onCreateLoader(final int id, final Bundle args) {
-                final long accountId = args.getLong(EXTRA_ACCOUNT_ID);
-                return new AsyncTaskLoader<Account>(AccountSecurity.this) {
-                    volatile Account mData;
+        final long policyId = account == null ? 0 : account.mPolicyKey;
 
-                    @Override
-                    public Account loadInBackground() {
-                        final Account account = Account.restoreAccountWithId(AccountSecurity.this,
-                                accountId);
-                        if (account == null) {
-                            return null;
-                        }
+        if (policyId != 0) {
+            // TODO: do this in the background too
+            account.mPolicy = Policy.restorePolicyWithId(AccountSecurity.this,
+                    policyId);
+        }
 
-                        final long policyId = account.mPolicyKey;
+        if (account == null || (account.mPolicyKey != 0 && account.mPolicy == null)) {
+            finish();
+            LogUtils.d(TAG, "could not load account or policy in AccountSecurity");
+            return;
+        }
 
-                        if (policyId == 0) {
-                            return account;
-                        }
-
-                        account.mPolicy = Policy.restorePolicyWithId(AccountSecurity.this,
-                                policyId);
-                        return account;
-                    }
-
-                    @Override
-                    public void deliverResult(final Account data) {
-                        if (isStarted()) {
-                            super.deliverResult(data);
-                        } else {
-                            mData = data;
-                        }
-                    }
-
-                    @Override
-                    protected void onStartLoading() {
-                        if (mData != null) {
-                            deliverResult(mData);
-                        } else {
-                            forceLoad();
-                        }
-                    }
-
-                    @Override
-                    protected void onStopLoading() {
-                        cancelLoad();
-                    }
-                };
-            }
-
-            @Override
-            public void onLoadFinished(final Loader<Account> loader, final Account data) {
-                if (data == null || (data.mPolicyKey != 0 && data.mPolicy == null)) {
-                    finish();
-                    LogUtils.d(TAG, "could not load account or policy in AccountSecurity");
-                    return;
-                }
-                finishCreate(data, showDialog, passwordExpiring, passwordExpired);
-                getLoaderManager().destroyLoader(ACCOUNT_POLICY_LOADER);
-            }
-
-            @Override
-            public void onLoaderReset(final Loader<Account> loader) {
-            }
-        });
-    }
-
-    private void finishCreate(final Account account, final boolean showDialog,
-            final boolean passwordExpiring, final boolean passwordExpired) {
         mAccount = account;
 
         // Special handling for password expiration events
