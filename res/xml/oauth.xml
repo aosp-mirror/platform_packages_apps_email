@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+    <!--
+        This file contains configuration information for OAuth providers this app
+        is registered with.
+
+        ==== FORMAT OF ENTRIES ====
+
+        This file is used to specify parameters to be used when attempting
+        to authenticate using OAuth.
+
+         Here is an example entry:
+
+    <provider id="google"
+        label="Google"
+        auth_endpoint="https://accounts.google.com/o/oauth2/auth"
+        token_endpoint="https://accounts.google.com/o/oauth2/token"
+        refresh_endpoint="https://accounts.google.com/o/oauth2/token"
+        response_type="code"
+        redirect_uri="http://localhost"
+        scope="https://mail.google.com"
+        state="state"
+        client_id=[REDACTED]
+        client_secret=[REDACTED]>
+    </provider>
+
+        id: An identifier that is unique within this file. It can be referenced from providers.xml
+          if a email provider is known to allow OAuth authentication.
+        label: The text that will be displayed to the user when selecting a provider to access
+          for OAuth authentication.
+
+      The rest of these values are determined when registering your app with a provider.
+        auth_endpoint: The uri to access when making the authentication request.
+        token_endpoint: The uri to access when getting the initial access and refresh tokens.
+        refresh_endpoint: The uri to access when refreshing the access token.
+        response_type: Value sent as "response_type" when making the authentication request.
+        redirect_uri: Value sent as "redirect_uri" when making the authentication request.
+        scope: Value(s) sent as "scope" when making the authentication request.
+        state: Value sent as "state" when making the authentication request.
+        client_id: Value sent as "client_id" when making the authentication request, and when
+          getting and refreshing the access token.
+        client_secret: Value sent as "client_secret" when getting and refreshing the access token.
+    -->
+
+<oauth>
+
+</oauth>

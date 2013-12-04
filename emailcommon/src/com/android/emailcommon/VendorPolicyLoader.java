@@ -192,6 +192,22 @@ public class VendorPolicyLoader {
         return result;
     }
 
+    public static class OAuthProvider implements Serializable {
+        private static final long serialVersionUID = 8511656164616538990L;
+
+        public String id;
+        public String label;
+        public String authEndpoint;
+        public String tokenEndpoint;
+        public String refreshEndpoint;
+        public String responseType;
+        public String redirectUri;
+        public String scope;
+        public String clientId;
+        public String clientSecret;
+        public String state;
+    }
+
     public static class Provider implements Serializable {
         private static final long serialVersionUID = 8511656164616538989L;
 
@@ -207,6 +223,7 @@ public class VendorPolicyLoader {
         public String outgoingUri;
         public String outgoingUsername;
         public String note;
+        public String oauth;
 
         /**
          * Expands templates in all of the  provider fields that support them. Currently,
