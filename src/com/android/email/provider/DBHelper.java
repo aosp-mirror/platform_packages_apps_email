@@ -32,6 +32,7 @@ import com.android.email.R;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -93,6 +94,15 @@ public final class DBHelper {
         "; delete from " + Policy.TABLE_NAME +
         " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.POLICY_KEY +
         "; end";
+
+    private static final String TRIGGER_HOST_AUTH_DELETE =
+            "create trigger host_auth_delete after delete on " + HostAuth.TABLE_NAME +
+            " begin delete from " + Credential.TABLE_NAME +
+            " where " + Credential.RECORD_ID + "=old." + HostAuth.CREDENTIAL_KEY +
+            " and (select count(*) from " + HostAuth.TABLE_NAME + " where " +
+            HostAuth.CREDENTIAL_KEY + "=old." + HostAuth.CREDENTIAL_KEY + ")=0" +
+            "; end";
+
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
@@ -163,7 +173,8 @@ public final class DBHelper {
     // Version 122: Need to update Message_Updates and Message_Deletes to match previous.
     // Version 123: Changed the duplicateMesage deletion trigger to ignore accounts that aren't
     //              exchange accounts.
-    public static final int DATABASE_VERSION = 123;
+    // Version 124: Add credentials table for OAuth.
+    public static final int DATABASE_VERSION = 124;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -214,6 +225,17 @@ public final class DBHelper {
                 '=' + MailboxColumns.MESSAGE_COUNT + "+1" +
                 " where " + EmailContent.RECORD_ID + "=NEW." + MessageColumns.MAILBOX_KEY +
                 "; end");
+    }
+
+    static void createCredentialsTable(SQLiteDatabase db) {
+        String s = " (" + Credential.RECORD_ID + " integer primary key autoincrement, "
+                + Credential.PROVIDER_COLUMN + " text,"
+                + Credential.ACCESS_TOKEN_COLUMN + " text,"
+                + Credential.REFRESH_TOKEN_COLUMN + " text,"
+                + Credential.EXPIRATION_COLUMN + " integer"
+                + ");";
+        db.execSQL("create table " + Credential.TABLE_NAME + s);
+        db.execSQL(TRIGGER_HOST_AUTH_DELETE);
     }
 
     static void dropDeleteDuplicateMessagesTrigger(final SQLiteDatabase db) {
@@ -535,7 +557,8 @@ public final class DBHelper {
             + HostAuthColumns.DOMAIN + " text, "
             + HostAuthColumns.ACCOUNT_KEY + " integer,"
             + HostAuthColumns.CLIENT_CERT_ALIAS + " text,"
-            + HostAuthColumns.SERVER_CERT + " blob"
+            + HostAuthColumns.SERVER_CERT + " blob,"
+            + HostAuthColumns.CREDENTIAL_KEY + " integer"
             + ");";
         db.execSQL("create table " + HostAuth.TABLE_NAME + s);
     }
@@ -733,6 +756,7 @@ public final class DBHelper {
             createMessageStateChangeTable(db);
             createPolicyTable(db);
             createQuickResponseTable(db);
+            createCredentialsTable(db);
         }
 
         @Override
@@ -1316,6 +1340,15 @@ public final class DBHelper {
                     dropDeleteDuplicateMessagesTrigger(db);
                 }
                 createDeleteDuplicateMessagesTrigger(mContext, db);
+            }
+
+            if (oldVersion <= 123) {
+                createCredentialsTable(db);
+                // Add the credentialKey column, and set it to -1 for all pre-existing hostAuths.
+                db.execSQL("alter table " + HostAuth.TABLE_NAME
+                        + " add " + HostAuthColumns.CREDENTIAL_KEY + " integer");
+                db.execSQL("update table " + HostAuth.TABLE_NAME + " set "
+                        + HostAuthColumns.CREDENTIAL_KEY + "=-1");
             }
         }
 
