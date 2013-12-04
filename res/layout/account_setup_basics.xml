@@ -62,6 +62,12 @@
                 android:layout_weight="1"
                 android:text="@string/account_setup_basics_manual_setup_action" />
             <Button
+                android:id="@+id/oauth_setup"
+                style="@style/accountSetupButton"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:text="@string/account_setup_basics_oauth_setup_action" />
+            <Button
                 android:id="@+id/next"
                 style="@style/accountSetupButton"
                 android:layout_width="0dip"

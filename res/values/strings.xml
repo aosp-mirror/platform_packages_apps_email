@@ -190,6 +190,8 @@
 
     <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>
+    <!-- Do Not Translate. Title of screen when trying to get oauth authentication -->
+    <string name="oauth_authentication_title" translatable="false">OAuth authentication</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
         [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
@@ -202,6 +204,10 @@
     <string name="account_setup_basics_password_label">Password</string>
     <!-- Button name on "Set up email" screen [CHAR LIMIT=20] -->
     <string name="account_setup_basics_manual_setup_action">Manual setup</string>
+    <!-- Do not translate. Button name on "Set up email" screen [CHAR LIMIT=20] TODO: This is a temporary workaround
+     to allow initiating the OAuth setup flow before we have the real design working. This string
+     should be removed. -->
+    <string name="account_setup_basics_oauth_setup_action" translatable="false">OAuth</string>
     <!-- Toast when we can't build a URI from the given email & password -->
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know
         exactly what's wrong. -->

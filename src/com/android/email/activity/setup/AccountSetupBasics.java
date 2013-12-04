@@ -114,6 +114,9 @@ public class AccountSetupBasics extends AccountSetupActivity
     private final EmailAddressValidator mEmailValidator = new EmailAddressValidator();
     private Provider mProvider;
     private Button mManualButton;
+    // TODO: This is a temporary hack to allow us to start testing OAuth flow. It should be
+    // removed once we have the new setup UI working.
+    private Button mOAuthButton;
     private Button mNextButton;
     private boolean mNextButtonInhibit;
     private boolean mPaused;
@@ -237,12 +240,15 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // Configure buttons
         mManualButton = UiUtilities.getView(this, R.id.manual_setup);
+        mOAuthButton = UiUtilities.getView(this, R.id.oauth_setup);
         mNextButton = UiUtilities.getView(this, R.id.next);
         mManualButton.setVisibility(View.VISIBLE);
         mManualButton.setOnClickListener(this);
+        mOAuthButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
         // Force disabled until validator notifies otherwise
         onEnableProceedButtons(false);
+        mOAuthButton.setEnabled(false);
         // Lightweight debounce while Async tasks underway
         mNextButtonInhibit = false;
 
@@ -379,6 +385,22 @@ public class AccountSetupBasics extends AccountSetupActivity
             case R.id.manual_setup:
                 onManualSetup(false);
                 break;
+            case R.id.oauth_setup:
+                // TODO: This is a temporary hack to allow oauth flow to be shown. It should be
+                // removed when the real account setup flow is implemented.
+                // TODO: Also note that this check reads and parses the xml file each time. This
+                // should probably get cached somewhere.
+                final String email = mEmailView.getText().toString().trim();
+                final String[] emailParts = email.split("@");
+                final String domain = emailParts[1].trim();
+                Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
+                if (provider != null && provider.oauth != null) {
+                    final Intent i = new Intent(this, OAuthAuthenticationActivity.class);
+                    i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, email);
+                    i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, provider.oauth);
+                    startActivity(i);
+                }
+                break;
         }
     }
 
@@ -409,6 +431,23 @@ public class AccountSetupBasics extends AccountSetupActivity
                 && !TextUtils.isEmpty(mPasswordView.getText())
                 && mEmailValidator.isValid(mEmailView.getText().toString().trim());
         onEnableProceedButtons(valid);
+
+        // TODO: This is a temporary hack to allow oauth flow to be started. It should be
+        // removed when the real account setup flow is implemented.
+        boolean allowOauth = false;
+        if (!TextUtils.isEmpty(mEmailView.getText())
+                && mEmailValidator.isValid(mEmailView.getText().toString().trim())) {
+            final String email = mEmailView.getText().toString().trim();
+            final String[] emailParts = email.split("@");
+            final String domain = emailParts[1].trim();
+            // TODO: Note that this check reads and parses the xml file each time. This
+            // should probably get cached somewhere.
+            Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
+            if (provider != null && provider.oauth != null) {
+                allowOauth = true;
+            }
+        }
+        mOAuthButton.setEnabled(allowOauth);
 
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(this, mPasswordView);
