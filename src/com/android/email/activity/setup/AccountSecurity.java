@@ -21,12 +21,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.app.LoaderManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -35,7 +39,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.utility.Utility;
+import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
 /**
@@ -52,21 +56,37 @@ import com.android.mail.utils.LogUtils;
 public class AccountSecurity extends Activity {
     private static final String TAG = "Email/AccountSecurity";
 
-    private static final boolean DEBUG = true;  // STOPSHIP Don't ship with this set to true
+    private static final boolean DEBUG = false;  // STOPSHIP Don't ship with this set to true
 
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_SHOW_DIALOG = "SHOW_DIALOG";
     private static final String EXTRA_PASSWORD_EXPIRING = "EXPIRING";
     private static final String EXTRA_PASSWORD_EXPIRED = "EXPIRED";
 
+    private static final String SAVESTATE_INITIALIZED_TAG = "initialized";
+    private static final String SAVESTATE_TRIED_ADD_ADMINISTRATOR_TAG = "triedAddAdministrator";
+    private static final String SAVESTATE_TRIED_SET_PASSWORD_TAG = "triedSetpassword";
+    private static final String SAVESTATE_TRIED_SET_ENCRYPTION_TAG = "triedSetEncryption";
+    private static final String SAVESTATE_ACCOUNT_TAG = "account";
+
     private static final int REQUEST_ENABLE = 1;
     private static final int REQUEST_PASSWORD = 2;
     private static final int REQUEST_ENCRYPTION = 3;
 
-    private boolean mTriedAddAdministrator = false;
-    private boolean mTriedSetPassword = false;
-    private boolean mTriedSetEncryption = false;
+    private boolean mTriedAddAdministrator;
+    private boolean mTriedSetPassword;
+    private boolean mTriedSetEncryption;
+
     private Account mAccount;
+
+    protected boolean mInitialized;
+
+    private Handler mHandler;
+    private boolean mActivityResumed;
+
+    private static final int ACCOUNT_POLICY_LOADER_ID = 0;
+    private AccountAndPolicyLoaderCallbacks mAPLoaderCallbacks;
+    private Bundle mAPLoaderArgs;
 
     /**
      * Used for generating intent for this activity (which is intended to be launched
@@ -105,36 +125,166 @@ public class AccountSecurity extends Activity {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
 
+        mHandler = new Handler();
+
         final Intent i = getIntent();
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        final boolean showDialog = i.getBooleanExtra(EXTRA_SHOW_DIALOG, false);
-        final boolean passwordExpiring = i.getBooleanExtra(EXTRA_PASSWORD_EXPIRING, false);
-        final boolean passwordExpired = i.getBooleanExtra(EXTRA_PASSWORD_EXPIRED, false);
-        SecurityPolicy security = SecurityPolicy.getInstance(this);
+        final SecurityPolicy security = SecurityPolicy.getInstance(this);
         security.clearNotification();
         if (accountId == -1) {
             finish();
             return;
         }
 
-        // TODO: don't do all these provider calls in the foreground
-        final Account account = Account.restoreAccountWithId(AccountSecurity.this,
-                accountId);
+        if (savedInstanceState != null) {
+            mInitialized = savedInstanceState.getBoolean(SAVESTATE_INITIALIZED_TAG, false);
 
-        final long policyId = account == null ? 0 : account.mPolicyKey;
+            mTriedAddAdministrator =
+                    savedInstanceState.getBoolean(SAVESTATE_TRIED_ADD_ADMINISTRATOR_TAG, false);
+            mTriedSetPassword =
+                    savedInstanceState.getBoolean(SAVESTATE_TRIED_SET_PASSWORD_TAG, false);
+            mTriedSetEncryption =
+                    savedInstanceState.getBoolean(SAVESTATE_TRIED_SET_ENCRYPTION_TAG, false);
 
-        if (policyId != 0) {
-            // TODO: do this in the background too
-            account.mPolicy = Policy.restorePolicyWithId(AccountSecurity.this,
-                    policyId);
+            mAccount = savedInstanceState.getParcelable(SAVESTATE_ACCOUNT_TAG);
         }
 
-        if (account == null || (account.mPolicyKey != 0 && account.mPolicy == null)) {
-            finish();
-            LogUtils.d(TAG, "could not load account or policy in AccountSecurity");
-            return;
+        if (!mInitialized) {
+            startAccountAndPolicyLoader(i.getExtras());
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVESTATE_INITIALIZED_TAG, mInitialized);
+
+        outState.putBoolean(SAVESTATE_TRIED_ADD_ADMINISTRATOR_TAG, mTriedAddAdministrator);
+        outState.putBoolean(SAVESTATE_TRIED_SET_PASSWORD_TAG, mTriedSetPassword);
+        outState.putBoolean(SAVESTATE_TRIED_SET_ENCRYPTION_TAG, mTriedSetEncryption);
+
+        outState.putParcelable(SAVESTATE_ACCOUNT_TAG, mAccount);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mActivityResumed = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mActivityResumed = true;
+        tickleAccountAndPolicyLoader();
+    }
+
+    protected boolean isActivityResumed() {
+        return mActivityResumed;
+    }
+
+    private void tickleAccountAndPolicyLoader() {
+        // If we're already initialized we don't need to tickle.
+        if (!mInitialized) {
+            getLoaderManager().initLoader(ACCOUNT_POLICY_LOADER_ID, mAPLoaderArgs,
+                    mAPLoaderCallbacks);
+        }
+    }
+
+    private void startAccountAndPolicyLoader(final Bundle args) {
+        mAPLoaderArgs = args;
+        mAPLoaderCallbacks = new AccountAndPolicyLoaderCallbacks();
+        tickleAccountAndPolicyLoader();
+    }
+
+    private class AccountAndPolicyLoaderCallbacks
+            implements LoaderManager.LoaderCallbacks<Account> {
+        @Override
+        public Loader<Account> onCreateLoader(final int id, final Bundle args) {
+            final long accountId = args.getLong(EXTRA_ACCOUNT_ID, -1);
+            final boolean showDialog = args.getBoolean(EXTRA_SHOW_DIALOG, false);
+            final boolean passwordExpiring =
+                    args.getBoolean(EXTRA_PASSWORD_EXPIRING, false);
+            final boolean passwordExpired =
+                    args.getBoolean(EXTRA_PASSWORD_EXPIRED, false);
+
+            return new AccountAndPolicyLoader(getApplicationContext(), accountId,
+                    showDialog, passwordExpiring, passwordExpired);
         }
 
+        @Override
+        public void onLoadFinished(final Loader<Account> loader, final Account account) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final AccountSecurity activity = AccountSecurity.this;
+                    if (!activity.isActivityResumed()) {
+                        return;
+                    }
+
+                    if (account == null || (account.mPolicyKey != 0 && account.mPolicy == null)) {
+                        activity.finish();
+                        LogUtils.d(TAG, "could not load account or policy in AccountSecurity");
+                        return;
+                    }
+
+                    if (!activity.mInitialized) {
+                        activity.mInitialized = true;
+
+                        final AccountAndPolicyLoader apLoader = (AccountAndPolicyLoader) loader;
+                        activity.completeCreate(account, apLoader.mShowDialog,
+                                apLoader.mPasswordExpiring, apLoader.mPasswordExpired);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Account> loader) {}
+    }
+
+    private static class AccountAndPolicyLoader extends MailAsyncTaskLoader<Account> {
+        private final long mAccountId;
+        public final boolean mShowDialog;
+        public final boolean mPasswordExpiring;
+        public final boolean mPasswordExpired;
+
+        private final Context mContext;
+
+        AccountAndPolicyLoader(final Context context, final long accountId,
+                final boolean showDialog, final boolean passwordExpiring,
+                final boolean passwordExpired) {
+            super(context);
+            mContext = context;
+            mAccountId = accountId;
+            mShowDialog = showDialog;
+            mPasswordExpiring = passwordExpiring;
+            mPasswordExpired = passwordExpired;
+        }
+
+        @Override
+        public Account loadInBackground() {
+            final Account account = Account.restoreAccountWithId(mContext, mAccountId);
+            if (account == null) {
+                return null;
+            }
+
+            final long policyId = account.mPolicyKey;
+            if (policyId != 0) {
+                account.mPolicy = Policy.restorePolicyWithId(mContext, policyId);
+            }
+
+            account.getOrCreateHostAuthRecv(mContext);
+
+            return account;
+        }
+
+        @Override
+        protected void onDiscardResult(Account result) {}
+    }
+
+    protected void completeCreate(final Account account, final boolean showDialog,
+            final boolean passwordExpiring, final boolean passwordExpired) {
         mAccount = account;
 
         // Special handling for password expiration events
@@ -209,7 +359,7 @@ public class AccountSecurity extends Activity {
             } else {
                 mTriedAddAdministrator = true;
                 // retrieve name of server for the format string
-                HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
+                final HostAuth hostAuth = account.mHostAuthRecv;
                 if (hostAuth == null) {
                     if (MailActivityEmail.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "No HostAuth: repost notification");
@@ -309,12 +459,13 @@ public class AccountSecurity extends Activity {
      */
     private static void repostNotification(final Account account, final SecurityPolicy security) {
         if (account == null) return;
-        Utility.runAsync(new Runnable() {
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public void run() {
+            protected Void doInBackground(Void... params) {
                 security.policiesRequired(account.mId);
+                return null;
             }
-        });
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
