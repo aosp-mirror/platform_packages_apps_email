@@ -89,7 +89,7 @@ public class NotificationController {
     private ContentObserver mAccountObserver;
 
     /** Constructor */
-    private NotificationController(Context context, Clock clock) {
+    protected NotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
         EmailContent.init(context);
         mNotificationManager = (NotificationManager) context.getSystemService(

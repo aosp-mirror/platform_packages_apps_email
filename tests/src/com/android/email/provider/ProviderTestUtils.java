@@ -58,10 +58,8 @@ public class ProviderTestUtils extends Assert {
         account.mHostAuthKeyRecv = 0;
         account.mHostAuthKeySend = 0;
         account.mFlags = 4;
-        account.mIsDefault = true;
         account.mCompatibilityUuid = "test-uid-" + name;
         account.mSenderName = name;
-        account.mRingtoneUri = "content://ringtone-" + name;
         account.mProtocolVersion = "2.5" + name;
         account.mNewMessageCount = 5 + name.length();
         account.mPolicyKey = 0;
@@ -143,7 +141,6 @@ public class ProviderTestUtils extends Assert {
         box.mSyncTime = 3;
         box.mFlagVisible = true;
         box.mFlags = 5;
-        box.mVisibleLimit = 6;
 
         if (saveIt) {
             box.save(context);
@@ -171,6 +168,7 @@ public class ProviderTestUtils extends Assert {
         message.mTimeStamp = 100 + name.length();
         message.mSubject = "subject " + name;
         message.mFlagRead = read;
+        message.mFlagSeen = read;
         message.mFlagLoaded = Message.FLAG_LOADED_UNLOADED;
         message.mFlagFavorite = starred;
         message.mFlagAttachment = true;
@@ -178,7 +176,6 @@ public class ProviderTestUtils extends Assert {
 
         message.mServerId = "serverid " + name;
         message.mServerTimeStamp = 300 + name.length();
-        message.mClientId = "clientid " + name;
         message.mMessageId = "messageid " + name;
 
         message.mMailboxKey = mailboxId;
@@ -220,12 +217,9 @@ public class ProviderTestUtils extends Assert {
             boolean saveIt, Context context) {
         Body body = new Body();
         body.mMessageKey = messageId;
-        body.mTextContent = textContent;
         body.mHtmlContent = htmlContent;
-        body.mTextReply = "text reply " + messageId;
-        body.mHtmlReply = "html reply " + messageId;
+        body.mTextContent = textContent;
         body.mSourceKey = messageId + 0x1000;
-        body.mIntroText = "intro text " + messageId;
         if (saveIt) {
             body.save(context);
         }
@@ -249,7 +243,7 @@ public class ProviderTestUtils extends Assert {
         att.mSize = length;
         att.mFileName = fileName;
         att.mContentId = "contentId " + fileName;
-        att.mContentUri = "contentUri " + fileName;
+        att.setContentUri("contentUri " + fileName);
         att.mMessageKey = messageId;
         att.mMimeType = "mimeType " + fileName;
         att.mLocation = "location " + fileName;
@@ -310,19 +304,18 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mHostAuthKeySend", expect.mHostAuthKeySend,
                 actual.mHostAuthKeySend);
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
-        assertEquals(caller + " mIsDefault", expect.mIsDefault, actual.mIsDefault);
         assertEquals(caller + " mCompatibilityUuid", expect.mCompatibilityUuid,
                 actual.mCompatibilityUuid);
         assertEquals(caller + " mSenderName", expect.mSenderName, actual.mSenderName);
-        assertEquals(caller + " mRingtoneUri", expect.mRingtoneUri, actual.mRingtoneUri);
         assertEquals(caller + " mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);
         assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
                 actual.mNewMessageCount);
-        assertEquals(caller + " mPolicyKey", expect.mPolicyKey, actual.mPolicyKey);
         assertEquals(caller + " mSecuritySyncKey", expect.mSecuritySyncKey,
                 actual.mSecuritySyncKey);
         assertEquals(caller + " mSignature", expect.mSignature, actual.mSignature);
+        assertEquals(caller + " mPolicyKey", expect.mPolicyKey, actual.mPolicyKey);
+        assertEquals(caller + " mPingDuration", expect.mPingDuration, actual.mPingDuration);
     }
 
     /**
@@ -373,8 +366,13 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mSyncInterval", expect.mSyncInterval, actual.mSyncInterval);
         assertEquals(caller + " mSyncTime", expect.mSyncTime, actual.mSyncTime);
         assertEquals(caller + " mFlagVisible", expect.mFlagVisible, actual.mFlagVisible);
-        assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
-        assertEquals(caller + " mVisibleLimit", expect.mVisibleLimit, actual.mVisibleLimit);
+        assertEquals(caller + " mSyncStatus", expect.mSyncStatus, actual.mSyncStatus);
+        assertEquals(caller + " mLastTouchedTime", expect.mLastTouchedTime, actual.mLastTouchedTime);
+        assertEquals(caller + " mUiSyncStatus", expect.mUiSyncStatus, actual.mUiSyncStatus);
+        assertEquals(caller + " mUiLastSyncResult", expect.mUiLastSyncResult, actual.mUiLastSyncResult);
+        assertEquals(caller + " mTotalCount", expect.mTotalCount, actual.mTotalCount);
+        assertEquals(caller + " mHierarchicalName", expect.mHierarchicalName, actual.mHierarchicalName);
+        assertEquals(caller + " mLastFullSyncTime", expect.mLastFullSyncTime, actual.mLastFullSyncTime);
     }
 
     /**
@@ -393,6 +391,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mTimeStamp", expect.mTimeStamp, actual.mTimeStamp);
         assertEquals(caller + " mSubject", expect.mSubject, actual.mSubject);
         assertEquals(caller + " mFlagRead = false", expect.mFlagRead, actual.mFlagRead);
+        assertEquals(caller + " mFlagRead = false", expect.mFlagSeen, actual.mFlagSeen);
         assertEquals(caller + " mFlagLoaded", expect.mFlagLoaded, actual.mFlagLoaded);
         assertEquals(caller + " mFlagFavorite", expect.mFlagFavorite, actual.mFlagFavorite);
         assertEquals(caller + " mFlagAttachment", expect.mFlagAttachment, actual.mFlagAttachment);
@@ -400,11 +399,12 @@ public class ProviderTestUtils extends Assert {
 
         assertEquals(caller + " mServerId", expect.mServerId, actual.mServerId);
         assertEquals(caller + " mServerTimeStamp", expect.mServerTimeStamp,actual.mServerTimeStamp);
-        assertEquals(caller + " mClientId", expect.mClientId, actual.mClientId);
+        assertEquals(caller + " mDraftInfo", expect.mDraftInfo,actual.mDraftInfo);
         assertEquals(caller + " mMessageId", expect.mMessageId, actual.mMessageId);
 
         assertEquals(caller + " mMailboxKey", expect.mMailboxKey, actual.mMailboxKey);
         assertEquals(caller + " mAccountKey", expect.mAccountKey, actual.mAccountKey);
+        assertEquals(caller + " mMainMailboxKey", expect.mMainMailboxKey, actual.mMainMailboxKey);
 
         assertEquals(caller + " mFrom", expect.mFrom, actual.mFrom);
         assertEquals(caller + " mTo", expect.mTo, actual.mTo);
@@ -416,12 +416,21 @@ public class ProviderTestUtils extends Assert {
 
         assertEquals(caller + " mSnippet", expect.mSnippet, actual.mSnippet);
 
+        assertEquals(caller + " mProtocolSearchInfo", expect.mProtocolSearchInfo, actual.mProtocolSearchInfo);
+
+        assertEquals(caller + " mThreadTopic", expect.mThreadTopic, actual.mThreadTopic);
+
+        assertEquals(caller + " mSyncData", expect.mSyncData, actual.mSyncData);
+
+        assertEquals(caller + " mSyncData", expect.mServerConversationId, actual.mServerConversationId);
+
         assertEquals(caller + " mText", expect.mText, actual.mText);
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);
         assertEquals(caller + " mTextReply", expect.mTextReply, actual.mTextReply);
         assertEquals(caller + " mHtmlReply", expect.mHtmlReply, actual.mHtmlReply);
         assertEquals(caller + " mSourceKey", expect.mSourceKey, actual.mSourceKey);
         assertEquals(caller + " mIntroText", expect.mIntroText, actual.mIntroText);
+        assertEquals(caller + " mQuotedTextStartPos", expect.mQuotedTextStartPos, actual.mQuotedTextStartPos);
     }
 
     /**
@@ -435,12 +444,13 @@ public class ProviderTestUtils extends Assert {
         }
 
         assertEmailContentEqual(caller, expect, actual);
-        assertEquals(caller + " mSize", expect.mSize, actual.mSize);
         assertEquals(caller + " mFileName", expect.mFileName, actual.mFileName);
-        assertEquals(caller + " mContentId", expect.mContentId, actual.mContentId);
-        assertEquals(caller + " mContentUri", expect.mContentUri, actual.mContentUri);
-        assertEquals(caller + " mMessageKey", expect.mMessageKey, actual.mMessageKey);
         assertEquals(caller + " mMimeType", expect.mMimeType, actual.mMimeType);
+        assertEquals(caller + " mSize", expect.mSize, actual.mSize);
+        assertEquals(caller + " mContentId", expect.mContentId, actual.mContentId);
+        assertEquals(caller + " mContentUri", expect.getContentUri(), actual.getContentUri());
+        assertEquals(caller + " mCachedFileUri", expect.getCachedFileUri(), actual.getCachedFileUri());
+        assertEquals(caller + " mMessageKey", expect.mMessageKey, actual.mMessageKey);
         assertEquals(caller + " mLocation", expect.mLocation, actual.mLocation);
         assertEquals(caller + " mEncoding", expect.mEncoding, actual.mEncoding);
         assertEquals(caller + " mContent", expect.mContent, actual.mContent);
@@ -459,7 +469,7 @@ public class ProviderTestUtils extends Assert {
         File outputFile = File.createTempFile("message", "tmp", directory);
         assertNotNull(outputFile);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
-        Rfc822Output.writeTo(context, msg.mId, outputStream, true, false);
+        Rfc822Output.writeTo(context, msg, outputStream, true, false, null);
         outputStream.close();
 
         return Uri.fromFile(outputFile);

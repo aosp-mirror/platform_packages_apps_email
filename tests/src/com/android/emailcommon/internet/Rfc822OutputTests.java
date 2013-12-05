@@ -128,7 +128,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         Body body1 = createTestBody(message1);
         String[] bodyParts;
 
-        bodyParts = Rfc822Output.buildBodyText(body1, message1.mFlags, false);
+        bodyParts = Rfc822Output.buildBodyText(body1, false);
         assertEquals(REPLY_INTRO_TEXT + ">" + REPLY_TEXT_BODY, bodyParts[0]);
 
         message1.mId = -1;        // Changing the message; need to reset the id
@@ -136,7 +136,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message1.save(mMockContext);
         body1 = createTestBody(message1);
 
-        bodyParts = Rfc822Output.buildBodyText(body1, message1.mFlags, false);
+        bodyParts = Rfc822Output.buildBodyText(body1, false);
         assertEquals(TEXT + REPLY_INTRO_TEXT + ">" + REPLY_TEXT_BODY, bodyParts[0]);
 
         // We have an HTML reply and no text reply; use the HTML reply
@@ -145,7 +145,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message1.save(mMockContext);
         body1 = createTestBody(message1);
 
-        bodyParts = Rfc822Output.buildBodyText(body1, message1.mFlags, false);
+        bodyParts = Rfc822Output.buildBodyText(body1, false);
         assertEquals(TEXT + REPLY_INTRO_TEXT + BODY_TEXT_REPLY_HTML, bodyParts[0]);
 
         // We have no HTML or text reply; use nothing
@@ -154,14 +154,14 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message1.save(mMockContext);
         body1 = createTestBody(message1);
 
-        bodyParts = Rfc822Output.buildBodyText(body1, message1.mFlags, false);
+        bodyParts = Rfc822Output.buildBodyText(body1, false);
         assertEquals(TEXT + REPLY_INTRO_TEXT, bodyParts[0]);
 
         // Test sending a message *with* using smart reply
         Message message2 = createTestMessage("", true);
         Body body2 = createTestBody(message2);
 
-        bodyParts = Rfc822Output.buildBodyText(body2, message2.mFlags, true);
+        bodyParts = Rfc822Output.buildBodyText(body2, true);
         assertEquals(REPLY_INTRO_TEXT, bodyParts[0]);
 
         message2.mId = -1;        // Changing the message; need to reset the id
@@ -169,7 +169,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message2.save(mMockContext);
         body2 = createTestBody(message2);
 
-        bodyParts = Rfc822Output.buildBodyText(body2, message2.mFlags, true);
+        bodyParts = Rfc822Output.buildBodyText(body2, true);
         assertEquals(TEXT + REPLY_INTRO_TEXT, bodyParts[0]);
 
         // We have an HTML reply and no text reply; use nothing (smart reply)
@@ -178,7 +178,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message2.save(mMockContext);
         body2 = createTestBody(message2);
 
-        bodyParts = Rfc822Output.buildBodyText(body2, message2.mFlags, true);
+        bodyParts = Rfc822Output.buildBodyText(body2, true);
         assertEquals(TEXT + REPLY_INTRO_TEXT, bodyParts[0]);
 
         // We have no HTML or text reply; use nothing
@@ -188,7 +188,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message2.save(mMockContext);
         body2 = createTestBody(message2);
 
-        bodyParts = Rfc822Output.buildBodyText(body2, message2.mFlags, true);
+        bodyParts = Rfc822Output.buildBodyText(body2, true);
         assertEquals(TEXT + REPLY_INTRO_TEXT, bodyParts[0]);
     }
 
@@ -208,7 +208,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         msg.mIntroText = mForwardIntro;
         msg.save(mMockContext);
         Body body = createTestBody(msg);
-        String[] bodyParts = Rfc822Output.buildBodyText(body, msg.mFlags, false);
+        String[] bodyParts = Rfc822Output.buildBodyText(body, false);
         assertEquals(TEXT + mForwardIntro + REPLY_TEXT_BODY, bodyParts[0]);
     }
 
@@ -222,7 +222,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
+        Rfc822Output.writeTo(mMockContext, msg, byteStream, true, false, null);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
@@ -256,7 +256,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
+        Rfc822Output.writeTo(mMockContext, msg, byteStream, true, false, null);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
@@ -300,7 +300,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
+        Rfc822Output.writeTo(mMockContext, msg, byteStream, true, false, null);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
@@ -338,52 +338,6 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(HTML_BODY_RESULT, actual);
         actual = Rfc822Output.getHtmlBody(HTML_NO_BODY_BODY);
         assertEquals(HTML_NO_BODY_RESULT, actual);
-    }
-
-    /**
-     * Tests that the entire HTML alternate string is valid for text entered by
-     * the user. We don't test all permutations of forwarded HTML here because
-     * that is verified by testGetHtmlBody().
-     */
-    public void testGetHtmlAlternate() {
-        Message message = createTestMessage(TEXT, true);
-        Body body = createTestBody(message);
-        String html;
-
-        // Generic case
-        html = Rfc822Output.getHtmlAlternate(body, false);
-        assertEquals(TEXT + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
-
-        // "smart reply" enabled; html body should not be added
-        html = Rfc822Output.getHtmlAlternate(body, true);
-        assertEquals(TEXT + REPLY_INTRO_HTML, html);
-
-        // HTML special characters; dependent upon TextUtils#htmlEncode()
-        message.mId = -1;          // Changing the message; need to reset the id
-        message.mText = "<>&'\"";
-        message.save(mMockContext);
-        body = createTestBody(message);
-
-        html = Rfc822Output.getHtmlAlternate(body, false);
-        assertEquals("&lt;&gt;&amp;&apos;&quot;" + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
-
-        // Newlines in user text
-        message.mId = -1;          // Changing the message; need to reset the id
-        message.mText = "dos\r\nunix\nthree\r\n\n\n";
-        message.save(mMockContext);
-        body = createTestBody(message);
-
-        html = Rfc822Output.getHtmlAlternate(body, false);
-        assertEquals("dos<br>unix<br>three<br><br><br>" + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
-
-        // Null HTML reply
-        message.mId = -1;        // Changing the message; need to reset the id
-        message.mHtmlReply = null;
-        message.save(mMockContext);
-        body = createTestBody(message);
-
-        html = Rfc822Output.getHtmlAlternate(body, false);
-        assertNull(html);
     }
 
     /**

@@ -127,7 +127,7 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         writer.write("Foo");
         writer.flush();
         writer.close();
-        attachment.mContentUri = "file://" + file.getAbsolutePath();
+        attachment.setContentUri("file://" + file.getAbsolutePath());
         // Now, this should return true
         assertTrue(Utility.attachmentExists(mMockContext, attachment));
     }

@@ -126,4 +126,14 @@ public class MockFolder extends Folder {
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see com.android.emailcommon.mail.Folder#getMessages(long, long,
+     * com.android.emailcommon.mail.Folder.MessageRetrievalListener)
+     */
+    @Override
+    public Message[] getMessages(long startDate, long endDate, MessageRetrievalListener listener)
+            throws MessagingException {
+        return null;
+    }
+
 }

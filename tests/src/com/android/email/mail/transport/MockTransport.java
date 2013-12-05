@@ -1,22 +1,27 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package com.android.email.mail.transport;
 
-import com.android.email.mail.Transport;
+import android.content.Context;
+
+import com.android.emailcommon.provider.HostAuth;
+import com.android.mail.utils.LogUtils;
+
+import junit.framework.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
-
 /**
  * This is a mock Transport that is used to test protocols that use MailTransport.
  */
-public class MockTransport implements Transport {
+public class MockTransport extends MailTransport {
 
     // All flags defining debug or development code settings must be FALSE
     // when code is checked in or released.
@@ -45,9 +48,6 @@ public class MockTransport implements Transport {
 
     private boolean mOpen;
     private boolean mInputOpen;
-    private int mConnectionSecurity;
-    private boolean mTrustCertificates;
-    private String mHost;
     private InetAddress mLocalAddress;
 
     private ArrayList<String> mQueuedInput = new ArrayList<String>();
@@ -93,12 +93,20 @@ public class MockTransport implements Transport {
 
     private ArrayList<Transaction> mPairs = new ArrayList<Transaction>();
 
+    public static MockTransport createMockTransport(Context context) {
+        return new MockTransport(context, new HostAuth());
+    }
+
+    public MockTransport(Context context, HostAuth hostAuth) {
+        super(context, LOG_TAG, hostAuth);
+    }
+
     /**
      * Give the mock a pattern to wait for.  No response will be sent.
      * @param pattern Java RegEx to wait for
      */
     public void expect(String pattern) {
-        expect(pattern, (String[])null);
+        expect(pattern, (String[]) null);
     }
 
     /**
@@ -107,7 +115,7 @@ public class MockTransport implements Transport {
      * @param response String to reply with, or null to acccept string but not respond to it
      */
     public void expect(String pattern, String response) {
-        expect(pattern, (response == null) ? null : new String[] { response });
+        expect(pattern, (response == null) ? null : new String[] {response});
     }
 
     /**
@@ -160,21 +168,6 @@ public class MockTransport implements Transport {
         }
     }
 
-    @Override
-    public boolean canTrySslSecurity() {
-        return (mConnectionSecurity == CONNECTION_SECURITY_SSL);
-    }
-
-    @Override
-    public boolean canTryTlsSecurity() {
-        return (mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS);
-    }
-
-    @Override
-    public boolean canTrustAllCertificates() {
-        return mTrustCertificates;
-    }
-
     /**
      * Check that TLS was started
      */
@@ -205,16 +198,6 @@ public class MockTransport implements Transport {
         mPairs.clear();
     }
 
-    @Override
-    public void setHost(String host) {
-        mHost = host;
-    }
-
-    @Override
-    public String getHost() {
-        return mHost;
-    }
-
     public void setMockLocalAddress(InetAddress address) {
         mLocalAddress = address;
     }
@@ -231,8 +214,8 @@ public class MockTransport implements Transport {
      * don't have to worry about dealing with test metadata like the expects list or socket state.
      */
     @Override
-    public Transport clone() {
-         return this;
+    public MockTransport clone() {
+        return this;
     }
 
     @Override
@@ -241,21 +224,6 @@ public class MockTransport implements Transport {
         return new MockOutputStream();
     }
 
-    @Override
-    public void setPort(int port) {
-        SmtpSenderUnitTests.fail("setPort() not implemented");
-    }
-
-    @Override
-    public int getPort() {
-        SmtpSenderUnitTests.fail("getPort() not implemented");
-        return 0;
-    }
-
-    @Override
-    public int getSecurity() {
-        return mConnectionSecurity;
-    }
 
     @Override
     public boolean isOpen() {
@@ -263,7 +231,10 @@ public class MockTransport implements Transport {
     }
 
     @Override
-    public void open() /* throws MessagingException, CertificateValidationException */ {
+    public void open() /*
+                        * throws MessagingException,
+                        * CertificateValidationException
+                        */{
         mOpen = true;
         mInputOpen = true;
     }
@@ -278,13 +249,13 @@ public class MockTransport implements Transport {
      *
      * Logs the read text if DEBUG_LOG_STREAMS is true.
      */
-    @Override
     public String readLine() throws IOException {
         SmtpSenderUnitTests.assertTrue(mOpen);
         if (!mInputOpen) {
             throw new IOException("Reading from MockTransport with closed input");
         }
-        // if there's nothing to read, see if we can find a null-pattern response
+        // if there's nothing to read, see if we can find a null-pattern
+        // response
         if ((mQueuedInput.size() == 0) && (mPairs.size() > 0)) {
             Transaction pair = mPairs.get(0);
             if (pair.mPattern == null) {
@@ -308,22 +279,24 @@ public class MockTransport implements Transport {
     }
 
     @Override
-    public void reopenTls() /* throws MessagingException */ {
+    public void reopenTls() /* throws MessagingException */{
         SmtpSenderUnitTests.assertTrue(mOpen);
         Transaction expect = mPairs.remove(0);
         SmtpSenderUnitTests.assertTrue(expect.mAction == Transaction.ACTION_START_TLS);
         mTlsStarted = true;
     }
 
-    @Override
     public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
-        mConnectionSecurity = connectionSecurity;
-        mTrustCertificates = trustAllCertificates;
+        mHostAuth.mFlags =
+                connectionSecurity & (trustAllCertificates ? HostAuth.FLAG_TRUST_ALL : 0xff);
+    }
+
+    public void setHost(String address) {
+        mHostAuth.mAddress = address;
     }
 
     @Override
-    public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */ {
-    }
+    public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */{}
 
     /**
      * Accepts a single string (command or text) that was written by the code under test.
@@ -340,15 +313,14 @@ public class MockTransport implements Transport {
             LogUtils.d(LOG_TAG, ">>> " + s);
         }
         SmtpSenderUnitTests.assertTrue(mOpen);
-        SmtpSenderUnitTests.assertTrue("Overflow writing to MockTransport: Getting " + s,
-                0 != mPairs.size());
+        SmtpSenderUnitTests.assertTrue(
+                "Overflow writing to MockTransport: Getting " + s, 0 != mPairs.size());
         Transaction pair = mPairs.remove(0);
         if (pair.mAction == Transaction.ACTION_IO_EXCEPTION) {
             throw new IOException("Expected IOException.");
         }
         SmtpSenderUnitTests.assertTrue("Unexpected string written to MockTransport: Actual=" + s
-                + "  Expected=" + pair.mPattern,
-                pair.mPattern != null && s.matches(pair.mPattern));
+                + "  Expected=" + pair.mPattern, pair.mPattern != null && s.matches(pair.mPattern));
         if (pair.mResponses != null) {
             sendResponse(pair);
         }
@@ -408,7 +380,7 @@ public class MockTransport implements Transport {
             } else if (oneByte == '\n') {
                 // swallow it
             } else {
-                sb.append((char)oneByte);
+                sb.append((char) oneByte);
             }
         }
     }
