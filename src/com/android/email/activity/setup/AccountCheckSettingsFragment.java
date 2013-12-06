@@ -69,7 +69,7 @@ public class AccountCheckSettingsFragment extends Fragment {
     private final static int STATE_AUTODISCOVER_AUTH_DIALOG = 7;    // terminal
     private final static int STATE_AUTODISCOVER_RESULT = 8;         // terminal
     private int mState = STATE_START;
-    private SetupData mSetupData;
+    private SetupDataFragment mSetupData;
 
     // Support for UI
     private boolean mAttached;
@@ -106,13 +106,13 @@ public class AccountCheckSettingsFragment extends Fragment {
          * Called when CheckSettings completed
          * @param result check settings result code - success is CHECK_SETTINGS_OK
          */
-        public void onCheckSettingsComplete(int result, SetupData setupData);
+        public void onCheckSettingsComplete(int result, SetupDataFragment setupData);
 
         /**
          * Called when autodiscovery completes.
          * @param result autodiscovery result code - success is AUTODISCOVER_OK
          */
-        public void onAutoDiscoverComplete(int result, SetupData setupData);
+        public void onAutoDiscoverComplete(int result, SetupDataFragment setupData);
     }
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -153,8 +153,8 @@ public class AccountCheckSettingsFragment extends Fragment {
         // If this is the first time, start the AsyncTask
         if (mAccountCheckTask == null) {
             final int checkMode = getTargetRequestCode();
-            final SetupData.SetupDataContainer container =
-                    (SetupData.SetupDataContainer) getActivity();
+            final SetupDataFragment.SetupDataContainer container =
+                    (SetupDataFragment.SetupDataContainer) getActivity();
             mSetupData = container.getSetupData();
             final Account checkAccount = mSetupData.getAccount();
             mAccountCheckTask = (AccountCheckTask)
@@ -440,7 +440,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         @Override
         protected MessagingException doInBackground(Void... params) {
             try {
-                if ((mMode & SetupData.CHECK_AUTODISCOVER) != 0) {
+                if ((mMode & SetupDataFragment.CHECK_AUTODISCOVER) != 0) {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
                     LogUtils.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
@@ -468,7 +468,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 }
 
                 // Check Incoming Settings
-                if ((mMode & SetupData.CHECK_INCOMING) != 0) {
+                if ((mMode & SetupDataFragment.CHECK_INCOMING) != 0) {
                     if (isCancelled()) return null;
                     LogUtils.d(Logging.LOG_TAG, "Begin check of incoming email settings");
                     publishProgress(STATE_CHECK_INCOMING);
@@ -513,7 +513,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
 
                 // Check Outgoing Settings
-                if (info.usesSmtp && (mMode & SetupData.CHECK_OUTGOING) != 0) {
+                if (info.usesSmtp && (mMode & SetupDataFragment.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
                     LogUtils.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);

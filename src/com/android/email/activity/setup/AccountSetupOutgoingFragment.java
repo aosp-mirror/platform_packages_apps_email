@@ -387,7 +387,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         sendAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
         sendAuth.mDomain = null;
 
-        mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
+        mCallback.onProceedNext(SetupDataFragment.CHECK_OUTGOING, this);
         clearButtonBounce();
     }
 }

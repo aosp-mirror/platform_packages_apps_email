@@ -164,13 +164,16 @@ public class AccountSetupOptionsTests
      */
     private Intent getTestIntent(String name, String storeUri)
             throws URISyntaxException {
-        Account account = new Account();
+        final Account account = new Account();
         account.setSenderName(name);
-        Context context = getInstrumentation().getTargetContext();
-        HostAuth auth = account.getOrCreateHostAuthRecv(context);
+        final Context context = getInstrumentation().getTargetContext();
+        final HostAuth auth = account.getOrCreateHostAuthRecv(context);
         HostAuth.setHostAuthFromString(auth, storeUri);
-        SetupData setupData = new SetupData(SetupData.FLOW_MODE_NORMAL, account);
-        return new Intent(Intent.ACTION_MAIN);
+        final SetupDataFragment setupDataFragment =
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
+        final Intent i = new Intent(Intent.ACTION_MAIN);
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
+        return i;
     }
 
 }

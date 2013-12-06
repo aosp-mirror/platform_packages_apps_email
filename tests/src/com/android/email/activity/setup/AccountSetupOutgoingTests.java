@@ -26,7 +26,7 @@ import android.widget.EditText;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupOutgoing;
 import com.android.email.activity.setup.AccountSetupOutgoingFragment;
-import com.android.email.activity.setup.SetupData;
+import com.android.email.activity.setup.SetupDataFragment;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -185,13 +185,15 @@ public class AccountSetupOutgoingTests extends
      */
     private Intent getTestIntent(String senderUriString)
             throws URISyntaxException {
-        Account account = new Account();
-        Context context = getInstrumentation().getTargetContext();
-        HostAuth auth = account.getOrCreateHostAuthSend(context);
+        final Account account = new Account();
+        final Context context = getInstrumentation().getTargetContext();
+        final HostAuth auth = account.getOrCreateHostAuthSend(context);
         HostAuth.setHostAuthFromString(auth, senderUriString);
-        // TODO: we need to do something with this SetupData, add it as an extra in the intent?
-        SetupData setupData = new SetupData(SetupData.FLOW_MODE_NORMAL, account);
-        return new Intent(Intent.ACTION_MAIN);
+        final SetupDataFragment setupDataFragment =
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
+        final Intent i = new Intent(Intent.ACTION_MAIN);
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
+        return i;
     }
 
 }

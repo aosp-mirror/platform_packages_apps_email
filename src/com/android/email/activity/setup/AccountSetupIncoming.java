@@ -53,10 +53,10 @@ public class AccountSetupIncoming extends AccountSetupActivity
 
     // Extras for AccountSetupIncoming intent
 
-    public static void actionIncomingSettings(Activity fromActivity, SetupData setupData) {
+    public static void actionIncomingSettings(Activity fromActivity, SetupDataFragment setupData) {
         final Intent intent = new Intent(fromActivity, AccountSetupIncoming.class);
         // Add the additional information to the intent, in case the Email process is killed.
-        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(intent);
     }
 
@@ -141,11 +141,11 @@ public class AccountSetupIncoming extends AccountSetupActivity
         final String username = account.mHostAuthRecv.mLogin;
         final String password = account.mHostAuthRecv.mPassword;
         if (username != null && password != null) {
-            onProceedNext(SetupData.CHECK_AUTODISCOVER, mFragment);
+            onProceedNext(SetupDataFragment.CHECK_AUTODISCOVER, mFragment);
         }
     }
 
-    public void onAutoDiscoverComplete(int result, SetupData setupData) {
+    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
         // If authentication failed, exit immediately (to re-enter credentials)
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.AUTODISCOVER_AUTHENTICATION) {
@@ -190,7 +190,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
      * If the checked settings are OK, proceed to outgoing settings screen
      */
     @Override
-    public void onCheckSettingsComplete(int result, SetupData setupData) {
+    public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             if (mServiceInfo.usesSmtp) {

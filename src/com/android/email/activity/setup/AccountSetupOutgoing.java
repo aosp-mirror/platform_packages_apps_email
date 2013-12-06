@@ -42,9 +42,9 @@ public class AccountSetupOutgoing extends AccountSetupActivity
     private Button mNextButton;
     /* package */ boolean mNextButtonEnabled;
 
-    public static void actionOutgoingSettings(Activity fromActivity, SetupData setupData) {
+    public static void actionOutgoingSettings(Activity fromActivity, SetupDataFragment setupData) {
         Intent intent = new Intent(fromActivity, AccountSetupOutgoing.class);
-        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(intent);
     }
 
@@ -110,7 +110,7 @@ public class AccountSetupOutgoing extends AccountSetupActivity
      * If the checked settings are OK, proceed to options screen
      */
     @Override
-    public void onCheckSettingsComplete(int result, SetupData setupData) {
+    public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             AccountSetupOptions.actionOptions(this, mSetupData);

@@ -126,13 +126,13 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     public static void actionNewAccount(Activity fromActivity) {
         final Intent i = new Intent(fromActivity, AccountSetupBasics.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_NORMAL);
+        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NORMAL);
         fromActivity.startActivity(i);
     }
 
     public static void actionNewAccountWithResult(Activity fromActivity) {
         final Intent i = new ForwardingIntent(fromActivity, AccountSetupBasics.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_NO_ACCOUNTS);
+        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NO_ACCOUNTS);
         fromActivity.startActivity(i);
     }
 
@@ -142,7 +142,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      */
     public static Intent actionGetCreateAccountIntent(Context context, String accountManagerType) {
         final Intent i = new Intent(context, AccountSetupBasics.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_ACCOUNT_MANAGER);
+        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_ACCOUNT_MANAGER);
         i.putExtra(EXTRA_FLOW_ACCOUNT_TYPE, accountManagerType);
         return i;
     }
@@ -155,7 +155,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "account flow" (from AccountManager), we want to return to the caller
         // (in the settings app)
-        i.putExtra(SetupData.EXTRA_SETUP_DATA, new SetupData(SetupData.FLOW_MODE_RETURN_TO_CALLER));
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA,
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_RETURN_TO_CALLER));
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -167,8 +168,8 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "no accounts" flow, we want to return to the caller with a result
-        i.putExtra(SetupData.EXTRA_SETUP_DATA,
-                new SetupData(SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT));
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA,
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT));
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -177,8 +178,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i = new Intent(fromActivity, AccountSetupBasics.class);
         // If we're not in the "account flow" (from AccountManager), we want to show the
         // message list for the new inbox
-        i.putExtra(SetupData.EXTRA_SETUP_DATA,
-                new SetupData(SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST, account));
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA,
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_RETURN_TO_MESSAGE_LIST, account));
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -197,22 +198,22 @@ public class AccountSetupBasics extends AccountSetupActivity
             INTENT_CREATE_ACCOUNT = getString(R.string.intent_create_account);
         }
         if (INTENT_CREATE_ACCOUNT.equals(action)) {
-            mSetupData = new SetupData(SetupData.FLOW_MODE_FORCE_CREATE);
+            mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_FORCE_CREATE);
         } else {
             final int intentFlowMode =
-                    intent.getIntExtra(EXTRA_FLOW_MODE, SetupData.FLOW_MODE_UNSPECIFIED);
-            if (intentFlowMode != SetupData.FLOW_MODE_UNSPECIFIED) {
-                mSetupData = new SetupData(intentFlowMode,
+                    intent.getIntExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_UNSPECIFIED);
+            if (intentFlowMode != SetupDataFragment.FLOW_MODE_UNSPECIFIED) {
+                mSetupData = new SetupDataFragment(intentFlowMode,
                         intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE));
             }
         }
 
         final int flowMode = mSetupData.getFlowMode();
-        if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
+        if (flowMode == SetupDataFragment.FLOW_MODE_RETURN_TO_CALLER) {
             // Return to the caller who initiated account creation
             finish();
             return;
-        } else if (flowMode == SetupData.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT) {
+        } else if (flowMode == SetupDataFragment.FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT) {
             if (EmailContent.count(this, Account.CONTENT_URI) > 0) {
                 setResult(RESULT_OK);
             } else {
@@ -220,7 +221,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             }
             finish();
             return;
-        } else if (flowMode == SetupData.FLOW_MODE_RETURN_TO_MESSAGE_LIST) {
+        } else if (flowMode == SetupDataFragment.FLOW_MODE_RETURN_TO_MESSAGE_LIST) {
             final Account account = mSetupData.getAccount();
             if (account != null && account.mId >= 0) {
                 // Show the message list for the new account
@@ -280,7 +281,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // Handle force account creation immediately (now that fragment is set up)
         // This is never allowed in a normal user build and will exit immediately.
-        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+        if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
             if (!DEBUG_ALLOW_NON_TEST_HARNESS_CREATION &&
                     !ActivityManager.isRunningInTestHarness()) {
                 LogUtils.e(Logging.LOG_TAG,
@@ -540,7 +541,8 @@ public class AccountSetupBasics extends AccountSetupActivity
                 if (mAutoSetup) {
                     final AccountCheckSettingsFragment checkerFragment =
                         AccountCheckSettingsFragment.newInstance(
-                            SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
+                            SetupDataFragment.CHECK_INCOMING | SetupDataFragment.CHECK_OUTGOING,
+                                null);
                     final FragmentTransaction transaction = getFragmentManager().beginTransaction();
                     transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
                     transaction.addToBackStack("back");
@@ -681,7 +683,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * so we inhibit reporting any error back to the Account manager.
      */
     @Override
-    public void onCheckSettingsComplete(int result, SetupData setupData) {
+    public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             AccountSetupOptions.actionOptions(this, mSetupData);
@@ -695,7 +697,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * This is overridden only by AccountSetupIncoming
      */
     @Override
-    public void onAutoDiscoverComplete(int result, SetupData setupData) {
+    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
         throw new IllegalStateException();
     }
 

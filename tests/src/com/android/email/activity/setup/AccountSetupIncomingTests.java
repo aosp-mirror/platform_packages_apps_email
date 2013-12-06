@@ -27,7 +27,7 @@ import android.widget.EditText;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupIncoming;
 import com.android.email.activity.setup.AccountSetupIncomingFragment;
-import com.android.email.activity.setup.SetupData;
+import com.android.email.activity.setup.SetupDataFragment;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -190,18 +190,15 @@ public class AccountSetupIncomingTests extends
      */
     private Intent getTestIntent(String storeUriString)
             throws URISyntaxException {
-        Account account = new Account();
-        Context context = getInstrumentation().getTargetContext();
-        HostAuth auth = account.getOrCreateHostAuthRecv(context);
+        final Account account = new Account();
+        final Context context = getInstrumentation().getTargetContext();
+        final HostAuth auth = account.getOrCreateHostAuthRecv(context);
         HostAuth.setHostAuthFromString(auth, storeUriString);
-
-        Bundle extras = new Bundle();
-        extras.putParcelable(SetupData.EXTRA_SETUP_DATA, new SetupData(SetupData.FLOW_MODE_NORMAL, account));
-
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.putExtras(extras);
-
-        return intent;
+        final SetupDataFragment setupDataFragment =
+                new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
+        final Intent i = new Intent(Intent.ACTION_MAIN);
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
+        return i;
     }
 
 }
