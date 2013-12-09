@@ -139,6 +139,11 @@
             android:targetActivity="com.android.email.activity.ComposeActivityEmail"/>
 
         <activity
+            android:name=".activity.setup.OAuthAuthenticationActivity"
+            android:label="@string/oauth_authentication_title">
+        </activity>
+
+        <activity
             android:name=".activity.EventViewer"
             android:label="@string/app_name"
             >

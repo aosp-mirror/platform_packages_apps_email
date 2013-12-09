@@ -502,10 +502,10 @@ public class EmailProvider extends ContentProvider {
         if (DatabaseUtils.longForQuery(mainDatabase,
                                       "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )",
                                       EmailContent.ID_PROJECTION) > 0) {
-          if (MailActivityEmail.DEBUG) {
-              LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
-          }
-          return;
+            if (MailActivityEmail.DEBUG) {
+                LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
+            }
+            return;
         }
 
         restoreAccounts(context, mainDatabase);
