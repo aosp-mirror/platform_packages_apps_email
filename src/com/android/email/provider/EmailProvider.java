@@ -123,6 +123,7 @@ import com.android.mail.widget.BaseWidgetProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -671,7 +672,7 @@ public class EmailProvider extends ContentProvider {
 
                     if (match == ACCOUNT_ID) {
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
-                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+                        notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                     } else if (match == MAILBOX_ID) {
                         notifyUIFolder(id, accountId);
                     } else if (match == ATTACHMENT_ID) {
@@ -728,7 +729,7 @@ public class EmailProvider extends ContentProvider {
         sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_DELETE, id);
 
         // Notify all email content cursors
-        resolver.notifyChange(EmailContent.CONTENT_URI, null);
+        notifyUI(EmailContent.CONTENT_URI, null);
         return result;
     }
 
@@ -859,7 +860,7 @@ public class EmailProvider extends ContentProvider {
                             if (!uri.getBooleanQueryParameter(IS_UIPROVIDER, false)) {
                                 notifyUIAccount(longId);
                             }
-                            resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+                            notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                             break;
                         case UPDATED_MESSAGE:
                         case DELETED_MESSAGE:
@@ -915,7 +916,7 @@ public class EmailProvider extends ContentProvider {
         sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_INSERT, id);
 
         // Notify all existing cursors.
-        resolver.notifyChange(EmailContent.CONTENT_URI, null);
+        notifyUI(EmailContent.CONTENT_URI, null);
         return resultUri;
     }
 
@@ -1863,7 +1864,7 @@ public class EmailProvider extends ContentProvider {
                         updateAccountSyncInterval(Long.parseLong(id), values);
                         // Notify individual account and "all accounts"
                         notifyUI(UIPROVIDER_ACCOUNT_NOTIFIER, id);
-                        resolver.notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
+                        notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
                         restartPushForAccount(context, db, values, id);
                     }
                     break;
@@ -1932,7 +1933,7 @@ public class EmailProvider extends ContentProvider {
         // Notify all notifier cursors
         sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
 
-        resolver.notifyChange(notificationUri, null);
+        notifyUI(notificationUri, null);
         return result;
     }
 
@@ -1940,7 +1941,7 @@ public class EmailProvider extends ContentProvider {
         final long id = extras.getLong(EmailServiceStatus.SYNC_STATUS_ID);
         final int statusCode = extras.getInt(EmailServiceStatus.SYNC_STATUS_CODE);
         final Uri uri = ContentUris.withAppendedId(FOLDER_STATUS_URI, id);
-        EmailProvider.this.getContext().getContentResolver().notifyChange(uri, null);
+        notifyUI(uri, null);
         final boolean inProgress = statusCode == EmailServiceStatus.IN_PROGRESS;
         if (inProgress) {
             RefreshStatusMonitor.getInstance(getContext()).setSyncStarted(id);
@@ -2090,9 +2091,9 @@ public class EmailProvider extends ContentProvider {
             longId = Long.valueOf(id);
         } catch (NumberFormatException ignore) {}
         if (longId > 0) {
-            resolver.notifyChange(ContentUris.withAppendedId(baseUri, longId), null);
+            notifyUI(baseUri, id);
         } else {
-            resolver.notifyChange(baseUri, null);
+            notifyUI(baseUri, null);
         }
 
         // We want to send the message list changed notification if baseUri is Message.NOTIFIER_URI.
@@ -2110,9 +2111,17 @@ public class EmailProvider extends ContentProvider {
         context.sendBroadcast(intent);
     }
 
+    private Set<Uri> mBatchNotifications;
+
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
+        /**
+         * Collect notification URIs to notify at the end of batch processing.
+         * These are populated by calls to notifyUI() by way of update(), insert() and delete()
+         * calls made in super.applyBatch()
+         */
+        mBatchNotifications = Sets.newHashSet();
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
         db.beginTransaction();
@@ -2122,6 +2131,11 @@ public class EmailProvider extends ContentProvider {
             return results;
         } finally {
             db.endTransaction();
+            final Set<Uri> notifications = mBatchNotifications;
+            mBatchNotifications = null;
+            for (final Uri uri : notifications) {
+                context.getContentResolver().notifyChange(uri, null);
+            }
         }
     }
 
@@ -4627,7 +4641,7 @@ public class EmailProvider extends ContentProvider {
         if (sentMailbox == null) return null;
         final Uri messageUri = uiSaveMessage(msg, mailbox, extras);
         // Kick observers
-        context.getContentResolver().notifyChange(Mailbox.CONTENT_URI, null);
+        notifyUI(Mailbox.CONTENT_URI, null);
         return messageUri;
     }
 
@@ -4650,11 +4664,11 @@ public class EmailProvider extends ContentProvider {
      * @param folders array of folder Uris to update
      * @return number of folders updated
      */
-    private static int updateTimestamp(final Context context, String id, Uri[] folders){
+    private int updateTimestamp(final Context context, String id, Uri[] folders){
         int updated = 0;
         final long now = System.currentTimeMillis();
         final ContentResolver resolver = context.getContentResolver();
-        final ContentValues touchValues = new ContentValues();
+        final ContentValues touchValues = new ContentValues(1);
         for (final Uri folder : folders) {
             touchValues.put(MailboxColumns.LAST_TOUCHED_TIME, now);
             LogUtils.d(TAG, "updateStamp: %s updated", folder);
@@ -4663,7 +4677,7 @@ public class EmailProvider extends ContentProvider {
         final Uri toNotify =
                 UIPROVIDER_RECENT_FOLDERS_NOTIFIER.buildUpon().appendPath(id).build();
         LogUtils.d(TAG, "updateTimestamp: Notifying on %s", toNotify);
-        resolver.notifyChange(toNotify, null);
+        notifyUI(toNotify, null);
         return updated;
     }
 
@@ -5206,9 +5220,13 @@ public class EmailProvider extends ContentProvider {
         notifyUIFolder(Long.toString(folderId), accountId);
     }
 
-    private void notifyUI(Uri uri, String id) {
+    private void notifyUI(final Uri uri, final String id) {
         final Uri notifyUri = (id != null) ? uri.buildUpon().appendPath(id).build() : uri;
-        getContext().getContentResolver().notifyChange(notifyUri, null);
+        if (mBatchNotifications != null) {
+            mBatchNotifications.add(notifyUri);
+        } else {
+            getContext().getContentResolver().notifyChange(notifyUri, null);
+        }
     }
 
     private void notifyUI(Uri uri, long id) {
