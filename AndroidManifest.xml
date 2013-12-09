@@ -14,9 +14,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<!-- The format of the version code is vvMMDDc
+     vv is major version number
+     MM is the ordinal month number. This starts at 0 for each major release and
+         counts up for each month
+     DD is the day of the month
+     c is a code which increments per version, in case we have multiple releases
+          on the same date. This should start at zero. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="620000" >
+    android:versionCode="6200090" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
