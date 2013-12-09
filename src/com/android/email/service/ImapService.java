@@ -33,6 +33,7 @@ import android.text.format.DateUtils;
 
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
+import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
 import com.android.email2.ui.MailActivityEmail;
@@ -104,6 +105,24 @@ public class ImapService extends Service {
      * We write this into the serverId field of messages that will never be upsynced.
      */
     private static final String LOCAL_SERVERID_PREFIX = "Local-";
+
+    private static String sMessageDecodeErrorString;
+
+    /**
+     * Used in ImapFolder for base64 errors. Cached here because ImapFolder does not have access
+     * to a Context object.
+     * @return Error string or empty string
+     */
+    public static String getMessageDecodeErrorString() {
+        return sMessageDecodeErrorString == null ? "" : sMessageDecodeErrorString;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        sMessageDecodeErrorString = getString(R.string.message_decode_error);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

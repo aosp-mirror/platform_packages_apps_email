@@ -18,7 +18,6 @@ package com.android.email.mail.store;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Base64DataException;
 
 import com.android.email.mail.store.ImapStore.ImapException;
@@ -29,6 +28,7 @@ import com.android.email.mail.store.imap.ImapList;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.store.imap.ImapUtility;
+import com.android.email.service.ImapService;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.BinaryTempFileBody;
@@ -813,7 +813,7 @@ class ImapFolder extends Folder {
                 }
             }
         } catch (Base64DataException bde) {
-            String warning = "\n\n" + MailActivityEmail.getMessageDecodeErrorString();
+            String warning = "\n\n" + ImapService.getMessageDecodeErrorString();
             out.write(warning.getBytes());
         } finally {
             out.close();
