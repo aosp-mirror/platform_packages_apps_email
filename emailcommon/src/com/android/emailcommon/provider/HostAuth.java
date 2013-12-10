@@ -52,8 +52,9 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final int FLAG_TLS          = 0x02;    // Use TLS
     public static final int FLAG_AUTHENTICATE = 0x04;    // Use name/password for authentication
     public static final int FLAG_TRUST_ALL    = 0x08;    // Trust all certificates
+    public static final int FLAG_OAUTH        = 0x10;    // Use OAuth for authentication
     // Mask of settings directly configurable by the user
-    public static final int USER_CONFIG_MASK  = 0x0b;
+    public static final int USER_CONFIG_MASK  = 0x1b;
 
     public String mProtocol;
     public String mAddress;
@@ -65,6 +66,9 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public String mClientCertAlias = null;
     // NOTE: The server certificate is NEVER automatically retrieved from EmailProvider
     public byte[] mServerCert = null;
+    public long mCredentialKey;
+
+    public transient Credential mCredential;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PROTOCOL_COLUMN = 1;
@@ -75,21 +79,55 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final int CONTENT_PASSWORD_COLUMN = 6;
     public static final int CONTENT_DOMAIN_COLUMN = 7;
     public static final int CONTENT_CLIENT_CERT_ALIAS_COLUMN = 8;
+    public static final int CONTENT_CREDENTIAL_KEY_COLUMN = 9;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
         HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
-        HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS
+        HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS,
+        HostAuthColumns.CREDENTIAL_KEY
     };
 
-    /**
-     * no public constructor since this is a utility class
-     */
     public HostAuth() {
         mBaseUri = CONTENT_URI;
 
         // other defaults policy)
         mPort = PORT_UNKNOWN;
+    }
+
+    /**
+     * getOrCreateCredentials
+     * Return the credential object for this HostAuth, creating it if it does not yet exist.
+     * This should not be called on the main thread.
+     * @param context
+     * @return the credential object for this HostAuth
+     */
+    public Credential getOrCreateCredentials(Context context) {
+
+        if (mCredential == null) {
+            if (mCredentialKey >= 0) {
+                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+            } else {
+                mCredential = new Credential();
+            }
+        }
+        return mCredential;
+    }
+
+    /**
+     * getCredentials
+     * Return the credential object for this HostAuth, or null if it does not exist.
+     * This should not be called on the main thread.
+     * @param context
+     * @return
+     */
+    public Credential getCredentials(Context context) {
+        if (mCredential == null) {
+            if (mCredentialKey >= 0) {
+                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+            }
+        }
+        return mCredential;
     }
 
      /**
@@ -181,6 +219,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
         mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
         mClientCertAlias = cursor.getString(CONTENT_CLIENT_CERT_ALIAS_COLUMN);
+        mCredentialKey = cursor.getLong(CONTENT_CREDENTIAL_KEY_COLUMN);
     }
 
     @Override
@@ -194,6 +233,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         values.put(HostAuthColumns.PASSWORD, mPassword);
         values.put(HostAuthColumns.DOMAIN, mDomain);
         values.put(HostAuthColumns.CLIENT_CERT_ALIAS, mClientCertAlias);
+        values.put(HostAuthColumns.CREDENTIAL_KEY, mCredentialKey);
         values.put(HostAuthColumns.ACCOUNT_KEY, 0); // Need something to satisfy the DB
         return values;
     }
@@ -330,6 +370,12 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         dest.writeString(mPassword);
         dest.writeString(mDomain);
         dest.writeString(mClientCertAlias);
+        dest.writeLong(mCredentialKey);
+        if (mCredential == null) {
+            Credential.EMPTY.writeToParcel(dest, flags);
+        } else {
+            mCredential.writeToParcel(dest, flags);
+        }
     }
 
     /**
@@ -346,6 +392,11 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPassword = in.readString();
         mDomain = in.readString();
         mClientCertAlias = in.readString();
+        mCredentialKey = in.readLong();
+        mCredential = new Credential(in);
+        if (mCredential.equals(Credential.EMPTY)) {
+            mCredential = null;
+        }
     }
 
     @Override
@@ -362,7 +413,8 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mLogin, that.mLogin)
                 && Utility.areStringsEqual(mPassword, that.mPassword)
                 && Utility.areStringsEqual(mDomain, that.mDomain)
-                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
+                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias)
+                && mCredentialKey == that.mCredentialKey;
                 // We don't care about the server certificate for equals
     }
 

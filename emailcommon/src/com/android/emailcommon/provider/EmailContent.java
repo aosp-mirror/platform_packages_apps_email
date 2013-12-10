@@ -27,12 +27,14 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
@@ -160,12 +162,21 @@ public abstract class EmailContent {
             Mailbox.initMailbox();
             QuickResponse.initQuickResponse();
             HostAuth.initHostAuth();
+            Credential.initCredential();
             Policy.initPolicy();
             Message.initMessage();
             MessageMove.init();
             MessageStateChange.init();
             Body.initBody();
             Attachment.initAttachment();
+        }
+    }
+
+
+    private static void warnIfUiThread() {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            LogUtils.w(Logging.LOG_TAG, "Method called on the UI thread",
+                    new Throwable());
         }
     }
 
@@ -197,6 +208,7 @@ public abstract class EmailContent {
      */
     public static <T extends EmailContent> T restoreContentWithId(Context context,
             Class<T> klass, Uri contentUri, String[] contentProjection, long id) {
+        warnIfUiThread();
         Uri u = ContentUris.withAppendedId(contentUri, id);
         Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
         if (c == null) throw new ProviderUnavailableException();
@@ -1718,6 +1730,8 @@ public abstract class EmailContent {
         static final String ACCOUNT_KEY = "accountKey";
         // A blob containing an X509 server certificate
         static final String SERVER_CERT = "serverCert";
+        // The credentials row this hostAuth should use. Currently only set if using OAuth.
+        static final String CREDENTIAL_KEY = "credentialKey";
     }
 
     public interface PolicyColumns {

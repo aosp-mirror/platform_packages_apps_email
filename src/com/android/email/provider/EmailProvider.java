@@ -72,6 +72,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -264,6 +265,10 @@ public class EmailProvider extends ContentProvider {
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
 
+    private static final int CREDENTIAL_BASE = 0xB000;
+    private static final int CREDENTIAL = CREDENTIAL_BASE;
+    private static final int CREDENTIAL_ID = CREDENTIAL_BASE + 1;
+
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
 
     private static final SparseArray<String> TABLE_NAMES;
@@ -280,6 +285,7 @@ public class EmailProvider extends ContentProvider {
         array.put(QUICK_RESPONSE_BASE >> BASE_SHIFT, QuickResponse.TABLE_NAME);
         array.put(UI_BASE >> BASE_SHIFT, null);
         array.put(BODY_BASE >> BASE_SHIFT, Body.TABLE_NAME);
+        array.put(CREDENTIAL_BASE >> BASE_SHIFT, Credential.TABLE_NAME);
         TABLE_NAMES = array;
     }
 
@@ -652,6 +658,7 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH_ID:
                 case POLICY_ID:
                 case QUICK_RESPONSE_ID:
+                case CREDENTIAL_ID:
                     id = uri.getPathSegments().get(1);
                     if (match == SYNCED_MESSAGE_ID) {
                         // For synced messages, first copy the old message to the deleted table and
@@ -829,6 +836,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case CREDENTIAL:
                 case POLICY:
                 case QUICK_RESPONSE:
                     longId = db.insert(TABLE_NAMES.valueAt(table), "foo", values);
@@ -1047,6 +1055,11 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
             // A specific hostauth
             sURIMatcher.addURI(EmailContent.AUTHORITY, "hostauth/*", HOSTAUTH_ID);
+
+            // All credential records
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "credential", CREDENTIAL);
+            // A specific credential
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "credential/*", CREDENTIAL_ID);
 
             /**
              * THIS URI HAS SPECIAL SEMANTICS
@@ -1885,6 +1898,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case CREDENTIAL:
                 case POLICY:
                     if (match == ATTACHMENT) {
                         if (values.containsKey(AttachmentColumns.LOCATION) &&

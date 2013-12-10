@@ -31,11 +31,9 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.text.TextUtils;
 
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.Utility;
-import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,9 +205,6 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
             " AND " + MailboxColumns.ACCOUNT_KEY + " =?";
 
-    /**
-     * no public constructor since this is a utility class
-     */
     public Account() {
         mBaseUri = CONTENT_URI;
 
@@ -739,22 +734,55 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
         int index = 0;
         int recvIndex = -1;
+        int recvCredentialsIndex = -1;
         int sendIndex = -1;
+        int sendCredentialsIndex = -1;
 
-        // Create operations for saving the send and recv hostAuths
+        // Create operations for saving the send and recv hostAuths, and their credentials.
         // Also, remember which operation in the array they represent
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
         if (mHostAuthRecv != null) {
+            if (mHostAuthRecv.mCredential != null) {
+                recvCredentialsIndex = index++;
+                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
+                        .withValues(mHostAuthRecv.mCredential.toContentValues())
+                        .build());
+            }
+
             recvIndex = index++;
-            ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mBaseUri)
-                    .withValues(mHostAuthRecv.toContentValues())
-                    .build());
+            final ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(
+                    mHostAuthRecv.mBaseUri);
+            b.withValues(mHostAuthRecv.toContentValues());
+            if (recvCredentialsIndex >= 0) {
+                final ContentValues cv = new ContentValues();
+                cv.put(HostAuth.CREDENTIAL_KEY, recvCredentialsIndex);
+                b.withValueBackReferences(cv);
+            }
+            ops.add(b.build());
         }
         if (mHostAuthSend != null) {
+            if (mHostAuthSend.mCredential != null) {
+                if (mHostAuthRecv.mCredential != null &&
+                        mHostAuthRecv.mCredential.equals(mHostAuthSend.mCredential)) {
+                    // These two credentials are identical, use the same row.
+                    sendCredentialsIndex = recvCredentialsIndex;
+                } else {
+                    sendCredentialsIndex = index++;
+                    ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
+                            .withValues(mHostAuthRecv.mCredential.toContentValues())
+                            .build());
+                }
+            }
             sendIndex = index++;
-            ops.add(ContentProviderOperation.newInsert(mHostAuthSend.mBaseUri)
-                    .withValues(mHostAuthSend.toContentValues())
-                    .build());
+            final ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(
+                    mHostAuthSend.mBaseUri);
+            b.withValues(mHostAuthSend.toContentValues());
+            if (sendCredentialsIndex >= 0) {
+                final ContentValues cv = new ContentValues();
+                cv.put(HostAuth.CREDENTIAL_KEY, sendCredentialsIndex);
+                b.withValueBackReferences(cv);
+            }
+            ops.add(b.build());
         }
 
         // Now do the Account
