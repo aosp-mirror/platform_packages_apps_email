@@ -59,9 +59,9 @@ public class AccountSetupNames extends AccountSetupActivity {
     private boolean mRequiresName = true;
     private boolean mIsCompleting = false;
 
-    public static void actionSetNames(Activity fromActivity, SetupData setupData) {
+    public static void actionSetNames(Activity fromActivity, SetupDataFragment setupData) {
         ForwardingIntent intent = new ForwardingIntent(fromActivity, AccountSetupNames.class);
-        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(intent);
     }
 
@@ -108,8 +108,8 @@ public class AccountSetupNames extends AccountSetupActivity {
 
         final int flowMode = mSetupData.getFlowMode();
 
-        if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
-                && flowMode != SetupData.FLOW_MODE_EDIT) {
+        if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
+                && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
             final String accountEmail = account.mEmailAddress;
             mDescription.setText(accountEmail);
 
@@ -127,8 +127,8 @@ public class AccountSetupNames extends AccountSetupActivity {
         } else {
             if (account.getSenderName() != null) {
                 mName.setText(account.getSenderName());
-            } else if (flowMode != SetupData.FLOW_MODE_FORCE_CREATE
-                    && flowMode != SetupData.FLOW_MODE_EDIT) {
+            } else if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
+                    && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
                 // Attempt to prefill the name field from the profile if we don't have it,
                 prefillNameFromProfile();
             }
@@ -138,7 +138,7 @@ public class AccountSetupNames extends AccountSetupActivity {
         validateFields();
 
         // Proceed immediately if in account creation mode
-        if (flowMode == SetupData.FLOW_MODE_FORCE_CREATE) {
+        if (flowMode == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
             onNext();
         }
     }
@@ -189,9 +189,9 @@ public class AccountSetupNames extends AccountSetupActivity {
     }
 
     private void finishActivity() {
-        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_NO_ACCOUNTS) {
+        if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_NO_ACCOUNTS) {
             AccountSetupBasics.actionAccountCreateFinishedWithResult(this);
-        } else if (mSetupData.getFlowMode() != SetupData.FLOW_MODE_NORMAL) {
+        } else if (mSetupData.getFlowMode() != SetupDataFragment.FLOW_MODE_NORMAL) {
             AccountSetupBasics.actionAccountCreateFinishedAccountFlow(this);
         } else {
             final Account account = mSetupData.getAccount();

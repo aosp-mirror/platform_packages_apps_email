@@ -47,9 +47,9 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
 
     private boolean mButtonPressed;
 
-    public static void actionSelectAccountType(Activity fromActivity, SetupData setupData) {
+    public static void actionSelectAccountType(Activity fromActivity, SetupDataFragment setupData) {
         final Intent i = new ForwardingIntent(fromActivity, AccountSetupType.class);
-        i.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(i);
     }
 
@@ -60,7 +60,7 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
 
         final String accountType = mSetupData.getFlowAccountType();
         // If we're in account setup flow mode, see if there's just one protocol that matches
-        if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_ACCOUNT_MANAGER) {
+        if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_ACCOUNT_MANAGER) {
             int matches = 0;
             String protocol = null;
             for (EmailServiceInfo info: EmailServiceUtils.getServiceInfoList(this)) {
@@ -126,10 +126,11 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this, recvAuth.mProtocol);
         if (info.usesAutodiscover) {
-            mSetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
+            mSetupData.setCheckSettingsMode(SetupDataFragment.CHECK_AUTODISCOVER);
         } else {
             mSetupData.setCheckSettingsMode(
-                    SetupData.CHECK_INCOMING | (info.usesSmtp ? SetupData.CHECK_OUTGOING : 0));
+                    SetupDataFragment.CHECK_INCOMING |
+                            (info.usesSmtp ? SetupDataFragment.CHECK_OUTGOING : 0));
         }
         recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
         AccountSetupBasics.setDefaultsForProtocol(this, account);

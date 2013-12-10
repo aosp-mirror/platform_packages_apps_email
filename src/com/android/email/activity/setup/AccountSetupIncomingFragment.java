@@ -187,7 +187,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mClientCertificateSelector.setHostActivity(this);
 
         final Context context = getActivity();
-        final SetupData.SetupDataContainer container = (SetupData.SetupDataContainer) context;
+        final SetupDataFragment.SetupDataContainer container =
+                (SetupDataFragment.SetupDataContainer) context;
         mSetupData = container.getSetupData();
 
         final HostAuth recvAuth = mSetupData.getAccount().mHostAuthRecv;
@@ -566,7 +567,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         recvAuth.mClientCertAlias = mClientCertificateSelector.getCertificate();
 
-        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
+        mCallback.onProceedNext(SetupDataFragment.CHECK_INCOMING, this);
         clearButtonBounce();
     }
 
@@ -590,7 +591,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Implements AccountCheckSettingsFragment.Callbacks
      */
     @Override
-    public void onAutoDiscoverComplete(int result, SetupData setupData) {
+    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         final AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
         activity.onAutoDiscoverComplete(result, setupData);

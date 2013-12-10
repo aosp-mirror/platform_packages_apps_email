@@ -62,7 +62,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     /*package*/ HostAuth mLoadedSendAuth;
     /*package*/ HostAuth mLoadedRecvAuth;
 
-    protected SetupData mSetupData;
+    protected SetupDataFragment mSetupData;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     private Button mProceedButton;
@@ -82,7 +82,7 @@ public abstract class AccountServerBaseFragment extends Fragment
 
         /**
          * Called when user clicks "next".  Starts account checker.
-         * @param checkMode values from {@link SetupData}
+         * @param checkMode values from {@link SetupDataFragment}
          * @param target the fragment that requested the check
          */
         public void onProceedNext(int checkMode, AccountServerBaseFragment target);
@@ -93,14 +93,14 @@ public abstract class AccountServerBaseFragment extends Fragment
          * @param result check settings result code - success is CHECK_SETTINGS_OK
          * @param setupData possibly modified SetupData
          */
-        public void onCheckSettingsComplete(int result, SetupData setupData);
+        public void onCheckSettingsComplete(int result, SetupDataFragment setupData);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onEnableProceedButtons(boolean enable) { }
         @Override public void onProceedNext(int checkMode, AccountServerBaseFragment target) { }
-        @Override public void onCheckSettingsComplete(int result, SetupData setupData) { }
+        @Override public void onCheckSettingsComplete(int result, SetupDataFragment setupData) { }
     }
 
     /**
@@ -154,7 +154,8 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (mSettingsMode && savedInstanceState != null) {
             mContext.setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
         }
-        SetupData.SetupDataContainer container = (SetupData.SetupDataContainer) mContext;
+        SetupDataFragment.SetupDataContainer container =
+                (SetupDataFragment.SetupDataContainer) mContext;
         mSetupData = container.getSetupData();
 
         super.onActivityCreated(savedInstanceState);
@@ -302,13 +303,13 @@ public abstract class AccountServerBaseFragment extends Fragment
      * exit to previous fragment.
      */
     @Override
-    public void onCheckSettingsComplete(final int settingsResult, SetupData setupData) {
+    public void onCheckSettingsComplete(final int settingsResult, SetupDataFragment setupData) {
         mSetupData = setupData;
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 if (settingsResult == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-                    if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                    if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_EDIT) {
                         saveSettingsAfterEdit();
                     } else {
                         saveSettingsAfterSetup();
@@ -330,7 +331,7 @@ public abstract class AccountServerBaseFragment extends Fragment
      * This is overridden only by AccountSetupExchange
      */
     @Override
-    public void onAutoDiscoverComplete(int result, SetupData setupData) {
+    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
         throw new IllegalStateException();
     }
 

@@ -72,7 +72,7 @@ import java.util.List;
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity,
-        SetupData.SetupDataContainer {
+        SetupDataFragment.SetupDataContainer {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -120,7 +120,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     private Uri mFeedbackUri;
     private MenuItem mFeedbackMenuItem;
 
-    private SetupData mSetupData;
+    private SetupDataFragment mSetupData;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -227,7 +227,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 }
             }
         } else {
-            mSetupData = savedInstanceState.getParcelable(SetupData.EXTRA_SETUP_DATA);
+            mSetupData = savedInstanceState.getParcelable(SetupDataFragment.EXTRA_SETUP_DATA);
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
@@ -253,7 +253,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(
                 outState);
-        outState.putParcelable(SetupData.EXTRA_SETUP_DATA, mSetupData);
+        // TODO: use the fragment manager to persist this
+        outState.putParcelable(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
     }
 
     @Override
@@ -660,7 +661,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
          * simply does a "back" to exit the settings screen.
          */
         @Override
-        public void onCheckSettingsComplete(int result, SetupData setupData) {
+        public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
             if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
                 // Settings checked & saved; clear current fragment
                 mCurrentFragment = null;
@@ -705,7 +706,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public void onIncomingSettings(Account account) {
         try {
-            mSetupData = new SetupData(SetupData.FLOW_MODE_EDIT, account);
+            mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
             final Fragment f = new AccountSetupIncomingFragment();
             f.setArguments(AccountSetupIncomingFragment.getArgs(true));
             // Use startPreferenceFragment here because we need to keep this activity instance
@@ -722,7 +723,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     public void onOutgoingSettings(Account account) {
         try {
-            mSetupData = new SetupData(SetupData.FLOW_MODE_EDIT, account);
+            mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
             final Fragment f = new AccountSetupOutgoingFragment();
             f.setArguments(AccountSetupOutgoingFragment.getArgs(true));
             // Use startPreferenceFragment here because we need to keep this activity instance
@@ -926,12 +927,12 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     }
 
     @Override
-    public SetupData getSetupData() {
+    public SetupDataFragment getSetupData() {
         return mSetupData;
     }
 
     @Override
-    public void setSetupData(SetupData setupData) {
+    public void setSetupData(SetupDataFragment setupData) {
         mSetupData = setupData;
     }
 }

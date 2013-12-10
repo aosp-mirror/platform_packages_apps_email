@@ -76,9 +76,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     /** Default sync window for new EAS accounts */
     private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_1_WEEK;
 
-    public static void actionOptions(Activity fromActivity, SetupData setupData) {
+    public static void actionOptions(Activity fromActivity, SetupDataFragment setupData) {
         final Intent intent = new ForwardingIntent(fromActivity, AccountSetupOptions.class);
-        intent.putExtra(SetupData.EXTRA_SETUP_DATA, setupData);
+        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupData);
         fromActivity.startActivity(intent);
     }
 
@@ -149,7 +149,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         if (mIsProcessing) {
             // We are already processing, so just show the dialog until we finish
             showCreateAccountDialog();
-        } else if (mSetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+        } else if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
             // If we are just visiting here to fill in details, exit immediately
             onDone();
         }
