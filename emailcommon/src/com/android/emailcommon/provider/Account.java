@@ -742,12 +742,13 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         // Also, remember which operation in the array they represent
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
         if (mHostAuthRecv != null) {
-            if (mHostAuthRecv.mCredential != null) {
-                recvCredentialsIndex = index++;
-                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
-                        .withValues(mHostAuthRecv.mCredential.toContentValues())
-                        .build());
-            }
+            // TODO: This causes problems because it's incompatible with Exchange.
+//          if (mHostAuthRecv.mCredential != null) {
+//                recvCredentialsIndex = index++;
+//                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
+//                        .withValues(mHostAuthRecv.mCredential.toContentValues())
+//                        .build());
+//            }
 
             recvIndex = index++;
             final ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(
@@ -761,18 +762,19 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             ops.add(b.build());
         }
         if (mHostAuthSend != null) {
-            if (mHostAuthSend.mCredential != null) {
-                if (mHostAuthRecv.mCredential != null &&
-                        mHostAuthRecv.mCredential.equals(mHostAuthSend.mCredential)) {
+            // TODO: This causes problems because it's incompatible with Exchange.
+//            if (mHostAuthSend.mCredential != null) {
+//                if (mHostAuthRecv.mCredential != null &&
+//                        mHostAuthRecv.mCredential.equals(mHostAuthSend.mCredential)) {
                     // These two credentials are identical, use the same row.
-                    sendCredentialsIndex = recvCredentialsIndex;
-                } else {
-                    sendCredentialsIndex = index++;
-                    ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
-                            .withValues(mHostAuthRecv.mCredential.toContentValues())
-                            .build());
-                }
-            }
+//                    sendCredentialsIndex = recvCredentialsIndex;
+//                } else {
+//                    sendCredentialsIndex = index++;
+//                    ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mCredential.mBaseUri)
+//                            .withValues(mHostAuthRecv.mCredential.toContentValues())
+//                            .build());
+//                }
+//            }
             sendIndex = index++;
             final ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(
                     mHostAuthSend.mBaseUri);

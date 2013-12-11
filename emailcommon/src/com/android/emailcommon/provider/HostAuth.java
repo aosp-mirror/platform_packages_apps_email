@@ -68,8 +68,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public byte[] mServerCert = null;
     public long mCredentialKey;
 
-    public transient Credential mCredential;
-
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PROTOCOL_COLUMN = 1;
     public static final int CONTENT_ADDRESS_COLUMN = 2;
@@ -96,22 +94,23 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     }
 
     /**
-     * getOrCreateCredentials
+     * getOrCreateCredential
      * Return the credential object for this HostAuth, creating it if it does not yet exist.
      * This should not be called on the main thread.
      * @param context
      * @return the credential object for this HostAuth
      */
-    public Credential getOrCreateCredentials(Context context) {
-
-        if (mCredential == null) {
-            if (mCredentialKey >= 0) {
-                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
-            } else {
-                mCredential = new Credential();
-            }
-        }
-        return mCredential;
+    public Credential getOrCreateCredential(Context context) {
+        // TODO: This causes problems because it's incompatible with Exchange.
+//        if (mCredential == null) {
+//            if (mCredentialKey >= 0) {
+//                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+//            } else {
+//                mCredential = new Credential();
+//            }
+//        }
+//        return mCredential;
+        return null;
     }
 
     /**
@@ -122,12 +121,14 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
      * @return
      */
     public Credential getCredentials(Context context) {
-        if (mCredential == null) {
-            if (mCredentialKey >= 0) {
-                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
-            }
-        }
-        return mCredential;
+        // TODO: This causes problems because it's incompatible with Exchange.
+//        if (mCredential == null) {
+//            if (mCredentialKey >= 0) {
+//                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+//            }
+//        }
+//        return mCredential;
+        return null;
     }
 
      /**
@@ -370,12 +371,13 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         dest.writeString(mPassword);
         dest.writeString(mDomain);
         dest.writeString(mClientCertAlias);
-        dest.writeLong(mCredentialKey);
-        if (mCredential == null) {
-            Credential.EMPTY.writeToParcel(dest, flags);
-        } else {
-            mCredential.writeToParcel(dest, flags);
-        }
+//        dest.writeLong(mCredentialKey);
+        // TODO: This causes problems because it's incompatible with Exchange.
+//        if (mCredential == null) {
+//            Credential.EMPTY.writeToParcel(dest, flags);
+//        } else {
+//            mCredential.writeToParcel(dest, flags);
+//        }
     }
 
     /**
@@ -392,11 +394,11 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPassword = in.readString();
         mDomain = in.readString();
         mClientCertAlias = in.readString();
-        mCredentialKey = in.readLong();
-        mCredential = new Credential(in);
-        if (mCredential.equals(Credential.EMPTY)) {
-            mCredential = null;
-        }
+//        mCredentialKey = in.readLong();
+//        mCredential = new Credential(in);
+//        if (mCredential.equals(Credential.EMPTY)) {
+//            mCredential = null;
+//        }
     }
 
     @Override
