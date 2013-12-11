@@ -33,10 +33,13 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,6 +55,7 @@ import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.Provider;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
@@ -107,6 +111,16 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     private static final String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
 
+    public static final int REQUEST_OAUTH = 1;
+
+    public static final int RESULT_OAUTH_SUCCESS = 0;
+    public static final int RESULT_OAUTH_USER_CANCELED = -1;
+    public static final int RESULT_OAUTH_FAILURE = -2;
+
+    public static final String EXTRA_OAUTH_ACCESS_TOKEN = "accessToken";
+    public static final String EXTRA_OAUTH_REFRESH_TOKEN = "refreshToken";
+    public static final String EXTRA_OAUTH_EXPIRES_IN = "expiresIn";
+
     // Support for UI
     private EditText mEmailView;
     private EditText mPasswordView;
@@ -134,6 +148,22 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i = new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NO_ACCOUNTS);
         fromActivity.startActivity(i);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_OAUTH && resultCode == RESULT_OAUTH_SUCCESS) {
+            final String accessToken = data.getStringExtra(EXTRA_OAUTH_ACCESS_TOKEN);
+            final String refreshToken = data.getStringExtra(EXTRA_OAUTH_REFRESH_TOKEN);
+            final int expiresInSeconds = data.getIntExtra(EXTRA_OAUTH_EXPIRES_IN, 0);
+
+            finishOAuthSetup(accessToken, refreshToken, expiresInSeconds);
+        } else {
+            // TODO: STOPSHIP: This setup UI is not correct, we need to figure out what to do
+            // in case of errors and have localized strings.
+            Toast.makeText(AccountSetupBasics.this,
+                    "Failed to get token", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -400,7 +430,7 @@ public class AccountSetupBasics extends AccountSetupActivity
                     final Intent i = new Intent(this, OAuthAuthenticationActivity.class);
                     i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, email);
                     i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, provider.oauth);
-                    startActivity(i);
+                    startActivityForResult(i, REQUEST_OAUTH);
                 }
                 break;
         }
@@ -505,6 +535,71 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     /**
+     * Finish the oauth setup process.
+     */
+    private void finishOAuthSetup(final String accessToken, final String refreshToken,
+            int expiresInSeconds) {
+
+        final String email = mEmailView.getText().toString().trim();
+        final String[] emailParts = email.split("@");
+        final String domain = emailParts[1].trim();
+        mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
+        if (mProvider == null) {
+            // TODO: STOPSHIP: Need better error handling here.
+            Toast.makeText(AccountSetupBasics.this,
+                    "No provider, can't proceed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            mProvider.expandTemplates(email);
+
+            final Account account = mSetupData.getAccount();
+            final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+            HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
+            recvAuth.setLogin(mProvider.incomingUsername, null);
+            Credential cred = recvAuth.getOrCreateCredential(this);
+            cred.mProviderId = mProvider.oauth;
+            cred.mAccessToken = accessToken;
+            cred.mRefreshToken = refreshToken;
+            cred.mExpiration = System.currentTimeMillis() +
+                    expiresInSeconds * DateUtils.SECOND_IN_MILLIS;
+            // TODO: For now, assume that we will use SSL because that's what
+            // gmail wants. This needs to be parameterized from providers.xml
+            recvAuth.mFlags |= HostAuth.FLAG_SSL;
+            recvAuth.mFlags |= HostAuth.FLAG_OAUTH;
+
+            final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this,
+                    recvAuth.mProtocol);
+            recvAuth.mPort =
+                    ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
+
+            final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+            HostAuth.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
+            sendAuth.setLogin(mProvider.outgoingUsername, null);
+            sendAuth.mCredential = cred;
+            sendAuth.mFlags |= HostAuth.FLAG_SSL;
+            sendAuth.mFlags |= HostAuth.FLAG_OAUTH;
+
+            // Populate the setup data, assuming that the duplicate account check will succeed
+            populateSetupData(getOwnerName(), email);
+
+            // Stop here if the login credentials duplicate an existing account
+            // Launch an Async task to do the work
+            new DuplicateCheckTask(this, email, true)
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } catch (URISyntaxException e) {
+            /*
+             * If there is some problem with the URI we give up and go on to manual setup.
+             * Technically speaking, AutoDiscover is OK here, since the user clicked "Next"
+             * to get here. This will not happen in practice because we don't expect to
+             * find any EAS accounts in the providers list.
+             */
+            onManualSetup(true);
+        }
+    }
+
+    /**
      * Async task that continues the work of finishAutoSetup().  Checks for a duplicate
      * account and then either alerts the user, or continues.
      */
@@ -579,7 +674,7 @@ public class AccountSetupBasics extends AccountSetupActivity
                 finishAutoSetup();
             }
         } else {
-        // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
+            // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
             new DuplicateCheckTask(this, email, false)
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

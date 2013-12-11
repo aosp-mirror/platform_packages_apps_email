@@ -39,6 +39,7 @@ import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
@@ -86,6 +87,8 @@ public class ImapStore extends Store {
     @VisibleForTesting String mPathPrefix;
     @VisibleForTesting String mPathSeparator;
 
+    private boolean mUseOAuth;
+
     private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
             new ConcurrentLinkedQueue<ImapConnection>();
 
@@ -118,7 +121,21 @@ public class ImapStore extends Store {
             mUsername = null;
             mPassword = null;
         }
+        final Credential cred = recvAuth.getCredential(context);
+        mUseOAuth = (cred != null);
         mPathPrefix = recvAuth.mDomain;
+    }
+
+    boolean getUseOAuth() {
+        return mUseOAuth;
+    }
+
+    String getUsername() {
+        return mUsername;
+    }
+
+    String getPassword() {
+        return mPassword;
     }
 
     @VisibleForTesting
@@ -374,7 +391,7 @@ public class ImapStore extends Store {
         // using it.
         ImapConnection connection = getConnection();
         try {
-            HashMap<String, ImapFolder> mailboxes = new HashMap<String, ImapFolder>();
+            final HashMap<String, ImapFolder> mailboxes = new HashMap<String, ImapFolder>();
             // Establish a connection to the IMAP server; if necessary
             // This ensures a valid prefix if the prefix is automatically set by the server
             connection.executeSimpleCommand(ImapConstants.NOOP);
@@ -420,7 +437,7 @@ public class ImapStore extends Store {
             return mailboxes.values().toArray(new Folder[] {});
         } catch (IOException ioe) {
             connection.close();
-            throw new MessagingException("Unable to get folder list.", ioe);
+            throw new MessagingException("Unable to get folder list", ioe);
         } catch (AuthenticationFailedException afe) {
             // We do NOT want this connection pooled, or we will continue to send NOOP and SELECT
             // commands to the server
@@ -429,6 +446,8 @@ public class ImapStore extends Store {
             throw afe;
         } finally {
             if (connection != null) {
+                // We keep our connection out of the pool as long as we are using it, then
+                // put it back into the pool so it can be reused.
                 poolConnection(connection);
             }
         }
@@ -438,7 +457,10 @@ public class ImapStore extends Store {
     public Bundle checkSettings() throws MessagingException {
         int result = MessagingException.NO_ERROR;
         Bundle bundle = new Bundle();
-        ImapConnection connection = new ImapConnection(this, mUsername, mPassword);
+        // TODO: why doesn't this use getConnection()? I guess this is only done during setup,
+        // so there's need to look for a pooled connection?
+        // But then why doesn't it use poolConnection() after it's done?
+        ImapConnection connection = new ImapConnection(this);
         try {
             connection.open();
             connection.close();
@@ -497,10 +519,13 @@ public class ImapStore extends Store {
      * Gets a connection if one is available from the pool, or creates a new one if not.
      */
     ImapConnection getConnection() {
+        // TODO Why would we ever have (or need to have) more than one active connection?
+        // TODO We set new username/password each time, but we don't actually close the transport
+        // when we do this. So if that information has changed, this connection will fail.
         ImapConnection connection = null;
         while ((connection = mConnectionPool.poll()) != null) {
             try {
-                connection.setStore(this, mUsername, mPassword);
+                connection.setStore(this);
                 connection.executeSimpleCommand(ImapConstants.NOOP);
                 break;
             } catch (MessagingException e) {
@@ -511,8 +536,9 @@ public class ImapStore extends Store {
             connection.close();
             connection = null;
         }
+
         if (connection == null) {
-            connection = new ImapConnection(this, mUsername, mPassword);
+            connection = new ImapConnection(this);
         }
         return connection;
     }

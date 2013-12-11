@@ -16,7 +16,7 @@ public class Credential extends EmailContent implements Parcelable {
     public static final String TABLE_NAME = "Credential";
     public static Uri CONTENT_URI;
 
-    public static final Credential EMPTY = new Credential(-1, "", "", 0);
+    public static final Credential EMPTY = new Credential(-1, "", "", "", 0);
 
     public static void initCredential() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/credential");
@@ -24,8 +24,12 @@ public class Credential extends EmailContent implements Parcelable {
 
     public static final String TYPE_OAUTH = "oauth";
 
+    // This is the Id of the oauth provider. It can be used to lookup an oauth provider
+    // from oauth.xml.
+    public String mProviderId;
     public String mAccessToken;
     public String mRefreshToken;
+    // This is the wall clock time, in milliseconds since Midnight, Jan 1, 1970.
     public long mExpiration;
 
     // Name of the authentication provider.
@@ -58,9 +62,11 @@ public class Credential extends EmailContent implements Parcelable {
         mBaseUri = CONTENT_URI;
     }
 
-    public Credential(long id, String accessToken, String refreshToken, long expiration) {
+    public Credential(long id, String providerId, String accessToken, String refreshToken,
+            long expiration) {
         mBaseUri = CONTENT_URI;
         mId = id;
+        mProviderId = providerId;
         mAccessToken = accessToken;
         mRefreshToken = refreshToken;
         mExpiration = expiration;
@@ -81,6 +87,7 @@ public class Credential extends EmailContent implements Parcelable {
    public void restore(Cursor cursor) {
        mBaseUri = CONTENT_URI;
        mId = cursor.getLong(CredentialQuery.ID_COLUMN_INDEX);
+       mProviderId = cursor.getString(CredentialQuery.PROVIDER_COLUMN_INDEX);
        mAccessToken = cursor.getString(CredentialQuery.ACCESS_TOKEN_COLUMN_INDEX);
        mRefreshToken = cursor.getString(CredentialQuery.REFRESH_TOKEN_COLUMN_INDEX);
        mExpiration = cursor.getInt(CredentialQuery.EXPIRATION_COLUMN_INDEX);
@@ -114,6 +121,7 @@ public class Credential extends EmailContent implements Parcelable {
    public void writeToParcel(Parcel dest, int flags) {
        // mBaseUri is not parceled
        dest.writeLong(mId);
+       dest.writeString(mProviderId);
        dest.writeString(mAccessToken);
        dest.writeString(mRefreshToken);
        dest.writeLong(mExpiration);
@@ -125,6 +133,7 @@ public class Credential extends EmailContent implements Parcelable {
    public Credential(Parcel in) {
        mBaseUri = CONTENT_URI;
        mId = in.readLong();
+       mProviderId = in.readString();
        mAccessToken = in.readString();
        mRefreshToken = in.readString();
        mExpiration = in.readLong();
@@ -136,7 +145,8 @@ public class Credential extends EmailContent implements Parcelable {
            return false;
        }
        Credential that = (Credential)o;
-       return Utility.areStringsEqual(mAccessToken, that.mAccessToken)
+       return Utility.areStringsEqual(mProviderId, that.mProviderId)
+               && Utility.areStringsEqual(mAccessToken, that.mAccessToken)
                && Utility.areStringsEqual(mRefreshToken, that.mRefreshToken)
                && mExpiration == that.mExpiration;
    }
@@ -149,6 +159,7 @@ public class Credential extends EmailContent implements Parcelable {
    @Override
    public ContentValues toContentValues() {
        ContentValues values = new ContentValues();
+       values.put(PROVIDER_COLUMN, mProviderId);
        values.put(ACCESS_TOKEN_COLUMN, mAccessToken);
        values.put(REFRESH_TOKEN_COLUMN, mRefreshToken);
        values.put(EXPIRATION_COLUMN, mExpiration);

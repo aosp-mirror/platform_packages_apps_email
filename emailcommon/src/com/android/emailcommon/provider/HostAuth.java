@@ -32,7 +32,7 @@ import com.android.emailcommon.utility.Utility;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
+public class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
     public static final String TABLE_NAME = "HostAuth";
     public static Uri CONTENT_URI;
 
@@ -68,6 +68,8 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public byte[] mServerCert = null;
     public long mCredentialKey;
 
+    public transient Credential mCredential;
+
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PROTOCOL_COLUMN = 1;
     public static final int CONTENT_ADDRESS_COLUMN = 2;
@@ -80,55 +82,16 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final int CONTENT_CREDENTIAL_KEY_COLUMN = 9;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
-        RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
-        HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
-        HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS,
-        HostAuthColumns.CREDENTIAL_KEY
+            RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
+            HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
+            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS,
+            HostAuthColumns.CREDENTIAL_KEY
     };
 
     public HostAuth() {
         mBaseUri = CONTENT_URI;
-
-        // other defaults policy)
         mPort = PORT_UNKNOWN;
-    }
-
-    /**
-     * getOrCreateCredential
-     * Return the credential object for this HostAuth, creating it if it does not yet exist.
-     * This should not be called on the main thread.
-     * @param context
-     * @return the credential object for this HostAuth
-     */
-    public Credential getOrCreateCredential(Context context) {
-        // TODO: This causes problems because it's incompatible with Exchange.
-//        if (mCredential == null) {
-//            if (mCredentialKey >= 0) {
-//                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
-//            } else {
-//                mCredential = new Credential();
-//            }
-//        }
-//        return mCredential;
-        return null;
-    }
-
-    /**
-     * getCredentials
-     * Return the credential object for this HostAuth, or null if it does not exist.
-     * This should not be called on the main thread.
-     * @param context
-     * @return
-     */
-    public Credential getCredentials(Context context) {
-        // TODO: This causes problems because it's incompatible with Exchange.
-//        if (mCredential == null) {
-//            if (mCredentialKey >= 0) {
-//                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
-//            }
-//        }
-//        return mCredential;
-        return null;
+        mCredentialKey = -1;
     }
 
      /**
@@ -142,7 +105,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, id);
     }
 
-
     /**
      * Returns the scheme for the specified flags.
      */
@@ -151,8 +113,41 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     }
 
     /**
-     * Builds a URI scheme name given the parameters for a {@code HostAuth}.
-     * If a {@code clientAlias} is provided, this indicates that a secure connection must be used.
+     * Returns the credential object for this HostAuth. This will load from the
+     * database if the HosAuth has a valid credential key, or return null if not.
+     */
+    public Credential getCredential(Context context) {
+        if (mCredential == null) {
+            if (mCredentialKey >= 0) {
+                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+            }
+        }
+        return mCredential;
+    }
+
+    /**
+     * getOrCreateCredential Return the credential object for this HostAuth,
+     * creating it if it does not yet exist. This should not be called on the
+     * main thread.
+     *
+     * @param context
+     * @return the credential object for this HostAuth
+     */
+    public Credential getOrCreateCredential(Context context) {
+        if (mCredential == null) {
+            if (mCredentialKey >= 0) {
+                mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
+            } else {
+                mCredential = new Credential();
+            }
+        }
+        return mCredential;
+    }
+
+    /**
+     * Builds a URI scheme name given the parameters for a {@code HostAuth}. If
+     * a {@code clientAlias} is provided, this indicates that a secure
+     * connection must be used.
      */
     public static String getSchemeString(String protocol, int flags, String clientAlias) {
         String security = "";
@@ -236,6 +231,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         values.put(HostAuthColumns.CLIENT_CERT_ALIAS, mClientCertAlias);
         values.put(HostAuthColumns.CREDENTIAL_KEY, mCredentialKey);
         values.put(HostAuthColumns.ACCOUNT_KEY, 0); // Need something to satisfy the DB
+
         return values;
     }
 
@@ -371,13 +367,18 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         dest.writeString(mPassword);
         dest.writeString(mDomain);
         dest.writeString(mClientCertAlias);
-//        dest.writeLong(mCredentialKey);
-        // TODO: This causes problems because it's incompatible with Exchange.
-//        if (mCredential == null) {
-//            Credential.EMPTY.writeToParcel(dest, flags);
-//        } else {
-//            mCredential.writeToParcel(dest, flags);
-//        }
+        if ((mFlags & FLAG_OAUTH) != 0) {
+            // TODO: This is nasty, but to be compatible with backward Exchange, we can't make any
+            // change to the parcelable format. But we need Credential objects to be here.
+            // So... only parcel or unparcel Credentials if the OAUTH flag is set. This will never
+            // be set on HostAuth going to or coming from Exchange.
+            dest.writeLong(mCredentialKey);
+            if (mCredential == null) {
+                Credential.EMPTY.writeToParcel(dest, flags);
+            } else {
+                mCredential.writeToParcel(dest, flags);
+            }
+        }
     }
 
     /**
@@ -394,11 +395,17 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mPassword = in.readString();
         mDomain = in.readString();
         mClientCertAlias = in.readString();
-//        mCredentialKey = in.readLong();
-//        mCredential = new Credential(in);
-//        if (mCredential.equals(Credential.EMPTY)) {
-//            mCredential = null;
-//        }
+        if ((mFlags & FLAG_OAUTH) != 0) {
+            // TODO: This is nasty, but to be compatible with backward Exchange, we can't make any
+            // change to the parcelable format. But we need Credential objects to be here.
+            // So... only parcel or unparcel Credentials if the OAUTH flag is set. This will never
+            // be set on HostAuth going to or coming from Exchange.
+            mCredentialKey = in.readLong();
+            mCredential = new Credential(in);
+            if (mCredential.equals(Credential.EMPTY)) {
+                mCredential = null;
+            }
+        }
     }
 
     @Override
@@ -415,8 +422,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mLogin, that.mLogin)
                 && Utility.areStringsEqual(mPassword, that.mPassword)
                 && Utility.areStringsEqual(mDomain, that.mDomain)
-                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias)
-                && mCredentialKey == that.mCredentialKey;
+                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
                 // We don't care about the server certificate for equals
     }
 

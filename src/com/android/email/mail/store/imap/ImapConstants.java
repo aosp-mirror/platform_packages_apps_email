@@ -32,6 +32,7 @@ public final class ImapConstants {
 
     public static final String ALERT = "ALERT";
     public static final String APPEND = "APPEND";
+    public static final String AUTHENTICATE = "AUTHENTICATE";
     public static final String BAD = "BAD";
     public static final String BADCHARSET = "BADCHARSET";
     public static final String BODY = "BODY";
@@ -92,6 +93,7 @@ public final class ImapConstants {
     public static final String UIDVALIDITY = "UIDVALIDITY";
     public static final String UNSEEN = "UNSEEN";
     public static final String UNSUBSCRIBE = "UNSUBSCRIBE";
+    public static final String XOAUTH2 = "XOAUTH2";
     public static final String APPENDUID = "APPENDUID";
     public static final String NIL = "NIL";
 }

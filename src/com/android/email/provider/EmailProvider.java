@@ -1182,6 +1182,7 @@ public class EmailProvider extends ContentProvider {
                     case MAILBOX_ID:
                     case ACCOUNT_ID:
                     case HOSTAUTH_ID:
+                    case CREDENTIAL_ID:
                     case POLICY_ID:
                         return new MatrixCursorWithCachedColumns(projection, 0);
                 }
@@ -1262,6 +1263,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case CREDENTIAL:
                 case POLICY:
                     c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
@@ -1277,6 +1279,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
+                case CREDENTIAL_ID:
                 case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     c = db.query(tableName, projection, whereWithId(id, selection),
@@ -1763,6 +1766,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
+                case CREDENTIAL_ID:
                 case QUICK_RESPONSE_ID:
                 case POLICY_ID:
                     id = uri.getPathSegments().get(1);

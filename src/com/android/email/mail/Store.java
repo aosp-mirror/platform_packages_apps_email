@@ -202,4 +202,8 @@ public abstract class Store {
     public void closeConnections() {
         // Base implementation does nothing.
     }
+
+    public Account getAccount() {
+        return mAccount;
+    }
 }

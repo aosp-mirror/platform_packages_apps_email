@@ -1,27 +1,29 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.android.email.R;
+import com.android.email.mail.internet.OAuthAuthenticator;
+import com.android.email.mail.internet.OAuthAuthenticator.AuthenticationResult;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
+import com.android.emailcommon.mail.AuthenticationFailedException;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.IOException;
 
 
 /**
@@ -29,14 +31,20 @@ import java.net.URL;
  * should obtain an authorization code, which can be used to obtain access and
  * refresh tokens.
  */
-public class OAuthAuthenticationActivity extends Activity {
+public class OAuthAuthenticationActivity extends Activity implements
+        LoaderCallbacks<AuthenticationResult> {
     private final static String TAG = Logging.LOG_TAG;
 
     public static final String EXTRA_EMAIL_ADDRESS = "email_address";
     public static final String EXTRA_PROVIDER = "provider";
+    public static final String EXTRA_PROVIDER_ID = "provider_id";
+    public static final String EXTRA_AUTHENTICATION_CODE = "authentication_code";
 
-    WebView mWv;
-    OAuthProvider mProvider;
+    public static final int LOADER_ID_OAUTH_TOKEN = 1;
+
+    private WebView mWv;
+    private OAuthProvider mProvider;
+    private String mAuthenticationCode;
 
     private class MyWebViewClient extends WebViewClient {
 
@@ -45,7 +53,6 @@ public class OAuthAuthenticationActivity extends Activity {
             // TODO: This method works for Google's redirect url to https://localhost.
             // Does it work for the general case? I don't know what redirect url other
             // providers use, or how the authentication code is returned.
-            LogUtils.d(TAG, "shouldOverrideUrlLoading %s", url);
             final String deparameterizedUrl;
             int i = url.lastIndexOf('?');
             if (i == -1) {
@@ -59,19 +66,19 @@ public class OAuthAuthenticationActivity extends Activity {
                 // Check the params of this uri, they contain success/failure info,
                 // along with the authentication token.
                 final String error = uri.getQueryParameter("error");
+
                 if (error != null) {
-                    // TODO display failure screen
-                    LogUtils.d(TAG, "error code %s", error);
-                    Toast.makeText(OAuthAuthenticationActivity.this,
-                            "Couldn't authenticate", Toast.LENGTH_LONG).show();
+                    final Intent intent = new Intent();
+                    setResult(AccountSetupBasics.RESULT_OAUTH_USER_CANCELED, intent);
+                    finish();
                 } else {
-                    // TODO  use this token to request the access and refresh tokens
-                    final String code = uri.getQueryParameter("code");
-                    LogUtils.d(TAG, "authorization code %s", code);
-                    Toast.makeText(OAuthAuthenticationActivity.this,
-                            "OAuth not implemented", Toast.LENGTH_LONG).show();
+                    mAuthenticationCode = uri.getQueryParameter("code");
+                    Bundle params = new Bundle();
+                    params.putString(EXTRA_PROVIDER_ID, mProvider.id);
+                    params.putString(EXTRA_AUTHENTICATION_CODE, mAuthenticationCode);
+                    getLoaderManager().initLoader(LOADER_ID_OAUTH_TOKEN, params,
+                            OAuthAuthenticationActivity.this);
                 }
-                finish();
                 return true;
             } else {
                 return false;
@@ -96,7 +103,93 @@ public class OAuthAuthenticationActivity extends Activity {
         final String providerName = i.getStringExtra(EXTRA_PROVIDER);
         mProvider = AccountSettingsUtils.findOAuthProvider(this, providerName);
         final Uri uri = AccountSettingsUtils.createOAuthRegistrationRequest(this, mProvider, email);
-        LogUtils.d(Logging.LOG_TAG, "launching '%s'", uri);
         mWv.loadUrl(uri.toString());
+
+        if (bundle != null) {
+            mAuthenticationCode = bundle.getString(EXTRA_AUTHENTICATION_CODE);
+        } else {
+            mAuthenticationCode = null;
+        }
+        if (mAuthenticationCode != null) {
+            Bundle params = new Bundle();
+            params.putString(EXTRA_PROVIDER_ID, mProvider.id);
+            params.putString(EXTRA_AUTHENTICATION_CODE, mAuthenticationCode);
+            getLoaderManager().initLoader(LOADER_ID_OAUTH_TOKEN, params,
+                    OAuthAuthenticationActivity.this);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EXTRA_AUTHENTICATION_CODE, mAuthenticationCode);
+    }
+
+    private static class OAuthTokenLoader extends MailAsyncTaskLoader<AuthenticationResult> {
+        private final String mProviderId;
+        private final String mCode;
+
+        public OAuthTokenLoader(Context context, String providerId, String code) {
+            super(context);
+            mProviderId = providerId;
+            mCode = code;
+        }
+
+        @Override
+        protected void onDiscardResult(AuthenticationResult result) {
+
+        }
+
+        @Override
+        public AuthenticationResult loadInBackground() {
+            try {
+                final OAuthAuthenticator authenticator = new OAuthAuthenticator();
+                final AuthenticationResult result = authenticator.requestAccess(
+                        getContext(), mProviderId, mCode);
+                LogUtils.d(Logging.LOG_TAG, "authentication result %s", result);
+                return result;
+                // TODO: do I need a better UI for displaying exceptions?
+            } catch (AuthenticationFailedException e) {
+            } catch (MessagingException e) {
+            } catch (IOException e) {
+            }
+            return null;
+        }
+    }
+
+    @Override
+    public Loader<AuthenticationResult> onCreateLoader(int id, Bundle data) {
+        if (id == LOADER_ID_OAUTH_TOKEN) {
+            final String providerId = data.getString(EXTRA_PROVIDER_ID);
+            final String code = data.getString(EXTRA_AUTHENTICATION_CODE);
+            return new OAuthTokenLoader(this, providerId, code);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<AuthenticationResult> loader,
+        AuthenticationResult data) {
+        if (data == null) {
+            // STOPSHIP: need a better way to display errors. We might get IO or
+            // MessagingExceptions.
+            Toast.makeText(this, "Error getting tokens", Toast.LENGTH_SHORT).show();
+
+        } else {
+            final Intent intent = new Intent();
+            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_ACCESS_TOKEN,
+                    data.mAccessToken);
+            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_REFRESH_TOKEN,
+                    data.mRefreshToken);
+            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_EXPIRES_IN,
+                    data.mExpiresInSeconds);
+            setResult(AccountSetupBasics.RESULT_OAUTH_SUCCESS, intent);
+        }
+        finish();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<AuthenticationResult> loader) {
+
     }
 }
