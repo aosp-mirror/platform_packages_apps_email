@@ -1347,7 +1347,7 @@ public final class DBHelper {
                 // Add the credentialKey column, and set it to -1 for all pre-existing hostAuths.
                 db.execSQL("alter table " + HostAuth.TABLE_NAME
                         + " add " + HostAuthColumns.CREDENTIAL_KEY + " integer");
-                db.execSQL("update table " + HostAuth.TABLE_NAME + " set "
+                db.execSQL("update " + HostAuth.TABLE_NAME + " set "
                         + HostAuthColumns.CREDENTIAL_KEY + "=-1");
             }
         }
