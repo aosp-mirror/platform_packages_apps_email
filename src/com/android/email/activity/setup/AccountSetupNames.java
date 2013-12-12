@@ -17,33 +17,24 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
+import android.content.Loader;
 import android.os.Bundle;
-import android.provider.ContactsContract.Profile;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.method.TextKeyListener;
-import android.text.method.TextKeyListener.Capitalize;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
-import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
+import com.android.mail.ui.MailAsyncTaskLoader;
 
 /**
  * Final screen of setup process.  Collect account nickname and/or username.
@@ -51,13 +42,13 @@ import com.android.emailcommon.utility.Utility;
 public class AccountSetupNames extends AccountSetupActivity {
     private static final int REQUEST_SECURITY = 0;
 
-    private static final Uri PROFILE_URI = Profile.CONTENT_URI;
-
-    private EditText mDescription;
-    private EditText mName;
     private Button mNextButton;
-    private boolean mRequiresName = true;
+    private static final String SAVESTATE_ISCOMPLETING_TAG = "isCompleting";
     private boolean mIsCompleting = false;
+    private static final int FINAL_ACCOUNT_TASK_LOADER_ID = 0;
+    private static final String ACCOUNT_TAG = "account";
+    private Bundle mFinalAccountTaskLoaderArgs;
+    private LoaderManager.LoaderCallbacks mFinalAccountTaskLoaderCallbacks;
 
     public static void actionSetNames(Activity fromActivity, SetupDataFragment setupData) {
         ForwardingIntent intent = new ForwardingIntent(fromActivity, AccountSetupNames.class);
@@ -68,11 +59,13 @@ public class AccountSetupNames extends AccountSetupActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mIsCompleting = savedInstanceState.getBoolean(SAVESTATE_ISCOMPLETING_TAG);
+        }
+
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_names);
-        mDescription = UiUtilities.getView(this, R.id.account_description);
-        mName = UiUtilities.getView(this, R.id.account_name);
-        final View accountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
+
         mNextButton = UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -81,101 +74,20 @@ public class AccountSetupNames extends AccountSetupActivity {
             }
         });
 
-        final TextWatcher validationTextWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                validateFields();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        };
-        mName.addTextChangedListener(validationTextWatcher);
-        mName.setKeyListener(TextKeyListener.getInstance(false, Capitalize.WORDS));
-
-        final Account account = mSetupData.getAccount();
-        if (account == null) {
-            throw new IllegalStateException("unexpected null account");
-        }
-        if (account.mHostAuthRecv == null) {
-            throw new IllegalStateException("unexpected null hostauth");
-        }
-
-        final int flowMode = mSetupData.getFlowMode();
-
-        if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
-                && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
-            final String accountEmail = account.mEmailAddress;
-            mDescription.setText(accountEmail);
-
-            // Move cursor to the end so it's easier to erase in case the user doesn't like it.
-            mDescription.setSelection(accountEmail.length());
-        }
-
-        // Remember whether we're an EAS account, since it doesn't require the user name field
-        final EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(this, account.mHostAuthRecv.mProtocol);
-        if (!info.usesSmtp) {
-            mRequiresName = false;
-            mName.setVisibility(View.GONE);
-            accountNameLabel.setVisibility(View.GONE);
-        } else {
-            if (account.getSenderName() != null) {
-                mName.setText(account.getSenderName());
-            } else if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
-                    && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
-                // Attempt to prefill the name field from the profile if we don't have it,
-                prefillNameFromProfile();
-            }
-        }
-
-        // Make sure the "done" button is in the proper state
-        validateFields();
-
         // Proceed immediately if in account creation mode
-        if (flowMode == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
+        if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
             onNext();
         }
-    }
 
-    private void prefillNameFromProfile() {
-        new EmailAsyncTask<Void, Void, String>(null) {
-            @Override
-            protected String doInBackground(Void... params) {
-                final String[] projection = new String[] { Profile.DISPLAY_NAME };
-                return Utility.getFirstRowString(
-                        AccountSetupNames.this, PROFILE_URI, projection, null, null, null, 0);
-            }
-
-            @Override
-            public void onSuccess(String result) {
-                // Views can only be modified on the main thread.
-                mName.setText(result);
-            }
-        }.executeParallel((Void[]) null);
-    }
-
-    /**
-     * Check input fields for legal values and enable/disable next button
-     */
-    private void validateFields() {
-        boolean enableNextButton = true;
-        // Validation is based only on the "user name" field, not shown for EAS accounts
-        if (mRequiresName) {
-            final String userName = mName.getText().toString().trim();
-            if (TextUtils.isEmpty(userName)) {
-                enableNextButton = false;
-                mName.setError(getString(R.string.account_setup_names_user_name_empty_error));
-            } else {
-                mName.setError(null);
-            }
+        if (mIsCompleting) {
+            startFinalSetupTaskLoader(getSetupData().getAccount());
         }
-        mNextButton.setEnabled(enableNextButton);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVESTATE_ISCOMPLETING_TAG, mIsCompleting);
     }
 
     /**
@@ -202,6 +114,10 @@ public class AccountSetupNames extends AccountSetupActivity {
         finish();
     }
 
+    public void setNextButtonEnabled(boolean enabled) {
+        mNextButton.setEnabled(enabled);
+    }
+
     /**
      * After clicking the next button, we'll start an async task to commit the data
      * and other steps to finish the creation of the account.
@@ -210,18 +126,51 @@ public class AccountSetupNames extends AccountSetupActivity {
         mNextButton.setEnabled(false); // Protect against double-tap.
         mIsCompleting = true;
 
+        AccountSetupNamesFragment fragment = (AccountSetupNamesFragment)
+                getFragmentManager().findFragmentById(R.id.names_fragment);
         // Update account object from UI
         final Account account = mSetupData.getAccount();
-        final String description = mDescription.getText().toString().trim();
+        final String description = fragment.getDescription();
         if (!TextUtils.isEmpty(description)) {
             account.setDisplayName(description);
         }
-        account.setSenderName(mName.getText().toString().trim());
+        account.setSenderName(fragment.getSenderName());
 
-        // Launch async task for final commit work
-        // Sicne it's a write task, use the serial executor so even if we ran the task twice
-        // with different values the result would be consistent.
-        new FinalSetupTask(account).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        startFinalSetupTaskLoader(account);
+    }
+
+    private void startFinalSetupTaskLoader(Account account) {
+        if (mFinalAccountTaskLoaderArgs == null) {
+            mFinalAccountTaskLoaderArgs = new Bundle(1);
+            mFinalAccountTaskLoaderArgs.putParcelable(ACCOUNT_TAG, account);
+
+            final Context appContext = getApplicationContext();
+            mFinalAccountTaskLoaderCallbacks = new LoaderManager.LoaderCallbacks<Boolean>() {
+                @Override
+                public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+                    final Account accountArg = args.getParcelable(ACCOUNT_TAG);
+                    return new FinalSetupTaskLoader(appContext, accountArg);
+                }
+
+                @Override
+                public void onLoadFinished(Loader<Boolean> loader, Boolean isSecurityHold) {
+                    if (isSecurityHold) {
+                        final FinalSetupTaskLoader finalSetupTaskLoader =
+                                (FinalSetupTaskLoader)loader;
+                        final Intent i = AccountSecurity.actionUpdateSecurityIntent(
+                                appContext, finalSetupTaskLoader.getAccount().mId, false);
+                        startActivityForResult(i, REQUEST_SECURITY);
+                    } else {
+                        finishActivity();
+                    }
+                }
+
+                @Override
+                public void onLoaderReset(Loader<Boolean> loader) {}
+            };
+        }
+        getLoaderManager().initLoader(FINAL_ACCOUNT_TASK_LOADER_ID, mFinalAccountTaskLoaderArgs,
+                mFinalAccountTaskLoaderCallbacks);
     }
 
     /**
@@ -239,42 +188,35 @@ public class AccountSetupNames extends AccountSetupActivity {
      * to fail.
      * TODO: If the user doesn't update the security, don't go to the MessageList.
      */
-    private class FinalSetupTask extends AsyncTask<Void, Void, Boolean> {
+    private static class FinalSetupTaskLoader extends MailAsyncTaskLoader<Boolean> {
 
         private final Account mAccount;
-        private final Context mContext;
 
-        public FinalSetupTask(Account account) {
+        public FinalSetupTaskLoader(Context context, Account account) {
+            super(context);
             mAccount = account;
-            mContext = AccountSetupNames.this;
+        }
+
+        Account getAccount() {
+            return mAccount;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        public Boolean loadInBackground() {
             // Update the account in the database
             final ContentValues cv = new ContentValues();
             cv.put(AccountColumns.DISPLAY_NAME, mAccount.getDisplayName());
             cv.put(AccountColumns.SENDER_NAME, mAccount.getSenderName());
-            mAccount.update(mContext, cv);
+            mAccount.update(getContext(), cv);
 
             // Update the backup (side copy) of the accounts
-            AccountBackupRestore.backup(AccountSetupNames.this);
+            AccountBackupRestore.backup(getContext());
 
-            return Account.isSecurityHold(mContext, mAccount.mId);
+            return Account.isSecurityHold(getContext(), mAccount.mId);
         }
 
         @Override
-        protected void onPostExecute(Boolean isSecurityHold) {
-            if (!isCancelled()) {
-                if (isSecurityHold) {
-                    final Intent i = AccountSecurity.actionUpdateSecurityIntent(
-                            AccountSetupNames.this, mAccount.mId, false);
-                    startActivityForResult(i, REQUEST_SECURITY);
-                } else {
-                    finishActivity();
-                }
-            }
-        }
+        protected void onDiscardResult(Boolean result) {}
     }
 
     /**
