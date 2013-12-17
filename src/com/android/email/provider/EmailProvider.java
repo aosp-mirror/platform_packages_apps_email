@@ -584,18 +584,17 @@ public class EmailProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         Log.d(TAG, "Delete: " + uri);
         final int match = findMatch(uri, "delete");
-        Context context = getContext();
+        final Context context = getContext();
         // Pick the correct database for this operation
         // If we're in a transaction already (which would happen during applyBatch), then the
         // body database is already attached to the email database and any attempt to use the
         // body database directly will result in a SQLiteException (the database is locked)
-        SQLiteDatabase db = getDatabase(context);
-        int table = match >> BASE_SHIFT;
+        final SQLiteDatabase db = getDatabase(context);
+        final int table = match >> BASE_SHIFT;
         String id = "0";
         boolean messageDeletion = false;
-        ContentResolver resolver = context.getContentResolver();
 
-        String tableName = TABLE_NAMES.valueAt(table);
+        final String tableName = TABLE_NAMES.valueAt(table);
         int result = -1;
 
         try {
@@ -805,13 +804,12 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         Log.d(TAG, "Insert: " + uri);
-        int match = findMatch(uri, "insert");
-        Context context = getContext();
-        ContentResolver resolver = context.getContentResolver();
+        final int match = findMatch(uri, "insert");
+        final Context context = getContext();
 
         // See the comment at delete(), above
-        SQLiteDatabase db = getDatabase(context);
-        int table = match >> BASE_SHIFT;
+        final SQLiteDatabase db = getDatabase(context);
+        final int table = match >> BASE_SHIFT;
         String id = "0";
         long longId;
 
@@ -1692,12 +1690,11 @@ public class EmailProvider extends ContentProvider {
         // Notify all existing cursors, except for ACCOUNT_RESET_NEW_COUNT(_ID)
         Uri notificationUri = EmailContent.CONTENT_URI;
 
-        int match = findMatch(uri, "update");
-        Context context = getContext();
-        ContentResolver resolver = context.getContentResolver();
+        final int match = findMatch(uri, "update");
+        final Context context = getContext();
         // See the comment at delete(), above
-        SQLiteDatabase db = getDatabase(context);
-        int table = match >> BASE_SHIFT;
+        final SQLiteDatabase db = getDatabase(context);
+        final int table = match >> BASE_SHIFT;
         int result;
 
         // We do NOT allow setting of unreadCount/messageCount via the provider
@@ -1707,7 +1704,7 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.MESSAGE_COUNT);
         }
 
-        String tableName = TABLE_NAMES.valueAt(table);
+        final String tableName = TABLE_NAMES.valueAt(table);
         String id = "0";
 
         try {
@@ -2093,8 +2090,6 @@ public class EmailProvider extends ContentProvider {
     private void sendNotifierChange(Uri baseUri, String op, String id) {
         if (baseUri == null) return;
 
-        final ContentResolver resolver = getContext().getContentResolver();
-
         // Append the operation, if specified
         if (op != null) {
             baseUri = baseUri.buildUpon().appendEncodedPath(op).build();
@@ -2462,8 +2457,6 @@ public class EmailProvider extends ContentProvider {
      */
     private static ProjectionMap getAccountListMap(Context context) {
         if (sAccountListMap == null) {
-            final MailPrefs mailPrefs = MailPrefs.get(context);
-
             final ProjectionMap.Builder builder = ProjectionMap.builder()
                     .add(BaseColumns._ID, AccountColumns.ID)
                     .add(UIProvider.AccountColumns.FOLDER_LIST_URI, uriWithId("uifolders"))
@@ -4227,7 +4220,6 @@ public class EmailProvider extends ContentProvider {
      */
     private String[] folderProjectionFromUiProjection(final String[] uiProjection) {
         final Set<String> columns = ImmutableSet.copyOf(uiProjection);
-        final String[] folderProjection;
         if (columns.contains(UIProvider.FolderColumns.UNREAD_SENDERS)) {
             return UIProvider.FOLDERS_PROJECTION_WITH_UNREAD_SENDERS;
         } else {
@@ -4475,8 +4467,7 @@ public class EmailProvider extends ContentProvider {
         msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
         msg.mFlagRead = true;
         msg.mFlagSeen = true;
-        final Integer quoteStartPos = extras.getInt(UIProvider.MessageColumns.QUOTE_START_POS);
-        msg.mQuotedTextStartPos = quoteStartPos == null ? 0 : quoteStartPos;
+        msg.mQuotedTextStartPos = extras.getInt(UIProvider.MessageColumns.QUOTE_START_POS, 0);
         int flags = 0;
         final int draftType = extras.getInt(UIProvider.MessageColumns.DRAFT_TYPE);
         switch(draftType) {
@@ -4635,7 +4626,6 @@ public class EmailProvider extends ContentProvider {
     }
 
     private Uri uiSendDraftMessage(final long accountId, final Bundle extras) {
-        final Context context = getContext();
         final Message msg;
         if (extras.containsKey(BaseColumns._ID)) {
             final long messageId = extras.getLong(BaseColumns._ID);
