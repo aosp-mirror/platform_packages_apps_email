@@ -19,6 +19,7 @@ package com.android.email.mail.store;
 import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.DBTestHelper;
 import com.android.email.mail.transport.MockTransport;
@@ -41,6 +42,7 @@ import com.android.emailcommon.provider.HostAuth;
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
  * complete - no server(s) required.
  */
+@Suppress
 @SmallTest
 public class Pop3StoreUnitTests extends AndroidTestCase {
     final String UNIQUE_ID_1 = "20080909002219r1800rrjo9e00";

@@ -16,9 +16,12 @@
 
 package com.android.emailcommon.internet;
 
+import android.content.Context;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
+
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -30,9 +33,6 @@ import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.Entity;
 import org.apache.james.mime4j.message.Header;
 import org.apache.james.mime4j.message.Multipart;
-
-import android.content.Context;
-import android.test.ProviderTestCase2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,6 +47,7 @@ import java.util.List;
  * You can run this entire test case with:
  *   runtest -c com.android.email.mail.transport.Rfc822OutputTests email
  */
+@Suppress
 public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private static final String SENDER = "sender@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";

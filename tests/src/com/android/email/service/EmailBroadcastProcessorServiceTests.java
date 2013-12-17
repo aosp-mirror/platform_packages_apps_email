@@ -16,16 +16,17 @@
 
 package com.android.email.service;
 
+import android.content.ContentUris;
+import android.content.Context;
+import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
+
 import com.android.email.AccountTestCase;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
-
-import android.content.ContentUris;
-import android.content.Context;
-import android.net.Uri;
 
 import java.util.NoSuchElementException;
 
@@ -35,6 +36,7 @@ import java.util.NoSuchElementException;
  * You can run this entire test case with:
  *   runtest -c com.android.email.service.EmailBroadcastProcessorServiceTests email
  */
+@Suppress
 public class EmailBroadcastProcessorServiceTests extends AccountTestCase {
 
     Context mMockContext;

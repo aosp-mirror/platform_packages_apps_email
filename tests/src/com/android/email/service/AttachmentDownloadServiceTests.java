@@ -17,6 +17,7 @@
 package com.android.email.service;
 
 import android.content.Context;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.AccountTestCase;
 import com.android.email.EmailConnectivityManager;
@@ -38,6 +39,7 @@ import java.util.Iterator;
  * You can run this entire test case with:
  *   runtest -c com.android.email.service.AttachmentDownloadServiceTests email
  */
+@Suppress
 public class AttachmentDownloadServiceTests extends AccountTestCase {
     private AttachmentDownloadService mService;
     private Context mMockContext;

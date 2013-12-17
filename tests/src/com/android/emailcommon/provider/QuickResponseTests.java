@@ -17,9 +17,9 @@
 package com.android.emailcommon.provider;
 
 import android.content.Context;
-import android.os.Parcel;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
@@ -27,6 +27,7 @@ import com.android.email.provider.EmailProvider;
 /**
  * Unit tests for the QuickResponse class
  */
+@Suppress
 @SmallTest
 public class QuickResponseTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;

@@ -16,15 +16,16 @@
 
 package com.android.email.provider;
 
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
+
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.HostAuth;
 
 /**
  * This is a series of unit tests for backup/restore of the Account class.
@@ -32,6 +33,7 @@ import android.test.suitebuilder.annotation.MediumTest;
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.AccountBackupRestoreTests email
  */
+@Suppress
 @MediumTest
 public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> {
 

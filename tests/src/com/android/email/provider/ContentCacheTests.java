@@ -24,6 +24,7 @@ import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.provider.ContentCache.CachedCursor;
@@ -39,6 +40,7 @@ import com.android.mail.utils.MatrixCursorWithCachedColumns;
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.ContentCacheTests email
  */
+@Suppress
 public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
 
     EmailProvider mProvider;

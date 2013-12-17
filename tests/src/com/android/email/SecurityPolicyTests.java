@@ -22,6 +22,7 @@ import android.content.ContextWrapper;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
@@ -40,9 +41,10 @@ import com.android.emailcommon.service.LegacyPolicySet;
  *   runtest -c com.android.email.SecurityPolicyTests email
  */
 
+// TODO: after b/12085240 gets fixed, we need to see if this test can be enabled
+@Suppress
 @MediumTest
 public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
-
     private Context mMockContext;
     private SecurityPolicy mSecurityPolicy;
 

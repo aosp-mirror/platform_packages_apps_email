@@ -18,12 +18,14 @@ package com.android.email;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 /**
  * Test for {@link NotificationController}.
  *
  * TODO Add tests for all methods.
  */
+@Suppress
 public class NotificationControllerTest extends AndroidTestCase {
     private Context mProviderContext;
     private NotificationController mTarget;
