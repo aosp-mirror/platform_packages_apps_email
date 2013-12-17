@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.SecurityPolicy;
 import com.android.emailcommon.provider.Account;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.PolicyTests email
  */
-
+@Suppress
 @MediumTest
 public class PolicyTests extends ProviderTestCase2<EmailProvider> {
 

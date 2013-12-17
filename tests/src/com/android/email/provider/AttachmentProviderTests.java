@@ -16,16 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.AttachmentInfo;
-import com.android.email.R;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.AttachmentUtilities;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -35,6 +25,17 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentResolver;
+import android.test.suitebuilder.annotation.Suppress;
+
+import com.android.email.AttachmentInfo;
+import com.android.email.R;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +48,7 @@ import java.io.IOException;
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.AttachmentProviderTests email
  */
+@Suppress
 public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvider> {
 
     EmailProvider mEmailProvider;

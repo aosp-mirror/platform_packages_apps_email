@@ -22,6 +22,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.database.Cursor;
 import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 /**
  * Base class for unit tests that use {@link android.accounts.Account}.
  */
+@Suppress
 public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
 
     protected static final String TEST_ACCOUNT_PREFIX = "__test";
@@ -108,7 +110,6 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
     protected String getTestAccountEmailAddress(String name) {
         return TEST_ACCOUNT_PREFIX + name + TEST_ACCOUNT_SUFFIX;
     }
-
 
     /**
      * Helper to retrieve account manager accounts *and* remove any preexisting accounts

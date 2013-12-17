@@ -19,6 +19,7 @@ package com.android.email.mail.transport;
 import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.DBTestHelper;
 import com.android.email.provider.EmailProvider;
@@ -41,6 +42,7 @@ import java.net.UnknownHostException;
  * These tests can be run with the following command:
  *   runtest -c com.android.email.mail.transport.SmtpSenderUnitTests email
  */
+@Suppress
 @SmallTest
 public class SmtpSenderUnitTests extends AndroidTestCase {
 

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -58,6 +59,7 @@ import java.util.Date;
  * You can run this entire test case with:
  *   runtest -c com.android.email.LegacyConversionsTests email
  */
+@Suppress
 public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
 
     private static final String UID = "UID.12345678";

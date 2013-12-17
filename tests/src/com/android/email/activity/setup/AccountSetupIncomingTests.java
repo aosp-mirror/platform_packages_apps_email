@@ -18,10 +18,10 @@ package com.android.email.activity.setup;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
 
 import com.android.email.R;
@@ -38,6 +38,7 @@ import java.net.URISyntaxException;
  * You can run this entire test case with:
  *   runtest -c com.android.email.activity.setup.AccountSetupIncomingTests email
  */
+@Suppress
 @MediumTest
 public class AccountSetupIncomingTests extends
         ActivityInstrumentationTestCase2<AccountSetupIncoming> {
@@ -203,5 +204,4 @@ public class AccountSetupIncomingTests extends
 
         return intent;
     }
-
 }
