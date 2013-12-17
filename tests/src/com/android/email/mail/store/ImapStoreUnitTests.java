@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.DBTestHelper;
 import com.android.email.MockSharedPreferences;
@@ -73,6 +74,7 @@ import java.util.regex.Pattern;
  * TODO test for BAD response in various places?
  * TODO test for BYE response in various places?
  */
+@Suppress
 @SmallTest
 public class ImapStoreUnitTests extends InstrumentationTestCase {
     private final static String[] NO_REPLY = new String[0];

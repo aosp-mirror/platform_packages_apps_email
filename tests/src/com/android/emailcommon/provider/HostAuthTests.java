@@ -146,8 +146,12 @@ public class HostAuthTests extends AndroidTestCase {
         assertEquals(0, ha.mFlags);
 
         // Test every other bit; should not affect mFlags
+        // mFlag is evalutated to the following:
+        // mFlag = (0 & (some operation)) | (0xfffffff4 & 0x1b)
+        // mFlag = 0 | 0x10
+        // mFlag = 0x10
         ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN, 0xfffffff4);
-        assertEquals(0, ha.mFlags);
+        assertEquals(0x10, ha.mFlags);
     }
 
     public void testSetConnectionWithCerts() {

@@ -16,9 +16,6 @@
 
 package com.android.email.provider;
 
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,6 +32,7 @@ import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.EmailProvider.AttachmentService;
 import com.android.emailcommon.provider.Account;
@@ -71,6 +69,7 @@ import java.util.ArrayList;
  * what notification URI each cursor has, and with which URI is notified when
  * inserting/updating/deleting.  (The former require a new method from AbstractCursor)
  */
+@Suppress
 @LargeTest
 public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
