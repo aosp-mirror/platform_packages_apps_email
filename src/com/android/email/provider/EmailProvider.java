@@ -3222,6 +3222,10 @@ public class EmailProvider extends ContentProvider {
                             ? UIProvider.DefaultReplyBehavior.REPLY_ALL
                             : UIProvider.DefaultReplyBehavior.REPLY);
         }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SHOW_IMAGES)) {
+            values.put(UIProvider.AccountColumns.SettingsColumns.SHOW_IMAGES,
+                    Settings.ShowImages.ASK_FIRST);
+        }
 
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns.ID + "=?");
