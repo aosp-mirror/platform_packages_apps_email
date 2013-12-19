@@ -85,7 +85,7 @@
                 android:text="@string/account_setup_basics_manual_setup_action" />
             <Button
                 android:id="@+id/oauth_setup"
-                android:layout_alignParentTop="true"
+                android:layout_below="@+id/manual_setup"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="@dimen/setup_buttons_padding_left"
                 style="@style/accountSetupButton"
