@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.text.TextUtils;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -337,6 +338,13 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    public boolean isValidFragment(String fragmentName) {
+        // We need to make sure that a fragment about to be attached is valid. This corrects
+        // a security vulnerability.
+        return (TextUtils.equals(AccountSettingsFragment.class.getName(), fragmentName) ||
+                super.isValidFragment(fragmentName));
     }
 
     @Override
