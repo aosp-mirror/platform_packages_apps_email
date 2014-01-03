@@ -175,8 +175,7 @@ public abstract class EmailContent {
 
     private static void warnIfUiThread() {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            LogUtils.w(Logging.LOG_TAG, "Method called on the UI thread",
-                    new Throwable());
+            LogUtils.w(Logging.LOG_TAG, new Throwable(), "Method called on the UI thread");
         }
     }
 
