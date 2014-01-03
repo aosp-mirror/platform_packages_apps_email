@@ -351,6 +351,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         long inboxId = -1;
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         Cursor localFolderCursor = null;
+        Store store = null;
         try {
             // Step 0: Make sure the default system mailboxes exist.
             for (final int type : Mailbox.REQUIRED_FOLDER_TYPES) {
@@ -364,7 +365,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             }
 
             // Step 1: Get remote mailboxes
-            final Store store = Store.getInstance(account, mContext);
+            store = Store.getInstance(account, mContext);
             final Folder[] remoteFolders = store.updateFolders();
             final HashSet<String> remoteFolderNames = new HashSet<String>();
             for (final Folder remoteFolder : remoteFolders) {
@@ -420,6 +421,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // If we just created the inbox, sync it
             if (inboxId != -1) {
                 startSync(inboxId, true, 0);
+            }
+            if (store != null) {
+                store.closeConnections();
             }
         }
     }
