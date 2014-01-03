@@ -626,4 +626,11 @@ public class ImapStore extends Store {
             mAlertText = alertText;
         }
     }
+
+    public void closeConnections() {
+        ImapConnection connection = null;
+        while ((connection = mConnectionPool.poll()) != null) {
+            connection.close();
+        }
+    }
 }

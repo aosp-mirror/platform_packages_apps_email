@@ -198,4 +198,8 @@ public abstract class Store {
         mailbox.mType = type;
         //box.mUnreadCount;
     }
+
+    public void closeConnections() {
+        // Base implementation does nothing.
+    }
 }

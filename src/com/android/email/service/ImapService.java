@@ -181,9 +181,11 @@ public class ImapService extends Service {
             final boolean uiRefresh) throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         NotificationController nc = NotificationController.getInstance(context);
+        Store remoteStore = null;
         try {
-            processPendingActionsSynchronous(context, account);
-            synchronizeMailboxGeneric(context, account, folder, loadMore, uiRefresh);
+            remoteStore = Store.getInstance(account, context);
+            processPendingActionsSynchronous(context, account, remoteStore);
+            synchronizeMailboxGeneric(context, account, remoteStore, folder, loadMore, uiRefresh);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
@@ -195,6 +197,10 @@ public class ImapService extends Service {
                 nc.showLoginFailedNotification(account.mId);
             }
             throw e;
+        } finally {
+            if (remoteStore != null) {
+                remoteStore.closeConnections();
+            }
         }
         // TODO: Rather than use exceptions as logic above, return the status and handle it
         // correctly in caller.
@@ -356,7 +362,7 @@ public class ImapService extends Service {
      * @throws MessagingException
      */
     private synchronized static void synchronizeMailboxGeneric(final Context context,
-            final Account account, final Mailbox mailbox, final boolean loadMore,
+            final Account account, Store remoteStore, final Mailbox mailbox, final boolean loadMore,
             final boolean uiRefresh)
             throws MessagingException {
 
@@ -423,7 +429,6 @@ public class ImapService extends Service {
         }
 
         // 2. Open the remote folder and create the remote folder if necessary
-        Store remoteStore = Store.getInstance(account, context);
         // The account might have been deleted
         if (remoteStore == null) {
             LogUtils.d(Logging.LOG_TAG, "account is apparently deleted");
@@ -719,19 +724,20 @@ public class ImapService extends Service {
      * @param account the account to scan for pending actions
      * @throws MessagingException
      */
-    private static void processPendingActionsSynchronous(Context context, Account account)
+    private static void processPendingActionsSynchronous(Context context, Account account,
+                                                         Store remoteStore)
             throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
 
         // Handle deletes first, it's always better to get rid of things first
-        processPendingDeletesSynchronous(context, account, accountIdArgs);
+        processPendingDeletesSynchronous(context, account, remoteStore, accountIdArgs);
 
         // Handle uploads (currently, only to sent messages)
-        processPendingUploadsSynchronous(context, account, accountIdArgs);
+        processPendingUploadsSynchronous(context, account, remoteStore, accountIdArgs);
 
         // Now handle updates / upsyncs
-        processPendingUpdatesSynchronous(context, account, accountIdArgs);
+        processPendingUpdatesSynchronous(context, account, remoteStore, accountIdArgs);
     }
 
     /**
@@ -780,7 +786,7 @@ public class ImapService extends Service {
      * we can deal with, and do the work.
      */
     private static void processPendingDeletesSynchronous(Context context, Account account,
-            String[] accountIdArgs) {
+            Store remoteStore, String[] accountIdArgs) {
         Cursor deletes = context.getContentResolver().query(
                 EmailContent.Message.DELETED_CONTENT_URI,
                 EmailContent.Message.CONTENT_PROJECTION,
@@ -788,8 +794,6 @@ public class ImapService extends Service {
                 EmailContent.MessageColumns.MAILBOX_KEY);
         long lastMessageId = -1;
         try {
-            // Defer setting up the store until we know we need to access it
-            Store remoteStore = null;
             // loop through messages marked as deleted
             while (deletes.moveToNext()) {
                 EmailContent.Message oldMessage =
@@ -803,11 +807,6 @@ public class ImapService extends Service {
                         continue; // Mailbox removed. Move to the next message.
                     }
                     final boolean deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
-
-                    // Load the remote store if it will be needed
-                    if (remoteStore == null && deleteFromTrash) {
-                        remoteStore = Store.getInstance(account, context);
-                    }
 
                     // Dispatch here for specific change types
                     if (deleteFromTrash) {
@@ -845,7 +844,7 @@ public class ImapService extends Service {
      * uploaded directly to the Sent folder.
      */
     private static void processPendingUploadsSynchronous(Context context, Account account,
-            String[] accountIdArgs) {
+            Store remoteStore, String[] accountIdArgs) {
         ContentResolver resolver = context.getContentResolver();
         // Find the Sent folder (since that's all we're uploading for now
         // TODO: Upsync for all folders? (In case a user moves mail from Sent before it is
@@ -856,8 +855,6 @@ public class ImapService extends Service {
                 accountIdArgs, null);
         long lastMessageId = -1;
         try {
-            // Defer setting up the store until we know we need to access it
-            Store remoteStore = null;
             while (mailboxes.moveToNext()) {
                 long mailboxId = mailboxes.getLong(Mailbox.ID_PROJECTION_COLUMN);
                 String[] mailboxKeyArgs = new String[] { Long.toString(mailboxId) };
@@ -894,6 +891,9 @@ public class ImapService extends Service {
                     if (upsyncs1 != null) {
                         upsyncs1.close();
                     }
+                    if (remoteStore != null) {
+                        remoteStore.closeConnections();
+                    }
                 }
             }
         } catch (MessagingException me) {
@@ -915,7 +915,7 @@ public class ImapService extends Service {
      * we can deal with, and do the work.
      */
     private static void processPendingUpdatesSynchronous(Context context, Account account,
-            String[] accountIdArgs) {
+            Store remoteStore, String[] accountIdArgs) {
         ContentResolver resolver = context.getContentResolver();
         Cursor updates = resolver.query(EmailContent.Message.UPDATED_CONTENT_URI,
                 EmailContent.Message.CONTENT_PROJECTION,
@@ -923,8 +923,6 @@ public class ImapService extends Service {
                 EmailContent.MessageColumns.MAILBOX_KEY);
         long lastMessageId = -1;
         try {
-            // Defer setting up the store until we know we need to access it
-            Store remoteStore = null;
             // Demand load mailbox (note order-by to reduce thrashing here)
             Mailbox mailbox = null;
             // loop through messages marked as needing updates
@@ -1490,41 +1488,47 @@ public class ImapService extends Service {
 
         Message[] messageArray = messageList.toArray(new Message[messageList.size()]);
 
-        // TODO: Why should we do this with a messageRetrievalListener? It updates the messages
-        // directly in the messageArray. After making this call, we could simply walk it
-        // and do all of these operations ourselves.
+        // TODO: We are purposely processing messages with a MessageRetrievalListener here, rather
+        // than just walking the messageArray after the operation completes. This is so that we can
+        // immediately update the database so the user can see something useful happening, even
+        // if the message body has not yet been fetched.
+        // There are some issues with this approach:
+        // 1. It means that we have a single thread doing both network and database operations, and
+        // either can block the other. The database updates could slow down the network reads,
+        // keeping our network connection open longer than is really necessary.
+        // 2. We still load all of this data into messageArray, even though it's not used.
+        // It would be nicer if we had one thread doing the network operation, and a separate
+        // thread consuming that data and performing the appropriate database work, then discarding
+        // the data as soon as it is no longer needed. This would reduce our memory footprint and
+        // potentially allow our network operation to complete faster.
         remoteFolder.fetch(messageArray, fp, new MessageRetrievalListener() {
             @Override
             public void messageRetrieved(Message message) {
-                // TODO: Why do we have two separate try/catch blocks here?
-                // After MR1, we should consolidate this.
                 try {
                     EmailContent.Message localMessage = new EmailContent.Message();
 
-                    try {
-                        // Copy the fields that are available into the message
-                        LegacyConversions.updateMessageFields(localMessage,
-                                message, account.mId, mailbox.mId);
-                        // Save off the mailbox that this message *really* belongs in.
-                        // We need this information if we need to do more lookups
-                        // (like loading attachments) for this message. See b/11294681
-                        localMessage.mMainMailboxKey = localMessage.mMailboxKey;
-                        localMessage.mMailboxKey = destMailboxId;
-                        // We load 50k or so; maybe it's complete, maybe not...
-                        int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
-                        // We store the serverId of the source mailbox into protocolSearchInfo
-                        // This will be used by loadMessageForView, etc. to use the proper remote
-                        // folder
-                        localMessage.mProtocolSearchInfo = mailbox.mServerId;
-                        // Commit the message to the local store
-                        Utilities.saveOrUpdate(localMessage, context);
-                    } catch (MessagingException me) {
-                        LogUtils.e(Logging.LOG_TAG,
-                                "Error while copying downloaded message." + me);
-                    }
+                    // Copy the fields that are available into the message
+                    LegacyConversions.updateMessageFields(localMessage,
+                            message, account.mId, mailbox.mId);
+                    // Save off the mailbox that this message *really* belongs in.
+                    // We need this information if we need to do more lookups
+                    // (like loading attachments) for this message. See b/11294681
+                    localMessage.mMainMailboxKey = localMessage.mMailboxKey;
+                    localMessage.mMailboxKey = destMailboxId;
+                    // We load 50k or so; maybe it's complete, maybe not...
+                    int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
+                    // We store the serverId of the source mailbox into protocolSearchInfo
+                    // This will be used by loadMessageForView, etc. to use the proper remote
+                    // folder
+                    localMessage.mProtocolSearchInfo = mailbox.mServerId;
+                    // Commit the message to the local store
+                    Utilities.saveOrUpdate(localMessage, context);
+                } catch (MessagingException me) {
+                    LogUtils.e(Logging.LOG_TAG, me,
+                            "Error while copying downloaded message.");
                 } catch (Exception e) {
-                    LogUtils.e(Logging.LOG_TAG,
-                            "Error while storing downloaded message." + e.toString());
+                    LogUtils.e(Logging.LOG_TAG, e,
+                            "Error while storing downloaded message.");
                 }
             }
 
@@ -1564,6 +1568,8 @@ public class ImapService extends Service {
         statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
         statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
         destMailbox.update(context, statusValues);
+
+        remoteStore.closeConnections();
 
         return numSearchResults;
     }
