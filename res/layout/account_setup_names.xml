@@ -18,54 +18,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true" >
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
         android:paddingTop="@dimen/setup_fragment_padding_top"
         android:paddingLeft="@dimen/setup_fragment_padding_left"
         android:paddingRight="@dimen/setup_fragment_padding_right" >
         <TextView
-            android:layout_height="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="@string/account_setup_names_headline"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:attr/textColorPrimary" />
+        <fragment
+            android:id="@+id/names_fragment"
+            class="com.android.email.activity.setup.AccountSetupNamesFragment"
             android:layout_width="match_parent"
-            android:text="@string/account_setup_names_headline"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary" />
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="@string/account_setup_names_account_name_label"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <EditText
-            android:id="@+id/account_description"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:contentDescription="@string/account_setup_names_account_name_label"
-            android:inputType="textCapWords|textNoSuggestions"
-            android:imeOptions="actionNext" />
-        <TextView
-            android:id="@+id/account_name_label"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="@string/account_setup_names_user_name_label"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <EditText
-            android:id="@+id/account_name"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:contentDescription="@string/account_setup_names_user_name_label"
-            android:inputType="textPersonName"
-            android:imeOptions="actionDone" />
-
+            android:layout_height="0dip"
+            android:layout_weight="1"
+        />
         <Button
-            android:id="@+id/next"
-            android:layout_marginTop="16dip"
-            android:layout_gravity="right"
-            style="@style/accountSetupButton"
-            android:text="@string/next_action" />
+                android:id="@+id/next"
+                android:layout_marginTop="16dip"
+                android:layout_gravity="right"
+                style="@style/accountSetupButton"
+                android:text="@string/next_action" />
     </LinearLayout>
 </ScrollView>

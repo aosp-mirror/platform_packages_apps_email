@@ -16,42 +16,19 @@
 
 <!-- Common data-entry area of account name setup screen - account nickname, user name. -->
 <!-- tablet version -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:paddingLeft="@dimen/setup_item_inset_left"
     android:paddingRight="@dimen/setup_item_inset_right" >
-    <TextView
-        android:id="@+id/account_description_label"
-        android:layout_alignParentTop="true"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="@string/account_setup_names_account_name_label"
-        android:textAppearance="@style/accountSetupLabelText" />
-    <EditText
-        android:id="@+id/account_description"
-        android:layout_below="@+id/account_description_label"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_names_account_name_label"
-        android:inputType="textCapWords"
-        android:imeOptions="actionNext" />
-    <TextView
-        android:id="@+id/account_name_label"
-        android:layout_below="@+id/account_description"
-        android:layout_marginTop="32dip"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="@string/account_setup_names_user_name_label"
-        android:textAppearance="@style/accountSetupLabelText" />
-    <EditText
-        android:id="@+id/account_name"
-        android:layout_below="@+id/account_name_label"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:contentDescription="@string/account_setup_names_user_name_label"
-        android:inputType="textPersonName"
-        android:imeOptions="actionDone" />
-</RelativeLayout>
+    <fragment
+            android:id="@+id/names_fragment"
+            class="com.android.email.activity.setup.AccountSetupNamesFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            />
+</LinearLayout>
 
