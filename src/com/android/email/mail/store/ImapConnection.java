@@ -145,7 +145,7 @@ class ImapConnection {
             mImapStore.ensurePrefixIsValid();
         } catch (SSLException e) {
             if (MailActivityEmail.DEBUG) {
-                LogUtils.d(Logging.LOG_TAG, e.toString());
+                LogUtils.d(Logging.LOG_TAG, e, "SSLException");
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
@@ -153,7 +153,7 @@ class ImapConnection {
             // of other code here that catches IOException and I don't want to break it.
             // This catch is only here to enhance logging of connection-time issues.
             if (MailActivityEmail.DEBUG) {
-                LogUtils.d(Logging.LOG_TAG, ioe.toString());
+                LogUtils.d(Logging.LOG_TAG, ioe, "IOException");
             }
             throw ioe;
         } finally {
@@ -390,7 +390,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    LogUtils.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
@@ -415,7 +415,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    LogUtils.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
@@ -446,7 +446,7 @@ class ImapConnection {
             executeSimpleCommand(mLoginPhrase, true);
         } catch (ImapException ie) {
             if (MailActivityEmail.DEBUG) {
-                LogUtils.d(Logging.LOG_TAG, ie.toString());
+                LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
             }
             throw new AuthenticationFailedException(ie.getAlertText(), ie);
 
@@ -470,7 +470,7 @@ class ImapConnection {
             } catch (ImapException ie) {
                 // Log for debugging, but this is not a fatal problem.
                 if (MailActivityEmail.DEBUG) {
-                    LogUtils.d(Logging.LOG_TAG, ie.toString());
+                    LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
                 }
             } catch (IOException ioe) {
                 // Special case to handle malformed OK responses and ignore them.
