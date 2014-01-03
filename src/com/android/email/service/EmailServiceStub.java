@@ -418,12 +418,12 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (localFolderCursor != null) {
                 localFolderCursor.close();
             }
+            if (store != null) {
+                store.closeConnections();
+            }
             // If we just created the inbox, sync it
             if (inboxId != -1) {
                 startSync(inboxId, true, 0);
-            }
-            if (store != null) {
-                store.closeConnections();
             }
         }
     }
