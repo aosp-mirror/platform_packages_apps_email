@@ -20,18 +20,19 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.android.email.NotificationController;
 import com.android.email.R;
+import com.android.email.activity.ComposeActivityEmail;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.ImmutableList;
 
@@ -145,7 +146,7 @@ public class AccountReconciler {
             final List<android.accounts.Account> accountManagerAccounts,
             final boolean performReconciliation) {
         boolean needsReconciling = false;
-        boolean accountDeleted = false;
+        int accountsDeleted = 0;
         boolean exchangeAccountDeleted = false;
 
         LogUtils.d(Logging.LOG_TAG, "reconcileAccountsInternal");
@@ -188,7 +189,7 @@ public class AccountReconciler {
                     context.getContentResolver().delete(
                             EmailProvider.uiUri("uiaccount", providerAccount.mId), null, null);
 
-                    accountDeleted = true;
+                    accountsDeleted++;
 
                 }
             }
@@ -223,13 +224,24 @@ public class AccountReconciler {
             }
         }
 
+        // If there are no accounts remaining after reconciliation, disable the compose activity
+        final boolean enableCompose = emailProviderAccounts.size() - accountsDeleted > 0;
+        final ComponentName componentName =
+                new ComponentName(context, ComposeActivityEmail.class.getName());
+        context.getPackageManager().setComponentEnabledSetting(componentName,
+                enableCompose ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+        LogUtils.d(LogUtils.TAG, "Setting compose activity to "
+                + (enableCompose ? "enabled" : "disabled"));
+
         // If an account has been deleted, the simplest thing is just to kill our process.
         // Otherwise we might have a service running trying to do something for the account
         // which has been deleted, which can get NPEs. It's not as clean is it could be, but
         // it still works pretty well because there is nowhere in the email app to delete the
         // account. You have to go to Settings, so it's not user visible that the Email app
         // has been killed.
-        if (accountDeleted) {
+        if (accountsDeleted > 0) {
             LogUtils.i(Logging.LOG_TAG, "Restarting because account deleted");
             if (exchangeAccountDeleted) {
                 EmailServiceUtils.killService(context, context.getString(R.string.protocol_eas));
