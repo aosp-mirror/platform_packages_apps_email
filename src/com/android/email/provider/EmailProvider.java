@@ -2120,7 +2120,18 @@ public class EmailProvider extends ContentProvider {
         context.sendBroadcast(intent);
     }
 
-    private Set<Uri> mBatchNotifications;
+    // We might have more than one thread trying to make its way through applyBatch() so the
+    // notification coalescing needs to be thread-local to work correctly.
+    private final ThreadLocal<Set<Uri>> mTLBatchNotifications =
+            new ThreadLocal<Set<Uri>>();
+
+    private Set<Uri> getBatchNotificationsSet() {
+        return mTLBatchNotifications.get();
+    }
+
+    private void setBatchNotificationsSet(Set<Uri> batchNotifications) {
+        mTLBatchNotifications.set(batchNotifications);
+    }
 
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
@@ -2130,7 +2141,7 @@ public class EmailProvider extends ContentProvider {
          * These are populated by calls to notifyUI() by way of update(), insert() and delete()
          * calls made in super.applyBatch()
          */
-        mBatchNotifications = Sets.newHashSet();
+        setBatchNotificationsSet(Sets.<Uri>newHashSet());
         Context context = getContext();
         SQLiteDatabase db = getDatabase(context);
         db.beginTransaction();
@@ -2140,8 +2151,8 @@ public class EmailProvider extends ContentProvider {
             return results;
         } finally {
             db.endTransaction();
-            final Set<Uri> notifications = mBatchNotifications;
-            mBatchNotifications = null;
+            final Set<Uri> notifications = getBatchNotificationsSet();
+            setBatchNotificationsSet(null);
             for (final Uri uri : notifications) {
                 context.getContentResolver().notifyChange(uri, null);
             }
@@ -5228,8 +5239,9 @@ public class EmailProvider extends ContentProvider {
 
     private void notifyUI(final Uri uri, final String id) {
         final Uri notifyUri = (id != null) ? uri.buildUpon().appendPath(id).build() : uri;
-        if (mBatchNotifications != null) {
-            mBatchNotifications.add(notifyUri);
+        final Set<Uri> batchNotifications = getBatchNotificationsSet();
+        if (batchNotifications != null) {
+            batchNotifications.add(notifyUri);
         } else {
             getContext().getContentResolver().notifyChange(notifyUri, null);
         }
