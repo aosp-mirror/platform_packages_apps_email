@@ -2788,7 +2788,7 @@ public class EmailProvider extends ContentProvider {
             sb.append("AND ").append(MessageColumns.FLAG_READ).append(" = 0 ");
         }
         sb.append("ORDER BY " + MessageColumns.TIMESTAMP + " DESC ");
-        sb.append("LIMIT " + UIProvider.CONVERSATION_PROJECTION_QUERY_CURSOR_WINDOW_LIMT);
+        sb.append("LIMIT " + UIProvider.CONVERSATION_PROJECTION_QUERY_CURSOR_WINDOW_LIMIT);
         return sb.toString();
     }
 
