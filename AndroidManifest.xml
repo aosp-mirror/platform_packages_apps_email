@@ -23,7 +23,7 @@
           on the same date. This should start at zero. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="6200090" >
+    android:versionCode="6201060" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
