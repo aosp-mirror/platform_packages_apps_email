@@ -33,20 +33,14 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
 import android.provider.ContactsContract;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
@@ -91,7 +85,7 @@ import java.net.URISyntaxException;
  * Note: Exchange accounts that require device security policies cannot be created automatically.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements OnClickListener, TextWatcher, AccountCheckSettingsFragment.Callbacks {
+        implements OnClickListener, AccountCheckSettingsFragment.Callbacks {
 
     // Set to false before shipping, logs PII
     private final static boolean ENTER_DEBUG_SCREEN = false;
@@ -122,9 +116,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     public static final String EXTRA_OAUTH_EXPIRES_IN = "expiresIn";
 
     // Support for UI
-    private EditText mEmailView;
-    private EditText mPasswordView;
-    private final EmailAddressValidator mEmailValidator = new EmailAddressValidator();
     private Provider mProvider;
     private Button mManualButton;
     // TODO: This is a temporary hack to allow us to start testing OAuth flow. It should be
@@ -152,17 +143,25 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_OAUTH && resultCode == RESULT_OAUTH_SUCCESS) {
-            final String accessToken = data.getStringExtra(EXTRA_OAUTH_ACCESS_TOKEN);
-            final String refreshToken = data.getStringExtra(EXTRA_OAUTH_REFRESH_TOKEN);
-            final int expiresInSeconds = data.getIntExtra(EXTRA_OAUTH_EXPIRES_IN, 0);
+        if (requestCode == REQUEST_OAUTH) {
+            if (resultCode == RESULT_OAUTH_SUCCESS) {
+                final String accessToken = data.getStringExtra(EXTRA_OAUTH_ACCESS_TOKEN);
+                final String refreshToken = data.getStringExtra(EXTRA_OAUTH_REFRESH_TOKEN);
+                final int expiresInSeconds = data.getIntExtra(EXTRA_OAUTH_EXPIRES_IN, 0);
 
-            finishOAuthSetup(accessToken, refreshToken, expiresInSeconds);
+                finishOAuthSetup(accessToken, refreshToken, expiresInSeconds);
+            } else if (resultCode == RESULT_OAUTH_FAILURE
+                    || resultCode == RESULT_OAUTH_USER_CANCELED) {
+                // TODO: STOPSHIP: This setup UI is not correct, we need to figure out what to do
+                // in case of errors and have localized strings.
+                Toast.makeText(AccountSetupBasics.this,
+                        "Failed to get token", Toast.LENGTH_LONG).show();
+            } else {
+                LogUtils.wtf(Logging.LOG_TAG, "Unknown result code from OAUTH: %d", resultCode);
+            }
         } else {
-            // TODO: STOPSHIP: This setup UI is not correct, we need to figure out what to do
-            // in case of errors and have localized strings.
-            Toast.makeText(AccountSetupBasics.this,
-                    "Failed to get token", Toast.LENGTH_LONG).show();
+            LogUtils.e(Logging.LOG_TAG, "Unknown request code for onActivityResult in"
+                    + " AccountSetupBasics: %d", requestCode);
         }
     }
 
@@ -178,10 +177,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     public static void actionAccountCreateFinishedAccountFlow(Activity fromActivity) {
-        // TODO: handle this case - modifying state on SetupData when instantiating an Intent
-        // is not safe, since it's not guaranteed that an Activity will run with the Intent, and
-        // information can get lost.
-
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "account flow" (from AccountManager), we want to return to the caller
         // (in the settings app)
@@ -192,10 +187,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     public static void actionAccountCreateFinishedWithResult(Activity fromActivity) {
-        // TODO: handle this case - modifying state on SetupData when instantiating an Intent
-        // is not safe, since it's not guaranteed that an Activity will run with the Intent, and
-        // information can get lost.
-
         final Intent i= new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         // If we're in the "no accounts" flow, we want to return to the caller with a result
         i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA,
@@ -264,11 +255,6 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-        mEmailView = UiUtilities.getView(this, R.id.account_email);
-        mPasswordView = UiUtilities.getView(this, R.id.account_password);
-
-        mEmailView.addTextChangedListener(this);
-        mPasswordView.addTextChangedListener(this);
 
         // Configure buttons
         mManualButton = UiUtilities.getView(this, R.id.manual_setup);
@@ -279,8 +265,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         mOAuthButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
         // Force disabled until validator notifies otherwise
-        onEnableProceedButtons(false);
-        mOAuthButton.setEnabled(false);
+        setProceedButtonsEnabled(false);
+        setOAuthButtonEnabled(false);
         // Lightweight debounce while Async tasks underway
         mNextButtonInhibit = false;
 
@@ -295,18 +281,6 @@ public class AccountSetupBasics extends AccountSetupActivity
             // so the default is to report the error.  Success will be reported by the code in
             // AccountSetupOptions that commits the finally created account.
             mReportAccountAuthenticatorError = true;
-        }
-
-        // Load fields, but only once
-        final String userName = mSetupData.getUsername();
-        if (userName != null) {
-            mEmailView.setText(userName);
-            mSetupData.setUsername(null);
-        }
-        final String password = mSetupData.getPassword();
-        if (userName != null) {
-            mPasswordView.setText(password);
-            mSetupData.setPassword(null);
         }
 
         // Handle force account creation immediately (now that fragment is set up)
@@ -422,7 +396,7 @@ public class AccountSetupBasics extends AccountSetupActivity
                 // removed when the real account setup flow is implemented.
                 // TODO: Also note that this check reads and parses the xml file each time. This
                 // should probably get cached somewhere.
-                final String email = mEmailView.getText().toString().trim();
+                final String email = getBasicsFragment().getEmail();
                 final String[] emailParts = email.split("@");
                 final String domain = emailParts[1].trim();
                 Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
@@ -444,42 +418,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     /**
-     * Implements TextWatcher
-     */
-    @Override
-    public void afterTextChanged(Editable s) {
-        validateFields();
-    }
-
-    /**
-     * Implements TextWatcher
-     */
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    /**
-     * Implements TextWatcher
-     */
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    private void validateFields() {
-        final boolean validEmail = !TextUtils.isEmpty(mEmailView.getText())
-                && mEmailValidator.isValid(mEmailView.getText().toString().trim());
-        mOAuthButton.setEnabled(validEmail);
-
-        final boolean valid = !TextUtils.isEmpty(mEmailView.getText())
-                && !TextUtils.isEmpty(mPasswordView.getText())
-                && mEmailValidator.isValid(mEmailView.getText().toString().trim());
-        onEnableProceedButtons(valid);
-
-        // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(this, mPasswordView);
-    }
-
-    /**
      * Return an existing username if found, or null.  This is the result of the Callable (below).
      */
     private String getOwnerName() {
@@ -490,8 +428,9 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Finish the auto setup process, in some cases after showing a warning dialog.
      */
     private void finishAutoSetup() {
-        final String email = mEmailView.getText().toString().trim();
-        final String password = mPasswordView.getText().toString();
+        final AccountSetupBasicsFragment basicsFragment = getBasicsFragment();
+        final String email = basicsFragment.getEmail();
+        final String password = basicsFragment.getPassword();
 
         try {
             mProvider.expandTemplates(email);
@@ -534,7 +473,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private void finishOAuthSetup(final String accessToken, final String refreshToken,
             int expiresInSeconds) {
 
-        final String email = mEmailView.getText().toString().trim();
+        final String email = getBasicsFragment().getEmail();
         final String[] emailParts = email.split("@");
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
@@ -654,7 +593,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      */
     private void onNext() {
         // Try auto-configuration from XML providers (unless in EAS mode, we can skip it)
-        final String email = mEmailView.getText().toString().trim();
+        final String email = getBasicsFragment().getEmail();
         final String[] emailParts = email.split("@");
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
@@ -682,8 +621,9 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Ignored for IMAP & POP accounts.
      */
     private void onManualSetup(boolean allowAutoDiscover) {
-        final String email = mEmailView.getText().toString().trim();
-        final String password = mPasswordView.getText().toString();
+        final AccountSetupBasicsFragment basicsFragment = getBasicsFragment();
+        final String email = basicsFragment.getEmail();
+        final String password = basicsFragment.getPassword();
         final String[] emailParts = email.split("@");
         final String user = emailParts[0].trim();
         final String domain = emailParts[1].trim();
@@ -691,11 +631,13 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Alternate entry to the debug options screen (for devices without a physical keyboard:
         //  Username: d@d.d
         //  Password: debug
-        if (ENTER_DEBUG_SCREEN && "d@d.d".equals(email) && "debug".equals(password)) {
-            mEmailView.setText("");
-            mPasswordView.setText("");
-            AccountSettings.actionSettingsWithDebug(this);
-            return;
+        if (ENTER_DEBUG_SCREEN) {
+            if ("d@d.d".equals(email) && "debug".equals(password)) {
+                basicsFragment.setEmail("");
+                basicsFragment.setPassword("");
+                AccountSettings.actionSettingsWithDebug(this);
+                return;
+            }
         }
 
         final Account account = mSetupData.getAccount();
@@ -790,7 +732,11 @@ public class AccountSetupBasics extends AccountSetupActivity
         throw new IllegalStateException();
     }
 
-    private void onEnableProceedButtons(boolean enabled) {
+    public void setOAuthButtonEnabled(boolean enabled) {
+        mOAuthButton.setEnabled(enabled);
+    }
+
+    public void setProceedButtonsEnabled(boolean enabled) {
         mManualButton.setEnabled(enabled);
         mNextButton.setEnabled(enabled);
     }
@@ -844,5 +790,10 @@ public class AccountSetupBasics extends AccountSetupActivity
                         null)
                 .create();
         }
+    }
+
+    private AccountSetupBasicsFragment getBasicsFragment() {
+        return (AccountSetupBasicsFragment)
+                getFragmentManager().findFragmentById(R.id.basics_fragment);
     }
 }

@@ -22,7 +22,7 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingTop="@dimen/setup_fragment_padding_top"
         android:paddingLeft="@dimen/setup_fragment_padding_left"
         android:paddingRight="@dimen/setup_fragment_padding_right"
@@ -32,16 +32,16 @@
         <!-- TODO need phone-sized UX here -->
         <FrameLayout
             android:id="@+id/common"
-            android:layout_below="@+id/top_divider"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             >
-            <include
-                layout="@layout/account_setup_basics_common"
-                />
+            <fragment
+                android:id="@+id/basics_fragment"
+                class="com.android.email.activity.setup.AccountSetupBasicsFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         </FrameLayout>
 
         <!-- Buttons below -->
