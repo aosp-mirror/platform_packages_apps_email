@@ -426,6 +426,13 @@ public class AccountSetupBasics extends AccountSetupActivity
                 final String[] emailParts = email.split("@");
                 final String domain = emailParts[1].trim();
                 Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
+                if (provider == null) {
+                    // Maybe this is a dasher email address, just try to authenticate using google.
+                    // TODO STOPSHIP: at some point, the UI needs to display something like
+                    // "authenticate using google.com". For now, since the only oauth provider
+                    // we support is google, we'll just assume that is the provider.
+                    provider = AccountSettingsUtils.findProviderForDomain(this, "google.com");
+                }
                 if (provider != null && provider.oauth != null) {
                     final Intent i = new Intent(this, OAuthAuthenticationActivity.class);
                     i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, email);
@@ -459,27 +466,14 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     private void validateFields() {
+        final boolean validEmail = !TextUtils.isEmpty(mEmailView.getText())
+                && mEmailValidator.isValid(mEmailView.getText().toString().trim());
+        mOAuthButton.setEnabled(validEmail);
+
         final boolean valid = !TextUtils.isEmpty(mEmailView.getText())
                 && !TextUtils.isEmpty(mPasswordView.getText())
                 && mEmailValidator.isValid(mEmailView.getText().toString().trim());
         onEnableProceedButtons(valid);
-
-        // TODO: This is a temporary hack to allow oauth flow to be started. It should be
-        // removed when the real account setup flow is implemented.
-        boolean allowOauth = false;
-        if (!TextUtils.isEmpty(mEmailView.getText())
-                && mEmailValidator.isValid(mEmailView.getText().toString().trim())) {
-            final String email = mEmailView.getText().toString().trim();
-            final String[] emailParts = email.split("@");
-            final String domain = emailParts[1].trim();
-            // TODO: Note that this check reads and parses the xml file each time. This
-            // should probably get cached somewhere.
-            Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
-            if (provider != null && provider.oauth != null) {
-                allowOauth = true;
-            }
-        }
-        mOAuthButton.setEnabled(allowOauth);
 
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(this, mPasswordView);

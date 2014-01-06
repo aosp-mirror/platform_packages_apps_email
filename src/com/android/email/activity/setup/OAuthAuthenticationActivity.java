@@ -117,6 +117,8 @@ public class OAuthAuthenticationActivity extends Activity implements
             getLoaderManager().initLoader(LOADER_ID_OAUTH_TOKEN, params,
                     OAuthAuthenticationActivity.this);
         }
+        // Set the result to cancelled until we have success.
+        setResult(AccountSetupBasics.RESULT_OAUTH_USER_CANCELED, null);
     }
 
     @Override
