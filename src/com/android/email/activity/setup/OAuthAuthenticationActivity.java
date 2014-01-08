@@ -50,6 +50,7 @@ public class OAuthAuthenticationActivity extends Activity implements
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView wv, String url) {
+            LogUtils.d(TAG, "shouldOverrideUrlLoading %s", url);
             // TODO: This method works for Google's redirect url to https://localhost.
             // Does it work for the general case? I don't know what redirect url other
             // providers use, or how the authentication code is returned.
@@ -61,6 +62,8 @@ public class OAuthAuthenticationActivity extends Activity implements
                 deparameterizedUrl = url.substring(0,i);
             }
 
+            LogUtils.d(TAG, "deparementerized url %s, redirect uri %s", deparameterizedUrl,
+                    mProvider.redirectUri);
             if (TextUtils.equals(deparameterizedUrl, mProvider.redirectUri)) {
                 final Uri uri = Uri.parse(url);
                 // Check the params of this uri, they contain success/failure info,
