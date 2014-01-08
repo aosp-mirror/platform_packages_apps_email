@@ -17,12 +17,19 @@
 package com.android.email;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 
 import com.android.email.preferences.EmailPreferenceMigrator;
+import com.android.mail.browse.InlineAttachmentViewIntentBuilder;
+import com.android.mail.browse.InlineAttachmentViewIntentBuilderCreator;
+import com.android.mail.browse.InlineAttachmentViewIntentBuilderCreatorHolder;
 import com.android.mail.preferences.BasePreferenceMigrator;
 import com.android.mail.preferences.PreferenceMigratorHolder;
 import com.android.mail.preferences.PreferenceMigratorHolder.PreferenceMigratorCreator;
 import com.android.mail.utils.LogTag;
+
+import java.util.Map;
 
 public class EmailApplication extends Application {
     private static final String LOG_TAG = "Email";
@@ -36,5 +43,23 @@ public class EmailApplication extends Application {
                 return new EmailPreferenceMigrator();
             }
         });
+
+        InlineAttachmentViewIntentBuilderCreatorHolder.setInlineAttachmentViewIntentCreator(
+                new InlineAttachmentViewIntentBuilderCreator() {
+                    @Override
+                    public InlineAttachmentViewIntentBuilder
+                    createInlineAttachmentViewIntentBuilder(
+                            Map<String, String> urlToMessageIdMap,
+                            String account, long conversationId) {
+                        return new InlineAttachmentViewIntentBuilder() {
+                            @Override
+                            public Intent createInlineAttachmentViewIntent(Context context,
+                                    String url) {
+                                return null;
+                            }
+                        };
+                    }
+                });
+
     }
 }
