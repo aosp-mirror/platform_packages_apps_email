@@ -272,7 +272,7 @@ class ImapConnection {
      */
     String sendCommand(String command, boolean sensitive)
             throws MessagingException, IOException {
-        LogUtils.d(Logging.LOG_TAG, "sendCommand %s", command);
+        LogUtils.d(Logging.LOG_TAG, "sendCommand %s", (sensitive ? IMAP_REDACTED_LOG : command));
         open();
         String tag = Integer.toString(mNextCommandTag.incrementAndGet());
         String commandToSend = tag + " " + command;
