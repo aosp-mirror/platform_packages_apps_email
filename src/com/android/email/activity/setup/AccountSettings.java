@@ -344,6 +344,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // We need to make sure that a fragment about to be attached is valid. This corrects
         // a security vulnerability.
         return (TextUtils.equals(AccountSettingsFragment.class.getName(), fragmentName) ||
+                TextUtils.equals(GeneralPreferences.class.getName(), fragmentName) ||
                 super.isValidFragment(fragmentName));
     }
 
