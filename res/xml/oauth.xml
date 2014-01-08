@@ -31,7 +31,7 @@
         token_endpoint="https://accounts.google.com/o/oauth2/token"
         refresh_endpoint="https://accounts.google.com/o/oauth2/token"
         response_type="code"
-        redirect_uri="http://localhost"
+        redirect_uri="https://localhost/"
         scope="https://mail.google.com"
         state="state"
         client_id=[REDACTED]
