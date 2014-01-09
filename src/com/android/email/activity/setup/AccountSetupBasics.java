@@ -539,10 +539,11 @@ public class AccountSetupBasics extends AccountSetupActivity
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider == null) {
-            // TODO: STOPSHIP: Need better error handling here.
-            Toast.makeText(AccountSetupBasics.this,
-                    "No provider, can't proceed", Toast.LENGTH_SHORT).show();
-            return;
+            // Right now the only provider we support is google. Assume that domain for now.
+            // This will let us authenticate dasher accounts.
+            // TODO: STOPSHIP: we really need UI to allow this user to pick
+            // "authenticate with google" or some such.
+            mProvider = AccountSettingsUtils.findProviderForDomain(this, "google.com");
         }
 
         try {
