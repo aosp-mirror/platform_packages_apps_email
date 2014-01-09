@@ -1317,8 +1317,7 @@ public class EmailProvider extends ContentProvider {
                 // TODO: There are actually cases where c == null is expected, for example
                 // UI_FOLDER_LOAD_MORE.
                 // Demoting this to a warning for now until we figure out what to do with it.
-                LogUtils.w(TAG, "Query returning null for uri: " + uri + ", selection: "
-                        + selection);
+                LogUtils.w(TAG, "Query returning null for uri: %s selection: %s", uri, selection);
             }
         }
 
