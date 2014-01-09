@@ -345,6 +345,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // a security vulnerability.
         return (TextUtils.equals(AccountSettingsFragment.class.getName(), fragmentName) ||
                 TextUtils.equals(GeneralPreferences.class.getName(), fragmentName) ||
+                TextUtils.equals(AccountSettingsEditQuickResponsesFragment.class.getName(),
+                        fragmentName) ||
                 super.isValidFragment(fragmentName));
     }
 
