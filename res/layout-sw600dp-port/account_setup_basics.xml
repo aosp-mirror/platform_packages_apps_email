@@ -32,7 +32,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             >
 
@@ -63,9 +63,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 >
-                <include
-                    layout="@layout/account_setup_basics_common"
-                    />
+                <fragment
+                    android:id="@+id/basics_fragment"
+                    class="com.android.email.activity.setup.AccountSetupBasicsFragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </FrameLayout>
         </RelativeLayout>
 
