@@ -18,63 +18,50 @@ package com.android.email.activity.setup;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.Loader;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.Spinner;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.service.SyncWindow;
-import com.android.emailcommon.utility.Utility;
 import com.android.mail.preferences.AccountPreferences;
+import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
     private static final String EXTRA_IS_PROCESSING_KEY = "com.android.email.is_processing";
+    private static final String ACCOUNT_FINALIZE_FRAGMENT_TAG = "AccountFinalizeFragment";
 
-    private Spinner mCheckFrequencyView;
-    private Spinner mSyncWindowView;
-    private CheckBox mNotifyView;
-    private CheckBox mSyncContactsView;
-    private CheckBox mSyncCalendarView;
-    private CheckBox mSyncEmailView;
-    private CheckBox mBackgroundAttachmentsView;
-    private View mAccountSyncWindowRow;
     private boolean mDonePressed = false;
-    private EmailServiceInfo mServiceInfo;
     private boolean mIsProcessing = false;
-
-    private ProgressDialog mCreateAccountDialog;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
-    /** Default sync window for new EAS accounts */
-    private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_1_WEEK;
 
     public static void actionOptions(Activity fromActivity, SetupDataFragment setupData) {
         final Intent intent = new ForwardingIntent(fromActivity, AccountSetupOptions.class);
@@ -88,61 +75,10 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_options);
 
-        mCheckFrequencyView = UiUtilities.getView(this, R.id.account_check_frequency);
-        mSyncWindowView = UiUtilities.getView(this, R.id.account_sync_window);
-        mNotifyView = UiUtilities.getView(this, R.id.account_notify);
-        mSyncContactsView = UiUtilities.getView(this, R.id.account_sync_contacts);
-        mSyncCalendarView = UiUtilities.getView(this, R.id.account_sync_calendar);
-        mSyncEmailView = UiUtilities.getView(this, R.id.account_sync_email);
-        mSyncEmailView.setChecked(true);
-        mBackgroundAttachmentsView = UiUtilities.getView(this, R.id.account_background_attachments);
-        mBackgroundAttachmentsView.setChecked(true);
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
         UiUtilities.getView(this, R.id.next).setOnClickListener(this);
-        mAccountSyncWindowRow = UiUtilities.getView(this, R.id.account_sync_window_row);
 
-        final Account account = mSetupData.getAccount();
-        mServiceInfo = EmailServiceUtils.getServiceInfo(getApplicationContext(),
-                account.mHostAuthRecv.mProtocol);
-        final CharSequence[] frequencyValues = mServiceInfo.syncIntervals;
-        final CharSequence[] frequencyEntries = mServiceInfo.syncIntervalStrings;
 
-        // Now create the array used by the sync interval Spinner
-        final SpinnerOption[] checkFrequencies = new SpinnerOption[frequencyEntries.length];
-        for (int i = 0; i < frequencyEntries.length; i++) {
-            checkFrequencies[i] = new SpinnerOption(
-                    Integer.valueOf(frequencyValues[i].toString()), frequencyEntries[i].toString());
-        }
-        final ArrayAdapter<SpinnerOption> checkFrequenciesAdapter =
-                new ArrayAdapter<SpinnerOption>(this, android.R.layout.simple_spinner_item,
-                        checkFrequencies);
-        checkFrequenciesAdapter
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
-
-        if (mServiceInfo.offerLookback) {
-            enableLookbackSpinner();
-        }
-
-        mNotifyView.setChecked(true); // By default, we want notifications on
-        SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
-
-        if (mServiceInfo.syncContacts) {
-            mSyncContactsView.setVisibility(View.VISIBLE);
-            mSyncContactsView.setChecked(true);
-            UiUtilities.setVisibilitySafe(this, R.id.account_sync_contacts_divider, View.VISIBLE);
-        }
-        if (mServiceInfo.syncCalendar) {
-            mSyncCalendarView.setVisibility(View.VISIBLE);
-            mSyncCalendarView.setChecked(true);
-            UiUtilities.setVisibilitySafe(this, R.id.account_sync_calendar_divider, View.VISIBLE);
-        }
-
-        if (!mServiceInfo.offerAttachmentPreload) {
-            mBackgroundAttachmentsView.setVisibility(View.GONE);
-            UiUtilities.setVisibilitySafe(this, R.id.account_background_attachments_divider,
-                    View.GONE);
-        }
 
         mIsProcessing = savedInstanceState != null &&
                 savedInstanceState.getBoolean(EXTRA_IS_PROCESSING_KEY, false);
@@ -201,7 +137,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      * the account to the database (making it real for the first time.)
      * Finally, we call setupAccountManagerAccount(), which will eventually complete via callback.
      */
-    @SuppressWarnings("deprecation")
     private void onDone() {
         final Account account = mSetupData.getAccount();
         if (account.isSaved()) {
@@ -212,18 +147,26 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");
         }
 
+        final AccountSetupOptionsFragment fragment = (AccountSetupOptionsFragment)
+                getFragmentManager().findFragmentById(R.id.options_fragment);
+        if (fragment == null) {
+            throw new IllegalStateException("Fragment missing!");
+        }
+
         mIsProcessing = true;
         account.setDisplayName(account.getEmailAddress());
         int newFlags = account.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
-        if (mServiceInfo.offerAttachmentPreload && mBackgroundAttachmentsView.isChecked()) {
+        final EmailServiceUtils.EmailServiceInfo serviceInfo =
+                EmailServiceUtils.getServiceInfo(getApplicationContext(),
+                        account.mHostAuthRecv.mProtocol);
+        if (serviceInfo.offerAttachmentPreload && fragment.getBackgroundAttachmentsValue()) {
             newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
         account.setFlags(newFlags);
-        account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
-                .getSelectedItem()).value);
-        if (mAccountSyncWindowRow.getVisibility() == View.VISIBLE) {
-            account.setSyncLookback(
-                    (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value);
+        account.setSyncInterval(fragment.getCheckFrequencyValue());
+        final Integer syncWindowValue = fragment.getAccountSyncWindowValue();
+        if (syncWindowValue != null) {
+            account.setSyncLookback(syncWindowValue);
         }
 
         // Finish setting up the account, and commit it to the database
@@ -238,210 +181,361 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         // install it into the Account manager as well.  These are done off-thread.
         // The account manager will report back via the callback, which will take us to
         // the next operations.
-        final boolean email = mSyncEmailView.isChecked();
-        final boolean calendar = mServiceInfo.syncCalendar && mSyncCalendarView.isChecked();
-        final boolean contacts = mServiceInfo.syncContacts && mSyncContactsView.isChecked();
+        final Bundle args = new Bundle(5);
+        args.putParcelable(AccountFinalizeFragment.ACCOUNT_TAG, account);
+        args.putBoolean(AccountFinalizeFragment.SYNC_EMAIL_TAG, fragment.getSyncEmailValue());
+        final boolean calendar = serviceInfo.syncCalendar && fragment.getSyncCalendarValue();
+        args.putBoolean(AccountFinalizeFragment.SYNC_CALENDAR_TAG, calendar);
+        final boolean contacts = serviceInfo.syncContacts && fragment.getSyncContactsValue();
+        args.putBoolean(AccountFinalizeFragment.SYNC_CONTACTS_TAG, contacts);
+        args.putBoolean(AccountFinalizeFragment.NOTIFICATIONS_TAG, fragment.getNotifyValue());
+
+        final Fragment f = new AccountFinalizeFragment();
+        f.setArguments(args);
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(f, ACCOUNT_FINALIZE_FRAGMENT_TAG);
+        ft.commit();
 
         showCreateAccountDialog();
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                final Context context = AccountSetupOptions.this;
-                AccountSettingsUtils.commitSettings(context, account);
-                EmailServiceUtils.setupAccountManagerAccount(context, account,
-                        email, calendar, contacts, mAccountManagerCallback);
-
-                // We can move the notification setting to the inbox FolderPreferences later, once
-                // we know what the inbox is
-                final AccountPreferences accountPreferences =
-                        new AccountPreferences(context, account.getEmailAddress());
-                accountPreferences.setDefaultInboxNotificationsEnabled(mNotifyView.isChecked());
-            }
-        });
     }
 
-    private void showCreateAccountDialog() {
-        /// Show "Creating account..." dialog
-        mCreateAccountDialog = new ProgressDialog(this);
-        mCreateAccountDialog.setIndeterminate(true);
-        mCreateAccountDialog.setMessage(getString(R.string.account_setup_creating_account_msg));
-        mCreateAccountDialog.show();
+    public void destroyAccountFinalizeFragment() {
+        final Fragment f = getFragmentManager().findFragmentByTag(ACCOUNT_FINALIZE_FRAGMENT_TAG);
+        if (f == null) {
+            LogUtils.wtf(LogUtils.TAG, "Couldn't find AccountFinalizeFragment to destroy");
+        }
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.remove(f);
+        ft.commit();
     }
 
     /**
-     * This is called at the completion of MailService.setupAccountManagerAccount()
+     * This retained headless fragment acts as a container for the multi-step task of creating the
+     * AccountManager account and saving our account object to the database, as well as some misc
+     * related background tasks.
+     *
+     * TODO: move this to a separate file, probably
      */
-    AccountManagerCallback<Bundle> mAccountManagerCallback = new AccountManagerCallback<Bundle>() {
-        @Override
-        public void run(AccountManagerFuture<Bundle> future) {
-            try {
-                // Block until the operation completes
-                future.getResult();
-                AccountSetupOptions.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        optionsComplete();
-                    }
-                });
-                return;
-            } catch (OperationCanceledException e) {
-                LogUtils.d(Logging.LOG_TAG, "addAccount was canceled");
-            } catch (IOException e) {
-                LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
-            } catch (AuthenticatorException e) {
-                LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
-            }
-            showErrorDialog(R.string.account_setup_failed_dlg_auth_message,
-                    R.string.system_account_create_failed);
+    public static class AccountFinalizeFragment extends Fragment {
+        public static final String ACCOUNT_TAG = "account";
+        public static final String SYNC_EMAIL_TAG = "email";
+        public static final String SYNC_CALENDAR_TAG = "calendar";
+        public static final String SYNC_CONTACTS_TAG = "contacts";
+        public static final String NOTIFICATIONS_TAG = "notifications";
+
+        private static final String SAVESTATE_STAGE = "AccountFinalizeFragment.stage";
+        private static final int STAGE_BEFORE_ACCOUNT_SECURITY = 0;
+        private static final int STAGE_REFRESHING_ACCOUNT = 1;
+        private static final int STAGE_WAITING_FOR_ACCOUNT_SECURITY = 2;
+        private static final int STAGE_AFTER_ACCOUNT_SECURITY = 3;
+        private int mStage = 0;
+
+        private Context mAppContext;
+        private final Handler mHandler;
+
+        AccountFinalizeFragment() {
+            mHandler = new Handler();
         }
-    };
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setRetainInstance(true);
+            mAppContext = getActivity().getApplicationContext();
+            if (savedInstanceState != null) {
+                mStage = savedInstanceState.getInt(SAVESTATE_STAGE);
+            }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putInt(SAVESTATE_STAGE, mStage);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            switch (mStage) {
+                case STAGE_BEFORE_ACCOUNT_SECURITY:
+                    kickBeforeAccountSecurityLoader();
+                    break;
+                case STAGE_REFRESHING_ACCOUNT:
+                    kickRefreshingAccountLoader();
+                    break;
+                case STAGE_WAITING_FOR_ACCOUNT_SECURITY:
+                    // TODO: figure out when we might get here and what to do if we do
+                    break;
+                case STAGE_AFTER_ACCOUNT_SECURITY:
+                    kickAfterAccountSecurityLoader();
+                    break;
+            }
+        }
+
+        private void kickBeforeAccountSecurityLoader() {
+            final LoaderManager loaderManager = getLoaderManager();
+
+            loaderManager.destroyLoader(STAGE_REFRESHING_ACCOUNT);
+            loaderManager.destroyLoader(STAGE_AFTER_ACCOUNT_SECURITY);
+            loaderManager.initLoader(STAGE_BEFORE_ACCOUNT_SECURITY, getArguments(),
+                    new BeforeAccountSecurityCallbacks());
+        }
+
+        private void kickRefreshingAccountLoader() {
+            final LoaderManager loaderManager = getLoaderManager();
+
+            loaderManager.destroyLoader(STAGE_BEFORE_ACCOUNT_SECURITY);
+            loaderManager.destroyLoader(STAGE_AFTER_ACCOUNT_SECURITY);
+            loaderManager.initLoader(STAGE_REFRESHING_ACCOUNT, getArguments(),
+                    new RefreshAccountCallbacks());
+        }
+
+        private void kickAfterAccountSecurityLoader() {
+            final LoaderManager loaderManager = getLoaderManager();
+
+            loaderManager.destroyLoader(STAGE_BEFORE_ACCOUNT_SECURITY);
+            loaderManager.destroyLoader(STAGE_REFRESHING_ACCOUNT);
+            loaderManager.initLoader(STAGE_AFTER_ACCOUNT_SECURITY, getArguments(),
+                    new AfterAccountSecurityCallbacks());
+        }
+
+        private class BeforeAccountSecurityCallbacks
+                implements LoaderManager.LoaderCallbacks<Boolean> {
+            public BeforeAccountSecurityCallbacks() {}
+
+            @Override
+            public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+                final Account account = args.getParcelable(ACCOUNT_TAG);
+                final boolean email = args.getBoolean(SYNC_EMAIL_TAG);
+                final boolean calendar = args.getBoolean(SYNC_CALENDAR_TAG);
+                final boolean contacts = args.getBoolean(SYNC_CONTACTS_TAG);
+                final boolean notificationsEnabled = args.getBoolean(NOTIFICATIONS_TAG);
+
+                /**
+                 * Task loader returns true if we created the account, false if we bailed out.
+                 */
+                return new MailAsyncTaskLoader<Boolean>(mAppContext) {
+                    @Override
+                    protected void onDiscardResult(Boolean result) {}
+
+                    @Override
+                    public Boolean loadInBackground() {
+                        AccountSettingsUtils.commitSettings(mAppContext, account);
+                        final AccountManagerFuture<Bundle> future =
+                                EmailServiceUtils.setupAccountManagerAccount(mAppContext, account,
+                                email, calendar, contacts, null);
+
+                        boolean createSuccess = false;
+                        try {
+                            future.getResult();
+                            createSuccess = true;
+                        } catch (OperationCanceledException e) {
+                            LogUtils.d(Logging.LOG_TAG, "addAccount was canceled");
+                        } catch (IOException e) {
+                            LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
+                        } catch (AuthenticatorException e) {
+                            LogUtils.d(Logging.LOG_TAG, "addAccount failed: " + e);
+                        }
+                        if (!createSuccess) {
+                            return false;
+                        }
+                        // We can move the notification setting to the inbox FolderPreferences
+                        // later, once we know what the inbox is
+                        new AccountPreferences(mAppContext, account.getEmailAddress())
+                                .setDefaultInboxNotificationsEnabled(notificationsEnabled);
+
+                        // Now that AccountManager account creation is complete, clear the
+                        // INCOMPLETE flag
+                        account.mFlags &= ~Account.FLAGS_INCOMPLETE;
+                        AccountSettingsUtils.commitSettings(mAppContext, account);
+
+                        return true;
+                    }
+                };
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+                if (success == null || !isResumed()) {
+                    return;
+                }
+                if (success) {
+                    mStage = STAGE_REFRESHING_ACCOUNT;
+                    kickRefreshingAccountLoader();
+                } else {
+                    final AccountSetupOptions activity = (AccountSetupOptions)getActivity();
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isResumed()) {
+                                return;
+                            }
+                            // Can't do this from within onLoadFinished
+                            activity.destroyAccountFinalizeFragment();
+                            activity.showCreateAccountErrorDialog();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Boolean> loader) {}
+        }
+
+        private class RefreshAccountCallbacks implements LoaderManager.LoaderCallbacks<Account> {
+
+            @Override
+            public Loader<Account> onCreateLoader(int id, Bundle args) {
+                final Account account = args.getParcelable(ACCOUNT_TAG);
+                return new MailAsyncTaskLoader<Account>(mAppContext) {
+                    @Override
+                    protected void onDiscardResult(Account result) {}
+
+                    @Override
+                    public Account loadInBackground() {
+                        account.refresh(mAppContext);
+                        return account;
+                    }
+                };
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Account> loader, Account account) {
+                if (account == null || !isResumed()) {
+                    return;
+                }
+
+                getArguments().putParcelable(ACCOUNT_TAG, account);
+
+                if ((account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
+                    final Intent intent = AccountSecurity
+                            .actionUpdateSecurityIntent(getActivity(), account.mId, false);
+                    startActivityForResult(intent,
+                            AccountSetupOptions.REQUEST_CODE_ACCEPT_POLICIES);
+                    mStage = STAGE_WAITING_FOR_ACCOUNT_SECURITY;
+                } else {
+                    mStage = STAGE_AFTER_ACCOUNT_SECURITY;
+                    kickAfterAccountSecurityLoader();
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Account> loader) {}
+        }
+
+        private class AfterAccountSecurityCallbacks
+                implements LoaderManager.LoaderCallbacks<Account> {
+            @Override
+            public Loader<Account> onCreateLoader(int id, Bundle args) {
+                final Account account = args.getParcelable(ACCOUNT_TAG);
+                return new MailAsyncTaskLoader<Account>(mAppContext) {
+                    @Override
+                    protected void onDiscardResult(Account result) {}
+
+                    @Override
+                    public Account loadInBackground() {
+                        // Clear the security hold flag now
+                        account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
+                        AccountSettingsUtils.commitSettings(mAppContext, account);
+                        // Start up services based on new account(s)
+                        MailActivityEmail.setServicesEnabledSync(mAppContext);
+                        EmailServiceUtils
+                                .startService(mAppContext, account.mHostAuthRecv.mProtocol);
+                        return account;
+                    }
+                };
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Account> loader, Account account) {
+                if (account == null || !isResumed()) {
+                    return;
+                }
+
+                // Move to final setup screen
+                AccountSetupOptions activity = (AccountSetupOptions) getActivity();
+                activity.getSetupData().setAccount(account);
+                activity.proceed();
+
+                // Update the folder list (to get our starting folders, e.g. Inbox)
+                final EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(activity,
+                        account.mId);
+                try {
+                    proxy.updateFolderList(account.mId);
+                } catch (RemoteException e) {
+                    // It's all good
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Account> loader) {}
+        }
+
+        /**
+         * This is called after the AccountSecurity activity completes.
+         */
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            mStage = STAGE_AFTER_ACCOUNT_SECURITY;
+            // onResume() will be called immediately after this to kick the next loader
+        }
+    }
+
+    public static class CreateAccountDialogFragment extends DialogFragment {
+        CreateAccountDialogFragment() {}
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            /// Show "Creating account..." dialog
+            final ProgressDialog d = new ProgressDialog(getActivity());
+            d.setIndeterminate(true);
+            d.setMessage(getString(R.string.account_setup_creating_account_msg));
+            return d;
+        }
+    }
+
+    private void showCreateAccountDialog() {
+        new CreateAccountDialogFragment().show(getFragmentManager(), null);
+    }
+
+    public static class CreateAccountErrorDialogFragment extends DialogFragment
+            implements DialogInterface.OnClickListener {
+        public CreateAccountErrorDialogFragment() {}
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final String message = getString(R.string.account_setup_failed_dlg_auth_message,
+                    R.string.system_account_create_failed);
+
+            return new AlertDialog.Builder(getActivity())
+                    .setIconAttribute(android.R.attr.alertDialogIcon)
+                    .setTitle(getString(R.string.account_setup_failed_dlg_title))
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .setPositiveButton(
+                            getString(R.string.account_setup_failed_dlg_edit_details_action), this)
+                    .create();
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            getActivity().finish();
+        }
+    }
 
     /**
      * This is called if MailService.setupAccountManagerAccount() fails for some reason
      */
-    private void showErrorDialog(final int msgResId, final Object... args) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(AccountSetupOptions.this)
-                        .setIconAttribute(android.R.attr.alertDialogIcon)
-                        .setTitle(getString(R.string.account_setup_failed_dlg_title))
-                        .setMessage(getString(msgResId, args))
-                        .setCancelable(true)
-                        .setPositiveButton(
-                                getString(R.string.account_setup_failed_dlg_edit_details_action),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                })
-                        .show();
-            }
-        });
+    private void showCreateAccountErrorDialog() {
+        new CreateAccountErrorDialogFragment().show(getFragmentManager(), null);
     }
 
     /**
-     * This is called after the account manager creates the new account.
+     * Background account creation has completed, so proceed to the next screen.
      */
-    private void optionsComplete() {
-        // If the account manager initiated the creation, report success at this point
-        final AccountAuthenticatorResponse authenticatorResponse =
-            mSetupData.getAccountAuthenticatorResponse();
-        if (authenticatorResponse != null) {
-            authenticatorResponse.onResult(null);
-            mSetupData.setAccountAuthenticatorResponse(null);
-        }
-
-        // Now that AccountManager account creation is complete, clear the INCOMPLETE flag
-        final Account account = mSetupData.getAccount();
-        account.mFlags &= ~Account.FLAGS_INCOMPLETE;
-        AccountSettingsUtils.commitSettings(AccountSetupOptions.this, account);
-
-        // If we've got policies for this account, ask the user to accept.
-        if ((account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
-            final Intent intent =
-                    AccountSecurity.actionUpdateSecurityIntent(this, account.mId, false);
-            startActivityForResult(intent, AccountSetupOptions.REQUEST_CODE_ACCEPT_POLICIES);
-            return;
-        }
-        saveAccountAndFinish();
-
-        // Update the folder list (to get our starting folders, e.g. Inbox)
-        final EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(this, account.mId);
-        try {
-            proxy.updateFolderList(account.mId);
-        } catch (RemoteException e) {
-            // It's all good
-        }
-    }
-
-    /**
-     * This is called after the AccountSecurity activity completes.
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        saveAccountAndFinish();
-    }
-
-    /**
-     * These are the final cleanup steps when creating an account:
-     *  Clear incomplete & security hold flags
-     *  Update account in DB
-     *  Enable email services
-     *  Enable exchange services
-     *  Move to final setup screen
-     */
-    private void saveAccountAndFinish() {
-        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                final AccountSetupOptions context = AccountSetupOptions.this;
-                // Clear the security hold flag now
-                final Account account = mSetupData.getAccount();
-                account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
-                AccountSettingsUtils.commitSettings(context, account);
-                // Start up services based on new account(s)
-                MailActivityEmail.setServicesEnabledSync(context);
-                EmailServiceUtils.startService(context, account.mHostAuthRecv.mProtocol);
-                // Move to final setup screen
-                AccountSetupNames.actionSetNames(context, mSetupData);
-                finish();
-                return null;
-            }
-        };
-        asyncTask.execute();
-    }
-
-    /**
-     * Enable an additional spinner using the arrays normally handled by preferences
-     */
-    private void enableLookbackSpinner() {
-        // Show everything
-        mAccountSyncWindowRow.setVisibility(View.VISIBLE);
-
-        // Generate spinner entries using XML arrays used by the preferences
-        final CharSequence[] windowValues = getResources().getTextArray(
-                R.array.account_settings_mail_window_values);
-        final CharSequence[] windowEntries = getResources().getTextArray(
-                R.array.account_settings_mail_window_entries);
-
-        // Find a proper maximum for email lookback, based on policy (if we have one)
-        int maxEntry = windowEntries.length;
-        final Policy policy = mSetupData.getAccount().mPolicy;
-        if (policy != null) {
-            final int maxLookback = policy.mMaxEmailLookback;
-            if (maxLookback != 0) {
-                // Offset/Code   0      1      2      3      4        5
-                // Entries      auto, 1 day, 3 day, 1 week, 2 week, 1 month
-                // Lookback     N/A   1 day, 3 day, 1 week, 2 week, 1 month
-                // Since our test below is i < maxEntry, we must set maxEntry to maxLookback + 1
-                maxEntry = maxLookback + 1;
-            }
-        }
-
-        // Now create the array used by the Spinner
-        final SpinnerOption[] windowOptions = new SpinnerOption[maxEntry];
-        int defaultIndex = -1;
-        for (int i = 0; i < maxEntry; i++) {
-            final int value = Integer.valueOf(windowValues[i].toString());
-            windowOptions[i] = new SpinnerOption(value, windowEntries[i].toString());
-            if (value == SYNC_WINDOW_EAS_DEFAULT) {
-                defaultIndex = i;
-            }
-        }
-
-        final ArrayAdapter<SpinnerOption> windowOptionsAdapter =
-                new ArrayAdapter<SpinnerOption>(this, android.R.layout.simple_spinner_item,
-                        windowOptions);
-        windowOptionsAdapter
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSyncWindowView.setAdapter(windowOptionsAdapter);
-
-        SpinnerOption.setSpinnerOptionValue(mSyncWindowView,
-                mSetupData.getAccount().getSyncLookback());
-        if (defaultIndex >= 0) {
-            mSyncWindowView.setSelection(defaultIndex);
-        }
+    private void proceed() {
+        AccountSetupNames.actionSetNames(this, mSetupData);
+        finish();
     }
 }

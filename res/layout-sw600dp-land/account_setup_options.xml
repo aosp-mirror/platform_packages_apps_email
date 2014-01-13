@@ -21,7 +21,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingTop="@dimen/setup_padding_top"
         android:paddingLeft="@dimen/setup_padding_left"
         android:paddingRight="@dimen/setup_padding_right"
@@ -72,9 +72,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
-            <include
-                layout="@layout/account_setup_options_common"
-                />
+            <fragment
+                class="com.android.email.activity.setup.AccountSetupOptionsFragment"
+                android:id="@+id/options_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </FrameLayout>
     </RelativeLayout>
 </ScrollView>
