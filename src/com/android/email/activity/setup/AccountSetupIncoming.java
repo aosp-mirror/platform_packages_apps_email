@@ -25,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -63,7 +62,6 @@ public class AccountSetupIncoming extends AccountSetupActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityHelper.debugSetWindowFlags(this);
 
         final HostAuth hostAuth = mSetupData.getAccount().mHostAuthRecv;
         mServiceInfo = EmailServiceUtils.getServiceInfo(this, hostAuth.mProtocol);
@@ -196,7 +194,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
             if (mServiceInfo.usesSmtp) {
                 AccountSetupOutgoing.actionOutgoingSettings(this, mSetupData);
             } else {
-                AccountSetupOptions.actionOptions(this, mSetupData);
+                AccountSetupFinal.actionFinal(this, mSetupData);
                 finish();
             }
         }

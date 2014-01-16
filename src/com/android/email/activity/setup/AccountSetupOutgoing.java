@@ -17,9 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
-import com.android.emailcommon.provider.Account;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -51,7 +49,6 @@ public class AccountSetupOutgoing extends AccountSetupActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_outgoing);
 
         mFragment = (AccountSetupOutgoingFragment)
@@ -113,7 +110,7 @@ public class AccountSetupOutgoing extends AccountSetupActivity
     public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupOptions.actionOptions(this, mSetupData);
+            AccountSetupFinal.actionFinal(this, mSetupData);
             finish();
         }
     }

@@ -158,7 +158,7 @@ public class AccountSetupNamesFragment extends Fragment {
                 mName.setError(null);
             }
         }
-        final AccountSetupNames activity = (AccountSetupNames) getActivity();
+        final AccountSetupFinal activity = (AccountSetupFinal) getActivity();
         activity.setNextButtonEnabled(enableNextButton);
     }
 

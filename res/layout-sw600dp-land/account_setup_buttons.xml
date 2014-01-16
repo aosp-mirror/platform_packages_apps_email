@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,22 +13,19 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/setup_buttons_padding_bottom">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <Button
             android:id="@+id/previous"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="@dimen/setup_buttons_padding_left"
+            android:layout_marginTop="@dimen/setup_buttons_padding_top"
+            android:layout_marginRight="@dimen/setup_buttons_padding_right"
             style="@style/accountSetupButton"
             android:text="@string/previous_action" />
     <Button
             android:id="@+id/next"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
+            android:layout_below="@+id/previous"
+            android:layout_marginTop="@dimen/setup_buttons_vertical_spacing"
             android:layout_marginRight="@dimen/setup_buttons_padding_right"
             style="@style/accountSetupButton"
             android:text="@string/next_action" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,21 +14,13 @@
      limitations under the License.
 -->
 
-<!-- Common data-entry area of account name setup screen - account nickname, user name. -->
-<!-- tablet version -->
-<LinearLayout
+<!-- Fragment view  -->
+<FrameLayout
+    android:id="@+id/setup_fragment_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:paddingLeft="@dimen/setup_item_inset_left"
     android:paddingRight="@dimen/setup_item_inset_right" >
-    <fragment
-            android:id="@+id/names_fragment"
-            class="com.android.email.activity.setup.AccountSetupNamesFragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            />
-</LinearLayout>
-
+    <!-- Don't include the fragment itself here, or we won't be able to swap it out later -->
+</FrameLayout>

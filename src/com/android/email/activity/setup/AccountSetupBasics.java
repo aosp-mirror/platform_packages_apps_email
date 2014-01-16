@@ -42,7 +42,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -208,7 +207,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityHelper.debugSetWindowFlags(this);
 
         // Check for forced account creation first, as it comes from an externally-generated
         // intent and won't have any SetupData prepared.
@@ -718,7 +716,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
         mSetupData = setupData;
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupOptions.actionOptions(this, mSetupData);
+            AccountSetupFinal.actionFinal(this, mSetupData);
             mReportAccountAuthenticatorError = false;
             finish();
         }

@@ -268,14 +268,10 @@
             android:label="@string/account_setup_outgoing_title"
             >
         </activity>
+        <!-- TODO: fix this label -->
         <activity
-            android:name=".activity.setup.AccountSetupOptions"
+            android:name=".activity.setup.AccountSetupFinal"
             android:label="@string/account_setup_options_title"
-            >
-        </activity>
-        <activity
-            android:name=".activity.setup.AccountSetupNames"
-            android:label="@string/account_setup_names_title"
             >
         </activity>
         <!-- Must be exported in order for the AccountManager to launch it -->

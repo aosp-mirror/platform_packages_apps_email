@@ -32,6 +32,7 @@ import com.android.emailcommon.provider.Account;
  *
  * Common code used by the activities and the fragments.
  */
+@Deprecated
 public final class ActivityHelper {
     private ActivityHelper() {
     }

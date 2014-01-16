@@ -27,9 +27,6 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import com.android.email.R;
-import com.android.email.activity.setup.AccountSetupOptions;
-import com.android.email.activity.setup.SetupDataFragment;
-import com.android.email.activity.setup.SpinnerOption;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -38,19 +35,19 @@ import java.net.URISyntaxException;
 /**
  * Tests of basic UI logic in the AccountSetupOptions screen.
  * You can run this entire test case with:
- *   runtest -c com.android.email.activity.setup.AccountSetupOptionsTests email
+ *   runtest -c com.android.email.activity.setup.AccountSetupFinalTests email
  */
 @Suppress
 @MediumTest
-public class AccountSetupOptionsTests
-        extends ActivityInstrumentationTestCase2<AccountSetupOptions> {
+public class AccountSetupFinalTests
+        extends ActivityInstrumentationTestCase2<AccountSetupFinal> {
 
-    private AccountSetupOptions mActivity;
+    private AccountSetupFinal mActivity;
     private Spinner mCheckFrequencyView;
     private CheckBox mBackgroundAttachmentsView;
 
-    public AccountSetupOptionsTests() {
-        super(AccountSetupOptions.class);
+    public AccountSetupFinalTests() {
+        super(AccountSetupFinal.class);
     }
 
     /**
@@ -157,7 +154,7 @@ public class AccountSetupOptionsTests
 
         for (int i = 0; i < sa.getCount(); ++i) {
             SpinnerOption so = (SpinnerOption) sa.getItem(i);
-            if (so != null && ((Integer)so.value).intValue() == value) {
+            if (so != null && ((Integer)so.value) == value) {
                 return true;
             }
         }

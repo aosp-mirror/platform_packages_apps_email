@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Account Setup Layout - XL - landscape - see layout/ for small-screen version -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/setup_padding_top"
+            android:paddingLeft="@dimen/setup_padding_left"
+            android:paddingRight="@dimen/setup_padding_right" >
+
+        <!-- Headline and hairline divider -->
+        <!-- Set headline for first fragment, change in code as we progress through screens -->
+        <TextView
+                android:id="@+id/headline"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="16dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/account_setup_options_headline"
+                android:textAppearance="@style/accountSetupHeadline" />
+        <View
+                android:id="@+id/top_divider"
+                android:layout_below="@+id/headline"
+                android:layout_marginBottom="16dip"
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/account_setup_divider_color" />
+
+        <!-- Buttons on the right -->
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_below="@+id/top_divider"
+                     android:layout_alignParentRight="true"
+                     android:id="@+id/buttons">
+            <include layout="@layout/account_setup_buttons" />
+        </FrameLayout>
+
+        <!-- Primary fragment on the left -->
+        <FrameLayout
+                android:layout_below="@+id/top_divider"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dip"
+                android:paddingRight="64dip"
+                >
+            <include layout="@layout/account_setup_fragment_container" />
+        </FrameLayout>
+    </RelativeLayout>
+</ScrollView>
