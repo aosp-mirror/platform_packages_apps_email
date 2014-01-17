@@ -68,11 +68,6 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     public static boolean DEBUG_VERBOSE;
     public static boolean DEBUG_FILE;
 
-    /**
-     * If true, inhibit hardware graphics acceleration in UI (for a/b testing)
-     */
-    public static boolean sDebugInhibitGraphicsAcceleration = false;
-
     private static final int MATCH_LEGACY_SHORTCUT_INTENT = 1;
     /**
      * A matcher for data URI's that specify conversation list info.
@@ -179,7 +174,6 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         super.onCreate(bundle);
         final Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
-        sDebugInhibitGraphicsAcceleration = prefs.getInhibitGraphicsAcceleration();
         enableStrictMode(prefs.getEnableStrictMode());
         TempDirectory.setTempDirectory(this);
 

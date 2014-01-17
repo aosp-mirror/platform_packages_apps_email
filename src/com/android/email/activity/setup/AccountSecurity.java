@@ -34,7 +34,6 @@ import android.os.Handler;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
-import com.android.email.activity.ActivityHelper;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -123,7 +122,6 @@ public class AccountSecurity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityHelper.debugSetWindowFlags(this);
 
         mHandler = new Handler();
 
