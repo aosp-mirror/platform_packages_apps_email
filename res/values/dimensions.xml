@@ -19,6 +19,17 @@
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
 
+    <!-- Account Setup Activities -->
+    <!-- inset distance for setup/settings buttons -->
+    <dimen name="setup_buttons_padding_left">16dip</dimen>
+    <dimen name="setup_buttons_padding_right">16dip</dimen>
+    <!-- distance of any button below the upper hairline -->
+    <dimen name="setup_buttons_padding_top">64dip</dimen>
+    <!-- distance of any button below the previous button (vertical stack) -->
+    <dimen name="setup_buttons_vertical_spacing">48dip</dimen>
+    <!-- distance of any button above the bottom of the screen -->
+    <dimen name="setup_buttons_padding_bottom">48dip</dimen>
+
     <!-- Account settings fragments -->
     <dimen name="settings_fragment_padding_top">16dip</dimen>
     <dimen name="settings_fragment_padding_left">16dip</dimen>
