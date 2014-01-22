@@ -202,6 +202,14 @@
     <string name="account_setup_basics_email_label">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
     <string name="account_setup_basics_password_label">Password</string>
+    <!--  On the "Setup up email" screen, label indicating what service we are signed in with [CHAR LIMIT=40] -->
+    <string name="signed_in_with_service_label">Signed in with %s</string>
+    <!-- Label for the authentication section [CHAR LIMIT=20] -->
+    <string name="authenticiation_label">Authentication</string>
+    <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
+    <string name="add_authentication_label">Add authentication</string>
+    <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
+    <string name="clear_authentication_label">Clear authentication</string>
     <!-- Button name on "Set up email" screen [CHAR LIMIT=20] -->
     <string name="account_setup_basics_manual_setup_action">Manual setup</string>
     <!-- Do not translate. Button name on "Set up email" screen [CHAR LIMIT=20] TODO: This is a temporary workaround

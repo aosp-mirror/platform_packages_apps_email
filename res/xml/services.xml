@@ -33,6 +33,7 @@
      The following optional attributes default to "false":
          offerTls: whether a TLS option (e.g. STARTTLS) is offered for this service
          offerCerts: whether or not certificate authentication is an option for this service
+         offerOAuth: whether or not OAuth authentication is an option for this service
          usesSmtp: whether SMTP is used as the outgoing protocol for this service
          offerPrefix: whether a "prefix" is offered to the user (for IMAP)
          offerLocalDeletes: whether an option to delete locally is offered
@@ -83,6 +84,7 @@
         email:offerPrefix="true"
         email:syncChanges="true"
         email:inferPrefix="imap"
+        email:offerOAuth="true"
         email:offerLoadMore="true"
         email:offerMoveTo="true"
          />

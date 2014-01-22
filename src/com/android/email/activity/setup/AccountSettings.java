@@ -388,6 +388,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         super.onBackPressed();
     }
 
+
     private void launchMailboxSettings(Intent intent) {
         final Folder folder = intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
 
@@ -401,7 +402,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         MailboxSettings.start(this, mailboxId);
         finish();
     }
-
 
     private void enableDebugMenu() {
         mShowDebugMenu = true;

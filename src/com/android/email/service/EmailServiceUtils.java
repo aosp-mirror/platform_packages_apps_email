@@ -185,6 +185,7 @@ public class EmailServiceUtils {
         public boolean defaultSsl;
         public boolean offerTls;
         public boolean offerCerts;
+        public boolean offerOAuth;
         public boolean usesSmtp;
         public boolean offerLocalDeletes;
         public int defaultLocalDeletes;
@@ -544,6 +545,8 @@ public class EmailServiceUtils {
                         info.offerTls = ta.getBoolean(R.styleable.EmailServiceInfo_offerTls, false);
                         info.offerCerts =
                                 ta.getBoolean(R.styleable.EmailServiceInfo_offerCerts, false);
+                        info.offerOAuth =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_offerOAuth, false);
                         info.offerLocalDeletes =
                             ta.getBoolean(R.styleable.EmailServiceInfo_offerLocalDeletes, false);
                         info.defaultLocalDeletes =
