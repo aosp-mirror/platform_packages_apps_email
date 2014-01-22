@@ -37,12 +37,6 @@ import com.android.mail.utils.LogUtils;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
-    private CheckBox mEnableDebugLoggingView;
-    private CheckBox mEnableVerboseLoggingView;
-    private CheckBox mEnableFileLoggingView;
-    private CheckBox mInhibitGraphicsAccelerationView;
-    private CheckBox mEnableStrictModeView;
-
     private Preferences mPreferences;
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -59,38 +53,31 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         Context context = getActivity();
         mPreferences = Preferences.getPreferences(context);
 
-        mEnableDebugLoggingView = (CheckBox) UiUtilities.getView(view, R.id.debug_logging);
-        mEnableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);
+        final CheckBox enableDebugLoggingView = UiUtilities.getView(view, R.id.debug_logging);
+        enableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);
 
-        mEnableVerboseLoggingView = (CheckBox) UiUtilities.getView(view, R.id.verbose_logging);
-        mEnableFileLoggingView =
-            (CheckBox) UiUtilities.getView(view, R.id.file_logging);
+        final CheckBox enableVerboseLoggingView = UiUtilities.getView(view, R.id.verbose_logging);
+        final CheckBox enableFileLoggingView = UiUtilities.getView(view, R.id.file_logging);
 
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
-        mEnableDebugLoggingView.setOnCheckedChangeListener(this);
+        enableDebugLoggingView.setOnCheckedChangeListener(this);
 
         if (EmailServiceUtils.areRemoteServicesInstalled(context)) {
-            mEnableVerboseLoggingView.setChecked(MailActivityEmail.DEBUG_VERBOSE);
-            mEnableFileLoggingView.setChecked(MailActivityEmail.DEBUG_FILE);
-            mEnableVerboseLoggingView.setOnCheckedChangeListener(this);
-            mEnableFileLoggingView.setOnCheckedChangeListener(this);
+            enableVerboseLoggingView.setChecked(MailActivityEmail.DEBUG_VERBOSE);
+            enableFileLoggingView.setChecked(MailActivityEmail.DEBUG_FILE);
+            enableVerboseLoggingView.setOnCheckedChangeListener(this);
+            enableFileLoggingView.setOnCheckedChangeListener(this);
         } else {
-            mEnableVerboseLoggingView.setVisibility(View.GONE);
-            mEnableFileLoggingView.setVisibility(View.GONE);
+            enableVerboseLoggingView.setVisibility(View.GONE);
+            enableFileLoggingView.setVisibility(View.GONE);
         }
 
         UiUtilities.getView(view, R.id.clear_webview_cache).setOnClickListener(this);
 
-        mInhibitGraphicsAccelerationView = (CheckBox)
-                UiUtilities.getView(view, R.id.debug_disable_graphics_acceleration);
-        mInhibitGraphicsAccelerationView.setChecked(
-                MailActivityEmail.sDebugInhibitGraphicsAcceleration);
-        mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
-
-        mEnableStrictModeView = (CheckBox)
+        final CheckBox enableStrictModeView =
                 UiUtilities.getView(view, R.id.debug_enable_strict_mode);
-        mEnableStrictModeView.setChecked(mPreferences.getEnableStrictMode());
-        mEnableStrictModeView.setOnCheckedChangeListener(this);
+        enableStrictModeView.setChecked(mPreferences.getEnableStrictMode());
+        enableStrictModeView.setOnCheckedChangeListener(this);
 
         return view;
     }
@@ -110,10 +97,6 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
             case R.id.file_logging:
                 mPreferences.setEnableExchangeFileLogging(isChecked);
                 MailActivityEmail.DEBUG_FILE = isChecked;
-                break;
-           case R.id.debug_disable_graphics_acceleration:
-                MailActivityEmail.sDebugInhibitGraphicsAcceleration = isChecked;
-                mPreferences.setInhibitGraphicsAcceleration(isChecked);
                 break;
             case R.id.debug_enable_strict_mode:
                 mPreferences.setEnableStrictMode(isChecked);

@@ -29,7 +29,6 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
 import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -56,7 +55,6 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityHelper.debugSetWindowFlags(this);
 
         final String accountType = mSetupData.getFlowAccountType();
         // If we're in account setup flow mode, see if there's just one protocol that matches
