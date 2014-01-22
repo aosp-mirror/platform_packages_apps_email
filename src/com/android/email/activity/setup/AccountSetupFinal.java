@@ -104,6 +104,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(SAVESTATE_IS_PROCESSING_KEY, mIsProcessing);
+        outState.putInt(SAVESTATE_STATE, mState);
     }
 
     /**
