@@ -504,11 +504,11 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             throws MessagingException {
         assertEquals(tag, expect.getUid(), actual.mServerId);
         assertEquals(tag, expect.getSubject(), actual.mSubject);
-        assertEquals(tag, Address.pack(expect.getFrom()), actual.mFrom);
+        assertEquals(tag, Address.toHeader(expect.getFrom()), actual.mFrom);
         assertEquals(tag, expect.getSentDate().getTime(), actual.mTimeStamp);
-        assertEquals(tag, Address.pack(expect.getRecipients(RecipientType.TO)), actual.mTo);
-        assertEquals(tag, Address.pack(expect.getRecipients(RecipientType.CC)), actual.mCc);
-        assertEquals(tag, ((MimeMessage)expect).getMessageId(), actual.mMessageId);
+        assertEquals(tag, Address.toHeader(expect.getRecipients(RecipientType.TO)), actual.mTo);
+        assertEquals(tag, Address.toHeader(expect.getRecipients(RecipientType.CC)), actual.mCc);
+        assertEquals(tag, expect.getMessageId(), actual.mMessageId);
         assertEquals(tag, expect.isSet(Flag.SEEN), actual.mFlagRead);
         assertEquals(tag, expect.isSet(Flag.FLAGGED), actual.mFlagFavorite);
     }
@@ -521,13 +521,13 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag, expect.mServerId, actual.getUid());
         assertEquals(tag, expect.mServerTimeStamp, actual.getInternalDate().getTime());
         assertEquals(tag, expect.mSubject, actual.getSubject());
-        assertEquals(tag, expect.mFrom, Address.pack(actual.getFrom()));
+        assertEquals(tag, expect.mFrom, Address.toHeader(actual.getFrom()));
         assertEquals(tag, expect.mTimeStamp, actual.getSentDate().getTime());
-        assertEquals(tag, expect.mTo, Address.pack(actual.getRecipients(RecipientType.TO)));
-        assertEquals(tag, expect.mCc, Address.pack(actual.getRecipients(RecipientType.CC)));
-        assertEquals(tag, expect.mBcc, Address.pack(actual.getRecipients(RecipientType.BCC)));
-        assertEquals(tag, expect.mReplyTo, Address.pack(actual.getReplyTo()));
-        assertEquals(tag, expect.mMessageId, ((MimeMessage)actual).getMessageId());
+        assertEquals(tag, expect.mTo, Address.toHeader(actual.getRecipients(RecipientType.TO)));
+        assertEquals(tag, expect.mCc, Address.toHeader(actual.getRecipients(RecipientType.CC)));
+        assertEquals(tag, expect.mBcc, Address.toHeader(actual.getRecipients(RecipientType.BCC)));
+        assertEquals(tag, expect.mReplyTo, Address.toHeader(actual.getReplyTo()));
+        assertEquals(tag, expect.mMessageId, actual.getMessageId());
         // check flags
         assertEquals(tag, expect.mFlagRead, actual.isSet(Flag.SEEN));
         assertEquals(tag, expect.mFlagFavorite, actual.isSet(Flag.FLAGGED));

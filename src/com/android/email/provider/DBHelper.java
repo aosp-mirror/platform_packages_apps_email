@@ -1645,8 +1645,8 @@ public final class DBHelper {
                 while (messageCursor.moveToNext()) {
                     for (int i = 0; i < ADDRESS_COLUMN_INDICES.length; i++) {
                         Address[] addrs =
-                                Address.unpack(messageCursor.getString(ADDRESS_COLUMN_INDICES[i]));
-                        cv.put(ADDRESS_COLUMN_NAMES[i], Address.pack(addrs));
+                                Address.fromHeader(messageCursor.getString(ADDRESS_COLUMN_INDICES[i]));
+                        cv.put(ADDRESS_COLUMN_NAMES[i], Address.toHeader(addrs));
                     }
                     whereArgs[0] = messageCursor.getString(Message.CONTENT_ID_COLUMN);
                     db.update(Message.TABLE_NAME, cv, WHERE_ID, whereArgs);
