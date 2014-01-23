@@ -324,7 +324,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
 
 
     public static class CreateAccountDialogFragment extends DialogFragment {
-        CreateAccountDialogFragment() {}
+        public CreateAccountDialogFragment() {}
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -399,12 +399,14 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
     }
 
 
-    private static class AccountFinalizeFragment extends Fragment {
+    public static class AccountFinalizeFragment extends Fragment {
         private static final String ACCOUNT_TAG = "account";
 
         private static final int FINAL_ACCOUNT_TASK_LOADER_ID = 0;
 
         private Context mAppContext;
+
+        public AccountFinalizeFragment() {}
 
         public static AccountFinalizeFragment newInstance(Account account) {
             final AccountFinalizeFragment f = new AccountFinalizeFragment();

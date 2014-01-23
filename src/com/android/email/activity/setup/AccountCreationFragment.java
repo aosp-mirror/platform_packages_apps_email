@@ -62,7 +62,7 @@ public class AccountCreationFragment extends Fragment {
     private Context mAppContext;
     private final Handler mHandler;
 
-    AccountCreationFragment() {
+    public AccountCreationFragment() {
         mHandler = new Handler();
     }
 
