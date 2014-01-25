@@ -175,7 +175,8 @@ public final class DBHelper {
     //              exchange accounts.
     // Version 124: Added MAX_ATTACHMENT_SIZE to the account table
     // Version 125: Add credentials table for OAuth.
-    public static final int DATABASE_VERSION = 125;
+    // Version 126: Decode address lists for To, From, Cc, Bcc and Reply-To columns in Message.
+    public static final int DATABASE_VERSION = 126;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1365,6 +1366,10 @@ public final class DBHelper {
                 db.execSQL("update " + HostAuth.TABLE_NAME + " set "
                         + HostAuthColumns.CREDENTIAL_KEY + "=-1");
             }
+
+            if (oldVersion <= 125) {
+                upgradeFromVersion125ToVersion126(db);
+            }
         }
 
         @Override
@@ -1672,6 +1677,32 @@ public final class DBHelper {
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 29 to 30 " + e);
+        }
+    }
+
+    private static void upgradeFromVersion125ToVersion126(SQLiteDatabase db) {
+        try {
+            // Loop through all messages, updating address columns to their decoded form
+            Cursor messageCursor = db.query(Message.TABLE_NAME, Message.CONTENT_PROJECTION, null,
+                    null, null, null, null);
+            ContentValues cv = new ContentValues();
+            String[] whereArgs = new String[1];
+            try {
+                while (messageCursor.moveToNext()) {
+                    for (int i = 0; i < ADDRESS_COLUMN_INDICES.length; i++) {
+                        Address[] addrs =
+                                Address.fromHeader(messageCursor.getString(ADDRESS_COLUMN_INDICES[i]));
+                        cv.put(ADDRESS_COLUMN_NAMES[i], Address.toString(addrs));
+                    }
+                    whereArgs[0] = messageCursor.getString(Message.CONTENT_ID_COLUMN);
+                    db.update(Message.TABLE_NAME, cv, WHERE_ID, whereArgs);
+                }
+            } finally {
+                messageCursor.close();
+            }
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 124 to 125 " + e);
         }
     }
 

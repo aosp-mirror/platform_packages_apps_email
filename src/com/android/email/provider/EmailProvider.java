@@ -843,6 +843,7 @@ public class EmailProvider extends ContentProvider {
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
                 case MESSAGE:
+                    decodeEmailAddresses(values);
                 case BODY:
                 case ATTACHMENT:
                 case MAILBOX:
@@ -1910,6 +1911,7 @@ public class EmailProvider extends ContentProvider {
                     }
                     break;
                 case MESSAGE:
+                    decodeEmailAddresses(values);
                 case UPDATED_MESSAGE:
                 case ATTACHMENT:
                 case MAILBOX:
@@ -5639,6 +5641,43 @@ public class EmailProvider extends ContentProvider {
         }
         deleteAccountData(context, accountId);
         return 1;
+    }
+
+    /**
+     * The method will no longer be needed after Kitkat MR2 releases. As emails are received from
+     * various protocols the email addresses are decoded and intended to be stored in the database
+     * in decoded form. The problem is that Exchange is a separate .apk and the old Exchange .apk
+     * still attempts to store <strong>encoded</strong> email addresses. So, we decode here at the
+     * Provider before writing to the database to ensure the addresses are written in decoded form.
+     *
+     * @param values the values to be written into the Message table
+     */
+    private static void decodeEmailAddresses(ContentValues values) {
+        if (values.containsKey(Message.MessageColumns.TO_LIST)) {
+            final String to = values.getAsString(Message.MessageColumns.TO_LIST);
+            values.put(Message.MessageColumns.TO_LIST, Address.fromHeaderToString(to));
+        }
+
+        if (values.containsKey(Message.MessageColumns.FROM_LIST)) {
+            final String from = values.getAsString(Message.MessageColumns.FROM_LIST);
+            values.put(Message.MessageColumns.FROM_LIST, Address.fromHeaderToString(from));
+        }
+
+        if (values.containsKey(Message.MessageColumns.CC_LIST)) {
+            final String cc = values.getAsString(Message.MessageColumns.CC_LIST);
+            values.put(Message.MessageColumns.CC_LIST, Address.fromHeaderToString(cc));
+        }
+
+        if (values.containsKey(Message.MessageColumns.BCC_LIST)) {
+            final String bcc = values.getAsString(Message.MessageColumns.BCC_LIST);
+            values.put(Message.MessageColumns.BCC_LIST, Address.fromHeaderToString(bcc));
+        }
+
+        if (values.containsKey(Message.MessageColumns.REPLY_TO_LIST)) {
+            final String replyTo = values.getAsString(Message.MessageColumns.REPLY_TO_LIST);
+            values.put(Message.MessageColumns.REPLY_TO_LIST,
+                    Address.fromHeaderToString(replyTo));
+        }
     }
 
     /** Projection used for getting email address for an account. */
