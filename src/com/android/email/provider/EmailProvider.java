@@ -3047,6 +3047,7 @@ public class EmailProvider extends ContentProvider {
         if (TextUtils.equals(context.getString(R.string.protocol_imap), protocol) ||
                 TextUtils.equals(context.getString(R.string.protocol_legacy_imap), protocol)) {
             capabilities = AccountCapabilities.SYNCABLE_FOLDERS |
+                    AccountCapabilities.SERVER_SEARCH |
                     AccountCapabilities.FOLDER_SERVER_SEARCH |
                     AccountCapabilities.UNDO |
                     AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
