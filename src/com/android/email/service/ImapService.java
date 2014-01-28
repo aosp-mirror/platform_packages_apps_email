@@ -152,6 +152,7 @@ public class ImapService extends Service {
         @Override
         public int getCapabilities(Account acct) throws RemoteException {
             return AccountCapabilities.SYNCABLE_FOLDERS |
+                    AccountCapabilities.SERVER_SEARCH |
                     AccountCapabilities.FOLDER_SERVER_SEARCH |
                     AccountCapabilities.UNDO |
                     AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
