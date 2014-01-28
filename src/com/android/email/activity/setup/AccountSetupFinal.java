@@ -63,6 +63,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
     private int mState = STATE_OPTIONS;
 
     private boolean mIsProcessing = false;
+    private boolean mForceCreate = false;
 
     private Button mNextButton;
 
@@ -96,6 +97,17 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
                 && mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
             // If we are just visiting here to fill in details, exit immediately
             getFragmentManager().executePendingTransactions();
+            mForceCreate = true;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mForceCreate) {
+            mForceCreate = false;
+            // We need to do this after onCreate so that we can ensure that the fragment is fully
+            // created before querying it.
             initiateAccountCreation();
         }
     }
