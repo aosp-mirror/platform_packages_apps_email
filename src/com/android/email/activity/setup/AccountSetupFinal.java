@@ -85,7 +85,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
             // If we're not restoring from a previous state, we want to configure the initial screen
             mState = STATE_OPTIONS;
             updateHeadline();
-            updateContentFragment();
+            updateContentFragment(false /* addToBackstack */);
         }
 
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
@@ -126,7 +126,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
      * Swap in the new fragment according to mState. This pushes the current fragment onto the back
      * stack, so only call it once per transition.
      */
-    private void updateContentFragment() {
+    private void updateContentFragment(boolean addToBackstack) {
         final Fragment f;
         switch (mState) {
             case STATE_OPTIONS:
@@ -140,7 +140,9 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
         }
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.setup_fragment_container, f, CONTENT_FRAGMENT_TAG);
-        ft.addToBackStack(null);
+        if (addToBackstack) {
+            ft.addToBackStack(null);
+        }
         ft.commit();
     }
 
@@ -164,7 +166,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
             case STATE_OPTIONS:
                 mState = STATE_NAMES;
                 updateHeadline();
-                updateContentFragment();
+                updateContentFragment(true /* addToBackstack */);
                 if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
                     getFragmentManager().executePendingTransactions();
                     initiateAccountFinalize();
