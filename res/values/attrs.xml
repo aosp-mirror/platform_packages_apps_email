@@ -30,6 +30,7 @@
         <attr name="defaultSsl" format="boolean"/>
         <attr name="offerTls" format="boolean"/>
         <attr name="offerCerts" format="boolean"/>
+        <attr name="offerOAuth" format="boolean"/>
         <attr name="offerLocalDeletes" format="boolean"/>
         <attr name="defaultLocalDeletes" format="integer"/>
         <attr name="offerPrefix" format="boolean"/>
