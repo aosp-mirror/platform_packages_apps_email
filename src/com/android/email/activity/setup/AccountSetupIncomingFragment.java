@@ -17,12 +17,9 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -40,22 +37,17 @@ import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email.activity.setup.AuthenticationFragment.AuthenticationCallback;
+import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
-import com.android.email.view.CertificateSelector;
-import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -65,14 +57,13 @@ import java.util.ArrayList;
  * (for editing existing accounts).
  */
 public class AccountSetupIncomingFragment extends AccountServerBaseFragment
-        implements HostCallback, AuthenticationCallback {
+        implements AuthenticationCallback {
 
-    private static final int CERTIFICATE_REQUEST = 0;
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
 
     private EditText mUsernameView;
-    private AuthenticationFragment mAuthenticationFragment;
+    private AuthenticationView mAuthenticationView;
     private TextView mServerLabelView;
     private EditText mServerView;
     private EditText mPortView;
@@ -133,6 +124,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mDeletePolicyView = UiUtilities.getView(view, R.id.account_delete_policy);
         mImapPathPrefixSectionView = UiUtilities.getView(view, R.id.imap_path_prefix_section);
         mImapPathPrefixView = UiUtilities.getView(view, R.id.imap_path_prefix);
+        mAuthenticationView = UiUtilities.getView(view, R.id.authentication_view);
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
@@ -173,13 +165,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         // Additional setup only used while in "settings" mode
         onCreateViewSettingsMode(view);
 
-        final FragmentManager fm = getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
-        mAuthenticationFragment = new AuthenticationFragment();
-        ft.add(R.id.authentication_container, mAuthenticationFragment, "AuthenticationFragment");
-        ft.commit();
-
-        mAuthenticationFragment.setAuthenticationCallback(this);
+        mAuthenticationView.setAuthenticationCallback(this);
 
         return view;
     }
@@ -291,11 +277,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     public void onDestroyView() {
         // Make sure we don't get callbacks after the views are supposed to be destroyed
         // and also don't hold onto them longer than we need
-        final FragmentManager fm = getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
-        ft.remove(mAuthenticationFragment);
-        ft.commit();
-
         if (mUsernameView != null) {
             mUsernameView.removeTextChangedListener(mValidationTextWatcher);
         }
@@ -392,7 +373,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
-        mAuthenticationFragment.setAuthInfo(mServiceInfo, recvAuth);
+        mAuthenticationView.setAuthInfo(mServiceInfo, recvAuth);
 
         final String username = recvAuth.mLogin;
         if (username != null) {
@@ -448,7 +429,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private void validateFields() {
         if (!mLoaded) return;
         enableNextButton(!TextUtils.isEmpty(mUsernameView.getText())
-                && mAuthenticationFragment.getAuthValid()
+                && mAuthenticationView.getAuthValid()
                 && Utility.isServerNameValid(mServerView)
                 && Utility.isPortFieldValid(mPortView));
 
@@ -468,7 +449,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     public void onUseSslChanged(boolean useSsl) {
-        mAuthenticationFragment.onUseSslChanged(useSsl);
+        mAuthenticationView.onUseSslChanged(useSsl);
     }
 
     private void updatePortFromSecurityType() {
@@ -527,7 +508,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         final String userName = mUsernameView.getText().toString().trim();
-        final String userPassword = mAuthenticationFragment.getPassword().toString();
+        final String userPassword = mAuthenticationView.getPassword().toString();
         recvAuth.setLogin(userName, userPassword);
 
         final String serverAddress = mServerView.getText().toString().trim();
@@ -547,7 +528,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         } else {
             recvAuth.mDomain = null;
         }
-        recvAuth.mClientCertAlias = mAuthenticationFragment.getClientCertificate();
+        recvAuth.mClientCertAlias = mAuthenticationView.getClientCertificate();
 
         mCallback.onProceedNext(SetupDataFragment.CHECK_INCOMING, this);
         clearButtonBounce();
@@ -577,13 +558,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mSetupData = setupData;
         final AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
         activity.onAutoDiscoverComplete(result, setupData);
-    }
-
-    @Override
-    public void onCertificateRequested() {
-        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
-        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
-        startActivityForResult(intent, CERTIFICATE_REQUEST);
     }
 
     @Override

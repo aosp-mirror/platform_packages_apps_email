@@ -35,8 +35,8 @@
         android:inputType="textEmailAddress"
         android:imeOptions="actionNext" />
 
-    <FrameLayout
-        android:id="@+id/authentication_container"
+    <com.android.email.activity.setup.AuthenticationView
+        android:id="@+id/authentication_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

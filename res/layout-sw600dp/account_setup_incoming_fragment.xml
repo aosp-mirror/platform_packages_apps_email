@@ -39,18 +39,10 @@
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginRight="16dip"
-            android:text="@string/account_setup_incoming_password_label" />
-        <EditText
-            android:id="@+id/account_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/account_setup_incoming_password_label"
-            android:inputType="textPassword"
-            android:imeOptions="actionDone" />
+    <com.android.email.activity.setup.AuthenticationView
+        android:id="@+id/authentication_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
@@ -98,10 +90,7 @@
             android:inputType="number"
             android:imeOptions="actionDone" />
     </TableRow>
-    <include
-        android:id="@+id/client_certificate_selector"
-        layout="@layout/client_certificate_selector"
-        android:visibility="gone" />
+
     <TableRow
         android:paddingTop="16dip" >
         <TextView
