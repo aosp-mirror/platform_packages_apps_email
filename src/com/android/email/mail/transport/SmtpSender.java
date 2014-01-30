@@ -21,7 +21,6 @@ import android.util.Base64;
 
 import com.android.email.mail.Sender;
 import com.android.email.mail.internet.AuthenticationCache;
-import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.Rfc822Output;
@@ -193,10 +192,10 @@ public class SmtpSender extends Sender {
             throw new MessagingException("Trying to send non-existent message id="
                     + Long.toString(messageId));
         }
-        Address from = Address.unpackFirst(message.mFrom);
-        Address[] to = Address.unpack(message.mTo);
-        Address[] cc = Address.unpack(message.mCc);
-        Address[] bcc = Address.unpack(message.mBcc);
+        Address from = Address.firstAddress(message.mFrom);
+        Address[] to = Address.fromHeader(message.mTo);
+        Address[] cc = Address.fromHeader(message.mCc);
+        Address[] bcc = Address.fromHeader(message.mBcc);
 
         try {
             executeSimpleCommand("MAIL FROM:" + "<" + from.getAddress() + ">");

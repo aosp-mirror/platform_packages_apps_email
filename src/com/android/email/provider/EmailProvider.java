@@ -2687,7 +2687,7 @@ public class EmailProvider extends ContentProvider {
                     }
                 }
             }
-            Address[] fromList = Address.unpack(msg.mFrom);
+            Address[] fromList = Address.fromHeader(msg.mFrom);
             int autoShowImages = 0;
             final MailPrefs mailPrefs = MailPrefs.get(context);
             for (Address sender : fromList) {
@@ -4860,7 +4860,7 @@ public class EmailProvider extends ContentProvider {
                     putIntegerLongOrBoolean(ourValues, MessageColumns.MAILBOX_KEY, mailboxId);
                 }
             } else if (columnName.equals(UIProvider.MessageColumns.ALWAYS_SHOW_IMAGES)) {
-                Address[] fromList = Address.unpack(message.mFrom);
+                Address[] fromList = Address.fromHeader(message.mFrom);
                 final MailPrefs mailPrefs = MailPrefs.get(getContext());
                 for (Address sender : fromList) {
                     final String email = sender.getAddress();

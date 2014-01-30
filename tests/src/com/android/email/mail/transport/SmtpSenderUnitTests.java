@@ -166,8 +166,8 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
     private Message setupSimpleMessage() {
         Message message = new Message();
         message.mTimeStamp = System.currentTimeMillis();
-        message.mFrom = Address.parseAndPack("Jones@Registry.Org");
-        message.mTo = Address.parseAndPack("Smith@Registry.Org");
+        message.mFrom = Address.parseToHeader("Jones@Registry.Org");
+        message.mTo = Address.parseToHeader("Smith@Registry.Org");
         message.mMessageId = "1234567890";
         return message;
     }

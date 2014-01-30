@@ -135,13 +135,13 @@ public class LegacyConversions {
         localMessage.mAccountKey = accountId;
 
         if (from != null && from.length > 0) {
-            localMessage.mFrom = Address.pack(from);
+            localMessage.mFrom = Address.toHeader(from);
         }
 
-        localMessage.mTo = Address.pack(to);
-        localMessage.mCc = Address.pack(cc);
-        localMessage.mBcc = Address.pack(bcc);
-        localMessage.mReplyTo = Address.pack(replyTo);
+        localMessage.mTo = Address.toHeader(to);
+        localMessage.mCc = Address.toHeader(cc);
+        localMessage.mBcc = Address.toHeader(bcc);
+        localMessage.mReplyTo = Address.toHeader(replyTo);
 
 //        public String mText;
 //        public String mHtml;
@@ -339,7 +339,7 @@ public class LegacyConversions {
 
         // LocalFolder.getMessages() equivalent:  Copy message fields
         message.setSubject(localMessage.mSubject == null ? "" : localMessage.mSubject);
-        Address[] from = Address.unpack(localMessage.mFrom);
+        Address[] from = Address.fromHeader(localMessage.mFrom);
         if (from.length > 0) {
             message.setFrom(from[0]);
         }
@@ -350,10 +350,10 @@ public class LegacyConversions {
         message.setFlag(Flag.SEEN, localMessage.mFlagRead);
         message.setFlag(Flag.FLAGGED, localMessage.mFlagFavorite);
 //      message.setFlag(Flag.DRAFT, localMessage.mMailboxKey == draftMailboxKey);
-        message.setRecipients(RecipientType.TO, Address.unpack(localMessage.mTo));
-        message.setRecipients(RecipientType.CC, Address.unpack(localMessage.mCc));
-        message.setRecipients(RecipientType.BCC, Address.unpack(localMessage.mBcc));
-        message.setReplyTo(Address.unpack(localMessage.mReplyTo));
+        message.setRecipients(RecipientType.TO, Address.fromHeader(localMessage.mTo));
+        message.setRecipients(RecipientType.CC, Address.fromHeader(localMessage.mCc));
+        message.setRecipients(RecipientType.BCC, Address.fromHeader(localMessage.mBcc));
+        message.setReplyTo(Address.fromHeader(localMessage.mReplyTo));
         message.setInternalDate(new Date(localMessage.mServerTimeStamp));
         message.setMessageId(localMessage.mMessageId);
 

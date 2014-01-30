@@ -330,7 +330,7 @@ public class Rfc822Output {
         if (value != null && value.length() > 0) {
             writer.append(name);
             writer.append(": ");
-            writer.append(MimeUtility.fold(Address.packedToHeader(value), name.length() + 2));
+            writer.append(MimeUtility.fold(Address.reformatToHeader(value), name.length() + 2));
             writer.append("\r\n");
         }
     }
