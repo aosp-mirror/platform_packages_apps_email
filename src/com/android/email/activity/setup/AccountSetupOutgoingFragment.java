@@ -36,7 +36,10 @@ import android.widget.Spinner;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
+import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -51,7 +54,7 @@ import com.android.mail.utils.LogUtils;
  * (for editing existing accounts).
  */
 public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
-        implements OnCheckedChangeListener {
+        implements OnCheckedChangeListener, AuthenticationCallback {
 
     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
 
@@ -59,7 +62,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private static final int SMTP_PORT_SSL    = 465;
 
     private EditText mUsernameView;
-    private EditText mPasswordView;
+    private AuthenticationView mAuthenticationView;
     private EditText mServerView;
     private EditText mPortView;
     private CheckBox mRequireLoginView;
@@ -103,7 +106,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         final Context context = getActivity();
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
-        mPasswordView = UiUtilities.getView(view, R.id.account_password);
+        mAuthenticationView = UiUtilities.getView(view, R.id.authentication_view);
         mServerView = UiUtilities.getView(view, R.id.account_server);
         mPortView = UiUtilities.getView(view, R.id.account_port);
         mRequireLoginView = UiUtilities.getView(view, R.id.account_require_login);
@@ -162,7 +165,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
         mUsernameView.addTextChangedListener(validationTextWatcher);
-        mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
         mPortView.addTextChangedListener(validationTextWatcher);
 
@@ -171,6 +173,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         // Additional setup only used while in "settings" mode
         onCreateViewSettingsMode(view);
+
+        mAuthenticationView.setAuthenticationCallback(this);
 
         return view;
     }
@@ -274,10 +278,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                 mRequireLoginView.setChecked(true);
             }
 
-            final String password = sendAuth.mPassword;
-            if (password != null) {
-                mPasswordView.setText(password);
-            }
+            mAuthenticationView.setAuthInfo(true, false, sendAuth);
         }
 
         final int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
@@ -310,11 +311,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         if (enabled && mRequireLoginView.isChecked()) {
             enabled = !TextUtils.isEmpty(mUsernameView.getText())
-                    && !TextUtils.isEmpty(mPasswordView.getText());
+                    && mAuthenticationView.getAuthValid();
         }
         enableNextButton(enabled);
-        // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
    }
 
     /**
@@ -368,7 +367,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         if (mRequireLoginView.isChecked()) {
             final String userName = mUsernameView.getText().toString().trim();
-            final String userPassword = mPasswordView.getText().toString();
+            final String userPassword = mAuthenticationView.getPassword().toString();
             sendAuth.setLogin(userName, userPassword);
         } else {
             sendAuth.setLogin(null, null);
@@ -389,5 +388,10 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         mCallback.onProceedNext(SetupDataFragment.CHECK_OUTGOING, this);
         clearButtonBounce();
+    }
+
+    @Override
+    public void onValidateStateChanged() {
+        validateFields();
     }
 }

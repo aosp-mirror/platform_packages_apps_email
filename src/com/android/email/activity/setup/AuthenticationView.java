@@ -1,9 +1,7 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,25 +13,20 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Device;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.CertificateRequestor;
-import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 
@@ -182,9 +175,10 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         }
     }
 
-    public void setAuthInfo(final EmailServiceInfo serviceInfo, final HostAuth hostAuth) {
-        mOfferOAuth = serviceInfo.offerOAuth;
-        mOfferCerts = serviceInfo.offerCerts;
+    public void setAuthInfo(final boolean offerOAuth, final boolean offerCerts,
+            final HostAuth hostAuth) {
+        mOfferOAuth = offerOAuth;
+        mOfferCerts = offerCerts;
 
         if (mOfferOAuth) {
             final Credential cred = hostAuth.getCredential(getContext());
