@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -207,11 +208,19 @@ public abstract class EmailContent {
      */
     public static <T extends EmailContent> T restoreContentWithId(Context context,
             Class<T> klass, Uri contentUri, String[] contentProjection, long id) {
+        return restoreContentWithId(context, klass, contentUri, contentProjection, id, null);
+    }
+
+    public static <T extends EmailContent> T restoreContentWithId(Context context,
+                Class<T> klass, Uri contentUri, String[] contentProjection, long id, ContentObserver observer) {
         warnIfUiThread();
         Uri u = ContentUris.withAppendedId(contentUri, id);
         Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
         if (c == null) throw new ProviderUnavailableException();
         try {
+            if (observer != null) {
+                c.registerContentObserver(observer);
+            }
             if (c.moveToFirst()) {
                 return getContent(c, klass);
             } else {

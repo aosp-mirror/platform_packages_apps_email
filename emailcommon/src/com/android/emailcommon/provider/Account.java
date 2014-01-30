@@ -23,6 +23,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
@@ -217,8 +218,12 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     }
 
     public static Account restoreAccountWithId(Context context, long id) {
+        return restoreAccountWithId(context, id, null);
+    }
+
+    public static Account restoreAccountWithId(Context context, long id, ContentObserver observer) {
         return EmailContent.restoreContentWithId(context, Account.class,
-                Account.CONTENT_URI, Account.CONTENT_PROJECTION, id);
+                Account.CONTENT_URI, Account.CONTENT_PROJECTION, id, observer);
     }
 
     /**
@@ -590,7 +595,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
      * @return the account's protocol (or null if the HostAuth doesn't not exist)
      */
     public String getProtocol(Context context) {
-        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
+        HostAuth hostAuth = getOrCreateHostAuthRecv(context);
         if (hostAuth != null) {
             return hostAuth.mProtocol;
         }
