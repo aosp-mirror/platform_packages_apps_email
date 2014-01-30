@@ -106,16 +106,9 @@
         android:id="@+id/account_require_login_settings_2"
         android:paddingTop="16dip"
         android:visibility="gone" >
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginRight="16dip"
-            android:text="@string/account_setup_outgoing_password_label" />
-        <EditText
-            android:id="@+id/account_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:imeOptions="actionDone" />
+        <com.android.email.activity.setup.AuthenticationView
+            android:id="@+id/authentication_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </TableRow>
 </TableLayout>

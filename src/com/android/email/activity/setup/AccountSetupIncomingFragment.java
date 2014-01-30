@@ -376,7 +376,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
-        mAuthenticationView.setAuthInfo(mServiceInfo, recvAuth);
+        mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, mServiceInfo.offerCerts, recvAuth);
 
         final String username = recvAuth.mLogin;
         if (username != null) {
