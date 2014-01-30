@@ -43,8 +43,6 @@ import java.io.IOException;
 
 public class AuthenticationView extends LinearLayout implements HostCallback, OnClickListener {
 
-    private static final int CERTIFICATE_REQUEST = 0;
-
     private final static String SUPER_STATE = "super_state";
     private final static String SAVE_PASSWORD = "save_password";
     private final static String SAVE_OFFER_OAUTH = "save_offer_oauth";
@@ -83,6 +81,8 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
 
     public interface AuthenticationCallback {
         public void onValidateStateChanged();
+
+        public void onCertificateRequested();
     }
 
     public AuthenticationView(Context context) {
@@ -119,6 +119,8 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         mClearImapPasswordView.setOnClickListener(this);
         mClearOAuthView.setOnClickListener(this);
         mAddAuthenticationView.setOnClickListener(this);
+
+        mClientCertificateSelector.setHostCallback(this);
 
         mValidationTextWatcher = new TextWatcher() {
             @Override
@@ -295,20 +297,11 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
 
     @Override
     public void onCertificateRequested() {
-        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
-        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
-// FLAG this is wrong, since this is not an activity or fragment, it cannot receive
-// results directly. The owning activity or fragment needs to forward them.
-        //        startActivityForResult(intent, CERTIFICATE_REQUEST);
+        mAuthenticationCallback.onCertificateRequested();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
-            final String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
-            if (certAlias != null) {
-                mClientCertificateSelector.setCertificate(certAlias);
-            }
-        }
+    public void setCertificate(final String certAlias) {
+        mClientCertificateSelector.setCertificate(certAlias);
     }
 
     public void onUseSslChanged(boolean useSsl) {

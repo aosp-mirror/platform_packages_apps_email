@@ -17,9 +17,9 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -45,6 +45,7 @@ import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
@@ -58,6 +59,8 @@ import java.util.ArrayList;
  */
 public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         implements AuthenticationCallback {
+
+    private static final int CERTIFICATE_REQUEST = 0;
 
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
@@ -563,5 +566,21 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public void onValidateStateChanged() {
         validateFields();
+    }
+
+
+    @Override
+    public void onCertificateRequested() {
+        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
+        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
+        startActivityForResult(intent, CERTIFICATE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
+            final String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
+            mAuthenticationView.setCertificate(certAlias);
+        }
     }
 }

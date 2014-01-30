@@ -63,7 +63,7 @@ public class CertificateSelector extends RelativeLayout implements OnClickListen
         super(context, attrs, defStyle);
     }
 
-    public void setHostActivity(HostCallback host) {
+    public void setHostCallback(HostCallback host) {
         mHost = host;
     }
 
