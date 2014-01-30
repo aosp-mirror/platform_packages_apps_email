@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -135,8 +136,12 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     }
 
     public static Policy restorePolicyWithId(Context context, long id) {
+        return restorePolicyWithId(context, id, null);
+    }
+
+    public static Policy restorePolicyWithId(Context context, long id, ContentObserver observer) {
         return EmailContent.restoreContentWithId(context, Policy.class, Policy.CONTENT_URI,
-                Policy.CONTENT_PROJECTION, id);
+                Policy.CONTENT_PROJECTION, id, observer);
     }
 
     public static long getAccountIdWithPolicyKey(Context context, long id) {

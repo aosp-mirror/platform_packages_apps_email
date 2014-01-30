@@ -627,8 +627,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     private class AccountSettingsFragmentCallback implements AccountSettingsFragment.Callback {
         @Override
-        public void onSettingsChanged(Account account, String preference, Object value) {
-            AccountSettings.this.onSettingsChanged(account, preference, value);
+        public void onSettingsChanged(long accountId, String preference, Object value) {
+            AccountSettings.this.onSettingsChanged(accountId, preference, value);
         }
         @Override
         public void onEditQuickResponses(com.android.mail.providers.Account account) {
@@ -682,10 +682,10 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     /**
      * Some of the settings have changed. Update internal state as necessary.
      */
-    public void onSettingsChanged(Account account, String preference, Object value) {
+    public void onSettingsChanged(long accountId, String preference, Object value) {
         if (AccountSettingsFragment.PREFERENCE_DESCRIPTION.equals(preference)) {
             for (Header header : mAccountListHeaders) {
-                if (header.id == account.mId) {
+                if (header.id == accountId) {
                     // Manually tweak the header title. We cannot rebuild the header list from
                     // an account cursor as the account database has not been saved yet.
                     header.title = value.toString();
