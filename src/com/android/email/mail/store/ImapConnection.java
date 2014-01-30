@@ -97,9 +97,10 @@ class ImapConnection {
      * Generates and returns the phrase to be used for authentication. This will be a LOGIN with
      * username and password, or an OAUTH authentication string, with username and access token.
      * Currently, these are the only two auth mechanisms supported.
-     * @return
+     *
      * @throws IOException
      * @throws AuthenticationFailedException
+     * @return the login command string to sent to the IMAP server
      */
     String getLoginPhrase() throws MessagingException, IOException {
         // build the LOGIN string once (instead of over-and-over again.)
@@ -197,7 +198,7 @@ class ImapConnection {
 
     /**
      * Closes the connection and releases all resources. This connection can not be used again
-     * until {@link #setStore(ImapStore, String, String)} is called.
+     * until {@link #setStore(ImapStore)} is called.
      */
     void close() {
         if (mTransport != null) {
@@ -255,7 +256,7 @@ class ImapConnection {
     }
 
     boolean isTransportOpenForTest() {
-        return mTransport != null ? mTransport.isOpen() : false;
+        return mTransport != null && mTransport.isOpen();
     }
 
     ImapResponse readResponse() throws IOException, MessagingException {
@@ -315,8 +316,7 @@ class ImapConnection {
         return tag;
     }
 
-    List<ImapResponse> executeSimpleCommand(String command) throws IOException,
-            MessagingException {
+    List<ImapResponse> executeSimpleCommand(String command) throws IOException, MessagingException {
         return executeSimpleCommand(command, false);
     }
 
@@ -328,17 +328,25 @@ class ImapConnection {
      * @throws MessagingException
      */
     List<ImapResponse> getCommandResponses() throws IOException, MessagingException {
-        ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
+        final List<ImapResponse> responses = new ArrayList<ImapResponse>();
         ImapResponse response;
         do {
             response = mParser.readResponse();
             responses.add(response);
         } while (!response.isTagged());
+
         if (!response.isOk()) {
             final String toString = response.toString();
             final String alert = response.getAlertTextOrEmpty().getString();
+            final String responseCode = response.getResponseCodeOrEmpty().getString();
             destroyResponses();
-            throw new ImapException(toString, alert);
+
+            // if the response code indicates an error occurred within the server, indicate that
+            if (ImapConstants.UNAVAILABLE.equals(responseCode)) {
+                throw new MessagingException(MessagingException.SERVER_ERROR, alert);
+            }
+
+            throw new ImapException(toString, alert, responseCode);
         }
         return responses;
     }
@@ -476,8 +484,7 @@ class ImapConnection {
     /**
      * Logs into the IMAP server
      */
-    private void doLogin()
-            throws IOException, MessagingException, AuthenticationFailedException {
+    private void doLogin() throws IOException, MessagingException, AuthenticationFailedException {
         try {
             if (mImapStore.getUseOAuth()) {
                 // SASL authentication can take multiple steps. Currently the only SASL
@@ -490,10 +497,17 @@ class ImapConnection {
             if (MailActivityEmail.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
             }
-            throw new AuthenticationFailedException(ie.getAlertText(), ie);
 
-        } catch (MessagingException me) {
-            throw new AuthenticationFailedException(null, me);
+            final String code = ie.getResponseCode();
+            final String alertText = ie.getAlertText();
+
+            // if the response code indicates expired or bad credentials, throw a special exception
+            if (ImapConstants.AUTHENTICATIONFAILED.equals(code) ||
+                    ImapConstants.EXPIRED.equals(code)) {
+                throw new AuthenticationFailedException(alertText, ie);
+            }
+
+            throw new MessagingException(alertText, ie);
         }
     }
 
@@ -542,8 +556,15 @@ class ImapConnection {
             sendCommand("", true);
             response = readResponse();
         }
-        return response;
 
+        // if the response code indicates an error occurred within the server, indicate that
+        final String responseCode = response.getResponseCodeOrEmpty().getString();
+        if (ImapConstants.UNAVAILABLE.equals(responseCode)) {
+            final String alert = response.getAlertTextOrEmpty().getString();
+            throw new MessagingException(MessagingException.SERVER_ERROR, alert);
+        }
+
+        return response;
     }
 
     /**

@@ -59,10 +59,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Locale;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 class ImapFolder extends Folder {
@@ -1236,7 +1236,7 @@ class ImapFolder extends Folder {
             mConnection = null; // To prevent close() from returning the connection to the pool.
             close(false);
         }
-        return new MessagingException("IO Error", ioe);
+        return new MessagingException(MessagingException.IOERROR, "IO Error", ioe);
     }
 
     @Override

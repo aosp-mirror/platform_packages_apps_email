@@ -96,4 +96,9 @@ public final class ImapConstants {
     public static final String XOAUTH2 = "XOAUTH2";
     public static final String APPENDUID = "APPENDUID";
     public static final String NIL = "NIL";
+
+    /** response codes within IMAP responses */
+    public static final String EXPIRED = "EXPIRED";
+    public static final String AUTHENTICATIONFAILED = "AUTHENTICATIONFAILED";
+    public static final String UNAVAILABLE = "UNAVAILABLE";
 }

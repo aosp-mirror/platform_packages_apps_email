@@ -627,29 +627,26 @@ public class ImapStore extends Store {
     static class ImapException extends MessagingException {
         private static final long serialVersionUID = 1L;
 
-        String mAlertText;
+        private final String mAlertText;
+        private final String mResponseCode;
 
-        public ImapException(String message, String alertText, Throwable throwable) {
-            super(message, throwable);
-            mAlertText = alertText;
-        }
-
-        public ImapException(String message, String alertText) {
+        public ImapException(String message, String alertText, String responseCode) {
             super(message);
             mAlertText = alertText;
+            mResponseCode = responseCode;
         }
 
         public String getAlertText() {
             return mAlertText;
         }
 
-        public void setAlertText(String alertText) {
-            mAlertText = alertText;
+        public String getResponseCode() {
+            return mResponseCode;
         }
     }
 
     public void closeConnections() {
-        ImapConnection connection = null;
+        ImapConnection connection;
         while ((connection = mConnectionPool.poll()) != null) {
             connection.close();
         }

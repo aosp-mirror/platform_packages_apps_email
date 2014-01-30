@@ -98,6 +98,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
@@ -170,6 +171,9 @@ public class EmailProvider extends ContentProvider {
         "vnd.android.cursor.item/email-message";
     private static final String EMAIL_ATTACHMENT_MIME_TYPE =
         "vnd.android.cursor.item/email-attachment";
+
+    /** The base of the URI that navigates to the settings page to alter email auth credentials */
+    private static Uri BASE_AUTH_URI;
 
     /** Appended to the notification URI for delete operations */
     private static final String NOTIFICATION_OP_DELETE = "delete";
@@ -1001,6 +1005,8 @@ public class EmailProvider extends ContentProvider {
             UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
                     Uri.parse("content://" + uiNotificationAuthority + "/uirecentfolders");
 
+            BASE_AUTH_URI = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
+                    ".INCOMING_SETTINGS/incoming/");
 
             // All accounts
             sURIMatcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
@@ -3024,6 +3030,12 @@ public class EmailProvider extends ContentProvider {
                 .appendQueryParameter("account", account).build().toString();
     }
 
+    private static String getExternalUriStringReathentication(long accountId) {
+        final Uri.Builder builder = BASE_AUTH_URI.buildUpon();
+        IntentUtilities.setAccountId(builder, accountId);
+        return builder.build().toString();
+    }
+
     private static String getBits(int bitField) {
         StringBuilder sb = new StringBuilder(" ");
         for (int i = 0; i < 32; i++, bitField >>= 1) {
@@ -3124,6 +3136,10 @@ public class EmailProvider extends ContentProvider {
         if (projectionColumns.contains(UIProvider.AccountColumns.COMPOSE_URI)) {
             values.put(UIProvider.AccountColumns.COMPOSE_URI,
                     getExternalUriStringEmail2("compose", id));
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI)) {
+            values.put(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI,
+                    getExternalUriStringReathentication(accountId));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.MIME_TYPE)) {
             values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);

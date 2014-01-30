@@ -31,8 +31,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.text.TextUtils;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
@@ -87,6 +87,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
             "AccountSettings.for_account_reason";
     private static final String EXTRA_TITLE = "AccountSettings.title";
     public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
+    public static final String EXTRA_ACCOUNT = "AccountSettings.account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -206,6 +207,9 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 startActivity(setupIntent);
                 finish();
                 return;
+            } else if (i.hasExtra(EXTRA_ACCOUNT)) {
+                final Account account = i.getParcelableExtra(EXTRA_ACCOUNT);
+                mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
@@ -337,6 +341,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         // a security vulnerability.
         return (TextUtils.equals(AccountSettingsFragment.class.getName(), fragmentName) ||
                 TextUtils.equals(GeneralPreferences.class.getName(), fragmentName) ||
+                TextUtils.equals(AccountSetupIncomingFragment.class.getName(), fragmentName) ||
                 TextUtils.equals(AccountSettingsEditQuickResponsesFragment.class.getName(),
                         fragmentName) ||
                 TextUtils.equals(DebugFragment.class.getName(), fragmentName));

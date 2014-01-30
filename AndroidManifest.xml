@@ -266,10 +266,8 @@
             android:exported="true"
             >
             <intent-filter>
-                <action
-                    android:name="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
@@ -283,6 +281,19 @@
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- a Headless Activity to load the account from the account id before navigating to the
+        Incoming Account Settings fragment -->
+        <activity
+            android:name=".activity.setup.HeadlessAccountSettingsLoader"
+            android:theme="@android:style/Theme.NoDisplay"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:host="com.android.email.INCOMING_SETTINGS" />
+                <data android:scheme="auth"/>
             </intent-filter>
         </activity>
         <activity

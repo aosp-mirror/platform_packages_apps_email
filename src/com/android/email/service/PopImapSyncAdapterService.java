@@ -144,24 +144,27 @@ public class PopImapSyncAdapterService extends Service {
                             UIProvider.LastSyncResult.SUCCESS);
                 }
             } catch (MessagingException e) {
-                int cause = e.getExceptionType();
-                // XXX It's no good to put the MessagingException.cause here, that's not the
-                // same set of values that we use in EmailServiceStatus.
-                switch(cause) {
+                final int type = e.getExceptionType();
+                // type must be translated into the domain of values used by EmailServiceStatus
+                switch(type) {
                     case MessagingException.IOERROR:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
                                 UIProvider.LastSyncResult.CONNECTION_ERROR);
                         syncResult.stats.numIoExceptions++;
                         break;
                     case MessagingException.AUTHENTICATION_FAILED:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
                                 UIProvider.LastSyncResult.AUTH_ERROR);
                         syncResult.stats.numAuthExceptions++;
                         break;
+                    case MessagingException.SERVER_ERROR:
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
+                                UIProvider.LastSyncResult.SERVER_ERROR);
+                        break;
 
                     default:
-                    EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, cause, 0,
-                            UIProvider.LastSyncResult.INTERNAL_ERROR);
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
+                                UIProvider.LastSyncResult.INTERNAL_ERROR);
                 }
             }
         } finally {

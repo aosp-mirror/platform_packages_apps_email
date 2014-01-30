@@ -98,7 +98,7 @@ public final class IntentUtilities {
     }
 
     /**
-     * Retrieve the account ID.
+     * Retrieve the account ID from the underlying URI.
      */
     public static long getAccountIdFromIntent(Intent intent) {
         return getLongFromIntent(intent, ACCOUNT_ID_PARAM);
