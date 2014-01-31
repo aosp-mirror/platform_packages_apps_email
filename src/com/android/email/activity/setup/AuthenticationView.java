@@ -1,9 +1,6 @@
 package com.android.email.activity.setup;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -19,14 +16,12 @@ import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.CertificateRequestor;
 
 import java.io.IOException;
 
@@ -42,8 +37,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     private final static String SAVE_OFFER_CERTS = "save_offer_certs";
     private final static String SAVE_USE_OAUTH = "save_use_oauth";
     private final static String SAVE_OAUTH_PROVIDER = "save_oauth_provider";
-    private final static String SAVE_OAUTH_ACCESS_TOKEN = "save_oauth_access_token";
-    private final static String SAVE_OAUTH_REFRESH_TOKEN = "save_oauth_refresh_token";
 
     // Views
     private View mImapAuthenticationView;
@@ -66,8 +59,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     private boolean mOfferCerts;
     private boolean mUseOAuth;
     private String mOAuthProvider;
-    private String mOAuthAccessToken;
-    private String mOAuthRefreshToken;
 
     private boolean mAuthenticationValid;
     private AuthenticationCallback mAuthenticationCallback;
@@ -76,6 +67,8 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         public void onValidateStateChanged();
 
         public void onCertificateRequested();
+
+        public void onRequestSignIn();
     }
 
     public AuthenticationView(Context context) {
@@ -155,7 +148,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     }
 
     public String getOAuthProvider() {
-        // FLAG: need to handle this getting updated.
         return mOAuthProvider;
     }
 
@@ -188,8 +180,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
                 // We're authenticated with OAuth.
                 mUseOAuth = true;
                 mOAuthProvider = cred.mProviderId;
-                mOAuthAccessToken = cred.mAccessToken;
-                mOAuthRefreshToken = cred.mRefreshToken;
             } else {
                 mUseOAuth = false;
             }
@@ -258,8 +248,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         bundle.putBoolean(SAVE_USE_OAUTH, mUseOAuth);
         bundle.putString(SAVE_PASSWORD, getPassword());
         bundle.putString(SAVE_OAUTH_PROVIDER, mOAuthProvider);
-        bundle.putString(SAVE_OAUTH_ACCESS_TOKEN, mOAuthAccessToken);
-        bundle.putString(SAVE_OAUTH_REFRESH_TOKEN, mOAuthRefreshToken);
         return bundle;
     }
 
@@ -272,8 +260,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
             mOfferCerts = bundle.getBoolean(SAVE_OFFER_CERTS);
             mUseOAuth = bundle.getBoolean(SAVE_USE_OAUTH);
             mOAuthProvider = bundle.getString(SAVE_OAUTH_PROVIDER);
-            mOAuthAccessToken = bundle.getString(SAVE_OAUTH_ACCESS_TOKEN);
-            mOAuthRefreshToken = bundle.getString(SAVE_OAUTH_REFRESH_TOKEN);
 
             final String password = bundle.getString(SAVE_PASSWORD);
             getPasswordEditText().setText(password);
@@ -318,12 +304,14 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         if (view == mClearImapPasswordView) {
             getPasswordEditText().setText(null);
             updateVisibility();
+            validateFields();
         } else if (view == mClearOAuthView) {
             mUseOAuth = false;
             mOAuthProvider = null;
             updateVisibility();
+            validateFields();
         } else if (view == mAddAuthenticationView) {
-            // FLAG Launch the add authentication screen
+            mAuthenticationCallback.onRequestSignIn();
         }
     }
 }

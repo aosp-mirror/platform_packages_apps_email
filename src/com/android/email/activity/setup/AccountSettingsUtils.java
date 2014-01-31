@@ -40,6 +40,9 @@ import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AccountSettingsUtils {
 
     /** Pattern to match any part of a domain */
@@ -143,6 +146,43 @@ public class AccountSettingsUtils {
     */
    public static OAuthProvider findOAuthProvider(final Context context, final String id) {
        return findOAuthProvider(context, id, R.xml.oauth);
+   }
+
+   public static List<OAuthProvider> getAllOAuthProviders(final Context context) {
+       try {
+           List<OAuthProvider> providers = new ArrayList<OAuthProvider>();
+           final XmlResourceParser xml = context.getResources().getXml(R.xml.oauth);
+           int xmlEventType;
+           OAuthProvider provider = null;
+           while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
+               if (xmlEventType == XmlResourceParser.START_TAG
+                       && "provider".equals(xml.getName())) {
+                   try {
+                       provider = new OAuthProvider();
+                       provider.id = getXmlAttribute(context, xml, "id");
+                       provider.label = getXmlAttribute(context, xml, "label");
+                       provider.authEndpoint = getXmlAttribute(context, xml, "auth_endpoint");
+                       provider.tokenEndpoint = getXmlAttribute(context, xml, "token_endpoint");
+                       provider.refreshEndpoint = getXmlAttribute(context, xml,
+                               "refresh_endpoint");
+                       provider.responseType = getXmlAttribute(context, xml, "response_type");
+                       provider.redirectUri = getXmlAttribute(context, xml, "redirect_uri");
+                       provider.scope = getXmlAttribute(context, xml, "scope");
+                       provider.state = getXmlAttribute(context, xml, "state");
+                       provider.clientId = getXmlAttribute(context, xml, "client_id");
+                       provider.clientSecret = getXmlAttribute(context, xml, "client_secret");
+                       providers.add(provider);
+                   } catch (IllegalArgumentException e) {
+                       LogUtils.w(Logging.LOG_TAG, "providers line: " + xml.getLineNumber() +
+                               "; Domain contains multiple globals");
+                   }
+               }
+           }
+           return providers;
+       } catch (Exception e) {
+           LogUtils.e(Logging.LOG_TAG, "Error while trying to load provider settings.", e);
+       }
+       return null;
    }
 
    /**

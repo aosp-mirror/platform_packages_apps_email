@@ -17,12 +17,16 @@
 
 package com.android.emailcommon.provider;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.text.TextUtils;
 
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
@@ -31,6 +35,7 @@ import com.android.emailcommon.utility.Utility;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 public class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
     public static final String TABLE_NAME = "HostAuth";
@@ -142,6 +147,14 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
             }
         }
         return mCredential;
+    }
+
+    /**
+     * Clear the credential object.
+     */
+    public void removeCredential() {
+        mCredential = null;
+        mCredentialKey = -1;
     }
 
     /**
@@ -491,5 +504,4 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
     public String toString() {
         return "[protocol " + mProtocol + "]";
     }
-
 }

@@ -42,6 +42,10 @@ public class OAuthAuthenticationActivity extends Activity implements
 
     public static final int LOADER_ID_OAUTH_TOKEN = 1;
 
+    public static final String EXTRA_OAUTH_ACCESS_TOKEN = "accessToken";
+    public static final String EXTRA_OAUTH_REFRESH_TOKEN = "refreshToken";
+    public static final String EXTRA_OAUTH_EXPIRES_IN = "expiresIn";
+
     private WebView mWv;
     private OAuthProvider mProvider;
     private String mAuthenticationCode;
@@ -179,12 +183,9 @@ public class OAuthAuthenticationActivity extends Activity implements
 
         } else {
             final Intent intent = new Intent();
-            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_ACCESS_TOKEN,
-                    data.mAccessToken);
-            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_REFRESH_TOKEN,
-                    data.mRefreshToken);
-            intent.putExtra(AccountSetupBasics.EXTRA_OAUTH_EXPIRES_IN,
-                    data.mExpiresInSeconds);
+            intent.putExtra(EXTRA_OAUTH_ACCESS_TOKEN, data.mAccessToken);
+            intent.putExtra(EXTRA_OAUTH_REFRESH_TOKEN, data.mRefreshToken);
+            intent.putExtra(EXTRA_OAUTH_EXPIRES_IN, data.mExpiresInSeconds);
             setResult(AccountSetupBasics.RESULT_OAUTH_SUCCESS, intent);
         }
         finish();
