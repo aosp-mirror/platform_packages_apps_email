@@ -144,6 +144,11 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
                 Policy.CONTENT_PROJECTION, id, observer);
     }
 
+    @Override
+    protected Uri getContentNotificationUri() {
+        return Policy.CONTENT_URI;
+    }
+
     public static long getAccountIdWithPolicyKey(Context context, long id) {
         return Utility.getFirstRowLong(context, Account.CONTENT_URI, Account.ID_PROJECTION,
                 AccountColumns.POLICY_KEY + "=?", new String[] {Long.toString(id)}, null,

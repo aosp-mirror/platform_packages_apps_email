@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.res.Resources;
+import android.database.ContentObservable;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -42,6 +43,7 @@ import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 
@@ -111,6 +113,15 @@ public abstract class EmailContent {
     private Uri mUri = null;
     // The id of the Content
     public long mId = NOT_SAVED;
+
+    /**
+     * Since we close the cursor we use to generate this object, and possibly create the object
+     * without using any cursor at all (eg: parcel), we need to handle observing provider changes
+     * ourselves. This content observer uses a weak reference to keep from rooting this object
+     * in the ContentResolver in case it is not properly disposed of using {@link #close(Context)}
+     */
+    private SelfContentObserver mSelfObserver;
+    private ContentObservable mObservable;
 
     // Write the Content into a ContentValues container
     public abstract ContentValues toContentValues();
@@ -211,23 +222,122 @@ public abstract class EmailContent {
         return restoreContentWithId(context, klass, contentUri, contentProjection, id, null);
     }
 
-    public static <T extends EmailContent> T restoreContentWithId(Context context,
-                Class<T> klass, Uri contentUri, String[] contentProjection, long id, ContentObserver observer) {
+    public static <T extends EmailContent> T restoreContentWithId(final Context context,
+                final Class<T> klass, final Uri contentUri, final String[] contentProjection,
+            final long id, final ContentObserver observer) {
         warnIfUiThread();
-        Uri u = ContentUris.withAppendedId(contentUri, id);
-        Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
+        final Uri u = ContentUris.withAppendedId(contentUri, id);
+        final Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
         if (c == null) throw new ProviderUnavailableException();
         try {
-            if (observer != null) {
-                c.registerContentObserver(observer);
-            }
             if (c.moveToFirst()) {
-                return getContent(c, klass);
+                final T content = getContent(c, klass);
+                if (observer != null) {
+                    content.registerObserver(context, observer);
+                }
+                return content;
             } else {
                 return null;
             }
         } finally {
             c.close();
+        }
+    }
+
+    /**
+     * Register a content observer to be notified when the data underlying this object changes
+     * @param observer ContentObserver to register
+     */
+    public synchronized void registerObserver(final Context context, final ContentObserver observer) {
+        if (mSelfObserver == null) {
+            mSelfObserver = new SelfContentObserver(this);
+            context.getContentResolver().registerContentObserver(getContentNotificationUri(),
+                    true, mSelfObserver);
+            mObservable = new ContentObservable();
+        }
+        mObservable.registerObserver(observer);
+    }
+
+    /**
+     * Unregister a content observer previously registered with
+     * {@link #registerObserver(Context, ContentObserver)}
+     * @param observer ContentObserver to unregister
+     */
+    public synchronized void unregisterObserver(final ContentObserver observer) {
+        if (mObservable == null) {
+            throw new IllegalStateException("Unregistering with null observable");
+        }
+        mObservable.unregisterObserver(observer);
+    }
+
+    /**
+     * Unregister all content observers previously registered with
+     * {@link #registerObserver(Context, ContentObserver)}
+     */
+    public synchronized void unregisterAllObservers() {
+        if (mObservable == null) {
+            throw new IllegalStateException("Unregistering with null observable");
+        }
+        mObservable.unregisterAll();
+    }
+
+    /**
+     * Unregister all content observers previously registered with
+     * {@link #registerObserver(Context, ContentObserver)} and release internal resources associated
+     * with content observing
+     */
+    public synchronized void close(final Context context) {
+        if (mSelfObserver == null) {
+            return;
+        }
+        unregisterAllObservers();
+        context.getContentResolver().unregisterContentObserver(mSelfObserver);
+        mSelfObserver = null;
+    }
+
+    /**
+     * Returns a Uri for observing the underlying content. Subclasses that wish to implement content
+     * observing must override this method.
+     * @return Uri for registering content notifications
+     */
+    protected Uri getContentNotificationUri() {
+        throw new UnsupportedOperationException(
+                "Subclasses must override this method for content observation to work");
+    }
+
+    /**
+     * This method is called when the underlying data has changed, and notifies registered observers
+     * @param selfChange true if this is a self-change notification
+     */
+    @SuppressWarnings("deprecation")
+    public synchronized void onChange(final boolean selfChange) {
+        if (mObservable != null) {
+            mObservable.dispatchChange(selfChange);
+        }
+    }
+
+    /**
+     * A content observer that calls {@link #onChange(boolean)} when triggered
+     */
+    private static class SelfContentObserver extends ContentObserver {
+        WeakReference<EmailContent> mContent;
+
+        public SelfContentObserver(final EmailContent content) {
+            super(null);
+            mContent = new WeakReference<EmailContent>(content);
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return false;
+        }
+
+        @Override
+        public void onChange(final boolean selfChange) {
+            EmailContent content = mContent.get();
+            if (content != null) {
+                content.onChange(false);
+            }
         }
     }
 

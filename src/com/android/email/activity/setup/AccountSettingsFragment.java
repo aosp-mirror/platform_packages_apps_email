@@ -328,6 +328,7 @@ public class AccountSettingsFragment extends PreferenceFragment
      */
     private static class AccountLoader extends MailAsyncTaskLoader<Map<String, Object>> {
         public static final String RESULT_KEY_ACCOUNT = "account";
+        private static final String RESULT_KEY_UIACCOUNT_CURSOR = "uiAccountCursor";
         public static final String RESULT_KEY_UIACCOUNT = "uiAccount";
         public static final String RESULT_KEY_INBOX = "inbox";
 
@@ -342,37 +343,46 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         @Override
         public Map<String, Object> loadInBackground() {
+            final Map<String, Object> map = new HashMap<String, Object>();
+
             Account account = Account.restoreAccountWithId(getContext(), mAccountId, mObserver);
             if (account == null) {
-                return null;
+                return map;
             }
 
-            // We don't monitor these for changes, but they probably won't change in any meaningful way
+            map.put(RESULT_KEY_ACCOUNT, account);
+
+            // We don't monitor these for changes, but they probably won't change in any meaningful
+            // way
             account.getOrCreateHostAuthRecv(getContext());
             account.getOrCreateHostAuthSend(getContext());
 
             if (account.mHostAuthRecv == null) {
-                return null;
+                return map;
             }
 
-            account.mPolicy = Policy.restorePolicyWithId(getContext(), account.mPolicyKey, mObserver);
+            account.mPolicy =
+                    Policy.restorePolicyWithId(getContext(), account.mPolicyKey, mObserver);
 
-            final Cursor accountCursor = getContext().getContentResolver().query(
-                    EmailProvider.uiUri("uiaccount", mAccountId), UIProvider.ACCOUNTS_PROJECTION, null, null, null);
+            final Cursor uiAccountCursor = getContext().getContentResolver().query(
+                    EmailProvider.uiUri("uiaccount", mAccountId), UIProvider.ACCOUNTS_PROJECTION,
+                    null, null, null);
 
-            final com.android.mail.providers.Account uiAccount;
-            try {
-                if (accountCursor != null && accountCursor.moveToFirst()) {
-                    accountCursor.registerContentObserver(mObserver);
-                    uiAccount = new com.android.mail.providers.Account(accountCursor);
-                } else {
-                    return null;
-                }
-            } finally {
-                if (accountCursor != null) {
-                    accountCursor.close();
-                }
+            if (uiAccountCursor != null) {
+                map.put(RESULT_KEY_UIACCOUNT_CURSOR, uiAccountCursor);
+                uiAccountCursor.registerContentObserver(mObserver);
+            } else {
+                return map;
             }
+
+            if (!uiAccountCursor.moveToFirst()) {
+                return map;
+            }
+
+            final com.android.mail.providers.Account uiAccount =
+                    new com.android.mail.providers.Account(uiAccountCursor);
+
+            map.put(RESULT_KEY_UIACCOUNT, uiAccount);
 
             final Cursor folderCursor = getContext().getContentResolver().query(
                     uiAccount.settings.defaultInbox, UIProvider.FOLDERS_PROJECTION, null, null,
@@ -383,7 +393,7 @@ public class AccountSettingsFragment extends PreferenceFragment
                 if (folderCursor != null && folderCursor.moveToFirst()) {
                     inbox = new Folder(folderCursor);
                 } else {
-                    return null;
+                    return map;
                 }
             } finally {
                 if (folderCursor != null) {
@@ -391,18 +401,28 @@ public class AccountSettingsFragment extends PreferenceFragment
                 }
             }
 
-            final Map<String, Object> map = new HashMap<String, Object>();
-            map.put(RESULT_KEY_ACCOUNT, account);
-            map.put(RESULT_KEY_UIACCOUNT, uiAccount);
             map.put(RESULT_KEY_INBOX, inbox);
             return map;
         }
 
         @Override
-        protected void onDiscardResult(Map<String, Object> result) {}
+        protected void onDiscardResult(Map<String, Object> result) {
+            final Account account = (Account) result.get(RESULT_KEY_ACCOUNT);
+            if (account != null) {
+                if (account.mPolicy != null) {
+                    account.mPolicy.close(getContext());
+                }
+                account.close(getContext());
+            }
+            final Cursor uiAccountCursor = (Cursor) result.get(RESULT_KEY_UIACCOUNT_CURSOR);
+            if (uiAccountCursor != null) {
+                uiAccountCursor.close();
+            }
+        }
     }
 
-    private class AccountLoaderCallbacks implements LoaderManager.LoaderCallbacks<Map<String, Object>> {
+    private class AccountLoaderCallbacks
+            implements LoaderManager.LoaderCallbacks<Map<String, Object>> {
         public static final String ARG_ACCOUNT_ID = "accountId";
 
         @Override
@@ -413,13 +433,20 @@ public class AccountSettingsFragment extends PreferenceFragment
                 return;
             }
 
-            final boolean firstLoad = mUiAccount == null;
-
-            mUiAccount = (com.android.mail.providers.Account) data.get(AccountLoader.RESULT_KEY_UIACCOUNT);
+            mUiAccount = (com.android.mail.providers.Account)
+                    data.get(AccountLoader.RESULT_KEY_UIACCOUNT);
             mAccount = (Account) data.get(AccountLoader.RESULT_KEY_ACCOUNT);
             final Folder inbox = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
-            mInboxFolderPreferences = new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
-            if (firstLoad) {
+
+            if (mUiAccount == null || mAccount == null || inbox == null) {
+                mSaveOnExit = false;
+                mCallback.abandonEdit();
+                return;
+            }
+
+            mInboxFolderPreferences =
+                    new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
+            if (!mSaveOnExit) {
                 loadSettings();
             }
         }
@@ -496,7 +523,8 @@ public class AccountSettingsFragment extends PreferenceFragment
         final String protocol = mAccount.getProtocol(mContext);
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
         if (info == null) {
-            LogUtils.e(Logging.LOG_TAG, "Could not find service info for account %d with protocol %s", mAccount.mId,
+            LogUtils.e(Logging.LOG_TAG,
+                    "Could not find service info for account %d with protocol %s", mAccount.mId,
                     protocol);
             getActivity().onBackPressed();
             // TODO: put up some sort of dialog/toast here to tell the user something went wrong
@@ -596,31 +624,36 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         PreferenceCategory folderPrefs =
                 (PreferenceCategory) findPreference(PREFERENCE_SYSTEM_FOLDERS);
-        if (info.requiresSetup) {
-            Preference trashPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
-            Intent i = new Intent(mContext, FolderPickerActivity.class);
-            Uri uri = EmailContent.CONTENT_URI.buildUpon().appendQueryParameter(
-                    "account", Long.toString(mAccountId)).build();
-            i.setData(uri);
-            i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
-            trashPreference.setIntent(i);
+        if (folderPrefs != null) {
+            if (info.requiresSetup) {
+                Preference trashPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
+                Intent i = new Intent(mContext, FolderPickerActivity.class);
+                Uri uri = EmailContent.CONTENT_URI.buildUpon().appendQueryParameter(
+                        "account", Long.toString(mAccountId)).build();
+                i.setData(uri);
+                i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
+                trashPreference.setIntent(i);
 
-            Preference sentPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_SENT);
-            i = new Intent(mContext, FolderPickerActivity.class);
-            i.setData(uri);
-            i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_SENT);
-            sentPreference.setIntent(i);
-        } else {
-            getPreferenceScreen().removePreference(folderPrefs);
+                Preference sentPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_SENT);
+                i = new Intent(mContext, FolderPickerActivity.class);
+                i.setData(uri);
+                i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_SENT);
+                sentPreference.setIntent(i);
+            } else {
+                getPreferenceScreen().removePreference(folderPrefs);
+            }
         }
 
         mAccountBackgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
-        if (!info.offerAttachmentPreload) {
-            dataUsageCategory.removePreference(mAccountBackgroundAttachments);
-        } else {
-            mAccountBackgroundAttachments.setChecked(0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
-            mAccountBackgroundAttachments.setOnPreferenceChangeListener(this);
+        if (mAccountBackgroundAttachments != null) {
+            if (!info.offerAttachmentPreload) {
+                dataUsageCategory.removePreference(mAccountBackgroundAttachments);
+            } else {
+                mAccountBackgroundAttachments.setChecked(
+                        0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
+                mAccountBackgroundAttachments.setOnPreferenceChangeListener(this);
+            }
         }
 
         final CheckBoxPreference inboxNotify = (CheckBoxPreference) findPreference(
@@ -651,55 +684,61 @@ public class AccountSettingsFragment extends PreferenceFragment
         // Set the vibrator value, or hide it on devices w/o a vibrator
         mInboxVibrate = (CheckBoxPreference) findPreference(
                 FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE);
-        mInboxVibrate.setChecked(
-                mInboxFolderPreferences.isNotificationVibrateEnabled());
-        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator.hasVibrator()) {
-            // When the value is changed, update the setting.
-            mInboxVibrate.setOnPreferenceChangeListener(this);
-        } else {
-            // No vibrator present. Remove the preference altogether.
-            notificationsCategory.removePreference(mInboxVibrate);
+        if (mInboxVibrate != null) {
+            mInboxVibrate.setChecked(
+                    mInboxFolderPreferences.isNotificationVibrateEnabled());
+            Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator.hasVibrator()) {
+                // When the value is changed, update the setting.
+                mInboxVibrate.setOnPreferenceChangeListener(this);
+            } else {
+                // No vibrator present. Remove the preference altogether.
+                notificationsCategory.removePreference(mInboxVibrate);
+            }
         }
 
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
         final PreferenceCategory policiesCategory = (PreferenceCategory) findPreference(
                 PREFERENCE_CATEGORY_POLICIES);
-        // TODO: This code for showing policies isn't working. For KLP, just don't even bother
-        // showing this data; we'll fix this later.
-/*
-        if (policy != null) {
-            if (policy.mProtocolPoliciesEnforced != null) {
-                ArrayList<String> policies = getSystemPoliciesList(policy);
-                setPolicyListSummary(policies, policy.mProtocolPoliciesEnforced,
-                        PREFERENCE_POLICIES_ENFORCED);
-            }
-            if (policy.mProtocolPoliciesUnsupported != null) {
-                ArrayList<String> policies = new ArrayList<String>();
-                setPolicyListSummary(policies, policy.mProtocolPoliciesUnsupported,
-                        PREFERENCE_POLICIES_UNSUPPORTED);
+        if (policiesCategory != null) {
+            // TODO: This code for showing policies isn't working. For KLP, just don't even bother
+            // showing this data; we'll fix this later.
+    /*
+            if (policy != null) {
+                if (policy.mProtocolPoliciesEnforced != null) {
+                    ArrayList<String> policies = getSystemPoliciesList(policy);
+                    setPolicyListSummary(policies, policy.mProtocolPoliciesEnforced,
+                            PREFERENCE_POLICIES_ENFORCED);
+                }
+                if (policy.mProtocolPoliciesUnsupported != null) {
+                    ArrayList<String> policies = new ArrayList<String>();
+                    setPolicyListSummary(policies, policy.mProtocolPoliciesUnsupported,
+                            PREFERENCE_POLICIES_UNSUPPORTED);
+                } else {
+                    // Don't show "retry" unless we have unsupported policies
+                    policiesCategory.removePreference(retryAccount);
+                }
             } else {
-                // Don't show "retry" unless we have unsupported policies
-                policiesCategory.removePreference(retryAccount);
-            }
-        } else {
-*/
-        // Remove the category completely if there are no policies
-        getPreferenceScreen().removePreference(policiesCategory);
+    */
+            // Remove the category completely if there are no policies
+            getPreferenceScreen().removePreference(policiesCategory);
 
-        //}
+            //}
+        }
 
-        retryAccount.setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        // Release the account
-                        SecurityPolicy.setAccountHoldFlag(mContext, mAccount, false);
-                        // Remove the preference
-                        policiesCategory.removePreference(retryAccount);
-                        return true;
-                    }
-                });
+        if (retryAccount != null) {
+            retryAccount.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            // Release the account
+                            SecurityPolicy.setAccountHoldFlag(mContext, mAccount, false);
+                            // Remove the preference
+                            policiesCategory.removePreference(retryAccount);
+                            return true;
+                        }
+                    });
+        }
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -711,53 +750,57 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         // Hide the outgoing account setup link if it's not activated
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
-        if (info.usesSmtp && mAccount.mHostAuthSend != null) {
-            prefOutgoing.setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            mCallback.onOutgoingSettings(mAccount);
-                            return true;
-                        }
-                    });
-        } else {
-            if (info.usesSmtp) {
-                // We really ought to have an outgoing host auth but we don't.
-                // There's nothing we can do at this point, so just log the error.
-                LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth", mAccountId);
+        if (prefOutgoing != null) {
+            if (info.usesSmtp && mAccount.mHostAuthSend != null) {
+                prefOutgoing.setOnPreferenceClickListener(
+                        new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                mCallback.onOutgoingSettings(mAccount);
+                                return true;
+                            }
+                        });
+            } else {
+                if (info.usesSmtp) {
+                    // We really ought to have an outgoing host auth but we don't.
+                    // There's nothing we can do at this point, so just log the error.
+                    LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth", mAccountId);
+                }
+                PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
+                        PREFERENCE_CATEGORY_SERVER);
+                serverCategory.removePreference(prefOutgoing);
             }
-            PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
-                    PREFERENCE_CATEGORY_SERVER);
-            serverCategory.removePreference(prefOutgoing);
         }
 
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
-        if (info.syncContacts || info.syncCalendar) {
-            if (info.syncContacts) {
-                mSyncContacts.setChecked(ContentResolver
-                        .getSyncAutomatically(androidAcct, ContactsContract.AUTHORITY));
-                mSyncContacts.setOnPreferenceChangeListener(this);
+        if (mSyncContacts != null && mSyncCalendar != null && mSyncEmail != null) {
+            if (info.syncContacts || info.syncCalendar) {
+                if (info.syncContacts) {
+                    mSyncContacts.setChecked(ContentResolver
+                            .getSyncAutomatically(androidAcct, ContactsContract.AUTHORITY));
+                    mSyncContacts.setOnPreferenceChangeListener(this);
+                } else {
+                    mSyncContacts.setChecked(false);
+                    mSyncContacts.setEnabled(false);
+                }
+                if (info.syncCalendar) {
+                    mSyncCalendar.setChecked(ContentResolver
+                            .getSyncAutomatically(androidAcct, CalendarContract.AUTHORITY));
+                    mSyncCalendar.setOnPreferenceChangeListener(this);
+                } else {
+                    mSyncCalendar.setChecked(false);
+                    mSyncCalendar.setEnabled(false);
+                }
+                mSyncEmail.setChecked(ContentResolver
+                        .getSyncAutomatically(androidAcct, EmailContent.AUTHORITY));
+                mSyncEmail.setOnPreferenceChangeListener(this);
             } else {
-                mSyncContacts.setChecked(false);
-                mSyncContacts.setEnabled(false);
+                dataUsageCategory.removePreference(mSyncContacts);
+                dataUsageCategory.removePreference(mSyncCalendar);
+                dataUsageCategory.removePreference(mSyncEmail);
             }
-            if (info.syncCalendar) {
-                mSyncCalendar.setChecked(ContentResolver
-                        .getSyncAutomatically(androidAcct, CalendarContract.AUTHORITY));
-                mSyncCalendar.setOnPreferenceChangeListener(this);
-            } else {
-                mSyncCalendar.setChecked(false);
-                mSyncCalendar.setEnabled(false);
-            }
-            mSyncEmail.setChecked(ContentResolver
-                    .getSyncAutomatically(androidAcct, EmailContent.AUTHORITY));
-            mSyncEmail.setOnPreferenceChangeListener(this);
-        } else {
-            dataUsageCategory.removePreference(mSyncContacts);
-            dataUsageCategory.removePreference(mSyncCalendar);
-            dataUsageCategory.removePreference(mSyncEmail);
         }
     }
 

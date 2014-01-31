@@ -226,6 +226,11 @@ public final class Account extends EmailContent implements AccountColumns, Parce
                 Account.CONTENT_URI, Account.CONTENT_PROJECTION, id, observer);
     }
 
+    @Override
+    protected Uri getContentNotificationUri() {
+        return Account.CONTENT_URI;
+    }
+
     /**
      * Returns {@code true} if the given account ID is a "normal" account. Normal accounts
      * always have an ID greater than {@code 0} and not equal to any pseudo account IDs
