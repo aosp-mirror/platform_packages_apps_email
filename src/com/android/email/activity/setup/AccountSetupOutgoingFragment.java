@@ -18,6 +18,8 @@ package com.android.email.activity.setup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -38,12 +40,11 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
-import com.android.email.service.EmailServiceUtils;
-import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
@@ -55,6 +56,8 @@ import com.android.mail.utils.LogUtils;
  */
 public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener, AuthenticationCallback {
+
+    private static final int CERTIFICATE_REQUEST = 0;
 
     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
 
@@ -393,5 +396,10 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onValidateStateChanged() {
         validateFields();
+    }
+
+    @Override
+    public void onCertificateRequested() {
+        // We don't support certificates on any outgoing protocol.
     }
 }
