@@ -83,6 +83,14 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"只要幾個步驟即可完成帳戶設定。"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"電子郵件地址"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"密碼"</string>
+    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
+    <skip />
+    <!-- no translation found for authenticiation_label (3110827508591580063) -->
+    <skip />
+    <!-- no translation found for add_authentication_label (865206092644419804) -->
+    <skip />
+    <!-- no translation found for clear_authentication_label (8113966442068335059) -->
+    <skip />
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動設定"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"輸入有效的電子郵件地址和密碼。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"複製帳戶"</string>

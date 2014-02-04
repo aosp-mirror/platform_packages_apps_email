@@ -83,6 +83,14 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"Та өөрийн акаунтыг ердөө хэдхэн алхамаар тохируулж болно."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Имэйл хаяг"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Нууц үг"</string>
+    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
+    <skip />
+    <!-- no translation found for authenticiation_label (3110827508591580063) -->
+    <skip />
+    <!-- no translation found for add_authentication_label (865206092644419804) -->
+    <skip />
+    <!-- no translation found for clear_authentication_label (8113966442068335059) -->
+    <skip />
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Гараар тохируулах"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Зөв имэйл хаяг болон нууц үг оруулна уу."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Давхардсан Акаунт"</string>

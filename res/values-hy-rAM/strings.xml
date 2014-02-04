@@ -83,6 +83,12 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"Դուք կարող եք կարգավորել ձեր հաշիվը ընդամենը մի քանի քայլով:"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Էլփոստի հասցե"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Գաղտնաբառ"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
+    <skip />
+    <string name="authenticiation_label" msgid="3110827508591580063">"Նույնականացում"</string>
+    <string name="add_authentication_label" msgid="865206092644419804">"Ավելացնել նույնականացում"</string>
+    <string name="clear_authentication_label" msgid="8113966442068335059">"Մաքրել նույնականացումը"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ձեռքով կարգավորում"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Մուտքագրեք վավեր էլփոստի հասցե և գաղտնաբառ:"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Կրկնօրինակել հաշիվը"</string>

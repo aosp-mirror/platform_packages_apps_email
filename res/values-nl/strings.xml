@@ -83,6 +83,10 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"Uw account instellen binnen enkele stappen."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailadres"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Wachtwoord"</string>
+    <string name="signed_in_with_service_label" msgid="4909910797357155961">"Ingelogd met %s"</string>
+    <string name="authenticiation_label" msgid="3110827508591580063">"Verificatie"</string>
+    <string name="add_authentication_label" msgid="865206092644419804">"Verificatie toevoegen"</string>
+    <string name="clear_authentication_label" msgid="8113966442068335059">"Verificatie wissen"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Handmatig instellen"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Typ een geldig e-mailadres en wachtwoord."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dubbel account"</string>

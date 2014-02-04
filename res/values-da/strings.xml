@@ -83,6 +83,14 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"Du kan nemt og hurtigt oprette din konto."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mailadresse"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Adgangskode"</string>
+    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
+    <skip />
+    <!-- no translation found for authenticiation_label (3110827508591580063) -->
+    <skip />
+    <!-- no translation found for add_authentication_label (865206092644419804) -->
+    <skip />
+    <!-- no translation found for clear_authentication_label (8113966442068335059) -->
+    <skip />
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Indtast en gyldig e-mailadresse og adgangskode."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dobbeltforekomst af konto"</string>
@@ -205,7 +213,7 @@
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Download autom. vedhæftede filer i de seneste beskeder via Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsinterval, meddelelser osv."</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Send en meddelelse ved nye e-mails"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Send en underretning ved nye e-mails"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Synkroniseringshyppighed"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Brugernavn, adgangskode og indstillinger for indgående server"</string>
