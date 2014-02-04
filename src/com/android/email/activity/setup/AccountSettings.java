@@ -345,7 +345,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 TextUtils.equals(GeneralPreferences.class.getName(), fragmentName) ||
                 TextUtils.equals(AccountSettingsEditQuickResponsesFragment.class.getName(),
                         fragmentName) ||
-                super.isValidFragment(fragmentName));
+                TextUtils.equals(DebugFragment.class.getName(), fragmentName));
     }
 
     @Override
