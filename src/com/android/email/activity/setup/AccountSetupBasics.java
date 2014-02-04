@@ -86,8 +86,8 @@ import java.net.URISyntaxException;
 public class AccountSetupBasics extends AccountSetupActivity
         implements OnClickListener, AccountCheckSettingsFragment.Callbacks {
 
-    // Set to false before shipping, logs PII
-    private final static boolean ENTER_DEBUG_SCREEN = false;
+    // STOPSHIP: Set to false before shipping, logs PII
+    private final static boolean ENTER_DEBUG_SCREEN = true;
 
     /**
      * Direct access for forcing account creation
