@@ -159,7 +159,10 @@ public class AccountSetupNamesFragment extends Fragment {
             }
         }
         final AccountSetupFinal activity = (AccountSetupFinal) getActivity();
-        activity.setNextButtonEnabled(enableNextButton);
+        if (activity != null) {
+            // If we're not attached to the activity, this state probably doesn't need updating
+            activity.setNextButtonEnabled(enableNextButton);
+        }
     }
 
     public String getDescription() {
