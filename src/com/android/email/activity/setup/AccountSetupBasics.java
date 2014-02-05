@@ -110,10 +110,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     public static final int RESULT_OAUTH_USER_CANCELED = -1;
     public static final int RESULT_OAUTH_FAILURE = -2;
 
-    public static final String EXTRA_OAUTH_ACCESS_TOKEN = "accessToken";
-    public static final String EXTRA_OAUTH_REFRESH_TOKEN = "refreshToken";
-    public static final String EXTRA_OAUTH_EXPIRES_IN = "expiresIn";
-
     // Support for UI
     private Provider mProvider;
     private Button mManualButton;
@@ -144,9 +140,12 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_OAUTH) {
             if (resultCode == RESULT_OAUTH_SUCCESS) {
-                final String accessToken = data.getStringExtra(EXTRA_OAUTH_ACCESS_TOKEN);
-                final String refreshToken = data.getStringExtra(EXTRA_OAUTH_REFRESH_TOKEN);
-                final int expiresInSeconds = data.getIntExtra(EXTRA_OAUTH_EXPIRES_IN, 0);
+                final String accessToken = data.getStringExtra(
+                        OAuthAuthenticationActivity.EXTRA_OAUTH_ACCESS_TOKEN);
+                final String refreshToken = data.getStringExtra(
+                        OAuthAuthenticationActivity.EXTRA_OAUTH_REFRESH_TOKEN);
+                final int expiresInSeconds = data.getIntExtra(
+                        OAuthAuthenticationActivity.EXTRA_OAUTH_EXPIRES_IN, 0);
 
                 finishOAuthSetup(accessToken, refreshToken, expiresInSeconds);
             } else if (resultCode == RESULT_OAUTH_FAILURE

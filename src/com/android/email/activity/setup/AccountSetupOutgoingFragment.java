@@ -43,6 +43,7 @@ import com.android.email.provider.AccountBackupRestore;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
@@ -58,6 +59,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener, AuthenticationCallback {
 
     private static final int CERTIFICATE_REQUEST = 0;
+    private static final int SIGN_IN_REQUEST = 1;
 
     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
 
@@ -348,6 +350,15 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void saveSettingsAfterEdit() {
         final Account account = mSetupData.getAccount();
+        final Credential cred = account.mHostAuthRecv.mCredential;
+        if (cred != null) {
+            if (cred.isSaved()) {
+                cred.update(mContext, cred.toContentValues());
+            } else {
+                cred.save(mContext);
+                account.mHostAuthRecv.mCredentialKey = cred.mId;
+            }
+        }
         account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backup(mContext);
@@ -401,5 +412,14 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onCertificateRequested() {
         // We don't support certificates on any outgoing protocol.
+    }
+
+    @Override
+    public void onRequestSignIn() {
+        // Launch the signin activity.
+        // TODO: at some point we should just use the sign in fragment on the main setup activity.
+        final Intent intent = new Intent(getActivity(), SignInActivity.class);
+        intent.putExtra(SignInActivity.EXTRA_EMAIL, mSetupData.getAccount().mEmailAddress);
+        startActivityForResult(intent, SIGN_IN_REQUEST);
     }
 }

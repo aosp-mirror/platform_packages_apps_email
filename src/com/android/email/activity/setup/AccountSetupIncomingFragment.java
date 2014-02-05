@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
@@ -61,6 +63,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         implements AuthenticationCallback {
 
     private static final int CERTIFICATE_REQUEST = 0;
+    private static final int SIGN_IN_REQUEST = 1;
 
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
@@ -403,11 +406,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
 
         int flags = recvAuth.mFlags;
-        flags &= ~HostAuth.FLAG_AUTHENTICATE;
         if (mServiceInfo.defaultSsl) {
             flags |= HostAuth.FLAG_SSL;
         }
-        SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
+        // Strip out any flags that are not related to security type.
+        int securityTypeFlags = (flags & (HostAuth.FLAG_SSL | HostAuth.FLAG_TLS | HostAuth.FLAG_NONE));
+        SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, securityTypeFlags);
 
         final String hostname = recvAuth.mAddress;
         if (hostname != null) {
@@ -472,6 +476,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     public void saveSettingsAfterEdit() {
         final Account account = mSetupData.getAccount();
         account.update(mContext, account.toContentValues());
+        final Credential cred = account.mHostAuthRecv.mCredential;
+        if (cred != null) {
+            if (cred.isSaved()) {
+                cred.update(mContext, cred.toContentValues());
+            } else {
+                cred.save(mContext);
+                account.mHostAuthRecv.mCredentialKey = cred.mId;
+            }
+        }
         account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backup(mContext);
@@ -513,6 +526,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final String userName = mUsernameView.getText().toString().trim();
         final String userPassword = mAuthenticationView.getPassword().toString();
         recvAuth.setLogin(userName, userPassword);
+        if (!TextUtils.isEmpty(mAuthenticationView.getOAuthProvider())) {
+            Credential cred = recvAuth.getOrCreateCredential(getActivity());
+            cred.mProviderId = mAuthenticationView.getOAuthProvider();
+        }
 
         final String serverAddress = mServerView.getText().toString().trim();
         int serverPort;
@@ -568,6 +585,14 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         validateFields();
     }
 
+    @Override
+    public void onRequestSignIn() {
+        // Launch the signin activity.
+        // TODO: at some point we should just use the sign in fragment on the main setup activity.
+        final Intent intent = new Intent(getActivity(), SignInActivity.class);
+        intent.putExtra(SignInActivity.EXTRA_EMAIL, mSetupData.getAccount().mEmailAddress);
+        startActivityForResult(intent, SIGN_IN_REQUEST);
+    }
 
     @Override
     public void onCertificateRequested() {
@@ -581,6 +606,25 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
             final String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
             mAuthenticationView.setCertificate(certAlias);
+        } else if (requestCode == SIGN_IN_REQUEST && resultCode == Activity.RESULT_OK) {
+            final Account account = mSetupData.getAccount();
+            final HostAuth recvAuth = account.getOrCreateHostAuthRecv(getActivity());
+            final String password = data.getStringExtra(SignInActivity.EXTRA_PASSWORD);
+            if (!TextUtils.isEmpty(password)) {
+                recvAuth.mPassword = password;
+                recvAuth.removeCredential();
+            } else {
+                Credential cred = recvAuth.getOrCreateCredential(getActivity());
+                cred.mProviderId = data.getStringExtra(SignInActivity.EXTRA_OAUTH_PROVIDER);
+                cred.mAccessToken = data.getStringExtra(SignInActivity.EXTRA_OAUTH_ACCESS_TOKEN);
+                cred.mRefreshToken = data.getStringExtra(SignInActivity.EXTRA_OAUTH_REFRESH_TOKEN);
+                cred.mExpiration = System.currentTimeMillis() +
+                        data.getIntExtra(SignInActivity.EXTRA_OAUTH_EXPIRES_IN_SECONDS, 0) *
+                        DateUtils.SECOND_IN_MILLIS;
+                recvAuth.mPassword = null;
+            }
+            mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, mServiceInfo.offerCerts,
+                    recvAuth);
         }
     }
 }
