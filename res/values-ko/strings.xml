@@ -83,14 +83,10 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"간단하게 계정을 설정할 수 있습니다."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"이메일 주소"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"비밀번호"</string>
-    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
-    <skip />
-    <!-- no translation found for authenticiation_label (3110827508591580063) -->
-    <skip />
-    <!-- no translation found for add_authentication_label (865206092644419804) -->
-    <skip />
-    <!-- no translation found for clear_authentication_label (8113966442068335059) -->
-    <skip />
+    <string name="signed_in_with_service_label" msgid="4909910797357155961">"%s(으)로 로그인함"</string>
+    <string name="authenticiation_label" msgid="3110827508591580063">"인증"</string>
+    <string name="add_authentication_label" msgid="865206092644419804">"인증 추가"</string>
+    <string name="clear_authentication_label" msgid="8113966442068335059">"인증 삭제"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"수동 설정"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"중복 계정"</string>
