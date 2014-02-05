@@ -83,14 +83,10 @@
     <string name="accounts_welcome" msgid="8337750045270269649">"É possível configurar a sua conta em apenas alguns passos."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de email"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Palavra-passe"</string>
-    <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
-    <skip />
-    <!-- no translation found for authenticiation_label (3110827508591580063) -->
-    <skip />
-    <!-- no translation found for add_authentication_label (865206092644419804) -->
-    <skip />
-    <!-- no translation found for clear_authentication_label (8113966442068335059) -->
-    <skip />
+    <string name="signed_in_with_service_label" msgid="4909910797357155961">"Sessão iniciada com o %s"</string>
+    <string name="authenticiation_label" msgid="3110827508591580063">"Autenticação"</string>
+    <string name="add_authentication_label" msgid="865206092644419804">"Adicionar autenticação"</string>
+    <string name="clear_authentication_label" msgid="8113966442068335059">"Limpar autenticação"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Introduza um endereço de e-mail e palavra-passe válidos."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Conta duplicada"</string>
