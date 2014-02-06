@@ -104,7 +104,7 @@ import com.android.mail.preferences.MailPrefs;
 import com.android.mail.providers.ConversationInfo;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
-import com.android.mail.providers.MessageInfo;
+import com.android.mail.providers.ParticipantInfo;
 import com.android.mail.providers.Settings;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
@@ -2766,7 +2766,8 @@ public class EmailProvider extends ContentProvider {
         // There may be a better way to do this, but since the projection is specified by the
         // unified UI code, it can't ask for these columns.
         stringBuilder.append(',').append(MessageColumns.DISPLAY_NAME)
-                .append(',').append(MessageColumns.FROM_LIST);
+                .append(',').append(MessageColumns.FROM_LIST)
+                .append(',').append(MessageColumns.TO_LIST);
     }
 
     /**
@@ -3783,6 +3784,7 @@ public class EmailProvider extends ContentProvider {
      */
     static class EmailConversationCursor extends CursorWrapper {
         private final long mMailboxId;
+        private final boolean isOutgoingMailbox;
         private final Context mContext;
         private final FolderList mFolderList;
         private final Bundle mExtras = new Bundle();
@@ -3802,6 +3804,10 @@ public class EmailProvider extends ContentProvider {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
 
             if (mailbox != null) {
+                isOutgoingMailbox = mailbox.mType == Mailbox.TYPE_SENT ||
+                        mailbox.mType == Mailbox.TYPE_OUTBOX ||
+                        mailbox.mType == Mailbox.TYPE_DRAFTS;
+
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         mailbox.mUiLastSyncResult);
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
@@ -3833,6 +3839,7 @@ public class EmailProvider extends ContentProvider {
                              UIProvider.CursorStatus.COMPLETE);
                  }
             } else {
+                isOutgoingMailbox = false;
                 // TODO for virtual mailboxes, we may want to do something besides just fake it
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         UIProvider.LastSyncResult.SUCCESS);
@@ -3911,27 +3918,39 @@ public class EmailProvider extends ContentProvider {
             conversationInfo.firstSnippet = getString(getColumnIndex(ConversationColumns.SNIPPET));
 
             final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
-            final boolean isStarred = getInt(getColumnIndex(ConversationColumns.STARRED)) != 0;
             final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
 
             final String fromString = getString(getColumnIndex(MessageColumns.FROM_LIST));
-            final String email;
+            final String senderEmail;
 
             if (fromString != null) {
                 final Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(fromString);
                 if (tokens.length > 0) {
-                    email = tokens[0].getAddress();
+                    senderEmail = tokens[0].getAddress();
                 } else {
-                    LogUtils.d(TAG, "Couldn't parse email address");
-                    email = fromString;
+                    LogUtils.d(TAG, "Couldn't parse sender email address");
+                    senderEmail = fromString;
                 }
             } else {
-                email = null;
+                senderEmail = null;
             }
 
-            final MessageInfo messageInfo = new MessageInfo(isRead, isStarred, senderString,
-                    0 /* priority */, email);
-            conversationInfo.addMessage(messageInfo);
+            if (isOutgoingMailbox) {
+                // for conversations in outgoing mail mailboxes return a list of recipients
+                final String recipientsString = getString(getColumnIndex(MessageColumns.TO_LIST));
+                final Address[] recipientAddresses = Address.parse(recipientsString);
+                for (Address recipientAddress : recipientAddresses) {
+                    final String name = recipientAddress.getSimplifiedName();
+                    final String email = recipientAddress.getAddress();
+
+                    // all recipients are said to have read all messages in the conversation
+                    conversationInfo.addParticipant(new ParticipantInfo(name, email, 0, isRead));
+                }
+            } else {
+                // for conversations in incoming mail mailboxes return the sender
+                conversationInfo.addParticipant(new ParticipantInfo(senderString, senderEmail, 0,
+                        isRead));
+            }
 
             return conversationInfo;
         }
