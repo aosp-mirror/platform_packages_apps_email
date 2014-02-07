@@ -30,13 +30,13 @@
         <!-- Headline -->
         <!-- Set headline for first fragment, change in code as we progress through screens -->
         <TextView
-                android:id="@+id/headline"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:text="@string/account_setup_options_headline"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary" />
+            android:id="@+id/headline"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/account_setup_options_headline"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary" />
         <include layout="@layout/account_setup_fragment_container"/>
-        <include layout="@layout/account_setup_buttons" />
+        <include layout="@layout/account_setup_buttons"/>
     </LinearLayout>
 </ScrollView>

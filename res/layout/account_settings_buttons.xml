@@ -14,23 +14,24 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:paddingTop="@dimen/settings_buttons_padding_top"
     android:paddingBottom="@dimen/settings_buttons_padding_bottom"
     >
-    <Button
+    <ImageButton
         android:id="@+id/cancel"
-        style="@style/accountSettingsButton"
-        android:layout_width="0dip"
-        android:layout_weight="1"
-        android:text="@string/cancel_action" />
-    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:src="@drawable/ic_nav_arrow_back"
+        android:text="@string/cancel_action"
+        android:layout_alignParentLeft="true"/>
+    <ImageButton
         android:id="@+id/done"
-        style="@style/accountSettingsButton"
-        android:layout_width="0dip"
-        android:layout_weight="1"
-        android:text="@string/done_action" />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:src="@drawable/ic_nav_arrow_forward"
+        android:text="@string/done_action"
+        android:layout_alignParentRight="true"/>
+</RelativeLayout>

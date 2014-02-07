@@ -28,6 +28,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -65,7 +66,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected SetupDataFragment mSetupData;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
-    private Button mProceedButton;
+    private ImageButton mProceedButton;
+
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     private boolean mProceedButtonPressed;
     /*package*/ String mBaseScheme = "protocol";

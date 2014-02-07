@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.email.R;
@@ -65,7 +66,7 @@ public class AccountSetupFinal extends AccountSetupActivity implements View.OnCl
     private boolean mIsProcessing = false;
     private boolean mForceCreate = false;
 
-    private Button mNextButton;
+    private ImageButton mNextButton;
 
     public static void actionFinal(Activity fromActivity, SetupDataFragment setupData) {
         final Intent intent = new ForwardingIntent(fromActivity, AccountSetupFinal.class);
