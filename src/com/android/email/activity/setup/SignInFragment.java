@@ -46,8 +46,6 @@ public class SignInFragment extends Fragment implements OnClickListener {
     public static final int RESULT_OAUTH_USER_CANCELED = -1;
     public static final int RESULT_OAUTH_FAILURE = -2;
 
-    private View mNextButton;
-    private View mPreviousButton;
     private View mOAuthButton;
     private EditText mPasswordText;
     private TextWatcher mValidationTextWatcher;
@@ -60,9 +58,7 @@ public class SignInFragment extends Fragment implements OnClickListener {
         public void onOAuthSignIn(final String providerId, final String accessToken,
                 final String refreshToken, final int expiresInSeconds);
 
-        public void onPasswordSignIn(final String password);
-
-        public void onCancel();
+        public void onValidate();
     }
 
     @Override
@@ -70,12 +66,8 @@ public class SignInFragment extends Fragment implements OnClickListener {
             Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.sign_in_fragment, container, false);
 
-        mNextButton = UiUtilities.getView(view, R.id.next);
-        mPreviousButton = UiUtilities.getView(view, R.id.previous);
         mOAuthButton = UiUtilities.getView(view, R.id.sign_in_with_google);
         mPasswordText = UiUtilities.getView(view, R.id.account_password);
-        mNextButton.setOnClickListener(this);
-        mPreviousButton.setOnClickListener(this);
         mOAuthButton.setOnClickListener(this);
 
         // After any text edits, call validateFields() which enables or disables the Next button
@@ -97,6 +89,7 @@ public class SignInFragment extends Fragment implements OnClickListener {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         mContext = getActivity();
     }
 
@@ -108,13 +101,9 @@ public class SignInFragment extends Fragment implements OnClickListener {
     }
 
     public void validatePassword() {
-        enableNextButton(!TextUtils.isEmpty(mPasswordText.getText()));
+        mCallback.onValidate();
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordText);
-    }
-
-    private void enableNextButton(final boolean enabled) {
-        mNextButton.setEnabled(enabled);
     }
 
     @Override
@@ -145,11 +134,7 @@ public class SignInFragment extends Fragment implements OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (view == mNextButton) {
-            mCallback.onPasswordSignIn(mPasswordText.getText().toString());
-        } else if (view == mPreviousButton) {
-            mCallback.onCancel();
-        } else if (view == mOAuthButton) {
+        if (view == mOAuthButton) {
             List<OAuthProvider> oauthProviders = AccountSettingsUtils.getAllOAuthProviders(
                     mContext);
             // FLAG currently the only oauth provider we support is google.
@@ -172,6 +157,8 @@ public class SignInFragment extends Fragment implements OnClickListener {
     public String getEmailAddress() {
         return mEmailAddress;
     }
+
+    public String getPassword() { return mPasswordText.getText().toString(); }
 
     public void setSignInCallback(SignInCallback callback) {
         mCallback = callback;

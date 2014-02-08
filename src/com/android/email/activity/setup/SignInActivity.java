@@ -3,10 +3,15 @@ package com.android.email.activity.setup;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 
-public class SignInActivity extends Activity implements SignInFragment.SignInCallback {
+public class SignInActivity extends Activity implements SignInFragment.SignInCallback,
+        View.OnClickListener {
 
     public static final String EXTRA_EMAIL = "email";
 
@@ -17,6 +22,8 @@ public class SignInActivity extends Activity implements SignInFragment.SignInCal
     public static final String EXTRA_OAUTH_EXPIRES_IN_SECONDS = "expiresInSeconds";
 
     private SignInFragment mFragment;
+    private ImageButton mNextButton;
+    private ImageButton mPrevButton;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -26,6 +33,14 @@ public class SignInActivity extends Activity implements SignInFragment.SignInCal
                 getFragmentManager().findFragmentById(R.id.sign_in_fragment);
         mFragment.setEmailAddress(getIntent().getStringExtra(EXTRA_EMAIL));
         mFragment.setSignInCallback(this);
+        mNextButton = UiUtilities.getView(this, R.id.next);
+        mPrevButton = UiUtilities.getView(this, R.id.previous);
+        mNextButton.setOnClickListener(this);
+        mPrevButton.setOnClickListener(this);
+
+        onValidate();
+        // Assume canceled until we find out otherwise.
+        setResult(RESULT_CANCELED);
     }
 
     @Override
@@ -40,8 +55,7 @@ public class SignInActivity extends Activity implements SignInFragment.SignInCal
         finish();
     }
 
-    @Override
-    public void onPasswordSignIn(final String password) {
+    private void onPasswordSignIn(final String password) {
         final Intent intent = new Intent();
         intent.putExtra(EXTRA_PASSWORD, password);
         setResult(RESULT_OK, intent);
@@ -49,9 +63,16 @@ public class SignInActivity extends Activity implements SignInFragment.SignInCal
     }
 
     @Override
-    public void onCancel() {
-        setResult(RESULT_CANCELED);
-        finish();
+    public void onValidate() {
+        mNextButton.setEnabled(!TextUtils.isEmpty(mFragment.getPassword()));
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view == mNextButton) {
+            onPasswordSignIn(mFragment.getPassword());
+        } else if (view == mPrevButton) {
+            onBackPressed();
+        }
+    }
 }

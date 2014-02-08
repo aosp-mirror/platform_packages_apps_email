@@ -14,10 +14,11 @@
      limitations under the License.
 -->
 
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingTop="@dimen/setup_fragment_padding_top"
     android:paddingLeft="@dimen/setup_fragment_padding_left"
     android:paddingRight="@dimen/setup_fragment_padding_right" >
@@ -26,6 +27,14 @@
         android:id="@+id/sign_in_fragment"
         class="com.android.email.activity.setup.SignInFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
-</FrameLayout>
+    <FrameLayout android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_nav_arrow_back">
+        <include layout="@layout/account_setup_buttons" />
+    </FrameLayout>
+
+</LinearLayout>
