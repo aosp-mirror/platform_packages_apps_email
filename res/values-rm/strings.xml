@@ -103,11 +103,17 @@
   </plurals>
     <!-- no translation found for account_setup_basics_title (3578333196594678422) -->
     <skip />
+    <!-- no translation found for sign_in_title (841050831791507752) -->
+    <skip />
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
     <skip />
     <!-- no translation found for accounts_welcome (8337750045270269649) -->
     <skip />
     <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
+    <skip />
+    <!-- no translation found for or_label (2207403489755254427) -->
+    <skip />
+    <!-- no translation found for sign_in_with_google (9051489501495503976) -->
     <skip />
     <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
     <skip />

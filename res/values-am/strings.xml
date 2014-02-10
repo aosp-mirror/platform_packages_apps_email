@@ -79,9 +79,12 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"መለያ አዘጋጅ"</string>
+    <string name="sign_in_title" msgid="841050831791507752">"የአይማፕ ማረጋገጫ"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"የኢሜይል መለያ"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"መለያህን በጥቂት ደረጃዎች ብቻ ማዋቀር ትችላለህ።"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ኢሜይል አድራሻ"</string>
+    <string name="or_label" msgid="2207403489755254427">"ወይም"</string>
+    <string name="sign_in_with_google" msgid="9051489501495503976">"በGoogle ይግቡ"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"የይለፍ ቃል፡"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"በ%s ወደ መለያ ተገብቷል"</string>
     <string name="authenticiation_label" msgid="3110827508591580063">"ማረጋገጥ"</string>

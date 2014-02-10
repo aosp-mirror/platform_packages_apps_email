@@ -79,9 +79,12 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"계정 설정"</string>
+    <string name="sign_in_title" msgid="841050831791507752">"IMAP 액세스 인증"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"이메일 계정"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"간단하게 계정을 설정할 수 있습니다."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"이메일 주소"</string>
+    <string name="or_label" msgid="2207403489755254427">"또는"</string>
+    <string name="sign_in_with_google" msgid="9051489501495503976">"Google 계정으로 로그인"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"비밀번호"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"%s(으)로 로그인함"</string>
     <string name="authenticiation_label" msgid="3110827508591580063">"인증"</string>
