@@ -77,19 +77,23 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/setup_buttons_padding_bottom"
             >
-            <Button
+            <ImageButton
                 android:id="@+id/previous"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="@dimen/setup_buttons_padding_left"
-                style="@style/accountSetupButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_nav_arrow_back"
                 android:text="@string/previous_action" />
-            <Button
+            <ImageButton
                 android:id="@+id/next"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/setup_buttons_padding_right"
-                style="@style/accountSetupButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_nav_arrow_forward"
                 android:text="@string/next_action" />
         </RelativeLayout>
     </LinearLayout>

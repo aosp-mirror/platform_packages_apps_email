@@ -47,6 +47,10 @@
 
         <!-- Primary fragment -->
         <include layout="@layout/account_setup_fragment_container" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
         <!-- Buttons below that -->
         <include layout="@layout/account_setup_buttons" />

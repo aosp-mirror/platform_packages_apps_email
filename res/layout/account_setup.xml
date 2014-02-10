@@ -37,6 +37,10 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary" />
         <include layout="@layout/account_setup_fragment_container"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
         <include layout="@layout/account_setup_buttons"/>
     </LinearLayout>
 </ScrollView>

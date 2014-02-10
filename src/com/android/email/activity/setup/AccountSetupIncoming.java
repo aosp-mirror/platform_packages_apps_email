@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
@@ -41,7 +42,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         implements AccountSetupIncomingFragment.Callback, OnClickListener {
 
     /* package */ AccountServerBaseFragment mFragment;
-    private Button mNextButton;
+    private ImageButton mNextButton;
     /* package */ boolean mNextButtonEnabled;
     private boolean mStartedAutoDiscovery;
     private EmailServiceInfo mServiceInfo;

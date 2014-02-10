@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 /**
  * Provides setup flow for SMTP (for IMAP/POP accounts).
@@ -37,7 +38,7 @@ public class AccountSetupOutgoing extends AccountSetupActivity
         implements AccountSetupOutgoingFragment.Callback, OnClickListener {
 
     /* package */ AccountSetupOutgoingFragment mFragment;
-    private Button mNextButton;
+    private ImageButton mNextButton;
     /* package */ boolean mNextButtonEnabled;
 
     public static void actionOutgoingSettings(Activity fromActivity, SetupDataFragment setupData) {
