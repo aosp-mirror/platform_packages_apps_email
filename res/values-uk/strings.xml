@@ -79,9 +79,12 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Гб"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Налаштування облікового запису"</string>
+    <string name="sign_in_title" msgid="841050831791507752">"Автентифікація через IMAP"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Обліковий запис електронної пошти"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Обліковий запис можна налаштувати за допомогою лише кількох дій."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Електронна адреса"</string>
+    <string name="or_label" msgid="2207403489755254427">"АБО"</string>
+    <string name="sign_in_with_google" msgid="9051489501495503976">"Увійти через Google"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Пароль"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Ви ввійшли в %s"</string>
     <string name="authenticiation_label" msgid="3110827508591580063">"Автентифікація"</string>
