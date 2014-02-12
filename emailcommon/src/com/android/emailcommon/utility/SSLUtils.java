@@ -54,6 +54,9 @@ public class SSLUtils {
     private static final boolean LOG_ENABLED = false;
     private static final String TAG = "Email.Ssl";
 
+    // A 30 second SSL handshake should be more than enough.
+    private static final int SSL_HANDSHAKE_TIMEOUT = 30000;
+
     /**
      * A trust manager specific to a particular HostAuth.  The first time a server certificate is
      * encountered for the HostAuth, its certificate is saved; subsequent checks determine whether
@@ -144,7 +147,7 @@ public class SSLUtils {
             HostAuth hostAuth, boolean insecure) {
         if (insecure) {
             SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
-                    SSLCertificateSocketFactory.getInsecure(0, null);
+                    SSLCertificateSocketFactory.getInsecure(SSL_HANDSHAKE_TIMEOUT, null);
             insecureFactory.setTrustManagers(
                     new TrustManager[] {
                             new SameCertificateCheckingTrustManager(context, hostAuth)});
@@ -152,7 +155,7 @@ public class SSLUtils {
         } else {
             if (sSecureFactory == null) {
                 sSecureFactory = (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getDefault(0, null);
+                        SSLCertificateSocketFactory.getDefault(SSL_HANDSHAKE_TIMEOUT, null);
             }
             return sSecureFactory;
         }
