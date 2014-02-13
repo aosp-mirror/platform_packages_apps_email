@@ -20,15 +20,11 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
-import com.android.emailcommon.Logging;
-import com.android.mail.utils.LogUtils;
-
 /**
  * Superclass of all of the account setup activities; ensures that SetupData state is saved/restored
  * automatically as required
  */
 public class AccountSetupActivity extends Activity implements SetupDataFragment.SetupDataContainer {
-    private static final boolean DEBUG_SETUP_FLOWS = false;  // Don't check in set to true
     protected SetupDataFragment mSetupData;
 
     private static final String SETUP_DATA_FRAGMENT_TAG = "setupData";
@@ -57,20 +53,10 @@ public class AccountSetupActivity extends Activity implements SetupDataFragment.
             ft.add(mSetupData, SETUP_DATA_FRAGMENT_TAG);
             ft.commit();
         }
-
-        if (DEBUG_SETUP_FLOWS) {
-            LogUtils.d(Logging.LOG_TAG, "%s onCreate %s", getClass().getName(),
-                    mSetupData.debugString());
-        }
     }
 
     @Override
     public SetupDataFragment getSetupData() {
         return mSetupData;
-    }
-
-    @Override
-    public void setSetupData(SetupDataFragment setupData) {
-        mSetupData = setupData;
     }
 }

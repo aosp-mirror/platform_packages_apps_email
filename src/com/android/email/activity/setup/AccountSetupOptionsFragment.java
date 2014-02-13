@@ -16,7 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.SyncWindow;
 
-public class AccountSetupOptionsFragment extends Fragment {
+public class AccountSetupOptionsFragment extends AccountSetupFragment {
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
     private CheckBox mNotifyView;
@@ -44,6 +43,14 @@ public class AccountSetupOptionsFragment extends Fragment {
 
     /** Default sync window for new EAS accounts */
     private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_1_WEEK;
+
+    public interface Callback extends AccountSetupFragment.Callback {
+
+    }
+
+    public static AccountSetupOptionsFragment newInstance() {
+        return new AccountSetupOptionsFragment();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

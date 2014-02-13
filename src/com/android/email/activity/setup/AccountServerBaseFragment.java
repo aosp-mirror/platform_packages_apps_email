@@ -17,18 +17,17 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.Loader;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -45,64 +44,49 @@ import com.android.emailcommon.provider.HostAuth;
  * Activity callback during onAttach
  * Present "Next" button and respond to its clicks
  */
-public abstract class AccountServerBaseFragment extends Fragment
-        implements AccountCheckSettingsFragment.Callbacks, OnClickListener {
+public abstract class AccountServerBaseFragment extends AccountSetupFragment
+        implements OnClickListener {
 
     private static final String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
     private static final String BUNDLE_KEY_ACTIVITY_TITLE = "AccountServerBaseFragment.title";
+    private static final String BUNDLE_KEY_SAVING = "AccountServerBaseFragment.saving";
 
-    protected Activity mContext;
-    protected Callback mCallback = EmptyCallback.INSTANCE;
+    protected Context mAppContext;
     /**
      * Whether or not we are in "settings mode". We re-use the same screens for both the initial
-     * account creation as well as subsequent account modification. If <code>mSettingsMode</code>
-     * if <code>false</code>, we are in account creation mode. Otherwise, we are in account
+     * account creation as well as subsequent account modification. If this is
+     * <code>false</code>, we are in account creation mode. Otherwise, we are in account
      * modification mode.
      */
     protected boolean mSettingsMode;
-    /*package*/ HostAuth mLoadedSendAuth;
-    /*package*/ HostAuth mLoadedRecvAuth;
+    protected HostAuth mLoadedSendAuth;
+    protected HostAuth mLoadedRecvAuth;
 
     protected SetupDataFragment mSetupData;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     private View mProceedButton;
+    protected String mBaseScheme = "protocol";
 
-    // This is used to debounce multiple clicks on the proceed button (which does async work)
-    private boolean mProceedButtonPressed;
-    /*package*/ String mBaseScheme = "protocol";
+    // Set to true if we're in the process of saving
+    private boolean mSaving;
+
+    /**
+     // Used to post the callback once we're done saving, since we can't perform fragment
+     // transactions from {@link LoaderManager.LoaderCallbacks#onLoadFinished(Loader, Object)}
+     */
+    private Handler mHandler = new Handler();
 
     /**
      * Callback interface that owning activities must provide
      */
-    public interface Callback {
-        /**
-         * Called each time the user-entered input transitions between valid and invalid
-         * @param enable true to enable proceed/next button, false to disable
-         */
-        public void onEnableProceedButtons(boolean enable);
-
+    public interface Callback extends AccountSetupFragment.Callback {
         /**
          * Called when user clicks "next".  Starts account checker.
          * @param checkMode values from {@link SetupDataFragment}
-         * @param target the fragment that requested the check
          */
-        public void onProceedNext(int checkMode, AccountServerBaseFragment target);
-
-        /**
-         * Called when account checker completes.  Fragments are responsible for saving
-         * own edited data;  This is primarily for the activity to do post-check navigation.
-         * @param result check settings result code - success is CHECK_SETTINGS_OK
-         * @param setupData possibly modified SetupData
-         */
-        public void onCheckSettingsComplete(int result, SetupDataFragment setupData);
-    }
-
-    private static class EmptyCallback implements Callback {
-        public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onEnableProceedButtons(boolean enable) { }
-        @Override public void onProceedNext(int checkMode, AccountServerBaseFragment target) { }
-        @Override public void onCheckSettingsComplete(int result, SetupDataFragment setupData) { }
+        public void onAccountServerUIComplete(int checkMode);
+        public void onAccountServerSaveComplete();
     }
 
     /**
@@ -111,7 +95,7 @@ public abstract class AccountServerBaseFragment extends Fragment
      * @param settingsMode True if we're in settings, false if we're in account creation
      * @return Arg bundle
      */
-    public static Bundle getArgs(Boolean settingsMode) {
+    public static Bundle getArgs(boolean settingsMode) {
         final Bundle setupModeArgs = new Bundle(1);
         setupModeArgs.putBoolean(BUNDLE_KEY_SETTINGS, settingsMode);
         return setupModeArgs;
@@ -130,6 +114,7 @@ public abstract class AccountServerBaseFragment extends Fragment
         mSettingsMode = false;
         if (savedInstanceState != null) {
             mSettingsMode = savedInstanceState.getBoolean(BUNDLE_KEY_SETTINGS);
+            mSaving = savedInstanceState.getBoolean(BUNDLE_KEY_SAVING);
         } else if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
@@ -150,17 +135,27 @@ public abstract class AccountServerBaseFragment extends Fragment
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        // startPreferencePanel launches this fragment with the right title initially, but
-        // if the device is rotate we must set the title ourselves
-        mContext = getActivity();
+        final Activity activity = getActivity();
+        mAppContext = activity.getApplicationContext();
         if (mSettingsMode && savedInstanceState != null) {
-            mContext.setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
+            // startPreferencePanel launches this fragment with the right title initially, but
+            // if the device is rotated we must set the title ourselves
+            activity.setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
         }
         SetupDataFragment.SetupDataContainer container =
-                (SetupDataFragment.SetupDataContainer) mContext;
+                (SetupDataFragment.SetupDataContainer) activity;
         mSetupData = container.getSetupData();
 
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mSaving) {
+            // We need to call this here in case the save completed while we weren't resumed
+            saveSettings();
+        }
     }
 
     @Override
@@ -170,18 +165,10 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-
-        // Ensure that we don't have any callbacks at this point.
-        mCallback = EmptyCallback.INSTANCE;
-    }
-
-    @Override
     public void onPause() {
         // Hide the soft keyboard if we lose focus
         final InputMethodManager imm =
-                (InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager) mAppContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         super.onPause();
     }
@@ -196,22 +183,9 @@ public abstract class AccountServerBaseFragment extends Fragment
                 getActivity().onBackPressed();
                 break;
             case R.id.done:
-                // Simple debounce - just ignore while checks are underway
-                if (mProceedButtonPressed) {
-                    return;
-                }
-                mProceedButtonPressed = true;
-                onNext();
+                collectUserInput();
                 break;
         }
-    }
-
-    /**
-     * Activity provides callbacks here.
-     */
-    public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-        mContext = getActivity();
     }
 
     /**
@@ -223,10 +197,11 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (mProceedButton != null) {
             mProceedButton.setEnabled(enable);
         }
-        clearButtonBounce();
 
-        // TODO: This supports the phone UX activities and will be removed
-        mCallback.onEnableProceedButtons(enable);
+        final Callback callback = (Callback) getActivity();
+        if (callback != null) {
+            callback.setNextButtonEnabled(enable);
+        }
     }
 
     /**
@@ -243,7 +218,7 @@ public abstract class AccountServerBaseFragment extends Fragment
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
                         // Framework will not auto-hide IME; do it ourselves
-                        InputMethodManager imm = (InputMethodManager)mContext.
+                        InputMethodManager imm = (InputMethodManager) mAppContext.
                                 getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                         view.setError(errorMessage);
@@ -292,80 +267,49 @@ public abstract class AccountServerBaseFragment extends Fragment
     };
 
     /**
-     * Clears the "next" button de-bounce flags and allows the "next" button to activate.
-     */
-    protected void clearButtonBounce() {
-        mProceedButtonPressed = false;
-    }
-
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     *
-     * Handle OK or error result from check settings.  Save settings (async), and then
-     * exit to previous fragment.
-     */
-    @Override
-    public void onCheckSettingsComplete(final int settingsResult, SetupDataFragment setupData) {
-        mSetupData = setupData;
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                if (settingsResult == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-                    if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_EDIT) {
-                        saveSettingsAfterEdit();
-                    } else {
-                        saveSettingsAfterSetup();
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                // Signal to owning activity that a settings check completed
-                mCallback.onCheckSettingsComplete(settingsResult, mSetupData);
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     * This is overridden only by AccountSetupExchange
-     */
-    @Override
-    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
-        throw new IllegalStateException();
-    }
-
-    /**
      * Returns whether or not any settings have changed.
      */
     public boolean haveSettingsChanged() {
         final Account account = mSetupData.getAccount();
 
-        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mAppContext);
         final boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
 
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
         final boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
         return sendChanged || recvChanged;
     }
 
-    /**
-     * Save settings after "OK" result from checker.  Concrete classes must implement.
-     * This is called from a worker thread and is allowed to perform DB operations.
-     */
-    public abstract void saveSettingsAfterEdit();
+    public void saveSettings() {
+        getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Boolean>() {
+            @Override
+            public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+                return getSaveSettingsLoader();
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isResumed()) {
+                            final Callback callback = (Callback) getActivity();
+                            callback.onAccountServerSaveComplete();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Boolean> loader) {}
+        });
+    }
+
+    public abstract Loader<Boolean> getSaveSettingsLoader();
 
     /**
-     * Save settings after "OK" result from checker.  Concrete classes must implement.
-     * This is called from a worker thread and is allowed to perform DB operations.
+     * Collect the user's input into the setup data object.  Concrete classes must implement.
      */
-    public abstract void saveSettingsAfterSetup();
-
-    /**
-     * Respond to a click of the "Next" button.  Concrete classes must implement.
-     */
-    public abstract void onNext();
+    public abstract void collectUserInput();
 }

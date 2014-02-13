@@ -131,7 +131,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                PreferenceFragment f = (PreferenceFragment) theActivity.mCurrentFragment;
+                PreferenceFragment f = (PreferenceFragment) theActivity.getCurrentFragment();
                 mCheckFrequency =
                     (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
             }
@@ -160,8 +160,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccount.setSenderName(name);
         // For EAS, at least, email address is required
         mAccount.mEmailAddress = "user@server.com";
-        HostAuth.setHostAuthFromString(mAccount.getOrCreateHostAuthRecv(mContext), storeUri);
-        HostAuth.setHostAuthFromString(mAccount.getOrCreateHostAuthSend(mContext), senderUri);
+        mAccount.getOrCreateHostAuthRecv(mContext).setHostAuthFromString(storeUri);
+        mAccount.getOrCreateHostAuthSend(mContext).setHostAuthFromString(senderUri);
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 

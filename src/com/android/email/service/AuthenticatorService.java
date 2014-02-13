@@ -16,7 +16,7 @@
 
 package com.android.email.service;
 
-import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.activity.setup.AccountSetupFinal;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -103,7 +103,7 @@ public class AuthenticatorService extends Service {
             } else {
                 Bundle b = new Bundle();
                 Intent intent =
-                    AccountSetupBasics.actionGetCreateAccountIntent(AuthenticatorService.this,
+                    AccountSetupFinal.actionGetCreateAccountIntent(AuthenticatorService.this,
                             accountType);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 b.putParcelable(AccountManager.KEY_INTENT, intent);

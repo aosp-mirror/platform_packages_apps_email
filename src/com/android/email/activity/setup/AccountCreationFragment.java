@@ -44,6 +44,8 @@ import java.io.IOException;
  * related background tasks.
  */
 public class AccountCreationFragment extends Fragment {
+    public static final String TAG = "AccountCreationFragment";
+
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
     private static final String ACCOUNT_TAG = "account";
@@ -61,6 +63,13 @@ public class AccountCreationFragment extends Fragment {
 
     private Context mAppContext;
     private final Handler mHandler;
+
+    public interface Callback {
+        void onAccountCreationFragmentComplete();
+        void destroyAccountCreationFragment();
+        void showCreateAccountErrorDialog();
+        void setAccount(Account account);
+    }
 
     public AccountCreationFragment() {
         mHandler = new Handler();
@@ -84,10 +93,15 @@ public class AccountCreationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mAppContext = getActivity().getApplicationContext();
         if (savedInstanceState != null) {
             mStage = savedInstanceState.getInt(SAVESTATE_STAGE);
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mAppContext = getActivity().getApplicationContext();
     }
 
     @Override
@@ -210,7 +224,7 @@ public class AccountCreationFragment extends Fragment {
                 mStage = STAGE_REFRESHING_ACCOUNT;
                 kickRefreshingAccountLoader();
             } else {
-                final AccountSetupFinal activity = (AccountSetupFinal)getActivity();
+                final Callback callback = (Callback) getActivity();
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -218,8 +232,8 @@ public class AccountCreationFragment extends Fragment {
                             return;
                         }
                         // Can't do this from within onLoadFinished
-                        activity.destroyAccountCreationFragment();
-                        activity.showCreateAccountErrorDialog();
+                        callback.destroyAccountCreationFragment();
+                        callback.showCreateAccountErrorDialog();
                     }
                 });
             }
@@ -303,13 +317,13 @@ public class AccountCreationFragment extends Fragment {
                     }
 
                     // Move to final setup screen
-                    AccountSetupFinal activity = (AccountSetupFinal) getActivity();
-                    activity.getSetupData().setAccount(account);
-                    activity.proceedFromAccountCreationFragment();
+                    Callback callback = (Callback) getActivity();
+                    callback.setAccount(account);
+                    callback.onAccountCreationFragmentComplete();
 
                     // Update the folder list (to get our starting folders, e.g. Inbox)
-                    final EmailServiceProxy proxy = EmailServiceUtils.getServiceForAccount(activity,
-                            account.mId);
+                    final EmailServiceProxy proxy = EmailServiceUtils
+                            .getServiceForAccount(mAppContext, account.mId);
                     try {
                         proxy.updateFolderList(account.mId);
                     } catch (RemoteException e) {

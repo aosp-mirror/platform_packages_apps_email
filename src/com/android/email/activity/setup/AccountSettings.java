@@ -17,7 +17,6 @@
 package com.android.email.activity.setup;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -72,7 +71,9 @@ import java.util.List;
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity,
-        SetupDataFragment.SetupDataContainer {
+        SetupDataFragment.SetupDataContainer, SecurityRequiredDialogFragment.Callback,
+        CheckSettingsErrorDialogFragment.Callback, AccountCheckSettingsFragment.Callback,
+        AccountServerBaseFragment.Callback {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -113,7 +114,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     private long mRequestedAccountId;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
-    /* package */ Fragment mCurrentFragment;
+    private static final String CURRENT_FRAGMENT_TAG = "currentFragment";
+    private Bundle mCurrentFragmentBundle = new Bundle(1);
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
@@ -130,15 +132,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     // Specific callbacks used by settings fragments
     private final AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
             = new AccountSettingsFragmentCallback();
-    private final AccountServerSettingsFragmentCallback mAccountServerSettingsFragmentCallback
-            = new AccountServerSettingsFragmentCallback();
-
-    /**
-     * Display (and edit) settings for a specific account, or -1 for any/all accounts
-     */
-    public static void actionSettings(Activity fromActivity, long accountId) {
-        fromActivity.startActivity(createAccountSettingsIntent(accountId, null, null));
-    }
 
     /**
      * Create and return an intent to display (and edit) settings for a specific account, or -1
@@ -209,7 +202,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 launchMailboxSettings(i);
                 return;
             } else if (i.hasExtra(EXTRA_NO_ACCOUNTS)) {
-                AccountSetupBasics.actionNewAccountWithResult(this);
+                final Intent setupIntent = AccountSetupFinal.actionNewAccountWithResultIntent(this);
+                startActivity(setupIntent);
                 finish();
                 return;
             } else {
@@ -375,8 +369,9 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      */
     @Override
     public void onBackPressed() {
-        if (mCurrentFragment instanceof AccountServerBaseFragment) {
-            if (((AccountServerBaseFragment) mCurrentFragment).haveSettingsChanged()) {
+        final Fragment currentFragment = getCurrentFragment();
+        if (currentFragment instanceof AccountServerBaseFragment) {
+            if (((AccountServerBaseFragment) currentFragment).haveSettingsChanged()) {
                 UnsavedChangesDialogFragment dialogFragment =
                         UnsavedChangesDialogFragment.newInstanceForBack();
                 dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
@@ -407,7 +402,8 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     }
 
     private void onAddNewAccount() {
-        AccountSetupBasics.actionNewAccount(this);
+        final Intent setupIntent = AccountSetupFinal.actionNewAccountIntent(this);
+        startActivity(setupIntent);
     }
 
     /**
@@ -558,8 +554,9 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public void onHeaderClick(Header header, int position) {
         // special case when exiting the server settings fragments
-        if ((mCurrentFragment instanceof AccountServerBaseFragment)
-                && (((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged())) {
+        final Fragment currentFragment = getCurrentFragment();
+        if ((currentFragment instanceof AccountServerBaseFragment)
+                && (((AccountServerBaseFragment)currentFragment).haveSettingsChanged())) {
             UnsavedChangesDialogFragment dialogFragment =
                 UnsavedChangesDialogFragment.newInstanceForHeader(position);
             dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
@@ -586,8 +583,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      * with a dialog, and the user OK'd it.
      */
     private void forceSwitchHeader(int position) {
-        // Clear the current fragment; we're navigating away
-        mCurrentFragment = null;
         // Ensure the UI visually shows the correct header selected
         setSelection(position);
         switchToHeader(mGeneratedHeaders.get(position));
@@ -597,8 +592,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
      * Forcefully go backward in the stack. This may potentially discard unsaved settings.
      */
     private void forceBack() {
-        // Clear the current fragment; we're navigating away
-        mCurrentFragment = null;
         onBackPressed();
     }
 
@@ -609,17 +602,25 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         if (f instanceof AccountSettingsFragment) {
             final AccountSettingsFragment asf = (AccountSettingsFragment) f;
             asf.setCallback(mAccountSettingsFragmentCallback);
-        } else if (f instanceof AccountServerBaseFragment) {
-            final AccountServerBaseFragment asbf = (AccountServerBaseFragment) f;
-            asbf.setCallback(mAccountServerSettingsFragmentCallback);
-        } else {
+        } else if (!(f instanceof AccountServerBaseFragment)) {
             // Possibly uninteresting fragment, such as a dialog.
             return;
         }
-        mCurrentFragment = f;
+        // By some internal witchcraft, this will persist a reference to this fragment across
+        // configuration changes
+        getFragmentManager().putFragment(mCurrentFragmentBundle, CURRENT_FRAGMENT_TAG, f);
 
         // When we're changing fragments, enable/disable the add account button
         invalidateOptionsMenu();
+    }
+
+    public Fragment getCurrentFragment() {
+        try {
+        return getFragmentManager().getFragment(mCurrentFragmentBundle, CURRENT_FRAGMENT_TAG);
+        } catch (final IllegalStateException e) {
+            LogUtils.d(LogUtils.TAG, e, "Could not find current fragment, returning null");
+            return null;
+        }
     }
 
     /**
@@ -648,34 +649,90 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
         }
     }
 
+    @Override
+    public void setNextButtonEnabled(boolean enabled) {}
+
     /**
-     * Callbacks for AccountServerSettingsFragmentCallback
+     * Save process is done, dismiss the fragment.
      */
-    private class AccountServerSettingsFragmentCallback
-            implements AccountServerBaseFragment.Callback {
-        @Override
-        public void onEnableProceedButtons(boolean enable) {
-            // This is not used - it's a callback for the legacy activities
-        }
+    @Override
+    public void onAccountServerSaveComplete() {
+        onBackPressed();
+    }
 
-        @Override
-        public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
-            AccountCheckSettingsFragment checkerFragment =
-                AccountCheckSettingsFragment.newInstance(checkMode, target);
-            startPreferenceFragment(checkerFragment, true);
-        }
+    @Override
+    public void onAccountServerUIComplete(int checkMode) {
+        Fragment checkerDialog = CheckSettingsProgressDialogFragment.newInstance(checkMode);
+        Fragment checkerFragment = AccountCheckSettingsFragment.newInstance(checkMode);
+        getFragmentManager().beginTransaction()
+                .add(checkerDialog, CheckSettingsProgressDialogFragment.TAG)
+                .add(checkerFragment, AccountCheckSettingsFragment.TAG)
+                .commit();
+    }
 
-        /**
-         * After verifying a new server configuration as OK, we return here and continue.  This
-         * simply does a "back" to exit the settings screen.
-         */
-        @Override
-        public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
-            if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-                // Settings checked & saved; clear current fragment
-                mCurrentFragment = null;
-                onBackPressed();
-            }
+    /**
+     * After verifying a new server configuration as OK, we return here and continue. This kicks
+     * off the save process.
+     */
+    @Override
+    public void onCheckSettingsComplete() {
+        dismissCheckSettingsFragment();
+        final AccountServerBaseFragment f = (AccountServerBaseFragment) getCurrentFragment();
+        f.saveSettings();
+    }
+
+    @Override
+    public void onCheckSettingsSecurityRequired(String hostName) {
+        dismissCheckSettingsFragment();
+        SecurityRequiredDialogFragment.newInstance(hostName)
+                .show(getFragmentManager(), SecurityRequiredDialogFragment.TAG);
+    }
+
+    @Override
+    public void onCheckSettingsError(int reason, String message) {
+        dismissCheckSettingsFragment();
+        CheckSettingsErrorDialogFragment.newInstance(reason, message)
+                .show(getFragmentManager(), CheckSettingsErrorDialogFragment.TAG);
+    }
+
+    @Override
+    public void onCheckSettingsAutoDiscoverComplete(int result) {
+        throw new IllegalStateException();
+    }
+
+    private void dismissCheckSettingsFragment() {
+        final Fragment f =
+                getFragmentManager().findFragmentByTag(AccountCheckSettingsFragment.TAG);
+        final Fragment d =
+                getFragmentManager().findFragmentByTag(CheckSettingsProgressDialogFragment.TAG);
+        getFragmentManager().beginTransaction()
+                .remove(f)
+                .remove(d)
+                .commit();
+    }
+
+    @Override
+    public void onSecurityRequiredDialogResult(boolean ok) {
+        if (ok) {
+            final AccountServerBaseFragment f = (AccountServerBaseFragment) getCurrentFragment();
+            f.saveSettings();
+        }
+        // else just stay here
+    }
+
+    @Override
+    public void onCheckSettingsErrorDialogEditSettings() {
+        // Just stay here
+    }
+
+    @Override
+    public void onCheckSettingsErrorDialogEditCertificate() {
+        final Fragment f = getCurrentFragment();
+        if (f instanceof AccountSetupIncomingFragment) {
+            AccountSetupIncomingFragment asif = (AccountSetupIncomingFragment) f;
+            asif.onCertificateRequested();
+        } else {
+            LogUtils.wtf(LogUtils.TAG, "Tried to change cert on non-incoming screen?");
         }
     }
 
@@ -716,8 +773,7 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     public void onIncomingSettings(Account account) {
         try {
             mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
-            final Fragment f = new AccountSetupIncomingFragment();
-            f.setArguments(AccountSetupIncomingFragment.getArgs(true));
+            final Fragment f = AccountSetupIncomingFragment.newInstance(true);
             // Use startPreferenceFragment here because we need to keep this activity instance
             startPreferenceFragment(f, true);
         } catch (Exception e) {
@@ -727,14 +783,11 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
 
     /**
      * Dispatch to edit outgoing settings.
-     *
-     * TODO: Make things less hardwired
      */
     public void onOutgoingSettings(Account account) {
         try {
             mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
-            final Fragment f = new AccountSetupOutgoingFragment();
-            f.setArguments(AccountSetupOutgoingFragment.getArgs(true));
+            final Fragment f = AccountSetupOutgoingFragment.newInstance(true);
             // Use startPreferenceFragment here because we need to keep this activity instance
             startPreferenceFragment(f, true);
         } catch (Exception e) {
@@ -938,10 +991,5 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
     @Override
     public SetupDataFragment getSetupData() {
         return mSetupData;
-    }
-
-    @Override
-    public void setSetupData(SetupDataFragment setupData) {
-        mSetupData = setupData;
     }
 }

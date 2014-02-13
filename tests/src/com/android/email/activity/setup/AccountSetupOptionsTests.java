@@ -35,18 +35,18 @@ import java.net.URISyntaxException;
 /**
  * Tests of basic UI logic in the AccountSetupOptions screen.
  * You can run this entire test case with:
- *   runtest -c com.android.email.activity.setup.AccountSetupFinalTests email
+ *   runtest -c com.android.email.activity.setup.AccountSetupOptionsTests email
  */
 @Suppress
 @MediumTest
-public class AccountSetupFinalTests
+public class AccountSetupOptionsTests
         extends ActivityInstrumentationTestCase2<AccountSetupFinal> {
 
     private AccountSetupFinal mActivity;
     private Spinner mCheckFrequencyView;
     private CheckBox mBackgroundAttachmentsView;
 
-    public AccountSetupFinalTests() {
+    public AccountSetupOptionsTests() {
         super(AccountSetupFinal.class);
     }
 
@@ -170,10 +170,10 @@ public class AccountSetupFinalTests
         account.setSenderName(name);
         final Context context = getInstrumentation().getTargetContext();
         final HostAuth auth = account.getOrCreateHostAuthRecv(context);
-        HostAuth.setHostAuthFromString(auth, storeUri);
+        auth.setHostAuthFromString(storeUri);
         final SetupDataFragment setupDataFragment =
                 new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
-        final Intent i = new Intent(Intent.ACTION_MAIN);
+        final Intent i = new Intent(AccountSetupFinal.ACTION_JUMP_TO_OPTIONS);
         i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
         return i;
     }

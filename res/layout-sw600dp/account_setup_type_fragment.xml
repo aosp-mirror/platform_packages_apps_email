@@ -15,34 +15,7 @@
 -->
 
 <!-- Account-type picker - tablet - see layout/ for small-screen version -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="@dimen/setup_padding_top"
-    android:paddingLeft="@dimen/setup_padding_left"
-    android:paddingRight="@dimen/setup_padding_right"
-    >
-
-    <!-- Headline and hairline divider -->
-    <TextView
-        android:id="@+id/headline"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="16dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/account_setup_account_type_headline"
-        android:textAppearance="@style/accountSetupHeadline" />
-    <View
-        android:id="@+id/top_divider"
-        android:layout_below="@+id/headline"
-        android:layout_marginBottom="16dip"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/account_setup_divider_color" />
-
-    <!-- Layout on the left containing the setup info -->
-    <RelativeLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/accountTypes"
         android:layout_below="@+id/top_divider"
@@ -50,7 +23,7 @@
         android:layout_marginRight="64dip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-        <TextView
+    <TextView
             android:id="@+id/instructions"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
@@ -60,6 +33,4 @@
             android:layout_marginLeft="16dip"
             android:text="@string/account_setup_account_type_instructions"
             android:textAppearance="@style/accountSetupInfoText" />
-    </RelativeLayout>
-
 </RelativeLayout>

@@ -17,16 +17,12 @@
 
 package com.android.emailcommon.provider;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
 import android.text.TextUtils;
 
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
@@ -35,7 +31,6 @@ import com.android.emailcommon.utility.Utility;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 public class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
     public static final String TABLE_NAME = "HostAuth";
@@ -60,6 +55,7 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
     public static final int FLAG_OAUTH        = 0x10;    // Use OAuth for authentication
     // Mask of settings directly configurable by the user
     public static final int USER_CONFIG_MASK  = 0x1b;
+    public static final int FLAG_TRANSPORTSECURITY_MASK = FLAG_SSL | FLAG_TLS;
 
     public String mProtocol;
     public String mAddress;
@@ -264,14 +260,9 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
         setLogin(userName, userPassword);
     }
 
-    /**
-     * Sets the user name and password
-     */
-    public void setLogin(String userName, String userPassword) {
+    public void setUserName(final String userName) {
         mLogin = userName;
-        mPassword = userPassword;
-
-        if (mLogin == null) {
+        if (TextUtils.isEmpty(mLogin)) {
             mFlags &= ~FLAG_AUTHENTICATE;
         } else {
             mFlags |= FLAG_AUTHENTICATE;
@@ -279,16 +270,25 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
     }
 
     /**
-     * Returns the login information. [0] is the username and [1] is the password. If
-     * {@link #FLAG_AUTHENTICATE} is not set, {@code null} is returned.
+     * Sets the user name and password
+     */
+    public void setLogin(String userName, String userPassword) {
+        mLogin = userName;
+        mPassword = userPassword;
+
+        if (TextUtils.isEmpty(mLogin)) {
+            mFlags &= ~FLAG_AUTHENTICATE;
+        } else {
+            mFlags |= FLAG_AUTHENTICATE;
+        }
+    }
+
+    /**
+     * Returns the login information. [0] is the username and [1] is the password.
      */
     public String[] getLogin() {
-        if ((mFlags & FLAG_AUTHENTICATE) != 0) {
-            String trimUser = (mLogin != null) ? mLogin.trim() : "";
-            String password = (mPassword != null) ? mPassword : "";
-            return new String[] { trimUser, password };
-        }
-        return null;
+        String trimUser = (mLogin != null) ? mLogin.trim() : null;
+        return new String[] { trimUser, mPassword };
     }
 
     public void setConnection(String protocol, String address, int port, int flags) {
@@ -465,7 +465,7 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
      * Note that the use of client certificate is specified in the URI, a secure connection type
      * must be used.
      */
-    public static void setHostAuthFromString(HostAuth auth, String uriString)
+    public void setHostAuthFromString(String uriString)
             throws URISyntaxException {
         URI uri = new URI(uriString);
         String path = uri.getPath();
@@ -474,11 +474,11 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
             // Strip off the leading slash that begins the path.
             domain = path.substring(1);
         }
-        auth.mDomain = domain;
-        auth.setLogin(uri.getUserInfo());
+        mDomain = domain;
+        setLogin(uri.getUserInfo());
 
         String scheme = uri.getScheme();
-        auth.setConnection(scheme, uri.getHost(), uri.getPort());
+        setConnection(scheme, uri.getHost(), uri.getPort());
     }
 
     /**

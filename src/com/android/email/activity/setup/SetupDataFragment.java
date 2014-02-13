@@ -1,6 +1,5 @@
 package com.android.email.activity.setup;
 
-import android.accounts.AccountAuthenticatorResponse;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -25,6 +24,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public static final int FLOW_MODE_FORCE_CREATE = 4;
     // The following two modes are used to "pop the stack" and return from the setup flow.  We
     // either return to the caller (if we're in an account type flow) or go to the message list
+    // TODO: figure out if we still care about these
     public static final int FLOW_MODE_RETURN_TO_CALLER = 5;
     public static final int FLOW_MODE_RETURN_TO_MESSAGE_LIST = 6;
     public static final int FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT = 7;
@@ -35,55 +35,40 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public static final int CHECK_OUTGOING = 2;
     public static final int CHECK_AUTODISCOVER = 4;
 
-    private static final String SAVESTATE_FLOWMODE = "flowMode";
-    private static final String SAVESTATE_FLOWACCOUNTTYPE = "flowAccountType";
-    private static final String SAVESTATE_ACCOUNT = "account";
-    private static final String SAVESTATE_USERNAME = "username";
-    private static final String SAVESTATE_PASSWORD = "password";
-    private static final String SAVESTATE_CHECKSETTINGSMODE = "checkSettingsMode";
-    private static final String SAVESTATE_ALLOWAUTODISCOVER = "allowAutoDiscover";
-    private static final String SAVESTATE_POLICY = "policy";
-    private static final String SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE =
-            "accountAuthenticatorResponse";
-    private static final String SAVESTATE_REPORT_AUTHENTICATION_ERROR =
-            "reportAuthenticationError";
+    private static final String SAVESTATE_FLOWMODE = "SetupDataFragment.flowMode";
+    private static final String SAVESTATE_ACCOUNT = "SetupDataFragment.account";
+    private static final String SAVESTATE_EMAIL = "SetupDataFragment.email";
+    private static final String SAVESTATE_CREDENTIAL = "SetupDataFragment.credential";
+    private static final String SAVESTATE_INCOMING_LOADED = "SetupDataFragment.incomingLoaded";
+    private static final String SAVESTATE_OUTGOING_LOADED = "SetupDataFragment.outgoingLoaded";
+    private static final String SAVESTATE_POLICY = "SetupDataFragment.policy";
 
     // All access will be through getters/setters
     private int mFlowMode = FLOW_MODE_NORMAL;
-    private String mFlowAccountType;
     private Account mAccount;
-    private String mUsername;
-    private String mPassword;
-    private int mCheckSettingsMode = 0;
-    private boolean mAllowAutodiscover = true;
-    private Policy mPolicy;
-    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
-    private boolean mReportAccountAuthenticationError = false;
+    private String mEmail;
+    private Bundle mCredentialResults;
+    // These are used to track whether we've preloaded the login credentials into incoming/outgoing
+    // settings. Set them to 'true' by default, and false when we change the credentials or email
+    private boolean mIncomingCredLoaded = true;
+    private boolean mOutgoingCredLoaded = true;
+    // This is accessed off-thread in AccountCheckSettingsFragment
+    private volatile Policy mPolicy;
 
     public interface SetupDataContainer {
         public SetupDataFragment getSetupData();
-        public void setSetupData(SetupDataFragment setupData);
     }
 
     public SetupDataFragment() {
         mPolicy = null;
-        mAllowAutodiscover = true;
-        mCheckSettingsMode = 0;
         mAccount = new Account();
-        mUsername = null;
-        mPassword = null;
-        mAccountAuthenticatorResponse = null;
-        mReportAccountAuthenticationError = false;
+        mEmail = null;
+        mCredentialResults = null;
     }
 
     public SetupDataFragment(int flowMode) {
         this();
         mFlowMode = flowMode;
-    }
-
-    public SetupDataFragment(int flowMode, String accountType) {
-        this(flowMode);
-        mFlowAccountType = accountType;
     }
 
     public SetupDataFragment(int flowMode, Account account) {
@@ -95,17 +80,12 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SAVESTATE_FLOWMODE, mFlowMode);
-        outState.putString(SAVESTATE_FLOWACCOUNTTYPE, mFlowAccountType);
         outState.putParcelable(SAVESTATE_ACCOUNT, mAccount);
-        outState.putString(SAVESTATE_USERNAME, mUsername);
-        outState.putString(SAVESTATE_PASSWORD, mPassword);
-        outState.putInt(SAVESTATE_CHECKSETTINGSMODE, mCheckSettingsMode);
-        outState.putBoolean(SAVESTATE_ALLOWAUTODISCOVER, mAllowAutodiscover);
+        outState.putString(SAVESTATE_EMAIL, mEmail);
+        outState.putParcelable(SAVESTATE_CREDENTIAL, mCredentialResults);
+        outState.putBoolean(SAVESTATE_INCOMING_LOADED, mIncomingCredLoaded);
+        outState.putBoolean(SAVESTATE_OUTGOING_LOADED, mOutgoingCredLoaded);
         outState.putParcelable(SAVESTATE_POLICY, mPolicy);
-        outState.putParcelable(SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE,
-                mAccountAuthenticatorResponse);
-        outState.putBoolean(SAVESTATE_REPORT_AUTHENTICATION_ERROR,
-                mReportAccountAuthenticationError);
     }
 
     @Override
@@ -113,17 +93,12 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mFlowMode = savedInstanceState.getInt(SAVESTATE_FLOWMODE);
-            mFlowAccountType = savedInstanceState.getString(SAVESTATE_FLOWACCOUNTTYPE);
             mAccount = savedInstanceState.getParcelable(SAVESTATE_ACCOUNT);
-            mUsername = savedInstanceState.getString(SAVESTATE_USERNAME);
-            mPassword = savedInstanceState.getString(SAVESTATE_PASSWORD);
-            mCheckSettingsMode = savedInstanceState.getInt(SAVESTATE_CHECKSETTINGSMODE);
-            mAllowAutodiscover = savedInstanceState.getBoolean(SAVESTATE_ALLOWAUTODISCOVER);
+            mEmail = savedInstanceState.getString(SAVESTATE_EMAIL);
+            mCredentialResults = savedInstanceState.getParcelable(SAVESTATE_CREDENTIAL);
+            mIncomingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_INCOMING_LOADED);
+            mOutgoingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_OUTGOING_LOADED);
             mPolicy = savedInstanceState.getParcelable(SAVESTATE_POLICY);
-            mAccountAuthenticatorResponse =
-                    savedInstanceState.getParcelable(SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE);
-            mReportAccountAuthenticationError =
-                    savedInstanceState.getBoolean(SAVESTATE_REPORT_AUTHENTICATION_ERROR, false);
         }
         setRetainInstance(true);
     }
@@ -137,14 +112,6 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         mFlowMode = flowMode;
     }
 
-    public String getFlowAccountType() {
-        return mFlowAccountType;
-    }
-
-    public void setFlowAccountType(String flowAccountType) {
-        mFlowAccountType = flowAccountType;
-    }
-
     public Account getAccount() {
         return mAccount;
     }
@@ -153,61 +120,49 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         mAccount = account;
     }
 
-    public String getUsername() {
-        return mUsername;
+    public String getEmail() {
+        return mEmail;
     }
 
-    public void setUsername(String username) {
-        mUsername = username;
+    public void setEmail(String email) {
+        mEmail = email;
+        mAccount.mEmailAddress = email;
+        mIncomingCredLoaded = false;
+        mOutgoingCredLoaded = false;
     }
 
-    public String getPassword() {
-        return mPassword;
+    public Bundle getCredentialResults() {
+        return mCredentialResults;
     }
 
-    public void setPassword(String password) {
-        mPassword = password;
+    public void setCredentialResults(Bundle credentialResults) {
+        mCredentialResults = credentialResults;
+        mIncomingCredLoaded = false;
+        mOutgoingCredLoaded = false;
     }
 
-    public int getCheckSettingsMode() {
-        return mCheckSettingsMode;
+    public boolean isIncomingCredLoaded() {
+        return mIncomingCredLoaded;
     }
 
-    public void setCheckSettingsMode(int checkSettingsMode) {
-        mCheckSettingsMode = checkSettingsMode;
+    public void setIncomingCredLoaded(boolean incomingCredLoaded) {
+        mIncomingCredLoaded = incomingCredLoaded;
     }
 
-    public boolean isAllowAutodiscover() {
-        return mAllowAutodiscover;
+    public boolean isOutgoingCredLoaded() {
+        return mOutgoingCredLoaded;
     }
 
-    public void setAllowAutodiscover(boolean allowAutodiscover) {
-        mAllowAutodiscover = allowAutodiscover;
+    public void setOutgoingCredLoaded(boolean outgoingCredLoaded) {
+        mOutgoingCredLoaded = outgoingCredLoaded;
     }
 
-    public Policy getPolicy() {
+    public synchronized Policy getPolicy() {
         return mPolicy;
     }
 
-    public void setPolicy(Policy policy) {
+    public synchronized void setPolicy(Policy policy) {
         mPolicy = policy;
-    }
-
-    public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
-        return mAccountAuthenticatorResponse;
-    }
-
-    public void setAccountAuthenticatorResponse(
-            AccountAuthenticatorResponse accountAuthenticatorResponse) {
-        mAccountAuthenticatorResponse = accountAuthenticatorResponse;
-    }
-
-    public boolean getReportAccountAuthenticationError() {
-        return mReportAccountAuthenticationError;
-    }
-
-    public void setReportAccountAuthenticationError(final boolean report) {
-        mReportAccountAuthenticationError = report;
     }
 
     // Parcelable methods
@@ -232,47 +187,38 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mFlowMode);
-        dest.writeString(mFlowAccountType);
         dest.writeParcelable(mAccount, 0);
-        dest.writeString(mUsername);
-        dest.writeString(mPassword);
-        dest.writeInt(mCheckSettingsMode);
-        dest.writeInt(mAllowAutodiscover ? 1 : 0);
+        dest.writeString(mEmail);
+        dest.writeParcelable(mCredentialResults, 0);
+        dest.writeBooleanArray(new boolean[] {mIncomingCredLoaded, mOutgoingCredLoaded});
         dest.writeParcelable(mPolicy, 0);
-        dest.writeParcelable(mAccountAuthenticatorResponse, 0);
     }
 
     public SetupDataFragment(Parcel in) {
         final ClassLoader loader = getClass().getClassLoader();
         mFlowMode = in.readInt();
-        mFlowAccountType = in.readString();
         mAccount = in.readParcelable(loader);
-        mUsername = in.readString();
-        mPassword = in.readString();
-        mCheckSettingsMode = in.readInt();
-        mAllowAutodiscover = in.readInt() == 1;
+        mEmail = in.readString();
+        mCredentialResults = in.readParcelable(loader);
+        final boolean[] credsLoaded = in.createBooleanArray();
+        mIncomingCredLoaded = credsLoaded[0];
+        mOutgoingCredLoaded = credsLoaded[1];
         mPolicy = in.readParcelable(loader);
-        mAccountAuthenticatorResponse = in.readParcelable(loader);
     }
 
-    public String debugString() {
+    @Override
+    public String toString() {
         final StringBuilder sb = new StringBuilder("SetupData");
         sb.append(":acct=");
         sb.append(mAccount == null ? "none" :mAccount.mId);
-        if (mUsername != null) {
+        if (mEmail != null) {
             sb.append(":user=");
-            sb.append(mUsername);
+            sb.append(mEmail);
         }
-        if (mPassword != null) {
-            sb.append(":pass=");
-            sb.append(mPassword);
+        if (mCredentialResults != null) {
+            sb.append(":cred=");
+            sb.append(mCredentialResults.toString());
         }
-        sb.append(":a/d=");
-        sb.append(mAllowAutodiscover);
-        sb.append(":check=");
-        if ((mCheckSettingsMode & CHECK_INCOMING) != 0) sb.append("in+");
-        if ((mCheckSettingsMode & CHECK_OUTGOING) != 0) sb.append("out+");
-        if ((mCheckSettingsMode & CHECK_AUTODISCOVER) != 0) sb.append("a/d");
         sb.append(":policy=");
         sb.append(mPolicy == null ? "none" : "exists");
         return sb.toString();
