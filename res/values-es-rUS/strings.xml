@@ -83,7 +83,7 @@
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cuenta de correo"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Puedes configurar tu cuenta en pocos pasos."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo"</string>
-    <string name="or_label" msgid="2207403489755254427">"O también puedes realizar lo siguiente:"</string>
+    <string name="or_label" msgid="2207403489755254427">"O también puedes hacer lo siguiente:"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Acceder con Google"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Acceso con %s"</string>
