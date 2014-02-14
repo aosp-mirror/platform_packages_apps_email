@@ -66,7 +66,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected SetupDataFragment mSetupData;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
-    private ImageButton mProceedButton;
+    private View mProceedButton;
 
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     private boolean mProceedButtonPressed;
