@@ -32,7 +32,6 @@ import com.android.emailcommon.mail.Address;
 
 public class AccountSetupBasicsFragment extends Fragment {
     private EditText mEmailView;
-    private EditText mPasswordView;
 
     public AccountSetupBasicsFragment() {}
 
@@ -42,7 +41,6 @@ public class AccountSetupBasicsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.account_setup_basics_fragment, container, false);
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
-        mPasswordView = UiUtilities.getView(view, R.id.account_password);
 
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -58,7 +56,6 @@ public class AccountSetupBasicsFragment extends Fragment {
         };
 
         mEmailView.addTextChangedListener(textWatcher);
-        mPasswordView.addTextChangedListener(textWatcher);
 
         return view;
     }
@@ -72,11 +69,7 @@ public class AccountSetupBasicsFragment extends Fragment {
                 && addresses.length == 1
                 && !TextUtils.isEmpty(addresses[0].getAddress());
 
-        activity.setOAuthButtonEnabled(emailValid);
-        activity.setProceedButtonsEnabled(emailValid && !TextUtils.isEmpty(getPassword()));
-
-        // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(activity, mPasswordView);
+        activity.setProceedButtonsEnabled(emailValid);
     }
 
     public void setEmail(final String email) {
@@ -85,13 +78,5 @@ public class AccountSetupBasicsFragment extends Fragment {
 
     public String getEmail() {
         return mEmailView.getText().toString().trim();
-    }
-
-    public void setPassword(final String password) {
-        mPasswordView.setText(password);
-    }
-
-    public String getPassword() {
-        return mPasswordView.getText().toString().trim();
     }
 }

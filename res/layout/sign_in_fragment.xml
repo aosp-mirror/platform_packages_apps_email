@@ -13,34 +13,51 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1"
-    android:layout_centerVertical="true"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_centerVertical="true">
 
-    <Button
-        android:id="@+id/sign_in_with_google"
-        android:text="@string/sign_in_with_google"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/or_label"
-        android:text="@string/or_label"
-        android:layout_marginTop="24dip"
-        android:layout_marginBottom="24dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:id="@+id/oauth_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/sign_in_with_google"
+            android:text="@string/sign_in_with_google"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/or_label"
+            android:text="@string/or_label"
+            android:layout_marginTop="24dip"
+            android:layout_marginBottom="24dip"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/imap_password"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="@string/account_setup_incoming_password_label"
+            android:layout_gravity="center"
+            android:inputType="textPassword"
+            android:imeOptions="actionNext"/>
+    </LinearLayout>
 
     <EditText
-        android:id="@+id/account_password"
+        android:id="@+id/regular_password"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:hint="@string/account_setup_incoming_password_label"
         android:inputType="textPassword"
-        android:imeOptions="actionNext"/>
-</LinearLayout>
+        android:layout_alignParentTop="true"
+        android:imeOptions="actionNext"
+        android:visibility="gone"/>
+</RelativeLayout>

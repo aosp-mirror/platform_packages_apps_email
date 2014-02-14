@@ -442,8 +442,8 @@ public class AccountCheckSettingsFragment extends Fragment {
             try {
                 if ((mMode & SetupDataFragment.CHECK_AUTODISCOVER) != 0) {
                     if (isCancelled()) return null;
+                    LogUtils.d(Logging.LOG_TAG, "Begin auto-discover for %s", mCheckEmail);
                     publishProgress(STATE_CHECK_AUTODISCOVER);
-                    LogUtils.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
                     final Store store = Store.getInstance(mAccount, mContext);
                     final Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
                     // Result will be one of:
@@ -617,7 +617,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Belt and suspenders here; there should always be a non-empty array here
                 String[] unsupportedPolicies = (String[]) ex.getExceptionData();
                 if (unsupportedPolicies == null) {
-                    LogUtils.w(TAG, "No data for unsupported policies?");
+                    LogUtils.w(Logging.LOG_TAG, "No data for unsupported policies");
                     break;
                 }
                 // Build a string, concatenating policies we don't support

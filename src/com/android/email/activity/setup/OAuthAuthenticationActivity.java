@@ -46,6 +46,12 @@ public class OAuthAuthenticationActivity extends Activity implements
     public static final String EXTRA_OAUTH_REFRESH_TOKEN = "refreshToken";
     public static final String EXTRA_OAUTH_EXPIRES_IN = "expiresIn";
 
+    public static final int REQUEST_OAUTH = 1;
+
+    public static final int RESULT_OAUTH_SUCCESS = 0;
+    public static final int RESULT_OAUTH_USER_CANCELED = -1;
+    public static final int RESULT_OAUTH_FAILURE = -2;
+
     private WebView mWv;
     private OAuthProvider mProvider;
     private String mAuthenticationCode;
@@ -73,7 +79,7 @@ public class OAuthAuthenticationActivity extends Activity implements
 
                 if (error != null) {
                     final Intent intent = new Intent();
-                    setResult(AccountSetupBasics.RESULT_OAUTH_USER_CANCELED, intent);
+                    setResult(RESULT_OAUTH_USER_CANCELED, intent);
                     finish();
                 } else {
                     mAuthenticationCode = uri.getQueryParameter("code");
@@ -122,7 +128,7 @@ public class OAuthAuthenticationActivity extends Activity implements
                     OAuthAuthenticationActivity.this);
         }
         // Set the result to cancelled until we have success.
-        setResult(AccountSetupBasics.RESULT_OAUTH_USER_CANCELED, null);
+        setResult(RESULT_OAUTH_USER_CANCELED, null);
     }
 
     @Override
@@ -186,7 +192,7 @@ public class OAuthAuthenticationActivity extends Activity implements
             intent.putExtra(EXTRA_OAUTH_ACCESS_TOKEN, data.mAccessToken);
             intent.putExtra(EXTRA_OAUTH_REFRESH_TOKEN, data.mRefreshToken);
             intent.putExtra(EXTRA_OAUTH_EXPIRES_IN, data.mExpiresInSeconds);
-            setResult(AccountSetupBasics.RESULT_OAUTH_SUCCESS, intent);
+            setResult(RESULT_OAUTH_SUCCESS, intent);
         }
         finish();
     }

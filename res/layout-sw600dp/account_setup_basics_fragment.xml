@@ -33,7 +33,7 @@
         android:text="@string/accounts_welcome"
         android:textAppearance="@style/accountSetupInfoText" />
     <TableLayout
-        android:id="@+id/email_password_table"
+        android:id="@+id/email_table"
         android:layout_below="@+id/instructions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,22 +53,6 @@
                 android:contentDescription="@string/account_setup_basics_email_label"
                 android:inputType="textEmailAddress"
                 android:imeOptions="actionNext" />
-        </TableRow>
-        <TableRow android:paddingTop="16dip" >
-            <TextView
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginRight="16dip"
-                android:text="@string/account_setup_basics_password_label"
-                android:textAppearance="@style/accountSetupLabelText" />
-            <EditText
-                android:id="@+id/account_password"
-                android:layout_height="wrap_content"
-                android:layout_width="@dimen/setup_credentials_input_width"
-                android:contentDescription="@string/account_setup_basics_password_label"
-                android:inputType="textPassword"
-                android:imeOptions="actionDone"
-                android:nextFocusDown="@+id/next" />
         </TableRow>
     </TableLayout>
 </RelativeLayout>

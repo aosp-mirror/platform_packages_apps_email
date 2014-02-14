@@ -132,7 +132,17 @@ public class AccountSetupType extends AccountSetupActivity implements OnClickLis
         }
         recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
         AccountSetupBasics.setDefaultsForProtocol(this, account);
+
+        // XXX this launches the incoming activity. We should only be doing this
+        // if we are in full on manual mode I think.
         AccountSetupIncoming.actionIncomingSettings(this, mSetupData);
+
+        // XXX This launches the signin activity.
+//        final Intent intent = new Intent(this, SignInActivity.class);
+//        intent.putExtra(SignInActivity.EXTRA_FLOW_MODE_INITIAL, true);
+//        intent.putExtra(SignInActivity.EXTRA_MANUAL_SETUP, false);
+//        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
+//        startActivity(intent);
         // Back from the incoming screen returns to AccountSetupBasics
         finish();
     }

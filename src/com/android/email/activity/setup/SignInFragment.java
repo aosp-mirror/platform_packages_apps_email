@@ -31,25 +31,26 @@ import android.widget.Toast;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
+import com.android.email.activity.setup.SetupDataFragment.SetupDataContainer;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.VendorPolicyLoader.Provider;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
 
 import java.util.List;
 
 public class SignInFragment extends Fragment implements OnClickListener {
 
-    public static final int REQUEST_OAUTH = 1;
-
-    public static final int RESULT_OAUTH_SUCCESS = 0;
-    public static final int RESULT_OAUTH_USER_CANCELED = -1;
-    public static final int RESULT_OAUTH_FAILURE = -2;
-
+    private View mOAuthGroup;
     private View mOAuthButton;
-    private EditText mPasswordText;
+    private EditText mImapPasswordText;
+    private EditText mRegularPasswordText;
     private TextWatcher mValidationTextWatcher;
     private String mEmailAddress;
+    private EmailServiceInfo mServiceInfo;
     private String mProviderId;
     private SignInCallback mCallback;
     private Context mContext;
@@ -66,8 +67,10 @@ public class SignInFragment extends Fragment implements OnClickListener {
             Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.sign_in_fragment, container, false);
 
+        mImapPasswordText = UiUtilities.getView(view, R.id.imap_password);
+        mRegularPasswordText = UiUtilities.getView(view, R.id.regular_password);
+        mOAuthGroup = UiUtilities.getView(view, R.id.oauth_group);
         mOAuthButton = UiUtilities.getView(view, R.id.sign_in_with_google);
-        mPasswordText = UiUtilities.getView(view, R.id.account_password);
         mOAuthButton.setOnClickListener(this);
 
         // After any text edits, call validateFields() which enables or disables the Next button
@@ -82,7 +85,8 @@ public class SignInFragment extends Fragment implements OnClickListener {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
-        mPasswordText.addTextChangedListener(mValidationTextWatcher);
+        mImapPasswordText.addTextChangedListener(mValidationTextWatcher);
+        mRegularPasswordText.addTextChangedListener(mValidationTextWatcher);
 
         return view;
     }
@@ -90,27 +94,47 @@ public class SignInFragment extends Fragment implements OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        LogUtils.d(Logging.LOG_TAG, "onActivityCreated");
         mContext = getActivity();
+        if (mContext instanceof SetupDataContainer) {
+            final SetupDataContainer setupContainer = (SetupDataContainer)mContext;
+            SetupDataFragment setupData = setupContainer.getSetupData();
+            final HostAuth hostAuth = setupData.getAccount().getOrCreateHostAuthRecv(mContext);
+            mServiceInfo = EmailServiceUtils.getServiceInfo(mContext,
+                    hostAuth.mProtocol);
+
+            if (mServiceInfo.offerOAuth) {
+                mOAuthGroup.setVisibility(View.VISIBLE);
+                mRegularPasswordText.setVisibility(View.GONE);
+            } else {
+                mOAuthGroup.setVisibility(View.GONE);
+                mRegularPasswordText.setVisibility(View.VISIBLE);
+            }
+        }
+        validatePassword();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mPasswordText.removeTextChangedListener(mValidationTextWatcher);
-        mPasswordText = null;
+        mImapPasswordText.removeTextChangedListener(mValidationTextWatcher);
+        mImapPasswordText = null;
+        mRegularPasswordText.removeTextChangedListener(mValidationTextWatcher);
+        mRegularPasswordText = null;
     }
 
     public void validatePassword() {
         mCallback.onValidate();
         // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordText);
+        AccountSettingsUtils.checkPasswordSpaces(mContext, mImapPasswordText);
+        AccountSettingsUtils.checkPasswordSpaces(mContext, mRegularPasswordText);
     }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode,
             final Intent data) {
-        if (requestCode == REQUEST_OAUTH) {
-            if (resultCode == RESULT_OAUTH_SUCCESS) {
+        if (requestCode == OAuthAuthenticationActivity.REQUEST_OAUTH) {
+            if (resultCode == OAuthAuthenticationActivity.RESULT_OAUTH_SUCCESS) {
                 final String accessToken = data.getStringExtra(
                         OAuthAuthenticationActivity.EXTRA_OAUTH_ACCESS_TOKEN);
                 final String refreshToken = data.getStringExtra(
@@ -118,10 +142,8 @@ public class SignInFragment extends Fragment implements OnClickListener {
                 final int expiresInSeconds = data.getIntExtra(
                         OAuthAuthenticationActivity.EXTRA_OAUTH_EXPIRES_IN, 0);
                 mCallback.onOAuthSignIn(mProviderId, accessToken, refreshToken, expiresInSeconds);
-
-                getActivity().finish();
-            } else if (resultCode == RESULT_OAUTH_FAILURE
-                    || resultCode == RESULT_OAUTH_USER_CANCELED) {
+            } else if (resultCode == OAuthAuthenticationActivity.RESULT_OAUTH_FAILURE
+                    || resultCode == OAuthAuthenticationActivity.RESULT_OAUTH_USER_CANCELED) {
                 LogUtils.i(Logging.LOG_TAG, "Result from oauth %d", resultCode);
             } else {
                 LogUtils.wtf(Logging.LOG_TAG, "Unknown result code from OAUTH: %d", resultCode);
@@ -145,7 +167,7 @@ public class SignInFragment extends Fragment implements OnClickListener {
                 final Intent i = new Intent(mContext, OAuthAuthenticationActivity.class);
                 i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, mEmailAddress);
                 i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, mProviderId);
-                startActivityForResult(i, REQUEST_OAUTH);
+                startActivityForResult(i, OAuthAuthenticationActivity.REQUEST_OAUTH);
             }
         }
     }
@@ -158,7 +180,16 @@ public class SignInFragment extends Fragment implements OnClickListener {
         return mEmailAddress;
     }
 
-    public String getPassword() { return mPasswordText.getText().toString(); }
+    public EmailServiceInfo setServiceInfo() {
+        return mServiceInfo;
+    }
+    public String getPassword() {
+        if (mServiceInfo.offerOAuth) {
+            return mImapPasswordText.getText().toString();
+        } else {
+            return mRegularPasswordText.getText().toString();
+        }
+    }
 
     public void setSignInCallback(SignInCallback callback) {
         mCallback = callback;

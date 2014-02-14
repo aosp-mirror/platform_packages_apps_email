@@ -419,7 +419,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         // Launch the signin activity.
         // TODO: at some point we should just use the sign in fragment on the main setup activity.
         final Intent intent = new Intent(getActivity(), SignInActivity.class);
-        intent.putExtra(SignInActivity.EXTRA_EMAIL, mSetupData.getAccount().mEmailAddress);
+        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
         startActivityForResult(intent, SIGN_IN_REQUEST);
     }
 }

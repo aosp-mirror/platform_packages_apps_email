@@ -193,7 +193,7 @@
     <!-- Title of screen when trying to get oauth authentication -->
     <string name="oauth_authentication_title" translatable="false">OAuth authentication</string>
     <!-- Title of screen to choose with authentication to use -->
-    <string name="sign_in_title">IMAP Authentication</string>
+    <string name="sign_in_title">Sign in</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
         [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
