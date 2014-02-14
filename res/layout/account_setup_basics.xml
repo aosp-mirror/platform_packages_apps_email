@@ -50,9 +50,9 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/common"
+            android:layout_alignParentBottom="true"
             android:paddingTop="16dip"
-            android:paddingBottom="@dimen/settings_buttons_padding_bottom">
+            android:paddingBottom="16dip">
             <TextView
                 android:id="@+id/manual_setup"
                 android:layout_height="wrap_content"
@@ -60,6 +60,8 @@
                 android:clickable="true"
                 android:layout_alignParentLeft="true"
                 android:layout_gravity="center_vertical"
+                android:layout_centerInParent="true"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/account_setup_basics_manual_setup_action" />
             <ImageButton
                 android:id="@+id/next"
