@@ -45,6 +45,8 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private static final String SAVESTATE_POLICY = "policy";
     private static final String SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE =
             "accountAuthenticatorResponse";
+    private static final String SAVESTATE_REPORT_AUTHENTICATION_ERROR =
+            "reportAuthenticationError";
 
     // All access will be through getters/setters
     private int mFlowMode = FLOW_MODE_NORMAL;
@@ -56,6 +58,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private boolean mAllowAutodiscover = true;
     private Policy mPolicy;
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
+    private boolean mReportAccountAuthenticationError = false;
 
     public interface SetupDataContainer {
         public SetupDataFragment getSetupData();
@@ -70,6 +73,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         mUsername = null;
         mPassword = null;
         mAccountAuthenticatorResponse = null;
+        mReportAccountAuthenticationError = false;
     }
 
     public SetupDataFragment(int flowMode) {
@@ -100,6 +104,8 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         outState.putParcelable(SAVESTATE_POLICY, mPolicy);
         outState.putParcelable(SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE,
                 mAccountAuthenticatorResponse);
+        outState.putBoolean(SAVESTATE_REPORT_AUTHENTICATION_ERROR,
+                mReportAccountAuthenticationError);
     }
 
     @Override
@@ -116,6 +122,8 @@ public class SetupDataFragment extends Fragment implements Parcelable {
             mPolicy = savedInstanceState.getParcelable(SAVESTATE_POLICY);
             mAccountAuthenticatorResponse =
                     savedInstanceState.getParcelable(SAVESTATE_ACCOUNTAUTHENTICATORRESPONSE);
+            mReportAccountAuthenticationError =
+                    savedInstanceState.getBoolean(SAVESTATE_REPORT_AUTHENTICATION_ERROR, false);
         }
         setRetainInstance(true);
     }
@@ -192,6 +200,14 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public void setAccountAuthenticatorResponse(
             AccountAuthenticatorResponse accountAuthenticatorResponse) {
         mAccountAuthenticatorResponse = accountAuthenticatorResponse;
+    }
+
+    public boolean getReportAccountAuthenticationError() {
+        return mReportAccountAuthenticationError;
+    }
+
+    public void setReportAccountAuthenticationError(final boolean report) {
+        mReportAccountAuthenticationError = report;
     }
 
     // Parcelable methods

@@ -418,6 +418,8 @@ public class HostAuth extends EmailContent implements HostAuthColumns, Parcelabl
             if (mCredential.equals(Credential.EMPTY)) {
                 mCredential = null;
             }
+        } else {
+            mCredentialKey = -1;
         }
     }
 

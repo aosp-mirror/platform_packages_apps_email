@@ -47,33 +47,28 @@
         <!-- Buttons below -->
         <!-- In order to show these buttons above the IME keyboard, we need to special case the to
         padding to a smaller height. -->
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/common"
-            android:orientation="horizontal"
             android:paddingTop="16dip"
-            android:paddingBottom="@dimen/settings_buttons_padding_bottom"
-            >
-            <Button
+            android:paddingBottom="@dimen/settings_buttons_padding_bottom">
+            <TextView
                 android:id="@+id/manual_setup"
-                style="@style/accountSetupButton"
-                android:layout_width="0dip"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:clickable="true"
+                android:layout_alignParentLeft="true"
+                android:layout_gravity="center_vertical"
                 android:text="@string/account_setup_basics_manual_setup_action" />
-            <Button
-                android:id="@+id/oauth_setup"
-                style="@style/accountSetupButton"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:text="@string/account_setup_basics_oauth_setup_action" />
-            <Button
+            <ImageButton
                 android:id="@+id/next"
-                style="@style/accountSetupButton"
-                android:layout_width="0dip"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_nav_arrow_forward"
+                android:layout_alignParentRight="true"
                 android:text="@string/next_action" />
-        </LinearLayout>
+        </RelativeLayout>
 
     </RelativeLayout>
 

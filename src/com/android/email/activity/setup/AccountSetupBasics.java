@@ -39,6 +39,8 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.email.R;
@@ -84,7 +86,7 @@ import java.net.URISyntaxException;
  * Note: Exchange accounts that require device security policies cannot be created automatically.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements OnClickListener, AccountCheckSettingsFragment.Callbacks {
+        implements OnClickListener {
 
     // STOPSHIP: Set to false before shipping, logs PII
     private final static boolean ENTER_DEBUG_SCREEN = true;
@@ -104,22 +106,12 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     private static final String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
 
-    public static final int REQUEST_OAUTH = 1;
-
-    public static final int RESULT_OAUTH_SUCCESS = 0;
-    public static final int RESULT_OAUTH_USER_CANCELED = -1;
-    public static final int RESULT_OAUTH_FAILURE = -2;
-
     // Support for UI
     private Provider mProvider;
-    private Button mManualButton;
-    // TODO: This is a temporary hack to allow us to start testing OAuth flow. It should be
-    // removed once we have the new setup UI working.
-    private Button mOAuthButton;
-    private Button mNextButton;
+    private TextView mManualButton;
+    private ImageButton mNextButton;
     private boolean mNextButtonInhibit;
     private boolean mPaused;
-    private boolean mReportAccountAuthenticatorError;
 
     private static final int OWNER_NAME_LOADER_ID = 0;
     private String mOwnerName;
@@ -134,33 +126,6 @@ public class AccountSetupBasics extends AccountSetupActivity
         final Intent i = new ForwardingIntent(fromActivity, AccountSetupBasics.class);
         i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NO_ACCOUNTS);
         fromActivity.startActivity(i);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_OAUTH) {
-            if (resultCode == RESULT_OAUTH_SUCCESS) {
-                final String accessToken = data.getStringExtra(
-                        OAuthAuthenticationActivity.EXTRA_OAUTH_ACCESS_TOKEN);
-                final String refreshToken = data.getStringExtra(
-                        OAuthAuthenticationActivity.EXTRA_OAUTH_REFRESH_TOKEN);
-                final int expiresInSeconds = data.getIntExtra(
-                        OAuthAuthenticationActivity.EXTRA_OAUTH_EXPIRES_IN, 0);
-
-                finishOAuthSetup(accessToken, refreshToken, expiresInSeconds);
-            } else if (resultCode == RESULT_OAUTH_FAILURE
-                    || resultCode == RESULT_OAUTH_USER_CANCELED) {
-                // TODO: STOPSHIP: This setup UI is not correct, we need to figure out what to do
-                // in case of errors and have localized strings.
-                Toast.makeText(AccountSetupBasics.this,
-                        "Failed to get token", Toast.LENGTH_LONG).show();
-            } else {
-                LogUtils.wtf(Logging.LOG_TAG, "Unknown result code from OAUTH: %d", resultCode);
-            }
-        } else {
-            LogUtils.e(Logging.LOG_TAG, "Unknown request code for onActivityResult in"
-                    + " AccountSetupBasics: %d", requestCode);
-        }
     }
 
     /**
@@ -252,18 +217,14 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-
         // Configure buttons
         mManualButton = UiUtilities.getView(this, R.id.manual_setup);
-        mOAuthButton = UiUtilities.getView(this, R.id.oauth_setup);
         mNextButton = UiUtilities.getView(this, R.id.next);
         mManualButton.setVisibility(View.VISIBLE);
         mManualButton.setOnClickListener(this);
-        mOAuthButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
         // Force disabled until validator notifies otherwise
         setProceedButtonsEnabled(false);
-        setOAuthButtonEnabled(false);
         // Lightweight debounce while Async tasks underway
         mNextButtonInhibit = false;
 
@@ -277,7 +238,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             // the account manager.  Most exit paths represent an failed or abandoned setup,
             // so the default is to report the error.  Success will be reported by the code in
             // AccountSetupOptions that commits the finally created account.
-            mReportAccountAuthenticatorError = true;
+            mSetupData.setReportAccountAuthenticationError(true);
         }
 
         // Handle force account creation immediately (now that fragment is set up)
@@ -303,7 +264,8 @@ public class AccountSetupBasics extends AccountSetupActivity
             }
             forceCreateAccount(email, user, incoming, outgoing);
             // calls finish
-            onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK, mSetupData);
+            // XXX disabled for now, we don't finish account setup in this activity anymore.
+            // onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK, mSetupData);
             return;
         }
 
@@ -353,7 +315,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void finish() {
         // If the account manager initiated the creation, and success was not reported,
         // then we assume that we're giving up (for any reason) - report failure.
-        if (mReportAccountAuthenticatorError) {
+        if (mSetupData.getReportAccountAuthenticationError()) {
             final AccountAuthenticatorResponse authenticatorResponse =
                     mSetupData.getAccountAuthenticatorResponse();
             if (authenticatorResponse != null) {
@@ -388,29 +350,6 @@ public class AccountSetupBasics extends AccountSetupActivity
             case R.id.manual_setup:
                 onManualSetup(false);
                 break;
-            case R.id.oauth_setup:
-                // TODO: This is a temporary hack to allow oauth flow to be shown. It should be
-                // removed when the real account setup flow is implemented.
-                // TODO: Also note that this check reads and parses the xml file each time. This
-                // should probably get cached somewhere.
-                final String email = getBasicsFragment().getEmail();
-                final String[] emailParts = email.split("@");
-                final String domain = emailParts[1].trim();
-                Provider provider = AccountSettingsUtils.findProviderForDomain(this, domain);
-                if (provider == null) {
-                    // Maybe this is a dasher email address, just try to authenticate using google.
-                    // TODO STOPSHIP: at some point, the UI needs to display something like
-                    // "authenticate using google.com". For now, since the only oauth provider
-                    // we support is google, we'll just assume that is the provider.
-                    provider = AccountSettingsUtils.findProviderForDomain(this, "google.com");
-                }
-                if (provider != null && provider.oauth != null) {
-                    final Intent i = new Intent(this, OAuthAuthenticationActivity.class);
-                    i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, email);
-                    i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, provider.oauth);
-                    startActivityForResult(i, REQUEST_OAUTH);
-                }
-                break;
         }
     }
 
@@ -425,62 +364,9 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Finish the auto setup process, in some cases after showing a warning dialog.
      */
     private void finishAutoSetup() {
+
         final AccountSetupBasicsFragment basicsFragment = getBasicsFragment();
         final String email = basicsFragment.getEmail();
-        final String password = basicsFragment.getPassword();
-
-        try {
-            mProvider.expandTemplates(email);
-
-            final Account account = mSetupData.getAccount();
-            final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-            HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
-
-            recvAuth.setLogin(mProvider.incomingUsername, password);
-            final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this,
-                    recvAuth.mProtocol);
-            recvAuth.mPort =
-                    ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
-
-            final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-            HostAuth.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
-            sendAuth.setLogin(mProvider.outgoingUsername, password);
-
-            // Populate the setup data, assuming that the duplicate account check will succeed
-            populateSetupData(getOwnerName(), email);
-
-            // Stop here if the login credentials duplicate an existing account
-            // Launch an Async task to do the work
-            new DuplicateCheckTask(this, email, true)
-                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } catch (URISyntaxException e) {
-            /*
-             * If there is some problem with the URI we give up and go on to manual setup.
-             * Technically speaking, AutoDiscover is OK here, since the user clicked "Next"
-             * to get here. This will not happen in practice because we don't expect to
-             * find any EAS accounts in the providers list.
-             */
-            onManualSetup(true);
-        }
-    }
-
-    /**
-     * Finish the oauth setup process.
-     */
-    private void finishOAuthSetup(final String accessToken, final String refreshToken,
-            int expiresInSeconds) {
-
-        final String email = getBasicsFragment().getEmail();
-        final String[] emailParts = email.split("@");
-        final String domain = emailParts[1].trim();
-        mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
-        if (mProvider == null) {
-            // Right now the only provider we support is google. Assume that domain for now.
-            // This will let us authenticate dasher accounts.
-            // TODO: STOPSHIP: we really need UI to allow this user to pick
-            // "authenticate with google" or some such.
-            mProvider = AccountSettingsUtils.findProviderForDomain(this, "google.com");
-        }
 
         try {
             mProvider.expandTemplates(email);
@@ -489,16 +375,6 @@ public class AccountSetupBasics extends AccountSetupActivity
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
             recvAuth.setLogin(mProvider.incomingUsername, null);
-            Credential cred = recvAuth.getOrCreateCredential(this);
-            cred.mProviderId = mProvider.oauth;
-            cred.mAccessToken = accessToken;
-            cred.mRefreshToken = refreshToken;
-            cred.mExpiration = System.currentTimeMillis() +
-                    expiresInSeconds * DateUtils.SECOND_IN_MILLIS;
-            // TODO: For now, assume that we will use SSL because that's what
-            // gmail wants. This needs to be parameterized from providers.xml
-            recvAuth.mFlags |= HostAuth.FLAG_SSL;
-            recvAuth.mFlags |= HostAuth.FLAG_OAUTH;
 
             final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this,
                     recvAuth.mProtocol);
@@ -508,9 +384,6 @@ public class AccountSetupBasics extends AccountSetupActivity
             final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
             HostAuth.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
             sendAuth.setLogin(mProvider.outgoingUsername, null);
-            sendAuth.mCredential = cred;
-            sendAuth.mFlags |= HostAuth.FLAG_SSL;
-            sendAuth.mFlags |= HostAuth.FLAG_OAUTH;
 
             // Populate the setup data, assuming that the duplicate account check will succeed
             populateSetupData(getOwnerName(), email);
@@ -558,21 +431,18 @@ public class AccountSetupBasics extends AccountSetupActivity
             mNextButtonInhibit = false;
             // Exit immediately if the user left before we finished
             if (mPaused) return;
-            // Show duplicate account warning, or proceed
+            // Show duplicate account warning, or proceed.
             if (duplicateAccountName != null) {
                 final DuplicateAccountDialogFragment dialogFragment =
                     DuplicateAccountDialogFragment.newInstance(duplicateAccountName);
                 dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
             } else {
                 if (mAutoSetup) {
-                    final AccountCheckSettingsFragment checkerFragment =
-                        AccountCheckSettingsFragment.newInstance(
-                            SetupDataFragment.CHECK_INCOMING | SetupDataFragment.CHECK_OUTGOING,
-                                null);
-                    final FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                    transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
-                    transaction.addToBackStack("back");
-                    transaction.commit();
+                    final Intent intent = new Intent(AccountSetupBasics.this, SignInActivity.class);
+                    intent.putExtra(SignInActivity.EXTRA_FLOW_MODE_INITIAL, true);
+                    intent.putExtra(SignInActivity.EXTRA_MANUAL_SETUP, false);
+                    intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
+                    startActivity(intent);
                 } else {
                     onManualSetup(true);
                 }
@@ -621,7 +491,6 @@ public class AccountSetupBasics extends AccountSetupActivity
     private void onManualSetup(boolean allowAutoDiscover) {
         final AccountSetupBasicsFragment basicsFragment = getBasicsFragment();
         final String email = basicsFragment.getEmail();
-        final String password = basicsFragment.getPassword();
         final String[] emailParts = email.split("@");
         final String user = emailParts[0].trim();
         final String domain = emailParts[1].trim();
@@ -630,9 +499,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         //  Username: d@d.d
         //  Password: debug
         if (ENTER_DEBUG_SCREEN) {
-            if ("d@d.d".equals(email) && "debug".equals(password)) {
+            if ("d@d.d".equals(email)) {
                 basicsFragment.setEmail("");
-                basicsFragment.setPassword("");
                 AccountSettings.actionSettingsWithDebug(this);
                 return;
             }
@@ -640,16 +508,20 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-        recvAuth.setLogin(user, password);
         recvAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+        recvAuth.setLogin(user, null);
 
         final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-        sendAuth.setLogin(user, password);
         sendAuth.setConnection(null, domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+        sendAuth.setLogin(user, null);
 
         populateSetupData(getOwnerName(), email);
 
         mSetupData.setAllowAutodiscover(allowAutoDiscover);
+
+        // FLAG: We should not launch the protocol picker if we are coming from device settings,
+        // (as opposed to in-app adding account.) If we come from device settings, the user has
+        // already explicitly chosen the account type.
         AccountSetupType.actionSelectAccountType(this, mSetupData);
     }
 
@@ -701,37 +573,6 @@ public class AccountSetupBasics extends AccountSetupActivity
         account.setEmailAddress(senderEmail);
         account.setDisplayName(senderEmail);
         setDefaultsForProtocol(this, account);
-    }
-
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     *
-     * This is used in automatic setup mode to jump directly down to the options screen.
-     *
-     * This is the only case where we finish() this activity but account setup is continuing,
-     * so we inhibit reporting any error back to the Account manager.
-     */
-    @Override
-    public void onCheckSettingsComplete(int result, SetupDataFragment setupData) {
-        mSetupData = setupData;
-        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            AccountSetupFinal.actionFinal(this, mSetupData);
-            mReportAccountAuthenticatorError = false;
-            finish();
-        }
-    }
-
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     * This is overridden only by AccountSetupIncoming
-     */
-    @Override
-    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
-        throw new IllegalStateException();
-    }
-
-    public void setOAuthButtonEnabled(boolean enabled) {
-        mOAuthButton.setEnabled(enabled);
     }
 
     public void setProceedButtonsEnabled(boolean enabled) {
