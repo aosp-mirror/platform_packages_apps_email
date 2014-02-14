@@ -528,7 +528,6 @@ class ImapConnection {
 
     private ImapResponse getOAuthResponse() throws IOException, MessagingException {
         ImapResponse response;
-        LogUtils.d(Logging.LOG_TAG, "sending command %s", getLoginPhrase());
         sendCommand(getLoginPhrase(), true);
         do {
             response = mParser.readResponse();
