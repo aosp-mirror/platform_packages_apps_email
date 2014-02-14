@@ -31,6 +31,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -223,6 +224,9 @@ public class AccountSetupBasics extends AccountSetupActivity
         mManualButton.setVisibility(View.VISIBLE);
         mManualButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
+
+        mManualButton.setPaintFlags(mManualButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
         // Force disabled until validator notifies otherwise
         setProceedButtonsEnabled(false);
         // Lightweight debounce while Async tasks underway
