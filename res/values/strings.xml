@@ -208,12 +208,12 @@
     <!-- Label for signing in with Google using OAuth -->
     <string name="sign_in_with_google">Sign in with Google</string>
 
-    <!-- On "Set up email" screen, hint for account email password text field -->
-    <string name="account_setup_basics_password_label">Password</string>
+    <!-- hint for account email password text field -->
+    <string name="password_label">Password</string>
     <!--  On the "Setup up email" screen, label indicating what service we are signed in with [CHAR LIMIT=40] -->
     <string name="signed_in_with_service_label">Signed in with %s</string>
     <!-- Label for the authentication section [CHAR LIMIT=20] -->
-    <string name="authenticiation_label">Authentication</string>
+    <string name="authentication_label">Authentication</string>
     <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
     <string name="add_authentication_label">Add authentication</string>
     <!-- Label for the add authentication icon [CHAR LIMIT=40] -->

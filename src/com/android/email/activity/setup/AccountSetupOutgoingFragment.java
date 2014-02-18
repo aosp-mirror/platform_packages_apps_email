@@ -35,11 +35,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -58,7 +61,6 @@ import com.android.mail.utils.LogUtils;
 public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener, AuthenticationCallback {
 
-    private static final int CERTIFICATE_REQUEST = 0;
     private static final int SIGN_IN_REQUEST = 1;
 
     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
@@ -68,10 +70,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     private EditText mUsernameView;
     private AuthenticationView mAuthenticationView;
+    private TextView mAuthenticationLabel;
     private EditText mServerView;
     private EditText mPortView;
     private CheckBox mRequireLoginView;
     private Spinner mSecurityTypeView;
+    private EmailServiceInfo mServiceInfo;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -117,6 +121,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         mRequireLoginView = UiUtilities.getView(view, R.id.account_require_login);
         mSecurityTypeView = UiUtilities.getView(view, R.id.account_security_type);
         mRequireLoginView.setOnCheckedChangeListener(this);
+        // Don't use UiUtilities here. In some configurations this view does not exist, and
+        // UiUtilities throws an exception in this case.
+        mAuthenticationLabel = (TextView)view.findViewById(R.id.authentication_label);
 
         // Note:  Strings are shared with AccountSetupIncomingFragment
         final SpinnerOption securityTypes[] = {
@@ -276,6 +283,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (mLoaded) return;
 
         final HostAuth sendAuth = mSetupData.getAccount().getOrCreateHostAuthSend(mContext);
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, sendAuth.mProtocol);
         if ((sendAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
             final String username = sendAuth.mLogin;
             if (username != null) {
@@ -283,7 +291,14 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                 mRequireLoginView.setChecked(true);
             }
 
-            mAuthenticationView.setAuthInfo(true, false, sendAuth);
+            mAuthenticationView.setAuthInfo(true, sendAuth);
+            if (mAuthenticationLabel != null) {
+                if (mServiceInfo.offerOAuth) {
+                    mAuthenticationLabel.setText(R.string.authentication_label);
+                } else {
+                    mAuthenticationLabel.setText(R.string.password_label);
+                }
+            }
         }
 
         final int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
@@ -407,11 +422,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onValidateStateChanged() {
         validateFields();
-    }
-
-    @Override
-    public void onCertificateRequested() {
-        // We don't support certificates on any outgoing protocol.
     }
 
     @Override

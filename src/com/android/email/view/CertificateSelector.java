@@ -35,7 +35,7 @@ import com.android.email.activity.UiUtilities;
 /**
  * A simple view that can be used to select a certificate from the system {@link KeyChain}.
  *
- * Host activities must register themselves view {@link #setHostActivity} for this selector to work.
+ * Host activities must register themselves view {@link #setHostCallback} for this selector to work.
  */
 public class CertificateSelector extends RelativeLayout implements OnClickListener {
 

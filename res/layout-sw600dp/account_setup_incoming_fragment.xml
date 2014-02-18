@@ -39,11 +39,43 @@
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
-    <com.android.email.activity.setup.AuthenticationView
-        android:id="@+id/authentication_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <!-- This text may be changed in code if the we are using OAuth, etc.-->
+        <TextView
+            android:id="@+id/authentication_label"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dip"
+            android:contentDescription="@string/authentication_label"
+            android:text="@string/authentication_label"
+            android:layout_gravity="center_vertical" />
+        <com.android.email.activity.setup.AuthenticationView
+            android:id="@+id/authentication_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </TableRow>
+
+    <include
+        android:id="@+id/client_certificate_selector"
+        layout="@layout/client_certificate_selector"
+        android:visibility="gone" />
+
+    <TableRow
+        android:id="@+id/device_id_section"
+        android:paddingTop="32dip"
+        android:visibility="gone" >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dip"
+            android:text="@string/account_setup_exchange_device_id_label" />
+        <!-- TODO - when adding back in styles, this should be slightly different (was "medium") -->
+        <TextView
+            android:id="@+id/device_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffbebebe" />
+    </TableRow>
+
     <TableRow
         android:paddingTop="16dip" >
         <!-- This text may be changed in code if the server is IMAP, etc. -->
@@ -121,22 +153,6 @@
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
             android:inputType="text"
             android:imeOptions="actionDone" />
-    </TableRow>
-    <TableRow
-        android:id="@+id/device_id_section"
-        android:paddingTop="32dip"
-        android:visibility="gone" >
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginRight="16dip"
-            android:text="@string/account_setup_exchange_device_id_label" />
-        <!-- TODO - when adding back in styles, this should be slightly different (was "medium") -->
-        <TextView
-            android:id="@+id/device_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffbebebe" />
     </TableRow>
 </TableLayout>
 

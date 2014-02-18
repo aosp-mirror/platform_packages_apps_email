@@ -42,7 +42,10 @@ import com.android.email.activity.setup.AuthenticationView.AuthenticationCallbac
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
+import com.android.email.view.CertificateSelector;
+import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.email2.ui.MailActivityEmail;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
@@ -51,6 +54,7 @@ import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -60,7 +64,7 @@ import java.util.ArrayList;
  * (for editing existing accounts).
  */
 public class AccountSetupIncomingFragment extends AccountServerBaseFragment
-        implements AuthenticationCallback {
+        implements HostCallback, AuthenticationCallback {
 
     private static final int CERTIFICATE_REQUEST = 0;
     private static final int SIGN_IN_REQUEST = 1;
@@ -70,12 +74,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     private EditText mUsernameView;
     private AuthenticationView mAuthenticationView;
+    private TextView mAuthenticationLabel;
     private TextView mServerLabelView;
     private EditText mServerView;
     private EditText mPortView;
     private Spinner mSecurityTypeView;
     private TextView mDeletePolicyLabelView;
     private Spinner mDeletePolicyView;
+    private CertificateSelector mClientCertificateSelector;
+    private View mDeviceIdSection;
     private View mImapPathPrefixSectionView;
     private EditText mImapPathPrefixView;
     // Delete policy as loaded from the device
@@ -131,6 +138,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mImapPathPrefixSectionView = UiUtilities.getView(view, R.id.imap_path_prefix_section);
         mImapPathPrefixView = UiUtilities.getView(view, R.id.imap_path_prefix);
         mAuthenticationView = UiUtilities.getView(view, R.id.authentication_view);
+        mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
+        mDeviceIdSection = UiUtilities.getView(view, R.id.device_id_section);
+        // Don't use UiUtilities here. In some configurations this view does not exist, and
+        // UiUtilities throws an exception in this case.
+        mAuthenticationLabel = (TextView)view.findViewById(R.id.authentication_label);
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
@@ -182,6 +194,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
+        mClientCertificateSelector.setHostCallback(this);
 
         final Context context = getActivity();
         final SetupDataFragment.SetupDataContainer container =
@@ -304,6 +317,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mDeletePolicyView = null;
         mImapPathPrefixSectionView = null;
         mImapPathPrefixView = null;
+        mDeviceIdSection = null;
+        mClientCertificateSelector = null;
 
         super.onDestroyView();
     }
@@ -379,7 +394,14 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
-        mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, mServiceInfo.offerCerts, recvAuth);
+        mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
+        if (mAuthenticationLabel != null) {
+            if (mServiceInfo.offerOAuth) {
+                mAuthenticationLabel.setText(R.string.authentication_label);
+            } else {
+                mAuthenticationLabel.setText(R.string.password_label);
+            }
+        }
 
         final String username = recvAuth.mLogin;
         if (username != null) {
@@ -456,7 +478,19 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     public void onUseSslChanged(boolean useSsl) {
-        mAuthenticationView.onUseSslChanged(useSsl);
+        if (mServiceInfo.offerCerts) {
+            final int mode = useSsl ? View.VISIBLE : View.GONE;
+            mClientCertificateSelector.setVisibility(mode);
+            String deviceId = "";
+            try {
+                deviceId = Device.getDeviceId(mContext);
+            } catch (IOException e) {
+                // Not required
+            }
+            ((TextView) UiUtilities.getView(getView(), R.id.device_id)).setText(deviceId);
+
+            mDeviceIdSection.setVisibility(mode);
+        }
     }
 
     private void updatePortFromSecurityType() {
@@ -548,7 +582,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         } else {
             recvAuth.mDomain = null;
         }
-        recvAuth.mClientCertAlias = mAuthenticationView.getClientCertificate();
+        recvAuth.mClientCertAlias = mClientCertificateSelector.getCertificate();
 
         mCallback.onProceedNext(SetupDataFragment.CHECK_INCOMING, this);
         clearButtonBounce();
@@ -596,6 +630,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     @Override
     public void onCertificateRequested() {
+        // XXX reimplement
         final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
         intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
         startActivityForResult(intent, CERTIFICATE_REQUEST);
@@ -605,7 +640,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CERTIFICATE_REQUEST && resultCode == Activity.RESULT_OK) {
             final String certAlias = data.getStringExtra(CertificateRequestor.RESULT_ALIAS);
-            mAuthenticationView.setCertificate(certAlias);
+            if (certAlias != null) {
+                mClientCertificateSelector.setCertificate(certAlias);
+            }
         } else if (requestCode == SIGN_IN_REQUEST && resultCode == Activity.RESULT_OK) {
             final Account account = mSetupData.getAccount();
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(getActivity());
@@ -623,8 +660,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                         DateUtils.SECOND_IN_MILLIS;
                 recvAuth.mPassword = null;
             }
-            mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, mServiceInfo.offerCerts,
-                    recvAuth);
+            mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
         }
     }
 }

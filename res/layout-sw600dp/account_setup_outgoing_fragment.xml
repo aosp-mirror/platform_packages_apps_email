@@ -106,6 +106,14 @@
         android:id="@+id/account_require_login_settings_2"
         android:paddingTop="16dip"
         android:visibility="gone" >
+        <!-- This text may be changed in code if the we are using OAuth, etc.-->
+        <TextView
+            android:id="@+id/authentication_label"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="16dip"
+            android:contentDescription="@string/authentication_label"
+            android:text="@string/authentication_label" />
         <com.android.email.activity.setup.AuthenticationView
             android:id="@+id/authentication_view"
             android:layout_width="match_parent"

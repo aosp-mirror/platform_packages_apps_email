@@ -16,8 +16,6 @@ import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email.view.CertificateSelector;
-import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.provider.Credential;
@@ -25,34 +23,29 @@ import com.android.emailcommon.provider.HostAuth;
 
 import java.io.IOException;
 
-public class AuthenticationView extends LinearLayout implements HostCallback, OnClickListener {
+public class AuthenticationView extends LinearLayout implements OnClickListener {
 
     private final static String SUPER_STATE = "super_state";
     private final static String SAVE_PASSWORD = "save_password";
     private final static String SAVE_OFFER_OAUTH = "save_offer_oauth";
-    private final static String SAVE_OFFER_CERTS = "save_offer_certs";
     private final static String SAVE_USE_OAUTH = "save_use_oauth";
     private final static String SAVE_OAUTH_PROVIDER = "save_oauth_provider";
 
     // Views
-    private View mImapAuthenticationView;
-    private View mImapPasswordContainer;
-    private EditText mImapPasswordView;
-    private View mImapOAuthContainer;
-    private TextView mImapOAuthView;
-    private View mImapAddAuthenticationView;
-    private View mPasswordContainer;
-    private View mClearImapPasswordView;
+    private TextView mAuthenticationHeader;
+    private View mPasswordWrapper;
+    private View mOAuthWrapper;
+    private View mNoAuthWrapper;
+    private TextView mPasswordLabel;
+    private EditText mPasswordEdit;
+    private TextView mOAuthLabel;
+    private View mClearPasswordView;
     private View mClearOAuthView;
     private View mAddAuthenticationView;
-    private EditText mPasswordView;
-    private CertificateSelector mClientCertificateSelector;
-    private View mDeviceIdSectionView;
 
     private TextWatcher mValidationTextWatcher;
 
     private boolean mOfferOAuth;
-    private boolean mOfferCerts;
     private boolean mUseOAuth;
     private String mOAuthProvider;
 
@@ -61,8 +54,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
 
     public interface AuthenticationCallback {
         public void onValidateStateChanged();
-
-        public void onCertificateRequested();
 
         public void onRequestSignIn();
     }
@@ -84,25 +75,22 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     @Override
     public void onFinishInflate() {
         super.onFinishInflate();
-        mImapAuthenticationView = UiUtilities.getView(this, R.id.imap_authentication);
-        mImapPasswordContainer = UiUtilities.getView(this, R.id.imap_password_selection);
-        mImapPasswordView = UiUtilities.getView(this, R.id.imap_account_password);
-        mImapOAuthContainer = UiUtilities.getView(this, R.id.oauth_selection);
-        mImapOAuthView = UiUtilities.getView(this, R.id.signed_in_with_service_label);
-        mImapAddAuthenticationView = UiUtilities.getView(this, R.id.authentication_selection);
-        mPasswordContainer = UiUtilities.getView(this, R.id.standard_password_selection);
-        mPasswordView = UiUtilities.getView(this, R.id.account_password);
-        mClientCertificateSelector = UiUtilities.getView(this, R.id.client_certificate_selector);
-        mDeviceIdSectionView = UiUtilities.getView(this, R.id.device_id_section);
-        mClearImapPasswordView = UiUtilities.getView(this, R.id.clear_password);
+        mPasswordWrapper = UiUtilities.getView(this, R.id.password_wrapper);
+        mOAuthWrapper = UiUtilities.getView(this, R.id.oauth_wrapper);
+        mNoAuthWrapper = UiUtilities.getView(this, R.id.no_auth_wrapper);
+        mPasswordEdit = UiUtilities.getView(this, R.id.password_edit);
+        mOAuthLabel =  UiUtilities.getView(this, R.id.oauth_label);
+        mClearPasswordView = UiUtilities.getView(this, R.id.clear_password);
         mClearOAuthView = UiUtilities.getView(this, R.id.clear_oauth);
         mAddAuthenticationView = UiUtilities.getView(this, R.id.add_authentication);
+        // Don't use UiUtilities here, in some configurations, these view doesn't exist and
+        // UiUtilities throws an exception in this case.
+        mPasswordLabel = (TextView)findViewById(R.id.password_label);
+        mAuthenticationHeader = (TextView)findViewById(R.id.authentication_header);
 
-        mClearImapPasswordView.setOnClickListener(this);
+        mClearPasswordView.setOnClickListener(this);
         mClearOAuthView.setOnClickListener(this);
         mAddAuthenticationView.setOnClickListener(this);
-
-        mClientCertificateSelector.setHostCallback(this);
 
         mValidationTextWatcher = new TextWatcher() {
             @Override
@@ -115,8 +103,7 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
-        mPasswordView.addTextChangedListener(mValidationTextWatcher);
-        mImapPasswordView.addTextChangedListener(mValidationTextWatcher);
+        mPasswordEdit.addTextChangedListener(mValidationTextWatcher);
     }
 
     public void setAuthenticationCallback(final AuthenticationCallback host) {
@@ -124,27 +111,19 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     }
 
     public boolean getAuthValid() {
-        if (mOfferOAuth) {
-            if (mUseOAuth) {
-                return mOAuthProvider != null;
-            } else {
-                return !TextUtils.isEmpty(mImapPasswordView.getText());
-            }
+        if (mOfferOAuth & mUseOAuth) {
+            return mOAuthProvider != null;
         } else {
-            return !TextUtils.isEmpty(mPasswordView.getText());
+            return !TextUtils.isEmpty(mPasswordEdit.getText());
         }
     }
 
     public void setPassword(final String password) {
-        getPasswordEditText().setText(password);
+        mPasswordEdit.setText(password);
     }
 
     public String getPassword() {
-        return getPasswordEditText().getText().toString();
-    }
-
-    public String getClientCertificate() {
-        return mClientCertificateSelector.getCertificate();
+        return mPasswordEdit.getText().toString();
     }
 
     public String getOAuthProvider() {
@@ -158,21 +137,11 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
             mAuthenticationValid = valid;
         }
         // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(getContext(), getPasswordEditText());
+        AccountSettingsUtils.checkPasswordSpaces(getContext(), mPasswordEdit);
     }
 
-    private EditText getPasswordEditText() {
-        if (mOfferOAuth) {
-            return mImapPasswordView;
-        } else {
-            return mPasswordView;
-        }
-    }
-
-    public void setAuthInfo(final boolean offerOAuth, final boolean offerCerts,
-            final HostAuth hostAuth) {
+    public void setAuthInfo(final boolean offerOAuth, final HostAuth hostAuth) {
         mOfferOAuth = offerOAuth;
-        mOfferCerts = offerCerts;
 
         if (mOfferOAuth) {
             final Credential cred = hostAuth.getCredential(getContext());
@@ -187,13 +156,13 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
             // We're using a POP or Exchange account, which does not offer oAuth.
             mUseOAuth = false;
         }
-        getPasswordEditText().setText(hostAuth.mPassword);
+        mPasswordEdit.setText(hostAuth.mPassword);
 
         if (mOfferOAuth && mUseOAuth) {
             // We're authenticated with OAuth.
             final OAuthProvider provider = AccountSettingsUtils.findOAuthProvider(
                     getContext(), mOAuthProvider);
-            mImapOAuthView.setText(getContext().getString(R.string.signed_in_with_service_label,
+            mOAuthLabel.setText(getContext().getString(R.string.signed_in_with_service_label,
                     provider.label));
         }
 
@@ -202,39 +171,49 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     }
 
     private void updateVisibility() {
-        mClientCertificateSelector.setVisibility(
-                mOfferCerts ? View.VISIBLE : View.GONE);
-
         if (mOfferOAuth) {
-            mPasswordContainer.setVisibility(View.GONE);
-            mImapAuthenticationView.setVisibility(View.VISIBLE);
-
+            if (mAuthenticationHeader != null) {
+                mAuthenticationHeader.setVisibility(View.VISIBLE);
+                mAuthenticationHeader.setText(R.string.authentication_label);
+            }
             if (mUseOAuth) {
                 // We're authenticated with OAuth.
-                mImapPasswordContainer.setVisibility(View.GONE);
-                mImapOAuthContainer.setVisibility(View.VISIBLE);
-                mImapAddAuthenticationView.setVisibility(View.GONE);
+                mOAuthWrapper.setVisibility(View.VISIBLE);
+                mPasswordWrapper.setVisibility(View.GONE);
+                mNoAuthWrapper.setVisibility(View.GONE);
+                if (mPasswordLabel != null) {
+                    mPasswordLabel.setVisibility(View.VISIBLE);
+                }
             } else if (!TextUtils.isEmpty(getPassword())) {
                 // We're authenticated with a password.
-                mImapPasswordContainer.setVisibility(View.VISIBLE);
-                mImapOAuthContainer.setVisibility(View.GONE);
-                mImapAddAuthenticationView.setVisibility(View.GONE);
-                if (TextUtils.isEmpty(mImapPasswordView.getText())) {
-                    mImapPasswordView.requestFocus();
+                mOAuthWrapper.setVisibility(View.GONE);
+                mPasswordWrapper.setVisibility(View.VISIBLE);
+                mNoAuthWrapper.setVisibility(View.GONE);
+                if (TextUtils.isEmpty(mPasswordEdit.getText())) {
+                    mPasswordEdit.requestFocus();
                 }
+                mClearPasswordView.setVisibility(View.VISIBLE);
             } else {
                 // We have no authentication, we need to allow either password or oauth.
-                mImapPasswordContainer.setVisibility(View.GONE);
-                mImapOAuthContainer.setVisibility(View.GONE);
-                mImapAddAuthenticationView.setVisibility(View.VISIBLE);
+                mOAuthWrapper.setVisibility(View.GONE);
+                mPasswordWrapper.setVisibility(View.GONE);
+                mNoAuthWrapper.setVisibility(View.VISIBLE);
             }
         } else {
             // We're using a POP or Exchange account, which does not offer oAuth.
-            mImapAuthenticationView.setVisibility(View.GONE);
-            mPasswordContainer.setVisibility(View.VISIBLE);
-            mPasswordView.setVisibility(View.VISIBLE);
-            if (TextUtils.isEmpty(mPasswordView.getText())) {
-                mPasswordView.requestFocus();
+            if (mAuthenticationHeader != null) {
+                mAuthenticationHeader.setVisibility(View.VISIBLE);
+                mAuthenticationHeader.setText(R.string.password_label);
+            }
+            mOAuthWrapper.setVisibility(View.GONE);
+            mPasswordWrapper.setVisibility(View.VISIBLE);
+            mNoAuthWrapper.setVisibility(View.GONE);
+            mClearPasswordView.setVisibility(View.GONE);
+            if (TextUtils.isEmpty(mPasswordEdit.getText())) {
+                mPasswordEdit.requestFocus();
+            }
+            if (mPasswordLabel != null) {
+                mPasswordLabel.setVisibility(View.GONE);
             }
         }
     }
@@ -244,7 +223,6 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         Bundle bundle = new Bundle();
         bundle.putParcelable(SUPER_STATE, super.onSaveInstanceState());
         bundle.putBoolean(SAVE_OFFER_OAUTH, mOfferOAuth);
-        bundle.putBoolean(SAVE_OFFER_CERTS, mOfferCerts);
         bundle.putBoolean(SAVE_USE_OAUTH, mUseOAuth);
         bundle.putString(SAVE_PASSWORD, getPassword());
         bundle.putString(SAVE_OAUTH_PROVIDER, mOAuthProvider);
@@ -257,17 +235,16 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
             Bundle bundle = (Bundle)parcelable;
             super.onRestoreInstanceState(bundle.getParcelable(SUPER_STATE));
             mOfferOAuth = bundle.getBoolean(SAVE_OFFER_OAUTH);
-            mOfferCerts = bundle.getBoolean(SAVE_OFFER_CERTS);
             mUseOAuth = bundle.getBoolean(SAVE_USE_OAUTH);
             mOAuthProvider = bundle.getString(SAVE_OAUTH_PROVIDER);
 
             final String password = bundle.getString(SAVE_PASSWORD);
-            getPasswordEditText().setText(password);
+            mPasswordEdit.setText(password);
             if (!TextUtils.isEmpty(mOAuthProvider)) {
                 final OAuthProvider provider = AccountSettingsUtils.findOAuthProvider(
                         getContext(), mOAuthProvider);
                 if (provider != null) {
-                    mImapOAuthView.setText(getContext().getString(R.string.signed_in_with_service_label,
+                    mOAuthLabel.setText(getContext().getString(R.string.signed_in_with_service_label,
                             provider.label));
                 }
             }
@@ -276,33 +253,9 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
     }
 
     @Override
-    public void onCertificateRequested() {
-        mAuthenticationCallback.onCertificateRequested();
-    }
-
-    public void setCertificate(final String certAlias) {
-        mClientCertificateSelector.setCertificate(certAlias);
-    }
-
-    public void onUseSslChanged(boolean useSsl) {
-        if (mOfferCerts) {
-            final int mode = useSsl ? View.VISIBLE : View.GONE;
-            mClientCertificateSelector.setVisibility(mode);
-            String deviceId = "";
-            try {
-                deviceId = Device.getDeviceId(getContext());
-            } catch (IOException e) {
-                // Not required
-            }
-            ((TextView) UiUtilities.getView(this, R.id.device_id)).setText(deviceId);
-            mDeviceIdSectionView.setVisibility(mode);
-        }
-    }
-
-    @Override
     public void onClick(View view) {
-        if (view == mClearImapPasswordView) {
-            getPasswordEditText().setText(null);
+        if (view == mClearPasswordView) {
+            mPasswordEdit.setText(null);
             updateVisibility();
             validateFields();
         } else if (view == mClearOAuthView) {

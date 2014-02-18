@@ -14,18 +14,9 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
-    <TextView
-        android:id="@+id/authentication_header"
-        android:text="@string/authentication_label"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary"/>
 
     <LinearLayout
         android:id="@+id/no_auth_wrapper"
@@ -56,15 +47,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/password_label"
-            android:text="@string/password_label"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_gravity="center_vertical"
-            android:textColor="?android:attr/textColorPrimary" />
-
         <EditText
             android:id="@+id/password_edit"
             android:layout_height="wrap_content"
@@ -94,7 +76,6 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
 
@@ -108,4 +89,5 @@
 
     </LinearLayout>
 
-</LinearLayout>
+
+</FrameLayout>
