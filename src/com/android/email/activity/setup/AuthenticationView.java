@@ -25,10 +25,6 @@ import com.android.emailcommon.provider.HostAuth;
 
 import java.io.IOException;
 
-// FLAG:
-// * need to handle adding new authentication
-// * need to handle a set, but invalid, OAuth info
-
 public class AuthenticationView extends LinearLayout implements HostCallback, OnClickListener {
 
     private final static String SUPER_STATE = "super_state";
@@ -137,6 +133,10 @@ public class AuthenticationView extends LinearLayout implements HostCallback, On
         } else {
             return !TextUtils.isEmpty(mPasswordView.getText());
         }
+    }
+
+    public void setPassword(final String password) {
+        getPasswordEditText().setText(password);
     }
 
     public String getPassword() {
