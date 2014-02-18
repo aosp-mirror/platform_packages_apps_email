@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_add_authentication"/>
+            android:src="@drawable/ic_setup_add_authentication"/>
 
         <TextView
             android:id="@+id/add_authentication_label"
@@ -37,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_weight="1"
+            android:paddingRight="16dip"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary"/>
     </LinearLayout>
@@ -62,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_clear_authentication" />
+            android:src="@drawable/ic_setup_delete" />
     </LinearLayout>
 
     <LinearLayout
@@ -85,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_clear_authentication" />
+            android:src="@drawable/ic_setup_delete" />
 
     </LinearLayout>
 
