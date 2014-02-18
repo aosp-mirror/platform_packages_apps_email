@@ -79,7 +79,7 @@
     <item quantity="other" msgid="1041353825053598633">"GB <xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Kufungua akaunti"</string>
-    <string name="sign_in_title" msgid="841050831791507752">"Uthibitishaji wa IMAP"</string>
+    <string name="sign_in_title" msgid="8509755024484685915">"Ingia katika akaunti"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Akaunti ya barua pepe"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Unaweza kufungua akaunti yako kwa hatua chache tu."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Anwani ya barua pepe"</string>

@@ -79,7 +79,7 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Подешавање налога"</string>
-    <string name="sign_in_title" msgid="841050831791507752">"IMAP потврда аутентичности"</string>
+    <string name="sign_in_title" msgid="8509755024484685915">"Пријављивање"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Налог е-поште"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Можете да подесите налог у свега неколико корака."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адреса е-поште"</string>
