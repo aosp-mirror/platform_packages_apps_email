@@ -18,6 +18,8 @@ package com.android.emailcommon.utility;
 
 import android.os.AsyncTask;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +33,7 @@ import java.util.concurrent.Executor;
  *   in onDestroy() or similar places.
  * - Instead of {@link AsyncTask#onPostExecute}, it has {@link #onSuccess(Object)}, as the
  *   regular {@link AsyncTask#onPostExecute} is a bit hard to predict when it'll be called and
- *   whel it won't.
+ *   when it won't.
  *
  * Note this class is missing some of the {@link AsyncTask} features, e.g. it lacks
  * {@link AsyncTask#onProgressUpdate}.  Add these when necessary.
@@ -43,7 +45,7 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
     /**
      * Tracks {@link EmailAsyncTask}.
      *
-     * Call {@link #cancellAllInterrupt()} to cancel all tasks registered.
+     * Call {@link #cancelAllInterrupt()} to cancel all tasks registered.
      */
     public static class Tracker {
         private final LinkedList<EmailAsyncTask<?, ?, ?>> mTasks =
@@ -64,7 +66,8 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
         /**
          * Cancel all registered tasks.
          */
-        public void cancellAllInterrupt() {
+        @VisibleForTesting
+        public void cancelAllInterrupt() {
             synchronized (mTasks) {
                 for (EmailAsyncTask<?, ?, ?> task : mTasks) {
                     task.cancel(true);
@@ -212,7 +215,7 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
         return executeInternal(SERIAL_EXECUTOR, true, params);
     }
 
-    private final EmailAsyncTask<Params, Progress, Result> executeInternal(Executor executor,
+    private EmailAsyncTask<Params, Progress, Result> executeInternal(Executor executor,
             boolean cancelPrevious, Params... params) {
         if (cancelPrevious) {
             if (mTracker == null) {
