@@ -16,8 +16,6 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.emailcommon.utility.EmailAsyncTask.Tracker;
-
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
@@ -70,7 +68,7 @@ public class EmailAsyncTaskTests extends AndroidTestCase {
         // Task 2 and 4 are still registered.
 
         // Cancel all left
-        tracker.cancellAllInterrupt();
+        tracker.cancelAllInterrupt();
 
         // Check if they're canceled
         assertEquals(0, tracker.getTaskCountForTest());
