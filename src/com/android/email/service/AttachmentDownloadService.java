@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -35,7 +36,6 @@ import android.text.format.DateUtils;
 import com.android.email.AttachmentInfo;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.NotificationController;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -55,8 +55,10 @@ import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AttachmentDownloadService extends Service implements Runnable {
     public static final String TAG = LogUtils.TAG;
@@ -846,6 +848,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
     }
 
+    // The queue entries here are entries of the form {id, flags}, with the values passed in to
+    // attachmentChanged()
+    private static final Queue<long[]> sAttachmentChangedQueue =
+            new ConcurrentLinkedQueue<long[]>();
+    private static AsyncTask<Void, Void, Void> sAttachmentChangedTask;
+
     /**
      * Called directly by EmailProvider whenever an attachment is inserted or changed
      * @param context the caller's context
@@ -853,20 +861,39 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @param flags the new flags for the attachment
      */
     public static void attachmentChanged(final Context context, final long id, final int flags) {
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                Attachment attachment = Attachment.restoreAttachmentWithId(context, id);
-                if (attachment != null) {
-                    // Store the flags we got from EmailProvider; given that all of this
-                    // activity is asynchronous, we need to use the newest data from
-                    // EmailProvider
-                    attachment.mFlags = flags;
-                    Intent intent = new Intent(context, AttachmentDownloadService.class);
-                    intent.putExtra(EXTRA_ATTACHMENT, attachment);
-                    context.startService(intent);
-                }
-            }});
+        synchronized (sAttachmentChangedQueue) {
+            sAttachmentChangedQueue.add(new long[]{id, flags});
+
+            if (sAttachmentChangedTask == null) {
+                sAttachmentChangedTask = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        while (true) {
+                            final long[] change;
+                            synchronized (sAttachmentChangedQueue) {
+                                change = sAttachmentChangedQueue.poll();
+                                if (change == null) {
+                                    sAttachmentChangedTask = null;
+                                    return null;
+                                }
+                            }
+                            final long id = change[0];
+                            final long flags = change[1];
+                            final Attachment attachment =
+                                    Attachment.restoreAttachmentWithId(context, id);
+                            if (attachment == null) {
+                                continue;
+                            }
+                            attachment.mFlags = (int) flags;
+                            final Intent intent =
+                                    new Intent(context, AttachmentDownloadService.class);
+                            intent.putExtra(EXTRA_ATTACHMENT, attachment);
+                            context.startService(intent);
+                        }
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        }
     }
 
     /**
