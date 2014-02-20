@@ -85,9 +85,9 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ईमेल पता"</string>
     <string name="or_label" msgid="2207403489755254427">"या"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Google से प्रवेश करें"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"पासवर्ड"</string>
+    <string name="password_label" msgid="5228754278985667134">"पासवर्ड"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"%s के साथ प्रवेश किया"</string>
-    <string name="authenticiation_label" msgid="3110827508591580063">"प्रमाणीकरण"</string>
+    <string name="authentication_label" msgid="5210804218348191833">"प्रमाणीकरण"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"प्रमाणीकरण जोड़ें"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"प्रमाणीकरण साफ़ करें"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"मैन्‍युअल सेटअप"</string>

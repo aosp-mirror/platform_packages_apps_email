@@ -79,16 +79,15 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"การตั้งค่าบัญชี"</string>
-    <!-- no translation found for sign_in_title (8509755024484685915) -->
-    <skip />
+    <string name="sign_in_title" msgid="8509755024484685915">"ลงชื่อเข้าใช้"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"บัญชีอีเมล"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"คุณสามารถตั้งค่าบัญชีได้ในไม่กี่ขั้นตอน"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ที่อยู่อีเมล"</string>
     <string name="or_label" msgid="2207403489755254427">"หรือ"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"ลงชื่อเข้าใช้ด้วย Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"รหัสผ่าน"</string>
+    <string name="password_label" msgid="5228754278985667134">"รหัสผ่าน"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"ลงชื่อเข้าใช้ด้วย %s"</string>
-    <string name="authenticiation_label" msgid="3110827508591580063">"การตรวจสอบสิทธิ์"</string>
+    <string name="authentication_label" msgid="5210804218348191833">"การตรวจสอบสิทธิ์"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"เพิ่มการตรวจสอบสิทธิ์"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"ล้างการตรวจสอบสิทธิ์"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"ตั้งค่าด้วยตนเอง"</string>
