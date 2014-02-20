@@ -75,7 +75,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private EditText mPortView;
     private CheckBox mRequireLoginView;
     private Spinner mSecurityTypeView;
-    private EmailServiceInfo mServiceInfo;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -283,7 +282,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (mLoaded) return;
 
         final HostAuth sendAuth = mSetupData.getAccount().getOrCreateHostAuthSend(mContext);
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, sendAuth.mProtocol);
         if ((sendAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
             final String username = sendAuth.mLogin;
             if (username != null) {
@@ -293,11 +291,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
             mAuthenticationView.setAuthInfo(true, sendAuth);
             if (mAuthenticationLabel != null) {
-                if (mServiceInfo.offerOAuth) {
-                    mAuthenticationLabel.setText(R.string.authentication_label);
-                } else {
-                    mAuthenticationLabel.setText(R.string.password_label);
-                }
+                mAuthenticationLabel.setText(R.string.authentication_label);
             }
         }
 
