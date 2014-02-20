@@ -26,6 +26,7 @@ import android.widget.EditText;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupOutgoing;
 import com.android.email.activity.setup.AccountSetupOutgoingFragment;
+import com.android.email.activity.setup.AuthenticationView;
 import com.android.email.activity.setup.SetupDataFragment;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -44,7 +45,7 @@ public class AccountSetupOutgoingTests extends
     private AccountSetupOutgoing mActivity;
     private AccountSetupOutgoingFragment mFragment;
     private EditText mServerView;
-    private EditText mPasswordView;
+    private AuthenticationView mAuthenticationView;
 
     public AccountSetupOutgoingTests() {
         super(AccountSetupOutgoing.class);
@@ -159,7 +160,7 @@ public class AccountSetupOutgoingTests extends
      * @param expectNext true if expected that this password will enable the "next" button
      */
     private void checkPassword(String password, boolean expectNext) throws URISyntaxException {
-        mPasswordView.setText(password);
+        mAuthenticationView.setPassword(password);
         if (expectNext) {
             assertTrue(mActivity.mNextButtonEnabled);
         } else {
@@ -178,7 +179,7 @@ public class AccountSetupOutgoingTests extends
         mActivity = getActivity();
         mFragment = mActivity.mFragment;
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
-        mPasswordView = (EditText) mActivity.findViewById(R.id.account_server);
+        mAuthenticationView = (AuthenticationView) mActivity.findViewById(R.id.account_server);
     }
 
     /**
