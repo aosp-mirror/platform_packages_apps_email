@@ -19,6 +19,7 @@ package com.android.email;
 import android.os.Handler;
 import android.os.Message;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.mail.utils.Clock;
 import com.android.mail.utils.Throttle;
@@ -28,6 +29,7 @@ import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+@SmallTest
 public class ThrottleTest extends AndroidTestCase {
     private static final int MIN_TIMEOUT = 100;
     private static final int MAX_TIMEOUT = 500;

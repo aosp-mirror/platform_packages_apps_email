@@ -16,6 +16,8 @@
 
 package com.android.emailcommon.mail;
 
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.emailcommon.mail.PackedString;
 
 import junit.framework.TestCase;
@@ -26,6 +28,7 @@ import junit.framework.TestCase;
  * You can run this entire test case with:
  *   runtest -c com.android.email.mail.PackedStringTests email
  */
+@SmallTest
 public class PackedStringTests extends TestCase {
     /** Note: copied from actual class */
     private static final char DELIMITER_ELEMENT = '\1';

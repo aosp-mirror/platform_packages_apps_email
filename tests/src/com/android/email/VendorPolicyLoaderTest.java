@@ -19,10 +19,12 @@ package com.android.email;
 import android.content.Context;
 import android.os.Bundle;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.VendorPolicyLoader.Provider;
 
+@SmallTest
 public class VendorPolicyLoaderTest extends AndroidTestCase {
     private String mTestApkPackageName;
 

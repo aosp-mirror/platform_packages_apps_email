@@ -20,9 +20,11 @@ import com.android.emailcommon.provider.EmailContent;
 
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.File;
 
+@SmallTest
 public class AttachmentUtilitiesTests extends AndroidTestCase {
     /**
      * Test static inferMimeType()

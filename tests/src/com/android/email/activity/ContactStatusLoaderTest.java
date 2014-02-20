@@ -29,6 +29,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.StatusUpdates;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentProvider;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import junit.framework.Assert;
  * (shouldn't) know how {@link android.provider.ContactsContract.Data#getContactLookupUri} is
  * implemented.
  */
+@SmallTest
 public class ContactStatusLoaderTest
         extends ProviderTestCase2<ContactStatusLoaderTest.MockContactProvider> {
     private static final String EMAIL = "a@b.c";

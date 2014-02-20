@@ -21,10 +21,12 @@ import com.android.email.R;
 import android.app.Activity;
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 
 import java.util.Locale;
 
+@SmallTest
 public class UiUtilitiesTests extends AndroidTestCase {
     public void brokentestFormatSize() {
         if (!"en".equalsIgnoreCase(Locale.getDefault().getLanguage())) {

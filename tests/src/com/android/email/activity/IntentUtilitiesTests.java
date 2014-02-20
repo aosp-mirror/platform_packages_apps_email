@@ -21,7 +21,9 @@ import com.android.emailcommon.utility.IntentUtilities;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
+@SmallTest
 public class IntentUtilitiesTests extends AndroidTestCase {
     public void brokentestSimple() {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("/abc");

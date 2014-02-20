@@ -18,7 +18,9 @@ package com.android.emailcommon.utility;
 
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.SmallTest;
 
+@SmallTest
 public class EmailAsyncTaskTests extends AndroidTestCase {
     public void testAll() throws Exception {
         // Because AsyncTask relies on the UI thread and how we use threads in test, we can't

@@ -17,9 +17,11 @@
 package com.android.email.mail.transport;
 
 import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.TestCase;
 
+@SmallTest
 public class DiscourseLoggerTest extends TestCase {
 
     /** Shortcut to create a byte array */

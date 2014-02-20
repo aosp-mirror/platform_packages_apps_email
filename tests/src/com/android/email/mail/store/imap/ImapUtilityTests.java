@@ -18,7 +18,9 @@ package com.android.email.mail.store.imap;
 
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.SmallTest;
 
+@SmallTest
 public class ImapUtilityTests extends AndroidTestCase {
     public static final String[] EmptyArrayString = new String[0];
 

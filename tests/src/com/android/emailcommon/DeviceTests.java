@@ -20,9 +20,11 @@ package com.android.emailcommon;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.mail.utils.LogUtils;
 
+@SmallTest
 public class DeviceTests extends AndroidTestCase {
 
     public void testGetConsistentDeviceId() {

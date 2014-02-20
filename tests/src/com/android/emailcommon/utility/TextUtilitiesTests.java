@@ -23,9 +23,12 @@
 package com.android.emailcommon.utility;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 
+@SmallTest
 public class TextUtilitiesTests extends AndroidTestCase {
 
     public void testPlainSnippet() {
