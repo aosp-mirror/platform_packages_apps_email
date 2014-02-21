@@ -191,7 +191,7 @@
     <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>
     <!-- Title of screen when trying to get oauth authentication -->
-    <string name="oauth_authentication_title" translatable="false">OAuth authentication</string>
+    <string name="oauth_authentication_title">Requesting authorization</string>
     <!-- Title of screen to choose with authentication to use -->
     <string name="sign_in_title">Sign in</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
