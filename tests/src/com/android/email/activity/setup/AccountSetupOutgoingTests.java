@@ -179,7 +179,7 @@ public class AccountSetupOutgoingTests extends
         mActivity = getActivity();
         mFragment = mActivity.mFragment;
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
-        mAuthenticationView = (AuthenticationView) mActivity.findViewById(R.id.account_server);
+        mAuthenticationView = (AuthenticationView) mActivity.findViewById(R.id.authentication_view);
     }
 
     /**

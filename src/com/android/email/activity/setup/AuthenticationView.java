@@ -20,6 +20,7 @@ import com.android.emailcommon.Device;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 
@@ -118,6 +119,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
         }
     }
 
+    @VisibleForTesting
     public void setPassword(final String password) {
         mPasswordEdit.setText(password);
     }
