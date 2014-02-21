@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -167,6 +168,18 @@ public class LegacyConversions {
         localMessage.mAttachments = null;
         for (Part attachmentPart : attachments) {
             addOneAttachment(context, localMessage, attachmentPart);
+        }
+    }
+
+    public static void updateInlineAttachments(Context context, EmailContent.Message localMessage,
+            ArrayList<Part> inlineAttachments) throws MessagingException, IOException {
+        for (final Part inlinePart : inlineAttachments) {
+            final String disposition = MimeUtility.getHeaderParameter(
+                    MimeUtility.unfoldAndDecode(inlinePart.getDisposition()), null);
+            if (!TextUtils.isEmpty(disposition)) {
+                // Treat inline parts as attachments
+                addOneAttachment(context, localMessage, inlinePart);
+            }
         }
     }
 
