@@ -311,10 +311,18 @@ public class ImapService extends Service {
                         try {
                             // Determine if the new message was already known (e.g. partial)
                             // And create or reload the full message info
-                            LocalMessageInfo localMessageInfo =
-                                localMapCopy.get(message.getUid());
-                            EmailContent.Message localMessage;
-                            if (localMessageInfo == null) {
+                            final LocalMessageInfo localMessageInfo =
+                                    localMapCopy.get(message.getUid());
+                            final boolean localExists = localMessageInfo != null;
+
+                            if (!localExists && message.isSet(Flag.DELETED)) {
+                                // This is a deleted message that we don't have locally, so don't
+                                // create it
+                                return;
+                            }
+
+                            final EmailContent.Message localMessage;
+                            if (!localExists) {
                                 localMessage = new EmailContent.Message();
                             } else {
                                 localMessage = EmailContent.Message.restoreMessageWithId(
@@ -457,6 +465,8 @@ public class ImapService extends Service {
         // TODO - this comment was here, but no code was here.
 
         // 4. Get the number of messages on the server.
+        // TODO: this value includes deleted but unpurged messages, and so slightly mismatches
+        // the contents of our DB since we drop deleted messages. Figure out what to do about this.
         final int remoteMessageCount = remoteFolder.getMessageCount();
 
         // 5. Save folder message count locally.
@@ -673,6 +683,15 @@ public class ImapService extends Service {
             }
         }
 
+        // 12.5 Remove messages that are marked as deleted so that we drop them from the DB in the
+        // next step
+        for (final Message remoteMessage : remoteMessages) {
+            if (remoteMessage.isSet(Flag.DELETED)) {
+                remoteUidMap.remove(remoteMessage.getUid());
+                unsyncedMessages.remove(remoteMessage);
+            }
+        }
+
         // 13. Remove messages that are in the local store and in the current sync window,
         // but no longer on the remote store. Note that localMessageMap can contain messages
         // that are not actually in our sync window. We need to check the timestamp to ensure
@@ -686,17 +705,17 @@ public class ImapService extends Service {
                 AttachmentUtilities.deleteAllAttachmentFiles(context, account.mId, info.mId);
 
                 // Delete the message itself
-                Uri uriToDelete = ContentUris.withAppendedId(
+                final Uri uriToDelete = ContentUris.withAppendedId(
                         EmailContent.Message.CONTENT_URI, info.mId);
                 resolver.delete(uriToDelete, null, null);
 
-                // Delete extra rows (e.g. synced or deleted)
-                Uri syncRowToDelete = ContentUris.withAppendedId(
+                // Delete extra rows (e.g. updated or deleted)
+                final Uri updateRowToDelete = ContentUris.withAppendedId(
                         EmailContent.Message.UPDATED_CONTENT_URI, info.mId);
-                resolver.delete(syncRowToDelete, null, null);
-                Uri deletERowToDelete = ContentUris.withAppendedId(
-                        EmailContent.Message.UPDATED_CONTENT_URI, info.mId);
-                resolver.delete(deletERowToDelete, null, null);
+                resolver.delete(updateRowToDelete, null, null);
+                final Uri deleteRowToDelete = ContentUris.withAppendedId(
+                        EmailContent.Message.DELETED_CONTENT_URI, info.mId);
+                resolver.delete(deleteRowToDelete, null, null);
             }
         }
 
