@@ -137,6 +137,7 @@ public class Utilities {
                         && loadStatus != EmailContent.Message.FLAG_LOADED_UNKNOWN) {
                     // TODO(pwestbro): What should happen with unknown status?
                     LegacyConversions.updateAttachments(context, localMessage, attachments);
+                    LegacyConversions.updateInlineAttachments(context, localMessage, viewables);
                 } else {
                     EmailContent.Attachment att = new EmailContent.Attachment();
                     // Since we haven't actually loaded the attachment, we're just putting
