@@ -80,7 +80,7 @@
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"መለያ አዘጋጅ"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"የኢሜይል መለያ"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"መለያህን በጥቂት ደረጃዎች ብቻ ማዋቀር ትችላለህ።"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"መለያዎን በጥቂት ደረጃዎች ብቻ ማዋቀር ይችላሉ።"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ኢሜይል አድራሻ"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"የይለፍ ቃል፡"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"በእጅ አዘጋጅ"</string>
@@ -196,7 +196,7 @@
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"የማያ ቆልፍ ይለፍ ቃል ጊዜው እያለፈነው"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"በቅርቡ የማሳያህ ቆልፍ ፒን ወይም የይለፍ ቃል መለወጥ ያስፈልግሃል፤ አለበለዚያ የ<xliff:g id="ACCOUNT">%s</xliff:g>  ውሂብ ይሰረዛል። አሁን እንዲለወጥ ትፈልጋለህ?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"የማያ ቆልፍ ይለፍ ቃል ጊዜው አልፏል"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"የ<xliff:g id="ACCOUNT">%s</xliff:g> ውሂብ ከመሳሪያህ ላይ እየተሰረዘ ነው። የማያ መቆለፊያ PIN ወይም ይለፍ ቃል በመለወጥ እነበረበት መመለስ ትችላለህ። አሁን መለወጥ ትፈልጋለህ?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"የ<xliff:g id="ACCOUNT">%s</xliff:g> ውሂብ ከመሳሪያዎ ላይ እየተሰረዘ ነው። የማያ መቆለፊያ PIN ወይም ይለፍ ቃል በመለወጥ እነበረበት መመለስ ይችላሉ። አሁን መለወጥ ይፈልጋሉ?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"ያልተቀመጠ ለውጦችን ይወገዱ?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"በመለያ መግባት አልተቻለም፡፡"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"የ<xliff:g id="ACCOUNT">%s</xliff:g> የተጠቃሚው ስም ወይም ይለፍ ቃል የተሳሳተ ነው። አሁን ልታዘምናቸው ትፈልጋለህ?"</string>
