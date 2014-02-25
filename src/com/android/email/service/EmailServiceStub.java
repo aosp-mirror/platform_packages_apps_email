@@ -390,6 +390,11 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
+    public void pushModify(long accountId) throws RemoteException {
+        LogUtils.e(Logging.LOG_TAG, "pushModify invalid for account type for %d", accountId);
+    }
+
+    @Override
     public void sendMail(long accountId) throws RemoteException {
         sendMailImpl(mContext, accountId);
     }

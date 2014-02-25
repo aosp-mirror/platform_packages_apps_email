@@ -314,6 +314,21 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMail");
     }
 
+    /**
+     * Request the service to refresh its push notification status (e.g. to start or stop receiving
+     * them, or to change which folders we want notifications for).
+     * @param accountId The account whose push settings to modify.
+     */
+    @Override
+    public void pushModify(final long accountId) throws RemoteException {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                mService.pushModify(accountId);
+            }
+        }, "sendMail");
+    }
+
     @Override
     public IBinder asBinder() {
         return null;
