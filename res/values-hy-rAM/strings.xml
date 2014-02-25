@@ -85,13 +85,11 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Էլփոստի հասցե"</string>
     <string name="or_label" msgid="2207403489755254427">"ԿԱՄ"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Մուտք գործել Google-ով"</string>
-    <!-- no translation found for password_label (5228754278985667134) -->
-    <skip />
+    <string name="password_label" msgid="5228754278985667134">"Գաղտնաբառ"</string>
     <!-- String.format failed for translation -->
     <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
     <skip />
-    <!-- no translation found for authentication_label (5210804218348191833) -->
-    <skip />
+    <string name="authentication_label" msgid="5210804218348191833">"Նույնականացում"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Ավելացնել նույնականացում"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Մաքրել նույնականացումը"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ձեռքով կարգավորում"</string>

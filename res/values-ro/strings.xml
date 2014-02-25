@@ -85,11 +85,9 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresă de e-mail"</string>
     <string name="or_label" msgid="2207403489755254427">"SAU"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Conectați-vă cu Google"</string>
-    <!-- no translation found for password_label (5228754278985667134) -->
-    <skip />
+    <string name="password_label" msgid="5228754278985667134">"Parolă"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Conectat(ă) cu %s"</string>
-    <!-- no translation found for authentication_label (5210804218348191833) -->
-    <skip />
+    <string name="authentication_label" msgid="5210804218348191833">"Autentificare"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Adăugați autentificare"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Ștergeți autentificarea"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configurare manuală"</string>
