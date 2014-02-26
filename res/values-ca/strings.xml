@@ -79,6 +79,8 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuració del compte"</string>
+    <!-- no translation found for oauth_authentication_title (4096761972487140963) -->
+    <skip />
     <string name="sign_in_title" msgid="8509755024484685915">"Inici de sessió"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Compte de correu electrònic"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Pots configurar el teu compte en només un quants passos."</string>
