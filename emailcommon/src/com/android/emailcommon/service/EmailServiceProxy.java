@@ -326,6 +326,10 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMail");
     }
 
+        @Override
+        public void sync(final long accountId, final boolean updateFolderList,
+                final int mailboxType, final long[] folders) {}
+
     @Override
     public IBinder asBinder() {
         return null;

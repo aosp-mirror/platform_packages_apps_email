@@ -21,6 +21,7 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
+
 import android.os.Bundle;
 
 interface IEmailService {
@@ -30,6 +31,8 @@ interface IEmailService {
     oneway void loadAttachment(IEmailServiceCallback cb, long accountId, long attachmentId,
             boolean background);
     oneway void updateFolderList(long accountId);
+
+    void sync(long accountId, boolean updateFolderList, int mailboxType, in long[] foldersToSync);
 
     // Push-related functionality.
 
