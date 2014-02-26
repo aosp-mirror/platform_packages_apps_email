@@ -660,8 +660,8 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
-                final boolean background) throws RemoteException {
+        public void loadAttachment(final IEmailServiceCallback cb, final long accountId,
+                final long attachmentId, final boolean background) throws RemoteException {
         }
 
         @Override

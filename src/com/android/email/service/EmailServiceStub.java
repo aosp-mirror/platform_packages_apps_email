@@ -119,8 +119,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
-            final boolean background) throws RemoteException {
+    public void loadAttachment(final IEmailServiceCallback cb, final long accountId,
+            final long attachmentId, final boolean background) throws RemoteException {
         Folder remoteFolder = null;
         try {
             //1. Check if the attachment is already here and return early in that case
