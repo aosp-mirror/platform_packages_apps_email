@@ -108,19 +108,20 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * possible.
      *
      * @param cb The {@link IEmailServiceCallback} to use for this operation.
+     * @param accountId the id of the account in question
      * @param attachmentId the id of the attachment record
      * @param background whether or not this request corresponds to a background action (i.e.
      * prefetch) vs a foreground action (user request)
      */
     @Override
-    public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
-            final boolean background)
+    public void loadAttachment(final IEmailServiceCallback cb, final long accountId,
+            final long attachmentId, final boolean background)
             throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
                 try {
-                    mService.loadAttachment(cb, attachmentId, background);
+                    mService.loadAttachment(cb, accountId, attachmentId, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
