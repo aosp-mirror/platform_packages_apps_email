@@ -47,7 +47,6 @@ import android.provider.SyncStateContract;
 import android.text.TextUtils;
 
 import com.android.email.R;
-import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -698,5 +697,11 @@ public class EmailServiceUtils {
         @Override
         public void pushModify(long accountId) throws RemoteException {
         }
+
+        @Override
+        public void sync(final long accountId, final boolean updateFolderList,
+                final int mailboxType, final long[] folders) {
+        }
+
     }
 }
