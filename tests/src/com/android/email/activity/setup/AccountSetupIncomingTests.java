@@ -196,11 +196,11 @@ public class AccountSetupIncomingTests extends
         HostAuth auth = account.getOrCreateHostAuthRecv(context);
         HostAuth.setHostAuthFromString(auth, storeUriString);
 
-        Bundle extras = new Bundle();
-        extras.putParcelable(SetupData.EXTRA_SETUP_DATA, new SetupData(SetupData.FLOW_MODE_NORMAL, account));
+        /*Bundle extras = new Bundle();
+        extras.putParcelable(SetupData.EXTRA_SETUP_DATA, new SetupData(SetupData.FLOW_MODE_NORMAL, account));*/
 
         Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.putExtras(extras);
+//        intent.putExtras(extras);
 
         return intent;
     }
