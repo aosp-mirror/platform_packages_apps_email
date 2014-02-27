@@ -591,9 +591,11 @@ public class AccountSettingsFragment extends PreferenceFragment
         PreferenceCategory dataUsageCategory =
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
-        mSyncWindow = null;
         if (info.offerLookback) {
-            mSyncWindow = new ListPreference(mContext);
+            if (mSyncWindow == null) {
+                mSyncWindow = new ListPreference(mContext);
+                dataUsageCategory.addPreference(mSyncWindow);
+            }
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             final int maxLookback;
@@ -619,7 +621,6 @@ public class AccountSettingsFragment extends PreferenceFragment
                     return false;
                 }
             });
-            dataUsageCategory.addPreference(mSyncWindow);
         }
 
         PreferenceCategory folderPrefs =
@@ -734,7 +735,9 @@ public class AccountSettingsFragment extends PreferenceFragment
                             // Release the account
                             SecurityPolicy.setAccountHoldFlag(mContext, mAccount, false);
                             // Remove the preference
-                            policiesCategory.removePreference(retryAccount);
+                            if (policiesCategory != null) {
+                                policiesCategory.removePreference(retryAccount);
+                            }
                             return true;
                         }
                     });
