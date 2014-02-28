@@ -173,6 +173,10 @@
         <incoming uri="imap+ssl+://mail.me.com" username="$email" />
         <outgoing uri="smtp+tls+://smtp.me.com" username="$email" />
     </provider>
+    <provider id="icloud" label="iCloud" domain="icloud.com">
+        <incoming uri="imap+ssl+://imap.mail.me.com" username="$email" />
+        <outgoing uri="smtp+tls+://smtp.mail.me.com" username="$email" />
+    </provider>
 
     <!-- Hotmail and variants.  NOTE: These are handled by exchange if available, else POP3. -->
     <!-- EXCHANGE-REMOVE-SECTION-START -->
