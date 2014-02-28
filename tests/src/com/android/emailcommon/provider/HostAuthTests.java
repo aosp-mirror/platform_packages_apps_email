@@ -80,9 +80,9 @@ public class HostAuthTests extends AndroidTestCase {
         ha.setLogin("user", "");
         assertEquals(HostAuth.FLAG_AUTHENTICATE, ha.mFlags);
 
-        ha.mFlags = 0x00000000;
+        ha.mFlags = 0xffffffff;
         ha.setLogin("", "password");
-        assertEquals(HostAuth.FLAG_AUTHENTICATE, ha.mFlags);
+        assertEquals(~HostAuth.FLAG_AUTHENTICATE, ha.mFlags);
 
         ha.mFlags = 0x00000000;
         ha.setLogin("user", null);

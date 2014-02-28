@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.android.email.R;
@@ -68,6 +69,7 @@ public class AccountSetupOutgoingTests extends
     /**
      * Test processing with a complete, good URI -> good fields
      */
+    @UiThreadTest
     public void testGoodUri() {
         getActivityAndFields();
         assertTrue(isNextButtonEnabled());
@@ -77,10 +79,18 @@ public class AccountSetupOutgoingTests extends
      * No user is not OK - not enabled
      */
     public void testBadUriNoUser()
-            throws URISyntaxException {
+            throws Throwable {
         Intent i = getTestIntent("smtp://:password@server.com:999");
         setActivityIntent(i);
         getActivityAndFields();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final CheckBox requireLoginView = (CheckBox)
+                        mActivity.findViewById(R.id.account_require_login);
+                requireLoginView.setChecked(true);
+            }
+        });
         assertFalse(isNextButtonEnabled());
     }
 
