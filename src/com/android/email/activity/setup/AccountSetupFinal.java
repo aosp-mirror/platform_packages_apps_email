@@ -997,6 +997,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             mAccountAuthenticatorResponse = null;
             mReportAccountAuthenticatorError = false;
         }
+        setResult(RESULT_OK);
         proceed();
     }
 
