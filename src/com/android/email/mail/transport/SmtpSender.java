@@ -69,10 +69,8 @@ public class SmtpSender extends Sender {
         HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
         mTransport = new MailTransport(context, "SMTP", sendAuth);
         String[] userInfoParts = sendAuth.getLogin();
-        if (userInfoParts != null) {
-            mUsername = userInfoParts[0];
-            mPassword = userInfoParts[1];
-        }
+        mUsername = userInfoParts[0];
+        mPassword = userInfoParts[1];
         Credential cred = sendAuth.getCredential(context);
         if (cred != null) {
             mUseOAuth = true;

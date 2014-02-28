@@ -114,13 +114,8 @@ public class ImapStore extends Store {
         mTransport = new MailTransport(context, "IMAP", recvAuth);
 
         String[] userInfo = recvAuth.getLogin();
-        if (userInfo != null) {
-            mUsername = userInfo[0];
-            mPassword = userInfo[1];
-        } else {
-            mUsername = null;
-            mPassword = null;
-        }
+        mUsername = userInfo[0];
+        mPassword = userInfo[1];
         final Credential cred = recvAuth.getCredential(context);
         mUseOAuth = (cred != null);
         mPathPrefix = recvAuth.mDomain;

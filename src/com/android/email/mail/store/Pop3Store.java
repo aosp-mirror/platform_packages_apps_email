@@ -78,10 +78,8 @@ public class Pop3Store extends Store {
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
         mTransport = new MailTransport(context, "POP3", recvAuth);
         String[] userInfoParts = recvAuth.getLogin();
-        if (userInfoParts != null) {
-            mUsername = userInfoParts[0];
-            mPassword = userInfoParts[1];
-        }
+        mUsername = userInfoParts[0];
+        mPassword = userInfoParts[1];
     }
 
     /**

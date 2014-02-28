@@ -16,7 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -30,17 +29,29 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.mail.Address;
 
-public class AccountSetupBasicsFragment extends Fragment {
+public class AccountSetupBasicsFragment extends AccountSetupFragment implements
+        View.OnClickListener {
     private EditText mEmailView;
+
+    public interface Callback extends AccountSetupFragment.Callback {
+        void onBasicsManualSetupButton();
+    }
+
+    public static AccountSetupBasicsFragment newInstance() {
+        return new AccountSetupBasicsFragment();
+    }
 
     public AccountSetupBasicsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.account_setup_basics_fragment, container, false);
+        final View view = inflater.inflate(R.layout.account_setup_basics_fragment, container,
+                false);
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
+        final View manualSetupButton = UiUtilities.getView(view, R.id.manual_setup);
+        manualSetupButton.setOnClickListener(this);
 
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -60,8 +71,13 @@ public class AccountSetupBasicsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        validateFields();
+    }
+
     private void validateFields() {
-        final AccountSetupBasics activity = (AccountSetupBasics) getActivity();
         final String emailField = getEmail();
         final Address[] addresses = Address.parse(emailField);
 
@@ -69,7 +85,16 @@ public class AccountSetupBasicsFragment extends Fragment {
                 && addresses.length == 1
                 && !TextUtils.isEmpty(addresses[0].getAddress());
 
-        activity.setProceedButtonsEnabled(emailValid);
+        final Callback callback = (Callback) getActivity();
+        callback.setNextButtonEnabled(emailValid);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.manual_setup) {
+            Callback callback = (Callback) getActivity();
+            callback.onBasicsManualSetupButton();
+        }
     }
 
     public void setEmail(final String email) {

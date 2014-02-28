@@ -16,7 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -38,10 +37,18 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.provider.Account;
 
-public class AccountSetupNamesFragment extends Fragment {
+public class AccountSetupNamesFragment extends AccountSetupFragment {
     private EditText mDescription;
     private EditText mName;
     private boolean mRequiresName = true;
+
+    public interface Callback extends AccountSetupFragment.Callback {
+
+    }
+
+    public static AccountSetupNamesFragment newInstance() {
+        return new AccountSetupNamesFragment();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -158,10 +165,10 @@ public class AccountSetupNamesFragment extends Fragment {
                 mName.setError(null);
             }
         }
-        final AccountSetupFinal activity = (AccountSetupFinal) getActivity();
-        if (activity != null) {
+        final Callback callback = (Callback) getActivity();
+        if (callback != null) {
             // If we're not attached to the activity, this state probably doesn't need updating
-            activity.setNextButtonEnabled(enableNextButton);
+            callback.setNextButtonEnabled(enableNextButton);
         }
     }
 

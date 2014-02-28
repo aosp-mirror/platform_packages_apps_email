@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.base.Objects;
 
@@ -21,8 +20,6 @@ public class Credential extends EmailContent implements Parcelable {
     public static void initCredential() {
         CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/credential");
     }
-
-    public static final String TYPE_OAUTH = "oauth";
 
     // This is the Id of the oauth provider. It can be used to lookup an oauth provider
     // from oauth.xml.
@@ -74,8 +71,6 @@ public class Credential extends EmailContent implements Parcelable {
 
     /**
      * Restore a Credential from the database, given its unique id
-     * @param context
-     * @param id
      * @return the instantiated Credential
      */
    public static Credential restoreCredentialsWithId(Context context, long id) {
@@ -165,5 +160,4 @@ public class Credential extends EmailContent implements Parcelable {
        values.put(EXPIRATION_COLUMN, mExpiration);
        return values;
    }
-
 }

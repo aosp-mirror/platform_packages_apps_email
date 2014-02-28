@@ -117,15 +117,6 @@ public abstract class Sender {
         return sender;
     }
 
-    /**
-     * Get class of SettingActivity for this Sender class.
-     * @return Activity class that has class method actionEditOutgoingSettings().
-     */
-    public Class<? extends android.app.Activity> getSettingActivityClass() {
-        // default SettingActivity class
-        return com.android.email.activity.setup.AccountSetupOutgoing.class;
-    }
-
     public abstract void open() throws MessagingException;
 
     public abstract void sendMessage(long messageId) throws MessagingException;

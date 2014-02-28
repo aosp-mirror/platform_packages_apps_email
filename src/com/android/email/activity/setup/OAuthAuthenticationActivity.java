@@ -33,8 +33,6 @@ import java.io.IOException;
  */
 public class OAuthAuthenticationActivity extends Activity implements
         LoaderCallbacks<AuthenticationResult> {
-    private final static String TAG = Logging.LOG_TAG;
-
     public static final String EXTRA_EMAIL_ADDRESS = "email_address";
     public static final String EXTRA_PROVIDER = "provider";
     public static final String EXTRA_PROVIDER_ID = "provider_id";

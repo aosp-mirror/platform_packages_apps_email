@@ -19,12 +19,12 @@ package com.android.email.activity.setup;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateUtils;
 import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,14 +44,13 @@ import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Device;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.CertificateRequestor;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
@@ -91,10 +90,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private TextWatcher mValidationTextWatcher;
 
     // Support for lifecycle
-    private boolean mStarted;
     private boolean mLoaded;
     private String mCacheLoginCredential;
     private EmailServiceInfo mServiceInfo;
+
+    public static AccountSetupIncomingFragment newInstance(boolean settingsMode) {
+        final AccountSetupIncomingFragment f = new AccountSetupIncomingFragment();
+        f.setArguments(getArgs(settingsMode));
+        return f;
+    }
 
     // Public no-args constructor needed for fragment re-instantiation
     public AccountSetupIncomingFragment() {}
@@ -105,9 +109,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreate");
-        }
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
@@ -119,9 +120,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
-        }
         final int layoutId = mSettingsMode
                 ? R.layout.account_settings_incoming_fragment
                 : R.layout.account_setup_incoming_fragment;
@@ -190,9 +188,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
-        }
         super.onActivityCreated(savedInstanceState);
         mClientCertificateSelector.setHostCallback(this);
 
@@ -201,8 +196,21 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                 (SetupDataFragment.SetupDataContainer) context;
         mSetupData = container.getSetupData();
         final Account account = mSetupData.getAccount();
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
+
+        // Pre-fill info as appropriate
+        if (!mSetupData.isIncomingCredLoaded()) {
+            recvAuth.mLogin = mSetupData.getEmail();
+            AccountSetupCredentialsFragment.populateHostAuthWithResults(context, recvAuth,
+                    mSetupData.getCredentialResults());
+            final String[] emailParts = mSetupData.getEmail().split("@");
+            final String domain = emailParts[1];
+            recvAuth.setConnection(recvAuth.mProtocol, domain, HostAuth.PORT_UNKNOWN,
+                    HostAuth.FLAG_NONE);
+            mSetupData.setIncomingCredLoaded(true);
+        }
+
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mAppContext, recvAuth.mProtocol);
 
         if (mServiceInfo.offerLocalDeletes) {
             SpinnerOption deletePolicies[] = {
@@ -244,18 +252,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                 context, android.R.layout.simple_spinner_item, securityTypes);
         securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSecurityTypeView.setAdapter(securityTypesAdapter);
-    }
 
-    /**
-     * Called when the Fragment is visible to the user.
-     */
-    @Override
-    public void onStart() {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStart");
-        }
-        super.onStart();
-        mStarted = true;
         configureEditor();
         loadSettings();
     }
@@ -265,31 +262,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onResume() {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onResume");
-        }
         super.onResume();
         validateFields();
-    }
-
-    @Override
-    public void onPause() {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onPause");
-        }
-        super.onPause();
-    }
-
-    /**
-     * Called when the Fragment is no longer started.
-     */
-    @Override
-    public void onStop() {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStop");
-        }
-        super.onStop();
-        mStarted = false;
     }
 
     @Override
@@ -323,38 +297,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         super.onDestroyView();
     }
 
-    /**
-     * Called when the fragment is no longer in use.
-     */
-    @Override
-    public void onDestroy() {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
-        }
-        super.onDestroy();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
-        }
         super.onSaveInstanceState(outState);
 
         outState.putString(STATE_KEY_CREDENTIAL, mCacheLoginCredential);
         outState.putBoolean(STATE_KEY_LOADED, mLoaded);
-    }
-
-    /**
-     * Activity provides callbacks here.  This also triggers loading and setting up the UX
-     */
-    @Override
-    public void setCallback(Callback callback) {
-        super.setCallback(callback);
-        if (mStarted) {
-            configureEditor();
-            loadSettings();
-        }
     }
 
     /**
@@ -363,7 +311,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private void configureEditor() {
         final Account account = mSetupData.getAccount();
         if (account == null || account.mHostAuthRecv == null) {
-            LogUtils.e(Logging.LOG_TAG,
+            LogUtils.e(LogUtils.TAG,
                     "null account or host auth. account null: %b host auth null: %b",
                     account == null, account == null || account.mHostAuthRecv == null);
             return;
@@ -392,8 +340,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         if (mLoaded) return;
 
         final Account account = mSetupData.getAccount();
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mContext, recvAuth.mProtocol);
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
+        mServiceInfo = EmailServiceUtils.getServiceInfo(mAppContext, recvAuth.mProtocol);
         mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
         if (mAuthenticationLabel != null) {
             if (mServiceInfo.offerOAuth) {
@@ -432,7 +380,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             flags |= HostAuth.FLAG_SSL;
         }
         // Strip out any flags that are not related to security type.
-        int securityTypeFlags = (flags & (HostAuth.FLAG_SSL | HostAuth.FLAG_TLS | HostAuth.FLAG_NONE));
+        int securityTypeFlags = (flags & HostAuth.FLAG_TRANSPORTSECURITY_MASK);
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, securityTypeFlags);
 
         final String hostname = recvAuth.mAddress;
@@ -466,7 +414,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     private int getPortFromSecurityType(boolean useSsl) {
-        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext,
+        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mAppContext,
                 mSetupData.getAccount().mHostAuthRecv.mProtocol);
         return useSsl ? info.portSsl : info.port;
     }
@@ -483,7 +431,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             mClientCertificateSelector.setVisibility(mode);
             String deviceId = "";
             try {
-                deviceId = Device.getDeviceId(mContext);
+                deviceId = Device.getDeviceId(mAppContext);
             } catch (IOException e) {
                 // Not required
             }
@@ -500,44 +448,72 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         onUseSslChanged(sslSelected);
     }
 
+    private static class SaveSettingsLoader extends MailAsyncTaskLoader<Boolean> {
+        private final SetupDataFragment mSetupData;
+        private final boolean mSettingsMode;
+
+        private SaveSettingsLoader(Context context, SetupDataFragment setupData,
+                boolean settingsMode) {
+            super(context);
+            mSetupData = setupData;
+            mSettingsMode = settingsMode;
+        }
+
+        @Override
+        public Boolean loadInBackground() {
+            if (mSettingsMode) {
+                saveSettingsAfterEdit(getContext(), mSetupData);
+            } else {
+                saveSettingsAfterSetup(getContext(), mSetupData);
+            }
+            return true;
+        }
+
+        @Override
+        protected void onDiscardResult(Boolean result) {}
+    }
+
+    @Override
+    public Loader<Boolean> getSaveSettingsLoader() {
+        return new SaveSettingsLoader(mAppContext, mSetupData, mSettingsMode);
+    }
+
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
      * Note, we update account here (as well as the account.mHostAuthRecv) because we edit
      * account's delete policy here.
      * Blocking - do not call from UI Thread.
      */
-    @Override
-    public void saveSettingsAfterEdit() {
-        final Account account = mSetupData.getAccount();
-        account.update(mContext, account.toContentValues());
+    public static void saveSettingsAfterEdit(Context context, SetupDataFragment setupData) {
+        final Account account = setupData.getAccount();
+        account.update(context, account.toContentValues());
         final Credential cred = account.mHostAuthRecv.mCredential;
         if (cred != null) {
             if (cred.isSaved()) {
-                cred.update(mContext, cred.toContentValues());
+                cred.update(context, cred.toContentValues());
             } else {
-                cred.save(mContext);
+                cred.save(context);
                 account.mHostAuthRecv.mCredentialKey = cred.mId;
             }
         }
-        account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
+        account.mHostAuthRecv.update(context, account.mHostAuthRecv.toContentValues());
         // Update the backup (side copy) of the accounts
-        AccountBackupRestore.backup(mContext);
+        AccountBackupRestore.backup(context);
     }
 
     /**
      * Entry point from Activity after entering new settings and verifying them.  For setup mode.
      */
-    @Override
-    public void saveSettingsAfterSetup() {
-        final Account account = mSetupData.getAccount();
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-        final HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+    public static void saveSettingsAfterSetup(Context context, SetupDataFragment setupData) {
+        final Account account = setupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
 
         // Set the username and password for the outgoing settings to the username and
         // password the user just set for incoming.  Use the verified host address to try and
         // pick a smarter outgoing address.
         final String hostName =
-                AccountSettingsUtils.inferServerName(mContext, recvAuth.mAddress, null, "smtp");
+                AccountSettingsUtils.inferServerName(context, recvAuth.mAddress, null, "smtp");
         sendAuth.setLogin(recvAuth.mLogin, recvAuth.mPassword);
         sendAuth.setConnection(sendAuth.mProtocol, hostName, sendAuth.mPort, sendAuth.mFlags);
     }
@@ -546,7 +522,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Entry point from Activity, when "next" button is clicked
      */
     @Override
-    public void onNext() {
+    public void collectUserInput() {
         final Account account = mSetupData.getAccount();
 
         // Make sure delete policy is an valid option before using it; otherwise, the results are
@@ -556,9 +532,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                     (Integer) ((SpinnerOption) mDeletePolicyView.getSelectedItem()).value);
         }
 
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
         final String userName = mUsernameView.getText().toString().trim();
-        final String userPassword = mAuthenticationView.getPassword().toString();
+        final String userPassword = mAuthenticationView.getPassword();
         recvAuth.setLogin(userName, userPassword);
         if (!TextUtils.isEmpty(mAuthenticationView.getOAuthProvider())) {
             Credential cred = recvAuth.getOrCreateCredential(getActivity());
@@ -571,7 +547,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             serverPort = Integer.parseInt(mPortView.getText().toString().trim());
         } catch (NumberFormatException e) {
             serverPort = getPortFromSecurityType(getSslSelected());
-            LogUtils.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
+            LogUtils.d(LogUtils.TAG, "Non-integer server port; using '" + serverPort + "'");
         }
         final int securityType =
                 (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
@@ -584,8 +560,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         recvAuth.mClientCertAlias = mClientCertificateSelector.getCertificate();
 
-        mCallback.onProceedNext(SetupDataFragment.CHECK_INCOMING, this);
-        clearButtonBounce();
+        final Callback callback = (Callback) getActivity();
+        callback.onAccountServerUIComplete(SetupDataFragment.CHECK_INCOMING);
     }
 
     @Override
@@ -604,16 +580,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         return deletePolicyChanged || super.haveSettingsChanged();
     }
 
-    /**
-     * Implements AccountCheckSettingsFragment.Callbacks
-     */
-    @Override
-    public void onAutoDiscoverComplete(int result, SetupDataFragment setupData) {
-        mSetupData = setupData;
-        final AccountSetupIncoming activity = (AccountSetupIncoming) getActivity();
-        activity.onAutoDiscoverComplete(result, setupData);
-    }
-
     @Override
     public void onValidateStateChanged() {
         validateFields();
@@ -621,10 +587,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     @Override
     public void onRequestSignIn() {
-        // Launch the signin activity.
-        // TODO: at some point we should just use the sign in fragment on the main setup activity.
-        final Intent intent = new Intent(getActivity(), SignInActivity.class);
-        intent.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
+        // Launch the credentials activity.
+        final String protocol =
+                mSetupData.getAccount().getOrCreateHostAuthRecv(mAppContext).mProtocol;
+        final Intent intent = AccountCredentials.getAccountCredentialsIntent(getActivity(),
+                mUsernameView.getText().toString(), protocol);
         startActivityForResult(intent, SIGN_IN_REQUEST);
     }
 
@@ -646,20 +613,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         } else if (requestCode == SIGN_IN_REQUEST && resultCode == Activity.RESULT_OK) {
             final Account account = mSetupData.getAccount();
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(getActivity());
-            final String password = data.getStringExtra(SignInActivity.EXTRA_PASSWORD);
-            if (!TextUtils.isEmpty(password)) {
-                recvAuth.mPassword = password;
-                recvAuth.removeCredential();
-            } else {
-                Credential cred = recvAuth.getOrCreateCredential(getActivity());
-                cred.mProviderId = data.getStringExtra(SignInActivity.EXTRA_OAUTH_PROVIDER);
-                cred.mAccessToken = data.getStringExtra(SignInActivity.EXTRA_OAUTH_ACCESS_TOKEN);
-                cred.mRefreshToken = data.getStringExtra(SignInActivity.EXTRA_OAUTH_REFRESH_TOKEN);
-                cred.mExpiration = System.currentTimeMillis() +
-                        data.getIntExtra(SignInActivity.EXTRA_OAUTH_EXPIRES_IN_SECONDS, 0) *
-                        DateUtils.SECOND_IN_MILLIS;
-                recvAuth.mPassword = null;
-            }
+            AccountSetupCredentialsFragment.populateHostAuthWithResults(mAppContext, recvAuth,
+                    data.getExtras());
             mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
         }
     }
