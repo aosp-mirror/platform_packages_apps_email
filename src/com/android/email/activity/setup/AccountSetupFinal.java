@@ -914,7 +914,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
 
-        recvAuth.mLogin = recvAuth.mLogin + "@" + recvAuth.mAddress;
+        recvAuth.mLogin = mSetupData.getEmail();
         setDefaultsForProtocol(account);
         proceed();
     }
