@@ -106,7 +106,7 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
 
                 if (ecAccountCursor == null) {
                     LogUtils.e(LOG_TAG, "Null old account cursor for mailbox %s",
-                            LogUtils.sanitizeName(LOG_TAG, account.name));
+                            LogUtils.sanitizeName(LOG_TAG, account.getEmailAddress()));
                     continue;
                 }
 
@@ -115,7 +115,7 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                         ecAccount.restore(ecAccountCursor);
                     } else {
                         LogUtils.e(LOG_TAG, "Couldn't load old account for mailbox %s",
-                                LogUtils.sanitizeName(LOG_TAG, account.name));
+                                LogUtils.sanitizeName(LOG_TAG, account.getEmailAddress()));
                         continue;
                     }
                 } finally {
