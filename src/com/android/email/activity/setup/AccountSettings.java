@@ -49,7 +49,6 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
-import com.android.mail.ui.FeedbackEnabledActivity;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
 
@@ -70,7 +69,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity implements FeedbackEnabledActivity,
+public class AccountSettings extends PreferenceActivity implements
         SetupDataFragment.SetupDataContainer, SecurityRequiredDialogFragment.Callback,
         CheckSettingsErrorDialogFragment.Callback, AccountCheckSettingsFragment.Callback,
         AccountServerBaseFragment.Callback {
@@ -986,11 +985,6 @@ public class AccountSettings extends PreferenceActivity implements FeedbackEnabl
                 getActivity().finish();
             }
         }
-    }
-
-    @Override
-    public Context getActivityContext() {
-        return this;
     }
 
     @Override

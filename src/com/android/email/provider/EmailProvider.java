@@ -2515,6 +2515,14 @@ public class EmailProvider extends ContentProvider {
                         "'" + feedbackUri + "'");
             }
 
+            final String helpUri = context.getString(R.string.help_uri);
+            if (!TextUtils.isEmpty(helpUri)) {
+                // This string needs to be in single quotes, as it will be used as a constant
+                // in a sql expression
+                builder.add(UIProvider.AccountColumns.HELP_INTENT_URI,
+                        "'" + helpUri + "'");
+            }
+
             sAccountListMap = builder.build();
         }
         return sAccountListMap;
@@ -3102,6 +3110,12 @@ public class EmailProvider extends ContentProvider {
         if (res.getBoolean(R.bool.feedback_supported)) {
             capabilities |= UIProvider.AccountCapabilities.SEND_FEEDBACK;
         }
+
+        // If we can find a help URL then add the Help capability
+        if (!TextUtils.isEmpty(context.getResources().getString(R.string.help_uri))) {
+            capabilities |= UIProvider.AccountCapabilities.HELP_CONTENT;
+        }
+
         // TODO: Should this be stored per-account, or some other mechanism?
         capabilities |= UIProvider.AccountCapabilities.NESTED_FOLDERS;
 

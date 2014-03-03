@@ -340,6 +340,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.android.mail.ui.HelpActivity"
+            android:label="@string/help_and_info">
+        </activity>
+
+        <activity
+            android:name="com.android.mail.ui.LicensesActivity"
+            android:label="@string/open_source_licenses">
+        </activity>
+
         <!-- additional activities -->
 
         <provider
