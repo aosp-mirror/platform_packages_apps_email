@@ -79,8 +79,7 @@
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Gb"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Kontoindstillinger"</string>
-    <!-- no translation found for oauth_authentication_title (4096761972487140963) -->
-    <skip />
+    <string name="oauth_authentication_title" msgid="4096761972487140963">"Anmoder om tilladelse"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Log ind"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mailkonto"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Du kan nemt og hurtigt oprette din konto."</string>
@@ -230,7 +229,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"Dit navn"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Hurtige svar"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Rediger tekst, som du ofte indsætter, når du skriver e-mails"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for underretninger"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Underretningsindstillinger"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataforbrug"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Sikkerhedspolitikker"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"Systemmapper"</string>
