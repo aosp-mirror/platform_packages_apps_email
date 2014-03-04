@@ -410,6 +410,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
                 <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
                 <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
             </intent-filter>
             <!-- To handle new message notifications -->
@@ -668,7 +669,6 @@
         <service android:name="com.android.email.EmailIntentService"
                  android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.LOCALE_CHANGED"/>
                 <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
             </intent-filter>
             <intent-filter>

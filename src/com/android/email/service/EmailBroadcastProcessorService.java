@@ -138,7 +138,8 @@ public class EmailBroadcastProcessorService extends IntentService {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
-            } else if (UIProvider.ACTION_UPDATE_NOTIFICATION.equals((broadcastAction))) {
+            } else if (Intent.ACTION_LOCALE_CHANGED.equals(broadcastAction) ||
+                    UIProvider.ACTION_UPDATE_NOTIFICATION.equals((broadcastAction))) {
                 broadcastIntent.setClass(this, EmailIntentService.class);
                 startService(broadcastIntent);
             }
