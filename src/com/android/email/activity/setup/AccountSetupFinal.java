@@ -257,6 +257,49 @@ public class AccountSetupFinal extends AccountSetupActivity
 
         if (!mIsProcessing
                 && mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
+            /**
+             * To support continuous testing, we allow the forced creation of accounts.
+             * This works in a manner fairly similar to automatic setup, in which the complete
+             * server Uri's are available, except that we will also skip checking (as if both
+             * checks were true) and all other UI.
+             *
+             * email: The email address for the new account
+             * user: The user name for the new account
+             * incoming: The URI-style string defining the incoming account
+             * outgoing: The URI-style string defining the outgoing account
+             */
+            final String email = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_EMAIL);
+            final String user = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_USER);
+            final String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
+            final String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
+            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(user) ||
+                    TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing)) {
+                LogUtils.e(LogUtils.TAG, "ERROR: Force account create requires extras EMAIL, " +
+                        "USER, INCOMING, OUTGOING");
+                finish();
+                return;
+            }
+            final Account account = mSetupData.getAccount();
+
+            try {
+                final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+                recvAuth.setHostAuthFromString(incoming);
+
+                final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+                sendAuth.setHostAuthFromString(outgoing);
+            } catch (URISyntaxException e) {
+                // If we can't set up the URL, don't continue
+                Toast.makeText(this,
+                        R.string.account_setup_username_password_toast, Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+
+            populateSetupData(user, email);
+
+            mState = STATE_OPTIONS;
+            updateHeadline();
+            updateContentFragment(false /* addToBackstack */);
             getFragmentManager().executePendingTransactions();
 
             if (!DEBUG_ALLOW_NON_TEST_HARNESS_CREATION &&
@@ -337,50 +380,11 @@ public class AccountSetupFinal extends AccountSetupActivity
     protected void onResume() {
         super.onResume();
         if (mForceCreate) {
-            try {
-                mForceCreate = false;
+            mForceCreate = false;
 
-                /**
-                 * To support continuous testing, we allow the forced creation of accounts.
-                 * This works in a manner fairly similar to automatic setup, in which the complete
-                 * server Uri's are available, except that we will also skip checking (as if both
-                 * checks were true) and all other UI.
-                 *
-                 * email: The email address for the new account
-                 * user: The user name for the new account
-                 * incoming: The URI-style string defining the incoming account
-                 * outgoing: The URI-style string defining the outgoing account
-                 */
-                final Intent intent = getIntent();
-                final String email = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_EMAIL);
-                final String user = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_USER);
-                final String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
-                final String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
-                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(user) ||
-                        TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing)) {
-                    LogUtils.e(LogUtils.TAG, "ERROR: Force account create requires extras EMAIL, " +
-                            "USER, INCOMING, OUTGOING");
-                    finish();
-                    return;
-                }
-
-                final Account account = mSetupData.getAccount();
-                final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-                recvAuth.setHostAuthFromString(incoming);
-
-                final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-                sendAuth.setHostAuthFromString(outgoing);
-
-                populateSetupData(user, email);
-
-                // We need to do this after onCreate so that we can ensure that the fragment is
-                // fully created before querying it.
-                initiateAccountCreation();
-            } catch (URISyntaxException e) {
-                // If we can't set up the URL, don't continue
-                Toast.makeText(this,
-                        R.string.account_setup_username_password_toast, Toast.LENGTH_LONG).show();
-            }
+            // We need to do this after onCreate so that we can ensure that the fragment is
+            // fully created before querying it.
+            initiateAccountCreation();
         }
     }
 
