@@ -479,6 +479,16 @@ public class AccountSetupFinal extends AccountSetupActivity
     }
 
     /**
+     * Reads the flow state saved into the current fragment and restores mState to it, also
+     * resetting the headline at the same time.
+     */
+    private void resetStateFromCurrentFragment() {
+        AccountSetupFragment f = getContentFragment();
+        mState = f.getState();
+        updateHeadline();
+    }
+
+    /**
      * Main choreography function to handle moving forward through scenes. Moving back should be
      * generally handled for us by the back stack
      */
@@ -613,9 +623,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         }
         // After super.onBackPressed() our fragment should be in place, so query the state we
         // installed it for
-        AccountSetupFragment f = getContentFragment();
-        mState = f.getState();
-        updateHeadline();
+        resetStateFromCurrentFragment();
     }
 
     @Override
@@ -867,6 +875,8 @@ public class AccountSetupFinal extends AccountSetupActivity
         if (mState == STATE_CHECKING_PRECONFIGURED) {
             mPreConfiguredFailed = true;
             proceed();
+        } else {
+            resetStateFromCurrentFragment();
         }
         final AccountSetupIncomingFragment f = (AccountSetupIncomingFragment) getContentFragment();
         f.onCertificateRequested();
@@ -879,6 +889,8 @@ public class AccountSetupFinal extends AccountSetupActivity
         if (mState == STATE_CHECKING_PRECONFIGURED || mState == STATE_AUTO_DISCOVER) {
             mPreConfiguredFailed = true;
             proceed();
+        } else {
+            resetStateFromCurrentFragment();
         }
     }
 
@@ -905,6 +917,8 @@ public class AccountSetupFinal extends AccountSetupActivity
     public void onSecurityRequiredDialogResult(boolean ok) {
         if (ok) {
             proceed();
+        } else {
+            resetStateFromCurrentFragment();
         }
     }
 
