@@ -117,8 +117,6 @@ public class AccountSetupFinal extends AccountSetupActivity
     private static final int STATE_CREDENTIALS = 1;
     // Show the user some interstitial message after credential entry
     private static final int STATE_CREDENTIALS_POST = 2;
-    // User chose the "Manual Setup" button
-    private static final int STATE_DIVERT_TO_MANUAL = 3;
     // Account is a pre-configured account, run the checker
     private static final int STATE_CHECKING_PRECONFIGURED = 4;
     // Account is not pre-configured, query user for account type
@@ -501,12 +499,23 @@ public class AccountSetupFinal extends AccountSetupActivity
         switch (mState) {
             case STATE_BASICS:
                 onBasicsComplete();
-                mState = STATE_CREDENTIALS;
-                updateHeadline();
-                updateContentFragment(true /* addToBackstack */);
-                break;
-            case STATE_DIVERT_TO_MANUAL:
-                mState = STATE_TYPE;
+                if (shouldDivertToManual()) {
+                    // Alternate entry to the debug options screen (for devices without a physical
+                    // keyboard):
+                    //  Username: d@d.d
+                    if (ENTER_DEBUG_SCREEN) {
+                        if ("d@d.d".equals(mSetupData.getEmail())) {
+                            AccountSettings.actionSettingsWithDebug(this);
+                            return;
+                        }
+                    }
+
+                    mSkipAutoDiscover = true;
+                    mState = STATE_TYPE;
+                } else {
+                    mSkipAutoDiscover = false;
+                    mState = STATE_CREDENTIALS;
+                }
                 updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
@@ -667,30 +676,15 @@ public class AccountSetupFinal extends AccountSetupActivity
         mNextButton.setEnabled(enabled);
     }
 
-    @Override
-    public void onBasicsManualSetupButton() {
-        final AccountSetupBasicsFragment basicsFragment =
-                (AccountSetupBasicsFragment) getContentFragment();
-        final String email = basicsFragment.getEmail();
-        mSetupData.setEmail(email);
-
-        // Alternate entry to the debug options screen (for devices without a physical keyboard:
-        //  Username: d@d.d
-        if (ENTER_DEBUG_SCREEN) {
-            if ("d@d.d".equals(mSetupData.getEmail())) {
-                AccountSettings.actionSettingsWithDebug(this);
-                return;
-            }
-        }
-        mState = STATE_DIVERT_TO_MANUAL;
-        mSkipAutoDiscover = true;
-        proceed();
-    }
-
     private void onBasicsComplete() {
         final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
         final String email = f.getEmail();
         mSetupData.setEmail(email);
+    }
+
+    private boolean shouldDivertToManual() {
+        final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
+        return f.isManualSetup();
     }
 
     @Override
