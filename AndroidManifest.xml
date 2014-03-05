@@ -339,7 +339,7 @@
         <!-- additional activities -->
 
         <provider
-            android:authorities="com.android.email2.conversation.provider"
+            android:authorities="com.android.email.conversation.provider"
             android:label="@string/conversation_content_provider"
             android:exported="true"
             android:name="com.android.mail.browse.EmailConversationProvider" >
@@ -347,7 +347,7 @@
         </provider>
 
         <provider
-            android:authorities="com.android.email2.accountcache"
+            android:authorities="com.android.email.accountcache"
             android:label="@string/account_cache_provider"
             android:exported="true"
             android:name="com.android.mail.providers.EmailAccountCacheProvider" >
