@@ -23,18 +23,18 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.mail.Address;
 
-public class AccountSetupBasicsFragment extends AccountSetupFragment implements
-        View.OnClickListener {
+public class AccountSetupBasicsFragment extends AccountSetupFragment {
     private EditText mEmailView;
+    private CheckBox mManualSetupView;
 
     public interface Callback extends AccountSetupFragment.Callback {
-        void onBasicsManualSetupButton();
     }
 
     public static AccountSetupBasicsFragment newInstance() {
@@ -50,8 +50,7 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment implements
                 false);
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
-        final View manualSetupButton = UiUtilities.getView(view, R.id.manual_setup);
-        manualSetupButton.setOnClickListener(this);
+        mManualSetupView = UiUtilities.getView(view, R.id.manual_setup);
 
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -89,19 +88,15 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment implements
         callback.setNextButtonEnabled(emailValid);
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.manual_setup) {
-            Callback callback = (Callback) getActivity();
-            callback.onBasicsManualSetupButton();
-        }
-    }
-
     public void setEmail(final String email) {
         mEmailView.setText(email);
     }
 
     public String getEmail() {
         return mEmailView.getText().toString().trim();
+    }
+
+    public boolean isManualSetup() {
+        return mManualSetupView.isChecked();
     }
 }

@@ -54,12 +54,10 @@
                 android:inputType="textEmailAddress"
                 android:imeOptions="actionNext" />
     </LinearLayout>
-    <Button
+    <CheckBox
             android:id="@+id/manual_setup"
             android:layout_below="@+id/email_input"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="@dimen/setup_buttons_padding_top"
-            android:layout_marginRight="@dimen/setup_buttons_padding_right"
-            style="@style/accountSetupButton"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:text="@string/account_setup_basics_manual_setup_action" />
 </RelativeLayout>
