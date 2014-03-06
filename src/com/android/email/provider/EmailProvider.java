@@ -2507,6 +2507,8 @@ public class EmailProvider extends ContentProvider {
                     .add(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, "0")
                     .add(UIProvider.AccountColumns.SettingsColumns.CONVERSATION_VIEW_MODE,
                             Integer.toString(UIProvider.ConversationViewMode.UNDEFINED))
+                    .add(UIProvider.AccountColumns.SettingsColumns.MAX_ATTACHMENT_SIZE,
+                            AccountColumns.MAX_ATTACHMENT_SIZE)
                     .add(UIProvider.AccountColumns.SettingsColumns.VEILED_ADDRESS_PATTERN, null);
 
             final String feedbackUri = context.getString(R.string.email_feedback_uri);

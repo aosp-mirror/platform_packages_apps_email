@@ -173,8 +173,9 @@ public final class DBHelper {
     // Version 122: Need to update Message_Updates and Message_Deletes to match previous.
     // Version 123: Changed the duplicateMesage deletion trigger to ignore accounts that aren't
     //              exchange accounts.
-    // Version 124: Add credentials table for OAuth.
-    public static final int DATABASE_VERSION = 124;
+    // Version 124: Added MAX_ATTACHMENT_SIZE to the account table
+    // Version 125: Add credentials table for OAuth.
+    public static final int DATABASE_VERSION = 125;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -503,6 +504,7 @@ public final class DBHelper {
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
             + AccountColumns.SIGNATURE + " text, "
             + AccountColumns.POLICY_KEY + " integer, "
+            + AccountColumns.MAX_ATTACHMENT_SIZE + " integer, "
             + AccountColumns.PING_DURATION + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
@@ -1343,6 +1345,19 @@ public final class DBHelper {
             }
 
             if (oldVersion <= 123) {
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + AccountColumns.MAX_ATTACHMENT_SIZE +" integer" + ";");
+                    final ContentValues cv = new ContentValues(1);
+                    cv.put(AccountColumns.MAX_ATTACHMENT_SIZE, 0);
+                    db.update(Account.TABLE_NAME, cv, null, null);
+                } catch (final SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    LogUtils.w(TAG, "Exception upgrading EmailProvider.db from v123 to v124", e);
+                }
+            }
+
+            if (oldVersion <= 124) {
                 createCredentialsTable(db);
                 // Add the credentialKey column, and set it to -1 for all pre-existing hostAuths.
                 db.execSQL("alter table " + HostAuth.TABLE_NAME

@@ -1749,6 +1749,8 @@ public abstract class EmailContent {
         public static final String SIGNATURE = "signature";
         // A foreign key into the Policy table
         public static final String POLICY_KEY = "policyKey";
+        // Max upload attachment size.
+        public static final String MAX_ATTACHMENT_SIZE = "maxAttachmentSize";
         // Current duration of the Exchange ping
         public static final String PING_DURATION = "pingDuration";
     }
