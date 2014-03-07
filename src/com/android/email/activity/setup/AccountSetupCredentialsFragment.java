@@ -139,10 +139,14 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mImapPasswordText.removeTextChangedListener(mValidationTextWatcher);
-        mImapPasswordText = null;
-        mRegularPasswordText.removeTextChangedListener(mValidationTextWatcher);
-        mRegularPasswordText = null;
+        if (mImapPasswordText != null) {
+            mImapPasswordText.removeTextChangedListener(mValidationTextWatcher);
+            mImapPasswordText = null;
+        }
+        if (mRegularPasswordText != null) {
+            mRegularPasswordText.removeTextChangedListener(mValidationTextWatcher);
+            mRegularPasswordText = null;
+        }
     }
 
     public void validatePassword() {

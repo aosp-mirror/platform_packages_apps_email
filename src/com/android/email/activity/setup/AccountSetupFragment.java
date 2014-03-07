@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import android.app.Fragment;
+import android.os.Bundle;
 
 /**
  * Superclass for setup UI fragments.
@@ -24,10 +25,25 @@ import android.app.Fragment;
  * we can unwind things correctly when the user navigates the back stack.
  */
 public class AccountSetupFragment extends Fragment {
+    private static final String SAVESTATE_STATE = "AccountSetupFragment.state";
     private int mState;
 
     public interface Callback {
         void setNextButtonEnabled(boolean enabled);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mState = savedInstanceState.getInt(SAVESTATE_STATE);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SAVESTATE_STATE, mState);
     }
 
     public void setState(int state) {

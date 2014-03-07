@@ -210,6 +210,8 @@ public class AccountSetupFinal extends AccountSetupActivity
             mIsPreConfiguredProvider =
                     savedInstanceState.getBoolean(SAVESTATE_KEY_IS_PRE_CONFIGURED);
             mSkipAutoDiscover = savedInstanceState.getBoolean(SAVESTATE_KEY_SKIP_AUTO_DISCOVER);
+            // I don't know why this view state doesn't get restored
+            updateHeadline();
         } else {
             // If we're not restoring from a previous state, we want to configure the initial screen
 
