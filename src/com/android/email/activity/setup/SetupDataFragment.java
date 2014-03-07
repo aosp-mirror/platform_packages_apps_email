@@ -1,11 +1,14 @@
 package com.android.email.activity.setup;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 
 /**
@@ -42,6 +45,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private static final String SAVESTATE_INCOMING_LOADED = "SetupDataFragment.incomingLoaded";
     private static final String SAVESTATE_OUTGOING_LOADED = "SetupDataFragment.outgoingLoaded";
     private static final String SAVESTATE_POLICY = "SetupDataFragment.policy";
+    private static final String SAVESTATE_INCOMING_PROTOCOL = "SetupDataFragment.incomingProtocol";
 
     // All access will be through getters/setters
     private int mFlowMode = FLOW_MODE_NORMAL;
@@ -54,6 +58,9 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private boolean mOutgoingCredLoaded = true;
     // This is accessed off-thread in AccountCheckSettingsFragment
     private volatile Policy mPolicy;
+    // Cache incoming protocol and service info here
+    private EmailServiceUtils.EmailServiceInfo mIncomingServiceInfo;
+    private String mIncomingProtocol;
 
     public interface SetupDataContainer {
         public SetupDataFragment getSetupData();
@@ -86,6 +93,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         outState.putBoolean(SAVESTATE_INCOMING_LOADED, mIncomingCredLoaded);
         outState.putBoolean(SAVESTATE_OUTGOING_LOADED, mOutgoingCredLoaded);
         outState.putParcelable(SAVESTATE_POLICY, mPolicy);
+        outState.putString(SAVESTATE_INCOMING_PROTOCOL, mIncomingProtocol);
     }
 
     @Override
@@ -99,6 +107,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
             mIncomingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_INCOMING_LOADED);
             mOutgoingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_OUTGOING_LOADED);
             mPolicy = savedInstanceState.getParcelable(SAVESTATE_POLICY);
+            mIncomingProtocol = savedInstanceState.getString(SAVESTATE_INCOMING_PROTOCOL);
         }
         setRetainInstance(true);
     }
@@ -163,6 +172,51 @@ public class SetupDataFragment extends Fragment implements Parcelable {
 
     public synchronized void setPolicy(Policy policy) {
         mPolicy = policy;
+    }
+
+    /**
+     * Retrieve the service info for the incoming protocol
+     * @param context For resolving the service info, and possibly loading the {@link HostAuth}
+     * @return service info object
+     */
+    public EmailServiceUtils.EmailServiceInfo getIncomingServiceInfo(Context context) {
+        if (mIncomingServiceInfo == null) {
+            mIncomingServiceInfo = EmailServiceUtils.getServiceInfo(context,
+                    getIncomingProtocol(context));
+        }
+        return mIncomingServiceInfo;
+    }
+
+    /**
+     * Retrieve the protocol as previously set in setIncomingProtocol, but don't attempt to look at
+     * {@link #mAccount#hostAuthRecv }
+     * @return Protocol string
+     */
+    public String getIncomingProtocol() {
+        return mIncomingProtocol;
+    }
+
+    /**
+     * Retrieve the protocol as previously set in setIncomingProtocol, or from
+     * {@link #mAccount#hostAuthRecv}. Try not to call this on the main thread if it's unlikely that
+     * the hostauth isn't already loaded.
+     * @param context context to possibly load the {@link HostAuth} from the provider
+     * @return Protocol string
+     */
+    public String getIncomingProtocol(Context context) {
+        if (mIncomingProtocol != null) {
+            return mIncomingProtocol;
+        }
+
+        final HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
+        return recvAuth.mProtocol;
+    }
+
+    public void setIncomingProtocol(final Context context, final String protocol) {
+        final HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
+        recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
+        mIncomingProtocol = protocol;
+        mIncomingServiceInfo = null;
     }
 
     // Parcelable methods

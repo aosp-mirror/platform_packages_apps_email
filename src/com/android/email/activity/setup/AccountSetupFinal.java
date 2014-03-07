@@ -562,7 +562,7 @@ public class AccountSetupFinal extends AccountSetupActivity
                     updateContentFragment(true /* addToBackstack */);
                 } else {
                     mState = STATE_AUTO_DISCOVER;
-                    initiateCheckSettingsFragment(SetupDataFragment.CHECK_AUTODISCOVER);
+                    initiateAutoDiscover();
                 }
                 break;
             case STATE_AUTO_DISCOVER:
@@ -578,8 +578,7 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CHECKING_INCOMING:
                 final EmailServiceUtils.EmailServiceInfo serviceInfo =
-                        EmailServiceUtils.getServiceInfo(this,
-                                getSetupData().getAccount().getProtocol(this));
+                        mSetupData.getIncomingServiceInfo(this);
                 if (serviceInfo.usesSmtp) {
                     mState = STATE_MANUAL_OUTGOING;
                 } else {
@@ -761,17 +760,20 @@ public class AccountSetupFinal extends AccountSetupActivity
             recvAuth.setUserName(mProvider.incomingUsername);
             AccountSetupCredentialsFragment.populateHostAuthWithResults(this, recvAuth,
                     mSetupData.getCredentialResults());
+            mSetupData.setIncomingCredLoaded(true);
 
-            final EmailServiceUtils.EmailServiceInfo info = EmailServiceUtils.getServiceInfo(this,
-                    recvAuth.mProtocol);
+            final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
             recvAuth.mPort =
                     ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
 
-            final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-            sendAuth.setHostAuthFromString(mProvider.outgoingUri);
-            sendAuth.setUserName(mProvider.outgoingUsername);
-            AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
-                    mSetupData.getCredentialResults());
+            if (info.usesSmtp) {
+                final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+                sendAuth.setHostAuthFromString(mProvider.outgoingUri);
+                sendAuth.setUserName(mProvider.outgoingUsername);
+                AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
+                        mSetupData.getCredentialResults());
+                mSetupData.setOutgoingCredLoaded(true);
+            }
 
             // Populate the setup data, assuming that the duplicate account check will succeed
             populateSetupData(mOwnerName, email);
@@ -797,10 +799,8 @@ public class AccountSetupFinal extends AccountSetupActivity
      * @param account Account object to fill in
      */
     public void setDefaultsForProtocol(Account account) {
-        final String protocol = account.getOrCreateHostAuthRecv(this).mProtocol;
-        if (protocol == null) return;
-        final EmailServiceUtils.EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(this, protocol);
+        final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
+        if (info == null) return;
         account.mSyncInterval = info.defaultSyncInterval;
         account.mSyncLookback = info.defaultLookback;
         if (info.offerLocalDeletes) {
@@ -837,6 +837,37 @@ public class AccountSetupFinal extends AccountSetupActivity
     // This callback method is only applicable to using Incoming/Outgoing fragments in settings mode
     @Override
     public void onAccountServerSaveComplete() {}
+
+    private void initiateAutoDiscover() {
+        final String email = mSetupData.getEmail();
+        final String[] emailParts = email.split("@");
+        final String domain = emailParts[1];
+
+        final Account account = mSetupData.getAccount();
+
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        recvAuth.setUserName(email);
+        recvAuth.setConnection(mSetupData.getIncomingProtocol(), domain,
+                HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+        AccountSetupCredentialsFragment.populateHostAuthWithResults(this, recvAuth,
+                mSetupData.getCredentialResults());
+        mSetupData.setIncomingCredLoaded(true);
+
+        final EmailServiceUtils.EmailServiceInfo info =
+                mSetupData.getIncomingServiceInfo(this);
+        if (info.usesSmtp) {
+            final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+            sendAuth.setUserName(email);
+            sendAuth.setConnection(HostAuth.LEGACY_SCHEME_SMTP, domain,
+                    HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+            AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
+                    mSetupData.getCredentialResults());
+            mSetupData.setOutgoingCredLoaded(true);
+        }
+
+        // Populate the setup data, assuming that the duplicate account check will succeed
+        initiateCheckSettingsFragment(SetupDataFragment.CHECK_AUTODISCOVER);
+    }
 
     private void initiateCheckSettingsFragment(int checkMode) {
         final Fragment f = AccountCheckSettingsFragment.newInstance(checkMode);
@@ -924,11 +955,8 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     @Override
     public void onChooseProtocol(String protocol) {
+        mSetupData.setIncomingProtocol(this, protocol);
         final Account account = mSetupData.getAccount();
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-        recvAuth.setConnection(protocol, recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags);
-
-        recvAuth.mLogin = mSetupData.getEmail();
         setDefaultsForProtocol(account);
         proceed();
     }
@@ -956,8 +984,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         account.setDisplayName(account.getEmailAddress());
         int newFlags = account.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
         final EmailServiceUtils.EmailServiceInfo serviceInfo =
-                EmailServiceUtils.getServiceInfo(getApplicationContext(),
-                        account.mHostAuthRecv.mProtocol);
+                mSetupData.getIncomingServiceInfo(this);
         if (serviceInfo.offerAttachmentPreload && fragment.getBackgroundAttachmentsValue()) {
             newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
@@ -1001,11 +1028,9 @@ public class AccountSetupFinal extends AccountSetupActivity
         // If the account manager initiated the creation, and success was not reported,
         // then we assume that we're giving up (for any reason) - report failure.
         if (mAccountAuthenticatorResponse != null) {
-            final Account account = getSetupData().getAccount();
-            final EmailServiceUtils.EmailServiceInfo info =
-                    EmailServiceUtils.getServiceInfo(this, account.getProtocol(this));
+            final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
             final Bundle b = new Bundle(2);
-            b.putString(AccountManager.KEY_ACCOUNT_NAME, account.getEmailAddress());
+            b.putString(AccountManager.KEY_ACCOUNT_NAME, mSetupData.getEmail());
             b.putString(AccountManager.KEY_ACCOUNT_TYPE, info.accountType);
             mAccountAuthenticatorResponse.onResult(b);
             mAccountAuthenticatorResponse = null;
