@@ -3190,9 +3190,14 @@ public class EmailProvider extends ContentProvider {
             }
         }
         if (projectionColumns.contains(
-                UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED)) {
-            // Email doesn't support priority inbox, so always state priority arrows disabled.
-            values.put(UIProvider.AccountColumns.SettingsColumns.PRIORITY_ARROWS_ENABLED, "0");
+                UIProvider.AccountColumns.SettingsColumns.IMPORTANCE_MARKERS_ENABLED)) {
+            // Email doesn't support priority inbox, so always state importance markers disabled.
+            values.put(UIProvider.AccountColumns.SettingsColumns.IMPORTANCE_MARKERS_ENABLED, "0");
+        }
+        if (projectionColumns.contains(
+                UIProvider.AccountColumns.SettingsColumns.SHOW_CHEVRONS_ENABLED)) {
+            // Email doesn't support priority inbox, so always state show chevrons disabled.
+            values.put(UIProvider.AccountColumns.SettingsColumns.SHOW_CHEVRONS_ENABLED, "0");
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.SETUP_INTENT_URI)) {
