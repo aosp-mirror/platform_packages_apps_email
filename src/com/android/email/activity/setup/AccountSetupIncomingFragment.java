@@ -395,6 +395,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             updatePortFromSecurityType();
         }
 
+        if (recvAuth.mClientCertAlias != null) {
+            mClientCertificateSelector.setCertificate(recvAuth.mClientCertAlias);
+        }
+
         mLoadedRecvAuth = recvAuth;
         mLoaded = true;
         validateFields();
