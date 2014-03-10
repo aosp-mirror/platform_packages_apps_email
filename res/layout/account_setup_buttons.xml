@@ -19,17 +19,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/setup_buttons_padding_bottom">
     <ImageButton
-        android:id="@+id/previous"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:src="@drawable/ic_nav_arrow_back"
-        android:text="@string/next_action"
-        android:layout_alignParentLeft="true"/>
+            style="@style/accountSetupNavButton"
+            android:contentDescription="@string/previous_action"
+            android:id="@+id/previous"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_nav_arrow_back"
+            android:text="@string/next_action"
+            android:layout_alignParentLeft="true"/>
     <ImageButton
-        android:id="@+id/next"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:src="@drawable/ic_nav_arrow_forward"
-        android:text="@string/next_action"
-        android:layout_alignParentRight="true"/>
+            style="@style/accountSetupNavButton"
+            android:contentDescription="@string/next_action"
+            android:id="@+id/next"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_nav_arrow_forward"
+            android:text="@string/next_action"
+            android:layout_alignParentRight="true"/>
 </RelativeLayout>
