@@ -24,7 +24,7 @@
             android:layout_marginRight="@dimen/setup_buttons_padding_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_nav_arrow_back"
+            android:src="@drawable/ic_nav_arrow_back_button"
             android:text="@string/previous_action"/>
     <ImageButton
             style="@style/accountSetupNavButton"
@@ -35,6 +35,6 @@
             android:layout_marginRight="@dimen/setup_buttons_padding_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_nav_arrow_forward"
+            android:src="@drawable/ic_nav_arrow_forward_button"
             android:text="@string/next_action"/>
 </RelativeLayout>
