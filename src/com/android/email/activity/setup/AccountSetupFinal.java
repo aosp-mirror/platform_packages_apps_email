@@ -678,6 +678,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         }
     }
 
+    @Override
     public void setNextButtonEnabled(final boolean enabled) {
         mNextButton.setEnabled(enabled);
     }
@@ -996,6 +997,7 @@ public class AccountSetupFinal extends AccountSetupActivity
      * Called by the account creation fragment after it has completed.
      * We do a small amount of work here before moving on to the next state.
      */
+    @Override
     public void onAccountCreationFragmentComplete() {
         destroyAccountCreationFragment();
         // If the account manager initiated the creation, and success was not reported,
@@ -1015,6 +1017,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         proceed();
     }
 
+    @Override
     public void destroyAccountCreationFragment() {
         dismissCreateAccountDialog();
 
@@ -1087,6 +1090,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     /**
      * This is called if MailService.setupAccountManagerAccount() fails for some reason
      */
+    @Override
     public void showCreateAccountErrorDialog() {
         new CreateAccountErrorDialogFragment().show(getFragmentManager(), null);
     }
