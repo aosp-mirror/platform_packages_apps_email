@@ -40,7 +40,6 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
-import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
@@ -210,7 +209,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             mSetupData.setIncomingCredLoaded(true);
         }
 
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mAppContext, recvAuth.mProtocol);
+        mServiceInfo = mSetupData.getIncomingServiceInfo(context);
 
         if (mServiceInfo.offerLocalDeletes) {
             SpinnerOption deletePolicies[] = {
@@ -341,7 +340,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
-        mServiceInfo = EmailServiceUtils.getServiceInfo(mAppContext, recvAuth.mProtocol);
+        mServiceInfo = mSetupData.getIncomingServiceInfo(getActivity());
         mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
         if (mAuthenticationLabel != null) {
             if (mServiceInfo.offerOAuth) {
@@ -418,9 +417,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     }
 
     private int getPortFromSecurityType(boolean useSsl) {
-        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mAppContext,
-                mSetupData.getAccount().mHostAuthRecv.mProtocol);
-        return useSsl ? info.portSsl : info.port;
+        return useSsl ? mServiceInfo.portSsl : mServiceInfo.port;
     }
 
     private boolean getSslSelected() {

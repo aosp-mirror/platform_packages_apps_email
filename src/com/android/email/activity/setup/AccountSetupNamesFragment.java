@@ -105,7 +105,7 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
 
         // Remember whether we're an EAS account, since it doesn't require the user name field
         final EmailServiceUtils.EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(getActivity(), account.mHostAuthRecv.mProtocol);
+                setupData.getIncomingServiceInfo(getActivity());
         if (!info.usesSmtp) {
             mRequiresName = false;
             mName.setVisibility(View.GONE);

@@ -79,13 +79,12 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
 
         final View view = getView();
 
-        final SetupDataFragment.SetupDataContainer container =
-                (SetupDataFragment.SetupDataContainer) getActivity();
-        final Account account = container.getSetupData().getAccount();
+        final SetupDataFragment setupData =
+                ((SetupDataFragment.SetupDataContainer) getActivity()).getSetupData();
+        final Account account = setupData.getAccount();
 
         final EmailServiceUtils.EmailServiceInfo serviceInfo =
-                EmailServiceUtils.getServiceInfo(getActivity().getApplicationContext(),
-                account.mHostAuthRecv.mProtocol);
+                setupData.getIncomingServiceInfo(getActivity());
 
         final CharSequence[] frequencyValues = serviceInfo.syncIntervals;
         final CharSequence[] frequencyEntries = serviceInfo.syncIntervalStrings;
