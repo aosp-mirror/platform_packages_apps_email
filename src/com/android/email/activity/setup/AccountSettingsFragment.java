@@ -129,6 +129,10 @@ public class AccountSettingsFragment extends PreferenceFragment
 
     private Ringtone mRingtone;
 
+    /**
+     * This may be null if the account exists but the inbox has not yet been created in the database
+     * (waiting for initial sync)
+     */
     private FolderPreferences mInboxFolderPreferences;
 
     // The ID of the account being edited
@@ -453,14 +457,18 @@ public class AccountSettingsFragment extends PreferenceFragment
 
             final Folder inbox = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
 
-            if (mUiAccount == null || mAccount == null || inbox == null) {
+            if (mUiAccount == null || mAccount == null) {
                 mSaveOnExit = false;
                 mCallback.abandonEdit();
                 return;
             }
 
-            mInboxFolderPreferences =
-                    new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
+            if (inbox == null) {
+                mInboxFolderPreferences = null;
+            } else {
+                mInboxFolderPreferences =
+                        new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
+            }
             if (!mSaveOnExit) {
                 loadSettings();
             }
@@ -532,8 +540,10 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         final AccountPreferences accountPreferences =
                 new AccountPreferences(mContext, mUiAccount.getEmailAddress());
-        NotificationUtils.moveNotificationSetting(
-                accountPreferences, mInboxFolderPreferences);
+        if (mInboxFolderPreferences != null) {
+            NotificationUtils.moveNotificationSetting(
+                    accountPreferences, mInboxFolderPreferences);
+        }
 
         final String protocol = mAccount.getProtocol(mContext);
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
@@ -672,45 +682,50 @@ public class AccountSettingsFragment extends PreferenceFragment
             }
         }
 
-        final CheckBoxPreference inboxNotify = (CheckBoxPreference) findPreference(
-                FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED);
-        inboxNotify.setChecked(mInboxFolderPreferences.areNotificationsEnabled());
-        inboxNotify.setOnPreferenceChangeListener(this);
-
-        mInboxRingtone = findPreference(FolderPreferences.PreferenceKeys.NOTIFICATION_RINGTONE);
-        final String ringtoneUri = mInboxFolderPreferences.getNotificationRingtoneUri();
-        if (!TextUtils.isEmpty(ringtoneUri)) {
-            mRingtone = RingtoneManager.getRingtone(getActivity(), Uri.parse(ringtoneUri));
-        }
-        setRingtoneSummary();
-        mInboxRingtone.setOnPreferenceChangeListener(this);
-        mInboxRingtone.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                showRingtonePicker();
-
-                return true;
-            }
-        });
-
         final PreferenceCategory notificationsCategory =
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
-        notificationsCategory.setEnabled(true);
 
-        // Set the vibrator value, or hide it on devices w/o a vibrator
-        mInboxVibrate = (CheckBoxPreference) findPreference(
-                FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE);
-        if (mInboxVibrate != null) {
-            mInboxVibrate.setChecked(
-                    mInboxFolderPreferences.isNotificationVibrateEnabled());
-            Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator.hasVibrator()) {
-                // When the value is changed, update the setting.
-                mInboxVibrate.setOnPreferenceChangeListener(this);
-            } else {
-                // No vibrator present. Remove the preference altogether.
-                notificationsCategory.removePreference(mInboxVibrate);
+        if (mInboxFolderPreferences != null) {
+            final CheckBoxPreference inboxNotify = (CheckBoxPreference) findPreference(
+                FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED);
+            inboxNotify.setChecked(mInboxFolderPreferences.areNotificationsEnabled());
+            inboxNotify.setOnPreferenceChangeListener(this);
+
+            mInboxRingtone = findPreference(FolderPreferences.PreferenceKeys.NOTIFICATION_RINGTONE);
+            final String ringtoneUri = mInboxFolderPreferences.getNotificationRingtoneUri();
+            if (!TextUtils.isEmpty(ringtoneUri)) {
+                mRingtone = RingtoneManager.getRingtone(getActivity(), Uri.parse(ringtoneUri));
             }
+            setRingtoneSummary();
+            mInboxRingtone.setOnPreferenceChangeListener(this);
+            mInboxRingtone.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(final Preference preference) {
+                    showRingtonePicker();
+
+                    return true;
+                }
+            });
+
+            notificationsCategory.setEnabled(true);
+
+            // Set the vibrator value, or hide it on devices w/o a vibrator
+            mInboxVibrate = (CheckBoxPreference) findPreference(
+                    FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE);
+            if (mInboxVibrate != null) {
+                mInboxVibrate.setChecked(
+                        mInboxFolderPreferences.isNotificationVibrateEnabled());
+                Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator.hasVibrator()) {
+                    // When the value is changed, update the setting.
+                    mInboxVibrate.setOnPreferenceChangeListener(this);
+                } else {
+                    // No vibrator present. Remove the preference altogether.
+                    notificationsCategory.removePreference(mInboxVibrate);
+                }
+            }
+        } else {
+            notificationsCategory.setEnabled(false);
         }
 
         final Preference retryAccount = findPreference(PREFERENCE_POLICIES_RETRY_ACCOUNT);
