@@ -200,7 +200,7 @@ public class AccountSettingsFragment extends PreferenceFragment
         super.onActivityCreated(savedInstanceState);
         final Bundle args = new Bundle(1);
         args.putLong(AccountLoaderCallbacks.ARG_ACCOUNT_ID, mAccountId);
-        getLoaderManager().initLoader(0, args, new AccountLoaderCallbacks());
+        getLoaderManager().initLoader(0, args, new AccountLoaderCallbacks(getActivity()));
     }
 
     @Override
@@ -424,6 +424,11 @@ public class AccountSettingsFragment extends PreferenceFragment
     private class AccountLoaderCallbacks
             implements LoaderManager.LoaderCallbacks<Map<String, Object>> {
         public static final String ARG_ACCOUNT_ID = "accountId";
+        private final Context mContext;
+
+        private AccountLoaderCallbacks(Context context) {
+            mContext = context;
+        }
 
         @Override
         public void onLoadFinished(Loader<Map<String, Object>> loader, Map<String, Object> data) {
@@ -436,6 +441,16 @@ public class AccountSettingsFragment extends PreferenceFragment
             mUiAccount = (com.android.mail.providers.Account)
                     data.get(AccountLoader.RESULT_KEY_UIACCOUNT);
             mAccount = (Account) data.get(AccountLoader.RESULT_KEY_ACCOUNT);
+
+            if (mAccount != null && (mAccount.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
+                final Intent i = AccountSecurity.actionUpdateSecurityIntent(mContext,
+                        mAccount.getId(), true);
+                mContext.startActivity(i);
+                mSaveOnExit = false;
+                mCallback.abandonEdit();
+                return;
+            }
+
             final Folder inbox = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
 
             if (mUiAccount == null || mAccount == null || inbox == null) {
