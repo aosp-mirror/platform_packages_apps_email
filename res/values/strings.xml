@@ -194,6 +194,11 @@
     <string name="oauth_authentication_title">Requesting authorization</string>
     <!-- Title of screen to choose with authentication to use -->
     <string name="sign_in_title">Sign in</string>
+
+    <!-- Warning label displayed when the email address or password are incorrect -->
+    <string name="password_warning_label">Email address or password are incorrect</string>
+    <!-- Label displayed to confirm what email address we are trying to validate -->
+    <string name="email_confirmation_label">Email address:</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
         [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
@@ -207,7 +212,8 @@
     <string name="or_label">OR</string>
     <!-- Label for signing in with Google using OAuth -->
     <string name="sign_in_with_google">Sign in with Google</string>
-
+    <!-- On "Set up email" screen, hint for account email password text field -->
+    <string name="account_setup_basics_password_label">Password</string>
     <!-- hint for account email password text field -->
     <string name="password_label">Password</string>
     <!--  On the "Setup up email" screen, label indicating what service we are signed in with [CHAR LIMIT=40] -->

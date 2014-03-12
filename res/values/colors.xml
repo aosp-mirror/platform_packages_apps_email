@@ -39,4 +39,8 @@
 
     <color name="button_text_color">#777777</color>
     <color name="button_text_disabled_color">#cccccc</color>
+
+    <color name="password_warning_color">#FFA500</color>
+    <color name="email_confirmation_color">#808080</color>
+
 </resources>

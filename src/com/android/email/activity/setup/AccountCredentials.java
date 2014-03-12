@@ -36,7 +36,7 @@ public class AccountCredentials extends Activity
         final String protocol = getIntent().getStringExtra(EXTRA_PROTOCOL);
 
         final AccountSetupCredentialsFragment f =
-                AccountSetupCredentialsFragment.newInstance(emailAddress, protocol);
+                AccountSetupCredentialsFragment.newInstance(emailAddress, protocol, false);
         getFragmentManager().beginTransaction()
                 .add(R.id.account_credentials_fragment_container, f, CREDENTIALS_FRAGMENT_TAG)
                 .commit();
