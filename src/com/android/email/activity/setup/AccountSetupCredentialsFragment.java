@@ -24,10 +24,12 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -54,6 +56,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
 
     private static final String EXTRA_EMAIL = "email";
     private static final String EXTRA_PROTOCOL = "protocol";
+    private static final String EXTRA_PASSWORD_FAILED = "password_failed";
 
     public static final String EXTRA_PASSWORD = "password";
     public static final String EXTRA_OAUTH_PROVIDER = "provider";
@@ -66,6 +69,10 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private EditText mImapPasswordText;
     private EditText mRegularPasswordText;
     private TextWatcher mValidationTextWatcher;
+    private TextView mPasswordWarningLabel;
+    private TextView mEmailConfirmationLabel;
+    private TextView mEmailConfirmation;
+    private TextView.OnEditorActionListener mEditorActionListener;
     private String mEmailAddress;
     private boolean mOfferOAuth;
     private boolean mOfferCerts;
@@ -87,11 +94,12 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
      * @return new fragment instance
      */
     public static AccountSetupCredentialsFragment newInstance(final String email,
-            final String protocol) {
+            final String protocol, final boolean passwordFailed) {
         final AccountSetupCredentialsFragment f = new AccountSetupCredentialsFragment();
         final Bundle b = new Bundle(2);
         b.putString(EXTRA_EMAIL, email);
         b.putString(EXTRA_PROTOCOL, protocol);
+        b.putBoolean(EXTRA_PASSWORD_FAILED, passwordFailed);
         f.setArguments(b);
         return f;
     }
@@ -111,6 +119,29 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mDeviceIdSection = UiUtilities.getView(view, R.id.device_id_section);
         mDeviceId = UiUtilities.getView(view, R.id.device_id);
         mClientCertificateSelector.setHostCallback(this);
+        mPasswordWarningLabel  = UiUtilities.getView(view, R.id.wrong_password_warning_label);
+        mEmailConfirmationLabel  = UiUtilities.getView(view, R.id.email_confirmation_label);
+        mEmailConfirmation  = UiUtilities.getView(view, R.id.email_confirmation);
+
+        mEditorActionListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    final Callback callback = (Callback) getActivity();
+                    if (callback != null) {
+                        final Bundle results = new Bundle(1);
+                        results.putString(EXTRA_PASSWORD, getPassword());
+                        mResults = results;
+                        callback.onCredentialsComplete(results);
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        mImapPasswordText.setOnEditorActionListener(mEditorActionListener);
+        mRegularPasswordText.setOnEditorActionListener(mEditorActionListener);
 
         // After any text edits, call validateFields() which enables or disables the Next button
         mValidationTextWatcher = new TextWatcher() {
@@ -166,6 +197,8 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
             }
             mDeviceId.setText(deviceId);
         }
+        final boolean passwordFailed = getArguments().getBoolean(EXTRA_PASSWORD_FAILED, false);
+        setPasswordFailed(passwordFailed);
         validatePassword();
     }
 
@@ -174,11 +207,26 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         super.onDestroy();
         if (mImapPasswordText != null) {
             mImapPasswordText.removeTextChangedListener(mValidationTextWatcher);
+            mImapPasswordText.setOnEditorActionListener(null);
             mImapPasswordText = null;
         }
         if (mRegularPasswordText != null) {
             mRegularPasswordText.removeTextChangedListener(mValidationTextWatcher);
+            mRegularPasswordText.setOnEditorActionListener(null);
             mRegularPasswordText = null;
+        }
+    }
+
+    public void setPasswordFailed(final boolean failed) {
+        if (failed) {
+            mPasswordWarningLabel.setVisibility(View.VISIBLE);
+            mEmailConfirmationLabel.setVisibility(View.VISIBLE);
+            mEmailConfirmation.setVisibility(View.VISIBLE);
+            mEmailConfirmation.setText(mEmailAddress);
+        } else {
+            mPasswordWarningLabel.setVisibility(View.GONE);
+            mEmailConfirmationLabel.setVisibility(View.GONE);
+            mEmailConfirmation.setVisibility(View.GONE);
         }
     }
 

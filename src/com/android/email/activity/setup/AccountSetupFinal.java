@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
@@ -108,8 +109,10 @@ public class AccountSetupFinal extends AccountSetupActivity
             "AccountSetupFinal.authErr";
     private static final String SAVESTATE_KEY_IS_PRE_CONFIGURED = "AccountSetupFinal.preconfig";
     private static final String SAVESTATE_KEY_SKIP_AUTO_DISCOVER = "AccountSetupFinal.noAuto";
+    private static final String SAVESTATE_KEY_PASSWORD_FAILED = "AccountSetupFinal.passwordFailed";
 
     private static final String CONTENT_FRAGMENT_TAG = "AccountSetupContentFragment";
+    private static final String CREDENTIALS_BACKSTACK_TAG = "AccountSetupCredentialsFragment";
 
     // Collecting initial email and password
     private static final int STATE_BASICS = 0;
@@ -154,6 +157,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     private boolean mPreConfiguredFailed = false;
 
     private VendorPolicyLoader.Provider mProvider;
+    private boolean mPasswordFailed;
 
     // UI elements
     @VisibleForTesting
@@ -210,6 +214,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             mIsPreConfiguredProvider =
                     savedInstanceState.getBoolean(SAVESTATE_KEY_IS_PRE_CONFIGURED);
             mSkipAutoDiscover = savedInstanceState.getBoolean(SAVESTATE_KEY_SKIP_AUTO_DISCOVER);
+            mPasswordFailed = savedInstanceState.getBoolean(SAVESTATE_KEY_PASSWORD_FAILED);
             // I don't know why this view state doesn't get restored
             updateHeadline();
         } else {
@@ -249,6 +254,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             }
             updateHeadline();
             updateContentFragment(false /* addToBackstack */);
+            mPasswordFailed = false;
         }
 
         UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
@@ -398,6 +404,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         outState.putBoolean(SAVESTATE_KEY_REPORT_AUTHENTICATOR_ERROR,
                 mReportAccountAuthenticatorError);
         outState.putBoolean(SAVESTATE_KEY_IS_PRE_CONFIGURED, mIsPreConfiguredProvider);
+        outState.putBoolean(SAVESTATE_KEY_PASSWORD_FAILED, mPasswordFailed);
     }
 
     /**
@@ -439,13 +446,17 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     private void updateContentFragment(boolean addToBackstack) {
         final AccountSetupFragment f;
+        String backstackTag = null;
+
         switch (mState) {
             case STATE_BASICS:
                 f = AccountSetupBasicsFragment.newInstance();
                 break;
             case STATE_CREDENTIALS:
                 f = AccountSetupCredentialsFragment.newInstance(mSetupData.getEmail(),
-                        mSetupData.getAccount().getOrCreateHostAuthRecv(this).mProtocol);
+                        mSetupData.getAccount().getOrCreateHostAuthRecv(this).mProtocol,
+                        mPasswordFailed);
+                backstackTag = CREDENTIALS_BACKSTACK_TAG;
                 break;
             case STATE_TYPE:
                 f = AccountSetupTypeFragment.newInstance();
@@ -469,7 +480,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.setup_fragment_container, f, CONTENT_FRAGMENT_TAG);
         if (addToBackstack) {
-            ft.addToBackStack(null);
+            ft.addToBackStack(backstackTag);
         }
         ft.commit();
     }
@@ -488,6 +499,9 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     private void resetStateFromCurrentFragment() {
         AccountSetupFragment f = getContentFragment();
+        if (mState == STATE_CREDENTIALS) {
+            mPasswordFailed = false;
+        }
         mState = f.getState();
         updateHeadline();
     }
@@ -505,6 +519,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         switch (mState) {
             case STATE_BASICS:
                 onBasicsComplete();
+                // TODO: Move protocol choice before password entry
                 if (shouldDivertToManual()) {
                     // Alternate entry to the debug options screen (for devices without a physical
                     // keyboard):
@@ -544,9 +559,13 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CHECKING_PRECONFIGURED:
                 if (mPreConfiguredFailed) {
-                    mState = STATE_MANUAL_INCOMING;
-                    updateHeadline();
-                    updateContentFragment(true /* addToBackstack */);
+                    // Get rid of the previous instance of the AccountSetupCredentialsFragment.
+                    FragmentManager fm = getFragmentManager();
+                    fm.popBackStackImmediate(CREDENTIALS_BACKSTACK_TAG, 0);
+                    final AccountSetupCredentialsFragment f = (AccountSetupCredentialsFragment)
+                            getContentFragment();
+                    f.setPasswordFailed(mPasswordFailed);
+                    resetStateFromCurrentFragment();
                 } else {
                     mState = STATE_OPTIONS;
                     updateHeadline();
@@ -896,6 +915,7 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     @Override
     public void onCheckSettingsError(int reason, String message) {
+        mPasswordFailed = true;
         dismissCheckSettingsFragment();
         final DialogFragment f =
                 CheckSettingsErrorDialogFragment.newInstance(reason, message);
@@ -916,7 +936,7 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     @Override
     public void onCheckSettingsErrorDialogEditSettings() {
-        // If we're checking pre-configured, set a flag that we failed and navigate fowards to
+        // If we're checking pre-configured, set a flag that we failed and navigate forwards to
         // incoming settings
         if (mState == STATE_CHECKING_PRECONFIGURED || mState == STATE_AUTO_DISCOVER) {
             mPreConfiguredFailed = true;
@@ -928,6 +948,8 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     @Override
     public void onCheckSettingsComplete() {
+        mPreConfiguredFailed = false;
+        mPasswordFailed = false;
         dismissCheckSettingsFragment();
         proceed();
     }
