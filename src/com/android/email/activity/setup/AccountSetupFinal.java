@@ -87,12 +87,21 @@ public class AccountSetupFinal extends AccountSetupActivity
      * Note: For accounts that require the full email address in the login, encode the @ as %40.
      * Note: Exchange accounts that require device security policies cannot be created
      * automatically.
+     *
+     * For accounts that correspond to services in providers.xml you can also use the following form
+     *
+     *      $adb shell am start -a com.android.email.CREATE_ACCOUNT \
+     *          -e EMAIL test_account@gmail.com \
+     *          -e PASSWORD test_password
+     *
+     * and the appropriate incoming/outgoing information will be filled in automatically.
      */
     private static String INTENT_CREATE_ACCOUNT;
     private static final String EXTRA_FLOW_MODE = "FLOW_MODE";
     private static final String EXTRA_FLOW_ACCOUNT_TYPE = "FLOW_ACCOUNT_TYPE";
     private static final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
     private static final String EXTRA_CREATE_ACCOUNT_USER = "USER";
+    private static final String EXTRA_CREATE_ACCOUNT_PASSWORD = "PASSWORD";
     private static final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
     private static final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
     private static final Boolean DEBUG_ALLOW_NON_TEST_HARNESS_CREATION = false;
@@ -276,32 +285,59 @@ public class AccountSetupFinal extends AccountSetupActivity
              */
             final String email = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_EMAIL);
             final String user = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_USER);
+            final String password = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_PASSWORD);
             final String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
             final String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
-            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(user) ||
-                    TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing)) {
-                LogUtils.e(LogUtils.TAG, "ERROR: Force account create requires extras EMAIL, " +
-                        "USER, INCOMING, OUTGOING");
-                finish();
-                return;
-            }
-            final Account account = mSetupData.getAccount();
-
-            try {
-                final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-                recvAuth.setHostAuthFromString(incoming);
-
-                final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-                sendAuth.setHostAuthFromString(outgoing);
-            } catch (URISyntaxException e) {
-                // If we can't set up the URL, don't continue
-                Toast.makeText(this,
-                        R.string.account_setup_username_password_toast, Toast.LENGTH_LONG).show();
+            // If we've been explicitly provided with all the details to fill in the account, we
+            // can use them
+            final boolean explicitForm = !(TextUtils.isEmpty(user) ||
+                    TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing));
+            // If we haven't been provided the details, but we have the password, we can look up
+            // the info from providers.xml
+            final boolean implicitForm = !TextUtils.isEmpty(password) && !explicitForm;
+            if (TextUtils.isEmpty(email) || !(explicitForm || implicitForm)) {
+                LogUtils.e(LogUtils.TAG, "Force account create requires extras EMAIL, " +
+                        "USER, INCOMING, OUTGOING, or EMAIL and PASSWORD");
                 finish();
                 return;
             }
 
-            populateSetupData(user, email);
+            if (implicitForm) {
+                final String[] emailParts = email.split("@");
+                final String domain = emailParts[1].trim();
+                mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
+                if (mProvider == null) {
+                    LogUtils.e(LogUtils.TAG, "findProviderForDomain couldn't find provider");
+                    finish();
+                    return;
+                }
+                mIsPreConfiguredProvider = true;
+                mSetupData.setEmail(email);
+                boolean autoSetupCompleted = finishAutoSetup();
+                if (!autoSetupCompleted) {
+                    LogUtils.e(LogUtils.TAG, "Force create account failed to create account");
+                    finish();
+                }
+            } else {
+                final Account account = mSetupData.getAccount();
+
+                try {
+                    final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+                    recvAuth.setHostAuthFromString(incoming);
+
+                    final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+                    sendAuth.setHostAuthFromString(outgoing);
+                } catch (URISyntaxException e) {
+                    // If we can't set up the URL, don't continue
+                    Toast.makeText(this, R.string.account_setup_username_password_toast,
+                            Toast.LENGTH_LONG)
+                            .show();
+                    finish();
+                    return;
+                }
+
+                populateSetupData(user, email);
+            }
 
             mState = STATE_OPTIONS;
             updateHeadline();
