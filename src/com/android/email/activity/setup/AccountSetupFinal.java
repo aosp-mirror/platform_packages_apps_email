@@ -116,14 +116,14 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     // Collecting initial email and password
     private static final int STATE_BASICS = 0;
+    // Show the user some interstitial message after email entry
+    private static final int STATE_BASICS_POST = 1;
+    // Account is not pre-configured, query user for account type
+    private static final int STATE_TYPE = 2;
     // Collect initial password or oauth token
-    private static final int STATE_CREDENTIALS = 1;
-    // Show the user some interstitial message after credential entry
-    private static final int STATE_CREDENTIALS_POST = 2;
+    private static final int STATE_CREDENTIALS = 3;
     // Account is a pre-configured account, run the checker
     private static final int STATE_CHECKING_PRECONFIGURED = 4;
-    // Account is not pre-configured, query user for account type
-    private static final int STATE_TYPE = 5;
     // Auto-discovering exchange account info, possibly other protocols later
     private static final int STATE_AUTO_DISCOVER = 6;
     // User is entering incoming settings
@@ -416,12 +416,12 @@ public class AccountSetupFinal extends AccountSetupActivity
             case STATE_BASICS:
                 headlineView.setText(R.string.account_setup_basics_headline);
                 break;
+            case STATE_TYPE:
+                headlineView.setText(R.string.account_setup_account_type_headline);
+                break;
             case STATE_CREDENTIALS:
                 // TODO: real string
                 headlineView.setText(R.string.sign_in_title);
-                break;
-            case STATE_TYPE:
-                headlineView.setText(R.string.account_setup_account_type_headline);
                 break;
             case STATE_MANUAL_INCOMING:
                 headlineView.setText(R.string.account_setup_incoming_headline);
@@ -452,14 +452,14 @@ public class AccountSetupFinal extends AccountSetupActivity
             case STATE_BASICS:
                 f = AccountSetupBasicsFragment.newInstance();
                 break;
+            case STATE_TYPE:
+                f = AccountSetupTypeFragment.newInstance();
+                break;
             case STATE_CREDENTIALS:
                 f = AccountSetupCredentialsFragment.newInstance(mSetupData.getEmail(),
                         mSetupData.getIncomingProtocol(this), mSetupData.getClientCert(this),
                         mPasswordFailed);
                 backstackTag = CREDENTIALS_BACKSTACK_TAG;
-                break;
-            case STATE_TYPE:
-                f = AccountSetupTypeFragment.newInstance();
                 break;
             case STATE_MANUAL_INCOMING:
                 f = AccountSetupIncomingFragment.newInstance(false);
@@ -515,8 +515,12 @@ public class AccountSetupFinal extends AccountSetupActivity
 
         switch (mState) {
             case STATE_BASICS:
-                onBasicsComplete();
-                // TODO: Move protocol choice before password entry
+                final boolean advance = onBasicsComplete();
+                if (!advance) {
+                    mState = STATE_BASICS_POST;
+                    break;
+                } // else fall through
+            case STATE_BASICS_POST:
                 if (shouldDivertToManual()) {
                     // Alternate entry to the debug options screen (for devices without a physical
                     // keyboard):
@@ -529,29 +533,40 @@ public class AccountSetupFinal extends AccountSetupActivity
                     }
 
                     mSkipAutoDiscover = true;
+                    mIsPreConfiguredProvider = false;
                     mState = STATE_TYPE;
                 } else {
                     mSkipAutoDiscover = false;
-                    mState = STATE_CREDENTIALS;
+                    if (mIsPreConfiguredProvider) {
+                        mState = STATE_CREDENTIALS;
+                    } else {
+                        mState = STATE_TYPE;
+                    }
                 }
                 updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
+            case STATE_TYPE:
+                // We either got here through "Manual Setup" or because we didn't find the provider
+                mState = STATE_CREDENTIALS;
+                updateHeadline();
+                updateContentFragment(true /* addToBackstack */);
+                break;
             case STATE_CREDENTIALS:
-                final boolean advance = collectCredentials();
-                if (!advance) {
-                    mState = STATE_CREDENTIALS_POST;
-                    break;
-                } // else fall through
-            case STATE_CREDENTIALS_POST:
+                collectCredentials();
                 if (mIsPreConfiguredProvider) {
                     mState = STATE_CHECKING_PRECONFIGURED;
                     initiateCheckSettingsFragment(SetupDataFragment.CHECK_INCOMING
                             | SetupDataFragment.CHECK_OUTGOING);
                 } else {
-                    mState = STATE_TYPE;
-                    updateHeadline();
-                    updateContentFragment(true /* addToBackstack */);
+                    if (mSkipAutoDiscover) {
+                        mState = STATE_MANUAL_INCOMING;
+                        updateHeadline();
+                        updateContentFragment(true /* addToBackstack */);
+                    } else {
+                        mState = STATE_AUTO_DISCOVER;
+                        initiateAutoDiscover();
+                    }
                 }
                 break;
             case STATE_CHECKING_PRECONFIGURED:
@@ -573,18 +588,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                     mState = STATE_OPTIONS;
                     updateHeadline();
                     updateContentFragment(true /* addToBackstack */);
-                }
-                break;
-            case STATE_TYPE:
-                // We either got here through "Manual Setup" or because we didn't find the provider
-                // In the former case, we skip auto-discover
-                if (mSkipAutoDiscover) {
-                    mState = STATE_MANUAL_INCOMING;
-                    updateHeadline();
-                    updateContentFragment(true /* addToBackstack */);
-                } else {
-                    mState = STATE_AUTO_DISCOVER;
-                    initiateAutoDiscover();
                 }
                 break;
             case STATE_AUTO_DISCOVER:
@@ -704,41 +707,23 @@ public class AccountSetupFinal extends AccountSetupActivity
         mNextButton.setEnabled(enabled);
     }
 
-    private void onBasicsComplete() {
+    /**
+     * @return true to proceed, false to remain on the current screen
+     */
+    private boolean onBasicsComplete() {
         final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
         final String email = f.getEmail();
+
         if (!TextUtils.equals(email, mSetupData.getEmail())) {
             // If the user changes their email address, clear the password failed state
             mPasswordFailed = false;
         }
         mSetupData.setEmail(email);
-    }
 
-    private boolean shouldDivertToManual() {
-        final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
-        return f.isManualSetup();
-    }
-
-    @Override
-    public void onCredentialsComplete(Bundle results) {
-        proceed();
-    }
-
-    /**
-     *
-     * @return true to proceed, false to remain on the current screen
-     */
-    private boolean collectCredentials() {
-        final AccountSetupCredentialsFragment f = (AccountSetupCredentialsFragment)
-                getContentFragment();
-        final Bundle results = f.getCredentialResults();
-        mSetupData.setCredentialResults(results);
-        final String email = mSetupData.getEmail();
         final String[] emailParts = email.split("@");
         final String domain = emailParts[1].trim();
         mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
         if (mProvider != null) {
-            mProvider.expandTemplates(email);
             mIsPreConfiguredProvider = true;
             if (mProvider.note != null) {
                 final AccountSetupNoteDialogFragment dialogFragment =
@@ -749,7 +734,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 return finishAutoSetup();
             }
         } else {
-            // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
             mIsPreConfiguredProvider = false;
             final String existingAccountName = mExistingAccountsMap.get(email);
             if (!TextUtils.isEmpty(existingAccountName)) {
@@ -765,9 +749,32 @@ public class AccountSetupFinal extends AccountSetupActivity
         }
     }
 
+    private boolean shouldDivertToManual() {
+        final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
+        return f.isManualSetup();
+    }
+
+    @Override
+    public void onCredentialsComplete(Bundle results) {
+        proceed();
+    }
+
+    private void collectCredentials() {
+        final AccountSetupCredentialsFragment f = (AccountSetupCredentialsFragment)
+                getContentFragment();
+        final Bundle results = f.getCredentialResults();
+        mSetupData.setCredentialResults(results);
+    }
+
     @Override
     public void onNoteDialogComplete() {
         finishAutoSetup();
+        proceed();
+    }
+
+    @Override
+    public void onNoteDialogCancel() {
+        resetStateFromCurrentFragment();
     }
 
     /**

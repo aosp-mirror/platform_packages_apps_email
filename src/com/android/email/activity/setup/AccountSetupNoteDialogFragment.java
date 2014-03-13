@@ -33,6 +33,7 @@ public class AccountSetupNoteDialogFragment extends DialogFragment {
 
     public static interface Callback {
         void onNoteDialogComplete();
+        void onNoteDialogCancel();
     }
 
     // Public no-args constructor needed for fragment re-instantiation
@@ -70,7 +71,14 @@ public class AccountSetupNoteDialogFragment extends DialogFragment {
                         })
                 .setNegativeButton(
                         context.getString(R.string.cancel_action),
-                        null)
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final Callback a = (Callback) getActivity();
+                                a.onNoteDialogCancel();
+                                dismiss();
+                            }
+                        })
                 .create();
     }
 }
