@@ -499,9 +499,6 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     private void resetStateFromCurrentFragment() {
         AccountSetupFragment f = getContentFragment();
-        if (mState == STATE_CREDENTIALS) {
-            mPasswordFailed = false;
-        }
         mState = f.getState();
         updateHeadline();
     }
@@ -559,13 +556,19 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CHECKING_PRECONFIGURED:
                 if (mPreConfiguredFailed) {
-                    // Get rid of the previous instance of the AccountSetupCredentialsFragment.
-                    FragmentManager fm = getFragmentManager();
-                    fm.popBackStackImmediate(CREDENTIALS_BACKSTACK_TAG, 0);
-                    final AccountSetupCredentialsFragment f = (AccountSetupCredentialsFragment)
-                            getContentFragment();
-                    f.setPasswordFailed(mPasswordFailed);
-                    resetStateFromCurrentFragment();
+                    if (mPasswordFailed) {
+                        // Get rid of the previous instance of the AccountSetupCredentialsFragment.
+                        FragmentManager fm = getFragmentManager();
+                        fm.popBackStackImmediate(CREDENTIALS_BACKSTACK_TAG, 0);
+                        final AccountSetupCredentialsFragment f = (AccountSetupCredentialsFragment)
+                                getContentFragment();
+                        f.setPasswordFailed(mPasswordFailed);
+                        resetStateFromCurrentFragment();
+                    } else {
+                        mState = STATE_MANUAL_INCOMING;
+                        updateHeadline();
+                        updateContentFragment(true /* addToBackstack */);
+                    }
                 } else {
                     mState = STATE_OPTIONS;
                     updateHeadline();
@@ -704,6 +707,10 @@ public class AccountSetupFinal extends AccountSetupActivity
     private void onBasicsComplete() {
         final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
         final String email = f.getEmail();
+        if (!TextUtils.equals(email, mSetupData.getEmail())) {
+            // If the user changes their email address, clear the password failed state
+            mPasswordFailed = false;
+        }
         mSetupData.setEmail(email);
     }
 
@@ -915,7 +922,11 @@ public class AccountSetupFinal extends AccountSetupActivity
 
     @Override
     public void onCheckSettingsError(int reason, String message) {
-        mPasswordFailed = true;
+        if (reason == CheckSettingsErrorDialogFragment.REASON_AUTHENTICATION_FAILED ||
+                reason == CheckSettingsErrorDialogFragment.REASON_CERTIFICATE_REQUIRED) {
+            // TODO: possibly split password and cert error conditions
+            mPasswordFailed = true;
+        }
         dismissCheckSettingsFragment();
         final DialogFragment f =
                 CheckSettingsErrorDialogFragment.newInstance(reason, message);

@@ -129,6 +129,7 @@ public class CheckSettingsErrorDialogFragment extends DialogFragment{
         final int exceptionCode = ex.getExceptionType();
         switch (exceptionCode) {
             case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
+            case MessagingException.AUTHENTICATION_FAILED:
                 return REASON_AUTHENTICATION_FAILED;
             case MessagingException.CLIENT_CERTIFICATE_REQUIRED:
                 return REASON_CERTIFICATE_REQUIRED;
