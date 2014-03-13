@@ -219,6 +219,11 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         mIncomingServiceInfo = null;
     }
 
+    public String getClientCert(Context context) {
+        final HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
+        return recvAuth.mClientCertAlias;
+    }
+
     // Parcelable methods
     @Override
     public int describeContents() {

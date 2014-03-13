@@ -454,7 +454,7 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CREDENTIALS:
                 f = AccountSetupCredentialsFragment.newInstance(mSetupData.getEmail(),
-                        mSetupData.getAccount().getOrCreateHostAuthRecv(this).mProtocol,
+                        mSetupData.getIncomingProtocol(this), mSetupData.getClientCert(this),
                         mPasswordFailed);
                 backstackTag = CREDENTIALS_BACKSTACK_TAG;
                 break;

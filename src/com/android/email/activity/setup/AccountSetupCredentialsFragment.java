@@ -59,6 +59,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private static final String EXTRA_PASSWORD_FAILED = "password_failed";
 
     public static final String EXTRA_PASSWORD = "password";
+    public static final String EXTRA_CLIENT_CERT = "certificate";
     public static final String EXTRA_OAUTH_PROVIDER = "provider";
     public static final String EXTRA_OAUTH_ACCESS_TOKEN = "accessToken";
     public static final String EXTRA_OAUTH_REFRESH_TOKEN = "refreshToken";
@@ -72,7 +73,6 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private TextView mPasswordWarningLabel;
     private TextView mEmailConfirmationLabel;
     private TextView mEmailConfirmation;
-    private TextView.OnEditorActionListener mEditorActionListener;
     private String mEmailAddress;
     private boolean mOfferOAuth;
     private boolean mOfferCerts;
@@ -94,11 +94,12 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
      * @return new fragment instance
      */
     public static AccountSetupCredentialsFragment newInstance(final String email,
-            final String protocol, final boolean passwordFailed) {
+            final String protocol, final String clientCert, final boolean passwordFailed) {
         final AccountSetupCredentialsFragment f = new AccountSetupCredentialsFragment();
-        final Bundle b = new Bundle(2);
+        final Bundle b = new Bundle(4);
         b.putString(EXTRA_EMAIL, email);
         b.putString(EXTRA_PROTOCOL, protocol);
+        b.putString(EXTRA_CLIENT_CERT, clientCert);
         b.putBoolean(EXTRA_PASSWORD_FAILED, passwordFailed);
         f.setArguments(b);
         return f;
@@ -118,30 +119,31 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
         mDeviceIdSection = UiUtilities.getView(view, R.id.device_id_section);
         mDeviceId = UiUtilities.getView(view, R.id.device_id);
-        mClientCertificateSelector.setHostCallback(this);
         mPasswordWarningLabel  = UiUtilities.getView(view, R.id.wrong_password_warning_label);
         mEmailConfirmationLabel  = UiUtilities.getView(view, R.id.email_confirmation_label);
         mEmailConfirmation  = UiUtilities.getView(view, R.id.email_confirmation);
 
-        mEditorActionListener = new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    final Callback callback = (Callback) getActivity();
-                    if (callback != null) {
-                        final Bundle results = new Bundle(1);
-                        results.putString(EXTRA_PASSWORD, getPassword());
-                        mResults = results;
-                        callback.onCredentialsComplete(results);
+        mClientCertificateSelector.setHostCallback(this);
+        mClientCertificateSelector.setCertificate(getArguments().getString(EXTRA_CLIENT_CERT));
+
+        TextView.OnEditorActionListener editorActionListener =
+                new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            final Callback callback = (Callback) getActivity();
+                            if (callback != null) {
+                                final Bundle results = getCredentialResults();
+                                callback.onCredentialsComplete(results);
+                            }
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-        mImapPasswordText.setOnEditorActionListener(mEditorActionListener);
-        mRegularPasswordText.setOnEditorActionListener(mEditorActionListener);
+                };
+        mImapPasswordText.setOnEditorActionListener(editorActionListener);
+        mRegularPasswordText.setOnEditorActionListener(editorActionListener);
 
         // After any text edits, call validateFields() which enables or disables the Next button
         mValidationTextWatcher = new TextWatcher() {
@@ -311,8 +313,9 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
             return mResults;
         }
 
-        final Bundle results = new Bundle(1);
+        final Bundle results = new Bundle(2);
         results.putString(EXTRA_PASSWORD, getPassword());
+        results.putString(EXTRA_CLIENT_CERT, getClientCertificate());
         return results;
     }
 
@@ -339,6 +342,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
                     * DateUtils.SECOND_IN_MILLIS;
             hostAuth.mPassword = null;
         }
+        hostAuth.mClientCertAlias = results.getString(EXTRA_CLIENT_CERT);
     }
 
     public String getClientCertificate() {
