@@ -46,6 +46,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private static final String SAVESTATE_OUTGOING_LOADED = "SetupDataFragment.outgoingLoaded";
     private static final String SAVESTATE_POLICY = "SetupDataFragment.policy";
     private static final String SAVESTATE_INCOMING_PROTOCOL = "SetupDataFragment.incomingProtocol";
+    private static final String SAVESTATE_AM_PROTOCOL = "SetupDataFragment.amProtocol";
 
     // All access will be through getters/setters
     private int mFlowMode = FLOW_MODE_NORMAL;
@@ -61,6 +62,8 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     // Cache incoming protocol and service info here
     private EmailServiceUtils.EmailServiceInfo mIncomingServiceInfo;
     private String mIncomingProtocol;
+    // Protocol the user chose in the account manager "Add an account" screen
+    private String mAmProtocol;
 
     public interface SetupDataContainer {
         public SetupDataFragment getSetupData();
@@ -94,6 +97,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         outState.putBoolean(SAVESTATE_OUTGOING_LOADED, mOutgoingCredLoaded);
         outState.putParcelable(SAVESTATE_POLICY, mPolicy);
         outState.putString(SAVESTATE_INCOMING_PROTOCOL, mIncomingProtocol);
+        outState.putString(SAVESTATE_AM_PROTOCOL, mAmProtocol);
     }
 
     @Override
@@ -108,6 +112,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
             mOutgoingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_OUTGOING_LOADED);
             mPolicy = savedInstanceState.getParcelable(SAVESTATE_POLICY);
             mIncomingProtocol = savedInstanceState.getString(SAVESTATE_INCOMING_PROTOCOL);
+            mAmProtocol = savedInstanceState.getString(SAVESTATE_AM_PROTOCOL);
         }
         setRetainInstance(true);
     }
@@ -222,6 +227,14 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public String getClientCert(Context context) {
         final HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
         return recvAuth.mClientCertAlias;
+    }
+
+    public String getAmProtocol() {
+        return mAmProtocol;
+    }
+
+    public void setAmProtocol(String amProtocol) {
+        mAmProtocol = amProtocol;
     }
 
     // Parcelable methods

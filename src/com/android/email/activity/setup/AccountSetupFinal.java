@@ -249,6 +249,8 @@ public class AccountSetupFinal extends AccountSetupActivity
                         SetupDataFragment.FLOW_MODE_UNSPECIFIED);
                 // TODO: do something with this
                 final String flowAccountType = intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE);
+                mSetupData.setAmProtocol(
+                        EmailServiceUtils.getProtocolFromAccountType(this, flowAccountType));
                 mSetupData.setFlowMode(intentFlowMode);
             }
 
@@ -574,9 +576,18 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } else {
                     mSkipAutoDiscover = false;
                     if (mIsPreConfiguredProvider) {
+                        // TODO: check for mismatch between providers.xml and amProtocol
                         mState = STATE_CREDENTIALS;
                     } else {
-                        mState = STATE_TYPE;
+                        final String amProtocol = mSetupData.getAmProtocol();
+                        if (!TextUtils.isEmpty(amProtocol)) {
+                            mSetupData.setIncomingProtocol(this, amProtocol);
+                            final Account account = mSetupData.getAccount();
+                            setDefaultsForProtocol(account);
+                            mState = STATE_CREDENTIALS;
+                        } else {
+                            mState = STATE_TYPE;
+                        }
                     }
                 }
                 updateHeadline();

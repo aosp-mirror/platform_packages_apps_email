@@ -44,6 +44,7 @@ import android.provider.CalendarContract.SyncState;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.SyncStateContract;
+import android.text.TextUtils;
 
 import com.android.email.R;
 import com.android.emailcommon.Api;
@@ -614,6 +615,28 @@ public class EmailServiceUtils {
             sServiceMap = builder.build();
             return sServiceMap;
         }
+    }
+
+    /**
+     * Resolves a service name into a protocol name, or null if ambiguous
+     * @param context for loading service map
+     * @param accountType sync adapter service name
+     * @return protocol name or null
+     */
+    public static String getProtocolFromAccountType(final Context context,
+            final String accountType) {
+        final Map <String, EmailServiceInfo> serviceInfoMap = getServiceMap(context);
+        String protocol = null;
+        for (final EmailServiceInfo info : serviceInfoMap.values()) {
+            if (TextUtils.equals(accountType, info.accountType)) {
+                if (!TextUtils.isEmpty(protocol) && !TextUtils.equals(protocol, info.protocol)) {
+                    // More than one protocol matches
+                    return null;
+                }
+                protocol = info.protocol;
+            }
+        }
+        return protocol;
     }
 
     private static Uri asCalendarSyncAdapter(Uri uri, String account, String accountType) {
