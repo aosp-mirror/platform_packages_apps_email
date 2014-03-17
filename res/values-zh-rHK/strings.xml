@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"帳戶設定"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"正在要求授權"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"登入"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"電子郵件地址或密碼不正確"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"電子郵件地址："</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"電郵帳戶"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"只要幾個步驟，便可以設定您的帳戶。"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"電郵地址"</string>
     <string name="or_label" msgid="2207403489755254427">"或"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"使用 Google 帳戶登入"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"密碼"</string>
     <string name="password_label" msgid="5228754278985667134">"密碼"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"已使用「%s」登入"</string>
     <string name="authentication_label" msgid="5210804218348191833">"驗證"</string>

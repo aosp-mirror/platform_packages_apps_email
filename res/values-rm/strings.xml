@@ -107,6 +107,10 @@
     <skip />
     <!-- no translation found for sign_in_title (8509755024484685915) -->
     <skip />
+    <!-- no translation found for password_warning_label (1479956455912041077) -->
+    <skip />
+    <!-- no translation found for email_confirmation_label (1082319634606902954) -->
+    <skip />
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
     <skip />
     <!-- no translation found for accounts_welcome (8337750045270269649) -->
@@ -116,6 +120,8 @@
     <!-- no translation found for or_label (2207403489755254427) -->
     <skip />
     <!-- no translation found for sign_in_with_google (9051489501495503976) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
     <skip />
     <!-- no translation found for password_label (5228754278985667134) -->
     <skip />

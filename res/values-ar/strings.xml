@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"إعداد الحساب"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"طلب التفويض"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"تسجيل الدخول"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"عنوان البريد الإلكتروني أو كلمة المرور غير صحيحة"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"عنوان البريد الإلكتروني:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"حساب بريد إلكتروني"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"يمكنك إعداد حسابك من خلال اتباع خطوات قليلة."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"عنوان البريد الإلكتروني"</string>
     <string name="or_label" msgid="2207403489755254427">"أو"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"‏تسجيل الدخول بحساب Google"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"كلمة المرور"</string>
     <string name="password_label" msgid="5228754278985667134">"كلمة المرور"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"‏تم تسجيل الدخول باستخدام %s"</string>
     <string name="authentication_label" msgid="5210804218348191833">"المصادقة"</string>

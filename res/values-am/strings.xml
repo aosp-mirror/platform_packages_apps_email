@@ -24,7 +24,7 @@
     <string name="debug_title" msgid="5175710493691536719">"አርም"</string>
     <string name="next_action" msgid="3931301986364184415">"ቀጥል"</string>
     <string name="okay_action" msgid="8365197396795675617">"እሺ"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"ሰርዝ"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"ይቅር"</string>
     <string name="previous_action" msgid="5181616311579820981">"ቀዳሚ"</string>
     <string name="done_action" msgid="7497990549515580249">"ተከናውኗል"</string>
     <string name="create_action" msgid="3062715563215392251">"አዲስ ፍጠር"</string>
@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"መለያ አዘጋጅ"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ፈቀዳን በመጠየቅ ላይ"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"በመለያ ይግቡ"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"የኢሜይል አድራሻ ወይም የይለፍ ቃል ትክክል አይደለም"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"የኢሜይል አድራሻ፦"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"የኢሜይል መለያ"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"መለያዎን በጥቂት ደረጃዎች ብቻ ማዋቀር ይችላሉ።"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ኢሜይል አድራሻ"</string>
     <string name="or_label" msgid="2207403489755254427">"ወይም"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"በGoogle ይግቡ"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"የይለፍ ቃል፡"</string>
     <string name="password_label" msgid="5228754278985667134">"የይለፍ ቃል"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"በ%s ወደ መለያ ተገብቷል"</string>
     <string name="authentication_label" msgid="5210804218348191833">"ማረጋገጥ"</string>

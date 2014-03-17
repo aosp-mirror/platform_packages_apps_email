@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Thiết lập tài khoản"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Yêu cầu ủy quyền"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Đăng nhập"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"Địa chỉ email hoặc mật khẩu không chính xác"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"Địa chỉ email:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Tài khoản email"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Bạn có thể thiết lập tài khoản của mình chỉ bằng vài bước."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Địa chỉ email"</string>
     <string name="or_label" msgid="2207403489755254427">"HOẶC"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Đăng nhập bằng Google"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Mật khẩu"</string>
     <string name="password_label" msgid="5228754278985667134">"Mật khẩu"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Đã đăng nhập bằng %s"</string>
     <string name="authentication_label" msgid="5210804218348191833">"Xác thực"</string>

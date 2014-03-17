@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Hesap kurulumu"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Yetkilendirme isteniyor"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Oturum açın"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"E-posta adresi veya şifre yanlış"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"E-posta adresi:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-posta hesabı"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Hesabınızı birkaç adımda oluşturabilirsiniz."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-posta adresi"</string>
     <string name="or_label" msgid="2207403489755254427">"VEYA"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Google ile oturum aç"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Şifre"</string>
     <string name="password_label" msgid="5228754278985667134">"Şifre"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"%s hizmetinde oturum açıldı"</string>
     <string name="authentication_label" msgid="5210804218348191833">"Kimlik doğrulama"</string>

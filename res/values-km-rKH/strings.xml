@@ -81,11 +81,14 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"រៀបចំ​គណនី"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ស្នើសុំ​ការ​អនុញ្ញាត"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"ចូល"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"អាសយដ្ឋាន​អ៊ីមែល ឬ​ពាក្យសម្ងាត់​មិន​ត្រឹមត្រូវ"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"អាសយដ្ឋាន​អ៊ីមែល៖"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"គណនី​អ៊ីមែល"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"អ្នក​អាច​កំណត់​រចនា​សម្ព័ន្ធ​​​​អ៊ីមែល​សម្រាប់​គណនី​​ភាគច្រើន​​​​​ដោយ​ពីរ ឬ​បី​ជំហានទៀត​ប៉ុណ្ណោះ។"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"អាសយដ្ឋាន​អ៊ីមែល"</string>
     <string name="or_label" msgid="2207403489755254427">"OR"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"ចូល​ដោយ​ប្រើ​ Google"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"ពាក្យសម្ងាត់"</string>
     <string name="password_label" msgid="5228754278985667134">"ពាក្យសម្ងាត់"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"បាន​ចូល​​ជា​មួយ %s"</string>
     <string name="authentication_label" msgid="5210804218348191833">"ការ​ផ្ទៀងផ្ទាត់"</string>
