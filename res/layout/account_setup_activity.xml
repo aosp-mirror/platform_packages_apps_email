@@ -14,13 +14,10 @@
      limitations under the License.
 -->
 
-<!-- Fragment view  -->
-<FrameLayout
-    android:id="@+id/setup_fragment_container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/setup_item_inset_left"
-    android:paddingRight="@dimen/setup_item_inset_right" >
-    <!-- Don't include the fragment itself here, or we won't be able to swap it out later -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:fillViewport="true"
+             android:background="@drawable/account_setup_background"
+             android:id="@+id/setup_fragment_container">
 </FrameLayout>

@@ -57,6 +57,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private static final String EXTRA_EMAIL = "email";
     private static final String EXTRA_PROTOCOL = "protocol";
     private static final String EXTRA_PASSWORD_FAILED = "password_failed";
+    private static final String EXTRA_STANDALONE = "standalone";
 
     public static final String EXTRA_PASSWORD = "password";
     public static final String EXTRA_CLIENT_CERT = "certificate";
@@ -73,15 +74,18 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private TextView mPasswordWarningLabel;
     private TextView mEmailConfirmationLabel;
     private TextView mEmailConfirmation;
+    private CertificateSelector mClientCertificateSelector;
+    private View mDeviceIdSection;
+    private TextView mDeviceId;
+
     private String mEmailAddress;
     private boolean mOfferOAuth;
     private boolean mOfferCerts;
     private String mProviderId;
+
     private Context mAppContext;
+
     private Bundle mResults;
-    private CertificateSelector mClientCertificateSelector;
-    private View mDeviceIdSection;
-    private TextView mDeviceId;
 
     public interface Callback extends AccountSetupFragment.Callback {
         void onCredentialsComplete(Bundle results);
@@ -91,16 +95,21 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
      * Create a new instance of this fragment with the appropriate email and protocol
      * @param email login address for OAuth purposes
      * @param protocol protocol of the service we're gathering credentials for
+     * @param clientCert alias of existing client cert
+     * @param passwordFailed true if the password attempt previously failed
+     * @param standalone true if this is not being inserted in the setup flow
      * @return new fragment instance
      */
     public static AccountSetupCredentialsFragment newInstance(final String email,
-            final String protocol, final String clientCert, final boolean passwordFailed) {
+            final String protocol, final String clientCert, final boolean passwordFailed,
+            final boolean standalone) {
         final AccountSetupCredentialsFragment f = new AccountSetupCredentialsFragment();
-        final Bundle b = new Bundle(4);
+        final Bundle b = new Bundle(5);
         b.putString(EXTRA_EMAIL, email);
         b.putString(EXTRA_PROTOCOL, protocol);
         b.putString(EXTRA_CLIENT_CERT, clientCert);
         b.putBoolean(EXTRA_PASSWORD_FAILED, passwordFailed);
+        b.putBoolean(EXTRA_STANDALONE, standalone);
         f.setArguments(b);
         return f;
     }
@@ -108,13 +117,24 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.account_setup_credentials_fragment, container,
-                false);
+        final boolean standalone = getArguments().getBoolean(EXTRA_STANDALONE);
+        final View view;
+        if (standalone) {
+            view = inflater.inflate(R.layout.account_credentials_fragment, container, false);
+            mNextButton = UiUtilities.getView(view, R.id.done);
+            mNextButton.setOnClickListener(this);
+            mPreviousButton = UiUtilities.getView(view, R.id.cancel);
+            mPreviousButton.setOnClickListener(this);
+        } else {
+            // TODO: real headline string instead of sign_in_title
+            view = inflateTemplatedView(inflater, container,
+                    R.layout.account_setup_credentials_fragment, R.string.sign_in_title);
+        }
 
         mImapPasswordText = UiUtilities.getView(view, R.id.imap_password);
         mRegularPasswordText = UiUtilities.getView(view, R.id.regular_password);
         mOAuthGroup = UiUtilities.getView(view, R.id.oauth_group);
-        mOAuthButton = UiUtilities.getView(view, R.id.sign_in_with_google);
+        mOAuthButton = UiUtilities.getView(view, R.id.sign_in_with_oauth);
         mOAuthButton.setOnClickListener(this);
         mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
         mDeviceIdSection = UiUtilities.getView(view, R.id.device_id_section);
@@ -233,10 +253,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     }
 
     public void validatePassword() {
-        final Callback callback = (Callback) getActivity();
-        if (callback != null) {
-            callback.setNextButtonEnabled(!TextUtils.isEmpty(getPassword()));
-        }
+        setNextButtonEnabled(!TextUtils.isEmpty(getPassword()));
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(mAppContext, mImapPasswordText);
         AccountSettingsUtils.checkPasswordSpaces(mAppContext, mRegularPasswordText);
@@ -284,7 +301,8 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
 
     @Override
     public void onClick(final View view) {
-        if (view == mOAuthButton) {
+        final int viewId = view.getId();
+        if (viewId == R.id.sign_in_with_oauth) {
             List<OAuthProvider> oauthProviders = AccountSettingsUtils.getAllOAuthProviders(
                     mAppContext);
             // TODO currently the only oauth provider we support is google.
@@ -297,6 +315,14 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
                 i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, mProviderId);
                 startActivityForResult(i, OAuthAuthenticationActivity.REQUEST_OAUTH);
             }
+        } else if (viewId == R.id.done) {
+            final Callback callback = (Callback) getActivity();
+            callback.onNextButton();
+        } else if (viewId == R.id.cancel) {
+            final Callback callback = (Callback) getActivity();
+            callback.onBackPressed();
+        } else {
+            super.onClick(view);
         }
     }
 

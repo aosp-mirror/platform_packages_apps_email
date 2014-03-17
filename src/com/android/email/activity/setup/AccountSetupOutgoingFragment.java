@@ -101,11 +101,15 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final int layoutId = mSettingsMode
-                ? R.layout.account_settings_outgoing_fragment
-                : R.layout.account_setup_outgoing_fragment;
+        final View view;
+        if (mSettingsMode) {
+            view = inflater.inflate(R.layout.account_settings_outgoing_fragment, container, false);
+        } else {
+            view = inflateTemplatedView(inflater, container,
+                    R.layout.account_setup_outgoing_fragment,
+                    R.string.account_setup_outgoing_headline);
+        }
 
-        final View view = inflater.inflate(layoutId, container, false);
         final Context context = getActivity();
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);

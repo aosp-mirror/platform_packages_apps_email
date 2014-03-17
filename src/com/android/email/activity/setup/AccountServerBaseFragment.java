@@ -178,13 +178,13 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
      */
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.cancel:
-                getActivity().onBackPressed();
-                break;
-            case R.id.done:
-                collectUserInput();
-                break;
+        final int viewId = v.getId();
+        if (viewId == R.id.cancel) {
+            getActivity().onBackPressed();
+        } else if (viewId == R.id.done) {
+            collectUserInput();
+        } else {
+            super.onClick(v);
         }
     }
 
@@ -196,11 +196,8 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
         // enable it directly, here
         if (mProceedButton != null) {
             mProceedButton.setEnabled(enable);
-        }
-
-        final Callback callback = (Callback) getActivity();
-        if (callback != null) {
-            callback.setNextButtonEnabled(enable);
+        } else {
+            setNextButtonEnabled(enable);
         }
     }
 

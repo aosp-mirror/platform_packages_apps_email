@@ -119,11 +119,14 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final int layoutId = mSettingsMode
-                ? R.layout.account_settings_incoming_fragment
-                : R.layout.account_setup_incoming_fragment;
-
-        final View view = inflater.inflate(layoutId, container, false);
+        final View view;
+        if (mSettingsMode) {
+            view = inflater.inflate(R.layout.account_settings_incoming_fragment, container, false);
+        } else {
+            view = inflateTemplatedView(inflater, container,
+                    R.layout.account_setup_incoming_fragment,
+                    R.string.account_setup_incoming_headline);
+        }
 
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mServerLabelView = UiUtilities.getView(view, R.id.account_server_label);

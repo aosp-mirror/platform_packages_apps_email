@@ -40,6 +40,7 @@ import com.android.emailcommon.provider.Account;
 public class AccountSetupNamesFragment extends AccountSetupFragment {
     private EditText mDescription;
     private EditText mName;
+    private View mAccountNameLabel;
     private boolean mRequiresName = true;
 
     public interface Callback extends AccountSetupFragment.Callback {
@@ -58,18 +59,11 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.account_setup_names_fragment, container, false);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        final View view = getView();
-
+        final View view = inflateTemplatedView(inflater, container,
+                R.layout.account_setup_names_fragment, R.string.account_setup_names_headline);
         mDescription = UiUtilities.getView(view, R.id.account_description);
         mName = UiUtilities.getView(view, R.id.account_name);
-        final View accountNameLabel = UiUtilities.getView(view, R.id.account_name_label);
+        mAccountNameLabel = UiUtilities.getView(view, R.id.account_name_label);
 
         final TextWatcher validationTextWatcher = new TextWatcher() {
             @Override
@@ -87,6 +81,18 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
         };
         mName.addTextChangedListener(validationTextWatcher);
         mName.setKeyListener(TextKeyListener.getInstance(false, TextKeyListener.Capitalize.WORDS));
+
+        setPreviousButtonVisibility(View.INVISIBLE);
+
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // Make sure the layout is inflated before twiddling with it
+        getView();
 
         final SetupDataFragment setupData =
                 ((SetupDataFragment.SetupDataContainer) getActivity()).getSetupData();
@@ -109,7 +115,7 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
         if (!info.usesSmtp) {
             mRequiresName = false;
             mName.setVisibility(View.GONE);
-            accountNameLabel.setVisibility(View.GONE);
+            mAccountNameLabel.setVisibility(View.GONE);
         } else {
             if (account.getSenderName() != null) {
                 mName.setText(account.getSenderName());
@@ -165,11 +171,7 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
                 mName.setError(null);
             }
         }
-        final Callback callback = (Callback) getActivity();
-        if (callback != null) {
-            // If we're not attached to the activity, this state probably doesn't need updating
-            callback.setNextButtonEnabled(enableNextButton);
-        }
+        setNextButtonEnabled(enableNextButton);
     }
 
     public String getDescription() {

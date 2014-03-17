@@ -55,8 +55,8 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.account_setup_options_fragment, container,
-                false);
+        final View view = inflateTemplatedView(inflater, container,
+                R.layout.account_setup_options_fragment, R.string.account_setup_options_headline);
 
         mCheckFrequencyView = UiUtilities.getView(view, R.id.account_check_frequency);
         mSyncWindowView = UiUtilities.getView(view, R.id.account_sync_window);

@@ -46,7 +46,8 @@ public class AccountSetupTypeFragment extends AccountSetupFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.account_setup_type_fragment, container, false);
+        final View view = inflateTemplatedView(inflater, container,
+                R.layout.account_setup_type_fragment, R.string.account_setup_account_type_headline);
 
         final Context appContext = inflater.getContext().getApplicationContext();
 
@@ -75,6 +76,8 @@ public class AccountSetupTypeFragment extends AccountSetupFragment
                 i++;
             }
         }
+
+        setNextButtonVisibility(View.INVISIBLE);
 
         return view;
     }

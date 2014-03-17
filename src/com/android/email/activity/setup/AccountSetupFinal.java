@@ -36,26 +36,21 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.email.R;
-import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
-import com.google.common.annotations.VisibleForTesting;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AccountSetupFinal extends AccountSetupActivity
-        implements View.OnClickListener, AccountFinalizeFragment.Callback,
+        implements AccountFinalizeFragment.Callback,
         AccountSetupNoteDialogFragment.Callback, AccountCreationFragment.Callback,
         AccountCheckSettingsFragment.Callback, SecurityRequiredDialogFragment.Callback,
         CheckSettingsErrorDialogFragment.Callback, CheckSettingsProgressDialogFragment.Callback,
@@ -168,10 +163,6 @@ public class AccountSetupFinal extends AccountSetupActivity
     private VendorPolicyLoader.Provider mProvider;
     private boolean mPasswordFailed;
 
-    // UI elements
-    @VisibleForTesting
-    protected ImageButton mNextButton;
-
     private static final int OWNER_NAME_LOADER_ID = 0;
     private String mOwnerName;
 
@@ -209,7 +200,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             INTENT_CREATE_ACCOUNT = getString(R.string.intent_create_account);
         }
 
-        setContentView(R.layout.account_setup);
+        setContentView(R.layout.account_setup_activity);
 
         if (savedInstanceState != null) {
             mIsProcessing = savedInstanceState.getBoolean(SAVESTATE_KEY_IS_PROCESSING, false);
@@ -224,8 +215,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                     savedInstanceState.getBoolean(SAVESTATE_KEY_IS_PRE_CONFIGURED);
             mSkipAutoDiscover = savedInstanceState.getBoolean(SAVESTATE_KEY_SKIP_AUTO_DISCOVER);
             mPasswordFailed = savedInstanceState.getBoolean(SAVESTATE_KEY_PASSWORD_FAILED);
-            // I don't know why this view state doesn't get restored
-            updateHeadline();
         } else {
             // If we're not restoring from a previous state, we want to configure the initial screen
 
@@ -263,14 +252,9 @@ public class AccountSetupFinal extends AccountSetupActivity
             } else if (TextUtils.equals(ACTION_JUMP_TO_OPTIONS, action)) {
                 mState = STATE_OPTIONS;
             }
-            updateHeadline();
             updateContentFragment(false /* addToBackstack */);
             mPasswordFailed = false;
         }
-
-        UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
-        mNextButton = UiUtilities.getView(this, R.id.next);
-        mNextButton.setOnClickListener(this);
 
         if (!mIsProcessing
                 && mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
@@ -342,7 +326,6 @@ public class AccountSetupFinal extends AccountSetupActivity
             }
 
             mState = STATE_OPTIONS;
-            updateHeadline();
             updateContentFragment(false /* addToBackstack */);
             getFragmentManager().executePendingTransactions();
 
@@ -446,39 +429,6 @@ public class AccountSetupFinal extends AccountSetupActivity
     }
 
     /**
-     * Set the headline text according to mState.
-     */
-    private void updateHeadline() {
-        TextView headlineView = UiUtilities.getView(this, R.id.headline);
-        switch (mState) {
-            case STATE_BASICS:
-                headlineView.setText(R.string.account_setup_basics_headline);
-                break;
-            case STATE_TYPE:
-                headlineView.setText(R.string.account_setup_account_type_headline);
-                break;
-            case STATE_CREDENTIALS:
-                // TODO: real string
-                headlineView.setText(R.string.sign_in_title);
-                break;
-            case STATE_MANUAL_INCOMING:
-                headlineView.setText(R.string.account_setup_incoming_headline);
-                break;
-            case STATE_MANUAL_OUTGOING:
-                headlineView.setText(R.string.account_setup_outgoing_headline);
-                break;
-            case STATE_OPTIONS:
-                headlineView.setText(R.string.account_setup_options_headline);
-                break;
-            case STATE_NAMES:
-                headlineView.setText(R.string.account_setup_names_headline);
-                break;
-            default:
-                throw new IllegalStateException("Incorrect state" + mState);
-        }
-    }
-
-    /**
      * Swap in the new fragment according to mState. This pushes the current fragment onto the back
      * stack, so only call it once per transition.
      */
@@ -496,7 +446,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             case STATE_CREDENTIALS:
                 f = AccountSetupCredentialsFragment.newInstance(mSetupData.getEmail(),
                         mSetupData.getIncomingProtocol(this), mSetupData.getClientCert(this),
-                        mPasswordFailed);
+                        mPasswordFailed, false /* standalone */);
                 backstackTag = CREDENTIALS_BACKSTACK_TAG;
                 break;
             case STATE_MANUAL_INCOMING:
@@ -538,7 +488,6 @@ public class AccountSetupFinal extends AccountSetupActivity
     private void resetStateFromCurrentFragment() {
         AccountSetupFragment f = getContentFragment();
         mState = f.getState();
-        updateHeadline();
     }
 
     /**
@@ -547,7 +496,10 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     protected void proceed() {
         mIsProcessing = false;
-        setNextButtonEnabled(true);
+        final AccountSetupFragment oldContentFragment = getContentFragment();
+        if (oldContentFragment != null) {
+            oldContentFragment.setNextButtonEnabled(true);
+        }
 
         getFragmentManager().executePendingTransactions();
 
@@ -590,13 +542,11 @@ public class AccountSetupFinal extends AccountSetupActivity
                         }
                     }
                 }
-                updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
             case STATE_TYPE:
                 // We either got here through "Manual Setup" or because we didn't find the provider
                 mState = STATE_CREDENTIALS;
-                updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
             case STATE_CREDENTIALS:
@@ -608,7 +558,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } else {
                     if (mSkipAutoDiscover) {
                         mState = STATE_MANUAL_INCOMING;
-                        updateHeadline();
                         updateContentFragment(true /* addToBackstack */);
                     } else {
                         mState = STATE_AUTO_DISCOVER;
@@ -628,19 +577,16 @@ public class AccountSetupFinal extends AccountSetupActivity
                         resetStateFromCurrentFragment();
                     } else {
                         mState = STATE_MANUAL_INCOMING;
-                        updateHeadline();
                         updateContentFragment(true /* addToBackstack */);
                     }
                 } else {
                     mState = STATE_OPTIONS;
-                    updateHeadline();
                     updateContentFragment(true /* addToBackstack */);
                 }
                 break;
             case STATE_AUTO_DISCOVER:
                 // TODO: figure out if we can skip past manual setup
                 mState = STATE_MANUAL_INCOMING;
-                updateHeadline();
                 updateContentFragment(true);
                 break;
             case STATE_MANUAL_INCOMING:
@@ -656,7 +602,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } else {
                     mState = STATE_OPTIONS;
                 }
-                updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
             case STATE_MANUAL_OUTGOING:
@@ -666,7 +611,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CHECKING_OUTGOING:
                 mState = STATE_OPTIONS;
-                updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 break;
             case STATE_OPTIONS:
@@ -675,7 +619,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_CREATING:
                 mState = STATE_NAMES;
-                updateHeadline();
                 updateContentFragment(true /* addToBackstack */);
                 if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
                     getFragmentManager().executePendingTransactions();
@@ -731,27 +674,12 @@ public class AccountSetupFinal extends AccountSetupActivity
         super.finish();
     }
 
-    /**
-     * Respond to clicks in the "Next" or "Previous" buttons
-     */
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.next:
-                // Some states are handled without UI, block double-presses here
-                if (!mIsProcessing) {
-                    proceed();
-                }
-                break;
-            case R.id.previous:
-                onBackPressed();
-                break;
+    public void onNextButton() {
+        // Some states are handled without UI, block double-presses here
+        if (!mIsProcessing) {
+            proceed();
         }
-    }
-
-    @Override
-    public void setNextButtonEnabled(final boolean enabled) {
-        mNextButton.setEnabled(enabled);
     }
 
     /**
@@ -1056,7 +984,7 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     private void initiateAccountCreation() {
         mIsProcessing = true;
-        setNextButtonEnabled(false);
+        getContentFragment().setNextButtonEnabled(false);
 
         final Account account = mSetupData.getAccount();
         if (account.mHostAuthRecv == null) {
@@ -1212,7 +1140,7 @@ public class AccountSetupFinal extends AccountSetupActivity
      */
     private void initiateAccountFinalize() {
         mIsProcessing = true;
-        setNextButtonEnabled(false);
+        getContentFragment().setNextButtonEnabled(false);
 
         AccountSetupNamesFragment fragment = (AccountSetupNamesFragment) getContentFragment();
         // Update account object from UI
