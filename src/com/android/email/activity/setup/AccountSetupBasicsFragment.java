@@ -46,8 +46,8 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.account_setup_basics_fragment, container,
-                false);
+        final View view = inflateTemplatedView(inflater, container,
+                R.layout.account_setup_basics_fragment, R.string.account_setup_basics_headline);
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
         mManualSetupView = UiUtilities.getView(view, R.id.manual_setup);
@@ -67,6 +67,8 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
 
         mEmailView.addTextChangedListener(textWatcher);
 
+        setPreviousButtonVisibility(View.INVISIBLE);
+
         return view;
     }
 
@@ -84,8 +86,7 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
                 && addresses.length == 1
                 && !TextUtils.isEmpty(addresses[0].getAddress());
 
-        final Callback callback = (Callback) getActivity();
-        callback.setNextButtonEnabled(emailValid);
+        setNextButtonEnabled(emailValid);
     }
 
     public void setEmail(final String email) {

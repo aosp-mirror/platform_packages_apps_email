@@ -654,7 +654,7 @@ public class AccountSettings extends PreferenceActivity implements
     }
 
     @Override
-    public void setNextButtonEnabled(boolean enabled) {}
+    public void onNextButton() {}
 
     /**
      * Save process is done, dismiss the fragment.

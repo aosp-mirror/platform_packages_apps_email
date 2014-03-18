@@ -10,10 +10,7 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 
 public class AccountCredentials extends Activity
-        implements AccountSetupCredentialsFragment.Callback, View.OnClickListener {
-
-    private View mDoneButton;
-    private View mCancelButton;
+        implements AccountSetupCredentialsFragment.Callback {
 
     private static final String EXTRA_EMAIL = "email";
     private static final String EXTRA_PROTOCOL = "protocol";
@@ -37,15 +34,10 @@ public class AccountCredentials extends Activity
 
         final AccountSetupCredentialsFragment f =
                 AccountSetupCredentialsFragment.newInstance(emailAddress, protocol,
-                        null /* clientCert */, false /* passwordFailed */);
+                        null /* clientCert */, false /* passwordFailed */, true /* standalone */);
         getFragmentManager().beginTransaction()
                 .add(R.id.account_credentials_fragment_container, f, CREDENTIALS_FRAGMENT_TAG)
                 .commit();
-
-        mDoneButton = UiUtilities.getView(this, R.id.done);
-        mCancelButton = UiUtilities.getView(this, R.id.cancel);
-        mDoneButton.setOnClickListener(this);
-        mCancelButton.setOnClickListener(this);
 
         // Assume canceled until we find out otherwise.
         setResult(RESULT_CANCELED);
@@ -60,19 +52,10 @@ public class AccountCredentials extends Activity
     }
 
     @Override
-    public void onClick(View view) {
-        if (view == mDoneButton) {
-            final AccountSetupCredentialsFragment fragment = (AccountSetupCredentialsFragment)
-                    getFragmentManager().findFragmentByTag(CREDENTIALS_FRAGMENT_TAG);
-            final Bundle results = fragment.getCredentialResults();
-            onCredentialsComplete(results);
-        } else if (view == mCancelButton) {
-            finish();
-        }
-    }
-
-    @Override
-    public void setNextButtonEnabled(boolean enabled) {
-        mDoneButton.setEnabled(enabled);
+    public void onNextButton() {
+        final AccountSetupCredentialsFragment fragment = (AccountSetupCredentialsFragment)
+                getFragmentManager().findFragmentByTag(CREDENTIALS_FRAGMENT_TAG);
+        final Bundle results = fragment.getCredentialResults();
+        onCredentialsComplete(results);
     }
 }
