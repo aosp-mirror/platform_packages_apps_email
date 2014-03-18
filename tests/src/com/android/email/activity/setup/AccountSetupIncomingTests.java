@@ -22,6 +22,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
+import android.view.View;
 import android.widget.EditText;
 
 import com.android.email.R;
@@ -64,7 +65,8 @@ public class AccountSetupIncomingTests extends
     }
 
     private boolean isNextButtonEnabled() {
-        return mActivity.mNextButton.isEnabled();
+        final View nextButton = mActivity.findViewById(R.id.next);
+        return nextButton.isEnabled();
     }
 
     /**

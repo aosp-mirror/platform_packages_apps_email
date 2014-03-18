@@ -68,27 +68,6 @@ public class UiUtilitiesTests extends AndroidTestCase {
         assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, false));
     }
 
-    public void testGetView() {
-        // Test for getView(Activity, int)
-        DummyActivity a = new DummyActivity();
-        DummyView v = new DummyView(getContext());
-
-        a.mDummyViewId = 10;
-        a.mDummyView = v;
-        assertEquals(v, UiUtilities.getView(a, 10));
-
-        try {
-            assertEquals(v, UiUtilities.getView(a, 11));
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
-
-        // TODO Test for getView(View, int)?
-        // Unfortunately View.findViewById is final, so can't use the same approach.
-        // Also it's a huge pain to set up an actual, nested views in unit tests, so let's leave
-        // it for now.
-    }
-
     public void brokentestSetVisibilitySafe() {
         {
             DummyView v = new DummyView(getContext());
