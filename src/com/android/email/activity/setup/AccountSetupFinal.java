@@ -739,6 +739,18 @@ public class AccountSetupFinal extends AccountSetupActivity
                 getContentFragment();
         final Bundle results = f.getCredentialResults();
         mSetupData.setCredentialResults(results);
+        final Account account = mSetupData.getAccount();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        AccountSetupCredentialsFragment.populateHostAuthWithResults(this, recvAuth,
+                mSetupData.getCredentialResults());
+        mSetupData.setIncomingCredLoaded(true);
+        final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
+        if (info.usesSmtp) {
+            final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+            AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
+                    mSetupData.getCredentialResults());
+            mSetupData.setOutgoingCredLoaded(true);
+        }
     }
 
     @Override
@@ -767,9 +779,6 @@ public class AccountSetupFinal extends AccountSetupActivity
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             recvAuth.setHostAuthFromString(mProvider.incomingUri);
             recvAuth.setUserName(mProvider.incomingUsername);
-            AccountSetupCredentialsFragment.populateHostAuthWithResults(this, recvAuth,
-                    mSetupData.getCredentialResults());
-            mSetupData.setIncomingCredLoaded(true);
 
             final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
             recvAuth.mPort =
@@ -779,9 +788,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
                 sendAuth.setHostAuthFromString(mProvider.outgoingUri);
                 sendAuth.setUserName(mProvider.outgoingUsername);
-                AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
-                        mSetupData.getCredentialResults());
-                mSetupData.setOutgoingCredLoaded(true);
             }
 
             // Populate the setup data, assuming that the duplicate account check will succeed
