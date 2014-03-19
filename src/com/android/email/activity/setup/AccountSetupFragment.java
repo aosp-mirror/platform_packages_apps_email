@@ -112,6 +112,11 @@ public class AccountSetupFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    public boolean isNextButtonEnabled() {
+        return mNextButton.isEnabled();
+    }
+
+
     /**
      * Set visibility of the "previous" button
      * @param visibility {@link View#INVISIBLE}, {@link View#VISIBLE}, {@link View#GONE}

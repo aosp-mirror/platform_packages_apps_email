@@ -50,7 +50,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class AccountSetupCredentialsFragment extends AccountSetupFragment
-        implements OnClickListener, HostCallback {
+        implements OnClickListener, HostCallback, TextView.OnEditorActionListener {
 
     private static final int CERTIFICATE_REQUEST = 1000;
 
@@ -146,24 +146,8 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mClientCertificateSelector.setHostCallback(this);
         mClientCertificateSelector.setCertificate(getArguments().getString(EXTRA_CLIENT_CERT));
 
-        TextView.OnEditorActionListener editorActionListener =
-                new TextView.OnEditorActionListener() {
-                    @Override
-                    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-                        if (actionId == EditorInfo.IME_ACTION_DONE) {
-                            final Callback callback = (Callback) getActivity();
-                            if (callback != null) {
-                                final Bundle results = getCredentialResults();
-                                callback.onCredentialsComplete(results);
-                            }
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                };
-        mImapPasswordText.setOnEditorActionListener(editorActionListener);
-        mRegularPasswordText.setOnEditorActionListener(editorActionListener);
+        mImapPasswordText.setOnEditorActionListener(this);
+        mRegularPasswordText.setOnEditorActionListener(this);
 
         // After any text edits, call validateFields() which enables or disables the Next button
         mValidationTextWatcher = new TextWatcher() {
@@ -323,6 +307,22 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
             callback.onBackPressed();
         } else {
             super.onClick(view);
+        }
+    }
+
+    @Override
+    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (isNextButtonEnabled()) {
+                final Callback callback = (Callback) getActivity();
+                if (callback != null) {
+                    final Bundle results = getCredentialResults();
+                    callback.onCredentialsComplete(results);
+                }
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
