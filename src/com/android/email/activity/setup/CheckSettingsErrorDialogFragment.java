@@ -73,11 +73,11 @@ public class CheckSettingsErrorDialogFragment extends DialogFragment{
         final Bundle arguments = getArguments();
         final String message = arguments.getString(ARGS_MESSAGE);
         final int reason = arguments.getInt(ARGS_REASON);
-        final Callback callback = (Callback) getActivity();
+
+        setCancelable(true);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setMessage(message)
-                .setCancelable(true);
+                .setMessage(message);
 
         // Use a different title when we get
         // MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED
@@ -97,6 +97,7 @@ public class CheckSettingsErrorDialogFragment extends DialogFragment{
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dismiss();
+                            final Callback callback = (Callback) getActivity();
                             callback.onCheckSettingsErrorDialogEditCertificate();
                         }
                     });
@@ -105,8 +106,7 @@ public class CheckSettingsErrorDialogFragment extends DialogFragment{
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dismiss();
-                            callback.onCheckSettingsErrorDialogEditSettings();
+                            dialog.cancel();
                         }
                     });
 
@@ -117,12 +117,18 @@ public class CheckSettingsErrorDialogFragment extends DialogFragment{
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dismiss();
-                            callback.onCheckSettingsErrorDialogEditSettings();
+                            dialog.cancel();
                         }
                     });
         }
         return builder.create();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        final Callback callback = (Callback) getActivity();
+        callback.onCheckSettingsErrorDialogEditSettings();
     }
 
     public static int getReasonFromException (MessagingException ex) {

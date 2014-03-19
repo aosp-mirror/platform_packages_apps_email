@@ -499,8 +499,8 @@ public class AccountSecurity extends Activity {
             b.setTitle(R.string.account_security_dialog_title);
             b.setIconAttribute(android.R.attr.alertDialogIcon);
             b.setMessage(res.getString(R.string.account_security_dialog_content_fmt, accountName));
-            b.setPositiveButton(R.string.okay_action, this);
-            b.setNegativeButton(R.string.cancel_action, this);
+            b.setPositiveButton(android.R.string.ok, this);
+            b.setNegativeButton(android.R.string.cancel, this);
             if (MailActivityEmail.DEBUG || DEBUG) {
                 LogUtils.d(TAG, "Posting security needed dialog");
             }
@@ -575,13 +575,13 @@ public class AccountSecurity extends Activity {
 
             final Context context = getActivity();
             final Resources res = context.getResources();
-            final AlertDialog.Builder b = new AlertDialog.Builder(context);
-            b.setTitle(titleId);
-            b.setIconAttribute(android.R.attr.alertDialogIcon);
-            b.setMessage(res.getString(contentId, accountName));
-            b.setPositiveButton(R.string.okay_action, this);
-            b.setNegativeButton(R.string.cancel_action, this);
-            return b.create();
+            return new AlertDialog.Builder(context)
+                    .setTitle(titleId)
+                    .setIconAttribute(android.R.attr.alertDialogIcon)
+                    .setMessage(res.getString(contentId, accountName))
+                    .setPositiveButton(android.R.string.ok, this)
+                    .setNegativeButton(android.R.string.cancel, this)
+                    .create();
         }
 
         @Override

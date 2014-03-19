@@ -26,7 +26,7 @@
         style="@style/accountSettingsButton"
         android:layout_width="0dip"
         android:layout_weight="1"
-        android:text="@string/cancel_action" />
+        android:text="@android:string/cancel" />
     <Button
         android:id="@+id/done"
         style="@style/accountSettingsButton"

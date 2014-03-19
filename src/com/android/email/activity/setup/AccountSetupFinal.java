@@ -56,7 +56,8 @@ public class AccountSetupFinal extends AccountSetupActivity
         CheckSettingsErrorDialogFragment.Callback, CheckSettingsProgressDialogFragment.Callback,
         AccountSetupTypeFragment.Callback, AccountSetupNamesFragment.Callback,
         AccountSetupOptionsFragment.Callback, AccountSetupBasicsFragment.Callback,
-        AccountServerBaseFragment.Callback, AccountSetupCredentialsFragment.Callback {
+        AccountServerBaseFragment.Callback, AccountSetupCredentialsFragment.Callback,
+        DuplicateAccountDialogFragment.Callback {
 
     // STOPSHIP: Set to false before shipping, logs PII
     private final static boolean ENTER_DEBUG_SCREEN = true;
@@ -712,9 +713,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             mIsPreConfiguredProvider = false;
             final String existingAccountName = mExistingAccountsMap.get(email);
             if (!TextUtils.isEmpty(existingAccountName)) {
-                final DuplicateAccountDialogFragment dialogFragment =
-                        DuplicateAccountDialogFragment.newInstance(existingAccountName);
-                dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
+                showDuplicateAccountDialog(existingAccountName);
                 return false;
             } else {
                 populateSetupData(mOwnerName, email);
@@ -722,6 +721,17 @@ public class AccountSetupFinal extends AccountSetupActivity
                 return true;
             }
         }
+    }
+
+    private void showDuplicateAccountDialog(final String existingAccountName) {
+        final DuplicateAccountDialogFragment dialogFragment =
+                DuplicateAccountDialogFragment.newInstance(existingAccountName);
+        dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
+    }
+
+    @Override
+    public void onDuplicateAccountDialogDismiss() {
+        resetStateFromCurrentFragment();
     }
 
     private boolean shouldDivertToManual() {
@@ -796,9 +806,7 @@ public class AccountSetupFinal extends AccountSetupActivity
             final String duplicateAccountName =
                     mExistingAccountsMap != null ? mExistingAccountsMap.get(email) : null;
             if (duplicateAccountName != null) {
-                final DuplicateAccountDialogFragment dialogFragment =
-                        DuplicateAccountDialogFragment.newInstance(duplicateAccountName);
-                dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
+                showDuplicateAccountDialog(duplicateAccountName);
                 return false;
             }
         } catch (URISyntaxException e) {
@@ -896,6 +904,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     @Override
     public void onCheckSettingsProgressDialogCancel() {
         dismissCheckSettingsFragment();
+        resetStateFromCurrentFragment();
     }
 
     private void dismissCheckSettingsFragment() {
@@ -1088,6 +1097,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             /// Show "Creating account..." dialog
+            setCancelable(false);
             final ProgressDialog d = new ProgressDialog(getActivity());
             d.setIndeterminate(true);
             d.setMessage(getString(R.string.account_setup_creating_account_msg));
@@ -1117,13 +1127,12 @@ public class AccountSetupFinal extends AccountSetupActivity
             final String message = getString(R.string.account_setup_failed_dlg_auth_message,
                     R.string.system_account_create_failed);
 
+            setCancelable(false);
             return new AlertDialog.Builder(getActivity())
                     .setIconAttribute(android.R.attr.alertDialogIcon)
-                    .setTitle(getString(R.string.account_setup_failed_dlg_title))
+                    .setTitle(R.string.account_setup_failed_dlg_title)
                     .setMessage(message)
-                    .setCancelable(true)
-                    .setPositiveButton(
-                            getString(R.string.account_setup_failed_dlg_edit_details_action), this)
+                    .setPositiveButton(android.R.string.ok, this)
                     .create();
         }
 

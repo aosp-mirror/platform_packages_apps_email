@@ -139,7 +139,7 @@ public class InsertQuickResponseDialog extends DialogFragment {
         b.setTitle(getResources()
                 .getString(R.string.message_compose_insert_quick_response_list_title))
                 .setView(listView)
-                .setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();

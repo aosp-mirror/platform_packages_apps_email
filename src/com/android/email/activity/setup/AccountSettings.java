@@ -901,7 +901,7 @@ public class AccountSettings extends PreferenceActivity implements
                 .setTitle(android.R.string.dialog_alert_title)
                 .setMessage(R.string.account_settings_exit_server_settings)
                 .setPositiveButton(
-                        R.string.okay_action,
+                        android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -914,7 +914,7 @@ public class AccountSettings extends PreferenceActivity implements
                             }
                         })
                 .setNegativeButton(
-                        activity.getString(R.string.cancel_action), null)
+                        activity.getString(android.R.string.cancel), null)
                 .create();
         }
     }
@@ -973,8 +973,8 @@ public class AccountSettings extends PreferenceActivity implements
                 b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
                         accountName));
             }
-            b.setPositiveButton(R.string.okay_action, this);
-            b.setNegativeButton(R.string.cancel_action, this);
+            b.setPositiveButton(android.R.string.ok, this);
+            b.setNegativeButton(android.R.string.cancel, this);
             return b.create();
         }
 
