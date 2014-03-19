@@ -30,6 +30,7 @@ import com.android.email.service.EmailServiceUtils;
 
 public class AccountSetupTypeFragment extends AccountSetupFragment
         implements View.OnClickListener {
+    private int mLastId;
 
     public interface Callback extends AccountSetupFragment.Callback {
         /**
@@ -76,6 +77,7 @@ public class AccountSetupTypeFragment extends AccountSetupFragment
                 i++;
             }
         }
+        mLastId = i - 1;
 
         setNextButtonVisibility(View.INVISIBLE);
 
@@ -84,8 +86,13 @@ public class AccountSetupTypeFragment extends AccountSetupFragment
 
     @Override
     public void onClick(View v) {
-        final String protocol = (String) v.getTag();
-        final Callback callback = (Callback) getActivity();
-        callback.onChooseProtocol(protocol);
+        final int viewId = v.getId();
+        if (viewId <= mLastId) {
+            final String protocol = (String) v.getTag();
+            final Callback callback = (Callback) getActivity();
+            callback.onChooseProtocol(protocol);
+        } else {
+            super.onClick(v);
+        }
     }
 }
