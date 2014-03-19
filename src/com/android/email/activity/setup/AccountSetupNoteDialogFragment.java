@@ -55,12 +55,14 @@ public class AccountSetupNoteDialogFragment extends DialogFragment {
         final Context context = getActivity();
         final String note = getArguments().getString(BUNDLE_KEY_NOTE);
 
+        setCancelable(true);
+
         return new AlertDialog.Builder(context)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(android.R.string.dialog_alert_title)
                 .setMessage(note)
                 .setPositiveButton(
-                        R.string.okay_action,
+                        android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -70,15 +72,20 @@ public class AccountSetupNoteDialogFragment extends DialogFragment {
                             }
                         })
                 .setNegativeButton(
-                        context.getString(R.string.cancel_action),
+                        context.getString(android.R.string.cancel),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                final Callback a = (Callback) getActivity();
-                                a.onNoteDialogCancel();
-                                dismiss();
+                                dialog.cancel();
                             }
                         })
                 .create();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        final Callback a = (Callback) getActivity();
+        a.onNoteDialogCancel();
     }
 }

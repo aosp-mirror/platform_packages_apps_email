@@ -85,18 +85,18 @@ public class CheckSettingsProgressDialogFragment extends DialogFragment {
                     progress);
         }
 
+        // Don't bail out if the user taps outside the progress window
+        setCancelable(false);
+
         final ProgressDialog dialog = new ProgressDialog(context);
         dialog.setIndeterminate(true);
         dialog.setMessage(mProgressString);
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                context.getString(R.string.cancel_action),
+                context.getString(android.R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-
-                        final Callback callback = (Callback) getActivity();
-                            callback.onCheckSettingsProgressDialogCancel();
+                        dialog.cancel();
                     }
                 });
         return dialog;

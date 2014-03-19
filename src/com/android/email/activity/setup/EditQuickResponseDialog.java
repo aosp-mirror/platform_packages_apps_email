@@ -129,7 +129,7 @@ public class EditQuickResponseDialog extends DialogFragment {
         final AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
         b.setTitle(getResources().getString(R.string.edit_quick_response_dialog))
                 .setView(wrapper)
-                .setNegativeButton(R.string.cancel_action, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.save_action, saveClickListener);
         if (!create) {
             b.setNeutralButton(R.string.delete, deleteClickListener);

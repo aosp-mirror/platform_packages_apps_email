@@ -67,32 +67,41 @@ public class SecurityRequiredDialogFragment extends DialogFragment {
         final Context context = getActivity();
         final Bundle arguments = getArguments();
         final String hostName = arguments.getString(ARGS_HOST_NAME);
-        final Callback callback = (Callback) getActivity();
+
+        setCancelable(true);
 
         return new AlertDialog.Builder(context)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(context.getString(R.string.account_setup_security_required_title))
                 .setMessage(context.getString(
                         R.string.account_setup_security_policies_required_fmt, hostName))
-                .setCancelable(true)
                 .setPositiveButton(
-                        context.getString(R.string.okay_action),
+                        context.getString(android.R.string.ok),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dismiss();
+                                final Callback callback = (Callback) getActivity();
                                 callback.onSecurityRequiredDialogResult(true);
                             }
                         })
                 .setNegativeButton(
-                        context.getString(R.string.cancel_action),
+                        context.getString(android.R.string.cancel),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dismiss();
-                                callback.onSecurityRequiredDialogResult(false);
+                                dialog.cancel();
                             }
                         })
                 .create();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        final Callback callback = (Callback) getActivity();
+        if (callback != null) {
+            callback.onSecurityRequiredDialogResult(false);
+        }
     }
 }
