@@ -391,6 +391,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
+    public void sync(final long accountId, final boolean updateFolderList,
+            final int mailboxType, final long[] folders) {}
+
+    @Override
     public void sendMail(long accountId) throws RemoteException {
         sendMailImpl(mContext, accountId);
     }
