@@ -537,7 +537,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
-            service.loadAttachment(mServiceCallback, req.attachmentId,
+            service.loadAttachment(mServiceCallback, req.accountId, req.attachmentId,
                     req.priority != PRIORITY_FOREGROUND);
             setWatchdogAlarm();
         }

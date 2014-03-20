@@ -27,7 +27,8 @@ interface IEmailService {
     // Core email operations.
     // TODO: is sendMail really necessary, or should we standardize on sync(outbox)?
     void sendMail(long accountId);
-    oneway void loadAttachment(IEmailServiceCallback cb, long attachmentId, boolean background);
+    oneway void loadAttachment(IEmailServiceCallback cb, long accountId, long attachmentId,
+            boolean background);
     oneway void updateFolderList(long accountId);
 
     // Push-related functionality.

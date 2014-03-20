@@ -76,8 +76,8 @@ public class Pop3Service extends Service {
      */
     private final EmailServiceStub mBinder = new EmailServiceStub() {
         @Override
-        public void loadAttachment(final IEmailServiceCallback callback, final long attachmentId,
-                final boolean background) throws RemoteException {
+        public void loadAttachment(final IEmailServiceCallback callback, final long accountId,
+                final long attachmentId, final boolean background) throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (att == null || att.mUiState != AttachmentState.DOWNLOADING) return;
             long inboxId = Mailbox.findMailboxOfType(mContext, att.mAccountKey, Mailbox.TYPE_INBOX);
