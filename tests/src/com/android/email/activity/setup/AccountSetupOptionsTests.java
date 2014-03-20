@@ -28,7 +28,7 @@ import android.widget.SpinnerAdapter;
 
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupOptions;
-import com.android.email.activity.setup.SetupDataFragment;
+//import com.android.email.activity.setup.SetupDataFragment;
 import com.android.email.activity.setup.SpinnerOption;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
