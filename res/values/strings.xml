@@ -809,6 +809,9 @@
     <string name="intent_exchange_package" translatable="false">com.android.exchange</string>
     <string name="intent_account_manager_entry" translatable="false">com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY</string>
     <string name="authority_email_provider" translatable="false">com.android.email.provider</string>
+    <string name="authority_conversation_provider" translatable="false">com.android.email.conversation.provider</string>
+    <string name="authority_account_cache_provider" translatable="false">com.android.email.accountcache</string>
+    <string name="authority_suggestions_provider" translatable="false">com.android.email.suggestionsprovider</string>
     <string name="protocol_legacy_imap" translatable="false">imap</string>
     <string name="protocol_imap" translatable="false">imap</string>
     <string name="protocol_pop3" translatable="false">pop3</string>
