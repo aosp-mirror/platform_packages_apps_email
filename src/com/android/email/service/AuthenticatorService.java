@@ -17,6 +17,7 @@
 package com.android.email.service;
 
 import com.android.email.activity.setup.AccountSetupFinal;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -56,7 +57,12 @@ public class AuthenticatorService extends Service {
                 String authTokenType, String[] requiredFeatures, Bundle options)
                 throws NetworkErrorException {
 
-            // There are two cases here:
+            final String protocol = EmailServiceUtils.getProtocolFromAccountType(
+                    AuthenticatorService.this, accountType);
+            final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(
+                    AuthenticatorService.this, protocol);
+
+                    // There are two cases here:
             // 1) We are called with a username/password; this comes from the traditional email
             //    app UI; we simply create the account and return the proper bundle
             if (options != null && options.containsKey(OPTIONS_PASSWORD)
@@ -67,16 +73,16 @@ public class AuthenticatorService extends Service {
                             account, options.getString(OPTIONS_PASSWORD), null);
 
                 // Set up contacts syncing, if appropriate
-                if (options.containsKey(OPTIONS_CONTACTS_SYNC_ENABLED)) {
-                    boolean syncContacts = options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED);
+                if (info.syncContacts) {
+                    boolean syncContacts = options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED, false);
                     ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
                     ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY,
                             syncContacts);
                 }
 
                 // Set up calendar syncing, if appropriate
-                if (options.containsKey(OPTIONS_CALENDAR_SYNC_ENABLED)) {
-                    boolean syncCalendar = options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED);
+                if (info.syncCalendar) {
+                    boolean syncCalendar = options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED, false);
                     ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 1);
                     ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY,
                             syncCalendar);
