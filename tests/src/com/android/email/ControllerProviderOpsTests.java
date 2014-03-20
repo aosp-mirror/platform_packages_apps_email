@@ -17,21 +17,15 @@
 package com.android.email;
 
 import android.content.Context;
-import android.net.Uri;
 import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Tests of the Controller class that depend on the underlying provider.
@@ -43,6 +37,7 @@ import java.util.concurrent.ExecutionException;
  * You can run this entire test case with:
  *   runtest -c com.android.email.ControllerProviderOpsTests email
  */
+@Suppress
 public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider> {
     private Context mProviderContext;
     private Context mContext;

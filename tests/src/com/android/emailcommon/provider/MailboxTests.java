@@ -16,14 +16,6 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +24,15 @@ import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
+
+import com.android.email.provider.ContentCache;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.Arrays;
 
@@ -39,6 +40,7 @@ import java.util.Arrays;
  * Unit tests for the Mailbox inner class.
  * These tests must be locally complete - no server(s) required.
  */
+@Suppress
 @SmallTest
 public class MailboxTests extends ProviderTestCase2<EmailProvider> {
     private static final String TEST_DISPLAY_NAME = "display-name";
