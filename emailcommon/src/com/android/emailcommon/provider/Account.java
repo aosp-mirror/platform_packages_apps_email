@@ -166,6 +166,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_SIGNATURE_COLUMN = 15;
     public static final int CONTENT_POLICY_KEY_COLUMN = 16;
     public static final int CONTENT_PING_DURATION_COLUMN = 17;
+    public static final int CONTENT_MAX_ATTACHMENT_SIZE_COLUMN = 18;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -175,7 +176,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
         AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
-        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY, AccountColumns.PING_DURATION
+        AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY, AccountColumns.PING_DURATION,
+        AccountColumns.MAX_ATTACHMENT_SIZE
     };
 
     public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
