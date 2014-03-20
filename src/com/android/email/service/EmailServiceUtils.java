@@ -634,19 +634,6 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
-                throws RemoteException {
-        }
-
-        @Override
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        @Override
-        public void loadMore(long messageId) throws RemoteException {
-        }
-
-        @Override
         public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
                 final boolean background) throws RemoteException {
         }
@@ -656,27 +643,7 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
-
-        @Override
         public void setLogging(int on) throws RemoteException {
-        }
-
-        @Override
-        public void hostChanged(long accountId) throws RemoteException {
         }
 
         @Override
@@ -693,11 +660,6 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public int getApiLevel() throws RemoteException {
-            return Api.LEVEL;
-        }
-
-        @Override
         public int searchMessages(long accountId, SearchParams params, long destMailboxId)
                 throws RemoteException {
             return 0;
@@ -705,15 +667,6 @@ public class EmailServiceUtils {
 
         @Override
         public void sendMail(long accountId) throws RemoteException {
-        }
-
-        @Override
-        public void serviceUpdated(String emailAddress) throws RemoteException {
-        }
-
-        @Override
-        public int getCapabilities(Account acct) throws RemoteException {
-            return 0;
         }
     }
 }
