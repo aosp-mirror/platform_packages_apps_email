@@ -25,6 +25,7 @@ import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -162,7 +163,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
-        return AccountSettings.createAccountSettingsIntent(mContext, mAccountId, null);
+        // accountId, loginWarningAccountName, loginWarningReason
+        return AccountSettings.createAccountSettingsIntent(mAccountId, null, null);
     }
 
 }

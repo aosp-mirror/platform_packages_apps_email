@@ -16,13 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.provider.ContentCache.CacheToken;
-import com.android.email.provider.ContentCache.CachedCursor;
-import com.android.email.provider.ContentCache.TokenList;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -31,6 +24,14 @@ import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
+
+import com.android.email.provider.ContentCache.CacheToken;
+import com.android.email.provider.ContentCache.CachedCursor;
+import com.android.email.provider.ContentCache.TokenList;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.utils.MatrixCursorWithCachedColumns;
 
 /**
  * Tests of ContentCache

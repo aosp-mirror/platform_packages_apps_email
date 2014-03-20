@@ -21,6 +21,7 @@ import android.os.Message;
 import android.test.AndroidTestCase;
 
 import com.android.mail.utils.Clock;
+import com.android.mail.utils.Throttle;
 
 import java.util.Timer;
 import java.util.TimerTask;

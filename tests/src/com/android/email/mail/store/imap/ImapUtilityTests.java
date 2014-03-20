@@ -16,14 +16,11 @@
 
 package com.android.email.mail.store.imap;
 
-import com.android.email.mail.store.imap.ImapUtility;
-
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
-import libcore.util.EmptyArray;
-
 public class ImapUtilityTests extends AndroidTestCase {
+    public static final String[] EmptyArrayString = new String[0];
 
     /**
      * Tests of the IMAP quoting rules function.
@@ -75,19 +72,19 @@ public class ImapUtilityTests extends AndroidTestCase {
         MoreAsserts.assertEquals(expected, actual);
 
         // Test invalid sets
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapSequenceValues("");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapSequenceValues(null);
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapSequenceValues("a");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapSequenceValues("1:x");
         MoreAsserts.assertEquals(expected, actual);
     }
@@ -109,31 +106,31 @@ public class ImapUtilityTests extends AndroidTestCase {
         MoreAsserts.assertEquals(expected, actual);
 
         // Test in-valid ranges
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues(null);
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("a");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("6");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("1:3,6");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("1:x");
         MoreAsserts.assertEquals(expected, actual);
 
-        expected = EmptyArray.STRING;
+        expected = EmptyArrayString;
         actual = ImapUtility.getImapRangeValues("1:*");
         MoreAsserts.assertEquals(expected, actual);
     }

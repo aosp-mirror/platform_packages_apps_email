@@ -101,22 +101,6 @@ public class AttachmentUtilitiesTests extends AndroidTestCase {
         assertEquals(TEXT_PLAIN, AttachmentUtilities.inferMimeType("", TEXT_PLAIN));
     }
 
-    public void testInferMimeTypeForUri() {
-        String type;
-        // Test for content URI
-        type = AttachmentUtilities.inferMimeTypeForUri(getContext(), EmailContent.Body.CONTENT_URI);
-        assertEquals("vnd.android.cursor.dir/email-body", type);
-
-        // Test for file URI
-        type = AttachmentUtilities.inferMimeTypeForUri(getContext(),
-                Uri.fromFile(new File("a.png")));
-        assertEquals("image/png", type);
-
-        type = AttachmentUtilities.inferMimeTypeForUri(getContext(),
-                Uri.fromFile(new File("/a/b/c/d.png")));
-        assertEquals("image/png", type);
-    }
-
     /**
      * Text extension extractor
      */

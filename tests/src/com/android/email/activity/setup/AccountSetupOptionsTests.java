@@ -51,7 +51,7 @@ public class AccountSetupOptionsTests
     /**
      * Test that POP accounts aren't displayed with a push option
      */
-    public void testPushOptionPOP() 
+    public void testPushOptionPOP()
             throws URISyntaxException {
         Intent i = getTestIntent("Name", "pop3://user:password@server.com");
         this.setActivityIntent(i);
@@ -169,7 +169,7 @@ public class AccountSetupOptionsTests
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);
         HostAuth.setHostAuthFromString(auth, storeUri);
-        SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
+        SetupData setupData = new SetupData(SetupData.FLOW_MODE_NORMAL, account);
         return new Intent(Intent.ACTION_MAIN);
     }
 
