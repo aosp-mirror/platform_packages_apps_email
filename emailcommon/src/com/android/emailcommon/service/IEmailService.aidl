@@ -30,7 +30,14 @@ interface IEmailService {
     oneway void loadAttachment(IEmailServiceCallback cb, long attachmentId, boolean background);
     oneway void updateFolderList(long accountId);
 
+    // Push-related functionality.
+
+    // Notify the service that the push configuration has changed for an account.
+    void pushModify(long accountId);
+
     // Other email operations.
+    // TODO: Decouple this call from HostAuth (i.e. use a dedicated data structure, or just pass
+    // the necessary strings directly).
     Bundle validate(in HostAuth hostauth);
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 

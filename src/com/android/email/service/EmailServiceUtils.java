@@ -668,5 +668,9 @@ public class EmailServiceUtils {
         @Override
         public void sendMail(long accountId) throws RemoteException {
         }
+
+        @Override
+        public void pushModify(long accountId) throws RemoteException {
+        }
     }
 }
