@@ -20,7 +20,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # Include res dir from chips, unified, emailcommon, and photoviewer
-chips_dir := ../../../frameworks/ex/chips/res
+chips_dir := ../../../frameworks/opt/chips/res
 unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/activity/res
 emailcommon_dir := emailcommon
@@ -43,7 +43,7 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.emailcommon:com.android.ex.photo:android.support.v7.gridlayout:com.android.datetimepicker
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon com.android.emailsync guava android-common-chips libphotoviewer
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon com.android.emailsync guava libchips libphotoviewer
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-gridlayout
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
