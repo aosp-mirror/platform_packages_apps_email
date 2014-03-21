@@ -19,9 +19,9 @@
     <Button xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/button"
         android:text="@string/account_setup_options_mail_window_auto"
-        android:layout_height="wrap_content"
-        android:layout_width="150sp"
-        android:layout_marginTop="25dip"
-        android:minWidth="@dimen/button_minWidth"
+        android:layout_height="@dimen/setup_account_type_buttons_height"
+        android:layout_width="@dimen/setup_account_type_buttons_width"
+        android:layout_marginTop="@dimen/setup_account_type_buttons_vertical_spacing"
+        android:minWidth="@dimen/setup_account_type_button_min_width"
         android:layout_gravity="center_horizontal"
         />

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!--
+     Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,10 +15,10 @@
      limitations under the License.
 -->
 
-<!-- small -->
-
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="@dimen/setup_buttons_vertical_spacing"
-        android:layout_marginLeft="48dip"
-        style="@style/accountSetupButton" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_nav_arrow_right_disabled"
+          android:state_enabled="false" />
+    <item android:drawable="@drawable/ic_nav_arrow_right_pressed"
+          android:state_pressed="true" />
+    <item android:drawable="@drawable/ic_nav_arrow_right" />
+</selector>

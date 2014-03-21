@@ -14,26 +14,32 @@
      limitations under the License.
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/setup_buttons_padding_bottom">
+                android:paddingTop="@dimen/setup_nav_button_padding_top"
+                android:paddingLeft="@dimen/setup_nav_button_padding_side"
+                android:paddingRight="@dimen/setup_nav_button_padding_side"
+                android:paddingBottom="@dimen/setup_nav_button_padding_bottom"
+                android:orientation="horizontal">
     <ImageButton
-            style="@style/accountSetupNavButton"
+            style="@style/account_setup_nav_button"
             android:contentDescription="@string/previous_action"
             android:id="@+id/previous"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_nav_arrow_back_button"
-            android:text="@string/next_action"
-            android:layout_alignParentLeft="true"/>
+            android:src="@drawable/ic_nav_arrow_previous_button"
+            android:text="@string/next_action" />
+    <View
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1" />
     <ImageButton
-            style="@style/accountSetupNavButton"
+            style="@style/account_setup_nav_button"
             android:contentDescription="@string/next_action"
             android:id="@+id/next"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_nav_arrow_forward_button"
-            android:text="@string/next_action"
-            android:layout_alignParentRight="true"/>
-</RelativeLayout>
+            android:src="@drawable/ic_nav_arrow_next_button"
+            android:text="@string/next_action" />
+</LinearLayout>

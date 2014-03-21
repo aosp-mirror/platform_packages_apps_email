@@ -17,40 +17,55 @@
 <!-- non-xlarge -->
 
 <resources>
-    <dimen name="button_minWidth">100sp</dimen>
 
-    <!-- Account Setup Activities -->
-    <!-- inset distance for setup/settings buttons -->
-    <dimen name="setup_buttons_padding_left">16dip</dimen>
-    <dimen name="setup_buttons_padding_right">16dip</dimen>
-    <!-- distance of any button below the upper hairline -->
-    <dimen name="setup_buttons_padding_top">64dip</dimen>
-    <!-- distance of any button below the previous button (vertical stack) -->
-    <dimen name="setup_buttons_vertical_spacing">48dip</dimen>
-    <!-- distance of any button above the bottom of the screen -->
-    <dimen name="setup_buttons_padding_bottom">48dip</dimen>
+    <!-- Account setup type screen buttons -->
+    <dimen name="setup_account_type_button_min_width">100sp</dimen>
+    <dimen name="setup_account_type_buttons_vertical_spacing">16dp</dimen>
+    <dimen name="setup_account_type_buttons_width">212sp</dimen>
+    <dimen name="setup_account_type_buttons_height">54dp</dimen>
 
     <!-- Account settings fragments -->
-    <dimen name="settings_fragment_padding_top">16dip</dimen>
-    <dimen name="settings_fragment_padding_left">16dip</dimen>
-    <dimen name="settings_fragment_padding_right">16dip</dimen>
+    <dimen name="settings_fragment_padding_top">16dp</dimen>
+    <dimen name="settings_fragment_padding_side">16dp</dimen>
+    <dimen name="settings_fragment_padding_bottom">24dp</dimen>
 
     <!-- Account setup fragments -->
-    <dimen name="setup_fragment_padding_top">16dip</dimen>
-    <dimen name="setup_fragment_padding_left">16dip</dimen>
-    <dimen name="setup_fragment_padding_right">16dip</dimen>
+    <dimen name="setup_fragment_padding_top">16dp</dimen>
+    <dimen name="setup_fragment_padding_side">16dp</dimen>
+    <dimen name="setup_fragment_padding_bottom">16dp</dimen>
+
+    <!-- Account setup navigation buttons -->
+    <dimen name="setup_nav_button_padding_top">24dp</dimen>
+    <dimen name="setup_nav_button_padding_side">20dp</dimen>
+    <dimen name="setup_nav_button_padding_bottom">24dp</dimen>
+
+    <!-- Account setup text buttons -->
+    <dimen name="setup_text_button_width">160sp</dimen>
+    <dimen name="setup_text_button_height">40sp</dimen>
+    <dimen name="setup_text_button_text_size">18sp</dimen>
+
+    <!-- Account setup headline -->
+    <dimen name="setup_headline_text_size">30sp</dimen>
+    <dimen name="setup_headline_padding_top">24dp</dimen>
+    <dimen name="setup_headline_padding_side">24dp</dimen>
+
+    <!-- Account setup hairline -->
+    <dimen name="setup_top_divider_margin_top">8dp</dimen>
+    <dimen name="setup_top_divider_margin_bottom">16dp</dimen>
+    <dimen name="setup_top_divider_margin_side">24dp</dimen>
 
     <!-- inset distance for settings buttons -->
-    <dimen name="settings_buttons_padding_top">48dip</dimen>
-    <dimen name="settings_buttons_padding_bottom">48dip</dimen>
+    <dimen name="settings_buttons_padding_top">48dp</dimen>
+    <dimen name="settings_buttons_padding_bottom">48dp</dimen>
 
     <!-- In setup screens, the inset for all items below the headline+hairline -->
-    <dimen name="setup_item_inset_left">0dip</dimen>
-    <dimen name="setup_item_inset_right">0dip</dimen>
+    <dimen name="setup_item_inset_start">0dp</dimen>
+    <dimen name="setup_item_inset_end">0dp</dimen>
 
     <!-- Username/password entry -->
-    <dimen name="setup_credentials_input_width">340dip</dimen>
+    <dimen name="setup_credentials_input_width">340dp</dimen>
 
+    <!-- TODO: probably delete these -->
     <!-- Notification dialog -->
     <dimen name="dialog_text_size">10sp</dimen>
     <dimen name="dialog_padding_left">10sp</dimen>

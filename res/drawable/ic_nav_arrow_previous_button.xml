@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!--
+     Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,18 +15,10 @@
      limitations under the License.
 -->
 
-<!-- small -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/accountTypes"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-        >
-    <TextView
-            android:text="@string/account_setup_account_type_instructions"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            style="@style/account_setup_info_text"
-            />
-</LinearLayout>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_nav_arrow_left_disabled"
+          android:state_enabled="false" />
+    <item android:drawable="@drawable/ic_nav_arrow_left_pressed"
+          android:state_pressed="true" />
+    <item android:drawable="@drawable/ic_nav_arrow_left" />
+</selector>

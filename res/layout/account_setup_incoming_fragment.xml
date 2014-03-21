@@ -25,8 +25,7 @@
         android:text="@string/account_setup_incoming_username_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary" />
+        style="@style/account_setup_label_text" />
     <EditText
         android:id="@+id/account_username"
         android:layout_height="wrap_content"
@@ -73,8 +72,7 @@
         android:text="@string/account_setup_incoming_server_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary" />
+        style="@style/account_setup_label_text" />
     <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
     <!-- This contentDescription may be changed in code if the server is IMAP, etc. -->
     <EditText
@@ -88,8 +86,7 @@
         android:text="@string/account_setup_incoming_port_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary" />
+        style="@style/account_setup_label_text" />
     <EditText
         android:id="@+id/account_port"
         android:layout_height="wrap_content"
@@ -101,8 +98,7 @@
         android:text="@string/account_setup_incoming_security_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary" />
+        style="@style/account_setup_label_text" />
     <Spinner
         android:id="@+id/account_security_type"
         android:layout_height="wrap_content"
@@ -113,8 +109,7 @@
         android:text="@string/account_setup_incoming_delete_policy_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary" />
+        style="@style/account_setup_label_text" />
     <Spinner
         android:id="@+id/account_delete_policy"
         android:layout_height="wrap_content"
@@ -130,8 +125,7 @@
             android:text="@string/account_setup_incoming_imap_path_prefix_label"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
+            style="@style/account_setup_label_text" />
         <EditText
             android:id="@+id/imap_path_prefix"
             android:layout_height="wrap_content"
