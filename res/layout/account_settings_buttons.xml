@@ -23,13 +23,13 @@
 
     <Button
         android:id="@+id/cancel"
-        style="@style/accountSettingsButton"
+        style="@style/account_settings_button"
         android:layout_width="0dip"
         android:layout_weight="1"
         android:text="@android:string/cancel" />
     <Button
         android:id="@+id/done"
-        style="@style/accountSettingsButton"
+        style="@style/account_settings_button"
         android:layout_width="0dip"
         android:layout_weight="1"
         android:text="@string/done_action" />

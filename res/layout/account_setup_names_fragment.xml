@@ -22,8 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="@string/account_setup_names_account_name_label"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
+            style="@style/account_setup_label_text" />
     <EditText
             android:id="@+id/account_description"
             android:layout_height="wrap_content"
@@ -36,8 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="@string/account_setup_names_user_name_label"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
+            style="@style/account_setup_label_text" />
     <EditText
             android:id="@+id/account_name"
             android:layout_height="wrap_content"

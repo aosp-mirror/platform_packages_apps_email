@@ -16,36 +16,28 @@
 
 <!-- Common data-entry area of initial account setup screen - email, password, default check -->
 <!-- small screen version -->
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/setup_item_inset_left"
-        android:paddingRight="@dimen/setup_item_inset_right"
         >
     <TextView
             android:id="@+id/instructions"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:textSize="20sp"
             android:text="@string/accounts_welcome"
-            android:textAppearance="@style/accountSetupInfoText" />
+            android:textAppearance="@style/account_setup_info_text" />
     <EditText
             android:id="@+id/account_email"
             android:hint="@string/account_setup_basics_email_label"
-            android:inputType="textEmailAddress"
-            android:imeOptions="actionNext"
-            android:layout_below="@+id/instructions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent" />
+            android:inputType="textEmailAddress" />
     <CheckBox
             android:id="@+id/manual_setup"
-            android:layout_below="@+id/account_email"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/account_setup_basics_manual_setup_action" />
 
-</RelativeLayout>
+</LinearLayout>

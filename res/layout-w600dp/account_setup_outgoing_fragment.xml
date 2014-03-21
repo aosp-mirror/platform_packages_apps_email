@@ -28,7 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
-            android:text="@string/account_setup_outgoing_smtp_server_label" />
+            android:text="@string/account_setup_outgoing_smtp_server_label"
+            style="@style/account_setup_label_text" />
         <!-- Note: we use inputType=textUri as the closest approximation to a server name -->
         <EditText
             android:id="@+id/account_server"
@@ -43,7 +44,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
-            android:text="@string/account_setup_outgoing_security_label" />
+            android:text="@string/account_setup_outgoing_security_label"
+            style="@style/account_setup_label_text" />
         <Spinner
             android:id="@+id/account_security_type"
             android:layout_width="wrap_content"
@@ -55,7 +57,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
-            android:text="@string/account_setup_outgoing_port_label" />
+            android:text="@string/account_setup_outgoing_port_label"
+            style="@style/account_setup_label_text" />
         <EditText
             android:id="@+id/account_port"
             android:layout_width="wrap_content"
@@ -94,7 +97,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
-            android:text="@string/account_setup_outgoing_username_label" />
+            android:text="@string/account_setup_outgoing_username_label"
+            style="@style/account_setup_label_text" />
         <EditText
             android:id="@+id/account_username"
             android:layout_width="wrap_content"
@@ -113,7 +117,8 @@
             android:layout_width="wrap_content"
             android:layout_marginRight="16dip"
             android:contentDescription="@string/authentication_label"
-            android:text="@string/authentication_label" />
+            android:text="@string/authentication_label"
+            style="@style/account_setup_label_text" />
         <com.android.email.activity.setup.AuthenticationView
             android:id="@+id/authentication_view"
             android:layout_width="match_parent"

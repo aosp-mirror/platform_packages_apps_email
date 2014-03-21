@@ -18,39 +18,33 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:background="@drawable/account_setup_background" >
+            android:fillViewport="true" >
 
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/setup_padding_top"
-            android:paddingLeft="@dimen/setup_padding_left"
-            android:paddingRight="@dimen/setup_padding_right"
-            >
+            android:orientation="vertical" >
 
         <!-- Headline and hairline divider -->
         <!-- Set headline for first fragment, change in code as we progress through screens -->
         <TextView
                 android:id="@+id/headline"
-                android:layout_marginLeft="16dip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/account_setup_options_headline"
-                android:textAppearance="@style/accountSetupHeadline" />
+                style="@style/account_setup_headline" />
         <View
                 android:id="@+id/top_divider"
-                android:layout_marginBottom="16dip"
                 android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:background="@color/account_setup_divider_color" />
+                style="@style/account_setup_top_divider" />
 
         <!-- Primary Content -->
         <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/setup_fragment_content"/>
+                android:id="@+id/setup_fragment_content"
+                style="@style/account_setup_fragment_container"
+                />
         <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
