@@ -20,13 +20,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * A simple OutputStream that does nothing but count how many bytes are written to it and
+ * A simple pass-thru OutputStream that also counts how many bytes are written to it and
  * makes that count available to callers.
  */
 public class CountingOutputStream extends OutputStream {
     private long mCount;
+    private final OutputStream mOutputStream;
 
-    public CountingOutputStream() {
+    public CountingOutputStream(OutputStream outputStream) {
+        mOutputStream = outputStream;
     }
 
     public long getCount() {
@@ -34,7 +36,14 @@ public class CountingOutputStream extends OutputStream {
     }
 
     @Override
+    public void write(byte[] buffer, int offset, int count) throws IOException {
+        mOutputStream.write(buffer, offset, count);
+        mCount += count;
+    }
+
+    @Override
     public void write(int oneByte) throws IOException {
+        mOutputStream.write(oneByte);
         mCount++;
     }
 }

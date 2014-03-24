@@ -553,7 +553,7 @@ public class Pop3Store extends Store {
          *
          * @param message
          * @param lines
-         * @param optional callback that reports progress of the fetch
+         * @param callback optional callback that reports progress of the fetch
          */
         public void fetchBody(Pop3Message message, int lines,
                 EOLConvertingInputStream.Callback callback) throws IOException, MessagingException {
@@ -626,7 +626,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public void appendMessages(Message[] messages) {
+        public void appendMessage(Context context, Message message, boolean noTimeout) {
         }
 
         @Override
