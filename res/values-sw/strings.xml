@@ -252,7 +252,7 @@
     <string name="provider_note_t_online" msgid="1630642061431427894">"Kabla ya kusanidi akaunti ya barua pepe hii, tembelea wavuti ya T-Online na unda nenosiri ya ufikivu wa barua pepe ya POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Shirika"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="system_account_create_failed" msgid="3673792980526246177">"Haikuweza kuunda akaunti. Jaribu tena."</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Haikuweza kufungua akaunti. Jaribu tena."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Barua pepe"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Huwezesha sera za usalama zinazobainishwa na seva"</string>
     <string name="settings_activity_title" msgid="5185915603716333904">"Mipangilio"</string>
