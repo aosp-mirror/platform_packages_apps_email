@@ -16,13 +16,15 @@
 
 package com.android.emailcommon.mail;
 
+import android.content.Context;
+
 import com.android.emailcommon.service.SearchParams;
 
 
 public class MockFolder extends Folder {
 
     @Override
-    public void appendMessages(Message[] messages) {
+    public void appendMessage(Context context, Message message, boolean noTimeout) {
     }
 
     @Override

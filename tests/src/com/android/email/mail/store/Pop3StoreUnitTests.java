@@ -298,9 +298,6 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         assertEquals(1, flags.length);
         assertEquals(Flag.DELETED, flags[0]);
 
-        // appendMessages(Message[] messages) does nothing
-        mFolder.appendMessages(null);
-
         // delete(boolean recurse) does nothing
         // TODO - it should!
         mFolder.delete(false);

@@ -210,6 +210,15 @@ public class MailTransport {
     }
 
     /**
+     * Get the socket timeout.
+     * @return the read timeout value in milliseconds
+     * @throws SocketException
+     */
+    public int getSoTimeout() throws SocketException {
+        return mSocket.getSoTimeout();
+    }
+
+    /**
      * Set the socket timeout.
      * @param timeoutMilliseconds the read timeout value if greater than {@code 0}, or
      *            {@code 0} for an infinite timeout.

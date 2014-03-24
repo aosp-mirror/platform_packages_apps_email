@@ -243,7 +243,8 @@ public class PopImapSyncAdapterService extends Service {
                         int deltaMessageCount =
                                 extras.getInt(Mailbox.SYNC_EXTRA_DELTA_MESSAGE_COUNT, 0);
                         for (long mailboxId : mailboxIds) {
-                            sync(context, mailboxId, extras, syncResult, uiRefresh, deltaMessageCount);
+                            sync(context, mailboxId, extras, syncResult, uiRefresh,
+                                    deltaMessageCount);
                         }
                     }
                 }
