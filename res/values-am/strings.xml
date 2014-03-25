@@ -24,7 +24,7 @@
     <string name="debug_title" msgid="5175710493691536719">"አርም"</string>
     <string name="next_action" msgid="3931301986364184415">"ቀጥል"</string>
     <string name="okay_action" msgid="8365197396795675617">"እሺ"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"ሰርዝ"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"ይቅር"</string>
     <string name="previous_action" msgid="5181616311579820981">"ቀዳሚ"</string>
     <string name="done_action" msgid="7497990549515580249">"ተከናውኗል"</string>
     <string name="create_action" msgid="3062715563215392251">"አዲስ ፍጠር"</string>
@@ -80,7 +80,7 @@
   </plurals>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"መለያ አዘጋጅ"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"የኢሜይል መለያ"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"መለያህን በጥቂት ደረጃዎች ብቻ ማዋቀር ትችላለህ።"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"መለያዎን በጥቂት ደረጃዎች ብቻ ማዋቀር ይችላሉ።"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ኢሜይል አድራሻ"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"የይለፍ ቃል፡"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"በእጅ አዘጋጅ"</string>
@@ -191,12 +191,12 @@
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ዝርዝሮችን አርትዕ"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"<xliff:g id="ACCOUNT">%s</xliff:g> የማያ መቆለፊያ ፒን ወይም ይለፍ ቃል መለወጥን ይጠይቃል።"</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"የማያ ቆልፍ ይለፍ ቃል ጊዜው እያለፈነው"</string>
-    <string name="password_expired_ticker" msgid="4230570412974108968">"የእርስዎ የማያመቆለፊያ PIN ወይም ይለፍ ቃል ጊዜው አልፏል።"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"የእርስዎ የማያመቆለፊያ ፒን  ወይም ይለፍ ቃል ጊዜው አልፏል።"</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"የማያ ቆልፍ ይለፍ ቃል ጊዜው አልፏል"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"የማያ ቆልፍ ይለፍ ቃል ጊዜው እያለፈነው"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"በቅርቡ የማሳያህ ቆልፍ ፒን ወይም የይለፍ ቃል መለወጥ ያስፈልግሃል፤ አለበለዚያ የ<xliff:g id="ACCOUNT">%s</xliff:g>  ውሂብ ይሰረዛል። አሁን እንዲለወጥ ትፈልጋለህ?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"የማያ ቆልፍ ይለፍ ቃል ጊዜው አልፏል"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"የ<xliff:g id="ACCOUNT">%s</xliff:g> ውሂብ ከመሳሪያህ ላይ እየተሰረዘ ነው። የማያ መቆለፊያ PIN ወይም ይለፍ ቃል በመለወጥ እነበረበት መመለስ ትችላለህ። አሁን መለወጥ ትፈልጋለህ?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"የ<xliff:g id="ACCOUNT">%s</xliff:g> ውሂብ ከመሳሪያዎ ላይ እየተሰረዘ ነው። የማያ መቆለፊያ ፒን  ወይም ይለፍ ቃል በመለወጥ እነበረበት መመለስ ይችላሉ። አሁን መለወጥ ይፈልጋሉ?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"ያልተቀመጠ ለውጦችን ይወገዱ?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"በመለያ መግባት አልተቻለም፡፡"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"የ<xliff:g id="ACCOUNT">%s</xliff:g> የተጠቃሚው ስም ወይም ይለፍ ቃል የተሳሳተ ነው። አሁን ልታዘምናቸው ትፈልጋለህ?"</string>

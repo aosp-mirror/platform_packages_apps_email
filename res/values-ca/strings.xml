@@ -61,7 +61,7 @@
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"No s\'han pogut reenviar un o més fitxers adjunts."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"El fitxer adjunt no s\'ha reenviat"</string>
     <string name="login_failed_ticker" msgid="2169365211566829350">"Error en l\'inici de sessió a <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
-    <string name="login_failed_title" msgid="7624349996212476176">"No es pot iniciar la sessió"</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"No s\'ha pogut iniciar la sessió"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -198,7 +198,7 @@
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"La contrasenya de bloqueig de pantalla ha caducat"</string>
     <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Les dades de <xliff:g id="ACCOUNT">%s</xliff:g> s\'estan esborrant del dispositiu. Pots restaurar-les si canvies la contrasenya o el PIN de bloqueig de pantalla. Vols fer el canvi ara?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vols descartar els canvis no desats?"</string>
-    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"No es pot iniciar la sessió"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"No s\'ha pogut iniciar la sessió"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"El nom d\'usuari o la contrasenya de <xliff:g id="ACCOUNT">%s</xliff:g> no són correctes. Vols actualitzar-los ara?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"S\'ha produït un error en iniciar la sessió a <xliff:g id="ACCOUNT">%s</xliff:g>. El servidor ha dit: <xliff:g id="REASON">%s</xliff:g> Vols actualitzar el teu nom d\'usuari o la contrasenya?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Baixa fitxers adjunts"</string>
