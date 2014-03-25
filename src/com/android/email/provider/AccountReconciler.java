@@ -21,15 +21,19 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.provider.CalendarContract;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.activity.ComposeActivityEmail;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
@@ -98,7 +102,7 @@ public class AccountReconciler {
      *
      * @param context The context in which to operate
      */
-    public static void reconcileAccounts(final Context context) {
+    public static synchronized void reconcileAccounts(final Context context) {
         final List<android.accounts.Account> amAccounts = getAllAmAccounts(context);
         final List<Account> providerAccounts = getAllEmailProviderAccounts(context);
         reconcileAccountsInternal(context, providerAccounts, amAccounts, true);
@@ -220,6 +224,22 @@ public class AccountReconciler {
                     } catch (IOException e) {
                         LogUtils.w(Logging.LOG_TAG, e.toString());
                     }
+                }
+            } else {
+                // Fix up the Calendar and Contacts syncing. It used to be possible for IMAP and
+                // POP accounts to get calendar and contacts syncing enabled.
+                // See b/11818312
+                final String accountType = accountManagerAccount.type;
+                final String protocol = EmailServiceUtils.getProtocolFromAccountType(
+                        context, accountType);
+                final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+                if (!info.syncCalendar) {
+                    ContentResolver.setIsSyncable(accountManagerAccount,
+                            CalendarContract.AUTHORITY, 0);
+                }
+                if (!info.syncContacts) {
+                    ContentResolver.setIsSyncable(accountManagerAccount,
+                            ContactsContract.AUTHORITY, 0);
                 }
             }
         }
