@@ -27,6 +27,7 @@ import com.android.mail.browse.InlineAttachmentViewIntentBuilderCreatorHolder;
 import com.android.mail.preferences.BasePreferenceMigrator;
 import com.android.mail.preferences.PreferenceMigratorHolder;
 import com.android.mail.preferences.PreferenceMigratorHolder.PreferenceMigratorCreator;
+import com.android.mail.providers.Message;
 import com.android.mail.utils.LogTag;
 
 import java.util.Map;
@@ -48,13 +49,11 @@ public class EmailApplication extends Application {
                 new InlineAttachmentViewIntentBuilderCreator() {
                     @Override
                     public InlineAttachmentViewIntentBuilder
-                    createInlineAttachmentViewIntentBuilder(
-                            Map<String, String> urlToMessageIdMap,
-                            String account, long conversationId) {
+                    createInlineAttachmentViewIntentBuilder(String account, long conversationId) {
                         return new InlineAttachmentViewIntentBuilder() {
                             @Override
                             public Intent createInlineAttachmentViewIntent(Context context,
-                                    String url) {
+                                    String url, Message message) {
                                 return null;
                             }
                         };
