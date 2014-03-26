@@ -27,8 +27,6 @@
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
     <string name="next_action" msgid="3931301986364184415">"Vinavant"</string>
-    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"Interrumper"</string>
     <!-- no translation found for previous_action (5181616311579820981) -->
     <skip />
     <string name="done_action" msgid="7497990549515580249">"Terminà"</string>
