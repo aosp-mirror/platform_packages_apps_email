@@ -155,8 +155,10 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             // 2. Open the remote folder.
             final Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
             Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
-
-            if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+            if (mailbox == null) {
+                // This could be null if the account is deleted at just the wrong time.
+                return;
+            } else if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                 long sourceId = Utility.getFirstRowLong(mContext, Body.CONTENT_URI,
                         new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
                         BodyColumns.MESSAGE_KEY + "=?",
