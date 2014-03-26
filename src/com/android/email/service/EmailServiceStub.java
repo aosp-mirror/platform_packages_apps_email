@@ -158,7 +158,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             if (mailbox == null) {
                 // This could be null if the account is deleted at just the wrong time.
                 return;
-            } else if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
+            }
+            if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                 long sourceId = Utility.getFirstRowLong(mContext, Body.CONTENT_URI,
                         new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
                         BodyColumns.MESSAGE_KEY + "=?",
