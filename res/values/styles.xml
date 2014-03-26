@@ -22,6 +22,7 @@
 
     <!-- The large headline at the top of every account setup screen -->
     <style name="account_setup_headline">
+        <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:textSize">@dimen/setup_headline_text_size</item>
         <item name="android:textColor">@color/account_setup_headline_color</item>
         <item name="android:paddingTop">@dimen/setup_headline_padding_top</item>
