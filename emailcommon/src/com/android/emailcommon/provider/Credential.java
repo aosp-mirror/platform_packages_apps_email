@@ -157,7 +157,7 @@ public class Credential extends EmailContent implements Parcelable {
    public ContentValues toContentValues() {
        ContentValues values = new ContentValues();
        if (TextUtils.isEmpty(mProviderId)) {
-           LogUtils.e(LogUtils.TAG, new Throwable(), "Credential being saved with no provider");
+           LogUtils.wtf(LogUtils.TAG, "Credential being saved with no provider");
        }
        values.put(PROVIDER_COLUMN, mProviderId);
        values.put(ACCESS_TOKEN_COLUMN, mAccessToken);
