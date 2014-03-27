@@ -30,16 +30,6 @@
         <item name="android:paddingRight">@dimen/setup_headline_padding_side</item>
     </style>
 
-    <!-- The divider hairline below the headline in account setup screens -->
-    <style name="account_setup_top_divider">
-        <item name="android:layout_marginTop">@dimen/setup_top_divider_margin_top</item>
-        <item name="android:layout_marginLeft">@dimen/setup_top_divider_margin_side</item>
-        <item name="android:layout_marginRight">@dimen/setup_top_divider_margin_side</item>
-        <item name="android:layout_marginBottom">@dimen/setup_top_divider_margin_bottom</item>
-        <item name="android:background">@color/account_setup_divider_color</item>
-        <item name="android:layout_height">1px</item>
-    </style>
-
     <style name="account_setup_fragment_container">
         <item name="android:paddingTop">@dimen/setup_fragment_padding_top</item>
         <item name="android:paddingLeft">@dimen/setup_fragment_padding_side</item>
