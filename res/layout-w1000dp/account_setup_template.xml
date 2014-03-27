@@ -33,10 +33,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/account_setup_options_headline"
                 style="@style/account_setup_headline" />
-        <View
-                android:id="@+id/top_divider"
-                android:layout_width="match_parent"
-                style="@style/account_setup_top_divider" />
 
         <!-- Primary Content -->
         <FrameLayout

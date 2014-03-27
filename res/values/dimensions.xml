@@ -49,11 +49,6 @@
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">24dp</dimen>
 
-    <!-- Account setup hairline -->
-    <dimen name="setup_top_divider_margin_top">8dp</dimen>
-    <dimen name="setup_top_divider_margin_bottom">16dp</dimen>
-    <dimen name="setup_top_divider_margin_side">24dp</dimen>
-
     <!-- inset distance for settings buttons -->
     <dimen name="settings_buttons_padding_top">48dp</dimen>
     <dimen name="settings_buttons_padding_bottom">48dp</dimen>
