@@ -1185,7 +1185,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         ImapMessage message = prepareForAppendTest(mock, "oK [aPPENDUID 1234567 13] (Success)");
 
-        mFolder.appendMessages(new Message[] {message});
+        mFolder.appendMessage(getInstrumentation().getTargetContext(), message, false);
 
         assertEquals("13", message.getUid());
         assertEquals(7, mFolder.getMessageCount());
@@ -1216,7 +1216,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                     getNextTag(true) + " oK success"
                 });
 
-        mFolder.appendMessages(new Message[] {message});
+        mFolder.appendMessage(getInstrumentation().getTargetContext(), message, false);
 
         assertEquals("321", message.getUid());
     }
@@ -1250,7 +1250,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                     getNextTag(true) + " oK Search completed."
                 });
 
-        mFolder.appendMessages(new Message[] {message});
+        mFolder.appendMessage(getInstrumentation().getTargetContext(), message, false);
 
         // Shouldn't have changed
         assertEquals("initial uid", message.getUid());

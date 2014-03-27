@@ -164,7 +164,7 @@ public class ImapService extends Service {
         Store remoteStore = null;
         try {
             remoteStore = Store.getInstance(account, context);
-            processPendingActionsSynchronous(context, account, remoteStore);
+            processPendingActionsSynchronous(context, account, remoteStore, uiRefresh);
             synchronizeMailboxGeneric(context, account, remoteStore, folder, loadMore, uiRefresh);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
@@ -724,7 +724,7 @@ public class ImapService extends Service {
      * @throws MessagingException
      */
     private static void processPendingActionsSynchronous(Context context, Account account,
-                                                         Store remoteStore)
+            Store remoteStore, boolean manualSync)
             throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
@@ -733,7 +733,7 @@ public class ImapService extends Service {
         processPendingDeletesSynchronous(context, account, remoteStore, accountIdArgs);
 
         // Handle uploads (currently, only to sent messages)
-        processPendingUploadsSynchronous(context, account, remoteStore, accountIdArgs);
+        processPendingUploadsSynchronous(context, account, remoteStore, accountIdArgs, manualSync);
 
         // Now handle updates / upsyncs
         processPendingUpdatesSynchronous(context, account, remoteStore, accountIdArgs);
@@ -843,7 +843,7 @@ public class ImapService extends Service {
      * uploaded directly to the Sent folder.
      */
     private static void processPendingUploadsSynchronous(Context context, Account account,
-            Store remoteStore, String[] accountIdArgs) {
+            Store remoteStore, String[] accountIdArgs, boolean manualSync) {
         ContentResolver resolver = context.getContentResolver();
         // Find the Sent folder (since that's all we're uploading for now
         // TODO: Upsync for all folders? (In case a user moves mail from Sent before it is
@@ -884,7 +884,7 @@ public class ImapService extends Service {
                         // upsync the message
                         long id = upsyncs1.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
                         lastMessageId = id;
-                        processUploadMessage(context, remoteStore, mailbox, id);
+                        processUploadMessage(context, remoteStore, mailbox, id, manualSync);
                     }
                 } finally {
                     if (upsyncs1 != null) {
@@ -1005,7 +1005,7 @@ public class ImapService extends Service {
      * @param mailbox the actual mailbox
      */
     private static void processUploadMessage(Context context, Store remoteStore, Mailbox mailbox,
-            long messageId)
+            long messageId, boolean manualSync)
             throws MessagingException {
         EmailContent.Message newMessage =
                 EmailContent.Message.restoreMessageWithId(context, messageId);
@@ -1026,8 +1026,9 @@ public class ImapService extends Service {
             deleteUpdate = false;
             LogUtils.d(Logging.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
         } else {
-            LogUtils.d(Logging.LOG_TAG, "Upsyc triggered for message id=" + messageId);
-            deleteUpdate = processPendingAppend(context, remoteStore, mailbox, newMessage);
+            LogUtils.d(Logging.LOG_TAG, "Upsync triggered for message id=" + messageId);
+            deleteUpdate =
+                    processPendingAppend(context, remoteStore, mailbox, newMessage, manualSync);
         }
         if (deleteUpdate) {
             // Finally, delete the update (if any)
@@ -1286,10 +1287,11 @@ public class ImapService extends Service {
      * @param remoteStore the remote store we're working in
      * @param mailbox The mailbox we're appending to
      * @param message The message we're appending
+     * @param manualSync True if this is a manual sync (changes upsync behavior)
      * @return true if successfully uploaded
      */
     private static boolean processPendingAppend(Context context, Store remoteStore, Mailbox mailbox,
-            EmailContent.Message message)
+            EmailContent.Message message, boolean manualSync)
             throws MessagingException {
         boolean updateInternalDate = false;
         boolean updateMessage = false;
@@ -1325,7 +1327,7 @@ public class ImapService extends Service {
             //FetchProfile fp = new FetchProfile();
             //fp.add(FetchProfile.Item.BODY);
             // Note that this operation will assign the Uid to localMessage
-            remoteFolder.appendMessages(new Message[] { localMessage });
+            remoteFolder.appendMessage(context, localMessage, manualSync /* no timeout */);
 
             // 3b. And record the UID from the server
             message.mServerId = localMessage.getUid();
@@ -1360,7 +1362,7 @@ public class ImapService extends Service {
                 fp.clear();
                 fp = new FetchProfile();
                 fp.add(FetchProfile.Item.BODY);
-                remoteFolder.appendMessages(new Message[] { localMessage });
+                remoteFolder.appendMessage(context, localMessage, manualSync /* no timeout */);
 
                 // 4d. Record the UID and new internalDate from the server
                 message.mServerId = localMessage.getUid();
