@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
 import com.google.common.base.Objects;
 
 public class Credential extends EmailContent implements Parcelable {
@@ -154,6 +156,9 @@ public class Credential extends EmailContent implements Parcelable {
    @Override
    public ContentValues toContentValues() {
        ContentValues values = new ContentValues();
+       if (TextUtils.isEmpty(mProviderId)) {
+           LogUtils.e(LogUtils.TAG, new Throwable(), "Credential being saved with no provider");
+       }
        values.put(PROVIDER_COLUMN, mProviderId);
        values.put(ACCESS_TOKEN_COLUMN, mAccessToken);
        values.put(REFRESH_TOKEN_COLUMN, mRefreshToken);
