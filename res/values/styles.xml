@@ -16,7 +16,7 @@
 
 <resources>
     <!-- Account Setup Activity -->
-    <style name="account_setup_activity">
+    <style name="account_setup_content">
         <item name="android:background">@drawable/account_setup_background</item>
     </style>
 
