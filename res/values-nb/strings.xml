@@ -23,8 +23,6 @@
     <string name="app_name" msgid="5815426892327290362">"E-post"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
     <string name="next_action" msgid="3931301986364184415">"Neste"</string>
-    <string name="okay_action" msgid="8365197396795675617">"OK"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"Avbryt"</string>
     <string name="previous_action" msgid="5181616311579820981">"Forrige"</string>
     <string name="done_action" msgid="7497990549515580249">"Ferdig"</string>
     <string name="create_action" msgid="3062715563215392251">"Opprett ny"</string>

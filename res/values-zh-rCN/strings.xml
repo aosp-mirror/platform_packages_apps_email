@@ -23,8 +23,6 @@
     <string name="app_name" msgid="5815426892327290362">"电子邮件"</string>
     <string name="debug_title" msgid="5175710493691536719">"调试"</string>
     <string name="next_action" msgid="3931301986364184415">"下一步"</string>
-    <string name="okay_action" msgid="8365197396795675617">"确定"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"取消"</string>
     <string name="previous_action" msgid="5181616311579820981">"上一步"</string>
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
     <string name="create_action" msgid="3062715563215392251">"新建"</string>
