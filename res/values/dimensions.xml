@@ -57,6 +57,10 @@
     <dimen name="setup_item_inset_start">0dp</dimen>
     <dimen name="setup_item_inset_end">0dp</dimen>
 
+    <!-- Account setup basics -->
+    <dimen name="setup_basics_logo_margin_top">28dp</dimen>
+    <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
+
     <!-- Username/password entry -->
     <dimen name="setup_credentials_input_width">340dp</dimen>
 
