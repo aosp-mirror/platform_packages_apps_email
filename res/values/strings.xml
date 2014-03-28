@@ -256,6 +256,11 @@
     <string name="account_setup_creating_account_msg">
     Creating account\u2026</string>
 
+    <!-- Headline text that appears on "Confirm account type" screen [CHAR LIMIT=none] -->
+    <string name="account_setup_ab_headline">Confirm account type</string>
+    <!-- Explanatory text that appears on the "Confirm account type" screen [CHAR LIMIT=none] -->
+    <string name="account_setup_ab_instructions_format">You indicated <xliff:g id="email">%1$s</xliff:g> uses <xliff:g id="userProtocol">%2$s</xliff:g>, but the account may use <xliff:g id="providerProtocol">%3$s</xliff:g></string>
+
     <!-- Title of "Set up email" screen after success [CHAR LIMIT=45] -->
     <string name="account_setup_names_title">Account setup</string>
     <!-- Text that appears on "Set up email" screen after successfully setting up an account
