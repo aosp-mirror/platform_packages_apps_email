@@ -18,6 +18,5 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:fillViewport="true"
-             style="@style/account_setup_activity"
              android:id="@+id/setup_fragment_container">
 </FrameLayout>

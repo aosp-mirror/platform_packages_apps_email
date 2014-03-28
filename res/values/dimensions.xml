@@ -17,6 +17,8 @@
 <!-- non-xlarge -->
 
 <resources>
+    <!-- Account setup template for extra-wide layouts -->
+    <dimen name="setup_template_content_width">600dp</dimen>
 
     <!-- Account setup type screen buttons -->
     <dimen name="setup_account_type_button_min_width">100sp</dimen>
