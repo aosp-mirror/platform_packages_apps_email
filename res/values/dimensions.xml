@@ -33,11 +33,13 @@
     <dimen name="setup_account_ab_button_height">54dp</dimen>
 
     <!-- Account settings fragments -->
+    <!-- See also w600dp -->
     <dimen name="settings_fragment_padding_top">16dp</dimen>
     <dimen name="settings_fragment_padding_side">16dp</dimen>
     <dimen name="settings_fragment_padding_bottom">24dp</dimen>
 
     <!-- Account setup fragments -->
+    <!-- See also w600dp -->
     <dimen name="setup_fragment_padding_top">16dp</dimen>
     <dimen name="setup_fragment_padding_side">16dp</dimen>
     <dimen name="setup_fragment_padding_bottom">16dp</dimen>
@@ -48,11 +50,13 @@
     <dimen name="setup_nav_button_padding_bottom">24dp</dimen>
 
     <!-- Account setup text buttons -->
+    <!-- See also w600dp -->
     <dimen name="setup_text_button_width">160sp</dimen>
     <dimen name="setup_text_button_height">40sp</dimen>
     <dimen name="setup_text_button_text_size">18sp</dimen>
 
     <!-- Account setup headline -->
+    <!-- See also w600dp -->
     <dimen name="setup_headline_text_size">30sp</dimen>
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">24dp</dimen>
@@ -68,9 +72,6 @@
     <!-- Account setup basics -->
     <dimen name="setup_basics_logo_margin_top">28dp</dimen>
     <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
-
-    <!-- Username/password entry -->
-    <dimen name="setup_credentials_input_width">340dp</dimen>
 
     <!-- TODO: probably delete these -->
     <!-- Notification dialog -->
