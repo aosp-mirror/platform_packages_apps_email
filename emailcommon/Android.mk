@@ -42,7 +42,7 @@ LOCAL_SRC_FILES += $(call all-java-files-under, $(apache_src_dir))
 LOCAL_SRC_FILES += $(imported_unified_email_files)
 LOCAL_SRC_FILES += $(call all-java-files-under, $(unified_email_src_dir)/com/android/emailcommon)
 
-LOCAL_SDK_VERSION := 14
+LOCAL_SDK_VERSION := 17
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
