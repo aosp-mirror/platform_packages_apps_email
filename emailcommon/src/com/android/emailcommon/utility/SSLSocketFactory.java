@@ -33,6 +33,10 @@
 
 package com.android.emailcommon.utility;
 
+import android.annotation.TargetApi;
+import android.net.SSLCertificateSocketFactory;
+import android.os.Build;
+
 import org.apache.http.conn.scheme.HostNameResolver;
 import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -42,7 +46,6 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -156,21 +159,9 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
     public static final X509HostnameVerifier STRICT_HOSTNAME_VERIFIER
         = new StrictHostnameVerifier();
-    /**
-     * The factory using the default JVM settings for secure connections.
-     */
-    private static final SSLSocketFactory DEFAULT_FACTORY = new SSLSocketFactory();
-
-    /**
-     * Gets an singleton instance of the SSLProtocolSocketFactory.
-     * @return a SSLProtocolSocketFactory
-     */
-    public static SSLSocketFactory getSocketFactory() {
-        return DEFAULT_FACTORY;
-    }
 
     private final SSLContext sslcontext;
-    private final javax.net.ssl.SSLSocketFactory socketfactory;
+    private final SSLCertificateSocketFactory socketfactory;
     private final HostNameResolver nameResolver;
     private X509HostnameVerifier hostnameVerifier = BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
 
@@ -197,7 +188,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
         }
         sslcontext = SSLContext.getInstance(algorithm);
         sslcontext.init(keymanagers, trustmanagers, random);
-        socketfactory = sslcontext.getSocketFactory();
+        socketfactory = (SSLCertificateSocketFactory) sslcontext.getSocketFactory();
         this.nameResolver = nameResolver;
     }
 
@@ -226,22 +217,10 @@ public class SSLSocketFactory implements LayeredSocketFactory {
      * Constructs an HttpClient SSLSocketFactory backed by the given JSSE
      * SSLSocketFactory.
      */
-    public SSLSocketFactory(javax.net.ssl.SSLSocketFactory socketfactory) {
+    public SSLSocketFactory(SSLCertificateSocketFactory socketfactory) {
         super();
         sslcontext = null;
         this.socketfactory = socketfactory;
-        nameResolver = null;
-    }
-
-    /**
-     * Creates the default SSL socket factory.
-     * This constructor is used exclusively to instantiate the factory for
-     * {@link #getSocketFactory getSocketFactory}.
-     */
-    private SSLSocketFactory() {
-        super();
-        sslcontext = null;
-        socketfactory = HttpsURLConnection.getDefaultSSLSocketFactory();
         nameResolver = null;
     }
 
@@ -280,6 +259,7 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
     // non-javadoc, see interface org.apache.http.conn.SocketFactory
     @Override
+    @TargetApi(17)
     public Socket connectSocket(
         final Socket sock,
         final String host,
@@ -323,6 +303,12 @@ public class SSLSocketFactory implements LayeredSocketFactory {
         sslsock.connect(remoteAddress, connTimeout);
 
         sslsock.setSoTimeout(soTimeout);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Turn on Server Name Indication (SNI)
+            socketfactory.setHostname(sslsock, host);
+        }
+
         try {
             hostnameVerifier.verify(host, sslsock);
             // verifyHostName() didn't blowup - good!
@@ -374,19 +360,43 @@ public class SSLSocketFactory implements LayeredSocketFactory {
 
     // non-javadoc, see interface LayeredSocketFactory
     @Override
+    @TargetApi(17)
     public Socket createSocket(
         final Socket socket,
         final String host,
         final int port,
         final boolean autoClose
     ) throws IOException, UnknownHostException {
+        // Close the plain socket if requested. The underlaying socket factory will
+        // create a new socket.
+        if (autoClose) {
+            socket.close();
+        }
+
+        // We don't want to verify the hostname from the previous socket here (we must call
+        // setHostname in order to proper get SNI working), so just create a new ssl socket
+        // based in the previous socket
         SSLSocket sslSocket = (SSLSocket) socketfactory.createSocket(
-              socket,
-              host,
-              port,
-              autoClose
+              socket.getInetAddress(),
+              port
         );
-        hostnameVerifier.verify(host, sslSocket);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Turn on Server Name Indication (SNI)
+            socketfactory.setHostname(sslSocket, host);
+        }
+
+        try {
+            hostnameVerifier.verify(host, sslSocket);
+            // verifyHostName() didn't blowup - good!
+        } catch (IOException iox) {
+            // close the socket before re-throwing the exception
+            if (autoClose) {
+                try { sslSocket.close(); } catch (Exception x) { /*ignore*/ }
+            }
+            throw iox;
+        }
+
         // verifyHostName() didn't blowup - good!
         return sslSocket;
     }
