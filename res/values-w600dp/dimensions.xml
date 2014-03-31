@@ -21,10 +21,20 @@
     <dimen name="settings_fragment_padding_side">32dp</dimen>
     <dimen name="settings_fragment_padding_bottom">24dp</dimen>
 
+    <!-- Account setup fragments -->
+    <dimen name="setup_fragment_padding_top">16dp</dimen>
+    <dimen name="setup_fragment_padding_side">64dp</dimen>
+    <dimen name="setup_fragment_padding_bottom">16dp</dimen>
+
     <!-- Account setup text buttons -->
     <dimen name="setup_text_button_width">208sp</dimen>
     <dimen name="setup_text_button_height">48sp</dimen>
     <dimen name="setup_text_button_text_size">20sp</dimen>
+
+    <!-- Account setup headline -->
+    <dimen name="setup_headline_text_size">30sp</dimen>
+    <dimen name="setup_headline_padding_top">24dp</dimen>
+    <dimen name="setup_headline_padding_side">64dp</dimen>
 
     <!-- In setup screens, the inset for all items below the headline+hairline -->
     <dimen name="setup_item_inset_start">16dip</dimen>
