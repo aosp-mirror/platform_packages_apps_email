@@ -41,7 +41,7 @@
     <!-- Account setup fragments -->
     <!-- See also w600dp -->
     <dimen name="setup_fragment_padding_top">16dp</dimen>
-    <dimen name="setup_fragment_padding_side">16dp</dimen>
+    <dimen name="setup_fragment_padding_side">24dp</dimen>
     <dimen name="setup_fragment_padding_bottom">16dp</dimen>
 
     <!-- Account setup navigation buttons -->
@@ -61,6 +61,9 @@
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">24dp</dimen>
 
+    <!-- Info text in any account setup screen -->
+    <dimen name="setup_info_text_margin_bottom">20dp</dimen>
+
     <!-- inset distance for settings buttons -->
     <dimen name="settings_buttons_padding_top">48dp</dimen>
     <dimen name="settings_buttons_padding_bottom">48dp</dimen>
@@ -70,8 +73,9 @@
     <dimen name="setup_item_inset_end">0dp</dimen>
 
     <!-- Account setup basics -->
-    <dimen name="setup_basics_logo_margin_top">28dp</dimen>
-    <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
+    <!-- See also w600dp -->
+    <dimen name="setup_basics_logo_margin_top">4dp</dimen>
+    <dimen name="setup_basics_logo_margin_bottom">4dp</dimen>
 
     <!-- TODO: probably delete these -->
     <!-- Notification dialog -->
