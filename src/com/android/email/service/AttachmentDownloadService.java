@@ -275,6 +275,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
         /*package*/ final ConcurrentHashMap<Long, DownloadRequest> mDownloadsInProgress =
             new ConcurrentHashMap<Long, DownloadRequest>();
 
+        private void markAttachmentAsFailed(final Attachment att) {
+            final ContentValues cv = new ContentValues();
+            final int flags = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
+            cv.put(Attachment.FLAGS, att.mFlags &= ~flags);
+            cv.put(Attachment.UI_STATE, AttachmentState.FAILED);
+            att.update(mContext, cv);
+        }
+
         /**
          * onChange is called by the AttachmentReceiver upon receipt of a valid notification from
          * EmailProvider that an attachment has been inserted or modified.  It's not strictly
@@ -303,6 +311,29 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 // If this is new, add the request to the queue
                 if (req == null) {
                     req = new DownloadRequest(context, att);
+                    final AttachmentInfo attachInfo = new AttachmentInfo(context, att);
+                    if (!attachInfo.isEligibleForDownload()) {
+                        // We can't download this file due to policy, depending on what type
+                        // of request we received, we handle the response differently.
+                        if (((att.mFlags & Attachment.FLAG_DOWNLOAD_USER_REQUEST) != 0) ||
+                                ((att.mFlags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) != 0)) {
+                            // There are a couple of situations where we will not even allow this
+                            // request to go in the queue because we can already process it as a
+                            // failure.
+                            // 1. The user explictly wants to download this attachment from the
+                            // email view but they should not be able to...either because there is
+                            // no app to view it or because its been marked as a policy violation.
+                            // 2. The user is forwarding an email and the attachment has been
+                            // marked as a policy violation. If the attachment is non viewable
+                            // that is OK for forwarding a message so we'll let it pass through
+                            markAttachmentAsFailed(att);
+                            return;
+                        }
+                        // If we get this far it a forward of an attachment that is only
+                        // ineligible because we can't view it or process it. Not because we
+                        // can't download it for policy reasons. Let's let this go through because
+                        // the final recipient of this forward email might be able to process it.
+                    }
                     add(req);
                 }
                 // If the request already existed, we'll update the priority (so that the time is
@@ -346,7 +377,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 LogUtils.d(TAG, "== Checking attachment queue, " + mDownloadSet.size()
                         + " entries");
             }
-
             Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
             // First, start up any required downloads, in priority order
             while (iterator.hasNext() &&
@@ -369,6 +399,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
                         continue;
                     }
+                    // TODO: We try to gate ineligible downloads from entering the queue but its
+                    // always possible that they made it in here regardless in the future.  In a
+                    // perfect world, we would make it bullet proof with a check for eligibility
+                    // here instead/also.
                     mDownloadSet.tryStartDownload(req);
                 }
             }
@@ -421,6 +455,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
                                     mDownloadSet.tryStartDownload(req);
                                     break;
                                 }
+                            } else {
+                                // If this attachment was ineligible for download
+                                // because of policy related issues, its flags would be set to
+                                // FLAG_POLICY_DISALLOWS_DOWNLOAD and would not show up in the
+                                // query results. We are most likely here for other reasons such
+                                // as the inability to view the attachment. In that case, let's just
+                                // skip it for now.
+                                LogUtils.e(TAG, "== skip attachment %d, it is ineligible", att.mId);
                             }
                         }
                     }
