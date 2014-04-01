@@ -320,7 +320,13 @@ public class AccountSetupFinal extends AccountSetupActivity
                 if (!autoSetupCompleted) {
                     LogUtils.e(LogUtils.TAG, "Force create account failed to create account");
                     finish();
+                    return;
                 }
+                final Account account = mSetupData.getAccount();
+                final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+                recvAuth.mPassword = password;
+                final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+                sendAuth.mPassword = password;
             } else {
                 final Account account = mSetupData.getAccount();
 
@@ -434,7 +440,8 @@ public class AccountSetupFinal extends AccountSetupActivity
 
             // We need to do this after onCreate so that we can ensure that the fragment is
             // fully created before querying it.
-            initiateAccountCreation();
+            // This will call initiateAccountCreation() for us
+            proceed();
         }
     }
 
