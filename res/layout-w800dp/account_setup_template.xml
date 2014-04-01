@@ -63,6 +63,13 @@
                     android:id="@+id/setup_fragment_content"
                     style="@style/account_setup_fragment_container"
                     />
+            <TextView
+                    android:id="@+id/manual_setup"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/account_setup_basics_manual_setup_action"
+                    android:visibility="gone"
+                    style="@style/account_setup_manual_button" />
         </LinearLayout>
     </ScrollView>
     <ImageButton

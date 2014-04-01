@@ -42,10 +42,4 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress" />
-    <CheckBox
-            android:id="@+id/manual_setup"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/account_setup_basics_manual_setup_action" />
-
 </LinearLayout>
