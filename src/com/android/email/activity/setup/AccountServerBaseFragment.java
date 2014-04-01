@@ -160,6 +160,7 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
         outState.putBoolean(BUNDLE_KEY_SETTINGS, mSettingsMode);
     }
