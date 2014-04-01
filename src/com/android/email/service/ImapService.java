@@ -58,6 +58,7 @@ import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.SearchParams;
+import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
@@ -379,7 +380,11 @@ public class ImapService extends Service {
         final boolean fullSync = (uiRefresh || loadMore ||
                 timeSinceLastFullSync >= FULL_SYNC_INTERVAL_MILLIS || timeSinceLastFullSync < 0);
 
-        if (fullSync) {
+        if (account.mSyncLookback == SyncWindow.SYNC_WINDOW_ALL) {
+            // This is really for testing. There is no UI that allows setting the sync window for
+            // IMAP, but it can be set by sending a special intent to AccountSetupFinal activity.
+            endDate = 0;
+        } else if (fullSync) {
             // Find the oldest message in the local store. We need our time window to include
             // all messages that are currently present locally.
             endDate = System.currentTimeMillis() - FULL_SYNC_WINDOW_MILLIS;

@@ -45,6 +45,7 @@ import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.utils.LogUtils;
 
 import java.net.URISyntaxException;
@@ -102,6 +103,10 @@ public class AccountSetupFinal extends AccountSetupActivity
     private static final String EXTRA_CREATE_ACCOUNT_PASSWORD = "PASSWORD";
     private static final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
     private static final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
+    private static final String EXTRA_CREATE_ACCOUNT_SYNC_LOOKBACK = "SYNC_LOOKBACK";
+
+    private static final String CREATE_ACCOUNT_SYNC_ALL_VALUE = "ALL";
+
     private static final Boolean DEBUG_ALLOW_NON_TEST_HARNESS_CREATION = false;
 
     protected static final String ACTION_JUMP_TO_INCOMING = "jumpToIncoming";
@@ -279,6 +284,13 @@ public class AccountSetupFinal extends AccountSetupActivity
             final String password = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_PASSWORD);
             final String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
             final String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
+            final String syncLookbackText = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_SYNC_LOOKBACK);
+            final int syncLookback;
+            if (TextUtils.equals(syncLookbackText, CREATE_ACCOUNT_SYNC_ALL_VALUE)) {
+                syncLookback = SyncWindow.SYNC_WINDOW_ALL;
+            } else {
+                syncLookback = -1;
+            }
             // If we've been explicitly provided with all the details to fill in the account, we
             // can use them
             final boolean explicitForm = !(TextUtils.isEmpty(user) ||
@@ -328,6 +340,12 @@ public class AccountSetupFinal extends AccountSetupActivity
                 }
 
                 populateSetupData(user, email);
+                // We need to do this after calling populateSetupData(), because that will
+                // overwrite it with the default values.
+                if (syncLookback >= SyncWindow.SYNC_WINDOW_ACCOUNT &&
+                    syncLookback <= SyncWindow.SYNC_WINDOW_ALL) {
+                    account.mSyncLookback = syncLookback;
+                }
             }
 
             mState = STATE_OPTIONS;
