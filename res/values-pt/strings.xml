@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="9208086010625033590">"Ler os anexos do e-mail"</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Permite que o aplicativo leia seus anexos de e-mail."</string>
+    <string name="permission_access_provider_label" msgid="378256653525377586">"Acessar dados do provedor de e-mail"</string>
+    <string name="permission_access_provider_desc" msgid="6296566558584670348">"Permite que o aplicativo acesse o banco de dados de seu e-mail, incluindo mensagens recebidas e enviadas, nomes de usuário e senhas."</string>
+    <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
+    <string name="next_action" msgid="3931301986364184415">"Próxima"</string>
+    <string name="previous_action" msgid="5181616311579820981">"Anterior"</string>
+    <string name="done_action" msgid="7497990549515580249">"Concluído"</string>
+    <string name="create_action" msgid="3062715563215392251">"Criar nova"</string>
+    <string name="quick_responses_empty_view" msgid="3960050972306132367">"Nenhuma resposta rápida."</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Configurações da conta"</string>
+    <string name="menu_folder_options" msgid="2871906096248843471">"Opções de sincronização"</string>
+    <string name="status_network_error" msgid="2611654064403817391">"Problema na conexão."</string>
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Mover mensagem"</item>
+    <item quantity="other" msgid="371256717624461324">"Mover mensagens"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"A ação Mover não é suportada em contas POP3."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Não é possível mover porque a seleção contém várias contas."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"As mensagens em Rascunhos, na Caixa de saída e em Enviados não podem ser movidas."</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Caixa de entrada"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Caixa de saída"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Rascunhos"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Lixeira"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"E-mails enviados"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Lixo"</string>
+    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Com estrela"</string>
+    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Não lido"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Caixa de entrada"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Com estrela"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Rascunhos"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Caixa de saída"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Visualização combinada"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensagem Original --------\nAssunto: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDe: <xliff:g id="SENDER">%2$s</xliff:g>\nPara: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Inserir resposta rápida"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Inserir resposta rápida"</string>
+    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Um ou mais anexos de sua mensagem encaminhada serão transferidos antes do envio."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Não foi possível fazer download do anexo."</string>
+    <string name="message_decode_error" msgid="5016042255170947834">"Ocorreu um erro ao decodificar a mensagem."</string>
+    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Não foi possível encaminhar todos os anexos."</string>
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Anexo não encaminhado"</string>
+    <string name="login_failed_ticker" msgid="2169365211566829350">"Falha no login de <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
+    <string name="login_failed_title" msgid="7624349996212476176">"Não foi possível fazer login"</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> b"</item>
+    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> b"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> Kb"</item>
+    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> Kb"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
+    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
+    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
+  </plurals>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuração da conta"</string>
+    <string name="oauth_authentication_title" msgid="4096761972487140963">"Solicitando autorização"</string>
+    <string name="sign_in_title" msgid="8509755024484685915">"Fazer login"</string>
+    <string name="password_warning_label" msgid="1479956455912041077">"Endereço de e-mail ou senha incorretos"</string>
+    <string name="email_confirmation_label" msgid="1082319634606902954">"Endereço de e-mail:"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Conta de e-mail"</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"É possível configurar uma conta em apenas algumas etapas."</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de e-mail"</string>
+    <string name="or_label" msgid="2207403489755254427">"OU"</string>
+    <string name="sign_in_with_google" msgid="9051489501495503976">"Fazer login com o Google"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Senha"</string>
+    <string name="password_label" msgid="5228754278985667134">"Senha"</string>
+    <string name="signed_in_with_service_label" msgid="4909910797357155961">"Conectado com o %s"</string>
+    <string name="authentication_label" msgid="5210804218348191833">"Autenticação"</string>
+    <string name="add_authentication_label" msgid="865206092644419804">"Adicionar autenticação"</string>
+    <string name="clear_authentication_label" msgid="8113966442068335059">"Limpar autenticação"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Digite um endereço de e-mail e senha válidos."</string>
+    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Conta duplicada"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Você já está usando este nome de usuário para a conta \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Essa senha inicia ou termina com um ou mais caracteres de espaço. Muitos servidores não suportam senhas com espaços."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando informações sobre a conta"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validando as configurações do servidor..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validando as configurações de SMTP..."</string>
+    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Criando conta..."</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Configuração da conta"</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Sua conta está configurada e o e-mail está a caminho!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dar nome a esta conta (opcional)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Seu nome (exibido nas mensagens enviadas)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Este campo não pode ficar em branco."</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuração da conta"</string>
+    <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo de conta"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Que tipo de conta é esta?"</string>
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuração da conta"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Configurações de entrada do servidor"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nome de usuário"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Senha"</string>
+    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Servidor"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Porta"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de segurança"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nenhum"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Aceitar todos os certificados)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (aceitar todos os certificados)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Excluir e-mail do servidor"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Quando eu excluir da Caixa de entrada"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Prefixo do caminho IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuração da conta"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Configurações de saída do servidor"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Porta"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de segurança"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Exigir login"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nome de usuário"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Senha"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Certificado do cliente"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Selecionar"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Usar certificado de cliente"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Remover"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Nenhum"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID do aparelho celular"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Configurações da conta"</string>
+    <string name="account_setup_options_headline" msgid="4181274232835368085">"Opções da conta"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frequência de verificação da caixa de entrada"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Instantânea (envio)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"A cada 5 minutos"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"A cada 10 minutos"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"A cada 15 minutos"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"A cada 30 minutos"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"De hora em hora"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Receber notificação quando um e-mail chegar"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sincronizar contatos desta conta"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sincronizar agenda desta conta"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sincronizar e-mail desta conta."</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Fazer o download de anexos automaticamente ao conectar ao Wi-Fi"</string>
+    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Não foi possível concluir"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dias para sincronizar"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automático"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Último dia"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Últimos três dias"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"Última semana"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Últimas duas semanas"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Último mês"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Todos"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar padrão da conta"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Nome de usuário ou senha incorretos."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Falha no login.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Problema com a configuração da conta"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Verifique se o nome de usuário, a senha e as configurações da conta estão corretos."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Não é possível se conectar ao servidor com segurança."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Não é possível se conectar ao servidor com segurança.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"É necessário um certificado de cliente. Deseja se conectar ao servidor com um certificado de cliente?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"O certificado é inválido ou inacessível."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"O servidor respondeu com um erro. Verifique seu nome de usuário e senha e tente novamente."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Não é possível se conectar ao servidor."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Não é possível se conectar ao servidor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS solicitado, mas não suportado pelo servidor."</string>
+    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Os métodos de autenticação não são suportados pelo servidor."</string>
+    <string name="account_setup_failed_security" msgid="925820957665764964">"Não foi possível abrir a conexão com o servidor devido a um erro de segurança."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Não foi possível abrir a conexão com o servidor."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Você digitou um endereço de servidor incorreto ou o servidor exige uma versão de protocolo que o e-mail não suporta."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Você não tem permissão para sincronizar com este servidor. Entre em contato com o administrador do servidor para obter mais informações."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administração de segurança remota"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"O servidor <xliff:g id="SERVER">%s</xliff:g> requer a permissão de controle remoto de alguns recursos de segurança do seu dispositivo Android. Deseja concluir a configuração desta conta?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Este servidor exige recursos de segurança não suportados por seu dispositivo Android, incluindo: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Não é possível alterar o nome de usuário de uma conta. Para adicionar uma conta com um nome de usuário diferente, toque em Adicionar conta."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"AVISO: ao desativar a autoridade do aplicativo de e-mail para administrar seu dispositivo, todas as contas de e-mail vinculadas serão excluídas, assim como e-mails, contatos, eventos da agenda e outros dados."</string>
+    <string name="account_security_dialog_title" msgid="430041952584831904">"Atualização de segurança"</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> solicita que você atualize suas configurações de segurança."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" não pode ser sincronizada devido a solicitações de segurança."</string>
+    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" exige a atualização das configurações de segurança."</string>
+    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"As configurações de segurança da conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" foram alteradas. Nenhuma ação do usuário é necessária."</string>
+    <string name="security_notification_content_update_title" msgid="2429762903228690154">"Necessária atualiz. segurança"</string>
+    <string name="security_notification_content_change_title" msgid="443490921895642130">"Polít. segurança alteradas"</string>
+    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Polít. de seg. não podem ser cumpridas"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Segurança do dispositivo"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"O servidor <xliff:g id="SERVER">%s</xliff:g> requer a permissão de controle remoto de alguns recursos de segurança do seu dispositivo Android."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalhes"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" solicita que você altere sua senha ou PIN da tela de bloqueio."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Senha da tela de bloqueio expirando"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Sua senha ou PIN da tela de bloqueio expirou."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Senha da tela de bloqueio expirada"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Senha da tela de bloqueio expirando"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"É necessário alterar o PIN ou a senha de sua tela de bloqueio logo, ou os dados da <xliff:g id="ACCOUNT">%s</xliff:g> serão apagados. Deseja mudar isso agora?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Senha da tela de bloqueio expirada"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Os dados da <xliff:g id="ACCOUNT">%s</xliff:g> estão sendo apagados de seu dispositivo. Você pode restaurá-los alterando o PIN ou a senha de sua tela de bloqueio. Deseja mudar isso agora?"</string>
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Descartar as alterações não salvas?"</string>
+    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Não foi possível fazer login"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"O nome de usuário ou senha da <xliff:g id="ACCOUNT">%s</xliff:g> está incorreto. Deseja atualizar agora?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"O login em <xliff:g id="ACCOUNT">%s</xliff:g> falhou. Mensagem do servidor: <xliff:g id="REASON">%s</xliff:g> Deseja atualizar seu nome de usuário e/ou sua senha?"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Fazer download dos anexos"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Fazer download automát. dos anexos de mens. recentes via Wi-Fi"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificações de e-mail"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"Frequência de sincronização, notificações etc."</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Enviar notificação quando chegarem e-mails"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Frequência de sincronização"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configurações recebidas"</string>
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nome de usuário, senha e outras configurações do servidor de entrada"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configurações enviadas"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Nome de usuário, senha e outras configurações do servidor de saída"</string>
+    <string name="account_settings_enforced_label" msgid="7429582254433588882">"Políticas aplicadas"</string>
+    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Nenhuma"</string>
+    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Políticas não suportadas"</string>
+    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Nenhuma"</string>
+    <string name="account_settings_retry_label" msgid="1104680719299842829">"Tentativa de sincronização"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Toque aqui para sincronizar esta conta"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Nome da conta"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Seu nome"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Respostas rápidas"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Edite o texto que você costuma inserir em seus e-mails"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Configurações de notificação"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"Uso de dados"</string>
+    <string name="account_settings_policies" msgid="6292833636418641840">"Políticas de segurança"</string>
+    <string name="system_folders_title" msgid="2934406494244347991">"Pastas do sistema"</string>
+    <string name="system_folders_trash_title" msgid="8470058000681188327">"Pasta Lixeira"</string>
+    <string name="system_folders_trash_summary" msgid="1258919809198485244">"Selecione a pasta de itens enviados do servidor"</string>
+    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"Selecione a pasta de itens enviados do servidor"</string>
+    <string name="system_folders_sent_title" msgid="4265722817877075367">"Pasta de itens enviados"</string>
+    <string name="system_folders_sent_summary" msgid="5529250353569545181">"Selecione a pasta de itens enviados do servidor"</string>
+    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Selecione a pasta de itens enviados do servidor"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Resposta rápida"</string>
+    <string name="save_action" msgid="1988862706623227093">"Salvar"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronizar contatos"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronizar contatos para esta conta"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronizar agenda"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sinc. evento agenda p/ esta conta"</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronizar e-mail"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronizar e-mail para esta conta"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
+    <string name="account_settings_ringtone" msgid="8229878374785575207">"Selecionar toque"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Configurações do servidor"</string>
+    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Opções de sincronização"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opções de sincronização (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sincronizar esta pasta"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"O download das mensagens será feito quando você estiver conectado"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Dias de e-mails para sincronizar"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Imagem do remetente"</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Somente algumas contas \"Plus\" incluem o acesso POP permitindo que este programa seja conectado. Se não for possível fazer login com seu endereço de e-mail e senha corretos, você talvez não tenha uma conta \"Plus\" paga. Inicie o navegador da web para acessar essas contas de e-mail."</string>
+    <string name="provider_note_t_online" msgid="1630642061431427894">"Antes de configurar essa conta de e-mail, acesse o site T-Online e crie uma senha para acessar e-mail POP3."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Corporativa"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="3673792980526246177">"Não foi possível criar a conta. Tente novamente."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Ativa as políticas de segurança especificadas pelo servidor"</string>
+    <string name="settings_activity_title" msgid="5185915603716333904">"Configurações"</string>
+    <string name="header_label_general_preferences" msgid="8243724566056800991">"Configurações gerais"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Confirmar antes de excluir"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Mensagens"</string>
+    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Confirmar antes de enviar"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Mensagens"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamanho do texto da mensagem"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"Texto minúsculo"</item>
+    <item msgid="4415205108584620118">"Texto pequeno"</item>
+    <item msgid="4550219696381691112">"Texto normal"</item>
+    <item msgid="6227813549949219991">"Texto grande"</item>
+    <item msgid="1197917420815786571">"Texto enorme"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tamanho do texto da mensagem"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Muito pequeno"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Pequeno"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorme"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Pesquisar e-mail"</string>
+    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Desativar o uso da câmera do dispositivo"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Exigir senha para o dispositivo"</string>
+    <string name="policy_password_history" msgid="5743544498302303181">"Restringir reutiliz. de senhas recentes"</string>
+    <string name="policy_password_expiration" msgid="1248123255253649199">"Exigir que as senhas expirem"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Exigir dispositivo inativo p/ bloq. tela"</string>
+    <string name="policy_calendar_age" msgid="627405158087482302">"Limitar número de eventos de agenda sincronizados"</string>
+    <string name="policy_email_age" msgid="7144148367145424963">"Limitar número de e-mails sincronizados"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Obrigado!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Parece uma boa ideia!"</string>
+    <string name="quick_3" msgid="8061819976353395585">"Lerei isso mais tarde e darei uma resposta a você."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Podemos marcar uma reunião para discutir isso."</string>
+    <string name="require_manual_sync_message" msgid="7777357288642785955">"A sincronização em segundo plano para essa conta é desativada durante o roaming."</string>
+    <string name="confirm_response" msgid="9151965975158906286">"Enviando resposta..."</string>
+    <string name="no_conversations" msgid="5559527390337162819">"Nenhuma mensagem."</string>
+    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
+    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
+    <string name="folder_picker_title" msgid="860241987640527156">"Seletor de pasta"</string>
+    <string name="trash_folder_selection_title" msgid="8052880079616386185">"Pasta Lixeira do servidor p/ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="2668629667423320684">"Pasta Enviados do servidor p/ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Carregando a lista de pastas..."</string>
+</resources>
