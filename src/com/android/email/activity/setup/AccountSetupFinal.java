@@ -1055,6 +1055,22 @@ public class AccountSetupFinal extends AccountSetupActivity
         if (serviceInfo.offerAttachmentPreload && fragment.getBackgroundAttachmentsValue()) {
             newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
+        final HostAuth hostAuth = account.getOrCreateHostAuthRecv(this);
+        if (hostAuth.mProtocol.equals(getString(R.string.protocol_eas))) {
+            try {
+                final double protocolVersionDouble = Double.parseDouble(account.mProtocolVersion);
+                if (protocolVersionDouble >= 12.0) {
+                    // If the the account is EAS and the protocol version is above 12.0,
+                    // we know that SmartForward is enabled and the various search flags
+                    // should be enabled first.
+                    // TODO: Move this into protocol specific code in the future.
+                    newFlags |= Account.FLAGS_SUPPORTS_SMART_FORWARD |
+                            Account.FLAGS_SUPPORTS_GLOBAL_SEARCH | Account.FLAGS_SUPPORTS_SEARCH;
+                }
+            } catch (NumberFormatException e) {
+                LogUtils.wtf(LogUtils.TAG, e, "Exception thrown parsing the protocol version.");
+            }
+        }
         account.setFlags(newFlags);
         account.setSyncInterval(fragment.getCheckFrequencyValue());
         final Integer syncWindowValue = fragment.getAccountSyncWindowValue();
