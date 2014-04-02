@@ -5644,7 +5644,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     /**
-     * The method will no longer be needed after Kitkat MR2 releases. As emails are received from
+     * The method will no longer be needed after platform L releases. As emails are received from
      * various protocols the email addresses are decoded and intended to be stored in the database
      * in decoded form. The problem is that Exchange is a separate .apk and the old Exchange .apk
      * still attempts to store <strong>encoded</strong> email addresses. So, we decode here at the
