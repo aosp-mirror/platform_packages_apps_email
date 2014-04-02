@@ -543,8 +543,9 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } else {
                     mSkipAutoDiscover = false;
                     if (mIsPreConfiguredProvider) {
-                        if (!TextUtils.equals(mSetupData.getAmProtocol(),
-                                mSetupData.getIncomingProtocol(this))) {
+                        if (!TextUtils.isEmpty(mSetupData.getAmProtocol()) &&
+                                !TextUtils.equals(mSetupData.getAmProtocol(),
+                                        mSetupData.getIncomingProtocol(this))) {
                             mState = STATE_AB;
                         } else {
                             mState = STATE_CREDENTIALS;
