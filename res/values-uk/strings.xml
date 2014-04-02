@@ -101,6 +101,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Перевірка налаштувань сервера…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Перевірка налаштувань SMTP…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Створення облікового запису…"</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Підтвердьте тип облікового запису"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Ви вказали, що <xliff:g id="EMAIL">%1$s</xliff:g> використовує <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, але цей обліковий запис може використовувати <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Налаштування облікового запису"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Ваш обліковий запис налаштовано. Скоро надійдуть листи!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Назвіть цей обл. запис. (додатково)"</string>

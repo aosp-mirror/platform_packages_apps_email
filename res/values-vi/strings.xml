@@ -101,6 +101,10 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Đang xác thực cài đặt máy chủ…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Đang xác thực cài đặt smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Đang tạo tài khoản..."</string>
+    <!-- no translation found for account_setup_ab_headline (7110531768613341908) -->
+    <skip />
+    <!-- no translation found for account_setup_ab_instructions_format (2107254631013471380) -->
+    <skip />
     <string name="account_setup_names_title" msgid="8483517350241119291">"Thiết lập tài khoản"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Tài khoản của bạn đã được thiết lập và email đang được gửi!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Đặt tên cho tài khoản này (tùy chọn)"</string>
@@ -257,7 +261,7 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Thư sẽ tải xuống khi được kết nối"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Số ngày của thư sẽ đồng bộ hóa"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Ảnh người gửi"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" tính phí. Hãy khởi chạy trình duyệt web để yêu cầu cấp quyền truy cập vào các tài khoản email này."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" tính phí. Hãy chạy trình duyệt web để yêu cầu cấp quyền truy cập vào các tài khoản email này."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Trước khi thiết lập tài khoản email này, hãy truy cập trang web T-Online và tạo mật khẩu để truy cập email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Doanh nghiệp"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
