@@ -176,7 +176,9 @@ public final class DBHelper {
     // Version 124: Added MAX_ATTACHMENT_SIZE to the account table
     // Version 125: Add credentials table for OAuth.
     // Version 126: Decode address lists for To, From, Cc, Bcc and Reply-To columns in Message.
-    public static final int DATABASE_VERSION = 126;
+    // Version 127: Force mFlags to contain the correct flags for EAS accounts given a protocol
+    //              version above 12.0
+    public static final int DATABASE_VERSION = 127;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1370,6 +1372,10 @@ public final class DBHelper {
             if (oldVersion <= 125) {
                 upgradeFromVersion125ToVersion126(db);
             }
+
+            if (oldVersion <= 126) {
+                upgradeFromVersion126ToVersion127(mContext, db);
+            }
         }
 
         @Override
@@ -1702,7 +1708,36 @@ public final class DBHelper {
             }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
-            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 124 to 125 " + e);
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 125 to 126 " + e);
+        }
+    }
+
+    /**
+     * Update all accounts that are EAS v12.0 or greater with SmartForward and search flags
+     */
+    private static void upgradeFromVersion126ToVersion127(final Context context,
+            final SQLiteDatabase db) {
+        try {
+            // These are the flags that we want to add to the Account table for the
+            // appropriate rows.
+            final long newFlags = Account.FLAGS_SUPPORTS_GLOBAL_SEARCH +
+                    Account.FLAGS_SUPPORTS_SEARCH + Account.FLAGS_SUPPORTS_SMART_FORWARD;
+
+            // For posterity; this is the command we're executing:
+            // UPDATE Account SET flags=flags|[new flags] WHERE _id IN (SELECT t1._id FROM Account
+            // t1 INNER JOIN HostAuth t2 ON t1.hostAuthKeyRecv=t2._id WHERE t2.protocol='gEas' AND
+            // CAST(t1.protocolVersion AS REAL)>=12.0)
+            db.execSQL(
+                    "UPDATE " + Account.TABLE_NAME + " SET " + AccountColumns.FLAGS + "=" +
+                            AccountColumns.FLAGS + "|" + Long.toString(newFlags) + " WHERE " +
+                            AccountColumns.ID + " IN (SELECT t1." + AccountColumns.ID + " FROM " +
+                            Account.TABLE_NAME + " t1 INNER JOIN " + HostAuth.TABLE_NAME +
+                            " t2 ON t1." + AccountColumns.HOST_AUTH_KEY_RECV + "=t2._id WHERE t2." +
+                            HostAuthColumns.PROTOCOL + "='" +
+                            context.getString(R.string.protocol_eas) + "' AND CAST(t1." +
+                            AccountColumns.PROTOCOL_VERSION + " AS REAL)>=12.0)");
+        } catch (SQLException e) {
+            LogUtils.w(TAG, "Exception upgrading EmailProvider.db from 126 to 127 " + e);
         }
     }
 
