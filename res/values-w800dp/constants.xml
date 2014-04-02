@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2013 Google Inc.
+     Copyright (C) 2014 Google Inc.
      Licensed to The Android Open Source Project.
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,8 @@
      limitations under the License.
 -->
 <resources>
-    <!-- Boolean value indicating whether the feedback is supported. -->
-    <bool name="feedback_supported">false</bool>
-
     <!-- Int value for whether we want the 'previous' button on the Basics setup screen to be
-     invisible or gone. See also w800dp -->
-    <bool name="setup_basics_prev_button_gone">true</bool>
+     invisible or gone -->
+    <bool name="setup_basics_prev_button_gone">false</bool>
+
 </resources>

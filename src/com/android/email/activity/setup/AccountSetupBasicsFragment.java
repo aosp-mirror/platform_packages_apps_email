@@ -32,7 +32,8 @@ import com.android.emailcommon.mail.Address;
 
 public class AccountSetupBasicsFragment extends AccountSetupFragment {
     private EditText mEmailView;
-    private CheckBox mManualSetupView;
+    private View mManualSetupView;
+    private boolean mManualSetup;
 
     public interface Callback extends AccountSetupFragment.Callback {
     }
@@ -51,6 +52,7 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
         mManualSetupView = UiUtilities.getView(view, R.id.manual_setup);
+        mManualSetupView.setOnClickListener(this);
 
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -67,7 +69,17 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
 
         mEmailView.addTextChangedListener(textWatcher);
 
-        setPreviousButtonVisibility(View.INVISIBLE);
+        // On some layouts we want the button to only be invisible but still take up space, but on
+        // others we need it to be completely gone. So we divert based on resources.
+        final boolean prevButtonGone =
+                getResources().getBoolean(R.bool.setup_basics_prev_button_gone);
+        if (prevButtonGone) {
+            setPreviousButtonVisibility(View.GONE);
+        } else {
+            setPreviousButtonVisibility(View.INVISIBLE);
+        }
+
+        setManualSetupButtonVisibility(View.VISIBLE);
 
         return view;
     }
@@ -76,6 +88,23 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         validateFields();
+    }
+
+    @Override
+    public void onClick(View v) {
+        final int viewId = v.getId();
+        final Callback callback = (Callback) getActivity();
+
+        if (viewId == R.id.next) {
+            // Handle "Next" button here so we can reset the manual setup diversion
+            mManualSetup = false;
+            callback.onNextButton();
+        } else if (viewId == R.id.manual_setup) {
+            mManualSetup = true;
+            callback.onNextButton();
+        } else {
+            super.onClick(v);
+        }
     }
 
     private void validateFields() {
@@ -89,6 +118,21 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
         setNextButtonEnabled(emailValid);
     }
 
+
+    /**
+     * Set visibitlity of the "manual setup" button
+     * @param visibility {@link View#INVISIBLE}, {@link View#VISIBLE}, {@link View#GONE}
+     */
+    public void setManualSetupButtonVisibility(int visibility) {
+        mManualSetupView.setVisibility(visibility);
+    }
+
+    @Override
+    public void setNextButtonEnabled(boolean enabled) {
+        super.setNextButtonEnabled(enabled);
+        mManualSetupView.setEnabled(enabled);
+    }
+
     public void setEmail(final String email) {
         mEmailView.setText(email);
     }
@@ -98,6 +142,6 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
     }
 
     public boolean isManualSetup() {
-        return mManualSetupView.isChecked();
+        return mManualSetup;
     }
 }

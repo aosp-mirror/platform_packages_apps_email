@@ -48,6 +48,42 @@
                 android:layout_weight="1"/>
 
         <!-- Buttons below that -->
-        <include layout="@layout/account_setup_buttons"/>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:paddingTop="@dimen/setup_nav_button_padding_top"
+                      android:paddingLeft="@dimen/setup_nav_button_padding_side"
+                      android:paddingRight="@dimen/setup_nav_button_padding_side"
+                      android:paddingBottom="@dimen/setup_nav_button_padding_bottom"
+                      android:orientation="horizontal">
+            <ImageButton
+                    style="@style/account_setup_nav_button"
+                    android:contentDescription="@string/previous_action"
+                    android:id="@+id/previous"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/ic_nav_arrow_previous_button"
+                    android:text="@string/next_action" />
+            <TextView
+                    android:id="@+id/manual_setup"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/account_setup_basics_manual_setup_action"
+                    android:visibility="gone"
+                    android:layout_gravity="center_vertical"
+                    style="@style/account_setup_manual_button" />
+            <View
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+            <ImageButton
+                    style="@style/account_setup_nav_button"
+                    android:contentDescription="@string/next_action"
+                    android:id="@+id/next"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/ic_nav_arrow_next_button"
+                    android:text="@string/next_action" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

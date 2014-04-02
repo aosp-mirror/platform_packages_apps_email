@@ -66,6 +66,12 @@
         <item name="android:layout_marginBottom">@dimen/setup_info_text_margin_bottom</item>
     </style>
 
+    <style name="account_setup_manual_button">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/account_setup_manual_button_color</item>
+        <item name="android:alpha">0.4</item>
+    </style>
+
     <!-- Account setup row label text -->
     <style name="account_setup_label_text">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
