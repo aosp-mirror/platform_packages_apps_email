@@ -78,7 +78,7 @@ public class LegacyConversions {
      * Copy field-by-field from a "store" message to a "provider" message
      * @param message The message we've just downloaded (must be a MimeMessage)
      * @param localMessage The message we'd like to write into the DB
-     * @result true if dirty (changes were made)
+     * @return true if dirty (changes were made)
      */
     public static boolean updateMessageFields(EmailContent.Message localMessage, Message message,
                 long accountId, long mailboxId) throws MessagingException {
@@ -130,7 +130,7 @@ public class LegacyConversions {
 
         // Only replace the local message-id if a new one was found.  This is seen in some ISP's
         // which may deliver messages w/o a message-id header.
-        String messageId = ((MimeMessage)message).getMessageId();
+        String messageId = message.getMessageId();
         if (messageId != null) {
             localMessage.mMessageId = messageId;
         }
@@ -140,13 +140,13 @@ public class LegacyConversions {
         localMessage.mAccountKey = accountId;
 
         if (from != null && from.length > 0) {
-            localMessage.mFrom = Address.toHeader(from);
+            localMessage.mFrom = Address.toString(from);
         }
 
-        localMessage.mTo = Address.toHeader(to);
-        localMessage.mCc = Address.toHeader(cc);
-        localMessage.mBcc = Address.toHeader(bcc);
-        localMessage.mReplyTo = Address.toHeader(replyTo);
+        localMessage.mTo = Address.toString(to);
+        localMessage.mCc = Address.toString(cc);
+        localMessage.mBcc = Address.toString(bcc);
+        localMessage.mReplyTo = Address.toString(replyTo);
 
 //        public String mText;
 //        public String mHtml;

@@ -16,15 +16,15 @@
 
 package com.android.emailcommon.internet;
 
+import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessagingException;
-
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -270,7 +270,7 @@ public class MimeMessageTest extends AndroidTestCase {
     /**
      * Test for parsing address field.
      */
-    public void brokentestParsingAddressField() throws MessagingException {
+    public void testParsingAddressField() throws MessagingException {
         MimeMessage message = new MimeMessage();
 
         message.setHeader("From", "noname1@dom1.com");
