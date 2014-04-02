@@ -222,7 +222,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"快速回應"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"編輯您撰寫電子郵件時經常插入的文字"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"資料用量"</string>
+    <string name="account_settings_data_usage" msgid="6669107430575866736">"數據用量"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"安全性政策"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"系統資料夾"</string>
     <string name="system_folders_trash_title" msgid="8470058000681188327">"垃圾桶資料夾"</string>

@@ -56,7 +56,7 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Vložiť rýchlu odpoveď"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Vložiť rýchlu odpoveď"</string>
     <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Pred odoslaním sa prevezme jedna alebo viacero príloh zo správy posielanej ďalej."</string>
-    <string name="attachment_not_found" msgid="7155322700141145123">"Prílohu sa nepodarilo prevziať."</string>
+    <string name="attachment_not_found" msgid="7155322700141145123">"Prílohu sa nepodarilo stiahnuť."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Pri dekódovaní správy sa vyskytla chyba."</string>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Nepodarilo sa poslať ďalej jednu alebo viac príloh."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Príloha nebola poslaná ďalej"</string>
@@ -145,7 +145,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Synchronizovať kontakty z tohto účtu"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Synchronizovať kalendár z tohto účtu"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Synchronizovať e-mail z tohto účtu"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automaticky preberať prílohy počas pripojenia k sieti Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Automaticky sťahovať prílohy počas pripojenia k sieti Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nepodarilo sa dokončiť"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Počet dní na synchronizáciu"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automaticky"</string>
@@ -201,8 +201,8 @@
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Prihlásenie sa nepodarilo"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Používateľské meno alebo heslo pre účet <xliff:g id="ACCOUNT">%s</xliff:g> je nesprávne. Chcete ich aktualizovať?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Prihlásenie do účtu <xliff:g id="ACCOUNT">%s</xliff:g> zlyhalo. Odpoveď servera: <xliff:g id="REASON">%s</xliff:g> Chcete aktualizovať svoje používateľské meno alebo heslo?"</string>
-    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Preberať všetky prílohy"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automaticky preberať prílohy najnovších správ prostredníctvom siete Wi-Fi"</string>
+    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Sťahovať všetky prílohy"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Automaticky sťahovať prílohy najnovších správ prostredníctvom siete Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailové upozornenia"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frekvencia synchronizácie, oznámení atď."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Poslať upozornenie na príchod e-mailu"</string>

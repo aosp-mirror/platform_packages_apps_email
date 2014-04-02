@@ -205,7 +205,7 @@
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Download autom. vedhæftede filer i de seneste beskeder via Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsinterval, meddelelser osv."</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Send en meddelelse ved nye e-mails"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Send en underretning ved nye e-mails"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Synkroniseringshyppighed"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Brugernavn, adgangskode og indstillinger for indgående server"</string>
@@ -221,7 +221,7 @@
     <string name="account_settings_name_label" msgid="8186406122590008449">"Dit navn"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Hurtige svar"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"Rediger tekst, som du ofte indsætter, når du skriver e-mails"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"Indstillinger for underretninger"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Underretningsindstillinger"</string>
     <string name="account_settings_data_usage" msgid="6669107430575866736">"Dataforbrug"</string>
     <string name="account_settings_policies" msgid="6292833636418641840">"Sikkerhedspolitikker"</string>
     <string name="system_folders_title" msgid="2934406494244347991">"Systemmapper"</string>
