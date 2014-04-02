@@ -248,7 +248,7 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Thư sẽ tải xuống khi được kết nối"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Số ngày của thư sẽ đồng bộ hóa"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Ảnh người gửi"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" tính phí. Hãy khởi chạy trình duyệt web để yêu cầu cấp quyền truy cập vào các tài khoản email này."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" tính phí. Hãy chạy trình duyệt web để yêu cầu cấp quyền truy cập vào các tài khoản email này."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Trước khi thiết lập tài khoản email này, hãy truy cập trang web T-Online và tạo mật khẩu để truy cập email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Doanh nghiệp"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>

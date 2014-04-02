@@ -39,7 +39,7 @@
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Ukuhambisa akusekelwe kuma-akhawunti e-POP3"</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Ayikwazi ukukhipha ngoba okukhethiwe kuqukethe ama-akhawunti ahlukene."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Imilayezo Esazolungiswa, Ebhokisini lemilayezo Ephumayo kanye Nethunyelwe ayikwazi ukukhishwa."</string>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Ibhokisi lemiyalezo engenayo"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Ibhokisi lokungenayo"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Ibhokisi lemiyalezo ephumayo"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Okungaphelele"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Udoti"</string>
@@ -47,7 +47,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Okungafuneki"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Okunenkanyizo"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Akufundiwe"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Ibhokisi lemiyalezo engenayo"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Ibhokisi lokungenayo"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Okunenkanyezi"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Okungaphelele"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Ibhokisi lemiyalezo ephumayo"</string>
