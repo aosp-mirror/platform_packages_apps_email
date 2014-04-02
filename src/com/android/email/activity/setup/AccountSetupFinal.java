@@ -605,6 +605,7 @@ public class AccountSetupFinal extends AccountSetupActivity
                     initiateCheckSettingsFragment(SetupDataFragment.CHECK_INCOMING
                             | SetupDataFragment.CHECK_OUTGOING);
                 } else {
+                    populateHostAuthsFromSetupData();
                     if (mSkipAutoDiscover) {
                         mState = STATE_MANUAL_INCOMING;
                         updateContentFragment(true /* addToBackstack */);
@@ -912,7 +913,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     @Override
     public void onAccountServerSaveComplete() {}
 
-    private void initiateAutoDiscover() {
+    private void populateHostAuthsFromSetupData() {
         final String email = mSetupData.getEmail();
         final String[] emailParts = email.split("@");
         final String domain = emailParts[1];
@@ -938,7 +939,9 @@ public class AccountSetupFinal extends AccountSetupActivity
                     mSetupData.getCredentialResults());
             mSetupData.setOutgoingCredLoaded(true);
         }
+    }
 
+    private void initiateAutoDiscover() {
         // Populate the setup data, assuming that the duplicate account check will succeed
         initiateCheckSettingsFragment(SetupDataFragment.CHECK_AUTODISCOVER);
     }
