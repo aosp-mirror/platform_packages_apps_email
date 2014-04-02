@@ -2939,15 +2939,15 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
 
-    private int getFolderCapabilities(EmailServiceInfo info, int type, long mailboxId) {
+    private int getFolderCapabilities(EmailServiceInfo info, int mailboxType, long mailboxId) {
         // Special case for Search folders: only permit delete, do not try to give any other caps.
-        if (type == Mailbox.TYPE_SEARCH) {
+        if (mailboxType == Mailbox.TYPE_SEARCH) {
             return UIProvider.FolderCapabilities.DELETE;
         }
 
         // All folders support delete, except drafts.
         int caps = 0;
-        if (type != Mailbox.TYPE_DRAFTS) {
+        if (mailboxType != Mailbox.TYPE_DRAFTS) {
             caps = UIProvider.FolderCapabilities.DELETE;
         }
         if (info != null && info.offerLookback) {
@@ -2955,15 +2955,15 @@ public class EmailProvider extends ContentProvider {
             caps |= UIProvider.FolderCapabilities.SUPPORTS_SETTINGS;
         }
 
-        if (type == Mailbox.TYPE_MAIL || type == Mailbox.TYPE_TRASH ||
-                type == Mailbox.TYPE_JUNK || type == Mailbox.TYPE_INBOX) {
+        if (mailboxType == Mailbox.TYPE_MAIL || mailboxType == Mailbox.TYPE_TRASH ||
+                mailboxType == Mailbox.TYPE_JUNK || mailboxType == Mailbox.TYPE_INBOX) {
             // If the mailbox can accept moved mail, report that as well
             caps |= UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES;
             caps |= UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION;
         }
 
         // For trash, we don't allow undo
-        if (type == Mailbox.TYPE_TRASH) {
+        if (mailboxType == Mailbox.TYPE_TRASH) {
             caps =  UIProvider.FolderCapabilities.CAN_ACCEPT_MOVED_MESSAGES |
                     UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION |
                     UIProvider.FolderCapabilities.DELETE |
@@ -2980,6 +2980,13 @@ public class EmailProvider extends ContentProvider {
                     ~UIProvider.FolderCapabilities.ALLOWS_REMOVE_CONVERSATION &
                     ~UIProvider.FolderCapabilities.ALLOWS_MOVE_TO_INBOX;
         }
+
+        // If the mailbox stores outgoing mail, show recipients instead of senders
+        // (however the Drafts folder shows neither senders nor recipients... just the word "Draft")
+        if (mailboxType == Mailbox.TYPE_OUTBOX || mailboxType == Mailbox.TYPE_SENT) {
+            caps |= UIProvider.FolderCapabilities.SHOW_RECIPIENTS;
+        }
+
         return caps;
     }
 
@@ -3834,7 +3841,7 @@ public class EmailProvider extends ContentProvider {
      */
     static class EmailConversationCursor extends CursorWrapper {
         private final long mMailboxId;
-        private final boolean isOutgoingMailbox;
+        private final int mMailboxTypeId;
         private final Context mContext;
         private final FolderList mFolderList;
         private final Bundle mExtras = new Bundle();
@@ -3854,9 +3861,7 @@ public class EmailProvider extends ContentProvider {
             Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
 
             if (mailbox != null) {
-                isOutgoingMailbox = mailbox.mType == Mailbox.TYPE_SENT ||
-                        mailbox.mType == Mailbox.TYPE_OUTBOX ||
-                        mailbox.mType == Mailbox.TYPE_DRAFTS;
+                mMailboxTypeId = mailbox.mType;
 
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         mailbox.mUiLastSyncResult);
@@ -3889,7 +3894,7 @@ public class EmailProvider extends ContentProvider {
                              UIProvider.CursorStatus.COMPLETE);
                  }
             } else {
-                isOutgoingMailbox = false;
+                mMailboxTypeId = -1;
                 // TODO for virtual mailboxes, we may want to do something besides just fake it
                 mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
                         UIProvider.LastSyncResult.SUCCESS);
@@ -3985,7 +3990,13 @@ public class EmailProvider extends ContentProvider {
                 senderEmail = null;
             }
 
-            if (isOutgoingMailbox) {
+            // we *intentionally* report no participants for Draft emails so that the UI always
+            // displays the single word "Draft" as per b/13304929
+            if (mMailboxTypeId == Mailbox.TYPE_DRAFTS) {
+                // the UI displays "Draft" in the conversation list based on this count
+                conversationInfo.draftCount = 1;
+            } else if (mMailboxTypeId == Mailbox.TYPE_SENT ||
+                    mMailboxTypeId == Mailbox.TYPE_OUTBOX) {
                 // for conversations in outgoing mail mailboxes return a list of recipients
                 final String recipientsString = getString(getColumnIndex(MessageColumns.TO_LIST));
                 final Address[] recipientAddresses = Address.parse(recipientsString);
@@ -4147,7 +4158,7 @@ public class EmailProvider extends ContentProvider {
             return;
         }
         // Get the column indices for the columns we need during remapping.
-        // While we currently could assume the column indicies for UIProvider.FOLDERS_PROJECTION
+        // While we currently could assume the column indices for UIProvider.FOLDERS_PROJECTION
         // and therefore avoid the calls to getColumnIndex, this at least tries to future-proof a
         // bit.
         // Note that id and type MUST be present for this function to work correctly.
@@ -4170,7 +4181,7 @@ public class EmailProvider extends ContentProvider {
         // a row in the output using the columns in uiProjection.
         while (inputCursor.moveToNext()) {
             final MatrixCursor.RowBuilder builder = outputCursor.newRow();
-            final int type = inputCursor.getInt(typeColumn);
+            final int folderType = inputCursor.getInt(typeColumn);
             for (int i = 0; i < uiProjection.length; i++) {
                 // Find the index in the input cursor corresponding the column requested in the
                 // output projection.
@@ -4185,18 +4196,20 @@ public class EmailProvider extends ContentProvider {
                 final boolean remapped;
                 if (nameColumn == index) {
                     // Remap folder name for system folders.
-                    builder.add(getFolderDisplayName(type, value));
+                    builder.add(getFolderDisplayName(folderType, value));
                     remapped = true;
                 } else if (capabilitiesColumn == index) {
                     // Get the correct capabilities for this folder.
-                    builder.add(getFolderCapabilities(info, type, inputCursor.getLong(idColumn)));
+                    final long mailboxID = inputCursor.getLong(idColumn);
+                    final int mailboxType = getMailboxTypeFromFolderType(folderType);
+                    builder.add(getFolderCapabilities(info, mailboxType, mailboxID));
                     remapped = true;
                 } else if (persistentIdColumn == index) {
                     // Hash the persistent id.
                     builder.add(Base64.encodeToString(value.getBytes(),
                             Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING));
                     remapped = true;
-                } else if (loadMoreUriColumn == index && type != Mailbox.TYPE_SEARCH &&
+                } else if (loadMoreUriColumn == index && folderType != Mailbox.TYPE_SEARCH &&
                         (info == null || !info.offerLoadMore)) {
                     // Blank the load more uri for account types that don't offer it.
                     // Note that all account types permit load more for search results.
@@ -4297,6 +4310,39 @@ public class EmailProvider extends ContentProvider {
                 return UIProvider.FolderType.DEFAULT | UIProvider.FolderType.SEARCH;
             default:
                 return UIProvider.FolderType.DEFAULT;
+        }
+    }
+
+    /**
+     * Converts a {@link UIProvider.FolderType} type value to its {@link Mailbox} equivalent.
+     * @param folderType a {@link UIProvider.FolderType} type
+     * @return a {@link Mailbox} value
+     */
+    private static int getMailboxTypeFromFolderType(int folderType) {
+        switch (folderType) {
+            case UIProvider.FolderType.DEFAULT:
+                return Mailbox.TYPE_MAIL;
+            case UIProvider.FolderType.INBOX:
+                return Mailbox.TYPE_INBOX;
+            case UIProvider.FolderType.OUTBOX:
+                return Mailbox.TYPE_OUTBOX;
+            case UIProvider.FolderType.DRAFT:
+                return Mailbox.TYPE_DRAFTS;
+            case UIProvider.FolderType.TRASH:
+                return Mailbox.TYPE_TRASH;
+            case UIProvider.FolderType.SENT:
+                return Mailbox.TYPE_SENT;
+            case UIProvider.FolderType.SPAM:
+                return Mailbox.TYPE_JUNK;
+            case UIProvider.FolderType.STARRED:
+                return Mailbox.TYPE_STARRED;
+            case UIProvider.FolderType.UNREAD:
+                return Mailbox.TYPE_UNREAD;
+            case UIProvider.FolderType.DEFAULT | UIProvider.FolderType.SEARCH:
+                // TODO Can the DEFAULT type be removed from SEARCH folders?
+                return Mailbox.TYPE_SEARCH;
+            default:
+                throw new IllegalArgumentException("Unable to map folder type: " + folderType);
         }
     }
 
