@@ -59,7 +59,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         AccountSetupTypeFragment.Callback, AccountSetupNamesFragment.Callback,
         AccountSetupOptionsFragment.Callback, AccountSetupBasicsFragment.Callback,
         AccountServerBaseFragment.Callback, AccountSetupCredentialsFragment.Callback,
-        DuplicateAccountDialogFragment.Callback {
+        DuplicateAccountDialogFragment.Callback, AccountSetupABFragment.Callback {
 
     // STOPSHIP: Set to false before shipping, logs PII
     private final static boolean ENTER_DEBUG_SCREEN = true;
@@ -127,10 +127,12 @@ public class AccountSetupFinal extends AccountSetupActivity
     private static final int STATE_BASICS_POST = 1;
     // Account is not pre-configured, query user for account type
     private static final int STATE_TYPE = 2;
+    // Account is pre-configured, but the user picked a different protocol
+    private static final int STATE_AB = 3;
     // Collect initial password or oauth token
-    private static final int STATE_CREDENTIALS = 3;
+    private static final int STATE_CREDENTIALS = 4;
     // Account is a pre-configured account, run the checker
-    private static final int STATE_CHECKING_PRECONFIGURED = 4;
+    private static final int STATE_CHECKING_PRECONFIGURED = 5;
     // Auto-discovering exchange account info, possibly other protocols later
     private static final int STATE_AUTO_DISCOVER = 6;
     // User is entering incoming settings
@@ -446,6 +448,10 @@ public class AccountSetupFinal extends AccountSetupActivity
             case STATE_TYPE:
                 f = AccountSetupTypeFragment.newInstance();
                 break;
+            case STATE_AB:
+                f = AccountSetupABFragment.newInstance(mSetupData.getEmail(),
+                        mSetupData.getAmProtocol(), mSetupData.getIncomingProtocol(this));
+                break;
             case STATE_CREDENTIALS:
                 f = AccountSetupCredentialsFragment.newInstance(mSetupData.getEmail(),
                         mSetupData.getIncomingProtocol(this), mSetupData.getClientCert(this),
@@ -537,8 +543,12 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } else {
                     mSkipAutoDiscover = false;
                     if (mIsPreConfiguredProvider) {
-                        // TODO: check for mismatch between providers.xml and amProtocol
-                        mState = STATE_CREDENTIALS;
+                        if (!TextUtils.equals(mSetupData.getAmProtocol(),
+                                mSetupData.getIncomingProtocol(this))) {
+                            mState = STATE_AB;
+                        } else {
+                            mState = STATE_CREDENTIALS;
+                        }
                     } else {
                         final String amProtocol = mSetupData.getAmProtocol();
                         if (!TextUtils.isEmpty(amProtocol)) {
@@ -555,6 +565,10 @@ public class AccountSetupFinal extends AccountSetupActivity
                 break;
             case STATE_TYPE:
                 // We either got here through "Manual Setup" or because we didn't find the provider
+                mState = STATE_CREDENTIALS;
+                updateContentFragment(true /* addToBackstack */);
+                break;
+            case STATE_AB:
                 mState = STATE_CREDENTIALS;
                 updateContentFragment(true /* addToBackstack */);
                 break;
@@ -697,6 +711,9 @@ public class AccountSetupFinal extends AccountSetupActivity
     private boolean onBasicsComplete() {
         final AccountSetupBasicsFragment f = (AccountSetupBasicsFragment) getContentFragment();
         final String email = f.getEmail();
+
+        // Reset the protocol choice in case the user has back-navigated here
+        mSetupData.setIncomingProtocol(this, null);
 
         if (!TextUtils.equals(email, mSetupData.getEmail())) {
             // If the user changes their email address, clear the password failed state
@@ -997,6 +1014,17 @@ public class AccountSetupFinal extends AccountSetupActivity
         mSetupData.setIncomingProtocol(this, protocol);
         final Account account = mSetupData.getAccount();
         setDefaultsForProtocol(account);
+        proceed();
+    }
+
+    @Override
+    public void onABProtocolDisambiguated(String chosenProtocol) {
+        if (!TextUtils.equals(mSetupData.getIncomingProtocol(this), chosenProtocol)) {
+            mIsPreConfiguredProvider = false;
+            mSetupData.setIncomingProtocol(this, chosenProtocol);
+            final Account account = mSetupData.getAccount();
+            setDefaultsForProtocol(account);
+        }
         proceed();
     }
 

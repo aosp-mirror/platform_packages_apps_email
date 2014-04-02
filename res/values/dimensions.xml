@@ -26,6 +26,12 @@
     <dimen name="setup_account_type_buttons_width">212sp</dimen>
     <dimen name="setup_account_type_buttons_height">54dp</dimen>
 
+    <!-- Account setup ab screen buttons -->
+    <dimen name="setup_account_ab_button_min_width">100sp</dimen>
+    <dimen name="setup_account_ab_button_vertical_spacing">16dp</dimen>
+    <dimen name="setup_account_ab_button_width">212sp</dimen>
+    <dimen name="setup_account_ab_button_height">54dp</dimen>
+
     <!-- Account settings fragments -->
     <dimen name="settings_fragment_padding_top">16dp</dimen>
     <dimen name="settings_fragment_padding_side">16dp</dimen>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Fragment use to disambiguate between the user selecting protocol A and providers.xml
+ indicating otherwise -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+            android:id="@+id/ab_instructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/account_setup_ab_instructions_format"
+            style="@style/account_setup_info_text" />
+    <!-- Spacer -->
+    <View
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_weight="1" />
+    <Button
+            android:id="@+id/ab_button_a"
+            android:layout_height="@dimen/setup_account_ab_button_height"
+            android:layout_width="@dimen/setup_account_ab_button_width"
+            android:layout_marginTop="@dimen/setup_account_ab_button_vertical_spacing"
+            android:minWidth="@dimen/setup_account_ab_button_min_width"
+            android:layout_gravity="center_horizontal"
+            />
+    <Button
+            android:id="@+id/ab_button_b"
+            android:layout_height="@dimen/setup_account_ab_button_height"
+            android:layout_width="@dimen/setup_account_ab_button_width"
+            android:layout_marginTop="@dimen/setup_account_ab_button_vertical_spacing"
+            android:minWidth="@dimen/setup_account_ab_button_min_width"
+            android:layout_gravity="center_horizontal"
+            />
+</LinearLayout>
