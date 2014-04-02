@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/accounts_welcome"
-            android:textAppearance="@style/account_setup_info_text" />
+            style="@style/account_setup_info_text" />
     <LinearLayout
             android:paddingTop="16dip"
             android:orientation="horizontal"

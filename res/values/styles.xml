@@ -62,6 +62,8 @@
     <style name="account_setup_info_text">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/account_setup_info_text_color</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:layout_marginBottom">@dimen/setup_info_text_margin_bottom</item>
     </style>
 
     <!-- Account setup row label text -->
@@ -88,6 +90,12 @@
         <item name="android:layout_marginLeft">@dimen/setup_item_inset_start</item>
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_toLeftOf">@id/select_button</item>
+    </style>
+
+    <!-- Quick response text -->
+    <style name="quick_response_text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/quick_response_text_color</item>
     </style>
 </resources>
 

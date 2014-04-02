@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/accounts_welcome"
-            android:textAppearance="@style/account_setup_info_text" />
+            style="@style/account_setup_info_text" />
     <EditText
             android:id="@+id/account_email"
             android:hint="@string/account_setup_basics_email_label"

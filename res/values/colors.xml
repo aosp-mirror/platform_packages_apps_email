@@ -44,4 +44,6 @@
     <color name="password_warning_color">#FFA500</color>
     <color name="email_confirmation_color">#808080</color>
 
+    <color name="quick_response_text_color">#000000</color>
+
 </resources>

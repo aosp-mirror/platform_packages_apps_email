@@ -40,4 +40,8 @@
     <dimen name="setup_item_inset_start">16dip</dimen>
     <dimen name="setup_item_inset_end">64dip</dimen>
 
+    <!-- Account setup basics -->
+    <dimen name="setup_basics_logo_margin_top">28dp</dimen>
+    <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
+
 </resources>

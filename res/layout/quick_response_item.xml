@@ -28,7 +28,7 @@
             android:id="@+id/quick_response_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            style="@style/account_setup_info_text"
+            style="@style/quick_response_text"
             android:ellipsize="end"
             android:focusable="false"
             android:maxLines="2"
