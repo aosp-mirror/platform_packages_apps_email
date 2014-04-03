@@ -191,6 +191,8 @@
     <!-- Title of screen to choose with authentication to use -->
     <string name="sign_in_title">Sign in</string>
 
+    <!-- Warning if there is a problem authenticating with oauth -->
+    <string name="oauth_error_description">Unable to authenticate</string>
     <!-- Warning label displayed when the email address or password are incorrect -->
     <string name="password_warning_label">Email address or password are incorrect</string>
     <!-- Label displayed to confirm what email address we are trying to validate -->
