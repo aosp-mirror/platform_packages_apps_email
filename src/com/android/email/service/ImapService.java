@@ -68,6 +68,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public class ImapService extends Service {
     // TODO get these from configurations or settings.
@@ -75,6 +76,8 @@ public class ImapService extends Service {
     private static final long FULL_SYNC_WINDOW_MILLIS = 7 * DateUtils.DAY_IN_MILLIS;
     private static final long FULL_SYNC_INTERVAL_MILLIS = 4 * DateUtils.HOUR_IN_MILLIS;
 
+    // The maximum number of messages to fetch in a single command.
+    private static final int MAX_MESSAGES_TO_FETCH = 500;
     private static final int MINIMUM_MESSAGES_TO_SYNC = 10;
     private static final int LOAD_MORE_MIN_INCREMENT = 10;
     private static final int LOAD_MORE_MAX_INCREMENT = 20;
@@ -615,9 +618,25 @@ public class ImapService extends Service {
         // 11. Refresh the flags for any messages in the local store that we didn't just download.
         // TODO This is a bit wasteful because we're also updating any messages we already did get
         // the flags and envelope for previously.
+        // TODO: the fetch() function, and others, should take List<>s of messages, not
+        // arrays of messages.
         FetchProfile fp = new FetchProfile();
         fp.add(FetchProfile.Item.FLAGS);
-        remoteFolder.fetch(remoteMessages, fp, null);
+        if (remoteMessages.length > MAX_MESSAGES_TO_FETCH) {
+            List<Message> remoteMessageList = Arrays.asList(remoteMessages);
+            for (int start = 0; start < remoteMessageList.size(); start += MAX_MESSAGES_TO_FETCH) {
+                int end = start + MAX_MESSAGES_TO_FETCH;
+                if (end >= remoteMessageList.size()) {
+                    end = remoteMessageList.size() - 1;
+                }
+                List<Message> chunk = remoteMessageList.subList(start, end);
+                final Message[] partialArray = chunk.toArray(new Message[chunk.size()]);
+                // Fetch this one chunk of messages
+                remoteFolder.fetch(partialArray, fp, null);
+            }
+        } else {
+            remoteFolder.fetch(remoteMessages, fp, null);
+        }
         boolean remoteSupportsSeen = false;
         boolean remoteSupportsFlagged = false;
         boolean remoteSupportsAnswered = false;
