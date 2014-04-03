@@ -20,6 +20,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.mail.R;
 import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
@@ -183,8 +184,8 @@ public class OAuthAuthenticationActivity extends Activity implements
         if (data == null) {
             // STOPSHIP: need a better way to display errors. We might get IO or
             // MessagingExceptions.
-            Toast.makeText(this, "Error getting tokens", Toast.LENGTH_SHORT).show();
-
+            setResult(RESULT_OAUTH_FAILURE, null);
+            Toast.makeText(this, R.string.oauth_error_description, Toast.LENGTH_SHORT).show();
         } else {
             final Intent intent = new Intent();
             intent.putExtra(EXTRA_OAUTH_ACCESS_TOKEN, data.mAccessToken);

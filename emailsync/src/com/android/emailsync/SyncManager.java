@@ -1259,6 +1259,9 @@ public abstract class SyncManager extends Service implements Runnable {
     }
 
     public void setMailboxLastSyncResult(long id, int result) {
+        if (result != EmailContent.LAST_SYNC_RESULT_SUCCESS) {
+            LogUtils.w(TAG, new Throwable(), "setMailboxLastSyncResult %d", result);
+        }
         ContentValues values = new ContentValues();
         values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
         mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, id), values, null, null);
