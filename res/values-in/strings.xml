@@ -101,6 +101,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Memvalidasi setelan server…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Memvalidasi setelan smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Membuat akun..."</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Konfirmasi jenis akun"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Anda menunjukkan bahwa <xliff:g id="EMAIL">%1$s</xliff:g> menggunakan <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, namun akun mungkin menggunakan <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Penyiapan akun"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Akun Anda sudah siap dan email akan segera tiba!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Beri nama akun ini (opsional)"</string>

@@ -101,6 +101,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Servereinstellungen werden überprüft…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"SMTP-Einstellungen werden überprüft…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Konto wird erstellt…"</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Kontotyp bestätigen"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Sie haben angegeben, dass <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> verwendet, das Konto verwendet jedoch möglicherweise <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Kontoeinrichtung"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Das Konto ist jetzt eingerichtet und die E-Mail ist unterwegs."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
@@ -198,14 +200,14 @@
     <string name="account_security_title" msgid="3511543138560418587">"Gerätesicherheit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert, dass Sie PIN bzw. Passwort für die Display-Sperre ändern."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert, dass Sie PIN bzw. Passwort für die Displaysperre ändern."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Sperr-Passwort läuft ab"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms ist abgelaufen."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Sperr-Passwort abgelaufen"</string>
-    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Display-Sperre läuft ab"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Display-Sperre bald ändern, weil sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Displaysperre läuft ab"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Displaysperre bald ändern, weil sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Sperr-Passwort abgelaufen"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können die Daten wiederherstellen, indem Sie Ihre PIN für die Display-Sperre oder Ihr Passwort ändern. Möchten Sie die PIN oder das Passwort jetzt ändern?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können die Daten wiederherstellen, indem Sie Ihre PIN für die Displaysperre oder Ihr Passwort ändern. Möchten Sie die PIN oder das Passwort jetzt ändern?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Anmeldung nicht möglich"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Nutzername oder Passwort für <xliff:g id="ACCOUNT">%s</xliff:g> ist falsch. Möchten Sie die Daten jetzt ändern?"</string>
@@ -290,7 +292,7 @@
     <string name="policy_require_password" msgid="7177274900480984702">"Geräte-Passwort erforderlich"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Einsatz der letzten Passw. beschränken"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Ablaufen von Passwörtern erforderlich"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"Display-Sperre für inaktives Gerät"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Displaysperre für inaktives Gerät"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"Anzahl synchronisierter Kalendereinträge begrenzen"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"Anzahl synchronisierter E-Mails begrenzen"</string>
     <string name="quick_1" msgid="3426057697353380951">"Vielen Dank!"</string>
