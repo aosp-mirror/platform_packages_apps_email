@@ -22,4 +22,9 @@
     <!-- Int value for whether we want the 'previous' button on the Basics setup screen to be
      invisible or gone. See also w800dp -->
     <bool name="setup_basics_prev_button_gone">true</bool>
+
+    <!-- Alpha value for 'manual setup' button when disabled -->
+    <fraction name="manual_setup_disabled_alpha">40%</fraction>
+    <!-- Alpha value for 'manual setup' button when enabled -->
+    <fraction name="manual_setup_enabled_alpha">100%</fraction>
 </resources>
