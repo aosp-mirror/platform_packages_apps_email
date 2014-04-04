@@ -47,9 +47,9 @@ public class OAuthAuthenticationActivity extends Activity implements
 
     public static final int REQUEST_OAUTH = 1;
 
-    public static final int RESULT_OAUTH_SUCCESS = 0;
-    public static final int RESULT_OAUTH_USER_CANCELED = -1;
-    public static final int RESULT_OAUTH_FAILURE = -2;
+    public static final int RESULT_OAUTH_SUCCESS = Activity.RESULT_FIRST_USER + 0;
+    public static final int RESULT_OAUTH_USER_CANCELED = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_OAUTH_FAILURE = Activity.RESULT_FIRST_USER + 2;
 
     private WebView mWv;
     private OAuthProvider mProvider;
