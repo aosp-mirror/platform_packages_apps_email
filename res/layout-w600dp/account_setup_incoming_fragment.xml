@@ -35,8 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/account_setup_incoming_username_label"
-            android:inputType="textEmailAddress"
-            android:imeOptions="actionDone" />
+            android:inputType="textEmailAddress" />
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
@@ -95,8 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/account_setup_incoming_server_label"
-            android:inputType="textUri"
-            android:imeOptions="actionDone" />
+            android:inputType="textUri" />
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
@@ -125,8 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/account_setup_incoming_port_label"
-            android:inputType="number"
-            android:imeOptions="actionDone" />
+            android:inputType="number" />
     </TableRow>
 
     <TableRow
@@ -159,8 +156,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/account_setup_incoming_imap_path_prefix_label"
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
-            android:inputType="text"
-            android:imeOptions="actionDone" />
+            android:inputType="text" />
     </TableRow>
 </TableLayout>
 

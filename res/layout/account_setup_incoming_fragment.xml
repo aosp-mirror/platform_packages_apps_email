@@ -31,8 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:hint="@string/account_setup_incoming_username_label"
-        android:inputType="textEmailAddress"
-        android:imeOptions="actionNext" />
+        android:inputType="textEmailAddress" />
 
     <com.android.email.activity.setup.AuthenticationView
         android:id="@+id/authentication_view"
@@ -80,8 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:hint="@string/account_setup_incoming_server_label"
-        android:inputType="textUri"
-        android:imeOptions="actionNext" />
+        android:inputType="textUri" />
     <TextView
         android:text="@string/account_setup_incoming_port_label"
         android:layout_height="wrap_content"
@@ -92,8 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:hint="@string/account_setup_incoming_port_label"
-        android:inputType="number"
-        android:imeOptions="actionDone" />
+        android:inputType="number" />
     <TextView
         android:text="@string/account_setup_incoming_security_label"
         android:layout_height="wrap_content"
@@ -131,7 +128,6 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:hint="@string/account_setup_incoming_imap_path_prefix_hint"
-            android:inputType="text"
-            android:imeOptions="actionDone" />
+            android:inputType="text" />
     </LinearLayout>
 </LinearLayout>
