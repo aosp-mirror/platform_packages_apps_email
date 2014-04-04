@@ -28,8 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:contentDescription="@string/account_setup_names_account_name_label"
-            android:inputType="textCapWords|textNoSuggestions"
-            android:imeOptions="actionNext" />
+            android:inputType="textCapWords|textNoSuggestions"  />
     <TextView
             android:id="@+id/account_name_label"
             android:layout_height="wrap_content"
@@ -41,6 +40,5 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:contentDescription="@string/account_setup_names_user_name_label"
-            android:inputType="textPersonName"
-            android:imeOptions="actionDone" />
+            android:inputType="textPersonName"  />
 </LinearLayout>
