@@ -105,8 +105,8 @@ public class AccountSettingsFragment extends PreferenceFragment
     private static final String PREFERENCE_SYSTEM_FOLDERS_TRASH = "system_folders_trash";
     private static final String PREFERENCE_SYSTEM_FOLDERS_SENT = "system_folders_sent";
 
-    private static final String EXTRA_SYNC_INTERVALS = "extra_sync_intervals";
-    private static final String EXTRA_SYNC_INTERVAL_STRINGS = "extra_sync_interval_strings";
+    private static final String SAVESTATE_SYNC_INTERVALS = "savestate_sync_intervals";
+    private static final String SAVESTATE_SYNC_INTERVAL_STRINGS = "savestate_sync_interval_strings";
 
     // Request code to start different activities.
     private static final int RINGTONE_REQUEST_CODE = 0;
@@ -208,9 +208,9 @@ public class AccountSettingsFragment extends PreferenceFragment
             // To work around this, we'll save the current set of sync interval values and strings,
             // in onSavedInstanceState, and restore them here.
             final CharSequence [] syncIntervalStrings =
-                    savedInstanceState.getCharSequenceArray(EXTRA_SYNC_INTERVAL_STRINGS);
+                    savedInstanceState.getCharSequenceArray(SAVESTATE_SYNC_INTERVAL_STRINGS);
             final CharSequence [] syncIntervals =
-                    savedInstanceState.getCharSequenceArray(EXTRA_SYNC_INTERVALS);
+                    savedInstanceState.getCharSequenceArray(SAVESTATE_SYNC_INTERVALS);
             mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
             mCheckFrequency.setEntries(syncIntervalStrings);
             mCheckFrequency.setEntryValues(syncIntervals);
@@ -219,8 +219,8 @@ public class AccountSettingsFragment extends PreferenceFragment
 
     public void onSaveInstanceState(Bundle outstate) {
         super.onSaveInstanceState(outstate);
-        outstate.putCharSequenceArray(EXTRA_SYNC_INTERVAL_STRINGS, mCheckFrequency.getEntries());
-        outstate.putCharSequenceArray(EXTRA_SYNC_INTERVALS, mCheckFrequency.getEntryValues());
+        outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVAL_STRINGS, mCheckFrequency.getEntries());
+        outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVALS, mCheckFrequency.getEntryValues());
     }
 
     @Override
