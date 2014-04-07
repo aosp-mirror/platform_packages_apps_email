@@ -45,4 +45,7 @@
     <dimen name="setup_basics_logo_margin_top">28dp</dimen>
     <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
 
+    <!-- Account setup row labels -->
+    <dimen name="setup_label_text_padding_top">0dp</dimen>
+
 </resources>
