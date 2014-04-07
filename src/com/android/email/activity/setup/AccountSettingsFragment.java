@@ -105,6 +105,9 @@ public class AccountSettingsFragment extends PreferenceFragment
     private static final String PREFERENCE_SYSTEM_FOLDERS_TRASH = "system_folders_trash";
     private static final String PREFERENCE_SYSTEM_FOLDERS_SENT = "system_folders_sent";
 
+    private static final String EXTRA_SYNC_INTERVALS = "extra_sync_intervals";
+    private static final String EXTRA_SYNC_INTERVAL_STRINGS = "extra_sync_interval_strings";
+
     // Request code to start different activities.
     private static final int RINGTONE_REQUEST_CODE = 0;
 
@@ -197,6 +200,27 @@ public class AccountSettingsFragment extends PreferenceFragment
         if (b != null) {
             mAccountId = b.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
         }
+        if (savedInstanceState != null) {
+            // We won't know what the correct set of sync interval values and strings are until
+            // our loader completes. The problem is, that if the sync frequency chooser is
+            // displayed when the screen rotates, it reinitializes it to the defaults, and doesn't
+            // correct it after the loader finishes again. See b/13624066
+            // To work around this, we'll save the current set of sync interval values and strings,
+            // in onSavedInstanceState, and restore them here.
+            final CharSequence [] syncIntervalStrings =
+                    savedInstanceState.getCharSequenceArray(EXTRA_SYNC_INTERVAL_STRINGS);
+            final CharSequence [] syncIntervals =
+                    savedInstanceState.getCharSequenceArray(EXTRA_SYNC_INTERVALS);
+            mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
+            mCheckFrequency.setEntries(syncIntervalStrings);
+            mCheckFrequency.setEntryValues(syncIntervals);
+        }
+    }
+
+    public void onSaveInstanceState(Bundle outstate) {
+        super.onSaveInstanceState(outstate);
+        outstate.putCharSequenceArray(EXTRA_SYNC_INTERVAL_STRINGS, mCheckFrequency.getEntries());
+        outstate.putCharSequenceArray(EXTRA_SYNC_INTERVALS, mCheckFrequency.getEntryValues());
     }
 
     @Override
