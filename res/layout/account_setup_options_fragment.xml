@@ -47,29 +47,34 @@
     </LinearLayout>
     <CheckBox
         android:id="@+id/account_notify"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_notify_label" />
     <CheckBox
         android:id="@+id/account_sync_contacts"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_contacts_label"
         android:visibility="gone" />
     <CheckBox
         android:id="@+id/account_sync_calendar"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_calendar_label"
         android:visibility="gone" />
     <CheckBox
         android:id="@+id/account_sync_email"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_email_label" />
 
     <CheckBox
         android:id="@+id/account_background_attachments"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_background_attachments_label" />
