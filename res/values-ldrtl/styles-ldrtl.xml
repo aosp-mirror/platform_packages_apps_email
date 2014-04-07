@@ -31,7 +31,6 @@
 
     <!-- Client certificate alias, see also styles-ldrtl.xml -->
     <style name="client_certificate_alias">
-        <item name="android:layout_marginStart">@dimen/setup_item_inset_start</item>
         <item name="android:layout_alignParentStart">true</item>
         <item name="android:layout_toStartOf">@id/select_button</item>
     </style>

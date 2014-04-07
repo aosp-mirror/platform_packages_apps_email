@@ -36,9 +36,10 @@
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">64dp</dimen>
 
-    <!-- In setup screens, the inset for all items below the headline+hairline -->
-    <dimen name="setup_item_inset_start">16dip</dimen>
-    <dimen name="setup_item_inset_end">64dip</dimen>
+    <!-- Account setup checkboxes padding -->
+    <dimen name="setup_checkbox_padding_side">8dp</dimen>
+    <dimen name="setup_checkbox_padding_top">16dp</dimen>
+    <dimen name="setup_checkbox_padding_bottom">16dp</dimen>
 
     <!-- Account setup basics -->
     <dimen name="setup_basics_logo_margin_top">28dp</dimen>

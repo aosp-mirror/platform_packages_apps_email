@@ -68,9 +68,11 @@
     <dimen name="settings_buttons_padding_top">48dp</dimen>
     <dimen name="settings_buttons_padding_bottom">48dp</dimen>
 
-    <!-- In setup screens, the inset for all items below the headline+hairline -->
-    <dimen name="setup_item_inset_start">0dp</dimen>
-    <dimen name="setup_item_inset_end">0dp</dimen>
+    <!-- Account setup checkboxes padding -->
+    <!-- see also w600dp -->
+    <dimen name="setup_checkbox_padding_side">0dp</dimen>
+    <dimen name="setup_checkbox_padding_top">8dp</dimen>
+    <dimen name="setup_checkbox_padding_bottom">8dp</dimen>
 
     <!-- Account setup basics -->
     <!-- See also w600dp -->

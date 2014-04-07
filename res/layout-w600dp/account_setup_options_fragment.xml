@@ -61,9 +61,7 @@
     <CheckBox
         android:id="@+id/account_notify"
         android:layout_below="@+id/spinners_table"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_notify_label" />
@@ -77,9 +75,7 @@
     <CheckBox
         android:id="@+id/account_sync_contacts"
         android:layout_below="@+id/account_notify_divider"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_contacts_label"
@@ -95,9 +91,7 @@
     <CheckBox
         android:id="@+id/account_sync_calendar"
         android:layout_below="@+id/account_sync_contacts_divider"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_calendar_label"
@@ -113,9 +107,7 @@
     <CheckBox
         android:id="@+id/account_sync_email"
         android:layout_below="@+id/account_sync_calendar_divider"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_email_label" />
@@ -129,9 +121,7 @@
     <CheckBox
         android:id="@+id/account_background_attachments"
         android:layout_below="@+id/account_sync_email_divider"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="16dip"
-        android:layout_marginLeft="32dip"
+        style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_background_attachments_label" />
