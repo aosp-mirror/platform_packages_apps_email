@@ -140,6 +140,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="mailto" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.android.mail.intent.action.LAUNCH_COMPOSE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity-alias android:name="com.android.mail.compose.ComposeActivity"
