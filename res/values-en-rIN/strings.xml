@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Account setup"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Requesting authorisation"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Sign in"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Unable to authenticate"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Email address or password are incorrect"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Email address:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Email account"</string>
@@ -92,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Authentication"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Add authentication"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Clear authentication"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manual setup"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Manual setup"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Type a valid email address and password."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicate Account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"You\'re already using this username for the account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -101,6 +102,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Validating server settings…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Validating smtp settings…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Creating account…"</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Confirm account type"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"You indicated <xliff:g id="EMAIL">%1$s</xliff:g> uses <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, but the account may use <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Account setup"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Your account is set up and emails are on their way!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Give this account a name (optional)"</string>
