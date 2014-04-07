@@ -1406,8 +1406,11 @@ public class ImapService extends Service {
                     FetchProfile fp2 = new FetchProfile();
                     fp2.add(FetchProfile.Item.ENVELOPE);
                     remoteFolder.fetch(new Message[] { remoteMessage2 }, fp2, null);
-                    message.mServerTimeStamp = remoteMessage2.getInternalDate().getTime();
-                    updateMessage = true;
+                    final Date remoteDate = remoteMessage2.getInternalDate();
+                    if (remoteDate != null) {
+                        message.mServerTimeStamp = remoteMessage2.getInternalDate().getTime();
+                        updateMessage = true;
+                    }
                 }
             } catch (MessagingException me) {
                 // skip it - we can live without this
