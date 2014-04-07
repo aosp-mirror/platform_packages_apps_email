@@ -258,9 +258,9 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"ቅንብሮች"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"ጠቅላላ ቅንብሮች"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልዕክቶች"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ከመላክህ በፊት አረጋግጥ"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልእክቶች"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልዕክቶች"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"የመልዕክት ፅሁፍ መጠን"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"ደቃቃ ጽሑፍ"</item>
