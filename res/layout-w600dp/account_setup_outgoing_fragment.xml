@@ -35,8 +35,7 @@
             android:id="@+id/account_server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textUri"
-            android:imeOptions="actionDone" />
+            android:inputType="textUri" />
     </TableRow>
     <TableRow
         android:paddingTop="16dip" >
@@ -63,8 +62,7 @@
             android:id="@+id/account_port"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:imeOptions="actionDone" />
+            android:inputType="number" />
     </TableRow>
     <!-- Note, this row is not a TableRow, and it will span the entire table - no columns -->
     <LinearLayout
@@ -103,8 +101,7 @@
             android:id="@+id/account_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:imeOptions="actionDone" />
+            android:inputType="textEmailAddress" />
     </TableRow>
     <TableRow
         android:id="@+id/account_require_login_settings_2"

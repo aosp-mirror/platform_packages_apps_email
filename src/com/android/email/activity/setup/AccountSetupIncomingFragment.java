@@ -318,21 +318,18 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
                     account == null, account == null || account.mHostAuthRecv == null);
             return;
         }
-        TextView lastView = mImapPathPrefixView;
         mBaseScheme = account.mHostAuthRecv.mProtocol;
         mServerLabelView.setText(R.string.account_setup_incoming_server_label);
         mServerView.setContentDescription(getResources().getText(
                 R.string.account_setup_incoming_server_label));
         if (!mServiceInfo.offerPrefix) {
             mImapPathPrefixSectionView.setVisibility(View.GONE);
-            lastView = mPortView;
         }
         if (!mServiceInfo.offerLocalDeletes) {
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
             mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
-        lastView.setOnEditorActionListener(mDismissImeOnDoneListener);
     }
 
     /**

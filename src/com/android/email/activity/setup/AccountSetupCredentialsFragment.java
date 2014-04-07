@@ -24,12 +24,10 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -50,7 +48,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class AccountSetupCredentialsFragment extends AccountSetupFragment
-        implements OnClickListener, HostCallback, TextView.OnEditorActionListener {
+        implements OnClickListener, HostCallback {
 
     private static final int CERTIFICATE_REQUEST = 1000;
 
@@ -146,9 +144,6 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mClientCertificateSelector.setHostCallback(this);
         mClientCertificateSelector.setCertificate(getArguments().getString(EXTRA_CLIENT_CERT));
 
-        mImapPasswordText.setOnEditorActionListener(this);
-        mRegularPasswordText.setOnEditorActionListener(this);
-
         // After any text edits, call validateFields() which enables or disables the Next button
         mValidationTextWatcher = new TextWatcher() {
             @Override
@@ -213,12 +208,10 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         super.onDestroy();
         if (mImapPasswordText != null) {
             mImapPasswordText.removeTextChangedListener(mValidationTextWatcher);
-            mImapPasswordText.setOnEditorActionListener(null);
             mImapPasswordText = null;
         }
         if (mRegularPasswordText != null) {
             mRegularPasswordText.removeTextChangedListener(mValidationTextWatcher);
-            mRegularPasswordText.setOnEditorActionListener(null);
             mRegularPasswordText = null;
         }
     }
@@ -307,22 +300,6 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
             callback.onBackPressed();
         } else {
             super.onClick(view);
-        }
-    }
-
-    @Override
-    public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_DONE) {
-            if (isNextButtonEnabled()) {
-                final Callback callback = (Callback) getActivity();
-                if (callback != null) {
-                    final Bundle results = getCredentialResults();
-                    callback.onCredentialsComplete(results);
-                }
-            }
-            return true;
-        } else {
-            return false;
         }
     }
 

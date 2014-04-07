@@ -29,7 +29,6 @@
     <EditText
         android:id="@+id/account_server"
         android:inputType="textUri"
-        android:imeOptions="actionDone"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" />
     <TextView
@@ -40,7 +39,6 @@
     <EditText
         android:id="@+id/account_port"
         android:inputType="number"
-        android:imeOptions="actionDone"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" />
     <TextView
@@ -71,7 +69,6 @@
         <EditText
             android:id="@+id/account_username"
             android:inputType="textEmailAddress"
-            android:imeOptions="actionDone"
             android:layout_height="wrap_content"
             android:layout_width="match_parent" />
         <com.android.email.activity.setup.AuthenticationView
