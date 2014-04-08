@@ -275,6 +275,11 @@ class ImapConnection {
             throws MessagingException, IOException {
         LogUtils.d(Logging.LOG_TAG, "sendCommand %s", (sensitive ? IMAP_REDACTED_LOG : command));
         open();
+        return sendCommandInternal(command, sensitive);
+    }
+
+    String sendCommandInternal(String command, boolean sensitive)
+            throws MessagingException, IOException {
         String tag = Integer.toString(mNextCommandTag.incrementAndGet());
         String commandToSend = tag + " " + command;
         mTransport.writeLine(commandToSend, sensitive ? IMAP_REDACTED_LOG : null);
@@ -542,7 +547,7 @@ class ImapConnection {
 
     private ImapResponse getOAuthResponse() throws IOException, MessagingException {
         ImapResponse response;
-        sendCommand(getLoginPhrase(), true);
+        sendCommandInternal(getLoginPhrase(), true);
         do {
             response = mParser.readResponse();
         } while (!response.isTagged() && !response.isContinuationRequest());
@@ -553,7 +558,7 @@ class ImapConnection {
             // Currently, the only type of authentication we support is OAuth. The only case where
             // it will send a continuation request is when we fail to authenticate. We need to
             // reply with a CR/LF, and it will then return with a NO response.
-            sendCommand("", true);
+            sendCommandInternal("", true);
             response = readResponse();
         }
 
