@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"アカウント設定"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"認証をリクエスト中"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"ログイン"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"認証できません"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"メールアドレスまたはパスワードが間違っています"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"メールアドレス:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"メールアカウント"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"認証"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"認証を追加"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"認証をクリア"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動セットアップ"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"有効なメールアドレスとパスワードを入力してください。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"重複するアカウント"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"このユーザー名はアカウント「<xliff:g id="DUPLICATE">%s</xliff:g>」で既に使用しています。"</string>
@@ -101,10 +103,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"サーバー設定を確認しています…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"smtp設定を確認しています…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"アカウントを作成しています…"</string>
-    <!-- no translation found for account_setup_ab_headline (7110531768613341908) -->
-    <skip />
-    <!-- no translation found for account_setup_ab_instructions_format (2107254631013471380) -->
-    <skip />
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"アカウントの種類を確認"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"<xliff:g id="EMAIL">%1$s</xliff:g>では<xliff:g id="USERPROTOCOL">%2$s</xliff:g>を使用するように指定しましたが、アカウントでは<xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>が使用される場合があります。"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"アカウント設定"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"アカウントの設定が完了しました。"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"このアカウントに名前を付ける (省略可):"</string>

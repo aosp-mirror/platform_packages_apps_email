@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"ຕັ້ງບັນຊີ"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ກຳ​ລັງຮ້ອງຂໍການອະນຸຍາດ"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"ເຂົ້າສູ່ລະບົບ"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"ບໍ່​ສາມາດ​ພິສູດ​ຢືນຢັນ​ໄດ້"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"ທີ່​ຢູ່​ອີ​ເມວ ຫຼື ລະ​ຫັດ​ຜ່ານ​ບໍ່​ຖືກ​ຕ້ອງ"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"ທີ່ຢູ່ອີເມວ:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"ບັນຊີອີເມວ"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"ການກວດສອບຢືນຢັນ"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"ເພີ່ມການກວດສອບ"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"ລຶບລ້າງການກວດສອບຢືນຢັນ"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"ຕັ້ງດ້ວຍຕົນເອງ"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"ພິມທີ່ຢູ່ອີເມວ ແລະ ລະຫັດຜ່ານທີ່ຖືກຕ້ອງ."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ບັນຊີຊ້ຳກັນ"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"ທ່ານໄດ້ໃຊ້ຊື່ຜູ່ໃຊ້ນີ້ສຳລັບບັນຊີ \"<xliff:g id="DUPLICATE">%s</xliff:g>\" ຢູ່ແລ້ວ."</string>

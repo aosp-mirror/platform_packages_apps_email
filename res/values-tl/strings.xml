@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Setup ng account"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Humihiling ng pahintulot"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Mag-sign in"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Hindi mapatotohanan"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Mali ang email address o ang password"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Email address:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Email account"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"Pagpapatotoo"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Magdagdag ng pagpapatotoo"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"I-clear ang pagpapatotoo"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manwal na setup"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Mag-type ng wastong email address at password."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicate na account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ginagamit mo na ang username na ito para sa account na \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -101,10 +103,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Pinapatunayan ang mga setting ng server…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Pinapatunayan ang mga setting ng smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Nililikha ang account..."</string>
-    <!-- no translation found for account_setup_ab_headline (7110531768613341908) -->
-    <skip />
-    <!-- no translation found for account_setup_ab_instructions_format (2107254631013471380) -->
-    <skip />
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Kumpirmahin ang uri ng account"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Ipinahiwatig mo na ginagamit ng <xliff:g id="EMAIL">%1$s</xliff:g> ang <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, ngunit maaaring gamitin ng account ang <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Setup ng account"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Naka-set up na ang iyong account at paparating na ang email!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Bigyan ng pangalan ang account na ito (opsyonal)"</string>

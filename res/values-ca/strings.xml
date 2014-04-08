@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuració del compte"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Sol·licitud d\'autorització"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Inici de sessió"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"No es pot autenticar"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"L\'adreça electrònica o la contrasenya són incorrectes."</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Adreça electrònica:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Compte de correu electrònic"</string>
@@ -92,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Autenticació"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Afegeix l\'autenticació"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Esborra l\'autenticació"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuració manual"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Configuració manual"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Escriu una adreça electrònica i una contrasenya vàlides."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Compte duplicat"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ja estàs fent servir aquest nom d\'usuari per al compte \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -101,10 +102,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"S\'està validant la configuració del servidor…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"S\'està validant la configuració de smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"S\'està creant el compte..."</string>
-    <!-- no translation found for account_setup_ab_headline (7110531768613341908) -->
-    <skip />
-    <!-- no translation found for account_setup_ab_instructions_format (2107254631013471380) -->
-    <skip />
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Confirmació del tipus de compte"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Has indicat que <xliff:g id="EMAIL">%1$s</xliff:g> utilitza <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, però és possible que el compte utilitzi <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuració del compte"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"El compte ja s\'ha configurat i aviat rebràs el correu."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Assigna un nom a aquest compte (opcional)"</string>

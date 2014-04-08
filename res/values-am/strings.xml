@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"መለያ አዘጋጅ"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ፈቀዳን በመጠየቅ ላይ"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"በመለያ ይግቡ"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"ማረጋገጥ አልተቻለም"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"የኢሜይል አድራሻ ወይም የይለፍ ቃል ትክክል አይደለም"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"የኢሜይል አድራሻ፦"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"የኢሜይል መለያ"</string>
@@ -92,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"ማረጋገጥ"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"ማረጋገጫ አክል"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"ማረጋገጫን አጽዳ"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"በእጅ አዘጋጅ"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"እራስዎ ማዋቀር"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"እባክህ ትክክለኛ ኢሜይል አድራሻ እና ይለፍ ቃል ፃፍ።"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ተመሳሳይ መለያ"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"ለመለያ \"<xliff:g id="DUPLICATE">%s</xliff:g>\" ይህን ተጠቃሚ ስም ቀደም ሲል እየተጠቀምክበት ነው::"</string>
@@ -269,9 +270,9 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"ቅንብሮች"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"ጠቅላላ ቅንብሮች"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ከመሰረዝህ በፊት አረጋግጥ"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልእክቶች"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"መልዕክቶች"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ከመላክህ በፊት አረጋግጥ"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልእክቶች"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"መልዕክቶች"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"የመልዕክት ፅሁፍ መጠን"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="4693576184223089069">"ደቃቃ ጽሑፍ"</item>

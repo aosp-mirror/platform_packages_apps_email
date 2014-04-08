@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Nastavení účtu"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Požadována autorizace"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Přihlásit se"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Ověření se nezdařilo"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Nesprávná e-mailová adresa nebo heslo"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"E-mailová adresa:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mailový účet"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"Ověření"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Přidat ověření"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Smazat ověření"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ruční nastavení"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Zadejte platnou e-mailovou adresu a heslo."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicitní účet"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Toto uživatelské jméno již používáte pro účet <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
@@ -101,10 +103,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Ověřování nastavení serveru…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Ověřování nastavení serveru SMTP…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Vytváření účtu..."</string>
-    <!-- no translation found for account_setup_ab_headline (7110531768613341908) -->
-    <skip />
-    <!-- no translation found for account_setup_ab_instructions_format (2107254631013471380) -->
-    <skip />
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Potvrďte typ účtu"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Uvedli jste, že účet <xliff:g id="EMAIL">%1$s</xliff:g> používá protokol <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, je však možné, že používá protokol <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Nastavení účtu"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Váš účet je nastaven, e-mail je na cestě!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Pojmenovat tento účet (nepovinné)"</string>

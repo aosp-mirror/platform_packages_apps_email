@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"រៀបចំ​គណនី"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ស្នើសុំ​ការ​អនុញ្ញាត"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"ចូល"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"មិន​អាច​ផ្ទៀងផ្ទាត់"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"អាសយដ្ឋាន​អ៊ីមែល ឬ​ពាក្យសម្ងាត់​មិន​ត្រឹមត្រូវ"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"អាសយដ្ឋាន​អ៊ីមែល៖"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"គណនី​អ៊ីមែល"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"ការ​ផ្ទៀងផ្ទាត់"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"បន្ថែម​ការ​ផ្ទៀងផ្ទាត់"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"សម្អាត​ការ​ផ្ទៀងផ្ទាត់"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"រៀបចំ​ដោយ​ដៃ"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"​បញ្ចូល​​ពាក្យ​សម្ងាត់ ​និង​​អាសយដ្ឋាន​អ៊ីមែល​​ដែល​ត្រឹមត្រូវ​។"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ស្ទួន​គណនី"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"អ្នក​កំពុង​តែ​ប្រើ​ឈ្មោះ​អ្នក​ប្រើ​សម្រាប់​គណនី​នេះ \" <xliff:g id="DUPLICATE">%s</xliff:g> \"។"</string>

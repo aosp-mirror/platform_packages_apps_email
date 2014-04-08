@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuração da conta"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"A solicitar autorização"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Iniciar sessão"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Não foi possível autenticar"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"O endereço de email ou a palavra-passe estão incorretos"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Endereço de email:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Conta de email"</string>
@@ -92,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Autenticação"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Adicionar autenticação"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Limpar autenticação"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Configuração manual"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Introduza um endereço de e-mail e palavra-passe válidos."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Conta duplicada"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Este nome de utilizador já está a ser utilizado para a conta “<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>
