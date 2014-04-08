@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Настройка на профила"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Заявява се удостоверяване"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Вход"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Не може да се удостовери"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Имейл адресът или паролата са неправилни"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Имейл адрес:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Имейл профил"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"Удостоверяване"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Добавяне на удостоверяване"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Изчистване на удостоверяването"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ръчна настройка"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Въведете валиден имейл адрес и парола."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Дублиращ профил"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Вече използвате това потребителско име за профила „<xliff:g id="DUPLICATE">%s</xliff:g>“."</string>
@@ -101,6 +103,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Настройките на сървъра се потвърждават…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Настройките за SMTP се потвърждават…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Профилът се създава…"</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Потвърждаване на типа на профила"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Посочихте, че <xliff:g id="EMAIL">%1$s</xliff:g> използва <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, но за профила може да се ползва <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Настройка на профила"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"Профилът ви е настроен и имейлите са на път!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Именуване на този профил (незадължително)"</string>

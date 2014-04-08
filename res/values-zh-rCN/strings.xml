@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"帐户设置"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"正在请求授权"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"登录"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"无法进行身份验证"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"电子邮件地址或密码不正确"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"电子邮件地址："</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"电子邮件帐户"</string>
@@ -92,7 +93,8 @@
     <string name="authentication_label" msgid="5210804218348191833">"身份验证"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"添加身份验证"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"清除身份验证"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手动设置"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
+    <skip />
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"请键入有效的电子邮件地址和密码。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"帐户重复"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"帐户“<xliff:g id="DUPLICATE">%s</xliff:g>”已经使用了此用户名。"</string>
@@ -101,6 +103,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"正在验证服务器设置…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"正在验证 SMTP 设置…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"正在创建帐户…"</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"确认帐户类型"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"您已指明<xliff:g id="EMAIL">%1$s</xliff:g>使用<xliff:g id="USERPROTOCOL">%2$s</xliff:g>，但该帐户使用的可能是<xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"帐户设置"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"您的帐户已设置完毕，可以收发电子邮件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"为此帐户起个名称（可选）"</string>

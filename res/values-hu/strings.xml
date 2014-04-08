@@ -79,6 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Fiók beállítása"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Engedélyezés kérése"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Bejelentkezés"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"Nem lehet hitelesíteni"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Az e-mail cím vagy a jelszó nem megfelelő"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"E-mail cím:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-mail fiók"</string>
@@ -92,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Hitelesítés"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Hitelesítés hozzáadása"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Hitelesítés törlése"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuális beállítás"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Kézi beállítás"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Írjon be egy érvényes e-mail címet és jelszót."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Már létező fiók"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Már használja ezt a felhasználónevet a(z) \"<xliff:g id="DUPLICATE">%s</xliff:g>\" fiókhoz."</string>
@@ -101,6 +102,8 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Szerverbeállítások ellenőrzése..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"SMTP-beállítások ellenőrzése..."</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Fiók létrehozása..."</string>
+    <string name="account_setup_ab_headline" msgid="7110531768613341908">"Fióktípus megerősítése"</string>
+    <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Azt jelezte, hogy <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g>  protokollt használ, de lehet, hogy a fiók a következőt használja: <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Fiók beállítása"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"A fiók beállítása befejeződött, az e-mailek úton vannak."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Fiók elnevezése (opcionális)"</string>
