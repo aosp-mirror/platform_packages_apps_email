@@ -3710,8 +3710,10 @@ public class EmailProvider extends ContentProvider {
         Attachment att = Attachment.restoreAttachmentWithId(getContext(), id);
         // MAKE SURE THESE VALUES STAY IN SYNC WITH GEN QUERY ATTACHMENTS
         ContentValues values = new ContentValues(2);
-        values.put(AttachmentColumns.CONTENT_URI,
-                AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
+        if (TextUtils.isEmpty(att.getContentUri())) {
+            values.put(AttachmentColumns.CONTENT_URI,
+                    AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
+        }
         values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
         StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
         sb.append(" FROM ")
@@ -4076,8 +4078,19 @@ public class EmailProvider extends ContentProvider {
                         TextUtils.equals(att.mMimeType, MimeType.ANDROID_ARCHIVE)) {
                     contentUri = att.getContentUri();
                 } else {
-                    contentUri =
-                            AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString();
+                    final String attUriString = att.getContentUri();
+                    final String authority;
+                    if (!TextUtils.isEmpty(attUriString)) {
+                        authority = Uri.parse(attUriString).getAuthority();
+                    } else {
+                        authority = null;
+                    }
+                    if (TextUtils.equals(authority, Attachment.ATTACHMENT_PROVIDER_AUTHORITY)) {
+                        contentUri = attUriString;
+                    } else {
+                        contentUri = AttachmentUtilities.getAttachmentUri(att.mAccountKey, id)
+                                .toString();
+                    }
                 }
                 return contentUri;
 
