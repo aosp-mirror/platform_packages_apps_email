@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Pagpapatotoo"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Magdagdag ng pagpapatotoo"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"I-clear ang pagpapatotoo"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Manu-manong setup"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Mag-type ng wastong email address at password."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicate na account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ginagamit mo na ang username na ito para sa account na \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>

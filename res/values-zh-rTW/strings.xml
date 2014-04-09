@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"驗證"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"新增驗證"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"清除驗證"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"手動設定"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"輸入有效的電子郵件地址和密碼。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"複製帳戶"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"您的「<xliff:g id="DUPLICATE">%s</xliff:g>」帳戶已經使用這個使用者名稱。"</string>

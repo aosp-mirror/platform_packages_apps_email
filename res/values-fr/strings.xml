@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Authentification"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Ajouter l\'authentification"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Effacer l\'authentification"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Configuration manuelle"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Saisissez une adresse e-mail et un mot de passe corrects."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dupliquer le compte"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Vous utilisez déjà ce nom d\'utilisateur pour le compte \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
