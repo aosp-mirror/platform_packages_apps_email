@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Stawing"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Voeg stawing by"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Vee stawing uit"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Handmatige opstelling"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Voer asseblief \'n geldige e-posadres en wagwoord in."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplikaatrekening"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Jy gebruik reeds hierdie gebruikernaam vir die rekening \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
