@@ -55,8 +55,6 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.text.util.Rfc822Token;
-import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -103,15 +101,12 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
-import com.android.mail.providers.ConversationInfo;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
-import com.android.mail.providers.ParticipantInfo;
 import com.android.mail.providers.Settings;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
-import com.android.mail.providers.UIProvider.ConversationColumns;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
 import com.android.mail.providers.UIProvider.DraftType;
@@ -125,7 +120,6 @@ import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.io.File;
@@ -184,7 +178,7 @@ public class EmailProvider extends ContentProvider {
     private static final String NOTIFICATION_OP_UPDATE = "update";
 
     /** The query string to trigger a folder refresh. */
-    private static String QUERY_UIREFRESH = "uirefresh";
+    protected static String QUERY_UIREFRESH = "uirefresh";
 
     // Definitions for our queries looking for orphaned messages
     private static final String[] ORPHANS_PROJECTION
@@ -417,7 +411,7 @@ public class EmailProvider extends ContentProvider {
      * to set the parentKeys. Two passes are needed because we won't know the parent's Id
      * until that row is inserted, and the order in which the rows are given is arbitrary.
      * If we crash while this operation is in progress, the parent keys can be left uninitialized.
-     * @param db
+     * @param db SQLiteDatabase to modify
      */
     private void fixParentKeys(SQLiteDatabase db) {
         LogUtils.d(TAG, "Fixing parent keys");
@@ -1371,12 +1365,7 @@ public class EmailProvider extends ContentProvider {
         if (selection == null) {
             return where;
         }
-        StringBuilder sb = new StringBuilder(where);
-        sb.append(" AND (");
-        sb.append(selection);
-        sb.append(')');
-
-        return sb.toString();
+        return where + " AND (" + selection + ")";
     }
 
     /**
@@ -2207,21 +2196,12 @@ public class EmailProvider extends ContentProvider {
         final SQLiteDatabase db = getDatabase(getContext());
         final String accountId = uri.getLastPathSegment();
 
-        final StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT ");
-        sqlBuilder.append(MessageColumns.MAILBOX_KEY).append(", ");
-        sqlBuilder.append("SUM(CASE ")
-                .append(MessageColumns.FLAG_READ).append(" WHEN 0 THEN 1 ELSE 0 END), ");
-        sqlBuilder.append("SUM(CASE ")
-                .append(MessageColumns.FLAG_SEEN).append(" WHEN 0 THEN 1 ELSE 0 END)\n");
-        sqlBuilder.append("FROM ");
-        sqlBuilder.append(Message.TABLE_NAME).append('\n');
-        sqlBuilder.append("WHERE ");
-        sqlBuilder.append(MessageColumns.ACCOUNT_KEY).append(" = ?\n");
-        sqlBuilder.append("GROUP BY ");
-        sqlBuilder.append(MessageColumns.MAILBOX_KEY);
-
-        final String sql = sqlBuilder.toString();
+        final String sql = "SELECT " + MessageColumns.MAILBOX_KEY + ", " +
+                "SUM(CASE " + MessageColumns.FLAG_READ + " WHEN 0 THEN 1 ELSE 0 END), " +
+                "SUM(CASE " + MessageColumns.FLAG_SEEN + " WHEN 0 THEN 1 ELSE 0 END)\n" +
+                "FROM " + Message.TABLE_NAME + "\n" +
+                "WHERE " + MessageColumns.ACCOUNT_KEY + " = ?\n" +
+                "GROUP BY " + MessageColumns.MAILBOX_KEY;
 
         final String[] selectionArgs = {accountId};
 
@@ -2293,6 +2273,7 @@ public class EmailProvider extends ContentProvider {
                     " WHEN 7 THEN " + ACCOUNT_COLORS[7] +
                     " WHEN 8 THEN " + ACCOUNT_COLORS[8] +
             " END";
+
     /**
      * Mapping of UIProvider columns to EmailProvider columns for the message list (called the
      * conversation list in UnifiedEmail)
@@ -3834,189 +3815,6 @@ public class EmailProvider extends ContentProvider {
             ++i;
         } while (c.moveToNext());
         return recentFolders;
-    }
-
-    /**
-     * Wrapper that handles the visibility feature (i.e. the conversation list is visible, so
-     * any pending notifications for the corresponding mailbox should be canceled). We also handle
-     * getExtras() to provide a snapshot of the mailbox's status
-     */
-    static class EmailConversationCursor extends CursorWrapper {
-        private final long mMailboxId;
-        private final int mMailboxTypeId;
-        private final Context mContext;
-        private final FolderList mFolderList;
-        private final Bundle mExtras = new Bundle();
-
-        /**
-         * When showing a folder, if it's been at least this long since the last sync,
-         * force a folder refresh.
-         */
-        private static final long AUTO_REFRESH_INTERVAL_MS = 5 * DateUtils.MINUTE_IN_MILLIS;
-
-        public EmailConversationCursor(final Context context, final Cursor cursor,
-                final Folder folder, final long mailboxId) {
-            super(cursor);
-            mMailboxId = mailboxId;
-            mContext = context;
-            mFolderList = FolderList.copyOf(Lists.newArrayList(folder));
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-
-            if (mailbox != null) {
-                mMailboxTypeId = mailbox.mType;
-
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
-                        mailbox.mUiLastSyncResult);
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
-                 if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_BACKGROUND
-                         || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_USER
-                         || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_LIVE) {
-                    mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                            UIProvider.CursorStatus.LOADING);
-                } else if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_NONE) {
-                     if (mailbox.mSyncInterval == 0
-                             && (Mailbox.isSyncableType(mailbox.mType)
-                                    || mailbox.mType == Mailbox.TYPE_SEARCH)
-                             && !TextUtils.isEmpty(mailbox.mServerId) &&
-                             // TODO: There's potentially a race condition here.
-                             // Consider merging this check with the auto-sync code in respond.
-                             System.currentTimeMillis() - mailbox.mSyncTime
-                                     > AUTO_REFRESH_INTERVAL_MS) {
-                         // This will be syncing momentarily
-                         mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                                 UIProvider.CursorStatus.LOADING);
-                     } else {
-                         mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                                 UIProvider.CursorStatus.COMPLETE);
-                     }
-                 } else {
-                     LogUtils.d(Logging.LOG_TAG,
-                             "Unknown mailbox sync status" + mailbox.mUiSyncStatus);
-                     mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                             UIProvider.CursorStatus.COMPLETE);
-                 }
-            } else {
-                mMailboxTypeId = -1;
-                // TODO for virtual mailboxes, we may want to do something besides just fake it
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
-                        UIProvider.LastSyncResult.SUCCESS);
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT,
-                        cursor != null ? cursor.getCount() : 0);
-                mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
-                        UIProvider.CursorStatus.COMPLETE);
-            }
-        }
-
-        @Override
-        public Bundle getExtras() {
-            return mExtras;
-        }
-
-        @Override
-        public Bundle respond(Bundle params) {
-            final String setVisibilityKey =
-                    UIProvider.ConversationCursorCommand.COMMAND_KEY_SET_VISIBILITY;
-            if (params.containsKey(setVisibilityKey)) {
-                final boolean visible = params.getBoolean(setVisibilityKey);
-                if (visible) {
-                    // Mark all messages as seen
-                    final ContentResolver resolver = mContext.getContentResolver();
-                    final ContentValues contentValues = new ContentValues(1);
-                    contentValues.put(MessageColumns.FLAG_SEEN, true);
-                    final Uri uri = EmailContent.Message.CONTENT_URI;
-                    resolver.update(uri, contentValues, MessageColumns.MAILBOX_KEY + " = ?",
-                            new String[] {String.valueOf(mMailboxId)});
-                    if (params.containsKey(
-                            UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
-                        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-                        if (mailbox != null) {
-                            // For non-push mailboxes, if it's stale (i.e. last sync was a while
-                            // ago), force a sync.
-                            // TODO: Fix the check for whether we're non-push? Right now it checks
-                            // whether we are participating in account sync rules.
-                            if (mailbox.mSyncInterval == 0) {
-                                final long timeSinceLastSync =
-                                        System.currentTimeMillis() - mailbox.mSyncTime;
-                                if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
-                                    final Uri refreshUri = Uri.parse(EmailContent.CONTENT_URI +
-                                            "/" + QUERY_UIREFRESH + "/" + mailbox.mId);
-                                    resolver.query(refreshUri, null, null, null, null);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // Return success
-            final Bundle response = new Bundle(2);
-
-            response.putString(setVisibilityKey,
-                    UIProvider.ConversationCursorCommand.COMMAND_RESPONSE_OK);
-
-            final String rawFoldersKey =
-                    UIProvider.ConversationCursorCommand.COMMAND_GET_RAW_FOLDERS;
-            if (params.containsKey(rawFoldersKey)) {
-                response.putParcelable(rawFoldersKey, mFolderList);
-            }
-
-            final String convInfoKey =
-                    UIProvider.ConversationCursorCommand.COMMAND_GET_CONVERSATION_INFO;
-            if (params.containsKey(convInfoKey)) {
-                response.putParcelable(convInfoKey, generateConversationInfo());
-            }
-
-            return response;
-        }
-
-        private ConversationInfo generateConversationInfo() {
-            final int numMessages = getInt(getColumnIndex(ConversationColumns.NUM_MESSAGES));
-            final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
-
-            conversationInfo.firstSnippet = getString(getColumnIndex(ConversationColumns.SNIPPET));
-
-            final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
-            final String senderString = getString(getColumnIndex(MessageColumns.DISPLAY_NAME));
-
-            final String fromString = getString(getColumnIndex(MessageColumns.FROM_LIST));
-            final String senderEmail;
-
-            if (fromString != null) {
-                final Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(fromString);
-                if (tokens.length > 0) {
-                    senderEmail = tokens[0].getAddress();
-                } else {
-                    LogUtils.d(TAG, "Couldn't parse sender email address");
-                    senderEmail = fromString;
-                }
-            } else {
-                senderEmail = null;
-            }
-
-            // we *intentionally* report no participants for Draft emails so that the UI always
-            // displays the single word "Draft" as per b/13304929
-            if (mMailboxTypeId == Mailbox.TYPE_DRAFTS) {
-                // the UI displays "Draft" in the conversation list based on this count
-                conversationInfo.draftCount = 1;
-            } else if (mMailboxTypeId == Mailbox.TYPE_SENT ||
-                    mMailboxTypeId == Mailbox.TYPE_OUTBOX) {
-                // for conversations in outgoing mail mailboxes return a list of recipients
-                final String recipientsString = getString(getColumnIndex(MessageColumns.TO_LIST));
-                final Address[] recipientAddresses = Address.parse(recipientsString);
-                for (Address recipientAddress : recipientAddresses) {
-                    final String name = recipientAddress.getSimplifiedName();
-                    final String email = recipientAddress.getAddress();
-
-                    // all recipients are said to have read all messages in the conversation
-                    conversationInfo.addParticipant(new ParticipantInfo(name, email, 0, isRead));
-                }
-            } else {
-                // for conversations in incoming mail mailboxes return the sender
-                conversationInfo.addParticipant(new ParticipantInfo(senderString, senderEmail, 0,
-                        isRead));
-            }
-
-            return conversationInfo;
-        }
     }
 
     /**
