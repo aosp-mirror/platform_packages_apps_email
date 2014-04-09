@@ -77,6 +77,7 @@
     <style name="account_setup_label_text">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:paddingTop">@dimen/setup_label_text_padding_top</item>
     </style>
 
     <!-- Account setup checkboxes -->

@@ -110,8 +110,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                     R.string.account_setup_outgoing_headline);
         }
 
-        final Context context = getActivity();
-
         mUsernameView = UiUtilities.getView(view, R.id.account_username);
         mAuthenticationView = UiUtilities.getView(view, R.id.authentication_view);
         mServerView = UiUtilities.getView(view, R.id.account_server);
@@ -122,26 +120,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         // Don't use UiUtilities here. In some configurations this view does not exist, and
         // UiUtilities throws an exception in this case.
         mAuthenticationLabel = (TextView)view.findViewById(R.id.authentication_label);
-
-        // Note:  Strings are shared with AccountSetupIncomingFragment
-        final SpinnerOption securityTypes[] = {
-            new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
-                    R.string.account_setup_incoming_security_none_label)),
-            new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
-                    R.string.account_setup_incoming_security_ssl_label)),
-            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
-                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
-            new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
-                    R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, context.getString(
-                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
-        };
-
-        final ArrayAdapter<SpinnerOption> securityTypesAdapter =
-                new ArrayAdapter<SpinnerOption>(context, android.R.layout.simple_spinner_item,
-                        securityTypes);
-        securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSecurityTypeView.setAdapter(securityTypesAdapter);
 
         // Updates the port when the user changes the security type. This allows
         // us to show a reasonable default which the user can change.
@@ -192,6 +170,28 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        final Context context = getActivity();
+        // Note:  Strings are shared with AccountSetupIncomingFragment
+        final SpinnerOption securityTypes[] = {
+                new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
+                        R.string.account_setup_incoming_security_none_label)),
+                new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_label)),
+                new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
+                        R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+                new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
+                        R.string.account_setup_incoming_security_tls_label)),
+                new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, context.getString(
+                        R.string.account_setup_incoming_security_tls_trust_certificates_label)),
+        };
+
+        final ArrayAdapter<SpinnerOption> securityTypesAdapter =
+                new ArrayAdapter<SpinnerOption>(context, android.R.layout.simple_spinner_item,
+                        securityTypes);
+        securityTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSecurityTypeView.setAdapter(securityTypesAdapter);
+
         loadSettings();
     }
 
