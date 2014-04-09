@@ -699,6 +699,7 @@ public class AccountSettingsFragment extends PreferenceFragment
         if (mAccountBackgroundAttachments != null) {
             if (!info.offerAttachmentPreload) {
                 dataUsageCategory.removePreference(mAccountBackgroundAttachments);
+                mAccountBackgroundAttachments = null;
             } else {
                 mAccountBackgroundAttachments.setChecked(
                         0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
@@ -746,6 +747,7 @@ public class AccountSettingsFragment extends PreferenceFragment
                 } else {
                     // No vibrator present. Remove the preference altogether.
                     notificationsCategory.removePreference(mInboxVibrate);
+                    mInboxVibrate = null;
                 }
             }
         } else {
@@ -821,7 +823,8 @@ public class AccountSettingsFragment extends PreferenceFragment
                 if (info.usesSmtp) {
                     // We really ought to have an outgoing host auth but we don't.
                     // There's nothing we can do at this point, so just log the error.
-                    LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth", mAccountId);
+                    LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth",
+                            mAccountId);
                 }
                 PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                         PREFERENCE_CATEGORY_SERVER);
@@ -855,8 +858,11 @@ public class AccountSettingsFragment extends PreferenceFragment
                 mSyncEmail.setOnPreferenceChangeListener(this);
             } else {
                 dataUsageCategory.removePreference(mSyncContacts);
+                mSyncContacts = null;
                 dataUsageCategory.removePreference(mSyncCalendar);
+                mSyncCalendar = null;
                 dataUsageCategory.removePreference(mSyncEmail);
+                mSyncEmail = null;
             }
         }
     }
@@ -877,8 +883,10 @@ public class AccountSettingsFragment extends PreferenceFragment
         // Turn off all controlled flags - will turn them back on while checking UI elements
         int newFlags = mAccount.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
-        newFlags |= mAccountBackgroundAttachments.isChecked() ?
-                Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
+        if (mAccountBackgroundAttachments != null) {
+            newFlags |= mAccountBackgroundAttachments.isChecked() ?
+                    Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
+        }
 
         final EmailServiceInfo info =
                 EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
