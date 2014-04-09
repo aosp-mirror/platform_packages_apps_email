@@ -252,15 +252,16 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_ACCTS = UI_BASE + 8;
     private static final int UI_ATTACHMENTS = UI_BASE + 9;
     private static final int UI_ATTACHMENT = UI_BASE + 10;
-    private static final int UI_SEARCH = UI_BASE + 11;
-    private static final int UI_ACCOUNT_DATA = UI_BASE + 12;
-    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 13;
-    private static final int UI_CONVERSATION = UI_BASE + 14;
-    private static final int UI_RECENT_FOLDERS = UI_BASE + 15;
-    private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 16;
-    private static final int UI_FULL_FOLDERS = UI_BASE + 17;
-    private static final int UI_ALL_FOLDERS = UI_BASE + 18;
-    private static final int UI_PURGE_FOLDER = UI_BASE + 19;
+    private static final int UI_ATTACHMENT_BY_CID = UI_BASE + 11;
+    private static final int UI_SEARCH = UI_BASE + 12;
+    private static final int UI_ACCOUNT_DATA = UI_BASE + 13;
+    private static final int UI_FOLDER_LOAD_MORE = UI_BASE + 14;
+    private static final int UI_CONVERSATION = UI_BASE + 15;
+    private static final int UI_RECENT_FOLDERS = UI_BASE + 16;
+    private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 17;
+    private static final int UI_FULL_FOLDERS = UI_BASE + 18;
+    private static final int UI_ALL_FOLDERS = UI_BASE + 19;
+    private static final int UI_PURGE_FOLDER = UI_BASE + 20;
 
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
@@ -1132,6 +1133,7 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachmentbycid/#/*", UI_ATTACHMENT_BY_CID);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
@@ -1218,7 +1220,7 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
-                // First, dispatch queries from UnfiedEmail
+                // First, dispatch queries from UnifiedEmail
                 case UI_SEARCH:
                     c = uiSearch(uri, projection);
                     return c;
@@ -1234,6 +1236,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_ACCOUNT:
                 case UI_ATTACHMENT:
                 case UI_ATTACHMENTS:
+                case UI_ATTACHMENT_BY_CID:
                 case UI_CONVERSATION:
                 case UI_RECENT_FOLDERS:
                 case UI_FULL_FOLDERS:
@@ -2393,6 +2396,8 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.MessageColumns.HAS_ATTACHMENTS, MessageColumns.FLAG_ATTACHMENT)
                 .add(UIProvider.MessageColumns.ATTACHMENT_LIST_URI,
                         uriWithFQId("uiattachments", Message.TABLE_NAME))
+                .add(UIProvider.MessageColumns.ATTACHMENT_BY_CID_URI,
+                        uriWithFQId("uiattachmentbycid", Message.TABLE_NAME))
                 .add(UIProvider.MessageColumns.MESSAGE_FLAGS, MESSAGE_FLAGS)
                 .add(UIProvider.MessageColumns.DRAFT_TYPE, MESSAGE_DRAFT_TYPE)
                 .add(UIProvider.MessageColumns.MESSAGE_ACCOUNT_URI,
@@ -3724,23 +3729,56 @@ public class EmailProvider extends ContentProvider {
      * @param uiProjection as passed from UnifiedEmail
      * @return the SQLite query to be executed on the EmailProvider database
      */
-    private String genQueryAttachment(String[] uiProjection, String idString) {
-        Long id = Long.parseLong(idString);
-        Attachment att = Attachment.restoreAttachmentWithId(getContext(), id);
+    private String genQueryAttachment(String[] uiProjection) {
         // MAKE SURE THESE VALUES STAY IN SYNC WITH GEN QUERY ATTACHMENTS
-        ContentValues values = new ContentValues(2);
-        if (TextUtils.isEmpty(att.getContentUri())) {
-            values.put(AttachmentColumns.CONTENT_URI,
-                    AttachmentUtilities.getAttachmentUri(att.mAccountKey, id).toString());
-        }
+        final ContentValues values = new ContentValues(2);
+        values.put(AttachmentColumns.CONTENT_URI, createAttachmentUriColumnSQL());
         values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
-        StringBuilder sb = genSelect(getAttachmentMap(), uiProjection, values);
-        sb.append(" FROM ")
-                .append(Attachment.TABLE_NAME)
+
+        return genSelect(getAttachmentMap(), uiProjection, values)
+                .append(" FROM ").append(Attachment.TABLE_NAME)
                 .append(" WHERE ")
-                .append(AttachmentColumns._ID)
-                .append(" =? ");
-        return sb.toString();
+                .append(AttachmentColumns._ID).append(" =? ")
+                .toString();
+    }
+
+    /**
+     * Generate the "single attachment by Content ID" SQLite query, given a projection from
+     * UnifiedEmail
+     *
+     * @param uiProjection as passed from UnifiedEmail
+     * @return the SQLite query to be executed on the EmailProvider database
+     */
+    private String genQueryAttachmentByMessageIDAndCid(String[] uiProjection) {
+        final ContentValues values = new ContentValues(2);
+        values.put(AttachmentColumns.CONTENT_URI, createAttachmentUriColumnSQL());
+        values.put(UIProvider.AttachmentColumns.SUPPORTS_DOWNLOAD_AGAIN, 1);
+
+        return genSelect(getAttachmentMap(), uiProjection, values)
+                .append(" FROM ").append(Attachment.TABLE_NAME)
+                .append(" WHERE ")
+                .append(AttachmentColumns.MESSAGE_KEY).append(" =? ")
+                .append(" AND ")
+                .append(AttachmentColumns.CONTENT_ID).append(" =? ")
+                .toString();
+    }
+
+    /**
+     * @return a fragment of SQL that is the expression which, when evaluated for a particular
+     *      Attachment row, produces the Content URI for the attachment
+     */
+    private static String createAttachmentUriColumnSQL() {
+        final String uriPrefix = Attachment.ATTACHMENT_PROVIDER_URI_PREFIX;
+        final String accountKey = AttachmentColumns.ACCOUNT_KEY;
+        final String id = AttachmentColumns._ID;
+        final String raw = AttachmentUtilities.FORMAT_RAW;
+        final String contentUri = String.format("%s/' || %s || '/' || %s || '/%s", uriPrefix,
+                accountKey, id, raw);
+
+        return "@CASE " +
+                "WHEN contentUri IS NULL THEN '" + contentUri + "' " +
+                "WHEN contentUri IS NOT NULL THEN contentUri " +
+                "END";
     }
 
     /**
@@ -4312,8 +4350,17 @@ public class EmailProvider extends ContentProvider {
                 notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_ATTACHMENT:
-                c = db.rawQuery(genQueryAttachment(uiProjection, id), new String[] {id});
+                c = db.rawQuery(genQueryAttachment(uiProjection), new String[] {id});
                 notifyUri = UIPROVIDER_ATTACHMENT_NOTIFIER.buildUpon().appendPath(id).build();
+                break;
+            case UI_ATTACHMENT_BY_CID:
+                final String cid = uri.getPathSegments().get(2);
+                final String[] selectionArgs = {id, cid};
+                c = db.rawQuery(genQueryAttachmentByMessageIDAndCid(uiProjection), selectionArgs);
+
+                // we don't have easy access to the attachment ID (which is buried in the cursor
+                // being returned), so we notify on the parent message object
+                notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
                 mailboxId = Long.parseLong(id);
