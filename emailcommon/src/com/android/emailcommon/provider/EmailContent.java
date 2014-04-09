@@ -1373,14 +1373,16 @@ public abstract class EmailContent {
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
         public static Uri MESSAGE_ID_URI;
         public static String ATTACHMENT_PROVIDER_URI_PREFIX;
+        public static String ATTACHMENT_PROVIDER_AUTHORITY;
         public static boolean sUsingLegacyPrefix;
 
         public static void initAttachment() {
             CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
             MESSAGE_ID_URI = Uri.parse(
                     EmailContent.CONTENT_URI + "/attachment/message");
-            ATTACHMENT_PROVIDER_URI_PREFIX = "content://" + EmailContent.EMAIL_PACKAGE_NAME +
+            ATTACHMENT_PROVIDER_AUTHORITY = EmailContent.EMAIL_PACKAGE_NAME +
                     ".attachmentprovider";
+            ATTACHMENT_PROVIDER_URI_PREFIX = "content://" + ATTACHMENT_PROVIDER_AUTHORITY;
             sUsingLegacyPrefix =
                     ATTACHMENT_PROVIDER_URI_PREFIX.equals(ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX);
         }
