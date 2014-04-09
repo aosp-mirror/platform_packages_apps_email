@@ -280,13 +280,15 @@ class ImapConnection {
 
     String sendCommandInternal(String command, boolean sensitive)
             throws MessagingException, IOException {
+        if (mTransport == null) {
+            throw new IOException("Null transport");
+        }
         String tag = Integer.toString(mNextCommandTag.incrementAndGet());
         String commandToSend = tag + " " + command;
         mTransport.writeLine(commandToSend, sensitive ? IMAP_REDACTED_LOG : null);
         mDiscourse.addSentCommand(sensitive ? IMAP_REDACTED_LOG : commandToSend);
         return tag;
     }
-
 
     /**
      * Send a single, complex command to the server.  The command will be preceded by an IMAP
