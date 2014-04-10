@@ -259,6 +259,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_DEFAULT_RECENT_FOLDERS = UI_BASE + 16;
     private static final int UI_FULL_FOLDERS = UI_BASE + 17;
     private static final int UI_ALL_FOLDERS = UI_BASE + 18;
+    private static final int UI_PURGE_FOLDER = UI_BASE + 19;
 
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
@@ -618,6 +619,8 @@ public class EmailProvider extends ContentProvider {
                     return uiDeleteAccountData(uri);
                 case UI_ACCOUNT:
                     return uiDeleteAccount(uri);
+                case UI_PURGE_FOLDER:
+                    return uiPurgeFolder(uri);
                 case MESSAGE_SELECTION:
                     Cursor findCursor = db.query(tableName, Message.ID_COLUMN_PROJECTION, selection,
                             selectionArgs, null, null, null);
@@ -1138,6 +1141,7 @@ public class EmailProvider extends ContentProvider {
                     ACCOUNT_PICK_TRASH_FOLDER);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "pickSentFolder/#",
                     ACCOUNT_PICK_SENT_FOLDER);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uipurgefolder/#", UI_PURGE_FOLDER);
         }
     }
 
@@ -3111,16 +3115,18 @@ public class EmailProvider extends ContentProvider {
         // If the configuration states that feedback is supported, add that capability
         final Resources res = context.getResources();
         if (res.getBoolean(R.bool.feedback_supported)) {
-            capabilities |= UIProvider.AccountCapabilities.SEND_FEEDBACK;
+            capabilities |= AccountCapabilities.SEND_FEEDBACK;
         }
 
         // If we can find a help URL then add the Help capability
         if (!TextUtils.isEmpty(context.getResources().getString(R.string.help_uri))) {
-            capabilities |= UIProvider.AccountCapabilities.HELP_CONTENT;
+            capabilities |= AccountCapabilities.HELP_CONTENT;
         }
 
+        capabilities |= AccountCapabilities.EMPTY_TRASH;
+
         // TODO: Should this be stored per-account, or some other mechanism?
-        capabilities |= UIProvider.AccountCapabilities.NESTED_FOLDERS;
+        capabilities |= AccountCapabilities.NESTED_FOLDERS;
 
         return capabilities;
     }
@@ -4996,6 +5002,50 @@ public class EmailProvider extends ContentProvider {
         notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
         notifyUIMessage(msg.mId);
         return r;
+    }
+
+    /**
+     * Hard delete all synced messages in a particular mailbox
+     * @param uri Mailbox to empty (Trash, or maybe Spam/Junk later)
+     * @return number of rows affected
+     */
+    private int uiPurgeFolder(Uri uri) {
+        final Context context = getContext();
+        final long mailboxId = Long.parseLong(uri.getLastPathSegment());
+        final SQLiteDatabase db = getDatabase(context);
+
+        // Find the account ID (needed in a few calls)
+        final Cursor mailboxCursor = db.query(
+                Mailbox.TABLE_NAME, new String[] { MailboxColumns.ACCOUNT_KEY },
+                Mailbox.ID + "=" + mailboxId, null, null, null, null);
+        if (mailboxCursor == null || !mailboxCursor.moveToFirst()) {
+            LogUtils.wtf(LogUtils.TAG, "Null or empty cursor when trying to purge mailbox %d",
+                    mailboxId);
+            return 0;
+        }
+        final long accountId = mailboxCursor.getLong(mailboxCursor.getColumnIndex(
+                MailboxColumns.ACCOUNT_KEY));
+
+        // Find all the messages in the mailbox
+        final String[] messageProjection =
+                new String[] { MessageColumns.ID };
+        final String messageWhere = MessageColumns.MAILBOX_KEY + "=" + mailboxId;
+        final Cursor messageCursor = db.query(Message.TABLE_NAME, messageProjection, messageWhere,
+                null, null, null, null);
+        int deletedCount = 0;
+
+        // Kill them with fire
+        while (messageCursor != null && messageCursor.moveToNext()) {
+            final long messageId = messageCursor.getLong(messageCursor.getColumnIndex(
+                    MessageColumns.ID));
+            AttachmentUtilities.deleteAllAttachmentFiles(context, accountId, messageId);
+            deletedCount += context.getContentResolver().delete(
+                    ContentUris.withAppendedId(Message.SYNCED_CONTENT_URI, messageId), null, null);
+            notifyUIMessage(messageId);
+        }
+
+        notifyUIFolder(mailboxId, accountId);
+        return deletedCount;
     }
 
     public static final String PICKER_UI_ACCOUNT = "picker_ui_account";

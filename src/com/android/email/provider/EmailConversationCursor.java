@@ -32,11 +32,13 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.mail.browse.ConversationCursorOperationListener;
 import com.android.mail.providers.ConversationInfo;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.ParticipantInfo;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.providers.UIProvider.ConversationColumns;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.Lists;
 
@@ -45,7 +47,8 @@ import com.google.common.collect.Lists;
  * any pending notifications for the corresponding mailbox should be canceled). We also handle
  * getExtras() to provide a snapshot of the mailbox's status
  */
-public class EmailConversationCursor extends CursorWrapper {
+public class EmailConversationCursor extends CursorWrapper implements
+        ConversationCursorOperationListener {
     private final long mMailboxId;
     private final int mMailboxTypeId;
     private final Context mContext;
@@ -124,12 +127,7 @@ public class EmailConversationCursor extends CursorWrapper {
             final boolean visible = params.getBoolean(setVisibilityKey);
             if (visible) {
                 // Mark all messages as seen
-                final ContentResolver resolver = mContext.getContentResolver();
-                final ContentValues contentValues = new ContentValues(1);
-                contentValues.put(EmailContent.MessageColumns.FLAG_SEEN, true);
-                final Uri uri = EmailContent.Message.CONTENT_URI;
-                resolver.update(uri, contentValues, EmailContent.MessageColumns.MAILBOX_KEY +
-                                " = ?", new String[] {String.valueOf(mMailboxId)});
+                markContentsSeen();
                 if (params.containsKey(
                         UIProvider.ConversationCursorCommand.COMMAND_KEY_ENTERED_FOLDER)) {
                     Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
@@ -142,6 +140,7 @@ public class EmailConversationCursor extends CursorWrapper {
                             final long timeSinceLastSync =
                                     System.currentTimeMillis() - mailbox.mSyncTime;
                             if (timeSinceLastSync > AUTO_REFRESH_INTERVAL_MS) {
+                                final ContentResolver resolver = mContext.getContentResolver();
                                 final Uri refreshUri = Uri.parse(EmailContent.CONTENT_URI +
                                         "/" + EmailProvider.QUERY_UIREFRESH + "/" + mailbox.mId);
                                 resolver.query(refreshUri, null, null, null, null);
@@ -173,12 +172,12 @@ public class EmailConversationCursor extends CursorWrapper {
     }
 
     private ConversationInfo generateConversationInfo() {
-        final int numMessages = getInt(getColumnIndex(UIProvider.ConversationColumns.NUM_MESSAGES));
+        final int numMessages = getInt(getColumnIndex(ConversationColumns.NUM_MESSAGES));
         final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
 
-        conversationInfo.firstSnippet = getString(getColumnIndex(UIProvider.ConversationColumns.SNIPPET));
+        conversationInfo.firstSnippet = getString(getColumnIndex(ConversationColumns.SNIPPET));
 
-        final boolean isRead = getInt(getColumnIndex(UIProvider.ConversationColumns.READ)) != 0;
+        final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
         final String senderString = getString(getColumnIndex(EmailContent.MessageColumns.DISPLAY_NAME));
 
         final String fromString = getString(getColumnIndex(EmailContent.MessageColumns.FROM_LIST));
@@ -221,5 +220,22 @@ public class EmailConversationCursor extends CursorWrapper {
         }
 
         return conversationInfo;
+    }
+
+    @Override
+    public void markContentsSeen() {
+        final ContentResolver resolver = mContext.getContentResolver();
+        final ContentValues contentValues = new ContentValues(1);
+        contentValues.put(EmailContent.MessageColumns.FLAG_SEEN, true);
+        final Uri uri = EmailContent.Message.CONTENT_URI;
+        resolver.update(uri, contentValues, EmailContent.MessageColumns.MAILBOX_KEY + " = ?",
+                new String[] {String.valueOf(mMailboxId)});
+    }
+
+    @Override
+    public void emptyFolder() {
+        final ContentResolver resolver = mContext.getContentResolver();
+        final Uri purgeUri = EmailProvider.uiUri("uipurgefolder", mMailboxId);
+        resolver.delete(purgeUri, null, null);
     }
 }
