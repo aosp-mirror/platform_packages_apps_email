@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Kimlik doğrulama"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Kimlik doğrulama ekle"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Kimlik doğrulamayı temizle"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Manuel kurulum"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Geçerli bir e-posta adresi ve şifre yazın."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Yinelenen hesap"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Bu kullanıcı adını \"<xliff:g id="DUPLICATE">%s</xliff:g>\" hesabı için zaten kullanıyorsunuz."</string>

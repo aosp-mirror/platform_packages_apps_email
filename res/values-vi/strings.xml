@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Xác thực"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Thêm xác thực"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Xóa xác thực"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Thiết lập thủ công"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Hãy nhập địa chỉ email và mật khẩu hợp lệ."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Tài khoản trùng lặp"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Bạn đã và đang sử dụng tên người dùng này cho tài khoản \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
