@@ -79,8 +79,7 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurare cont"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"Se solicită autorizarea"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"Conectați-vă"</string>
-    <!-- no translation found for oauth_error_description (5257268852139229456) -->
-    <skip />
+    <string name="oauth_error_description" msgid="5257268852139229456">"Autentificarea nu este posibilă"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Adresa de e-mail sau parola este incorectă"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Adresa de e-mail:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cont de e-mail"</string>
@@ -94,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Autentificare"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Adăugați autentificare"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Ștergeți autentificarea"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Configurare manuală"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Introduceţi o adresă de e-mail şi o parolă valide."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Cont duplicat"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Utilizaţi deja acest nume de utilizator pentru contul „<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>

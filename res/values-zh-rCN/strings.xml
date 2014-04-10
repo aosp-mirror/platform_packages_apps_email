@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"身份验证"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"添加身份验证"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"清除身份验证"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"手动设置"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"请键入有效的电子邮件地址和密码。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"帐户重复"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"帐户“<xliff:g id="DUPLICATE">%s</xliff:g>”已经使用了此用户名。"</string>

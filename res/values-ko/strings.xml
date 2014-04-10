@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"인증"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"인증 추가"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"인증 삭제"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"수동 설정"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에 이 사용자 이름을 사용하고 있습니다."</string>

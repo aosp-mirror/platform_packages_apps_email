@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Ověření"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Přidat ověření"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Smazat ověření"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Ruční nastavení"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Zadejte platnou e-mailovou adresu a heslo."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Duplicitní účet"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Toto uživatelské jméno již používáte pro účet <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
