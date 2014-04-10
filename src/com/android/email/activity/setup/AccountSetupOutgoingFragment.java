@@ -281,6 +281,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        final HostAuth sendAuth = mSetupData.getAccount().getOrCreateHostAuthSend(mAppContext);
+        mAuthenticationView.setAuthInfo(true, sendAuth);
         final int visibility = isChecked ? View.VISIBLE : View.GONE;
         UiUtilities.setVisibilitySafe(getView(), R.id.account_require_login_settings, visibility);
         UiUtilities.setVisibilitySafe(getView(), R.id.account_require_login_settings_2, visibility);
