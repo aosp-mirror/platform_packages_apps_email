@@ -21,14 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.preference.ListPreference;
-import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.Suppress;
 
-import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;
 
@@ -131,7 +128,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                PreferenceFragment f = (PreferenceFragment) theActivity.getCurrentFragment();
+                AccountSettingsFragment f = theActivity.getSettingsFragment();
                 mCheckFrequency =
                     (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
             }

@@ -51,6 +51,7 @@ import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 
@@ -114,8 +115,9 @@ public class AccountSettings extends PreferenceActivity implements
     private long mRequestedAccountId;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
-    private static final String CURRENT_FRAGMENT_TAG = "currentFragment";
-    private Bundle mCurrentFragmentBundle = new Bundle(1);
+    private static final String CURRENT_SETTINGS_FRAGMENT_TAG = "currentSettingsFragment";
+    private static final String CURRENT_SERVER_FRAGMENT_TAG = "currentServerFragment";
+    private Bundle mCurrentFragmentBundle = new Bundle(2);
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
@@ -373,9 +375,9 @@ public class AccountSettings extends PreferenceActivity implements
      */
     @Override
     public void onBackPressed() {
-        final Fragment currentFragment = getCurrentFragment();
-        if (currentFragment instanceof AccountServerBaseFragment) {
-            if (((AccountServerBaseFragment) currentFragment).haveSettingsChanged()) {
+        final AccountServerBaseFragment accountServerFragment = getAccountServerFragment();
+        if (accountServerFragment != null) {
+            if (accountServerFragment.haveSettingsChanged()) {
                 UnsavedChangesDialogFragment dialogFragment =
                         UnsavedChangesDialogFragment.newInstanceForBack();
                 dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
@@ -558,9 +560,8 @@ public class AccountSettings extends PreferenceActivity implements
     @Override
     public void onHeaderClick(Header header, int position) {
         // special case when exiting the server settings fragments
-        final Fragment currentFragment = getCurrentFragment();
-        if ((currentFragment instanceof AccountServerBaseFragment)
-                && (((AccountServerBaseFragment)currentFragment).haveSettingsChanged())) {
+        final AccountServerBaseFragment accountServerFragment = getAccountServerFragment();
+        if ((accountServerFragment != null) && accountServerFragment.haveSettingsChanged()) {
             UnsavedChangesDialogFragment dialogFragment =
                 UnsavedChangesDialogFragment.newInstanceForHeader(position);
             dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
@@ -605,24 +606,39 @@ public class AccountSettings extends PreferenceActivity implements
 
         if (f instanceof AccountSettingsFragment) {
             final AccountSettingsFragment asf = (AccountSettingsFragment) f;
+            getFragmentManager()
+                    .putFragment(mCurrentFragmentBundle, CURRENT_SETTINGS_FRAGMENT_TAG, f);
             asf.setCallback(mAccountSettingsFragmentCallback);
-        } else if (!(f instanceof AccountServerBaseFragment)) {
+        } else if (f instanceof AccountServerBaseFragment) {
+            getFragmentManager()
+                    .putFragment(mCurrentFragmentBundle, CURRENT_SERVER_FRAGMENT_TAG, f);
+        } else {
             // Possibly uninteresting fragment, such as a dialog.
             return;
         }
-        // By some internal witchcraft, this will persist a reference to this fragment across
-        // configuration changes
-        getFragmentManager().putFragment(mCurrentFragmentBundle, CURRENT_FRAGMENT_TAG, f);
-
         // When we're changing fragments, enable/disable the add account button
         invalidateOptionsMenu();
     }
 
-    public Fragment getCurrentFragment() {
+    @VisibleForTesting
+    protected AccountSettingsFragment getSettingsFragment() {
         try {
-        return getFragmentManager().getFragment(mCurrentFragmentBundle, CURRENT_FRAGMENT_TAG);
+            return (AccountSettingsFragment)
+                    getFragmentManager().getFragment(mCurrentFragmentBundle,
+                            CURRENT_SETTINGS_FRAGMENT_TAG);
         } catch (final IllegalStateException e) {
-            LogUtils.d(LogUtils.TAG, e, "Could not find current fragment, returning null");
+            LogUtils.d(LogUtils.TAG, e, "Could not find current settings fragment, returning null");
+            return null;
+        }
+    }
+
+    protected AccountServerBaseFragment getAccountServerFragment() {
+        try {
+            return (AccountServerBaseFragment)
+                    getFragmentManager().getFragment(mCurrentFragmentBundle,
+                            CURRENT_SERVER_FRAGMENT_TAG);
+        } catch (final IllegalStateException e) {
+            LogUtils.d(LogUtils.TAG, e, "Could not find current server fragment, returning null");
             return null;
         }
     }
@@ -681,8 +697,10 @@ public class AccountSettings extends PreferenceActivity implements
     @Override
     public void onCheckSettingsComplete() {
         dismissCheckSettingsFragment();
-        final AccountServerBaseFragment f = (AccountServerBaseFragment) getCurrentFragment();
-        f.saveSettings();
+        final AccountServerBaseFragment f = getAccountServerFragment();
+        if (f != null) {
+            f.saveSettings();
+        }
     }
 
     @Override
@@ -718,8 +736,10 @@ public class AccountSettings extends PreferenceActivity implements
     @Override
     public void onSecurityRequiredDialogResult(boolean ok) {
         if (ok) {
-            final AccountServerBaseFragment f = (AccountServerBaseFragment) getCurrentFragment();
-            f.saveSettings();
+            final AccountServerBaseFragment f = getAccountServerFragment();
+            if (f != null) {
+                f.saveSettings();
+            }
         }
         // else just stay here
     }
@@ -731,7 +751,7 @@ public class AccountSettings extends PreferenceActivity implements
 
     @Override
     public void onCheckSettingsErrorDialogEditCertificate() {
-        final Fragment f = getCurrentFragment();
+        final AccountServerBaseFragment f = getAccountServerFragment();
         if (f instanceof AccountSetupIncomingFragment) {
             AccountSetupIncomingFragment asif = (AccountSetupIncomingFragment) f;
             asif.onCertificateRequested();
