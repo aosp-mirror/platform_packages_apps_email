@@ -449,6 +449,13 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         onUseSslChanged(sslSelected);
     }
 
+    @Override
+    public void saveSettings() {
+        // Reset this here so we don't get stuck on this screen
+        mLoadedDeletePolicy = mSetupData.getAccount().getDeletePolicy();
+        super.saveSettings();
+    }
+
     private static class SaveSettingsLoader extends MailAsyncTaskLoader<Boolean> {
         private final SetupDataFragment mSetupData;
         private final boolean mSettingsMode;
