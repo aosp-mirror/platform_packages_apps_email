@@ -396,12 +396,13 @@ public class AttachmentUtilities {
      * Save the attachment to its final resting place (cache or sd card)
      */
     public static void saveAttachment(Context context, InputStream in, Attachment attachment) {
-        Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachment.mId);
-        ContentValues cv = new ContentValues();
-        long attachmentId = attachment.mId;
-        long accountId = attachment.mAccountKey;
-        String contentUri = null;
-        long size;
+        final Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachment.mId);
+        final ContentValues cv = new ContentValues();
+        final long attachmentId = attachment.mId;
+        final long accountId = attachment.mAccountKey;
+        final String contentUri;
+        final long size;
+
         try {
             ContentResolver resolver = context.getContentResolver();
             if (attachment.mUiDestination == UIProvider.AttachmentDestination.CACHE) {
@@ -453,21 +454,5 @@ public class AttachmentUtilities {
             cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.FAILED);
         }
         context.getContentResolver().update(uri, cv, null, null);
-
-        // If this is an inline attachment, update the body
-        if (contentUri != null && attachment.mContentId != null) {
-            Body body = Body.restoreBodyWithMessageId(context, attachment.mMessageKey);
-            if (body != null && body.mHtmlContent != null) {
-                cv.clear();
-                String html = body.mHtmlContent;
-                String contentIdRe =
-                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
-                String srcContentUri = " src=\"" + contentUri + "\"";
-                html = html.replaceAll(contentIdRe, srcContentUri);
-                cv.put(BodyColumns.HTML_CONTENT, html);
-                context.getContentResolver().update(
-                        ContentUris.withAppendedId(Body.CONTENT_URI, body.mId), cv, null, null);
-            }
-        }
     }
 }
