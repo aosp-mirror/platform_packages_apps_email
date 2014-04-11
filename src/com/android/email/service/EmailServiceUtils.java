@@ -51,6 +51,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
@@ -337,7 +338,7 @@ public class EmailServiceUtils {
                 // Change the HostAuth to reference the new protocol; this has to be done before
                 // trying to create the AccountManager account (below)
                 final ContentValues hostValues = new ContentValues();
-                hostValues.put(HostAuth.PROTOCOL, newProtocol);
+                hostValues.put(HostAuthColumns.PROTOCOL, newProtocol);
                 resolver.update(ContentUris.withAppendedId(HostAuth.CONTENT_URI, hostAuth.mId),
                         hostValues, null, null);
                 LogUtils.w(Logging.LOG_TAG, "Updated HostAuths");

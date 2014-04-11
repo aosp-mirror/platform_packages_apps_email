@@ -6,13 +6,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 import com.google.common.base.Objects;
 
-public class Credential extends EmailContent implements Parcelable {
+public class Credential extends EmailContent implements Parcelable, BaseColumns {
 
     public static final String TABLE_NAME = "Credential";
     public static Uri CONTENT_URI;
@@ -49,7 +50,7 @@ public class Credential extends EmailContent implements Parcelable {
         public static final int EXPIRATION_COLUMN_INDEX = 4;
 
         public static final String[] PROJECTION = new String[] {
-            RECORD_ID,
+            _ID,
             PROVIDER_COLUMN,
             ACCESS_TOKEN_COLUMN,
             REFRESH_TOKEN_COLUMN,

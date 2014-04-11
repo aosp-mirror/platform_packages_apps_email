@@ -32,15 +32,15 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public final class Account extends EmailContent implements AccountColumns, Parcelable {
+public final class Account extends EmailContent implements Parcelable {
     public static final String TABLE_NAME = "Account";
 
     // Define all pseudo account IDs here to avoid conflict with one another.
@@ -167,8 +167,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static final int CONTENT_PING_DURATION_COLUMN = 17;
     public static final int CONTENT_MAX_ATTACHMENT_SIZE_COLUMN = 18;
 
-    public static final String[] CONTENT_PROJECTION = new String[] {
-        RECORD_ID, AccountColumns.DISPLAY_NAME,
+    public static final String[] CONTENT_PROJECTION = {
+        AttachmentColumns._ID, AccountColumns.DISPLAY_NAME,
         AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
         AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
         AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS,
@@ -184,14 +184,14 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     /**
      * This projection is for listing account id's only
      */
-    public static final String[] ID_TYPE_PROJECTION = new String[] {
-        RECORD_ID, MailboxColumns.TYPE
+    public static final String[] ID_TYPE_PROJECTION = {
+            BaseColumns._ID, MailboxColumns.TYPE
     };
 
     public static final int ACCOUNT_FLAGS_COLUMN_ID = 0;
     public static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
-    public static final String[] ACCOUNT_FLAGS_PROJECTION = new String[] {
-            AccountColumns.ID, AccountColumns.FLAGS};
+    public static final String[] ACCOUNT_FLAGS_PROJECTION = {
+            AccountColumns._ID, AccountColumns.FLAGS};
 
     public static final String MAILBOX_SELECTION =
         MessageColumns.MAILBOX_KEY + " =?";
@@ -202,7 +202,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     private static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
 
     public static final String SECURITY_NONZERO_SELECTION =
-        Account.POLICY_KEY + " IS NOT NULL AND " + Account.POLICY_KEY + "!=0";
+        AccountColumns.POLICY_KEY + " IS NOT NULL AND " + AccountColumns.POLICY_KEY + "!=0";
 
     private static final String FIND_INBOX_SELECTION =
             MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
@@ -766,7 +766,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             b.withValues(mHostAuthRecv.toContentValues());
             if (recvCredentialsIndex >= 0) {
                 final ContentValues cv = new ContentValues();
-                cv.put(HostAuth.CREDENTIAL_KEY, recvCredentialsIndex);
+                cv.put(HostAuthColumns.CREDENTIAL_KEY, recvCredentialsIndex);
                 b.withValueBackReferences(cv);
             }
             ops.add(b.build());
@@ -790,7 +790,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
             b.withValues(mHostAuthSend.toContentValues());
             if (sendCredentialsIndex >= 0) {
                 final ContentValues cv = new ContentValues();
-                cv.put(HostAuth.CREDENTIAL_KEY, sendCredentialsIndex);
+                cv.put(HostAuthColumns.CREDENTIAL_KEY, sendCredentialsIndex);
                 b.withValueBackReferences(cv);
             }
             ops.add(b.build());
@@ -801,10 +801,10 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         if (recvIndex >= 0 || sendIndex >= 0) {
             cv = new ContentValues();
             if (recvIndex >= 0) {
-                cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);
+                cv.put(AccountColumns.HOST_AUTH_KEY_RECV, recvIndex);
             }
             if (sendIndex >= 0) {
-                cv.put(Account.HOST_AUTH_KEY_SEND, sendIndex);
+                cv.put(AccountColumns.HOST_AUTH_KEY_SEND, sendIndex);
             }
         }
 

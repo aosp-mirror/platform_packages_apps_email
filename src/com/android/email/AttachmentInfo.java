@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 
@@ -39,8 +40,14 @@ import java.util.List;
  */
 public class AttachmentInfo {
     // Projection which can be used with the constructor taking a Cursor argument
-    public static final String[] PROJECTION = new String[] {Attachment.RECORD_ID, Attachment.SIZE,
-        Attachment.FILENAME, Attachment.MIME_TYPE, Attachment.ACCOUNT_KEY, Attachment.FLAGS};
+    public static final String[] PROJECTION = {
+            AttachmentColumns._ID,
+            AttachmentColumns.SIZE,
+            AttachmentColumns.FILENAME,
+            AttachmentColumns.MIME_TYPE,
+            AttachmentColumns.ACCOUNT_KEY,
+            AttachmentColumns.FLAGS
+    };
     // Offsets into PROJECTION
     public static final int COLUMN_ID = 0;
     public static final int COLUMN_SIZE = 1;

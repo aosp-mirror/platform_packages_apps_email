@@ -74,7 +74,7 @@ public class SSLUtils {
             mHostAuth = hostAuth;
             // We must load the server cert manually (the ContentCache won't handle blobs
             Cursor c = context.getContentResolver().query(HostAuth.CONTENT_URI,
-                    new String[] {HostAuthColumns.SERVER_CERT}, HostAuth.ID + "=?",
+                    new String[] {HostAuthColumns.SERVER_CERT}, HostAuthColumns._ID + "=?",
                     new String[] {Long.toString(hostAuth.mId)}, null);
             if (c != null) {
                 try {

@@ -77,8 +77,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
     /** Small projection for just the columns required for a sync. */
-    private static final String[] MAILBOX_PROJECTION = new String[] {
-        MailboxColumns.ID,
+    private static final String[] MAILBOX_PROJECTION = {
+        MailboxColumns._ID,
         MailboxColumns.SERVER_ID,
         MailboxColumns.TYPE,
     };
@@ -418,7 +418,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         final ContentResolver resolver = context.getContentResolver();
         final Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
                 EmailContent.Message.ID_COLUMN_PROJECTION,
-                EmailContent.Message.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
+                MessageColumns.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
                 null);
         try {
             // 2.  exit early

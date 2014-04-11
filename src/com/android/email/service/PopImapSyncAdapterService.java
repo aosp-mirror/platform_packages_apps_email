@@ -37,6 +37,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
@@ -112,7 +113,7 @@ public class PopImapSyncAdapterService extends Service {
                 !loadsFromServer(context, mailbox, protocol)) {
             // This is an update to a message in a non-syncing mailbox; delete this from the
             // updates table and return
-            resolver.delete(Message.UPDATED_CONTENT_URI, Message.MAILBOX_KEY + "=?",
+            resolver.delete(Message.UPDATED_CONTENT_URI, MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {Long.toString(mailbox.mId)});
             return;
         }
@@ -194,8 +195,8 @@ public class PopImapSyncAdapterService extends Service {
                     // See if any boxes have mail...
                     ArrayList<Long> mailboxesToUpdate;
                     Cursor updatesCursor = provider.query(Message.UPDATED_CONTENT_URI,
-                            new String[] {Message.MAILBOX_KEY},
-                            Message.ACCOUNT_KEY + "=?",
+                            new String[] {MessageColumns.MAILBOX_KEY},
+                            MessageColumns.ACCOUNT_KEY + "=?",
                             new String[] {Long.toString(acct.mId)},
                             null);
                     try {

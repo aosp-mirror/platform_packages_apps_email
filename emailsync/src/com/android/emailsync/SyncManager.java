@@ -131,7 +131,7 @@ public abstract class SyncManager extends Service implements Runnable {
         + Mailbox.TYPE_CALENDAR + ')';
     protected static final String WHERE_IN_ACCOUNT_AND_TYPE_INBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and type = " + Mailbox.TYPE_INBOX ;
-    private static final String WHERE_MAILBOX_KEY = Message.MAILBOX_KEY + "=?";
+    private static final String WHERE_MAILBOX_KEY = MessageColumns.MAILBOX_KEY + "=?";
     private static final String WHERE_NOT_INTERVAL_NEVER_AND_ACCOUNT_KEY_IN =
         "(" + MailboxColumns.TYPE + '=' + Mailbox.TYPE_OUTBOX
         + " or " + MailboxColumns.SYNC_INTERVAL + "<" + Mailbox.CHECK_INTERVAL_NEVER + ')'
@@ -1208,7 +1208,6 @@ public abstract class SyncManager extends Service implements Runnable {
      * Starts a service thread and enters it into the service map
      * This is the point of instantiation of all sync threads
      * @param service the service to start
-     * @param m the Mailbox on which the service will operate
      */
     private void startServiceThread(AbstractSyncService service) {
         final Mailbox mailbox = service.mMailbox;
@@ -1656,7 +1655,7 @@ public abstract class SyncManager extends Service implements Runnable {
 
     /**
      * Check whether an Outbox (referenced by a Cursor) has any messages that can be sent
-     * @param c the cursor to an Outbox
+     * @param outboxCursor the cursor to an Outbox
      * @return true if there is mail to be sent
      */
     private boolean hasSendableMessages(Cursor outboxCursor) {

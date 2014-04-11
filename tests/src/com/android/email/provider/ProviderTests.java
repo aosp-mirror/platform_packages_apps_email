@@ -416,7 +416,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Cursor c = null;
         try {
             c = mMockContext.getContentResolver().query(EmailContent.Body.CONTENT_URI,
-                    EmailContent.Body.CONTENT_PROJECTION, EmailContent.Body.MESSAGE_KEY + "=?",
+                    EmailContent.Body.CONTENT_PROJECTION, BodyColumns.MESSAGE_KEY + "=?",
                     new String[] {String.valueOf(messageId)}, null);
             int numBodies = c.getCount();
             assertTrue("at most one body", numBodies < 2);
@@ -2432,10 +2432,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ContentCache.invalidateAllCaches();
         // Delete orphaned mailboxes/messages/policies
         EmailProvider.deleteUnlinked(db, Mailbox.TABLE_NAME, MailboxColumns.ACCOUNT_KEY,
-                AccountColumns.ID, Account.TABLE_NAME);
+                AccountColumns._ID, Account.TABLE_NAME);
         EmailProvider.deleteUnlinked(db, Message.TABLE_NAME, MessageColumns.ACCOUNT_KEY,
-                AccountColumns.ID, Account.TABLE_NAME);
-        EmailProvider.deleteUnlinked(db, Policy.TABLE_NAME, PolicyColumns.ID,
+                AccountColumns._ID, Account.TABLE_NAME);
+        EmailProvider.deleteUnlinked(db, Policy.TABLE_NAME, PolicyColumns._ID,
                 AccountColumns.POLICY_KEY, Account.TABLE_NAME);
 
         // Make sure the orphaned mailboxes are gone

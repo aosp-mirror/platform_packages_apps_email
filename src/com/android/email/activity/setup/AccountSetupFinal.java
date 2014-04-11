@@ -44,6 +44,7 @@ import com.android.email.R;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.mail.utils.LogUtils;
@@ -400,7 +401,8 @@ public class AccountSetupFinal extends AccountSetupActivity
                     @Override
                     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
                         return new CursorLoader(AccountSetupFinal.this, Account.CONTENT_URI,
-                                new String[] {Account.EMAIL_ADDRESS, Account.DISPLAY_NAME},
+                                new String[] {AccountColumns.EMAIL_ADDRESS,
+                                        AccountColumns.DISPLAY_NAME},
                                 null, null, null);
                     }
 
@@ -413,9 +415,10 @@ public class AccountSetupFinal extends AccountSetupActivity
 
                         mExistingAccountsMap = new HashMap<String, String>();
 
-                        final int emailColumnIndex = data.getColumnIndex(Account.EMAIL_ADDRESS);
+                        final int emailColumnIndex = data.getColumnIndex(
+                                AccountColumns.EMAIL_ADDRESS);
                         final int displayNameColumnIndex =
-                                data.getColumnIndex(Account.DISPLAY_NAME);
+                                data.getColumnIndex(AccountColumns.DISPLAY_NAME);
 
                         while (data.moveToNext()) {
                             final String email = data.getString(emailColumnIndex);

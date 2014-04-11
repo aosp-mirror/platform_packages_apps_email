@@ -278,8 +278,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
         private void markAttachmentAsFailed(final Attachment att) {
             final ContentValues cv = new ContentValues();
             final int flags = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
-            cv.put(Attachment.FLAGS, att.mFlags &= ~flags);
-            cv.put(Attachment.UI_STATE, AttachmentState.FAILED);
+            cv.put(AttachmentColumns.FLAGS, att.mFlags &= ~flags);
+            cv.put(AttachmentColumns.UI_STATE, AttachmentState.FAILED);
             att.update(mContext, cv);
         }
 
@@ -425,7 +425,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Cursor c = mContext.getContentResolver().query(lookupUri,
                         Attachment.CONTENT_PROJECTION,
                         EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
-                        null, Attachment.RECORD_ID + " DESC");
+                        null, AttachmentColumns._ID + " DESC");
                 File cacheDir = mContext.getCacheDir();
                 try {
                     while (c.moveToNext()) {
@@ -736,8 +736,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     ContentValues cv = new ContentValues();
                     int flags =
                         Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
-                    cv.put(Attachment.FLAGS, attachment.mFlags &= ~flags);
-                    cv.put(Attachment.UI_STATE, AttachmentState.SAVED);
+                    cv.put(AttachmentColumns.FLAGS, attachment.mFlags &= ~flags);
+                    cv.put(AttachmentColumns.UI_STATE, AttachmentState.SAVED);
                     attachment.update(mContext, cv);
                 }
             }
@@ -1001,7 +1001,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         // the queue
         int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
         Cursor c = getContentResolver().query(Attachment.CONTENT_URI,
-                EmailContent.ID_PROJECTION, "(" + Attachment.FLAGS + " & ?) != 0",
+                EmailContent.ID_PROJECTION, "(" + AttachmentColumns.FLAGS + " & ?) != 0",
                 new String[] {Integer.toString(mask)}, null);
         try {
             LogUtils.d(TAG, "Count: " + c.getCount());
@@ -1060,7 +1060,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             sRunningService = this;
         }
         if (intent != null && intent.hasExtra(EXTRA_ATTACHMENT)) {
-            Attachment att = (Attachment)intent.getParcelableExtra(EXTRA_ATTACHMENT);
+            Attachment att = intent.getParcelableExtra(EXTRA_ATTACHMENT);
             onChange(att);
         }
         return Service.START_STICKY;

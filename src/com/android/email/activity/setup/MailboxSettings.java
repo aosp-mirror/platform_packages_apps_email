@@ -39,6 +39,7 @@ import android.view.MenuItem;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
@@ -219,7 +220,7 @@ public class MailboxSettings extends PreferenceActivity {
         private static class MailboxLoader extends MailAsyncTaskLoader<Map<String, Object>> {
             /** Projection for loading an account's policy key. */
             private static final String[] POLICY_KEY_PROJECTION =
-                    { Account.POLICY_KEY };
+                    { AccountColumns.POLICY_KEY };
             private static final int POLICY_KEY_COLUMN = 0;
 
             /** Projection for loading the max email lookback. */

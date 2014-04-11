@@ -204,10 +204,14 @@ public class ImapService extends Service {
         private static final int COLUMN_SERVER_ID = 4;
         private static final int COLUMN_FLAGS =  5;
         private static final int COLUMN_TIMESTAMP =  6;
-        private static final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID, MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE,
-            MessageColumns.FLAG_LOADED, SyncColumns.SERVER_ID, MessageColumns.FLAGS,
-            MessageColumns.TIMESTAMP
+        private static final String[] PROJECTION = {
+                MessageColumns._ID,
+                MessageColumns.FLAG_READ,
+                MessageColumns.FLAG_FAVORITE,
+                MessageColumns.FLAG_LOADED,
+                SyncColumns.SERVER_ID,
+                MessageColumns.FLAGS,
+                MessageColumns.TIMESTAMP
         };
 
         final long mId;
@@ -887,9 +891,9 @@ public class ImapService extends Service {
                 // First handle the "new" messages (serverId == null)
                 Cursor upsyncs1 = resolver.query(EmailContent.Message.CONTENT_URI,
                         EmailContent.Message.ID_PROJECTION,
-                        EmailContent.Message.MAILBOX_KEY + "=?"
-                        + " and (" + EmailContent.Message.SERVER_ID + " is null"
-                        + " or " + EmailContent.Message.SERVER_ID + "=''" + ")",
+                        MessageColumns.MAILBOX_KEY + "=?"
+                        + " and (" + MessageColumns.SERVER_ID + " is null"
+                        + " or " + MessageColumns.SERVER_ID + "=''" + ")",
                         mailboxKeyArgs,
                         null);
                 try {
@@ -1141,7 +1145,7 @@ public class ImapService extends Service {
                 @Override
                 public void onMessageUidChange(Message message, String newUid) {
                     ContentValues cv = new ContentValues();
-                    cv.put(EmailContent.Message.SERVER_ID, newUid);
+                    cv.put(MessageColumns.SERVER_ID, newUid);
                     // We only have one message, so, any updates _must_ be for it. Otherwise,
                     // we'd have to cycle through to find the one with the same server ID.
                     context.getContentResolver().update(ContentUris.withAppendedId(
@@ -1239,7 +1243,7 @@ public class ImapService extends Service {
                     // update the UID in the local trash folder, because some stores will
                     // have to change it when copying to remoteTrashFolder
                     ContentValues cv = new ContentValues();
-                    cv.put(EmailContent.Message.SERVER_ID, newUid);
+                    cv.put(MessageColumns.SERVER_ID, newUid);
                     context.getContentResolver().update(newMessage.getUri(), cv, null, null);
                 }
 
@@ -1425,8 +1429,8 @@ public class ImapService extends Service {
                 resolver.delete(uri, null, null);
             } else if (updateMessage) {
                 ContentValues cv = new ContentValues();
-                cv.put(EmailContent.Message.SERVER_ID, message.mServerId);
-                cv.put(EmailContent.Message.SERVER_TIMESTAMP, message.mServerTimeStamp);
+                cv.put(MessageColumns.SERVER_ID, message.mServerId);
+                cv.put(MessageColumns.SERVER_TIMESTAMP, message.mServerTimeStamp);
                 resolver.update(uri, cv, null, null);
             }
         }

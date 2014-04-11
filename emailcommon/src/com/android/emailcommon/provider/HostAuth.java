@@ -32,7 +32,7 @@ import com.android.emailcommon.utility.Utility;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
+public class HostAuth extends EmailContent implements Parcelable {
     public static final String TABLE_NAME = "HostAuth";
     public static Uri CONTENT_URI;
 

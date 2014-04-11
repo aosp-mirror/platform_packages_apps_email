@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.mail.utils.LogUtils;
 
@@ -166,7 +167,7 @@ public class MailboxUtilities {
         if (account == null) return;
         // Set temporary flag indicating state of update of mailbox list
         ContentValues cv = new ContentValues();
-        cv.put(Account.FLAGS, start ? (account.mFlags | ACCOUNT_MAILBOX_CHANGE_FLAG) :
+        cv.put(AccountColumns.FLAGS, start ? (account.mFlags | ACCOUNT_MAILBOX_CHANGE_FLAG) :
             account.mFlags & ~ACCOUNT_MAILBOX_CHANGE_FLAG);
         context.getContentResolver().update(
                 ContentUris.withAppendedId(Account.CONTENT_URI, account.mId), cv, null, null);
@@ -219,7 +220,7 @@ public class MailboxUtilities {
     }
 
     private static final String[] HIERARCHY_PROJECTION = new String[] {
-        MailboxColumns.ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.PARENT_KEY,
+        MailboxColumns._ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.PARENT_KEY,
         MailboxColumns.HIERARCHICAL_NAME
     };
     private static final int HIERARCHY_ID = 0;
