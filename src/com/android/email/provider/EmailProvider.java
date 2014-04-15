@@ -1273,7 +1273,6 @@ public class EmailProvider extends ContentProvider {
                 case MESSAGE_STATE_CHANGE:
                     return db.query(MessageStateChange.TABLE_NAME, projection, selection,
                             selectionArgs, null, null, sortOrder, limit);
-                case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
@@ -1289,7 +1288,35 @@ public class EmailProvider extends ContentProvider {
                 case QUICK_RESPONSE:
                     c = uiQuickResponse(projection);
                     break;
-                case BODY_ID:
+                case BODY:
+                case BODY_ID: {
+                    final ProjectionMap map = new ProjectionMap.Builder()
+                            .addAll(projection)
+                            .build();
+                    final ContentValues cv = new ContentValues(2);
+                    cv.put(BodyColumns.HTML_CONTENT, ""); // Loaded in EmailMessageCursor
+                    cv.put(BodyColumns.TEXT_CONTENT, ""); // Loaded in EmailMessageCursor
+                    final StringBuilder sb = genSelect(map, projection, cv);
+                    sb.append(" FROM ").append(Body.TABLE_NAME);
+                    if (match == BODY_ID) {
+                        id = uri.getPathSegments().get(1);
+                        sb.append(" WHERE ").append(whereWithId(id, selection));
+                    } else if (!TextUtils.isEmpty(selection)) {
+                        sb.append(" WHERE ").append(selection);
+                    }
+                    if (!TextUtils.isEmpty(sortOrder)) {
+                        sb.append(" ORDER BY ").append(sortOrder);
+                    }
+                    if (!TextUtils.isEmpty(limit)) {
+                        sb.append(" LIMIT ").append(limit);
+                    }
+                    c = db.rawQuery(sb.toString(), selectionArgs);
+                    if (c != null) {
+                        c = new EmailMessageCursor(c, db, BodyColumns.HTML_CONTENT,
+                                BodyColumns.TEXT_CONTENT);
+                    }
+                    break;
+                }
                 case MESSAGE_ID:
                 case DELETED_MESSAGE_ID:
                 case UPDATED_MESSAGE_ID:
@@ -2356,8 +2383,8 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.MessageColumns.BCC, MessageColumns.BCC_LIST)
                 .add(UIProvider.MessageColumns.REPLY_TO, MessageColumns.REPLY_TO_LIST)
                 .add(UIProvider.MessageColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
-                .add(UIProvider.MessageColumns.BODY_HTML, BodyColumns.HTML_CONTENT)
-                .add(UIProvider.MessageColumns.BODY_TEXT, BodyColumns.TEXT_CONTENT)
+                .add(UIProvider.MessageColumns.BODY_HTML, "") // Loaded in EmailMessageCursor
+                .add(UIProvider.MessageColumns.BODY_TEXT, "") // Loaded in EmailMessageCursor
                 .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
                 .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
                 .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
@@ -4266,6 +4293,10 @@ public class EmailProvider extends ContentProvider {
                     c = db.rawQuery(sql, new String[] {attJson, id});
                 } else {
                     c = db.rawQuery(sql, new String[] {id});
+                }
+                if (c != null) {
+                    c = new EmailMessageCursor(c, db, UIProvider.MessageColumns.BODY_HTML,
+                            UIProvider.MessageColumns.BODY_TEXT);
                 }
                 notifyUri = UIPROVIDER_MESSAGE_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
