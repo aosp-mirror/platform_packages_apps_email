@@ -16,11 +16,11 @@ import android.widget.Toast;
 
 import com.android.email.mail.internet.OAuthAuthenticator;
 import com.android.email.mail.internet.OAuthAuthenticator.AuthenticationResult;
+import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader.OAuthProvider;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.mail.R;
 import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
