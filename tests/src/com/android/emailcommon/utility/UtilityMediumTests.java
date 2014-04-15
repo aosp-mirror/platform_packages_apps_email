@@ -26,6 +26,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
@@ -155,27 +156,27 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         // case 1. Account found
         assertEquals((Long) account2.mId, Utility.getFirstRowLong(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME,
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME,
                 EmailContent.ID_PROJECTION_COLUMN));
         // different sort order
         assertEquals((Long) account3.mId, Utility.getFirstRowLong(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME + " desc",
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME + " desc",
                 EmailContent.ID_PROJECTION_COLUMN));
 
         // case 2. no row found
         assertEquals(null, Utility.getFirstRowLong(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null,
                 EmailContent.ID_PROJECTION_COLUMN));
 
         // case 3. no row found with default value
         assertEquals((Long) (-1L), Utility.getFirstRowLong(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null,
                 EmailContent.ID_PROJECTION_COLUMN, -1L));
     }
@@ -188,33 +189,33 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         // case 1. Account found
         assertEquals((Integer)(int) account2.mId, Utility.getFirstRowInt(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME,
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME,
                 EmailContent.ID_PROJECTION_COLUMN));
         // different sort order
         assertEquals((Integer)(int) account3.mId, Utility.getFirstRowInt(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME + " desc",
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME + " desc",
                 EmailContent.ID_PROJECTION_COLUMN));
 
         // case 2. no row found
         assertEquals(null, Utility.getFirstRowInt(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null,
                 EmailContent.ID_PROJECTION_COLUMN));
 
         // case 3. no row found with default value
         assertEquals((Integer) (-1), Utility.getFirstRowInt(
                 mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null,
                 EmailContent.ID_PROJECTION_COLUMN, -1));
     }
 
     public void testGetFirstRowString() {
-        final String[] DISPLAY_NAME_PROJECTION = new String[] {Account.DISPLAY_NAME};
+        final String[] DISPLAY_NAME_PROJECTION = new String[] {AccountColumns.DISPLAY_NAME};
 
         Account account1 = ProviderTestUtils.setupAccount("1", true, mMockContext);
         Account account2 = ProviderTestUtils.setupAccount("X1", true, mMockContext);
@@ -223,25 +224,25 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         // case 1. Account found
         assertEquals(account2.mDisplayName, Utility.getFirstRowString(
                 mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME, 0));
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME, 0));
 
         // different sort order
         assertEquals(account3.mDisplayName, Utility.getFirstRowString(
                 mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
-                Account.DISPLAY_NAME + " desc", 0));
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                AccountColumns.DISPLAY_NAME + " desc", 0));
 
         // case 2. no row found
         assertEquals(null, Utility.getFirstRowString(
                 mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null, 0));
 
         // case 3. no row found with default value
         assertEquals("-", Utility.getFirstRowString(
                 mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
-                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                AccountColumns.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null, 0, "-"));
     }
 }

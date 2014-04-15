@@ -512,8 +512,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             // expectedAttachmentSizes array must
             // be kept sorted by size (ascending) for this test to work properly
             c = mMockContext.getContentResolver().query(Attachment.CONTENT_URI,
-                    Attachment.CONTENT_PROJECTION, Attachment.MESSAGE_KEY + "=?",
-                    new String[] {String.valueOf(message3Id)}, Attachment.SIZE);
+                    Attachment.CONTENT_PROJECTION, AttachmentColumns.MESSAGE_KEY + "=?",
+                    new String[] {String.valueOf(message3Id)}, AttachmentColumns.SIZE);
             int numAtts = c.getCount();
             assertEquals(3, numAtts);
             int i = 0;
@@ -564,8 +564,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             // expectedAttachmentSizes array must
             // be kept sorted by size (ascending) for this test to work properly
             c = mMockContext.getContentResolver().query(Attachment.CONTENT_URI,
-                    Attachment.CONTENT_PROJECTION, Attachment.MESSAGE_KEY + "=?",
-                    new String[] {String.valueOf(message4Id)}, Attachment.SIZE);
+                    Attachment.CONTENT_PROJECTION, AttachmentColumns.MESSAGE_KEY + "=?",
+                    new String[] {String.valueOf(message4Id)}, AttachmentColumns.SIZE);
             int numAtts = c.getCount();
             assertEquals(3, numAtts);
             int i = 0;
@@ -1413,7 +1413,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(6, numMessages);
 
         ContentValues cv = new ContentValues();
-        cv.put(Message.SERVER_ID, "SERVER_ID");
+        cv.put(MessageColumns.SERVER_ID, "SERVER_ID");
         ContentResolver resolver = mMockContext.getContentResolver();
 
         // Update two messages
@@ -1598,7 +1598,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // order
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, 1);
         Cursor c = mMockContext.getContentResolver()
-                .query(uri, Attachment.CONTENT_PROJECTION, null, null, Attachment.SIZE);
+                .query(uri, Attachment.CONTENT_PROJECTION, null, null, AttachmentColumns.SIZE);
         assertEquals(2, c.getCount());
 
         try {
@@ -1635,7 +1635,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // (the attachments that are set for message id=2). Note order-by size
         // to simplify test.
         Cursor c = mockResolver.query(
-                Attachment.CONTENT_URI, Attachment.CONTENT_PROJECTION, null, null, Attachment.SIZE);
+                Attachment.CONTENT_URI, Attachment.CONTENT_PROJECTION, null, null,
+                AttachmentColumns.SIZE);
         assertEquals(2, c.getCount());
 
         try {
