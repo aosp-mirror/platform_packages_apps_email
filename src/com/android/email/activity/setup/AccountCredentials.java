@@ -32,13 +32,15 @@ public class AccountCredentials extends Activity
         final String emailAddress = getIntent().getStringExtra(EXTRA_EMAIL);
         final String protocol = getIntent().getStringExtra(EXTRA_PROTOCOL);
 
-        final AccountSetupCredentialsFragment f =
-                AccountSetupCredentialsFragment.newInstance(emailAddress, protocol,
-                        null /* clientCert */, false /* passwordFailed */, true /* standalone */);
-        getFragmentManager().beginTransaction()
-                .add(R.id.account_credentials_fragment_container, f, CREDENTIALS_FRAGMENT_TAG)
-                .commit();
-
+        if (savedInstanceState == null) {
+            final AccountSetupCredentialsFragment f =
+                    AccountSetupCredentialsFragment.newInstance(emailAddress, protocol,
+                            null /* clientCert */, false /* passwordFailed */,
+                            true /* standalone */);
+            getFragmentManager().beginTransaction()
+                    .add(R.id.account_credentials_fragment_container, f, CREDENTIALS_FRAGMENT_TAG)
+                    .commit();
+        }
         // Assume canceled until we find out otherwise.
         setResult(RESULT_CANCELED);
     }
