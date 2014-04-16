@@ -212,15 +212,21 @@ public class AccountSettingsFragment extends PreferenceFragment
             final CharSequence [] syncIntervals =
                     savedInstanceState.getCharSequenceArray(SAVESTATE_SYNC_INTERVALS);
             mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-            mCheckFrequency.setEntries(syncIntervalStrings);
-            mCheckFrequency.setEntryValues(syncIntervals);
+            if (mCheckFrequency != null) {
+                mCheckFrequency.setEntries(syncIntervalStrings);
+                mCheckFrequency.setEntryValues(syncIntervals);
+            }
         }
     }
 
     public void onSaveInstanceState(Bundle outstate) {
         super.onSaveInstanceState(outstate);
-        outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVAL_STRINGS, mCheckFrequency.getEntries());
-        outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVALS, mCheckFrequency.getEntryValues());
+        if (mCheckFrequency != null) {
+            outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVAL_STRINGS,
+                    mCheckFrequency.getEntries());
+            outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVALS,
+                    mCheckFrequency.getEntryValues());
+        }
     }
 
     @Override
