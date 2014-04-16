@@ -2321,7 +2321,6 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.ConversationColumns.ACCOUNT_URI,
                         uriWithColumn("uiaccount", MessageColumns.ACCOUNT_KEY))
                 .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
-                .add(UIProvider.ConversationColumns.PERMALINK, null)
                 .build();
         }
         return sMessageListMap;
@@ -2391,6 +2390,7 @@ public class EmailProvider extends ContentProvider {
                         Integer.toString(UIProvider.SpamWarningLinkType.NO_LINK))
                 .add(UIProvider.MessageColumns.VIA_DOMAIN, null)
                 .add(UIProvider.MessageColumns.CLIPPED, "0")
+                .add(UIProvider.MessageColumns.PERMALINK, null)
                 .build();
         }
         return sMessageViewMap;
