@@ -115,9 +115,8 @@ public class AccountSettings extends PreferenceActivity implements
     private long mRequestedAccountId;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
-    private static final String CURRENT_SETTINGS_FRAGMENT_TAG = "currentSettingsFragment";
-    private static final String CURRENT_SERVER_FRAGMENT_TAG = "currentServerFragment";
-    private Bundle mCurrentFragmentBundle = new Bundle(2);
+    private AccountSettingsFragment mAccountSettingsFragment;
+    private AccountServerBaseFragment mAccountServerFragment;
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
@@ -606,12 +605,10 @@ public class AccountSettings extends PreferenceActivity implements
 
         if (f instanceof AccountSettingsFragment) {
             final AccountSettingsFragment asf = (AccountSettingsFragment) f;
-            getFragmentManager()
-                    .putFragment(mCurrentFragmentBundle, CURRENT_SETTINGS_FRAGMENT_TAG, f);
+            mAccountSettingsFragment = asf;
             asf.setCallback(mAccountSettingsFragmentCallback);
         } else if (f instanceof AccountServerBaseFragment) {
-            getFragmentManager()
-                    .putFragment(mCurrentFragmentBundle, CURRENT_SERVER_FRAGMENT_TAG, f);
+            mAccountServerFragment = (AccountServerBaseFragment) f;
         } else {
             // Possibly uninteresting fragment, such as a dialog.
             return;
@@ -622,25 +619,11 @@ public class AccountSettings extends PreferenceActivity implements
 
     @VisibleForTesting
     protected AccountSettingsFragment getSettingsFragment() {
-        try {
-            return (AccountSettingsFragment)
-                    getFragmentManager().getFragment(mCurrentFragmentBundle,
-                            CURRENT_SETTINGS_FRAGMENT_TAG);
-        } catch (final IllegalStateException e) {
-            LogUtils.d(LogUtils.TAG, e, "Could not find current settings fragment, returning null");
-            return null;
-        }
+        return mAccountSettingsFragment;
     }
 
     protected AccountServerBaseFragment getAccountServerFragment() {
-        try {
-            return (AccountServerBaseFragment)
-                    getFragmentManager().getFragment(mCurrentFragmentBundle,
-                            CURRENT_SERVER_FRAGMENT_TAG);
-        } catch (final IllegalStateException e) {
-            LogUtils.d(LogUtils.TAG, e, "Could not find current server fragment, returning null");
-            return null;
-        }
+        return mAccountServerFragment;
     }
 
     /**
