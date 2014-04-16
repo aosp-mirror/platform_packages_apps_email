@@ -93,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"ማረጋገጥ"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"ማረጋገጫ አክል"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"ማረጋገጫን አጽዳ"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"እራስዎ ማዋቀር"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"በእጅ ማዋቀር"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"እባክህ ትክክለኛ ኢሜይል አድራሻ እና ይለፍ ቃል ፃፍ።"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ተመሳሳይ መለያ"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"ለመለያ \"<xliff:g id="DUPLICATE">%s</xliff:g>\" ይህን ተጠቃሚ ስም ቀደም ሲል እየተጠቀምክበት ነው::"</string>

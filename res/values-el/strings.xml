@@ -93,7 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Έλεγχος ταυτότητας"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Προσθήκη ελέγχου ταυτότητας"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Διαγραφή ελέγχου ταυτότητας"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Μη αυτόματα ρύθμιση"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Μη αυτόματη ρύθμιση"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Πληκτρολογήστε μια έγκυρη διεύθυνση ηλεκτρονικού ταχυδρομείου και έναν έγκυρο κωδικό πρόσβασης."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Διπλότυπος λογαριασμός"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Χρησιμοποιείτε ήδη αυτό το όνομα χρήστη για τον λογαριασμό \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
