@@ -28,9 +28,12 @@ import android.database.ContentObservable;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
+import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
@@ -43,7 +46,11 @@ import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -471,6 +478,16 @@ public abstract class EmailContent {
         public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
 
+        /**
+         * Following values are for EmailMessageCursor
+         */
+        // Value is an int specifying the row to get
+        public static final String RESPOND_COMMAND_GET_HTML_PIPE = "EmailMessageCursor.getHtmlPipe";
+        public static final String RESPOND_COMMAND_GET_TEXT_PIPE = "EmailMessageCursor.getTextPipe";
+        // Value returned is a ParcelFileDescriptor pipe, or null if no content is present
+        public static final String RESPOND_RESULT_HTML_PIPE_KEY = "EmailMessageCursor.htmlPipe";
+        public static final String RESPOND_RESULT_TEXT_PIPE_KEY = "EmailMessageCursor.textPipe";
+
         public static final String[] CONTENT_PROJECTION = new String[] {
                 BodyColumns._ID,
                 BodyColumns.MESSAGE_KEY,
@@ -651,12 +668,48 @@ public abstract class EmailContent {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
         }
 
+        private static String readBodyFromPipe(ParcelFileDescriptor d) {
+            final AutoCloseInputStream htmlInput = new AutoCloseInputStream(d);
+            String content = null;
+            try {
+                content = IOUtils.toString(htmlInput, "utf8");
+            } catch (final IOException e) {
+                LogUtils.e(LogUtils.TAG, e, "IOError while reading message body");
+                content = null;
+            } finally {
+                try {
+                    htmlInput.close();
+                } catch (final IOException e) {
+                    LogUtils.e(LogUtils.TAG, e, "IOError while closing message body");
+                }
+            }
+            return content;
+        }
+
         @Override
         public void restore(Cursor cursor) {
             mBaseUri = EmailContent.Body.CONTENT_URI;
             mMessageKey = cursor.getLong(CONTENT_MESSAGE_KEY_COLUMN);
+            // These get overwritten below if we find a file descriptor in the respond() call,
+            // but we'll keep this here in case we want to construct a matrix cursor or something
+            // to build a Body object from.
             mHtmlContent = cursor.getString(CONTENT_HTML_CONTENT_COLUMN);
             mTextContent = cursor.getString(CONTENT_TEXT_CONTENT_COLUMN);
+            final int rowId = cursor.getPosition();
+            final Bundle command = new Bundle(2);
+            command.putInt(RESPOND_COMMAND_GET_HTML_PIPE, rowId);
+            command.putInt(RESPOND_COMMAND_GET_TEXT_PIPE, rowId);
+            final Bundle response = cursor.respond(command);
+            final ParcelFileDescriptor htmlDescriptor =
+                    response.getParcelable(RESPOND_RESULT_HTML_PIPE_KEY);
+            if (htmlDescriptor != null) {
+                mHtmlContent = readBodyFromPipe(htmlDescriptor);
+            }
+            final ParcelFileDescriptor textDescriptor =
+                    response.getParcelable(RESPOND_RESULT_TEXT_PIPE_KEY);
+            if (textDescriptor != null) {
+                mTextContent = readBodyFromPipe(textDescriptor);
+            }
             mHtmlReply = cursor.getString(CONTENT_HTML_REPLY_COLUMN);
             mTextReply = cursor.getString(CONTENT_TEXT_REPLY_COLUMN);
             mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);

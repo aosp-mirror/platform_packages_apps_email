@@ -1312,8 +1312,11 @@ public class EmailProvider extends ContentProvider {
                     }
                     c = db.rawQuery(sb.toString(), selectionArgs);
                     if (c != null) {
+                        // We don't want to deliver the body contents inline here because we might
+                        // be sending this cursor to the Exchange process, and we'll blow out the
+                        // CursorWindow if there's a large message body.
                         c = new EmailMessageCursor(c, db, BodyColumns.HTML_CONTENT,
-                                BodyColumns.TEXT_CONTENT);
+                                BodyColumns.TEXT_CONTENT, false);
                     }
                     break;
                 }
@@ -2383,8 +2386,8 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.MessageColumns.BCC, MessageColumns.BCC_LIST)
                 .add(UIProvider.MessageColumns.REPLY_TO, MessageColumns.REPLY_TO_LIST)
                 .add(UIProvider.MessageColumns.DATE_RECEIVED_MS, MessageColumns.TIMESTAMP)
-                .add(UIProvider.MessageColumns.BODY_HTML, "") // Loaded in EmailMessageCursor
-                .add(UIProvider.MessageColumns.BODY_TEXT, "") // Loaded in EmailMessageCursor
+                .add(UIProvider.MessageColumns.BODY_HTML, null) // Loaded in EmailMessageCursor
+                .add(UIProvider.MessageColumns.BODY_TEXT, null) // Loaded in EmailMessageCursor
                 .add(UIProvider.MessageColumns.REF_MESSAGE_ID, "0")
                 .add(UIProvider.MessageColumns.DRAFT_TYPE, NOT_A_DRAFT_STRING)
                 .add(UIProvider.MessageColumns.APPEND_REF_MESSAGE_CONTENT, "0")
@@ -4296,7 +4299,7 @@ public class EmailProvider extends ContentProvider {
                 }
                 if (c != null) {
                     c = new EmailMessageCursor(c, db, UIProvider.MessageColumns.BODY_HTML,
-                            UIProvider.MessageColumns.BODY_TEXT);
+                            UIProvider.MessageColumns.BODY_TEXT, true /* deliverColumnsInline */);
                 }
                 notifyUri = UIPROVIDER_MESSAGE_NOTIFIER.buildUpon().appendPath(id).build();
                 break;

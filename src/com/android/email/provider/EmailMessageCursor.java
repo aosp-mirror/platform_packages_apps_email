@@ -21,12 +21,19 @@ import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteStatement;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.mail.utils.LogUtils;
+
+import java.io.IOException;
 
 /**
  * This class wraps a cursor for the purpose of bypassing the CursorWindow object for the
@@ -50,10 +57,12 @@ public class EmailMessageCursor extends CursorWrapper {
     private final SparseArray<String> mHtmlParts;
     private final int mTextColumnIndex;
     private final int mHtmlColumnIndex;
+    private final boolean mDeliverColumnsInline;
 
     public EmailMessageCursor(final Cursor cursor, final SQLiteDatabase db, final String htmlColumn,
-            final String textColumn) {
+            final String textColumn, final boolean deliverColumnsInline) {
         super(cursor);
+        mDeliverColumnsInline = deliverColumnsInline;
         mHtmlColumnIndex = cursor.getColumnIndex(htmlColumn);
         mTextColumnIndex = cursor.getColumnIndex(textColumn);
         final int cursorSize = cursor.getCount();
@@ -94,10 +103,12 @@ public class EmailMessageCursor extends CursorWrapper {
 
     @Override
     public String getString(final int columnIndex) {
-        if (columnIndex == mHtmlColumnIndex) {
-            return mHtmlParts.get(getPosition());
-        } else if (columnIndex == mTextColumnIndex) {
-            return mTextParts.get(getPosition());
+        if (mDeliverColumnsInline) {
+            if (columnIndex == mHtmlColumnIndex) {
+                return mHtmlParts.get(getPosition());
+            } else if (columnIndex == mTextColumnIndex) {
+                return mTextParts.get(getPosition());
+            }
         }
         return super.getString(columnIndex);
     }
@@ -111,5 +122,54 @@ public class EmailMessageCursor extends CursorWrapper {
         } else {
             return super.getType(columnIndex);
         }
+    }
+
+    private static ParcelFileDescriptor createPipeAndFillAsync(final String contents) {
+        try {
+            final ParcelFileDescriptor descriptors[] = ParcelFileDescriptor.createPipe();
+            final ParcelFileDescriptor readDescriptor = descriptors[0];
+            final ParcelFileDescriptor writeDescriptor = descriptors[1];
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    final AutoCloseOutputStream outStream =
+                            new AutoCloseOutputStream(writeDescriptor);
+                    try {
+                        outStream.write(contents.getBytes("utf8"));
+                    } catch (final IOException e) {
+                        LogUtils.e(LogUtils.TAG, e, "IOException while writing to body pipe");
+                    } finally {
+                        try {
+                            outStream.close();
+                        } catch (final IOException e) {
+                            LogUtils.e(LogUtils.TAG, e, "IOException while closing body pipe");
+                        }
+                    }
+                    return null;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            return readDescriptor;
+        } catch (final IOException e) {
+            LogUtils.e(LogUtils.TAG, e, "IOException while creating body pipe");
+            return null;
+        }
+    }
+
+    @Override
+    public Bundle respond(Bundle extras) {
+        final int htmlRow = extras.getInt(Body.RESPOND_COMMAND_GET_HTML_PIPE, -1);
+        final int textRow = extras.getInt(Body.RESPOND_COMMAND_GET_TEXT_PIPE, -1);
+
+        final Bundle b = new Bundle(2);
+
+        if (htmlRow >= 0 && !TextUtils.isEmpty(mHtmlParts.get(htmlRow))) {
+            b.putParcelable(Body.RESPOND_RESULT_HTML_PIPE_KEY,
+                    createPipeAndFillAsync(mHtmlParts.get(htmlRow)));
+        }
+        if (textRow >= 0 && !TextUtils.isEmpty(mTextParts.get(textRow))) {
+            b.putParcelable(Body.RESPOND_RESULT_TEXT_PIPE_KEY,
+                    createPipeAndFillAsync(mTextParts.get(textRow)));
+        }
+        return b;
     }
 }
