@@ -465,19 +465,6 @@ public abstract class EmailContent {
             CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
         }
 
-        public static final int CONTENT_ID_COLUMN = 0;
-        public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
-        public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
-        public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
-        @Deprecated
-        public static final int CONTENT_HTML_REPLY_COLUMN = 4;
-        @Deprecated
-        public static final int CONTENT_TEXT_REPLY_COLUMN = 5;
-        public static final int CONTENT_SOURCE_KEY_COLUMN = 6;
-        @Deprecated
-        public static final int CONTENT_INTRO_TEXT_COLUMN = 7;
-        public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 8;
-
         /**
          * Following values are for EmailMessageCursor
          */
@@ -493,33 +480,22 @@ public abstract class EmailContent {
                 BodyColumns.MESSAGE_KEY,
                 BodyColumns.HTML_CONTENT,
                 BodyColumns.TEXT_CONTENT,
-                BodyColumns.HTML_REPLY,
-                BodyColumns.TEXT_REPLY,
                 BodyColumns.SOURCE_MESSAGE_KEY,
-                BodyColumns.INTRO_TEXT,
                 BodyColumns.QUOTED_TEXT_START_POS
         };
+
+        public static final int CONTENT_ID_COLUMN = 0;
+        public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
+        public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
+        public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
+        public static final int CONTENT_SOURCE_KEY_COLUMN = 4;
+        public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 5;
 
         public static final String[] COMMON_PROJECTION_TEXT = new String[] {
                 BodyColumns._ID, BodyColumns.TEXT_CONTENT
         };
         public static final String[] COMMON_PROJECTION_HTML = new String[] {
                 BodyColumns._ID, BodyColumns.HTML_CONTENT
-        };
-        @Deprecated
-        private static final String[] COMMON_PROJECTION_REPLY_TEXT = new String[] {
-                BodyColumns._ID, BodyColumns.TEXT_REPLY
-        };
-        @Deprecated
-        private static final String[] COMMON_PROJECTION_REPLY_HTML = new String[] {
-                BodyColumns._ID, BodyColumns.HTML_REPLY
-        };
-        @Deprecated
-        private static final String[] COMMON_PROJECTION_INTRO = new String[] {
-                BodyColumns._ID, BodyColumns.INTRO_TEXT
-        };
-        public static final String[] COMMON_PROJECTION_SOURCE = new String[] {
-                BodyColumns._ID, BodyColumns.SOURCE_MESSAGE_KEY
         };
         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
@@ -529,18 +505,12 @@ public abstract class EmailContent {
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
-        @Deprecated
-        public String mHtmlReply;
-        @Deprecated
-        public String mTextReply;
         public int mQuotedTextStartPos;
 
         /**
          * Points to the ID of the message being replied to or forwarded. Will always be set.
          */
         public long mSourceKey;
-        @Deprecated
-        public String mIntroText;
 
         public Body() {
             mBaseUri = CONTENT_URI;
@@ -554,10 +524,7 @@ public abstract class EmailContent {
             values.put(BodyColumns.MESSAGE_KEY, mMessageKey);
             values.put(BodyColumns.HTML_CONTENT, mHtmlContent);
             values.put(BodyColumns.TEXT_CONTENT, mTextContent);
-            values.put(BodyColumns.HTML_REPLY, mHtmlReply);
-            values.put(BodyColumns.TEXT_REPLY, mTextReply);
             values.put(BodyColumns.SOURCE_MESSAGE_KEY, mSourceKey);
-            values.put(BodyColumns.INTRO_TEXT, mIntroText);
             return values;
         }
 
@@ -653,21 +620,6 @@ public abstract class EmailContent {
             return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
         }
 
-        @Deprecated
-        public static String restoreReplyTextWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_TEXT);
-        }
-
-        @Deprecated
-        public static String restoreReplyHtmlWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_REPLY_HTML);
-        }
-
-        @Deprecated
-        public static String restoreIntroTextWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_INTRO);
-        }
-
         private static String readBodyFromPipe(ParcelFileDescriptor d) {
             final AutoCloseInputStream htmlInput = new AutoCloseInputStream(d);
             String content = null;
@@ -710,10 +662,7 @@ public abstract class EmailContent {
             if (textDescriptor != null) {
                 mTextContent = readBodyFromPipe(textDescriptor);
             }
-            mHtmlReply = cursor.getString(CONTENT_HTML_REPLY_COLUMN);
-            mTextReply = cursor.getString(CONTENT_TEXT_REPLY_COLUMN);
             mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);
-            mIntroText = cursor.getString(CONTENT_INTRO_TEXT_COLUMN);
             mQuotedTextStartPos = cursor.getInt(CONTENT_QUOTED_TEXT_START_POS_COLUMN);
         }
     }

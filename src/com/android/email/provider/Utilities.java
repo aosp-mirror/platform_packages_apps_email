@@ -123,9 +123,6 @@ public class Utilities {
                 localMessage.mSnippet = data.snippet;
                 body.mTextContent = data.textContent;
                 body.mHtmlContent = data.htmlContent;
-                body.mHtmlReply = data.htmlReply;
-                body.mTextReply = data.textReply;
-                body.mIntroText = data.introText;
 
                 // Commit the message & body to the local store immediately
                 saveOrUpdate(localMessage, context);

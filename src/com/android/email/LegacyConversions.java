@@ -235,8 +235,7 @@ public class LegacyConversions {
 
         // Run the mime type through inferMimeType in case we have something generic and can do
         // better using the filename extension
-        String mimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
-        localAttachment.mMimeType = mimeType;
+        localAttachment.mMimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
         localAttachment.mFileName = name;
         localAttachment.mSize = size;           // May be reset below if file handled
         localAttachment.mContentId = part.getContentId();
@@ -392,36 +391,6 @@ public class LegacyConversions {
                     EmailContent.Body.restoreBodyTextWithMessageId(context, localMessage.mId));
         } catch (RuntimeException rte) {
             LogUtils.d(Logging.LOG_TAG, "Exception while reading text body " + rte.toString());
-        }
-
-        boolean isReply = (localMessage.mFlags & EmailContent.Message.FLAG_TYPE_REPLY) != 0;
-        boolean isForward = (localMessage.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0;
-
-        // If there is a quoted part (forwarding or reply), add the intro first, and then the
-        // rest of it.  If it is opened in some other viewer, it will (hopefully) be displayed in
-        // the same order as we've just set up the blocks:  composed text, intro, replied text
-        if (isReply || isForward) {
-            try {
-                addTextBodyPart(mp, "text/plain", BODY_QUOTED_PART_INTRO,
-                        EmailContent.Body.restoreIntroTextWithMessageId(context, localMessage.mId));
-            } catch (RuntimeException rte) {
-                LogUtils.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
-            }
-
-            String replyTag = isReply ? BODY_QUOTED_PART_REPLY : BODY_QUOTED_PART_FORWARD;
-            try {
-                addTextBodyPart(mp, "text/html", replyTag,
-                        EmailContent.Body.restoreReplyHtmlWithMessageId(context, localMessage.mId));
-            } catch (RuntimeException rte) {
-                LogUtils.d(Logging.LOG_TAG, "Exception while reading html reply " + rte.toString());
-            }
-
-            try {
-                addTextBodyPart(mp, "text/plain", replyTag,
-                        EmailContent.Body.restoreReplyTextWithMessageId(context, localMessage.mId));
-            } catch (RuntimeException rte) {
-                LogUtils.d(Logging.LOG_TAG, "Exception while reading text reply " + rte.toString());
-            }
         }
 
         // Attachments
