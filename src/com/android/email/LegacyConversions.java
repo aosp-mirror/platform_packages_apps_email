@@ -312,35 +312,45 @@ public class LegacyConversions {
     public static void saveAttachmentBody(Context context, Part part, Attachment localAttachment,
             long accountId) throws MessagingException, IOException {
         if (part.getBody() != null) {
-            long attachmentId = localAttachment.mId;
+            final long attachmentId = localAttachment.mId;
 
-            InputStream in = part.getBody().getInputStream();
+            final File saveIn = AttachmentUtilities.getAttachmentDirectory(context, accountId);
 
-            File saveIn = AttachmentUtilities.getAttachmentDirectory(context, accountId);
-            if (!saveIn.exists()) {
-                saveIn.mkdirs();
+            if (!saveIn.isDirectory() && !saveIn.mkdirs()) {
+                throw new IOException("Could not create attachment directory");
             }
-            File saveAs = AttachmentUtilities.getAttachmentFilename(context, accountId,
+            final File saveAs = AttachmentUtilities.getAttachmentFilename(context, accountId,
                     attachmentId);
-            saveAs.createNewFile();
-            FileOutputStream out = new FileOutputStream(saveAs);
-            long copySize = IOUtils.copy(in, out);
-            in.close();
-            out.close();
+
+            InputStream in = null;
+            FileOutputStream out = null;
+            final long copySize;
+            try {
+                in = part.getBody().getInputStream();
+                out = new FileOutputStream(saveAs);
+                copySize = IOUtils.copyLarge(in, out);
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            }
 
             // update the attachment with the extra information we now know
-            String contentUriString = AttachmentUtilities.getAttachmentUri(
+            final String contentUriString = AttachmentUtilities.getAttachmentUri(
                     accountId, attachmentId).toString();
 
             localAttachment.mSize = copySize;
             localAttachment.setContentUri(contentUriString);
 
             // update the attachment in the database as well
-            ContentValues cv = new ContentValues();
+            final ContentValues cv = new ContentValues(3);
             cv.put(AttachmentColumns.SIZE, copySize);
             cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
             cv.put(AttachmentColumns.UI_STATE, UIProvider.AttachmentState.SAVED);
-            Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
+            final Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, attachmentId);
             context.getContentResolver().update(uri, cv, null, null);
         }
     }
