@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.mail.utils.LogUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -72,6 +73,10 @@ public class DuplicateAccountDialogFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         final Callback callback = (Callback) getActivity();
-        callback.onDuplicateAccountDialogDismiss();
+        if (callback != null) {
+            callback.onDuplicateAccountDialogDismiss();
+        } else {
+            LogUtils.d(LogUtils.TAG, "Null callback in DuplicateAccount dialog onDismiss");
+        }
     }
 }
