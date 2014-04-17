@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.android.email.R;
+import com.android.mail.utils.LogUtils;
 
 /**
  * Simple dialog that shows progress as we work through the settings checks.
@@ -110,7 +111,11 @@ public class CheckSettingsProgressDialogFragment extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         final Callback callback = (Callback) getActivity();
-        callback.onCheckSettingsProgressDialogCancel();
+        if (callback != null) {
+            callback.onCheckSettingsProgressDialogCancel();
+        } else {
+            LogUtils.d(LogUtils.TAG, "Null callback in CheckSettings dialog onCancel");
+        }
     }
 
     @Override
