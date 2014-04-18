@@ -253,7 +253,7 @@ public class ImapStore extends Store {
         networkOperator = p.matcher(networkOperator).replaceAll("");
 
         // "name" "com.android.email"
-        StringBuffer sb = new StringBuffer("\"name\" \"");
+        StringBuilder sb = new StringBuilder("\"name\" \"");
         sb.append(packageName);
         sb.append("\"");
 
@@ -347,17 +347,21 @@ public class ImapStore extends Store {
      */
     private ImapFolder addMailbox(Context context, long accountId, String mailboxPath,
             char delimiter, boolean selectable, Mailbox mailbox) {
-        ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
+        // TODO: pass in the mailbox type, or do a proper lookup here
+        final int mailboxType;
         if (mailbox == null) {
+            mailboxType = LegacyConversions.inferMailboxTypeFromName(context, mailboxPath);
             mailbox = Mailbox.getMailboxForPath(context, accountId, mailboxPath);
+        } else {
+            mailboxType = mailbox.mType;
         }
+        final ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
         if (mailbox.isSaved()) {
             // existing mailbox
             // mailbox retrieved from database; save hash _before_ updating fields
             folder.mHash = mailbox.getHashes();
         }
-        updateMailbox(mailbox, accountId, mailboxPath, delimiter, selectable,
-                LegacyConversions.inferMailboxTypeFromName(context, mailboxPath));
+        updateMailbox(mailbox, accountId, mailboxPath, delimiter, selectable, mailboxType);
         if (folder.mHash == null) {
             // new mailbox
             // save hash after updating. allows tracking changes if the mailbox is saved
@@ -429,7 +433,7 @@ public class ImapStore extends Store {
 
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);
-            return mailboxes.values().toArray(new Folder[] {});
+            return mailboxes.values().toArray(new Folder[mailboxes.size()]);
         } catch (IOException ioe) {
             connection.close();
             throw new MessagingException("Unable to get folder list", ioe);
@@ -517,7 +521,7 @@ public class ImapStore extends Store {
         // TODO Why would we ever have (or need to have) more than one active connection?
         // TODO We set new username/password each time, but we don't actually close the transport
         // when we do this. So if that information has changed, this connection will fail.
-        ImapConnection connection = null;
+        ImapConnection connection;
         while ((connection = mConnectionPool.poll()) != null) {
             try {
                 connection.setStore(this);
@@ -529,7 +533,6 @@ public class ImapStore extends Store {
                 // Fall through
             }
             connection.close();
-            connection = null;
         }
 
         if (connection == null) {
