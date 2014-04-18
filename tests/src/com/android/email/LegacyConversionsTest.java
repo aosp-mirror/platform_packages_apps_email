@@ -172,19 +172,4 @@ public class LegacyConversionsTest extends AndroidTestCase {
         final BodyFieldData data = ConversionUtilities.parseBodyFields(viewables);
         assertNull(data.textContent);
     }
-
-    public void testStringNotEqual() {
-        // Pairs that are "equal"
-        assertFalse(LegacyConversions.stringNotEqual(null, null));
-        assertFalse(LegacyConversions.stringNotEqual(null, ""));
-        assertFalse(LegacyConversions.stringNotEqual("", null));
-        assertFalse(LegacyConversions.stringNotEqual("", ""));
-        assertFalse(LegacyConversions.stringNotEqual("string-equal", "string-equal"));
-        // Pairs that are "inequal"
-        assertTrue(LegacyConversions.stringNotEqual(null, "string-inequal"));
-        assertTrue(LegacyConversions.stringNotEqual("", "string-inequal"));
-        assertTrue(LegacyConversions.stringNotEqual("string-inequal", null));
-        assertTrue(LegacyConversions.stringNotEqual("string-inequal", ""));
-        assertTrue(LegacyConversions.stringNotEqual("string-inequal-a", "string-inequal-b"));
-    }
 }

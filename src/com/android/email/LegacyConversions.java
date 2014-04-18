@@ -76,21 +76,23 @@ public class LegacyConversions {
 
     /**
      * Copy field-by-field from a "store" message to a "provider" message
-     * @param message The message we've just downloaded (must be a MimeMessage)
+     *
+     * @param message      The message we've just downloaded (must be a MimeMessage)
      * @param localMessage The message we'd like to write into the DB
      * @return true if dirty (changes were made)
      */
-    public static boolean updateMessageFields(EmailContent.Message localMessage, Message message,
-                long accountId, long mailboxId) throws MessagingException {
+    public static boolean updateMessageFields(final EmailContent.Message localMessage,
+            final Message message, final long accountId, final long mailboxId)
+            throws MessagingException {
 
-        Address[] from = message.getFrom();
-        Address[] to = message.getRecipients(Message.RecipientType.TO);
-        Address[] cc = message.getRecipients(Message.RecipientType.CC);
-        Address[] bcc = message.getRecipients(Message.RecipientType.BCC);
-        Address[] replyTo = message.getReplyTo();
-        String subject = message.getSubject();
-        Date sentDate = message.getSentDate();
-        Date internalDate = message.getInternalDate();
+        final Address[] from = message.getFrom();
+        final Address[] to = message.getRecipients(Message.RecipientType.TO);
+        final Address[] cc = message.getRecipients(Message.RecipientType.CC);
+        final Address[] bcc = message.getRecipients(Message.RecipientType.BCC);
+        final Address[] replyTo = message.getReplyTo();
+        final String subject = message.getSubject();
+        final Date sentDate = message.getSentDate();
+        final Date internalDate = message.getInternalDate();
 
         if (from != null && from.length > 0) {
             localMessage.mDisplayName = from[0].toFriendly();
@@ -130,7 +132,7 @@ public class LegacyConversions {
 
         // Only replace the local message-id if a new one was found.  This is seen in some ISP's
         // which may deliver messages w/o a message-id header.
-        String messageId = message.getMessageId();
+        final String messageId = message.getMessageId();
         if (messageId != null) {
             localMessage.mMessageId = messageId;
         }
@@ -162,21 +164,22 @@ public class LegacyConversions {
     /**
      * Copy attachments from MimeMessage to provider Message.
      *
-     * @param context a context for file operations
+     * @param context      a context for file operations
      * @param localMessage the attachments will be built against this message
-     * @param attachments the attachments to add
-     * @throws IOException
+     * @param attachments  the attachments to add
      */
-    public static void updateAttachments(Context context, EmailContent.Message localMessage,
-            ArrayList<Part> attachments) throws MessagingException, IOException {
+    public static void updateAttachments(final Context context,
+            final EmailContent.Message localMessage, final ArrayList<Part> attachments)
+            throws MessagingException, IOException {
         localMessage.mAttachments = null;
         for (Part attachmentPart : attachments) {
             addOneAttachment(context, localMessage, attachmentPart);
         }
     }
 
-    public static void updateInlineAttachments(Context context, EmailContent.Message localMessage,
-            ArrayList<Part> inlineAttachments) throws MessagingException, IOException {
+    public static void updateInlineAttachments(final Context context,
+            final EmailContent.Message localMessage, final ArrayList<Part> inlineAttachments)
+            throws MessagingException, IOException {
         for (final Part inlinePart : inlineAttachments) {
             final String disposition = MimeUtility.getHeaderParameter(
                     MimeUtility.unfoldAndDecode(inlinePart.getDisposition()), null);
@@ -200,27 +203,24 @@ public class LegacyConversions {
      *
      * TODO: Take a closer look at encoding and deal with it if necessary.
      *
-     * @param context a context for file operations
+     * @param context      a context for file operations
      * @param localMessage the attachments will be built against this message
-     * @param part a single attachment part from POP or IMAP
-     * @throws IOException
+     * @param part         a single attachment part from POP or IMAP
      */
-    public static void addOneAttachment(Context context, EmailContent.Message localMessage,
-            Part part) throws MessagingException, IOException {
-
-        Attachment localAttachment = new Attachment();
-
+    public static void addOneAttachment(final Context context,
+            final EmailContent.Message localMessage, final Part part)
+            throws MessagingException, IOException {
         // Transfer fields from mime format to provider format
-        String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
+        final String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
         String name = MimeUtility.getHeaderParameter(contentType, "name");
         if (name == null) {
-            String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
+            final String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
             name = MimeUtility.getHeaderParameter(contentDisposition, "filename");
         }
 
         // Incoming attachment: Try to pull size from disposition (if not downloaded yet)
         long size = 0;
-        String disposition = part.getDisposition();
+        final String disposition = part.getDisposition();
         if (disposition != null) {
             String s = MimeUtility.getHeaderParameter(disposition, "size");
             if (s != null) {
@@ -230,11 +230,12 @@ public class LegacyConversions {
 
         // Get partId for unloaded IMAP attachments (if any)
         // This is only provided (and used) when we have structure but not the actual attachment
-        String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
-        String partId = partIds != null ? partIds[0] : null;
+        final String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+        final String partId = partIds != null ? partIds[0] : null;
 
         // Run the mime type through inferMimeType in case we have something generic and can do
         // better using the filename extension
+        final Attachment localAttachment = new Attachment();
         localAttachment.mMimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
         localAttachment.mFileName = name;
         localAttachment.mSize = size;           // May be reset below if file handled
@@ -254,20 +255,22 @@ public class LegacyConversions {
         //  mFileName, mMimeType, mContentId, mMessageKey, mLocation
         // NOTE:  This will false-positive if you attach the exact same file, twice, to a POP3
         // message.  We can live with that - you'll get one of the copies.
-        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
-        Cursor cursor = context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
+        final Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
+        final Cursor cursor = context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
                 null, null, null);
         boolean attachmentFoundInDb = false;
         try {
             while (cursor.moveToNext()) {
-                Attachment dbAttachment = new Attachment();
+                final Attachment dbAttachment = new Attachment();
                 dbAttachment.restore(cursor);
                 // We test each of the fields here (instead of in SQL) because they may be
                 // null, or may be strings.
-                if (stringNotEqual(dbAttachment.mFileName, localAttachment.mFileName)) continue;
-                if (stringNotEqual(dbAttachment.mMimeType, localAttachment.mMimeType)) continue;
-                if (stringNotEqual(dbAttachment.mContentId, localAttachment.mContentId)) continue;
-                if (stringNotEqual(dbAttachment.mLocation, localAttachment.mLocation)) continue;
+                if (!TextUtils.equals(dbAttachment.mFileName, localAttachment.mFileName) ||
+                        !TextUtils.equals(dbAttachment.mMimeType, localAttachment.mMimeType) ||
+                        !TextUtils.equals(dbAttachment.mContentId, localAttachment.mContentId) ||
+                        !TextUtils.equals(dbAttachment.mLocation, localAttachment.mLocation)) {
+                    continue;
+                }
                 // We found a match, so use the existing attachment id, and stop looking/looping
                 attachmentFoundInDb = true;
                 localAttachment.mId = dbAttachment.mId;
@@ -296,21 +299,11 @@ public class LegacyConversions {
     }
 
     /**
-     * Helper for addOneAttachment that compares two strings, deals with nulls, and treats
-     * nulls and empty strings as equal.
-     */
-    /* package */ static boolean stringNotEqual(String a, String b) {
-        if (a == null && b == null) return false;       // fast exit for two null strings
-        if (a == null) a = "";
-        if (b == null) b = "";
-        return !a.equals(b);
-    }
-
-    /**
      * Save the body part of a single attachment, to a file in the attachments directory.
      */
-    public static void saveAttachmentBody(Context context, Part part, Attachment localAttachment,
-            long accountId) throws MessagingException, IOException {
+    public static void saveAttachmentBody(final Context context, final Part part,
+            final Attachment localAttachment, long accountId)
+            throws MessagingException, IOException {
         if (part.getBody() != null) {
             final long attachmentId = localAttachment.mId;
 
@@ -359,13 +352,14 @@ public class LegacyConversions {
      * Read a complete Provider message into a legacy message (for IMAP upload).  This
      * is basically the equivalent of LocalFolder.getMessages() + LocalFolder.fetch().
      */
-    public static Message makeMessage(Context context, EmailContent.Message localMessage)
+    public static Message makeMessage(final Context context,
+            final EmailContent.Message localMessage)
             throws MessagingException {
-        MimeMessage message = new MimeMessage();
+        final MimeMessage message = new MimeMessage();
 
         // LocalFolder.getMessages() equivalent:  Copy message fields
         message.setSubject(localMessage.mSubject == null ? "" : localMessage.mSubject);
-        Address[] from = Address.fromHeader(localMessage.mFrom);
+        final Address[] from = Address.fromHeader(localMessage.mFrom);
         if (from.length > 0) {
             message.setFrom(from[0]);
         }
@@ -385,28 +379,29 @@ public class LegacyConversions {
 
         // LocalFolder.fetch() equivalent: build body parts
         message.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "multipart/mixed");
-        MimeMultipart mp = new MimeMultipart();
+        final MimeMultipart mp = new MimeMultipart();
         mp.setSubType("mixed");
         message.setBody(mp);
 
         try {
-            addTextBodyPart(mp, "text/html", null,
+            addTextBodyPart(mp, "text/html",
                     EmailContent.Body.restoreBodyHtmlWithMessageId(context, localMessage.mId));
         } catch (RuntimeException rte) {
             LogUtils.d(Logging.LOG_TAG, "Exception while reading html body " + rte.toString());
         }
 
         try {
-            addTextBodyPart(mp, "text/plain", null,
+            addTextBodyPart(mp, "text/plain",
                     EmailContent.Body.restoreBodyTextWithMessageId(context, localMessage.mId));
         } catch (RuntimeException rte) {
             LogUtils.d(Logging.LOG_TAG, "Exception while reading text body " + rte.toString());
         }
 
         // Attachments
-        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
-        Cursor attachments = context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
-                null, null, null);
+        final Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
+        final Cursor attachments =
+                context.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
+                        null, null, null);
 
         try {
             while (attachments != null && attachments.moveToNext()) {
@@ -456,34 +451,30 @@ public class LegacyConversions {
     /**
      * Helper method to add a body part for a given type of text, if found
      *
-     * @param mp The text body part will be added to this multipart
+     * @param mp          The text body part will be added to this multipart
      * @param contentType The content-type of the text being added
-     * @param quotedPartTag If non-null, HEADER_ANDROID_BODY_QUOTED_PART will be set to this value
-     * @param partText The text to add.  If null, nothing happens
+     * @param partText    The text to add.  If null, nothing happens
      */
-    private static void addTextBodyPart(MimeMultipart mp, String contentType, String quotedPartTag,
-            String partText) throws MessagingException {
+    private static void addTextBodyPart(final MimeMultipart mp, final String contentType,
+            final String partText)
+            throws MessagingException {
         if (partText == null) {
             return;
         }
-        TextBody body = new TextBody(partText);
-        MimeBodyPart bp = new MimeBodyPart(body, contentType);
-        if (quotedPartTag != null) {
-            bp.addHeader(MimeHeader.HEADER_ANDROID_BODY_QUOTED_PART, quotedPartTag);
-        }
+        final TextBody body = new TextBody(partText);
+        final MimeBodyPart bp = new MimeBodyPart(body, contentType);
         mp.addBodyPart(bp);
     }
 
     /**
      * Helper method to add an attachment part
      *
-     * @param mp Multipart message to append attachment part to
+     * @param mp          Multipart message to append attachment part to
      * @param contentType Mime type
      * @param contentSize Attachment metadata: unencoded file size
-     * @param filename Attachment metadata: file name
-     * @param contentId as referenced from cid: uris in the message body (if applicable)
-     * @param content unencoded bytes
-     * @throws MessagingException
+     * @param filename    Attachment metadata: file name
+     * @param contentId   as referenced from cid: uris in the message body (if applicable)
+     * @param content     unencoded bytes
      */
     private static void addAttachmentPart(final Multipart mp, final String contentType,
             final Long contentSize, final String filename, final String contentId,
@@ -502,7 +493,10 @@ public class LegacyConversions {
 
     /**
      * Infer mailbox type from mailbox name.  Used by MessagingController (for live folder sync).
+     *
+     * Deprecation: this should be configured in the UI, in conjunction with RF6154 support
      */
+    @Deprecated
     public static synchronized int inferMailboxTypeFromName(Context context, String mailboxName) {
         if (sServerMailboxNames.size() == 0) {
             // preload the hashmap, one time only
