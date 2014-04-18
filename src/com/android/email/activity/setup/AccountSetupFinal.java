@@ -503,6 +503,7 @@ public class AccountSetupFinal extends AccountSetupActivity
         }
         f.setState(mState);
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
         ft.replace(R.id.setup_fragment_container, f, CONTENT_FRAGMENT_TAG);
         if (addToBackstack) {
             ft.addToBackStack(backstackTag);
