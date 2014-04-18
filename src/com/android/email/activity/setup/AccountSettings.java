@@ -41,6 +41,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.android.email.R;
+import com.android.email.activity.setup.CheckSettingsProgressDialogFragment;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -73,7 +74,7 @@ import java.util.List;
 public class AccountSettings extends PreferenceActivity implements
         SetupDataFragment.SetupDataContainer, SecurityRequiredDialogFragment.Callback,
         CheckSettingsErrorDialogFragment.Callback, AccountCheckSettingsFragment.Callback,
-        AccountServerBaseFragment.Callback {
+        AccountServerBaseFragment.Callback, CheckSettingsProgressDialogFragment.Callback {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -671,6 +672,11 @@ public class AccountSettings extends PreferenceActivity implements
                 .add(checkerDialog, CheckSettingsProgressDialogFragment.TAG)
                 .add(checkerFragment, AccountCheckSettingsFragment.TAG)
                 .commit();
+    }
+
+    @Override
+    public void onCheckSettingsProgressDialogCancel() {
+        dismissCheckSettingsFragment();
     }
 
     /**
