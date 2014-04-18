@@ -464,10 +464,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long sourceKey2 = message2.mSourceKey;
         message2.mText = null;
         message2.mHtml = null;
-        message2.mTextReply = null;
-        message2.mHtmlReply = null;
         message2.mSourceKey = 0;
-        message2.mIntroText = null;
         Message message2get = EmailContent.Message.restoreMessageWithId(mMockContext, message2Id);
         ProviderTestUtils.assertMessageEqual("testMessageSave", message2, message2get);
 

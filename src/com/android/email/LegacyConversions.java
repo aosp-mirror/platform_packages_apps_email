@@ -68,13 +68,6 @@ public class LegacyConversions {
             sServerMailboxNames = new HashMap<String, Integer>();
 
     /**
-     * Values for HEADER_ANDROID_BODY_QUOTED_PART to tag body parts
-     */
-    /* package */ static final String BODY_QUOTED_PART_REPLY = "quoted-reply";
-    /* package */ static final String BODY_QUOTED_PART_FORWARD = "quoted-forward";
-    /* package */ static final String BODY_QUOTED_PART_INTRO = "quoted-intro";
-
-    /**
      * Copy field-by-field from a "store" message to a "provider" message
      *
      * @param message      The message we've just downloaded (must be a MimeMessage)

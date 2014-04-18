@@ -766,8 +766,6 @@ public abstract class EmailContent {
                     Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
         }
 
-        public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
-
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
         public static final int CONTENT_TIMESTAMP_COLUMN = 2;
@@ -960,11 +958,8 @@ public abstract class EmailContent {
         // but they are NOT persisted directly by EmailProvider. See Body for related fields.
         transient public String mText;
         transient public String mHtml;
-        transient public String mTextReply;
-        transient public String mHtmlReply;
         transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
-        transient public String mIntroText;
         transient public int mQuotedTextStartPos;
 
 
@@ -1116,7 +1111,7 @@ public abstract class EmailContent {
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Message, which are unsupported.
-            if (mText == null && mHtml == null && mTextReply == null && mHtmlReply == null &&
+            if (mText == null && mHtml == null &&
                     (mAttachments == null || mAttachments.isEmpty())) {
                 if (doSave) {
                     return super.save(context);

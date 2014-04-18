@@ -337,9 +337,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         // Test message 2: Simple body
         EmailContent.Message localMessage2 = ProviderTestUtils.setupMessage("make-legacy",
                 account1Id, mailbox1Id, true, false, mProviderContext);
-        localMessage2.mTextReply = null;
-        localMessage2.mHtmlReply = null;
-        localMessage2.mIntroText = null;
         localMessage2.mFlags &= ~EmailContent.Message.FLAG_TYPE_MASK;
         localMessage2.save(mProviderContext);
         Message getMessage2 = LegacyConversions.makeMessage(mProviderContext, localMessage2);
@@ -389,48 +386,16 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         MimeUtility.collectParts(actual, viewables, attachments);
         String get1Text = null;
         String get1Html = null;
-        String get1TextReply = null;
-        String get1HtmlReply = null;
-        String get1TextIntro = null;
         for (Part viewable : viewables) {
             String text = MimeUtility.getTextFromPart(viewable);
-            boolean isHtml = viewable.getMimeType().equalsIgnoreCase("text/html");
-            String[] headers = viewable.getHeader(MimeHeader.HEADER_ANDROID_BODY_QUOTED_PART);
-            if (headers != null) {
-                String header = headers[0];
-                boolean isReply = LegacyConversions.BODY_QUOTED_PART_REPLY.equalsIgnoreCase(header);
-                boolean isFwd = LegacyConversions.BODY_QUOTED_PART_FORWARD.equalsIgnoreCase(header);
-                boolean isIntro = LegacyConversions.BODY_QUOTED_PART_INTRO.equalsIgnoreCase(header);
-                if (isReply || isFwd) {
-                    if (isHtml) {
-                        get1HtmlReply = text;
-                    } else {
-                        get1TextReply = text;
-                    }
-                } else if (isIntro) {
-                    get1TextIntro = text;
-                }
-                // Check flags
-                int replyTypeFlags = expect.mFlags & EmailContent.Message.FLAG_TYPE_MASK;
-                if (isReply) {
-                    assertEquals(tag, EmailContent.Message.FLAG_TYPE_REPLY, replyTypeFlags);
-                }
-                if (isFwd) {
-                    assertEquals(tag, EmailContent.Message.FLAG_TYPE_FORWARD, replyTypeFlags);
-                }
+            if (viewable.getMimeType().equalsIgnoreCase("text/html")) {
+                get1Html = text;
             } else {
-                if (isHtml) {
-                    get1Html = text;
-                } else {
-                    get1Text = text;
-                }
+                get1Text = text;
             }
         }
         assertEquals(tag, expect.mText, get1Text);
         assertEquals(tag, expect.mHtml, get1Html);
-        assertEquals(tag, expect.mTextReply, get1TextReply);
-        assertEquals(tag, expect.mHtmlReply, get1HtmlReply);
-        assertEquals(tag, expect.mIntroText, get1TextIntro);
 
         // TODO Check the attachments
 
