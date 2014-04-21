@@ -223,7 +223,7 @@
     <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
     <string name="clear_authentication_label">Clear authentication</string>
     <!-- Button name on "Set up email" screen, with action underlined using html [CHAR LIMIT=20] -->
-    <string name="account_setup_basics_manual_setup_action"><u>Manual setup</u></string>
+    <string name="account_setup_basics_manual_setup_action">Manual setup</string>
     <!-- Do not translate. Button name on "Set up email" screen [CHAR LIMIT=20] TODO: This is a temporary workaround
      to allow initiating the OAuth setup flow before we have the real design working. This string
      should be removed. -->
