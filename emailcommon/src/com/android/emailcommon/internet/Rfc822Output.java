@@ -367,11 +367,11 @@ public class Rfc822Output {
             throws IOException {
         boolean html = false;
         String text = bodyText[INDEX_BODY_TEXT];
-        if (text == null) {
+        if (TextUtils.isEmpty(text)) {
             text = bodyText[INDEX_BODY_HTML];
             html = true;
         }
-        if (text == null) {
+        if (TextUtils.isEmpty(text)) {
             writer.write("\r\n");       // a truly empty message
         } else {
             // first multipart element is the body
