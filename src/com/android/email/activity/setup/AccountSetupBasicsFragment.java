@@ -68,15 +68,7 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
 
         mEmailView.addTextChangedListener(textWatcher);
 
-        // On some layouts we want the button to only be invisible but still take up space, but on
-        // others we need it to be completely gone. So we divert based on resources.
-        final boolean prevButtonGone =
-                getResources().getBoolean(R.bool.setup_basics_prev_button_gone);
-        if (prevButtonGone) {
-            setPreviousButtonVisibility(View.GONE);
-        } else {
-            setPreviousButtonVisibility(View.INVISIBLE);
-        }
+        setPreviousButtonVisibility(View.GONE);
 
         setManualSetupButtonVisibility(View.VISIBLE);
 
