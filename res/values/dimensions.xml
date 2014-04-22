@@ -61,6 +61,8 @@
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">24dp</dimen>
 
+    <dimen name="setup_lower_headline_margin_bottom">16dp</dimen>
+
     <!-- Info text in any account setup screen -->
     <dimen name="setup_info_text_margin_bottom">20dp</dimen>
 
@@ -80,7 +82,9 @@
     <dimen name="setup_basics_logo_margin_bottom">4dp</dimen>
 
     <!-- Account setup row labels -->
-    <dimen name="setup_label_text_padding_top">16dp</dimen>
+    <dimen name="setup_label_text_padding_top">24dp</dimen>
+
+    <dimen name="setup_input_text_padding_bottom">8dp</dimen>
 
     <!-- TODO: probably delete these -->
     <!-- Notification dialog -->

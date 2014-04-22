@@ -41,6 +41,12 @@
             android:layout_marginBottom="@dimen/setup_basics_logo_margin_bottom"
             android:layout_gravity="center_horizontal" />
     <TextView
+            android:id="@+id/lower_headline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/account_setup_basics_headline"
+            style="@style/account_setup_lower_headline"/>
+    <TextView
             android:id="@+id/instructions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,5 +57,6 @@
             android:hint="@string/account_setup_basics_email_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:inputType="textEmailAddress" />
 </LinearLayout>

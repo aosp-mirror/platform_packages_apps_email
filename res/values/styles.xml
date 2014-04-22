@@ -30,6 +30,16 @@
         <item name="android:paddingRight">@dimen/setup_headline_padding_side</item>
     </style>
 
+    <style name="account_setup_lower_headline">
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textSize">@dimen/setup_headline_text_size</item>
+        <item name="android:textColor">@color/account_setup_headline_color</item>
+    </style>
+
+    <style name="oauth_label">
+        <item name="android:paddingLeft">10dp</item>
+    </style>
+
     <style name="account_setup_fragment_container">
         <item name="android:paddingTop">@dimen/setup_fragment_padding_top</item>
         <item name="android:paddingLeft">@dimen/setup_fragment_padding_side</item>
@@ -53,7 +63,7 @@
     <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
     <style name="account_settings_button">
         <item name="android:layout_width">@dimen/setup_text_button_width</item>
-        <item name="android:layout_height">40sp</item>
+        <item name="android:layout_height">48sp</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">@dimen/setup_text_button_text_size</item>
     </style>
@@ -97,6 +107,7 @@
     <!-- Client certificate title, see also styles-ldrtl.xml -->
     <style name="client_certificate_title">
         <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:paddingTop">@dimen/setup_label_text_padding_top</item>
         <item name="android:layout_toLeftOf">@id/select_button</item>
     </style>
 

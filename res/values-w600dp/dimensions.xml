@@ -36,6 +36,8 @@
     <dimen name="setup_headline_padding_top">24dp</dimen>
     <dimen name="setup_headline_padding_side">64dp</dimen>
 
+    <dimen name="setup_lower_headline_margin_bottom">10dp</dimen>
+
     <!-- Account setup checkboxes padding -->
     <dimen name="setup_checkbox_padding_side">8dp</dimen>
     <dimen name="setup_checkbox_padding_top">16dp</dimen>
@@ -43,7 +45,7 @@
 
     <!-- Account setup basics -->
     <dimen name="setup_basics_logo_margin_top">28dp</dimen>
-    <dimen name="setup_basics_logo_margin_bottom">56dp</dimen>
+    <dimen name="setup_basics_logo_margin_bottom">16dp</dimen>
 
     <!-- Account setup row labels -->
     <dimen name="setup_label_text_padding_top">0dp</dimen>

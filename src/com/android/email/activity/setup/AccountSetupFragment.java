@@ -81,7 +81,12 @@ public class AccountSetupFragment extends Fragment implements View.OnClickListen
         final View template = inflater.inflate(R.layout.account_setup_template, container, false);
 
         TextView headlineView = UiUtilities.getView(template, R.id.headline);
-        headlineView.setText(headline);
+        if (headline > 0) {
+            headlineView.setText(headline);
+            headlineView.setVisibility(View.VISIBLE);
+        } else {
+            headlineView.setVisibility(View.GONE);
+        }
 
         final ViewGroup contentContainer =
                 (ViewGroup) template.findViewById(R.id.setup_fragment_content);

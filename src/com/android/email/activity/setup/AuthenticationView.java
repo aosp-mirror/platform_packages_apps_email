@@ -205,7 +205,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
             // We're using a POP or Exchange account, which does not offer oAuth.
             if (mAuthenticationHeader != null) {
                 mAuthenticationHeader.setVisibility(View.VISIBLE);
-                mAuthenticationHeader.setText(R.string.password_label);
+                mAuthenticationHeader.setText(R.string.account_setup_incoming_password_label);
             }
             mOAuthWrapper.setVisibility(View.GONE);
             mPasswordWrapper.setVisibility(View.VISIBLE);

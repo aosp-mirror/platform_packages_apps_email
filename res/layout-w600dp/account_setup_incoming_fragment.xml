@@ -47,7 +47,8 @@
             android:layout_marginRight="16dip"
             android:contentDescription="@string/authentication_label"
             android:text="@string/authentication_label"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            style="@style/account_setup_label_text"/>
         <com.android.email.activity.setup.AuthenticationView
             android:id="@+id/authentication_view"
             android:layout_width="match_parent"

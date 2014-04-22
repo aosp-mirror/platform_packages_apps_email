@@ -24,6 +24,7 @@
         android:text="@string/authentication_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        style="@style/account_setup_label_text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorPrimary"/>
 
@@ -40,6 +41,7 @@
             android:layout_weight="1"
             android:padding="16dip"
             android:drawablePadding="16dip"
+            style="@style/account_setup_label_text"
             android:drawableStart="@drawable/ic_setup_add_authentication"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary"/>
@@ -53,9 +55,10 @@
 
         <TextView
             android:id="@+id/password_label"
-            android:text="@string/password_label"
+            android:text="@string/account_setup_incoming_password_label"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            style="@style/account_setup_label_text"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_gravity="center_vertical"
             android:textColor="?android:attr/textColorPrimary" />
@@ -90,13 +93,15 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
+            android:paddingTop="8dp"
+            style="@style/oauth_label"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
 
         <ImageView
             android:id="@+id/clear_oauth"
             android:contentDescription="@string/clear_authentication_label"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:clickable="true"
             android:src="@drawable/ic_setup_delete" />
