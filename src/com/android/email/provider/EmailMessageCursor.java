@@ -51,51 +51,73 @@ import java.io.IOException;
  * If we want to address that issue fully, we need to return the body through a
  * ParcelFileDescriptor or some other mechanism that doesn't involve passing the data through a
  * CursorWindow.
+ *
+ * The fromUiQuery param indicates that this EmailMessageCursor object was created from uiQuery().
+ * This is significant because we know that the body content fields will be retrieved within
+ * the same process as the provider so we can proceed w/o having to worry about any cross
+ * process marshalling issues.  Secondly, if the request is made from a uiQuery, the _id column
+ * of the cursor will be a Message._id. If this call is made outside if the uiQuery(), than the
+ * _id column is actually Body._id so we need to proceed accordingly.
  */
 public class EmailMessageCursor extends CursorWrapper {
     private final SparseArray<String> mTextParts;
     private final SparseArray<String> mHtmlParts;
     private final int mTextColumnIndex;
     private final int mHtmlColumnIndex;
-    private final boolean mDeliverColumnsInline;
+    private final boolean mFromUiQuery;
 
     public EmailMessageCursor(final Cursor cursor, final SQLiteDatabase db, final String htmlColumn,
-            final String textColumn, final boolean deliverColumnsInline) {
+            final String textColumn, final boolean fromUiQuery) {
         super(cursor);
-        mDeliverColumnsInline = deliverColumnsInline;
+        mFromUiQuery = fromUiQuery;
         mHtmlColumnIndex = cursor.getColumnIndex(htmlColumn);
         mTextColumnIndex = cursor.getColumnIndex(textColumn);
         final int cursorSize = cursor.getCount();
         mHtmlParts = new SparseArray<String>(cursorSize);
         mTextParts = new SparseArray<String>(cursorSize);
 
+        final String rowIdColumn;
+        if (fromUiQuery) {
+            // In the UI query, the _id column is the id in the message table so it is
+            // messageKey in the Body table.
+            rowIdColumn = BodyColumns.MESSAGE_KEY;
+        } else {
+            // In the non-UI query, the _id column is the id in the Body table.
+            rowIdColumn = BaseColumns._ID;
+        }
+
         final SQLiteStatement htmlSql = db.compileStatement(
                 "SELECT " + BodyColumns.HTML_CONTENT +
                         " FROM " + Body.TABLE_NAME +
-                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
+                        " WHERE " + rowIdColumn + "=?"
         );
+
         final SQLiteStatement textSql = db.compileStatement(
                 "SELECT " + BodyColumns.TEXT_CONTENT +
                         " FROM " + Body.TABLE_NAME +
-                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
+                        " WHERE " + rowIdColumn + "=?"
         );
 
         while (cursor.moveToNext()) {
             final int position = cursor.getPosition();
             final long rowId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
             htmlSql.bindLong(1, rowId);
-            textSql.bindLong(1, rowId);
             try {
                 if (mHtmlColumnIndex != -1) {
                     final String underlyingHtmlString = htmlSql.simpleQueryForString();
                     mHtmlParts.put(position, underlyingHtmlString);
                 }
+            } catch (final SQLiteDoneException e) {
+                LogUtils.d(LogUtils.TAG, e, "Done with the HTML column");
+            }
+            textSql.bindLong(1, rowId);
+            try {
                 if (mTextColumnIndex != -1) {
                     final String underlyingTextString = textSql.simpleQueryForString();
                     mTextParts.put(position, underlyingTextString);
                 }
             } catch (final SQLiteDoneException e) {
-                LogUtils.d(LogUtils.TAG, e, "Done");
+                LogUtils.d(LogUtils.TAG, e, "Done with the text column");
             }
         }
         cursor.moveToPosition(-1);
@@ -103,7 +125,7 @@ public class EmailMessageCursor extends CursorWrapper {
 
     @Override
     public String getString(final int columnIndex) {
-        if (mDeliverColumnsInline) {
+        if (mFromUiQuery) {
             if (columnIndex == mHtmlColumnIndex) {
                 return mHtmlParts.get(getPosition());
             } else if (columnIndex == mTextColumnIndex) {
