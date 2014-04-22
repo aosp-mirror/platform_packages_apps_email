@@ -26,6 +26,7 @@
     <!-- Client certificate title, see also styles.xml -->
     <style name="client_certificate_title">
         <item name="android:layout_alignParentStart">true</item>
+        <item name="android:paddingTop">@dimen/setup_label_text_padding_top</item>
         <item name="android:layout_toStartOf">@+id/select_button</item>
     </style>
 
@@ -34,5 +35,10 @@
         <item name="android:layout_alignParentStart">true</item>
         <item name="android:layout_toStartOf">@id/select_button</item>
     </style>
+
+    <style name="oauth_label">
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
 
 </resources>

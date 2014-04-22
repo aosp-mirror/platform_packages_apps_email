@@ -47,7 +47,7 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final View view = inflateTemplatedView(inflater, container,
-                R.layout.account_setup_basics_fragment, R.string.account_setup_basics_headline);
+                R.layout.account_setup_basics_fragment, -1);
 
         mEmailView = UiUtilities.getView(view, R.id.account_email);
         mManualSetupView = UiUtilities.getView(view, R.id.manual_setup);

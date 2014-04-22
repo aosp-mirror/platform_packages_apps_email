@@ -41,6 +41,13 @@
             android:layout_marginBottom="@dimen/setup_basics_logo_margin_bottom"
             android:layout_gravity="center_horizontal" />
     <TextView
+        android:id="@+id/lower_headline"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/account_setup_basics_headline"
+        style="@style/account_setup_lower_headline"
+        android:layout_marginBottom="@dimen/setup_lower_headline_margin_bottom"/>
+    <TextView
             android:id="@+id/instructions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,10 +62,12 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_marginRight="16dip"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/account_setup_basics_email_label"
                 style="@style/account_setup_label_text" />
         <EditText
                 android:id="@+id/account_email"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:contentDescription="@string/account_setup_basics_email_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

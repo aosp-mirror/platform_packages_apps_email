@@ -71,6 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_weight="1"
+            style="@style/oauth_label"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
 
