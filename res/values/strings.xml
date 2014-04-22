@@ -210,14 +210,14 @@
     <string name="or_label">OR</string>
     <!-- Label for signing in with Google using OAuth -->
     <string name="sign_in_with_google">Sign in with Google</string>
-    <!-- On "Set up email" screen, hint for account email password text field -->
-    <string name="account_setup_basics_password_label">Password</string>
+    <!-- On "Set up email" screen, hint for account email password text field, should be uppercase where applicable -->
+    <string name="account_setup_basics_password_label">PASSWORD</string>
     <!-- hint for account email password text field -->
-    <string name="password_label">Password</string>
+    <string name="password_hint">Password</string>
     <!--  On the "Setup up email" screen, label indicating what service we are signed in with [CHAR LIMIT=40] -->
     <string name="signed_in_with_service_label">Signed in with %s</string>
-    <!-- Label for the authentication section [CHAR LIMIT=20] -->
-    <string name="authentication_label">Authentication</string>
+    <!-- Label for the authentication section, should be uppercase where applicable [CHAR LIMIT=20] -->
+    <string name="authentication_label">AUTHENTICATION</string>
     <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
     <string name="add_authentication_label">Add authentication</string>
     <!-- Label for the add authentication icon [CHAR LIMIT=40] -->
@@ -289,16 +289,16 @@
     <string name="account_setup_incoming_title">Account setup</string>
     <!-- "Incoming server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
     <string name="account_setup_incoming_headline">Incoming server settings</string>
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_username_label">Username</string>
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_password_label">Password</string>
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_server_label">Server</string>
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_port_label">Port</string>
-    <!-- "Incoming server settings" screen, label for pop-up menu -->
-    <string name="account_setup_incoming_security_label">Security type</string>
+    <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_incoming_username_label">USERNAME</string>
+    <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_incoming_password_label">PASSWORD</string>
+    <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_incoming_server_label">SERVER</string>
+    <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_incoming_port_label">PORT</string>
+    <!-- "Incoming server settings" screen, label for pop-up menu, should be uppercase where applicable -->
+    <string name="account_setup_incoming_security_label">SECURITY TYPE</string>
     <!-- "Incoming server settings" screen, option for "Security type" pop-up menu indicating
         the desire for an unencrypted session -->
     <string name="account_setup_incoming_security_none_label">None</string>
@@ -336,21 +336,21 @@
     <string name="account_setup_outgoing_title">Account setup</string>
     <!-- "Outgoing server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
     <string name="account_setup_outgoing_headline">Outgoing server settings</string>
-    <!-- On "Outgoing server settings" screen, label for text field -->
-    <string name="account_setup_outgoing_smtp_server_label">SMTP server</string>
-    <!-- On "Outgoing server settings" screen, label for text field -->
-    <string name="account_setup_outgoing_port_label">Port</string>
-    <!-- On "Outgoing server settings" screen, label for pop-up menu -->
-    <string name="account_setup_outgoing_security_label">Security type</string>
-    <!-- On "Outgoing server settings" screen, label for check box -->
+    <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_outgoing_smtp_server_label">SMTP SERVER</string>
+    <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_outgoing_port_label">PORT</string>
+    <!-- On "Outgoing server settings" screen, label for pop-up menu, should be uppercase where applicable -->
+    <string name="account_setup_outgoing_security_label">SECURITY TYPE</string>
+    <!-- On "Outgoing server settings" screen, label for check box, should be uppercase where applicable -->
     <string name="account_setup_outgoing_require_login_label">Require signin</string>
-    <!-- On "Outgoing server settings" screen, label for text field -->
-    <string name="account_setup_outgoing_username_label">Username</string>
-    <!-- On "Outgoing server settings" screen, label for text field -->
-    <string name="account_setup_outgoing_password_label">Password</string>
+    <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable-->
+    <string name="account_setup_outgoing_username_label">USERNAME</string>
+    <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable -->
+    <string name="account_setup_outgoing_password_label">PASSWORD</string>
 
-    <!-- On "Exchange" setup screen, a heading title for the current client certificate [CHAR LIMIT=50] -->
-    <string name="account_setup_exchange_certificate_title">Client certificate</string>
+    <!-- On "Exchange" setup screen, a heading title for the current client certificate, should be uppercase where applicable [CHAR LIMIT=50] -->
+    <string name="account_setup_exchange_certificate_title">CLIENT CERTIFICATE</string>
     <!-- On "Exchange" setup screen, a button label to include a client certificate [CHAR LIMIT=35] -->
     <string name="account_setup_exchange_select_certificate">Select</string>
     <!-- On "Exchange" setup screen, a button label to include a client certificate [CHAR LIMIT=35] -->
@@ -360,8 +360,8 @@
     <!-- On "Exchange" setup screen, placeholder text to indicate no client
          certificate is used [CHAR LIMIT=50] -->
     <string name="account_setup_exchange_no_certificate">None</string>
-    <!-- On "Exchange" setup screen, the exchange device-id label [CHAR LIMIT=30] -->
-    <string name="account_setup_exchange_device_id_label">Mobile Device ID</string>
+    <!-- On "Exchange" setup screen, the exchange device-id label, should be uppercase where applicable [CHAR LIMIT=30] -->
+    <string name="account_setup_exchange_device_id_label">MOBILE DEVICE ID</string>
 
     <!-- In Account setup options screen, Activity title [CHAR LIMIT=45] -->
     <string name="account_setup_options_title">Account settings</string>
