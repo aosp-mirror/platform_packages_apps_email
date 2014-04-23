@@ -41,5 +41,8 @@
         <item name="android:paddingRight">10dp</item>
     </style>
 
+    <style name="clear_authentication_button">
+        <item name="android:layout_marginRight">8dp</item>
+    </style>
 
 </resources>

@@ -293,6 +293,8 @@
     <string name="account_setup_incoming_username_label">USERNAME</string>
     <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
     <string name="account_setup_incoming_password_label">PASSWORD</string>
+    <!-- "Incoming server settings" screen, label for text field -->
+    <string name="account_setup_password_subheading">Password</string>
     <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
     <string name="account_setup_incoming_server_label">SERVER</string>
     <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->

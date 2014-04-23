@@ -123,5 +123,11 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/quick_response_text_color</item>
     </style>
+
+    <style name="clear_authentication_button">
+        <item name="android:layout_marginLeft">8dp</item>
+    </style>
 </resources>
+
+
 
