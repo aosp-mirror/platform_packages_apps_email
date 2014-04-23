@@ -368,7 +368,7 @@
     <!-- In Account setup options screen, Activity headline [CHAR LIMIT=none] -->
     <string name="account_setup_options_headline">Account options</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
-    <string name="account_setup_options_mail_check_frequency_label">Inbox checking frequency</string>
+    <string name="account_setup_options_mail_check_frequency_label">Sync frequency:</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
     <string name="account_setup_options_mail_check_frequency_never">Never</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
@@ -397,7 +397,7 @@
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Couldn\'t finish</string>
     <!-- In Account setup options screen, label for email lookback selector -->
-    <string name="account_setup_options_mail_window_label">Days to sync</string>
+    <string name="account_setup_options_mail_window_label">Sync emails from:</string>
     <!-- In account setup options & account settings screens (exchange), sync window length; this
         implies loading a 'reasonable' number of messages [CHAR LIMIT=25] -->
     <string name="account_setup_options_mail_window_auto">Automatic</string>
