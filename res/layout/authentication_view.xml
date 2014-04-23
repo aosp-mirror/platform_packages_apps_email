@@ -55,10 +55,12 @@
 
         <TextView
             android:id="@+id/password_label"
-            android:text="@string/account_setup_incoming_password_label"
+            android:text="@string/account_setup_password_subheading"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            style="@style/account_setup_label_text"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingTop="0dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_gravity="center_vertical"
             android:textColor="?android:attr/textColorPrimary" />
@@ -69,6 +71,7 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:hint="@string/account_setup_incoming_password_label"
+            android:layout_gravity="center_vertical"
             android:inputType="textPassword"
             android:imeOptions="actionNext" />
 
@@ -78,7 +81,9 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_setup_delete" />
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_setup_delete"
+            style="@style/clear_authentication_button"/>
     </LinearLayout>
 
     <LinearLayout
@@ -104,7 +109,8 @@
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_setup_delete" />
+            android:src="@drawable/ic_setup_delete"
+            style="@style/clear_authentication_button"/>
 
     </LinearLayout>
 
