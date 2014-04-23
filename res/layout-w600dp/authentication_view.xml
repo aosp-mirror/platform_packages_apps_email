@@ -57,7 +57,9 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_setup_delete" />
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_setup_delete"
+            style="@style/clear_authentication_button"/>
     </LinearLayout>
 
     <LinearLayout
@@ -81,7 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:clickable="true"
-            android:src="@drawable/ic_setup_delete" />
+            android:src="@drawable/ic_setup_delete"
+            style="@style/clear_authentication_button"/>
 
     </LinearLayout>
 
