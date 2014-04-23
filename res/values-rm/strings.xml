@@ -121,20 +121,19 @@
     <skip />
     <!-- no translation found for sign_in_with_google (9051489501495503976) -->
     <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
+    <!-- no translation found for account_setup_basics_password_label (3402762431598148148) -->
     <skip />
-    <!-- no translation found for password_label (5228754278985667134) -->
+    <!-- no translation found for password_hint (8835390747504721561) -->
     <skip />
     <!-- no translation found for signed_in_with_service_label (4909910797357155961) -->
     <skip />
-    <!-- no translation found for authentication_label (5210804218348191833) -->
+    <!-- no translation found for authentication_label (6917956186120234602) -->
     <skip />
     <!-- no translation found for add_authentication_label (865206092644419804) -->
     <skip />
     <!-- no translation found for clear_authentication_label (8113966442068335059) -->
     <skip />
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuraziun manuala"</string>
     <!-- no translation found for account_setup_username_password_toast (3968270274727947460) -->
     <skip />
     <!-- no translation found for account_duplicate_dlg_title (8089732986912704425) -->
@@ -171,12 +170,16 @@
     <skip />
     <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
     <skip />
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Num d\'utilisader"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Pled-clav"</string>
-    <!-- no translation found for account_setup_incoming_server_label (1480342966630002638) -->
+    <!-- no translation found for account_setup_incoming_username_label (406939983633223354) -->
     <skip />
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Port"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tip da segirezza"</string>
+    <!-- no translation found for account_setup_incoming_password_label (634540235479188709) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_server_label (3528558488000638420) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_port_label (5311652277990186704) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_label (1175710992470593691) -->
+    <skip />
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nagin"</string>
     <!-- no translation found for account_setup_incoming_security_ssl_trust_certificates_label (6151855090123117538) -->
     <skip />
@@ -195,14 +198,19 @@
     <skip />
     <!-- no translation found for account_setup_outgoing_headline (2025001060935366394) -->
     <skip />
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Port"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tip da segirezza"</string>
+    <!-- no translation found for account_setup_outgoing_smtp_server_label (1164004960070541473) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_port_label (4670120792135566784) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_security_label (9200220309360082664) -->
+    <skip />
     <!-- no translation found for account_setup_outgoing_require_login_label (7779484127897397562) -->
     <skip />
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Num d\'utilisader"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Pled-clav"</string>
-    <!-- no translation found for account_setup_exchange_certificate_title (8473793588405277962) -->
+    <!-- no translation found for account_setup_outgoing_username_label (7239411429115525841) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_password_label (3720429254654722208) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_certificate_title (1635140303999054002) -->
     <skip />
     <!-- no translation found for account_setup_exchange_select_certificate (1536103662037268683) -->
     <skip />
@@ -212,7 +220,8 @@
     <skip />
     <!-- no translation found for account_setup_exchange_no_certificate (1119542961954780872) -->
     <skip />
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID dad apparats mobils"</string>
+    <!-- no translation found for account_setup_exchange_device_id_label (5105898844003459657) -->
+    <skip />
     <!-- no translation found for account_setup_options_title (9016600767888846051) -->
     <skip />
     <!-- no translation found for account_setup_options_headline (4181274232835368085) -->

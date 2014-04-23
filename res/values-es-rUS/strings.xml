@@ -87,13 +87,13 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo"</string>
     <string name="or_label" msgid="2207403489755254427">"O también puedes hacer lo siguiente:"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Acceder con Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
-    <string name="password_label" msgid="5228754278985667134">"Contraseña"</string>
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"CONTRASEÑA"</string>
+    <string name="password_hint" msgid="8835390747504721561">"Contraseña"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Acceso con %s"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"Autenticación"</string>
+    <string name="authentication_label" msgid="6917956186120234602">"AUTENTICACIÓN"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Agregar autenticación"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Eliminar autenticación"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Configuración manual"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuración manual"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Escribe una dirección de correo y contraseña válidas."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Cuenta duplicada"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Ya estás usando este nombre de usuario para la cuenta \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -114,11 +114,11 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta es?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuración de la cuenta"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Configuración del servidor de entrada"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nombre de usuario"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Contraseña"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Servidor"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Puerto"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo de seguridad"</string>
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"NOMBRE DE USUARIO"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"CONTRASEÑA"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"SERVIDOR"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"PUERTO"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"TIPO DE SEGURIDAD"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ninguno"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (aceptar todos)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +131,18 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuración de la cuenta"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Configuración del servidor de salida"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Puerto"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de seguridad"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SERVIDOR SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"PUERTO"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"TIPO DE SEGURIDAD"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Requiere acceso"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Certificado de cliente"</string>
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"NOMBRE DE USUARIO"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"CONTRASEÑA"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"CERTIFICADO DE CLIENTE"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Seleccionar"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Usar certificado de cliente"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Eliminar"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Ninguno"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID de dispositivo móvil"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"ID DE DISPOSITIVO MÓVIL"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Configuración de la cuenta"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opciones de cuenta"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frecuencia de verificación de la bandeja de entrada"</string>

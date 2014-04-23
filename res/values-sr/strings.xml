@@ -84,17 +84,17 @@
     <string name="email_confirmation_label" msgid="1082319634606902954">"Имејл адреса:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Налог е-поште"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Можете да подесите налог у свега неколико корака."</string>
-    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адреса е-поште"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Имејл адреса"</string>
     <string name="or_label" msgid="2207403489755254427">"ИЛИ"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Пријави ме на Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Лозинка"</string>
-    <string name="password_label" msgid="5228754278985667134">"Лозинка"</string>
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"ЛОЗИНКА"</string>
+    <string name="password_hint" msgid="8835390747504721561">"Лозинка"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Пријављени сте на %s"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"Потвр. аутентичности"</string>
+    <string name="authentication_label" msgid="6917956186120234602">"ПОТВР. АУТЕНТИЧНОСТИ"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Додај потврду аутентичности"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Обриши потврду аутентичности"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Ручно подешавање"</u></string>
-    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Унесите важећу адресу е-поште и лозинку."</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ручно подешавање"</string>
+    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Унесите важећу имејл адресу и лозинку."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Дуплирани налог"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Већ користите ово корисничко име за налог „<xliff:g id="DUPLICATE">%s</xliff:g>“."</string>
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Ова лозинка почиње или се завршава једним размаком или више њих. Многи сервери не подржавају лозинке са размацима."</string>
@@ -114,11 +114,11 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Који је ово тип налога?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Подешавање налога"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Подешавања сервера за долазну пошту"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Корисничко име"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Лозинка"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Сервер"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Порт"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Тип безбедности"</string>
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"КОРИСНИЧКО ИМЕ"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"ЛОЗИНКА"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"СЕРВЕР"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"ПОРТ"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"ТИП БЕЗБЕДНОСТИ"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ништа"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Прихвати све сертификате)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +131,18 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Опционално"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Подешавање налога"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Подешавања сервера за одлазну пошту"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP сервер"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Порт"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Тип безбедности"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SMTP СЕРВЕР"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"ПОРТ"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"ТИП БЕЗБЕДНОСТИ"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Захтевај пријављивање"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Корисничко име"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Лозинка"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Сертификат клијента"</string>
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"КОРИСНИЧКО ИМЕ"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"ЛОЗИНКА"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"СЕРТИФИКАТ КЛИЈЕНТА"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Изабери"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Користи сертификат клијента"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Уклони"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Ниједан"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ИД мобилног уређаја"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"ИД МОБИЛНОГ УРЕЂАЈА"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Подешавања налога"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Опције налога"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Учесталост провере пријемног сандучета"</string>
@@ -260,7 +260,7 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Поруке ће бити преузете после повезивања"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Дани поште за синхронизацију"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Слика пошиљаоца"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну имејл адресу и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Пре него што подесите овај налог е-поште, посетите T-Online веб сајт и направите лозинку за приступ е-пошти преко POP3 протокола."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>

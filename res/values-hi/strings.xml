@@ -87,13 +87,13 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ईमेल पता"</string>
     <string name="or_label" msgid="2207403489755254427">"या"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Google से प्रवेश करें"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"पासवर्ड"</string>
-    <string name="password_label" msgid="5228754278985667134">"पासवर्ड"</string>
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"पासवर्ड"</string>
+    <string name="password_hint" msgid="8835390747504721561">"पासवर्ड"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"%s के साथ प्रवेश किया"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"प्रमाणीकरण"</string>
+    <string name="authentication_label" msgid="6917956186120234602">"प्रमाणीकरण"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"प्रमाणीकरण जोड़ें"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"प्रमाणीकरण साफ़ करें"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"मैन्युअल सेटअप"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"मैन्‍युअल सेटअप"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"कोई मान्‍य ईमेल पता और पासवर्ड लिखें."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"डुप्‍लिकेट खाता"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"आप पहले से ही \"<xliff:g id="DUPLICATE">%s</xliff:g>\" खाते के लिए इस उपयोगकर्ता नाम का उपयोग कर रहे हैं."</string>
@@ -114,11 +114,11 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"यह किस प्रकार का खाता है?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"खाता सेटअप"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"इनकमिंग सर्वर सेटिंग"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"उपयोगकर्ता नाम"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"पासवर्ड"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"सर्वर"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"पोर्ट"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"सुरक्षा प्रकार"</string>
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"उपयोगकर्ता नाम"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"पासवर्ड"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"सर्वर"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"पोर्ट"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"सुरक्षा प्रकार"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"कोई नहीं"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (सभी प्रमाणपत्र स्‍वीकार करें)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +131,18 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"वैकल्पिक"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"खाता सेटअप"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"आउटगोइंग सर्वर सेटिंग"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP सर्वर"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"पोर्ट"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"सुरक्षा प्रकार"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SMTP सर्वर"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"पोर्ट"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"सुरक्षा प्रकार"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"प्रवेश आवश्यक"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"उपयोगकर्ता नाम"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"पासवर्ड"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"क्लाइंट प्रमाणपत्र"</string>
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"उपयोगकर्ता नाम"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"पासवर्ड"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"क्लाइंट प्रमाणपत्र"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"चुनें"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"क्लाइंट प्रमाणपत्र का उपयोग करें"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"निकालें"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"कोई नहीं"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"मोबाइल उपकरण ID"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"मोबाइल उपकरण आईडी"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"खाता सेटिंग"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"खाता विकल्प"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"इनबॉक्‍स देखने की आवृति"</string>
