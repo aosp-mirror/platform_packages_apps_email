@@ -84,6 +84,8 @@
     <!-- Account setup row labels -->
     <dimen name="setup_label_text_padding_top">24dp</dimen>
 
+    <dimen name="certificate_selector_padding_top">24dp</dimen>
+
     <dimen name="setup_input_text_padding_bottom">8dp</dimen>
 
     <!-- TODO: probably delete these -->
