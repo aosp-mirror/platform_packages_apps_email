@@ -61,7 +61,7 @@
             android:id="@+id/device_id"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#ffbebebe" />
 
     </LinearLayout>
