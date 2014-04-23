@@ -21,6 +21,8 @@
     <style name="client_certificate_button"
            parent="account_setup_text_button">
         <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:paddingLeft">10sp</item>
+        <item name="android:paddingRight">10sp</item>
     </style>
 
     <!-- Client certificate title, see also styles.xml -->
