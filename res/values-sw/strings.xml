@@ -87,13 +87,13 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Anwani ya barua pepe"</string>
     <string name="or_label" msgid="2207403489755254427">"AU"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Ingia katika akaunti ukitumia Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Nenosiri"</string>
-    <string name="password_label" msgid="5228754278985667134">"Nenosiri"</string>
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"NENOSIRI"</string>
+    <string name="password_hint" msgid="8835390747504721561">"Nenosiri"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Umeingia katika akaunti ukitumia %s"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"Uthibitishaji"</string>
+    <string name="authentication_label" msgid="6917956186120234602">"UTHIBITISHAJI"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Ongeza uthibitishaji"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Futa uthibitishaji"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Usanidi wa kujifanyia"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Jifungulie mwenyewe"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Tafadhali andika anwani na nenosiri halali ya barua pepe."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Akaunti Rudufu"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Tayari unatumia jina hili la mtumiaji kwa akaunti \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
@@ -114,11 +114,11 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Hii ni akaunti ya aina gani ?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kufungua akaunti"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Mipangilio ya seva ya kuingia"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Jina la mtumiaji"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Nenosiri"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Seva"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Mlango"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Aina ya usalama"</string>
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"JINA LA MTUMIAJI"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"NENOSIRI"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"SEVA"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"MLANGO"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"AINA YA USALAMA"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Hamna"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Kubali vyeti vyote)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +131,18 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Hiari"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Kufungua akaunti"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Mipangilio ya seva ya kutoka"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Seva ya SMTP"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Mlango"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Aina ya usalama"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SEVA YA SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"MLANGO"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"AINA YA USALAMA"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Hitaji kuingia kwenye akaunti"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Jina la mtumiaji"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Nenosiri"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Cheti cha mteja"</string>
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"JINA LA MTUMIAJI"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"NENOSIRI"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"CHETI CHA KITEJA"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Chagua"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Tumia cheti cha mteja"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Ondoa"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Hakuna"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Kitambulisho cha Kifaa cha Mkononi"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"KITAMBULISHO CHA KIFAA CHA MKONONI"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Mipangilio ya akaunti"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Chaguo za akaunti"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Saa za kukagua kikasha"</string>

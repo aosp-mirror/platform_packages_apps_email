@@ -87,13 +87,13 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"អាសយដ្ឋាន​អ៊ីមែល"</string>
     <string name="or_label" msgid="2207403489755254427">"OR"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"ចូល​ដោយ​ប្រើ​ Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"ពាក្យសម្ងាត់"</string>
-    <string name="password_label" msgid="5228754278985667134">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"ពាក្យសម្ងាត់"</string>
+    <string name="password_hint" msgid="8835390747504721561">"ពាក្យសម្ងាត់"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"បាន​ចូល​​ជា​មួយ %s"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"ការ​ផ្ទៀងផ្ទាត់"</string>
+    <string name="authentication_label" msgid="6917956186120234602">"ការ​ផ្ទៀងផ្ទាត់"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"បន្ថែម​ការ​ផ្ទៀងផ្ទាត់"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"សម្អាត​ការ​ផ្ទៀងផ្ទាត់"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"រៀបចំ​ដោយ​ដៃ"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"រៀបចំ​ដោយ​ដៃ"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"​បញ្ចូល​​ពាក្យ​សម្ងាត់ ​និង​​អាសយដ្ឋាន​អ៊ីមែល​​ដែល​ត្រឹមត្រូវ​។"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ស្ទួន​គណនី"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"អ្នក​កំពុង​តែ​ប្រើ​ឈ្មោះ​អ្នក​ប្រើ​សម្រាប់​គណនី​នេះ \" <xliff:g id="DUPLICATE">%s</xliff:g> \"។"</string>
@@ -114,11 +114,11 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"តើ​​គណនី​នេះ​ជា​ប្រភេទ​អ្វី?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"រៀបចំ​គណនី"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"ការ​កំណត់​ម៉ាស៊ីន​មេ​​ចូល"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ឈ្មោះ​អ្នក​ប្រើ"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"ពាក្យសម្ងាត់"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"ម៉ាស៊ីន​មេ"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"ច្រក"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"ប្រភេទ​សុវត្ថិភាព"</string>
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"ឈ្មោះ​អ្នក​ប្រើ"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"ម៉ាស៊ីន​​មេ"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"ច្រក"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"ប្រភេទ​​សុវត្ថិភាព"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"គ្មាន"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (ទទួល​យក​វិញ្ញាបនបត្រ​ទាំងអស់)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +131,18 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"ជា​ជម្រើស"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"រៀបចំ​គណនី"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"ការ​កំណត់​ម៉ាស៊ីន​​​មេ​ចេញ"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"ម៉ាស៊ីន​មេ SMTP"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"ច្រក"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"ប្រភេទ​​សុវត្ថិភាព"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"ម៉ាស៊ីន​​មេ SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"ច្រក"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"ប្រភេទ​​សុវត្ថិភាព"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"ទាមទារ​ឲ្យ​​ចូល"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"ឈ្មោះ​អ្នក​ប្រើ"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"ពាក្យសម្ងាត់"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"វិញ្ញាបនបត្រ​ម៉ាស៊ីន​ភ្ញៀវ"</string>
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"ឈ្មោះ​អ្នក​ប្រើ"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"វិញ្ញាបនបត្រ​​​អតិថិជន"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"ជ្រើស"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"ប្រើ​វិញ្ញាបនបត្រ​ម៉ាស៊ីន​ភ្ញៀវ"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"លុប​ចេញ"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"គ្មាន"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"លេខ​សម្គាល់​ឧបករណ៍​ចល័ត"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"លេខ​សម្គាល់​ឧបករណ៍​ចល័ត"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"ការ​កំណត់​គណនី"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"ជម្រើស​គណនី"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"ពិនិត្យ​​ប្រអប់​ទទួល​ញឹកញាប់"</string>
