@@ -346,7 +346,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             if (mServiceInfo.offerOAuth) {
                 mAuthenticationLabel.setText(R.string.authentication_label);
             } else {
-                mAuthenticationLabel.setText(R.string.password_hint);
+                mAuthenticationLabel.setText(R.string.account_setup_basics_password_label);
             }
         }
 
