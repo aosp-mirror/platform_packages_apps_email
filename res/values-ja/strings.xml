@@ -87,13 +87,16 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"メールアドレス"</string>
     <string name="or_label" msgid="2207403489755254427">"または"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Googleにログイン"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"パスワード"</string>
-    <string name="password_label" msgid="5228754278985667134">"パスワード"</string>
+    <!-- no translation found for account_setup_basics_password_label (3402762431598148148) -->
+    <skip />
+    <!-- no translation found for password_hint (8835390747504721561) -->
+    <skip />
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"%sでログイン済み"</string>
-    <string name="authentication_label" msgid="5210804218348191833">"認証"</string>
+    <!-- no translation found for authentication_label (6917956186120234602) -->
+    <skip />
     <string name="add_authentication_label" msgid="865206092644419804">"認証を追加"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"認証をクリア"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"手動セットアップ"</u></string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動セットアップ"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"有効なメールアドレスとパスワードを入力してください。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"重複するアカウント"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"このユーザー名はアカウント「<xliff:g id="DUPLICATE">%s</xliff:g>」で既に使用しています。"</string>
@@ -114,11 +117,16 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントのタイプ"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"アカウント設定"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"受信サーバーの設定"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ユーザー名"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"パスワード"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"サーバー"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"ポート"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"セキュリティの種類"</string>
+    <!-- no translation found for account_setup_incoming_username_label (406939983633223354) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_password_label (634540235479188709) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_server_label (3528558488000638420) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_port_label (5311652277990186704) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_label (1175710992470593691) -->
+    <skip />
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"なし"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS（証明書をすべて承認）"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -131,18 +139,25 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"省略可"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"アカウント設定"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"送信サーバーの設定"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTPサーバー"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"ポート"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"セキュリティの種類"</string>
+    <!-- no translation found for account_setup_outgoing_smtp_server_label (1164004960070541473) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_port_label (4670120792135566784) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_security_label (9200220309360082664) -->
+    <skip />
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"ログインが必要"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"ユーザー名"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"パスワード"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"クライアント証明書"</string>
+    <!-- no translation found for account_setup_outgoing_username_label (7239411429115525841) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_password_label (3720429254654722208) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_certificate_title (1635140303999054002) -->
+    <skip />
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"選択"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"クライアント証明書を使用"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"削除"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"なし"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"携帯端末ID"</string>
+    <!-- no translation found for account_setup_exchange_device_id_label (5105898844003459657) -->
+    <skip />
     <string name="account_setup_options_title" msgid="9016600767888846051">"アカウントの設定"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"アカウントのオプション"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"受信トレイを確認する頻度"</string>
