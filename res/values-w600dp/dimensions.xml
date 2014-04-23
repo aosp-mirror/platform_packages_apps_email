@@ -53,4 +53,6 @@
     <!-- Account setup row labels -->
     <dimen name="setup_label_text_padding_top">0dp</dimen>
 
+    <dimen name="certificate_selector_padding_top">16dp</dimen>
+
 </resources>

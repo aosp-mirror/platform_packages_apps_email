@@ -109,7 +109,6 @@
     <!-- Client certificate title, see also styles-ldrtl.xml -->
     <style name="client_certificate_title">
         <item name="android:layout_alignParentLeft">true</item>
-        <item name="android:paddingTop">@dimen/setup_label_text_padding_top</item>
         <item name="android:layout_toLeftOf">@id/select_button</item>
     </style>
 
