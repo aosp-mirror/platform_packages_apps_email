@@ -47,6 +47,8 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
     private static final String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
     private static final String BUNDLE_KEY_ACTIVITY_TITLE = "AccountServerBaseFragment.title";
     private static final String BUNDLE_KEY_SAVING = "AccountServerBaseFragment.saving";
+    private static final String BUNDLE_KEY_SENDAUTH = "AccountServerBaseFragment.sendAuth";
+    private static final String BUNDLE_KEY_RECVAUTH = "AccountServerBaseFragment.recvAuth";
 
     protected Context mAppContext;
     /**
@@ -112,6 +114,8 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
         if (savedInstanceState != null) {
             mSettingsMode = savedInstanceState.getBoolean(BUNDLE_KEY_SETTINGS);
             mSaving = savedInstanceState.getBoolean(BUNDLE_KEY_SAVING);
+            mLoadedSendAuth = savedInstanceState.getParcelable(BUNDLE_KEY_SENDAUTH);
+            mLoadedRecvAuth = savedInstanceState.getParcelable(BUNDLE_KEY_RECVAUTH);
         } else if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
@@ -160,6 +164,8 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
         super.onSaveInstanceState(outState);
         outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
         outState.putBoolean(BUNDLE_KEY_SETTINGS, mSettingsMode);
+        outState.putParcelable(BUNDLE_KEY_SENDAUTH, mLoadedSendAuth);
+        outState.putParcelable(BUNDLE_KEY_RECVAUTH, mLoadedRecvAuth);
     }
 
     @Override
@@ -178,6 +184,7 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
     public void onClick(View v) {
         final int viewId = v.getId();
         if (viewId == R.id.cancel) {
+            collectUserInputInternal();
             getActivity().onBackPressed();
         } else if (viewId == R.id.done) {
             collectUserInput();
@@ -280,5 +287,11 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
     /**
      * Collect the user's input into the setup data object.  Concrete classes must implement.
      */
-    public abstract void collectUserInput();
+    public abstract int collectUserInputInternal();
+
+    public void collectUserInput() {
+        final int phase = collectUserInputInternal();
+        final Callback callback = (Callback) getActivity();
+        callback.onAccountServerUIComplete(phase);
+    }
 }

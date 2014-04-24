@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -398,7 +399,13 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
             mClientCertificateSelector.setCertificate(recvAuth.mClientCertAlias);
         }
 
-        mLoadedRecvAuth = recvAuth;
+        // Make a deep copy of the HostAuth to compare with later
+        final Parcel parcel = Parcel.obtain();
+        parcel.writeParcelable(recvAuth, recvAuth.describeContents());
+        parcel.setDataPosition(0);
+        mLoadedRecvAuth = parcel.readParcelable(HostAuth.class.getClassLoader());
+        parcel.recycle();
+
         mLoaded = true;
         validateFields();
     }
@@ -530,7 +537,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
      * Entry point from Activity, when "next" button is clicked
      */
     @Override
-    public void collectUserInput() {
+    public int collectUserInputInternal() {
         final Account account = mSetupData.getAccount();
 
         // Make sure delete policy is an valid option before using it; otherwise, the results are
@@ -568,8 +575,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         }
         recvAuth.mClientCertAlias = mClientCertificateSelector.getCertificate();
 
-        final Callback callback = (Callback) getActivity();
-        callback.onAccountServerUIComplete(SetupDataFragment.CHECK_INCOMING);
+        return SetupDataFragment.CHECK_INCOMING;
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -256,7 +257,13 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             updatePortFromSecurityType();
         }
 
-        mLoadedSendAuth = sendAuth;
+        // Make a deep copy of the HostAuth to compare with later
+        final Parcel parcel = Parcel.obtain();
+        parcel.writeParcelable(sendAuth, sendAuth.describeContents());
+        parcel.setDataPosition(0);
+        mLoadedSendAuth = parcel.readParcelable(HostAuth.class.getClassLoader());
+        parcel.recycle();
+
         mLoaded = true;
         validateFields();
     }
@@ -362,7 +369,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      * Entry point from Activity, when "next" button is clicked
      */
     @Override
-    public void collectUserInput() {
+    public int collectUserInputInternal() {
         final Account account = mSetupData.getAccount();
         final HostAuth sendAuth = account.getOrCreateHostAuthSend(mAppContext);
 
@@ -387,8 +394,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         sendAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
         sendAuth.mDomain = null;
 
-        final Callback callback = (Callback) getActivity();
-        callback.onAccountServerUIComplete(SetupDataFragment.CHECK_OUTGOING);
+        return SetupDataFragment.CHECK_OUTGOING;
     }
 
     @Override
