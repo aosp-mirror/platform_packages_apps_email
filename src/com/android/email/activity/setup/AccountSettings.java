@@ -597,7 +597,7 @@ public class AccountSettings extends PreferenceActivity implements
      * Forcefully go backward in the stack. This may potentially discard unsaved settings.
      */
     private void forceBack() {
-        onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
