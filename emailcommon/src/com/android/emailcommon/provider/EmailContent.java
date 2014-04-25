@@ -476,7 +476,7 @@ public abstract class EmailContent {
         public static final String RESPOND_RESULT_TEXT_PIPE_KEY = "EmailMessageCursor.textPipe";
 
         public static final String[] CONTENT_PROJECTION = new String[] {
-                BodyColumns._ID,
+                BaseColumns._ID,
                 BodyColumns.MESSAGE_KEY,
                 BodyColumns.HTML_CONTENT,
                 BodyColumns.TEXT_CONTENT,
@@ -492,15 +492,15 @@ public abstract class EmailContent {
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 5;
 
         public static final String[] COMMON_PROJECTION_TEXT = new String[] {
-                BodyColumns._ID, BodyColumns.TEXT_CONTENT
+                BaseColumns._ID, BodyColumns.TEXT_CONTENT
         };
         public static final String[] COMMON_PROJECTION_HTML = new String[] {
-                BodyColumns._ID, BodyColumns.HTML_CONTENT
+                BaseColumns._ID, BodyColumns.HTML_CONTENT
         };
         public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         private static final String[] PROJECTION_SOURCE_KEY =
-            new String[] { BodyColumns.SOURCE_MESSAGE_KEY };
+            new String[] {BaseColumns._ID, BodyColumns.SOURCE_MESSAGE_KEY};
 
         public long mMessageKey;
         public String mHtmlContent;
