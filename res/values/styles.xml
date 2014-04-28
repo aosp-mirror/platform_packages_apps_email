@@ -89,6 +89,14 @@
         <item name="android:paddingTop">@dimen/setup_label_text_padding_top</item>
     </style>
 
+    <!-- Account setup row label large text -->
+    <style name="account_setup_label_large_text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/account_setup_label_large_text_color</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:layout_marginBottom">@dimen/setup_label_large_text_margin_bottom</item>
+    </style>
+
     <!-- Account setup checkboxes -->
     <style name="account_setup_checkbox">
         <item name="android:paddingTop">@dimen/setup_checkbox_padding_top</item>
