@@ -116,6 +116,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Bejövő üzenetek szerverének beállításai"</string>
     <string name="account_setup_incoming_username_label" msgid="406939983633223354">"FELHASZNÁLÓNÉV"</string>
     <string name="account_setup_incoming_password_label" msgid="634540235479188709">"JELSZÓ"</string>
+    <string name="account_setup_password_subheading" msgid="2072179928666715013">"Jelszó"</string>
     <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"SZERVER"</string>
     <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"PORT"</string>
     <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"TITKOSÍTÁS TÍPUSA"</string>
@@ -142,10 +143,10 @@
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Ügyféltanúsítvány használata"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Eltávolítás"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Egy sem"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"A MOBILESZKÖZ AZONOSÍTÓJA"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"MOBILESZKÖZ AZONOSÍTÓJA"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Fiókbeállítások"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Fiókbeállítások"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Beérkező levelek ellenőrzésének gyakorisága"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Szinkronizálás gyakorisága:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Soha"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatikus (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"5 percenként"</string>
@@ -159,7 +160,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Az e-mailek szinkronizálása ebből a fiókból"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Mellékletek automatikus letöltése Wi-Fi-kapcsolatnál"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nem sikerült befejezni"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Szinkronizálási időtartam"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"E-mailek szinkronizálása innen:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatikus"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Utolsó nap"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Utolsó három nap"</string>
