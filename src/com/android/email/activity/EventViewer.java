@@ -29,6 +29,8 @@ import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
 
+import java.text.ParseException;
+
 public class EventViewer extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,8 +64,13 @@ public class EventViewer extends Activity {
             if (eventId != -1) {
                 uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
             } else {
-                long time =
-                        Utility.parseEmailDateTimeToMillis(info.get(MeetingInfo.MEETING_DTSTART));
+                long time;
+                try {
+                    time = Utility.parseEmailDateTimeToMillis(info.get(MeetingInfo.MEETING_DTSTART));
+                } catch (ParseException e) {
+                    finish();
+                    return;
+                }
                 uri = Uri.parse("content://com.android.calendar/time/" + time);
                 intent.putExtra("VIEW", "DAY");
             }

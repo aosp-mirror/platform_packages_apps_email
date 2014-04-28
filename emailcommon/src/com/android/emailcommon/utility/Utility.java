@@ -53,6 +53,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.ProviderUnavailableException;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -64,6 +65,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.ThreadLocal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -71,8 +73,11 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
@@ -292,41 +297,77 @@ public class Utility {
         return sb.toString();
     }
 
+    private static class ThreadLocalDateFormat extends ThreadLocal<SimpleDateFormat> {
+        private final String mFormatStr;
+
+        public ThreadLocalDateFormat(String formatStr) {
+            mFormatStr = formatStr;
+        }
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            final SimpleDateFormat format = new SimpleDateFormat(mFormatStr);
+            final GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            format.setCalendar(cal);
+            return format;
+        }
+
+        public Date parse(String date) throws ParseException {
+            return super.get().parse(date);
+        }
+    }
+
     /**
      * Generate a time in milliseconds from a date string that represents a date/time in GMT
      * @param date string in format 20090211T180303Z (rfc2445, iCalendar).
      * @return the time in milliseconds (since Jan 1, 1970)
      */
-    public static long parseDateTimeToMillis(String date) {
-        GregorianCalendar cal = parseDateTimeToCalendar(date);
-        return cal.getTimeInMillis();
+    public static long parseDateTimeToMillis(String date) throws ParseException {
+        return parseDateTimeToCalendar(date).getTimeInMillis();
     }
+
+    private static final ThreadLocalDateFormat mFullDateTimeFormat =
+        new ThreadLocalDateFormat("yyyyMMdd'T'HHmmss'Z'");
+
+    private static final ThreadLocalDateFormat mAbbrevDateTimeFormat =
+        new ThreadLocalDateFormat("yyyyMMdd");
 
     /**
      * Generate a GregorianCalendar from a date string that represents a date/time in GMT
-     * @param date string in format 20090211T180303Z (rfc2445, iCalendar).
+     * @param date string in format 20090211T180303Z (rfc2445, iCalendar), or
+     *             in abbreviated format 20090211.
      * @return the GregorianCalendar
      */
-    public static GregorianCalendar parseDateTimeToCalendar(String date) {
-        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                Integer.parseInt(date.substring(4, 6)) - 1, Integer.parseInt(date.substring(6, 8)),
-                Integer.parseInt(date.substring(9, 11)), Integer.parseInt(date.substring(11, 13)),
-                Integer.parseInt(date.substring(13, 15)));
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+    @VisibleForTesting
+    public static GregorianCalendar parseDateTimeToCalendar(String date) throws ParseException {
+        final GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        if (date.length() <= 8) {
+            cal.setTime(mAbbrevDateTimeFormat.parse(date));
+        } else {
+            cal.setTime(mFullDateTimeFormat.parse(date));
+        }
         return cal;
     }
+
+    private static final ThreadLocalDateFormat mEmailDateTimeFormat =
+        new ThreadLocalDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+    private static final ThreadLocalDateFormat mEmailDateTimeFormatWithMillis =
+        new ThreadLocalDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
      * Generate a time in milliseconds from an email date string that represents a date/time in GMT
      * @param date string in format 2010-02-23T16:00:00.000Z (ISO 8601, rfc3339)
      * @return the time in milliseconds (since Jan 1, 1970)
      */
-    public static long parseEmailDateTimeToMillis(String date) {
-        GregorianCalendar cal = new GregorianCalendar(Integer.parseInt(date.substring(0, 4)),
-                Integer.parseInt(date.substring(5, 7)) - 1, Integer.parseInt(date.substring(8, 10)),
-                Integer.parseInt(date.substring(11, 13)), Integer.parseInt(date.substring(14, 16)),
-                Integer.parseInt(date.substring(17, 19)));
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+    @VisibleForTesting
+    public static long parseEmailDateTimeToMillis(String date) throws ParseException {
+        final GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        if (date.length() <= 20) {
+            cal.setTime(mEmailDateTimeFormat.parse(date));
+        } else {
+            cal.setTime(mEmailDateTimeFormatWithMillis.parse(date));
+        }
         return cal.getTimeInMillis();
     }
 
