@@ -174,6 +174,8 @@
     <skip />
     <!-- no translation found for account_setup_incoming_password_label (634540235479188709) -->
     <skip />
+    <!-- no translation found for account_setup_password_subheading (2072179928666715013) -->
+    <skip />
     <!-- no translation found for account_setup_incoming_server_label (3528558488000638420) -->
     <skip />
     <!-- no translation found for account_setup_incoming_port_label (5311652277990186704) -->
@@ -226,7 +228,7 @@
     <skip />
     <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_check_frequency_label (4824859792882810053) -->
+    <!-- no translation found for account_setup_options_mail_check_frequency_label (8321552620846334354) -->
     <skip />
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Mai"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automaticamain (push)"</string>
@@ -247,7 +249,7 @@
     <skip />
     <!-- no translation found for account_setup_failed_dlg_title (9083263347962940552) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_label (7582247646138987328) -->
+    <!-- no translation found for account_setup_options_mail_window_label (7603869690500525594) -->
     <skip />
     <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
     <skip />
