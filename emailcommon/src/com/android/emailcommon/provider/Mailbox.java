@@ -36,13 +36,12 @@ import android.util.SparseBooleanArray;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
 import java.util.ArrayList;
 
-public class Mailbox extends EmailContent implements MailboxColumns, Parcelable {
+public class Mailbox extends EmailContent implements EmailContent.MailboxColumns, Parcelable {
     /**
      * Sync extras key when syncing one or more mailboxes to specify how many
      * mailboxes are included in the extra.
@@ -90,7 +89,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     public static Bundle createSyncBundle(final ArrayList<Long> mailboxIds) {
-        Bundle bundle = new Bundle();
+        final Bundle bundle = new Bundle(mailboxIds.size() + 1);
         bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, mailboxIds.size());
         for (int i = 0; i < mailboxIds.size(); i++) {
             bundle.putLong(formatMailboxIdExtra(i), mailboxIds.get(i));
@@ -99,7 +98,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     public static Bundle createSyncBundle(final long[] mailboxIds) {
-        Bundle bundle = new Bundle();
+        final Bundle bundle = new Bundle(mailboxIds.length + 1);
         bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, mailboxIds.length);
         for (int i = 0; i < mailboxIds.length; i++) {
             bundle.putLong(formatMailboxIdExtra(i), mailboxIds[i]);
@@ -108,7 +107,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     }
 
     public static Bundle createSyncBundle(final long mailboxId) {
-        Bundle bundle = new Bundle();
+        final Bundle bundle = new Bundle(2);
         bundle.putInt(SYNC_EXTRA_MAILBOX_COUNT, 1);
         bundle.putLong(formatMailboxIdExtra(0), mailboxId);
         return bundle;
@@ -123,7 +122,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
             if (bundle.getBoolean(SYNC_EXTRA_ACCOUNT_ONLY, false)) {
                 LogUtils.w(Logging.LOG_TAG, "Mailboxes specified in an account only sync");
             }
-            long [] result = new long[count];
+            final long [] result = new long[count];
             for (int i = 0; i < count; i++) {
                 result[i] = bundle.getLong(formatMailboxIdExtra(i), 0);
             }
@@ -204,14 +203,27 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * MUST be updated.
      */
     public static final String[] CONTENT_PROJECTION = new String[] {
-        RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
-        MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
-        MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
-        MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME, MailboxColumns.FLAG_VISIBLE,
-        MailboxColumns.FLAGS, MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
-        MailboxColumns.LAST_TOUCHED_TIME, MailboxColumns.UI_SYNC_STATUS,
-        MailboxColumns.UI_LAST_SYNC_RESULT, MailboxColumns.TOTAL_COUNT,
-        MailboxColumns.HIERARCHICAL_NAME, MailboxColumns.LAST_FULL_SYNC_TIME
+            MailboxColumns._ID,
+            MailboxColumns.DISPLAY_NAME,
+            MailboxColumns.SERVER_ID,
+            MailboxColumns.PARENT_SERVER_ID,
+            MailboxColumns.ACCOUNT_KEY,
+            MailboxColumns.TYPE,
+            MailboxColumns.DELIMITER,
+            MailboxColumns.SYNC_KEY,
+            MailboxColumns.SYNC_LOOKBACK,
+            MailboxColumns.SYNC_INTERVAL,
+            MailboxColumns.SYNC_TIME,
+            MailboxColumns.FLAG_VISIBLE,
+            MailboxColumns.FLAGS,
+            MailboxColumns.SYNC_STATUS,
+            MailboxColumns.PARENT_KEY,
+            MailboxColumns.LAST_TOUCHED_TIME,
+            MailboxColumns.UI_SYNC_STATUS,
+            MailboxColumns.UI_LAST_SYNC_RESULT,
+            MailboxColumns.TOTAL_COUNT,
+            MailboxColumns.HIERARCHICAL_NAME,
+            MailboxColumns.LAST_FULL_SYNC_TIME
     };
 
     /** Selection by server pathname for a given account */
@@ -220,12 +232,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     private static final String[] MAILBOX_TYPE_PROJECTION = new String [] {
             MailboxColumns.TYPE
-            };
+    };
     private static final int MAILBOX_TYPE_TYPE_COLUMN = 0;
 
     private static final String[] MAILBOX_DISPLAY_NAME_PROJECTION = new String [] {
             MailboxColumns.DISPLAY_NAME
-            };
+    };
     private static final int MAILBOX_DISPLAY_NAME_COLUMN = 0;
 
     /**
@@ -242,9 +254,10 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         public static final int COLUMN_SYNC_KEY = 1;
 
         public static final String[] PROJECTION = {
-                MailboxColumns.SERVER_ID, MailboxColumns.SYNC_KEY
+                MailboxColumns.SERVER_ID,
+                MailboxColumns.SYNC_KEY
         };
-    };
+    }
 
     public static final long NO_MAILBOX = -1;
 
@@ -266,13 +279,6 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
         MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
-
-    public static final Integer[] INVALID_DROP_TARGETS = new Integer[] {Mailbox.TYPE_DRAFTS,
-        Mailbox.TYPE_OUTBOX, Mailbox.TYPE_SENT};
-
-    public static final String USER_VISIBLE_MAILBOX_SELECTION =
-        MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
-        " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
 
     /**
      * Selection for mailboxes that should receive push for an account. A mailbox should receive
@@ -404,17 +410,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
     public static final long QUERY_ALL_DRAFTS = -5;
     public static final long QUERY_ALL_OUTBOX = -6;
 
-    /**
-     * Specifies how many messages will be shown in a folder when it is first synced.
-     */
-    public static final int FIRST_SYNC_MESSAGE_COUNT = 25;
-
     public Mailbox() {
         mBaseUri = CONTENT_URI;
     }
 
     public static String getSystemMailboxName(Context context, int mailboxType) {
-        int resId = -1;
+        final int resId;
         switch (mailboxType) {
             case Mailbox.TYPE_INBOX:
                 resId = R.string.mailbox_name_server_inbox;
@@ -448,8 +449,8 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
      /**
      * Restore a Mailbox from the database, given its unique id
-     * @param context
-     * @param id
+     * @param context Makes provider calls
+     * @param id Row ID of mailbox to restore
      * @return the instantiated Mailbox
      */
     public static Mailbox restoreMailboxWithId(Context context, long id) {
@@ -488,7 +489,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                         mailboxType);
         }
 
-        Mailbox box = new Mailbox();
+        final Mailbox box = new Mailbox();
         box.mAccountKey = accountId;
         box.mType = mailboxType;
         box.mSyncInterval = syncInterval;
@@ -504,12 +505,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * Returns a Mailbox from the database, given its pathname and account id. All mailbox
      * paths for a particular account must be unique. Paths are stored in the column
      * {@link MailboxColumns#SERVER_ID} for want of yet another column in the table.
-     * @param context
+     * @param context Makes provider calls
      * @param accountId the ID of the account
      * @param path the fully qualified, remote pathname
      */
     public static Mailbox restoreMailboxForPath(Context context, long accountId, String path) {
-        Cursor c = context.getContentResolver().query(
+        final Cursor c = context.getContentResolver().query(
                 Mailbox.CONTENT_URI,
                 Mailbox.CONTENT_PROJECTION,
                 Mailbox.PATH_AND_ACCOUNT_SELECTION,
@@ -599,7 +600,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     @Override
     public ContentValues toContentValues() {
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues(20);
         values.put(MailboxColumns.DISPLAY_NAME, mDisplayName);
         values.put(MailboxColumns.SERVER_ID, mServerId);
         values.put(MailboxColumns.PARENT_SERVER_ID, mParentServerId);
@@ -625,12 +626,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     /**
      * Store the updated message count in the database.
-     * @param c
-     * @param count
+     * @param c Makes provider calls
+     * @param count New count
      */
     public void updateMessageCount(final Context c, final int count) {
         if (count != mTotalCount) {
-            ContentValues values = new ContentValues();
+            final ContentValues values = new ContentValues(1);
             values.put(MailboxColumns.TOTAL_COUNT, count);
             update(c, values);
             mTotalCount = count;
@@ -639,12 +640,12 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
 
     /**
      * Store the last full sync time in the database.
-     * @param c
-     * @param syncTime
+     * @param c Makes provider calls
+     * @param syncTime New syncTime
      */
     public void updateLastFullSyncTime(final Context c, final long syncTime) {
         if (syncTime != mLastFullSyncTime) {
-            ContentValues values = new ContentValues();
+            final ContentValues values = new ContentValues(1);
             values.put(MailboxColumns.LAST_FULL_SYNC_TIME, syncTime);
             update(c, values);
             mLastFullSyncTime = syncTime;
@@ -662,7 +663,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return the id of the mailbox, or -1 if not found
      */
     public static long findMailboxOfType(Context context, long accountId, int type) {
-        String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
+        final String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
         return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
                 ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null,
                 ID_PROJECTION_COLUMN, NO_MAILBOX);
@@ -672,7 +673,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * Convenience method that returns the mailbox found using the method above
      */
     public static Mailbox restoreMailboxOfType(Context context, long accountId, int type) {
-        long mailboxId = findMailboxOfType(context, accountId, type);
+        final long mailboxId = findMailboxOfType(context, accountId, type);
         if (mailboxId != Mailbox.NO_MAILBOX) {
             return Mailbox.restoreMailboxWithId(context, mailboxId);
         }
@@ -686,7 +687,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return the mailbox, or null if the mailbox doesn't exist
      */
     public static Mailbox getMailboxForMessageId(Context context, long messageId) {
-        long mailboxId = Message.getKeyColumnLong(context, messageId,
+        final long mailboxId = Message.getKeyColumnLong(context, messageId,
                 MessageColumns.MAILBOX_KEY);
         if (mailboxId != -1) {
             return Mailbox.restoreMailboxWithId(context, mailboxId);
@@ -698,7 +699,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return mailbox type, or -1 if mailbox not found.
      */
     public static int getMailboxType(Context context, long mailboxId) {
-        Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+        final Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         return Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
                 null, null, null, MAILBOX_TYPE_TYPE_COLUMN, -1);
     }
@@ -707,24 +708,9 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * @return mailbox display name, or null if mailbox not found.
      */
     public static String getDisplayName(Context context, long mailboxId) {
-        Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+        final Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         return Utility.getFirstRowString(context, url, MAILBOX_DISPLAY_NAME_PROJECTION,
                 null, null, null, MAILBOX_DISPLAY_NAME_COLUMN);
-    }
-
-    public static int getMailboxMessageCount(Context c, long mailboxId) {
-        Cursor cursor = c.getContentResolver().query(
-                ContentUris.withAppendedId(MESSAGE_COUNT_URI, mailboxId), null, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    return cursor.getInt(0);
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        return 0;
     }
 
     /**
@@ -764,7 +750,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
      * determine if any of the fields have been modified.
      */
     public Object[] getHashes() {
-        Object[] hash = new Object[CONTENT_PROJECTION.length];
+        final Object[] hash = new Object[CONTENT_PROJECTION.length];
 
         hash[CONTENT_ID_COLUMN]
              = mId;
@@ -954,16 +940,14 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
         }
     }
 
-    public static void resyncMailbox(
-            final ContentResolver cr,
-            final android.accounts.Account account,
-            final long mailboxId) {
+    public static void resyncMailbox(final ContentResolver cr,
+            final android.accounts.Account account, final long mailboxId) {
         final Cursor cursor = cr.query(Mailbox.CONTENT_URI,
                 new String[]{
-                        Mailbox.TYPE,
-                        Mailbox.SERVER_ID,
+                        MailboxColumns.TYPE,
+                        MailboxColumns.SERVER_ID,
                 },
-                Mailbox.RECORD_ID + "=?",
+                MailboxColumns._ID + "=?",
                 new String[] {String.valueOf(mailboxId)},
                 null);
         if (cursor == null || cursor.getCount() == 0) {
@@ -990,7 +974,7 @@ public class Mailbox extends EmailContent implements MailboxColumns, Parcelable 
                     .build());
             ops.add(ContentProviderOperation.newUpdate(
                     ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId))
-                    .withValue(Mailbox.SYNC_KEY, "0").build());
+                    .withValue(MailboxColumns.SYNC_KEY, "0").build());
 
             cr.applyBatch(AUTHORITY, ops);
             final Bundle extras = createSyncBundle(mailboxId);
