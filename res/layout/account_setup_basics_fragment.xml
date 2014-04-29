@@ -57,6 +57,6 @@
             android:hint="@string/account_setup_basics_email_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:inputType="textEmailAddress" />
 </LinearLayout>
