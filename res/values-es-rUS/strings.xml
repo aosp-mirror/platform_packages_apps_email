@@ -116,6 +116,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Configuración del servidor de entrada"</string>
     <string name="account_setup_incoming_username_label" msgid="406939983633223354">"NOMBRE DE USUARIO"</string>
     <string name="account_setup_incoming_password_label" msgid="634540235479188709">"CONTRASEÑA"</string>
+    <string name="account_setup_password_subheading" msgid="2072179928666715013">"Contraseña"</string>
     <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"SERVIDOR"</string>
     <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"PUERTO"</string>
     <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"TIPO DE SEGURIDAD"</string>
@@ -145,7 +146,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"ID DE DISPOSITIVO MÓVIL"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Configuración de la cuenta"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opciones de cuenta"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frecuencia de verificación de la bandeja de entrada"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Frecuencia de sincronización:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Comprobación automática"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Cada 5 minutos"</string>
@@ -159,7 +160,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sincronizar el correo desde esta cuenta"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descargar los archivos adjuntos automáticamente al conectarte a Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"No se pudo terminar"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Período de sincronización"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"Sincronizar correo electrónico de:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automático"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Último día"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Últimos tres días"</string>

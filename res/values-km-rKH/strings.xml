@@ -116,6 +116,7 @@
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"ការ​កំណត់​ម៉ាស៊ីន​មេ​​ចូល"</string>
     <string name="account_setup_incoming_username_label" msgid="406939983633223354">"ឈ្មោះ​អ្នក​ប្រើ"</string>
     <string name="account_setup_incoming_password_label" msgid="634540235479188709">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_password_subheading" msgid="2072179928666715013">"ពាក្យសម្ងាត់"</string>
     <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"ម៉ាស៊ីន​​មេ"</string>
     <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"ច្រក"</string>
     <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"ប្រភេទ​​សុវត្ថិភាព"</string>
@@ -145,7 +146,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"លេខ​សម្គាល់​ឧបករណ៍​ចល័ត"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"ការ​កំណត់​គណនី"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"ជម្រើស​គណនី"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"ពិនិត្យ​​ប្រអប់​ទទួល​ញឹកញាប់"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"ប្រេកង់​សម​កាល​កម្ម​៖"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"កុំ"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"ស្វ័យ​ប្រវត្តិ (រុញ​)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"រៀង​រាល់ ៥ នាទី"</string>
@@ -159,7 +160,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"ធ្វើ​សម​កាល​កម្ម​អ៊ីមែល​ពី​គណនី​នេះ"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"ទាញ​យក​ឯកសារ​ភ្ជាប់​​​ស្វ័យប្រវត្តិ​នៅ​ពេល​​ភ្ជាប់​វ៉ាយហ្វាយ"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"មិន​អាច​បញ្ចប់"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ថ្ងៃ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"ធ្វើ​សម​កាល​កម្ម​អ៊ី​មែ​ល​មក​ពី៖"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ស្វ័យប្រវត្តិ"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"ថ្ងៃ​ចុង​ក្រោយ"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"បី​ថ្ងៃ​ចុង​ក្រោយ"</string>
