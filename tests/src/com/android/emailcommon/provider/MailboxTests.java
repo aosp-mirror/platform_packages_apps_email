@@ -16,14 +16,6 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +24,15 @@ import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
+
+import com.android.email.provider.ContentCache;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.Arrays;
 
@@ -39,6 +40,7 @@ import java.util.Arrays;
  * Unit tests for the Mailbox inner class.
  * These tests must be locally complete - no server(s) required.
  */
+@Suppress
 @SmallTest
 public class MailboxTests extends ProviderTestCase2<EmailProvider> {
     private static final String TEST_DISPLAY_NAME = "display-name";
@@ -333,9 +335,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
      * {@link EmailProvider#recalculateMessageCount}.
      *
      * It also covers:
-     * - {@link Mailbox#getMessageCountByMailboxType(Context, int)}
-     * - {@link Mailbox#getUnreadCountByAccountAndMailboxType(Context, long, int)}
-     * - {@link Mailbox#getUnreadCountByMailboxType(Context, int)}
      * - {@link Message#getFavoriteMessageCount(Context)}
      * - {@link Message#getFavoriteMessageCount(Context, long)}
      */
@@ -364,24 +363,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, Message.getFavoriteMessageCount(c));
         assertEquals(0, Message.getFavoriteMessageCount(c, a1.mId));
         assertEquals(0, Message.getFavoriteMessageCount(c, a2.mId));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
-
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_TRASH));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_TRASH));
 
         // 1. Test for insert triggers.
 
@@ -416,24 +397,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(3, Message.getFavoriteMessageCount(c)); // excludes starred in trash
         assertEquals(2, Message.getFavoriteMessageCount(c, a1.mId));
         assertEquals(1, Message.getFavoriteMessageCount(c, a2.mId)); // excludes starred in trash
-        assertEquals(3, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(1, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(4, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(2, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(3, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
-
-        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_TRASH));
-        assertEquals(2, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(3, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_TRASH));
 
         // 2. Check the "move mailbox" trigger.
 
@@ -464,15 +427,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(1, getMessageCount(b2.mId));
         assertEquals(2, getMessageCount(b3.mId));
         assertEquals(1, getMessageCount(b4.mId));
-
-        // No such mailbox type.
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, 99999));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c, a1.mId, 99999));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, 99999));
-
-        // No such account
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                99999, Mailbox.TYPE_INBOX));
     }
 
     private Mailbox buildTestMailbox(String serverId) {
@@ -480,11 +434,9 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
     }
 
     private Mailbox buildTestMailbox(String serverId, String name) {
-        name = (name == null) ? TEST_DISPLAY_NAME : name;
-
         Mailbox testMailbox = new Mailbox();
         testMailbox.mServerId = serverId;
-        testMailbox.mDisplayName = name;
+        testMailbox.mDisplayName = (name == null) ? TEST_DISPLAY_NAME : name;
         testMailbox.mParentServerId = TEST_PARENT_SERVER_ID;
         testMailbox.mSyncKey = TEST_SYNC_KEY;
         testMailbox.mSyncStatus = TEST_SYNC_STATUS;
@@ -497,8 +449,6 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         testMailbox.mSyncLookback = 5;
         testMailbox.mSyncTime = 6L;
         testMailbox.mType = 7;
-        testMailbox.mVisibleLimit = 8;
-        testMailbox.mLastSeenMessageKey = 9L;
         testMailbox.mLastTouchedTime = 10L;
 
         return testMailbox;

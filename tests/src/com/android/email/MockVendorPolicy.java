@@ -19,6 +19,8 @@ package com.android.email;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.android.emailcommon.VendorPolicyLoader;
+
 public class MockVendorPolicy {
     public static String passedPolicy;
     public static Bundle passedBundle;

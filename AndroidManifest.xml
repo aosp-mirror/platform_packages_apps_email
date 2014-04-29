@@ -16,7 +16,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="500060" >
+    android:versionCode="500064" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -339,7 +339,7 @@
         <!-- additional activities -->
 
         <provider
-            android:authorities="com.android.email2.conversation.provider"
+            android:authorities="com.android.email.conversation.provider"
             android:label="@string/conversation_content_provider"
             android:exported="true"
             android:name="com.android.mail.browse.EmailConversationProvider" >
@@ -347,7 +347,7 @@
         </provider>
 
         <provider
-            android:authorities="com.android.email2.accountcache"
+            android:authorities="com.android.email.accountcache"
             android:label="@string/account_cache_provider"
             android:exported="true"
             android:name="com.android.mail.providers.EmailAccountCacheProvider" >

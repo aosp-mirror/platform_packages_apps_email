@@ -24,7 +24,9 @@ import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
 
+import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -39,6 +41,7 @@ import java.net.URISyntaxException;
  *
  * To execute:  runtest -c com.android.email.activity.setup.AccountSettingsTests email
  */
+@Suppress
 @MediumTest
 public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
 
@@ -81,7 +84,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that POP accounts aren't displayed with a push option
      */
-    public void disable_testPushOptionPOP() throws Throwable {
+    public void testPushOptionPOP() throws Throwable {
         Intent i = getTestIntent("Name", "pop3://user:password@server.com",
                 "smtp://user:password@server.com");
         setActivityIntent(i);
@@ -95,7 +98,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that IMAP accounts aren't displayed with a push option
      */
-    public void disable_testPushOptionIMAP() throws Throwable {
+    public void testPushOptionIMAP() throws Throwable {
         Intent i = getTestIntent("Name", "imap://user:password@server.com",
                 "smtp://user:password@server.com");
         setActivityIntent(i);
@@ -109,7 +112,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that EAS accounts are displayed with a push option
      */
-    public void disable_testPushOptionEAS() throws Throwable {
+    public void testPushOptionEAS() throws Throwable {
         Intent i = getTestIntent("Name", "eas://user:password@server.com",
                 "eas://user:password@server.com");
         setActivityIntent(i);
@@ -162,7 +165,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
-        return AccountSettings.createAccountSettingsIntent(mContext, mAccountId, null);
+        // accountId, loginWarningAccountName, loginWarningReason
+        return AccountSettings.createAccountSettingsIntent(mAccountId, null, null);
     }
 
 }

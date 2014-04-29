@@ -21,46 +21,17 @@
     <string name="permission_access_provider_label" msgid="378256653525377586">"Använd data från e-postleverantören"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"Tillåter att appen kommer åt e-postdatabasen med bland annat mottagna meddelanden, skickade meddelanden, användarnamn och lösenord."</string>
     <string name="app_name" msgid="5815426892327290362">"E-post"</string>
-    <string name="compose_title" msgid="427986915662706899">"Skriv"</string>
     <string name="debug_title" msgid="5175710493691536719">"Felsökning"</string>
     <string name="next_action" msgid="3931301986364184415">"Nästa"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Avbryt"</string>
     <string name="previous_action" msgid="5181616311579820981">"Föregående"</string>
-    <string name="send_action" msgid="1729766205562446418">"Skicka"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Svara"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"Svara alla"</string>
-    <string name="delete_action" msgid="8421026208288857155">"Ta bort"</string>
-    <string name="forward_action" msgid="669174181042344116">"Vidarebefordra"</string>
-    <string name="favorite_action" msgid="4664259801498253756">"Stjärnmärk"</string>
     <string name="done_action" msgid="7497990549515580249">"Klar"</string>
     <string name="create_action" msgid="3062715563215392251">"Skapa nytt"</string>
-    <string name="delete_quick_response_action" msgid="3076922270182841978">"Ta bort"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Inga snabba svar."</string>
-    <string name="discard_action" msgid="6532206074859505968">"Släng"</string>
-    <string name="save_draft_action" msgid="6413714270991417223">"Spara utkast"</string>
-    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Infoga snabbsvar"</string>
-    <string name="read_action" msgid="4701484794504781686">"Markera som läst"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Markera som oläst"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Lägg till stjärna"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Ta bort stjärna"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"Uppdatera"</string>
-    <string name="compose_action" msgid="4045702519637388045">"Skriv"</string>
-    <string name="search_action" msgid="6325101454876682308">"Sök"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoinställningar"</string>
-    <string name="settings_action" msgid="6334807007967459412">"Inställningar"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Synkroniseringsalternativ"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Markera som oläst"</string>
-    <string name="move_action" msgid="3059189775933985898">"Flytta"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Lägg till kopia/hemlig kopia"</string>
-    <string name="add_file_attachment" msgid="2203398371671979481">"Bifoga fil"</string>
-    <string name="close_action" msgid="533058985745238100">"Stäng"</string>
-    <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Skicka meddelanden"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Välj bilaga"</string>
-    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Flytta till"</string>
-    <string name="status_loading_messages" msgid="6552307237621292344">"Läser in meddelanden…"</string>
     <string name="status_network_error" msgid="2611654064403817391">"Anslutningsproblem."</string>
-    <string name="error_loading_message_body" msgid="6775234299515596760">"Det gick inte att läsa in meddelandetexten. Meddelandet kan vara för stort för att visas."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Flytta meddelandet"</item>
     <item quantity="other" msgid="371256717624461324">"Flytta meddelanden"</item>
@@ -68,22 +39,6 @@
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"POP3-konton har inte stöd för att flytta meddelanden."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Det går inte att flytta meddelandena. De markerade objekten kommer från flera olika konton."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Det går inte att flytta meddelanden i Utkast, Utkorgen och Skickade."</string>
-  <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> oläst (<xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> oläst (<xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> oläst (<xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
-  </plurals>
-  <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few" msgid="1991747245324120305">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konton"</item>
-    <item quantity="other" msgid="2723797835410343458">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> konton"</item>
-  </plurals>
-    <string name="notification_to_account" msgid="2078557719010667913">"till <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
-    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> nya meddelanden"</string>
-    <string name="account_name_display_all" msgid="837218861494831989">"Alla konton"</string>
-  <plurals name="number_of_accounts">
-    <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> konto"</item>
-    <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> konton"</item>
-  </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Inkorgen"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Utkorgen"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Utkast"</string>
@@ -92,121 +47,17 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Skräp"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Stjärnmärkt"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Olästa"</string>
-    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Inkorg (olästa)"</string>
-    <string name="picker_mailbox_name_all_inbox" msgid="2277030979530376085">"Inkorg (alla)"</string>
-    <string name="picker_combined_view_fmt" msgid="6276294768978512737">"Kombinerad vy (<xliff:g id="COUNT">%s</xliff:g>)"</string>
-  <plurals name="picker_combined_view_account_count">
-    <item quantity="one" msgid="380235084337895804">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> konto"</item>
-    <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> konton"</item>
-  </plurals>
-    <string name="debug_version_fmt" msgid="6160213145745376955">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Inkorgen"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Stjärnmärkta"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Utkast"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Utkorgen"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombinerad vy"</string>
-    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Visa alla mappar"</string>
-    <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Konton"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Senaste mappar (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
-    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Alla mappar"</string>
-    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Senaste mapparna"</string>
-    <string name="message_subject_description" msgid="3597047441062021199">"Ämne"</string>
-    <string name="message_is_empty_description" msgid="4004644319382041459">"Inget ämne"</string>
-    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Hämta fler meddelanden"</string>
-  <plurals name="message_view_selected_message_count">
-    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> markerad"</item>
-    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> markerade"</item>
-  </plurals>
-    <string name="message_list_no_messages" msgid="7846910091922523867">"Inga meddelanden"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Till"</string>
-    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopia"</string>
-    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Hemlig kopia"</string>
-    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Ämne"</string>
-    <string name="message_compose_from_label" msgid="4084843296548498041">"Från:"</string>
-    <string name="to" msgid="4392614766835725698">"Till"</string>
-    <string name="cc" msgid="7017720927911078193">"Kopia"</string>
-    <string name="bcc" msgid="3098643138241111579">"Hemlig kopia"</string>
-    <string name="subject_hint" msgid="7253964583324677128">"Ämne"</string>
-    <string name="body_hint" msgid="4279864165439577668">"Skriv ett e-postmeddelande"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Ursprungligt meddelande --------"\n"Ämne: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Från: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Till: <xliff:g id="TO">%3$s</xliff:g>"\n"Kopia: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> skrev:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Inkludera citerad text"</string>
-    <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Inkludera text"</string>
-    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"Lägg till minst en mottagare."</string>
-    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Några av e-postadresserna är ogiltiga."</string>
-    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen är för stor för att bifogas."</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Ursprungligt meddelande --------\nÄmne: <xliff:g id="SUBJECT">%1$s</xliff:g>\nFrån: <xliff:g id="SENDER">%2$s</xliff:g>\nTill: <xliff:g id="TO">%3$s</xliff:g>\nKopia: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Infoga snabbsvar"</string>
-    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> och <xliff:g id="NUMBER">%2$d</xliff:g> andra"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"Till:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Kopia:"</string>
-    <string name="message_view_bcc_label" msgid="7577479221285310198">"Hemlig kopia:"</string>
-    <string name="message_view_date_label" msgid="7033814961837313339">"Datum:"</string>
-    <string name="message_view_from_label" msgid="6055076379282772675">"Från:"</string>
-    <string name="message_view_subject_label" msgid="3731022187530000852">"Ämne:"</string>
-    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Visa"</string>
-    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Installera"</string>
-    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Spela upp"</string>
-    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Läs in"</string>
-    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
-    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Spara"</string>
-    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Sparad"</string>
-    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stoppa"</string>
-    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Bilagan har sparats som <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Kunde inte spara bilagan."</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Infoga snabbsvar"</string>
     <string name="message_view_attachment_background_load" msgid="7906875687519445185">"En eller flera bilagor i det vidarebefordrade meddelandet hämtas innan de skickas."</string>
-    <string name="message_view_show_message_action" msgid="5134222901019191436">"Meddelande"</string>
-    <string name="message_view_show_invite_action" msgid="8862797393776226777">"Inbjudan"</string>
-  <plurals name="message_view_show_attachments_action">
-    <item quantity="one" msgid="7594476368958824007">"Bilaga <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
-    <item quantity="other" msgid="974463163535515223">"Bilagor <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
-  </plurals>
-    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Visa bilder"</string>
-    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Visa alltid"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Visa alltid bilder från den här avsändaren"</string>
-    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Bilder från den här avsändaren visas automatiskt."</string>
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Visa i Kalender"</string>
-    <string name="message_view_invite_title" msgid="3418949733434713805">"Kalenderinbjudan"</string>
-    <string name="message_view_invite_text" msgid="1212799906603873708">"Delta?"</string>
-    <string name="message_view_invite_accept" msgid="744546668021679819">" Ja"</string>
-    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Kanske"</string>
-    <string name="message_view_invite_decline" msgid="6119797303297149463">" Nej"</string>
-    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Du har accepterat inbjudan."</string>
-    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Du har svarat Kanske på den här inbjudan."</string>
-    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Du har tackat nej till inbjudan."</string>
-    <string name="message_view_show_details" msgid="6287415596441037095">"Visa information"</string>
-    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"Meddelandeinfo"</string>
-    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Information om bifogad fil"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi-anslutning krävs"</string>
-    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi-inställningar"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Appinställningar"</string>
-    <string name="attachment_info_unknown" msgid="8342655396805943320">"Det går inte att öppna den bifogade filen."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Du kan inte spara eller öppna filen eftersom denna typ av bilaga kan innehålla skadlig programvara."</string>
-    <string name="attachment_info_policy" msgid="3560422300127587508">"Det går inte att spara eller öppna bilagan på grund av kontots säkerhetsprinciper."</string>
-    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Den bifogade filen är så stor att du inte kan hämta den via det mobila nätverket. Du kan hämta den nästa gång som enheten ansluts till ett Wi-Fi-nätverk."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Det finns ingen installerad app som kan öppna den här bilagan. Prova att hämta en lämplig app från Android Market."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Den här bilagan är en app. Du måste markera Okända källor i Inställningar &gt; Appar innan du kan installera den."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Appar kan inte installeras direkt från e-post. Spara först appen och installera den sedan med appen Hämtningar."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Det gick inte att hämta bilagan."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"Ett fel inträffade när meddelandet avkodades."</string>
-    <string name="eml_view_title" msgid="8827210108543430336">"Visar <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
-  <plurals name="message_delete_confirm">
-    <item quantity="one" msgid="3799616435056423256">"Vill du ta bort meddelandet?"</item>
-    <item quantity="other" msgid="4437637377522896262">"Vill du ta bort meddelandena?"</item>
-  </plurals>
-  <plurals name="message_deleted_toast">
-    <item quantity="one" msgid="710742672464447084">"Meddelandet tas bort."</item>
-    <item quantity="other" msgid="6574961322865652255">"Meddelandena har tagits bort."</item>
-  </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"Meddelandet slängs."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"Meddelande sparat som utkast."</string>
-    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Det går inte att visa bilagan."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Det gick inte att läsa in bilagan <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Meddelandet öppnas..."</string>
-  <plurals name="message_moved_toast">
-    <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> meddelandet har flyttats till <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
-    <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> meddelanden har flyttats till <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
-  </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Det gick inte att vidarebefordra en eller flera bilagor."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Bilagan vidarebefordrades inte"</string>
     <string name="login_failed_ticker" msgid="2169365211566829350">"Det gick inte att logga in <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
@@ -227,15 +78,11 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Nyare"</string>
-    <string name="message_view_move_to_older" msgid="4993043091356700890">"Äldre"</string>
-    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Kontoinställningar"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-postkonto"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Du kan konfigurera ditt konto med några få steg."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-postadress"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Lösenord"</string>
-    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"Skicka e-post från det här kontot som standard"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuell inställning"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Ange en giltig e-postadress och lösenord."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Dubblettkonto"</string>
@@ -278,12 +125,6 @@
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Kräv inloggning"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Användarnamn"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Lösenord"</string>
-    <string name="account_setup_exchange_title" msgid="396004732514751781">"Kontoinställningar"</string>
-    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Serverinställningar"</string>
-    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domän\\Användarnamn"</string>
-    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Använd säker anslutning (SSL)"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Acceptera alla SSL-certifikat"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"Klientcertifikat"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Välj"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Använd klientcertifikat"</string>
@@ -308,22 +149,24 @@
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Det gick inte att avsluta"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dagar för synkronisering"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisk"</string>
-    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"En dag"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tre dagar"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"En vecka"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Två veckor"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"En månad"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Sista dagen"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Senaste tre dagarna"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"Förra veckan"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Senaste två veckorna"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Förra månaden"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alla"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Använd standardinställning"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Använd kontostandarden"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Användarnamnet eller lösenordet är felaktigt."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Inloggningen misslyckades."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Inloggningen misslyckades.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Problem med att konfigurera kontot"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Bekräfta att användarnamn, lösenord och kontoinställningar är rätt."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Det går inte att upprätta en säker anslutning till servern."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Det går inte att upprätta en säker anslutning till servern."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Det går inte att upprätta en säker anslutning till servern.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"Ett klientcertifikat måste anges. Vill du ansluta till servern med ett klientcertifikat?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Certifikatet är ogiltigt eller otillgängligt."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Servern svarade med ett fel. Kontrollera ditt användarnamn och lösenord och försök igen."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Det går inte att ansluta till servern."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Det går inte att ansluta till servern."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Det går inte att ansluta till servern.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS krävs men stöds inte av servern."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Servern stöder inte autentiseringsmetoderna."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Det gick inte att ansluta till servern på grund av ett säkerhetsfel."</string>
@@ -363,7 +206,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-postaviseringar"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsfrekvens, aviseringar osv."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Skicka meddelande när du får e-post"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Intervall för e-postkontroll"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Synkfrekvens"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Inkommande inställningar"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Användarnamn, lösenord och andra inkommande serverinställningar"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Utgående inställningar"</string>
@@ -388,7 +231,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Mappen Skickade objekt"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Välj mapp för skickade objekt på servern"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Välj mapp för skickade objekt på servern"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Redigera snabbsvar"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Snabbsvar"</string>
     <string name="save_action" msgid="1988862706623227093">"Spara"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Synkronisera kontakter"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Synkronisera kontakter för det här kontot"</string>
@@ -399,26 +242,12 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrera"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Välj ringsignal"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinställningar"</string>
-    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Ta bort konto"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontot <xliff:g id="ACCOUNT">%s</xliff:g> tas bort från E-post."</string>
-    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Ta bort konto"</string>
-    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Ta bort konto"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Synkroniseringsalternativ"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Synkroniseringsalternativ ( <xliff:g id="MAILBOXX_NAME">%s</xliff:g> )"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Synkroniseringsinställningar"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Dagar för synkronisering"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Bild på avsändare"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Visa bild"</item>
-    <item msgid="2226691218102223696">"Visa ingenting"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"Välj om du vill visa bilder på avsändarna i konversationsvyn"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synkronisera den här mappen"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Meddelandena hämtas när du är ansluten"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Dagar med e-post som ska synkroniseras"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Bild på avsändare"</string>
-    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Epostkonto"</string>
-    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Välj ett konto"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Välj en mapp"</string>
-    <string name="toast_account_not_found" msgid="8144242451730692816">"Kontot hittades inte. Det kan ha tagits bort."</string>
-    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Mappen hittades inte. Den kan ha tagits bort."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"POP-åtkomst, som gör att denna app kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst till dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>
@@ -426,14 +255,8 @@
     <string name="system_account_create_failed" msgid="3673792980526246177">"Det gick inte att skapa kontot. Försök igen."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-post"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Aktiverar serverangivna säkerhetsprinciper"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"Söker <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
-  <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultat från <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultat från <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
-  </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Inställningar"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Allmänna inställningar"</string>
-    <string name="category_general_preferences" msgid="2742423840964045801">"App"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bekräfta innan du tar bort"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Meddelanden"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bekräfta innan du skickar"</string>
@@ -452,24 +275,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Stor"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Jättestor"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"Bilder i meddelanden kommer inte att visas automatiskt"</string>
-    <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> av <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Väntar på synk"</string>
-    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"Din e-post visas snart."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Tryck för att ändra."</string>
-    <string name="widget_all_mail" msgid="4352573990283094963">"Kombinerad inkorg"</string>
-    <string name="widget_unread" msgid="4404711399009077833">"Olästa"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"Stjärnmärkt"</string>
-    <string name="widget_loading" msgid="2340962056927255554">"Läser in..."</string>
-    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Tryck här för att konfigurera."</string>
-    <string name="widget_no_accounts" msgid="2412482205591224408">"Du har ännu inte skapat ett e-postkonto."</string>
     <string name="more_than_999" msgid="8704425397397918798">"&gt;999"</string>
     <string name="search_hint" msgid="2200412192574686497">"Sök efter e-post"</string>
-    <string name="search_mailbox_hint" msgid="7854987729678942790">"Sök i <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="search_header_text_fmt" msgid="3857004638127418247">"Sökresultat för <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="search_slow_warning_title" msgid="2826118321880530239">"Väntar på resultat"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"Vissa servrar kan ta lång tid."</string>
-    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mappar"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Tillåt inte användning av kameran"</string>
     <string name="policy_require_password" msgid="7177274900480984702">"Kräv lösenord för enheten"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Begränsa återanvändning av lösenord"</string>
@@ -489,6 +296,5 @@
     <string name="folder_picker_title" msgid="860241987640527156">"Mappväljaren"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Välj mapp för papperskorgen på servern för <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Välj mapp för skickade objekt på servern för <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="create_new_folder" msgid="2726544180243210741">"Skapa mapp"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Mapplistan läses in …"</string>
 </resources>

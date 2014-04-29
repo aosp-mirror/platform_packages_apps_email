@@ -17,9 +17,9 @@
 package com.android.emailcommon.provider;
 
 import android.content.Context;
-import android.os.Parcel;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
@@ -27,6 +27,7 @@ import com.android.email.provider.EmailProvider;
 /**
  * Unit tests for the QuickResponse class
  */
+@Suppress
 @SmallTest
 public class QuickResponseTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
@@ -43,28 +44,6 @@ public class QuickResponseTests extends ProviderTestCase2<EmailProvider> {
         mProvider = getProvider();
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCaches();
-    }
-
-    // This class no longer has any content
-    public void brokenTestParcelling() {
-        QuickResponse original = new QuickResponse(7, "quick response text");
-
-        Parcel p = Parcel.obtain();
-        original.writeToParcel(p, 0);
-
-        // Reset.
-        p.setDataPosition(0);
-
-        QuickResponse unparcelled = QuickResponse.CREATOR.createFromParcel(p);
-        assert(original.equals(unparcelled));
-
-        QuickResponse phony = new QuickResponse(17, "quick response text");
-        assert(!(phony.equals(unparcelled)));
-
-        QuickResponse phony2 = new QuickResponse(7, "different text");
-        assert(!(phony2.equals(unparcelled)));
-
-        p.recycle();
     }
 }
 

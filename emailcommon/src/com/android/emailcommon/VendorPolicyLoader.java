@@ -99,7 +99,7 @@ public class VendorPolicyLoader {
      * Constructor for testing, where we need to use an alternate package/class name, and skip
      * the system apk check.
      */
-    /* package */ VendorPolicyLoader(Context context, String apkPackageName, String className,
+    public VendorPolicyLoader(Context context, String apkPackageName, String className,
             boolean allowNonSystemApk) {
         if (!allowNonSystemApk && !isSystemPackage(context, apkPackageName)) {
             mPolicyMethod = null;
@@ -127,7 +127,7 @@ public class VendorPolicyLoader {
     }
 
     // Not private for testing
-    /* package */ static boolean isSystemPackage(Context context, String packageName) {
+    public static boolean isSystemPackage(Context context, String packageName) {
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(packageName, 0);
             return (ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -142,7 +142,7 @@ public class VendorPolicyLoader {
      * getPolicy returns null).
      */
     // Not private for testing
-    /* package */ Bundle getPolicy(String policy, Bundle args) {
+    public Bundle getPolicy(String policy, Bundle args) {
         Bundle ret = null;
         if (mPolicyMethod != null) {
             try {

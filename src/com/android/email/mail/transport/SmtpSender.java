@@ -75,7 +75,7 @@ public class SmtpSender extends Sender {
      * up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
-    /* package */ void setTransport(MailTransport testTransport) {
+    public void setTransport(MailTransport testTransport) {
         mTransport = testTransport;
     }
 

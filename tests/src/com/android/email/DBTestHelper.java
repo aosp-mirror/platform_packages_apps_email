@@ -16,12 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.provider.AttachmentProvider;
-import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.utility.AttachmentUtilities;
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -36,6 +30,12 @@ import android.test.RenamingDelegatingContext;
 import android.test.mock.MockContentResolver;
 import android.test.mock.MockContext;
 import android.test.mock.MockCursor;
+
+import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.ContentCache;
+import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 
 import java.io.File;
 
@@ -238,7 +238,7 @@ public final class DBTestHelper {
 
             final AttachmentProvider ap = new AttachmentProvider();
             ap.attachInfo(providerContext, null);
-            resolver.addProvider(AttachmentUtilities.AUTHORITY, ap);
+            resolver.addProvider(Attachment.ATTACHMENT_PROVIDER_LEGACY_URI_PREFIX, ap);
 
             ContentCache.invalidateAllCaches();
 

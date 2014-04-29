@@ -25,62 +25,21 @@
     <!-- no translation found for permission_access_provider_desc (6296566558584670348) -->
     <skip />
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
-    <string name="compose_title" msgid="427986915662706899">"Nov messadi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
     <string name="next_action" msgid="3931301986364184415">"Vinavant"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Interrumper"</string>
     <!-- no translation found for previous_action (5181616311579820981) -->
     <skip />
-    <string name="send_action" msgid="1729766205562446418">"Trametter"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Respunder"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"Respunder a tuts"</string>
-    <string name="delete_action" msgid="8421026208288857155">"Stizzar"</string>
-    <string name="forward_action" msgid="669174181042344116">"Transferir"</string>
-    <!-- no translation found for favorite_action (4664259801498253756) -->
-    <skip />
     <string name="done_action" msgid="7497990549515580249">"Terminà"</string>
     <!-- no translation found for create_action (3062715563215392251) -->
     <skip />
-    <!-- no translation found for delete_quick_response_action (3076922270182841978) -->
-    <skip />
     <!-- no translation found for quick_responses_empty_view (3960050972306132367) -->
     <skip />
-    <string name="discard_action" msgid="6532206074859505968">"Sbittar"</string>
-    <!-- no translation found for save_draft_action (6413714270991417223) -->
-    <skip />
-    <!-- no translation found for show_quick_text_list_dialog_action (4136018559611145202) -->
-    <skip />
-    <string name="read_action" msgid="4701484794504781686">"Marcar sco legì"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Marcà sco nunlegì"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Agiuntar ina staila"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Allontanar la staila"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"Actualisar"</string>
-    <string name="compose_action" msgid="4045702519637388045">"Nov messadi"</string>
-    <string name="search_action" msgid="6325101454876682308">"Tschertgar"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Parameters dal conto"</string>
-    <!-- no translation found for settings_action (6334807007967459412) -->
-    <skip />
     <!-- no translation found for menu_folder_options (2871906096248843471) -->
     <skip />
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar sco nunlegì"</string>
-    <!-- no translation found for move_action (3059189775933985898) -->
-    <skip />
-    <!-- no translation found for add_cc_bcc_menu (4757145078498200242) -->
-    <skip />
-    <!-- no translation found for add_file_attachment (2203398371671979481) -->
-    <skip />
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
-    <!-- no translation found for message_list_send_pending_messages_action (8502942186631824114) -->
-    <skip />
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Tscherner ina agiunta"</string>
-    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
-    <skip />
-    <string name="status_loading_messages" msgid="6552307237621292344">"Ils messadis vegnan chargiads…"</string>
     <!-- no translation found for status_network_error (2611654064403817391) -->
-    <skip />
-    <!-- no translation found for error_loading_message_body (6775234299515596760) -->
     <skip />
     <!-- no translation found for move_messages:one (320885379869442589) -->
     <!-- no translation found for move_messages:other (371256717624461324) -->
@@ -90,23 +49,6 @@
     <skip />
     <!-- no translation found for cannot_move_special_mailboxes_toast (7093107954841896970) -->
     <skip />
-  <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nunlegì (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nunlegids (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> nunlegids (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-  </plurals>
-  <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contos"</item>
-    <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contos"</item>
-  </plurals>
-    <!-- no translation found for notification_to_account (2078557719010667913) -->
-    <skip />
-    <!-- no translation found for notification_multiple_new_messages_fmt (2606649762841566104) -->
-    <skip />
-    <!-- no translation found for account_name_display_all (837218861494831989) -->
-    <skip />
-    <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
-    <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Posta entrada"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Posta sortida"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Sbozs"</string>
@@ -117,15 +59,6 @@
     <skip />
     <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
     <skip />
-    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
-    <skip />
-    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
-    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
-    <string name="debug_version_fmt" msgid="6160213145745376955">"Versiun: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <!-- no translation found for account_folder_list_summary_inbox (7518263761297423255) -->
     <skip />
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Cun staila"</string>
@@ -133,157 +66,17 @@
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Posta sortida"</string>
     <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
     <skip />
-    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
-    <skip />
-    <!-- no translation found for mailbox_list_account_selector_account_header (4261295503836387876) -->
-    <skip />
-    <!-- no translation found for mailbox_list_account_selector_mailbox_header_fmt (3320144348694625092) -->
-    <skip />
-    <!-- no translation found for mailbox_list_user_mailboxes (484260487104726379) -->
-    <skip />
-    <!-- no translation found for mailbox_list_recent_mailboxes (8922653040520361032) -->
-    <skip />
-    <!-- no translation found for message_subject_description (3597047441062021199) -->
-    <skip />
-    <!-- no translation found for message_is_empty_description (4004644319382041459) -->
-    <skip />
-    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Chargiar ulteriurs messadis"</string>
-  <plurals name="message_view_selected_message_count">
-    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selected"</item>
-    <item quantity="other" msgid="7901361399231876038">"Tschernì <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
-  </plurals>
-    <!-- no translation found for message_list_no_messages (7846910091922523867) -->
-    <skip />
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"A"</string>
-    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
-    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
-    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Object"</string>
-    <!-- no translation found for message_compose_from_label (4084843296548498041) -->
-    <skip />
-    <!-- no translation found for to (4392614766835725698) -->
-    <skip />
-    <!-- no translation found for cc (7017720927911078193) -->
-    <skip />
-    <!-- no translation found for bcc (3098643138241111579) -->
-    <skip />
-    <!-- no translation found for subject_hint (7253964583324677128) -->
-    <skip />
-    <!-- no translation found for body_hint (4279864165439577668) -->
-    <skip />
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------"\n"Object: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Da: <xliff:g id="SENDER">%2$s</xliff:g>"\n"A: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha scrit:"\n\n</string>
-    <!-- no translation found for message_compose_quoted_text_label (6950097435198536165) -->
-    <skip />
-    <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
-    <skip />
-    <!-- no translation found for message_compose_error_no_recipients (140299472517968199) -->
-    <skip />
-    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Tschertas adressas dad e-mail èn nuncorrectas."</string>
-    <string name="message_compose_attachment_size" msgid="4401081828287333647">"L\'agiunta è memia gronda."</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Messadi original --------\nObject: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDa: <xliff:g id="SENDER">%2$s</xliff:g>\nA: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <!-- no translation found for message_compose_insert_quick_response_list_title (5314107302508728189) -->
     <skip />
-    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> auters"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"A:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
-    <!-- no translation found for message_view_from_label (6055076379282772675) -->
-    <skip />
-    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
-    <skip />
-    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Far ir"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
-    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Chargiar"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
-    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Memorisar"</string>
-    <!-- no translation found for message_view_attachment_saved (3432810414785232025) -->
-    <skip />
-    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Fermar"</string>
-    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
-    <skip />
-    <!-- no translation found for message_view_status_attachment_not_saved (4013475734255421939) -->
+    <!-- no translation found for message_compose_insert_quick_response_menu_title (5817075097532919955) -->
     <skip />
     <!-- no translation found for message_view_attachment_background_load (7906875687519445185) -->
-    <skip />
-    <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
-    <skip />
-    <!-- no translation found for message_view_show_invite_action (8862797393776226777) -->
-    <skip />
-    <!-- no translation found for message_view_show_attachments_action:one (7594476368958824007) -->
-    <!-- no translation found for message_view_show_attachments_action:other (974463163535515223) -->
-    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mussar ils maletgs"</string>
-    <!-- no translation found for message_view_always_show_pictures_button (6523810929103546865) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_prompt (7685500276479967959) -->
-    <skip />
-    <!-- no translation found for message_view_always_show_pictures_confirmation (6838463134312859448) -->
-    <skip />
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Mussar en il chalender"</string>
-    <!-- no translation found for message_view_invite_title (3418949733434713805) -->
-    <skip />
-    <string name="message_view_invite_text" msgid="1212799906603873708">"Participar?"</string>
-    <string name="message_view_invite_accept" msgid="744546668021679819">" Gea"</string>
-    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Forsa"</string>
-    <string name="message_view_invite_decline" msgid="6119797303297149463">" Na"</string>
-    <!-- no translation found for message_view_invite_toast_yes (6802274503171644414) -->
-    <skip />
-    <!-- no translation found for message_view_invite_toast_maybe (8547454326090527202) -->
-    <skip />
-    <!-- no translation found for message_view_invite_toast_no (1842341256942784143) -->
-    <skip />
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (9042008615386883449) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (4124655487276125596) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (6576029010855055528) -->
-    <skip />
-    <!-- no translation found for attachment_info_policy (3560422300127587508) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (8139209405745777924) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (3270731101769840006) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (2817790592227462682) -->
     <skip />
     <!-- no translation found for attachment_not_found (7155322700141145123) -->
     <skip />
     <!-- no translation found for message_decode_error (5016042255170947834) -->
     <skip />
-    <!-- no translation found for eml_view_title (8827210108543430336) -->
-    <skip />
-    <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
-    <!-- no translation found for message_delete_confirm:one (3799616435056423256) -->
-    <!-- no translation found for message_delete_confirm:other (4437637377522896262) -->
-  <plurals name="message_deleted_toast">
-    <item quantity="one" msgid="710742672464447084">"Messadi stizzà"</item>
-    <item quantity="other" msgid="6574961322865652255">"Stizzà ils messadis"</item>
-  </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"Stizzà il messadi"</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"Memorisà il messadi sco sboz."</string>
-    <!-- no translation found for message_view_display_attachment_toast (7714482237896346836) -->
-    <skip />
-    <!-- no translation found for message_view_load_attachment_failed_toast (8605967295095023587) -->
-    <skip />
-    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Avrir il messadi..."</string>
-    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
-    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
     <!-- no translation found for forward_download_failed_ticker (6176608320359303255) -->
     <skip />
     <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
@@ -308,12 +101,6 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
-    <!-- no translation found for message_view_move_to_older (4993043091356700890) -->
-    <skip />
-    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
-    <skip />
     <!-- no translation found for account_setup_basics_title (3578333196594678422) -->
     <skip />
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
@@ -323,8 +110,6 @@
     <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
     <skip />
     <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_default_label (8896222991837026736) -->
     <skip />
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuraziun manuala"</string>
     <!-- no translation found for account_setup_username_password_toast (3968270274727947460) -->
@@ -390,14 +175,6 @@
     <skip />
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Num d\'utilisader"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Pled-clav"</string>
-    <!-- no translation found for account_setup_exchange_title (396004732514751781) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_headline (6099049671599242131) -->
-    <skip />
-    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domena/num d\'utilisader"</string>
-    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilisar ina connexiun segira (SSL)"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Acceptar tut ils certificats SSL"</string>
     <!-- no translation found for account_setup_exchange_certificate_title (8473793588405277962) -->
     <skip />
     <!-- no translation found for account_setup_exchange_select_certificate (1536103662037268683) -->
@@ -438,18 +215,27 @@
     <skip />
     <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
     <skip />
-    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"In di"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Trais dis"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Ina emna"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Duas emnas"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"In mais"</string>
+    <!-- no translation found for account_setup_options_mail_window_1day (7727436096227637646) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_3days (1841106793912850270) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1week (5804121771990249346) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_2weeks (3583478100026382495) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_window_1month (4289585173153789717) -->
+    <skip />
     <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
     <skip />
-    <!-- no translation found for account_setup_options_mail_window_default (8321351926520165832) -->
+    <!-- no translation found for account_setup_options_mail_window_default (2540360826995543134) -->
     <skip />
     <!-- no translation found for account_setup_failed_dlg_auth_message (426627755590431364) -->
     <skip />
     <!-- no translation found for account_setup_failed_dlg_auth_message_fmt (2081384892947238930) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_title (7365992662150541370) -->
+    <skip />
+    <!-- no translation found for account_setup_autodiscover_dlg_authfail_message (8354874879956702097) -->
     <skip />
     <!-- no translation found for account_setup_failed_dlg_certificate_message (3836152264696108805) -->
     <skip />
@@ -538,7 +324,7 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"\"Frequenza da sincronisaziun, avis, etc.\""</string>
     <!-- no translation found for account_settings_notify_summary (8134339460923068254) -->
     <skip />
-    <!-- no translation found for account_settings_mail_check_frequency_label (8271462919214560616) -->
+    <!-- no translation found for account_settings_mail_check_frequency_label (4322235101687302250) -->
     <skip />
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Messadis che entran"</string>
     <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
@@ -583,7 +369,7 @@
     <skip />
     <!-- no translation found for system_folders_sent_dlg (7071006714702094762) -->
     <skip />
-    <!-- no translation found for edit_quick_response_dialog (4322494050816995390) -->
+    <!-- no translation found for edit_quick_response_dialog (6479106007607928450) -->
     <skip />
     <!-- no translation found for save_action (1988862706623227093) -->
     <skip />
@@ -599,35 +385,17 @@
     <!-- no translation found for account_settings_ringtone (8229878374785575207) -->
     <skip />
     <string name="account_settings_servers" msgid="4925493817981624242">"Parameters dal server"</string>
-    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Stizzar il conto"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» vegn stizzà da Voss e-mail."</string>
-    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Stizzar il conto"</string>
-    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Stizzar il conto"</string>
     <!-- no translation found for mailbox_settings_activity_title (4705845931573373274) -->
     <skip />
     <!-- no translation found for mailbox_settings_activity_title_with_mailbox (6485481250424219240) -->
     <skip />
-    <!-- no translation found for mailbox_preferences_header (9077316556563252246) -->
+    <!-- no translation found for mailbox_settings_sync_enabled_label (1180866791599296994) -->
     <skip />
-    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (2957945231022052672) -->
+    <!-- no translation found for mailbox_settings_sync_enabled_summary (345878979425044320) -->
     <skip />
-    <!-- no translation found for preference_conversation_list_icon_title (2691641598368725077) -->
-    <skip />
-    <!-- no translation found for prefEntries_conversationListIconName:0 (228585958140385749) -->
-    <!-- no translation found for prefEntries_conversationListIconName:1 (2226691218102223696) -->
-    <!-- no translation found for preference_conversation_list_icon_summary (4654821690566370979) -->
+    <!-- no translation found for mailbox_settings_mailbox_sync_window_label (851180833264474141) -->
     <skip />
     <!-- no translation found for prefDialogTitle_conversationListIcon (4601797400885989153) -->
-    <skip />
-    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
-    <skip />
-    <!-- no translation found for account_shortcut_picker_title (1039929224016048015) -->
-    <skip />
-    <!-- no translation found for mailbox_shortcut_picker_title (4152973927804882131) -->
-    <skip />
-    <!-- no translation found for toast_account_not_found (8144242451730692816) -->
-    <skip />
-    <!-- no translation found for toast_mailbox_not_found (4960014581292378895) -->
     <skip />
     <!-- no translation found for provider_note_live (2995297671709325333) -->
     <skip />
@@ -639,16 +407,9 @@
     <skip />
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Activescha las directivas da segirezza specificas per il server"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"Tschertgar <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
-  <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultat da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultats da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
-  </plurals>
     <!-- no translation found for settings_activity_title (5185915603716333904) -->
     <skip />
     <!-- no translation found for header_label_general_preferences (8243724566056800991) -->
-    <skip />
-    <!-- no translation found for category_general_preferences (2742423840964045801) -->
     <skip />
     <!-- no translation found for general_preference_confirm_delete_label (1863245465244241907) -->
     <skip />
@@ -677,41 +438,9 @@
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
     <skip />
-    <!-- no translation found for general_preferences_clear_trusted_senders_summary (2648501128162793879) -->
-    <skip />
-    <!-- no translation found for position_of_count (7989353140376877792) -->
-    <skip />
-    <!-- no translation found for waitinf_for_sync_message_1 (1393719303955128036) -->
-    <skip />
-    <!-- no translation found for waitinf_for_sync_message_2 (5656175205790694016) -->
-    <skip />
-    <!-- no translation found for widget_other_views (4988574907386539499) -->
-    <skip />
-    <!-- no translation found for widget_all_mail (4352573990283094963) -->
-    <skip />
-    <!-- no translation found for widget_unread (4404711399009077833) -->
-    <skip />
-    <!-- no translation found for widget_starred (8290352707134011791) -->
-    <skip />
-    <!-- no translation found for widget_loading (2340962056927255554) -->
-    <skip />
-    <!-- no translation found for widget_touch_to_configure (7062039013915225323) -->
-    <skip />
-    <!-- no translation found for widget_no_accounts (2412482205591224408) -->
-    <skip />
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
     <!-- no translation found for search_hint (2200412192574686497) -->
-    <skip />
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <!-- no translation found for search_header_text_fmt (3857004638127418247) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_title (2826118321880530239) -->
-    <skip />
-    <!-- no translation found for search_slow_warning_message (8494483410797387903) -->
-    <skip />
-    <!-- no translation found for action_bar_mailbox_list_title (7484457755531286333) -->
     <skip />
     <!-- no translation found for policy_dont_allow_camera (5744573062306937302) -->
     <skip />
@@ -750,8 +479,6 @@
     <!-- no translation found for trash_folder_selection_title (8052880079616386185) -->
     <skip />
     <!-- no translation found for sent_folder_selection_title (2668629667423320684) -->
-    <skip />
-    <!-- no translation found for create_new_folder (2726544180243210741) -->
     <skip />
     <!-- no translation found for account_waiting_for_folders_msg (6504836014579036923) -->
     <skip />

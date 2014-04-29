@@ -16,13 +16,14 @@
 
 package com.android.email;
 
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.Suppress;
+
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Large tests for {@link Utility}.
  */
+@Suppress
 @LargeTest
 public class UtilityLargeTest extends InstrumentationTestCase {
     private static final int WAIT_UNTIL_TIMEOUT_SECONDS = 10;

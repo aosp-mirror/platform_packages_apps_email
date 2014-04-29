@@ -46,7 +46,6 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.SyncStateContract;
 
 import com.android.email.R;
-import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -634,21 +633,8 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void startSync(long mailboxId, boolean userRequest, int deltaMessageCount)
-                throws RemoteException {
-        }
-
-        @Override
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        @Override
-        public void loadMore(long messageId) throws RemoteException {
-        }
-
-        @Override
-        public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
-                final boolean background) throws RemoteException {
+        public void loadAttachment(final IEmailServiceCallback cb, final long accountId,
+                final long attachmentId, final boolean background) throws RemoteException {
         }
 
         @Override
@@ -656,27 +642,7 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
-
-        @Override
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
-
-        @Override
         public void setLogging(int on) throws RemoteException {
-        }
-
-        @Override
-        public void hostChanged(long accountId) throws RemoteException {
         }
 
         @Override
@@ -693,11 +659,6 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public int getApiLevel() throws RemoteException {
-            return Api.LEVEL;
-        }
-
-        @Override
         public int searchMessages(long accountId, SearchParams params, long destMailboxId)
                 throws RemoteException {
             return 0;
@@ -708,12 +669,13 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void serviceUpdated(String emailAddress) throws RemoteException {
+        public void pushModify(long accountId) throws RemoteException {
         }
 
         @Override
-        public int getCapabilities(Account acct) throws RemoteException {
-            return 0;
+        public void sync(final long accountId, final boolean updateFolderList,
+                final int mailboxType, final long[] folders) {
         }
+
     }
 }

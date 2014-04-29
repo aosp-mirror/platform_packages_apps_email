@@ -52,7 +52,6 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
-import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.providers.UIProvider.AttachmentState;
 import com.android.mail.utils.LogUtils;
 
@@ -77,25 +76,14 @@ public class Pop3Service extends Service {
      */
     private final EmailServiceStub mBinder = new EmailServiceStub() {
         @Override
-        public int getCapabilities(Account acct) throws RemoteException {
-            return AccountCapabilities.UNDO |
-                    AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
-        }
-
-        @Override
-        public void loadAttachment(final IEmailServiceCallback callback, final long attachmentId,
-                final boolean background) throws RemoteException {
+        public void loadAttachment(final IEmailServiceCallback callback, final long accountId,
+                final long attachmentId, final boolean background) throws RemoteException {
             Attachment att = Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (att == null || att.mUiState != AttachmentState.DOWNLOADING) return;
             long inboxId = Mailbox.findMailboxOfType(mContext, att.mAccountKey, Mailbox.TYPE_INBOX);
             if (inboxId == Mailbox.NO_MAILBOX) return;
             // We load attachments during a sync
-            startSync(inboxId, true, 0);
-        }
-
-        @Override
-        public void serviceUpdated(String emailAddress) throws RemoteException {
-            // Not required for POP3
+            requestSync(inboxId, true, 0);
         }
     };
 

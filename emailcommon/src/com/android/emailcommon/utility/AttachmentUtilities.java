@@ -151,6 +151,20 @@ public class AttachmentUtilities {
                 .build();
     }
 
+    // exposed for testing
+    public static Uri getAttachmentThumbnailUri(long accountId, long id, long width, long height) {
+        if (sUri == null) {
+            sUri = Uri.parse(Attachment.ATTACHMENT_PROVIDER_URI_PREFIX);
+        }
+        return sUri.buildUpon()
+                .appendPath(Long.toString(accountId))
+                .appendPath(Long.toString(id))
+                .appendPath(FORMAT_THUMBNAIL)
+                .appendPath(Long.toString(width))
+                .appendPath(Long.toString(height))
+                .build();
+    }
+
     /**
      * Return the filename for a given attachment.  This should be used by any code that is
      * going to *write* attachments.

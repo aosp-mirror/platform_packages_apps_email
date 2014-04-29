@@ -1,4 +1,4 @@
-# Copyright 2008, The Android Open Source Project
+# Copyright 2011, The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,22 +13,28 @@
 # limitations under the License.
 
 LOCAL_PATH:= $(call my-dir)
+
+src_dirs := src
+res_dirs := res
+
+##################################################
+
 include $(CLEAR_VARS)
 
 # We only want this apk build for tests.
 LOCAL_MODULE_TAGS := tests
 
-LOCAL_JAVA_LIBRARIES := android.test.runner
+# LOCAL_JAVA_LIBRARIES := android.test.runner
 
-# Include all test java files.
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
-
-# Notice that we don't have to include the src files of Email because, by
-# running the tests using an instrumentation targeting Email, we
-# automatically get all of its classes loaded into our environment.
-
+LOCAL_SDK_VERSION := 14
 LOCAL_PACKAGE_NAME := EmailTests
-
 LOCAL_INSTRUMENTATION_FOR := Email
 
+LOCAL_SRC_FILES := $(call all-java-files-under, $(src_dirs))
+LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dirs))
+LOCAL_AAPT_FLAGS := --auto-add-overlay
+
 include $(BUILD_PACKAGE)
+
+# Build all sub-directories
+include $(call all-makefiles-under,$(LOCAL_PATH))

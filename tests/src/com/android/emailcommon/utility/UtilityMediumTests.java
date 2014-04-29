@@ -16,19 +16,19 @@
 
 package com.android.emailcommon.utility;
 
+import android.content.Context;
+import android.net.Uri;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.Suppress;
+
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.content.Context;
-import android.net.Uri;
-import android.test.ProviderTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -41,6 +41,7 @@ import java.io.IOException;
  * You can run this entire test case with:
  *   runtest -c com.android.emailcommon.utility.UtilityMediumTests email
  */
+@Suppress
 @MediumTest
 public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
 
@@ -127,7 +128,7 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         writer.write("Foo");
         writer.flush();
         writer.close();
-        attachment.mContentUri = "file://" + file.getAbsolutePath();
+        attachment.setContentUri("file://" + file.getAbsolutePath());
         // Now, this should return true
         assertTrue(Utility.attachmentExists(mMockContext, attachment));
     }

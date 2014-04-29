@@ -21,46 +21,17 @@
     <string name="permission_access_provider_label" msgid="378256653525377586">"E-posta sağlayıcı verilerine eriş"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"Uygulamaya, alınan iletiler, gönderilen iletiler, kullanıcı adları ve şifreler de dahil olmak üzere e-posta veritabanınıza erişme izni verir."</string>
     <string name="app_name" msgid="5815426892327290362">"E-posta"</string>
-    <string name="compose_title" msgid="427986915662706899">"E-Posta Yaz"</string>
     <string name="debug_title" msgid="5175710493691536719">"Hata Ayıklama"</string>
     <string name="next_action" msgid="3931301986364184415">"İleri"</string>
     <string name="okay_action" msgid="8365197396795675617">"Tamam"</string>
     <string name="cancel_action" msgid="6967435583794021865">"İptal"</string>
     <string name="previous_action" msgid="5181616311579820981">"Önceki"</string>
-    <string name="send_action" msgid="1729766205562446418">"Gönder"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Yanıtla"</string>
-    <string name="reply_all_action" msgid="6192179825726332152">"Yanıtı tüm alıcılara gönder"</string>
-    <string name="delete_action" msgid="8421026208288857155">"Sil"</string>
-    <string name="forward_action" msgid="669174181042344116">"İleri"</string>
-    <string name="favorite_action" msgid="4664259801498253756">"Yıldız ekle"</string>
     <string name="done_action" msgid="7497990549515580249">"Bitti"</string>
     <string name="create_action" msgid="3062715563215392251">"Yeni oluştur"</string>
-    <string name="delete_quick_response_action" msgid="3076922270182841978">"Sil"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Hızlı yanıt yok."</string>
-    <string name="discard_action" msgid="6532206074859505968">"Sil"</string>
-    <string name="save_draft_action" msgid="6413714270991417223">"Taslak kaydet"</string>
-    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Hızlı yanıt ekle"</string>
-    <string name="read_action" msgid="4701484794504781686">"Okunanalar olarak işaretle"</string>
-    <string name="unread_action" msgid="6280399049357552826">"Okunmamış olarak işaretle"</string>
-    <string name="set_star_action" msgid="4660317166196258160">"Yıldız ekle"</string>
-    <string name="remove_star_action" msgid="6689770999647007163">"Yıldızı kaldır"</string>
-    <string name="refresh_action" msgid="5951383001436708175">"Yenile"</string>
-    <string name="compose_action" msgid="4045702519637388045">"E-Posta Yaz"</string>
-    <string name="search_action" msgid="6325101454876682308">"Ara"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Hesap ayarları"</string>
-    <string name="settings_action" msgid="6334807007967459412">"Ayarlar"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Senkronizasyon seçenekleri"</string>
-    <string name="mark_as_unread_action" msgid="3766298115778767554">"Okunmadı olarak işaretle"</string>
-    <string name="move_action" msgid="3059189775933985898">"Taşı"</string>
-    <string name="add_cc_bcc_menu" msgid="4757145078498200242">"Cc/Bcc Ekle"</string>
-    <string name="add_file_attachment" msgid="2203398371671979481">"Dosya ekleyin"</string>
-    <string name="close_action" msgid="533058985745238100">"Kapat"</string>
-    <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Tüm iletileri gönder"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Eki seç"</string>
-    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Şuraya taşı:"</string>
-    <string name="status_loading_messages" msgid="6552307237621292344">"İletiler yükleniyor..."</string>
     <string name="status_network_error" msgid="2611654064403817391">"Bağlantı sorunu."</string>
-    <string name="error_loading_message_body" msgid="6775234299515596760">"İleti metni yüklenemedi. İleti görüntülenemeyecek kadar büyük olabilir."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"İletiyi taşı"</item>
     <item quantity="other" msgid="371256717624461324">"İletileri taşı"</item>
@@ -68,22 +39,6 @@
     <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"Taşıma işlemi POP3 hesaplarında desteklenmiyor."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"Seçim birden fazla hesap içerdiğinden taşınamıyor."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"Taslaklar, Giden Kutusu ve Gönderilenler\'deki iletiler taşınamaz."</string>
-  <plurals name="notification_new_one_account_fmt">
-    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> okunmamış (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> okunmamış (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> okunmamış (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
-  </plurals>
-  <plurals name="notification_new_multi_account_fmt">
-    <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> hesapta"</item>
-    <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> hesapta"</item>
-  </plurals>
-    <string name="notification_to_account" msgid="2078557719010667913">"kime: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
-    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> yeni ileti"</string>
-    <string name="account_name_display_all" msgid="837218861494831989">"Tüm hesaplar"</string>
-  <plurals name="number_of_accounts">
-    <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> hesap"</item>
-    <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> hesap"</item>
-  </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Gelen Kutusu"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Giden Kutusu"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Taslaklar"</string>
@@ -92,121 +47,17 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Önemsiz"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Yıldızlı"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Okunmamış"</string>
-    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Gelen Kutusu (okunmamış)"</string>
-    <string name="picker_mailbox_name_all_inbox" msgid="2277030979530376085">"Gelen Kutusu (tümü)"</string>
-    <string name="picker_combined_view_fmt" msgid="6276294768978512737">"Birleşik görünüm (<xliff:g id="COUNT">%s</xliff:g>)"</string>
-  <plurals name="picker_combined_view_account_count">
-    <item quantity="one" msgid="380235084337895804">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> hesap"</item>
-    <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> hesap"</item>
-  </plurals>
-    <string name="debug_version_fmt" msgid="6160213145745376955">"Sürüm: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Gelen Kutusu"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Yıldızlı"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Taslaklar"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Giden Kutusu"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Birleşik görünüm"</string>
-    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Tüm klasörleri göster"</string>
-    <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Hesaplar"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Son klasörler (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
-    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Tüm klasörler"</string>
-    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Son klasörler"</string>
-    <string name="message_subject_description" msgid="3597047441062021199">"Konu"</string>
-    <string name="message_is_empty_description" msgid="4004644319382041459">"Konu yok"</string>
-    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Daha fazla ileti yükle"</string>
-  <plurals name="message_view_selected_message_count">
-    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seçildi"</item>
-    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seçildi"</item>
-  </plurals>
-    <string name="message_list_no_messages" msgid="7846910091922523867">"İleti yok"</string>
-    <string name="message_compose_to_hint" msgid="2891895306418177013">"Şu dile:"</string>
-    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
-    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
-    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Konu"</string>
-    <string name="message_compose_from_label" msgid="4084843296548498041">"Gönderen:"</string>
-    <string name="to" msgid="4392614766835725698">"Alıcı:"</string>
-    <string name="cc" msgid="7017720927911078193">"Cc"</string>
-    <string name="bcc" msgid="3098643138241111579">"Bcc"</string>
-    <string name="subject_hint" msgid="7253964583324677128">"Konu"</string>
-    <string name="body_hint" msgid="4279864165439577668">"E-posta yazın"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orijinal İleti --------"\n"Konu: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Gönderen: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Alıcı:<xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
-    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> şunu yazdı:"\n\n</string>
-    <string name="message_compose_quoted_text_label" msgid="6950097435198536165">"Alıntılanan metni dahil et"</string>
-    <string name="message_compose_include_quoted_text_checkbox_label" msgid="8165567368956050390">"Metni ekle"</string>
-    <string name="message_compose_error_no_recipients" msgid="140299472517968199">"En az bir alıcı ekleyin."</string>
-    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Bazı e-posta adresleri geçersiz."</string>
-    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Dosya eklenemeyecek kadar büyük."</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orijinal İleti --------\nKonu: <xliff:g id="SUBJECT">%1$s</xliff:g>\nGönderen: <xliff:g id="SENDER">%2$s</xliff:g>\nAlıcı:<xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Hızlı yanıt ekle"</string>
-    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> ve <xliff:g id="NUMBER">%2$d</xliff:g> kişi daha"</string>
-    <string name="message_view_to_label" msgid="6485191743265527381">"Alıcı:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <string name="message_view_date_label" msgid="7033814961837313339">"Tarih:"</string>
-    <string name="message_view_from_label" msgid="6055076379282772675">"Gönderen:"</string>
-    <string name="message_view_subject_label" msgid="3731022187530000852">"Konu:"</string>
-    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Görüntüle"</string>
-    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Yükle"</string>
-    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Oynat"</string>
-    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Yükle"</string>
-    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Bilgi"</string>
-    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Kaydet"</string>
-    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Kaydedildi"</string>
-    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Durdur"</string>
-    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ek <xliff:g id="FILENAME">%s</xliff:g> olarak kaydedildi."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="4013475734255421939">"Ek kaydedilemedi."</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Hızlı yanıt ekle"</string>
     <string name="message_view_attachment_background_load" msgid="7906875687519445185">"Yönlendirilen iletinizdeki bir veya daha fazla ek, gönderme işleminden önce indirilecek."</string>
-    <string name="message_view_show_message_action" msgid="5134222901019191436">"İleti"</string>
-    <string name="message_view_show_invite_action" msgid="8862797393776226777">"Davet Et"</string>
-  <plurals name="message_view_show_attachments_action">
-    <item quantity="one" msgid="7594476368958824007">"<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g> ek"</item>
-    <item quantity="other" msgid="974463163535515223">"<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g> ek"</item>
-  </plurals>
-    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Resimleri göster"</string>
-    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Her zaman göster"</string>
-    <string name="message_view_always_show_pictures_prompt" msgid="7685500276479967959">"Bu gönderenden gelen resimleri her zaman göster"</string>
-    <string name="message_view_always_show_pictures_confirmation" msgid="6838463134312859448">"Bu gönderenden gelen resimler otomatik olarak gösterilecek."</string>
-    <string name="message_view_invite_view" msgid="5521032519960111675">"Takvim\'de Görüntüle"</string>
-    <string name="message_view_invite_title" msgid="3418949733434713805">"Takvim daveti"</string>
-    <string name="message_view_invite_text" msgid="1212799906603873708">"Katılıyor musunuz?"</string>
-    <string name="message_view_invite_accept" msgid="744546668021679819">" Evet"</string>
-    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Belki"</string>
-    <string name="message_view_invite_decline" msgid="6119797303297149463">" Hayır"</string>
-    <string name="message_view_invite_toast_yes" msgid="6802274503171644414">"Bu daveti kabul ettiniz."</string>
-    <string name="message_view_invite_toast_maybe" msgid="8547454326090527202">"Bu davete \"belki\" yanıtı verdiniz."</string>
-    <string name="message_view_invite_toast_no" msgid="1842341256942784143">"Bu daveti reddettiniz"</string>
-    <string name="message_view_show_details" msgid="6287415596441037095">"Ayrıntıları göster"</string>
-    <string name="message_view_message_details_dialog_title" msgid="9042008615386883449">"İleti ayrıntıları"</string>
-    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Ek bilgileri"</string>
-    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Kablosuz bağlantı gerekli"</string>
-    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Kablosuz ayarları"</string>
-    <string name="attachment_info_application_settings" msgid="4124655487276125596">"Uygulama ayarları"</string>
-    <string name="attachment_info_unknown" msgid="8342655396805943320">"Ek açılamıyor."</string>
-    <string name="attachment_info_malware" msgid="6576029010855055528">"Bu türden bir ek kötü amaçlı yazılım içerebileceğinden bu dosyayı kaydedemez veya açamazsınız."</string>
-    <string name="attachment_info_policy" msgid="3560422300127587508">"Bu ek, hesabın güvenlik politikaları nedeniyle kaydedilemez veya açılamaz."</string>
-    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Bu ek, mobil ağ üzerinden indirilemeyecek kadar büyük. Bu eki kablosuz ağa tekrar bağlandığınızda indirebilirsiniz."</string>
-    <string name="attachment_info_no_intent" msgid="8139209405745777924">"Bu eki açabilecek yüklenmiş uygulama yok. Android Market\'ten uygun bir uygulama indirmeyi deneyin."</string>
-    <string name="attachment_info_sideload_disabled" msgid="3270731101769840006">"Bu ek, bir uygulamadır. Bu eki yükleyebilmek için önce Ayarlar &gt; Uygulamalar içindeki Bilinmeyen Kaynaklar\'ı işaretlemeniz gerekir."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="2817790592227462682">"Uygulamalar doğrudan e-posta üzerinden yüklenemez. Önce bu uygulamayı kaydedin, ardından İndirilenler uygulamasını kullanarak yükleyin."</string>
     <string name="attachment_not_found" msgid="7155322700141145123">"Ek indirilemedi."</string>
     <string name="message_decode_error" msgid="5016042255170947834">"İletinin kodu çözülürken bir hata oluştu."</string>
-    <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> görüntüleniyor"</string>
-    <string name="message_delete_dialog_title" msgid="6603370107217227252"></string>
-  <plurals name="message_delete_confirm">
-    <item quantity="one" msgid="3799616435056423256">"Bu ileti silinsin mi?"</item>
-    <item quantity="other" msgid="4437637377522896262">"Bu iletiler silinsin mi?"</item>
-  </plurals>
-  <plurals name="message_deleted_toast">
-    <item quantity="one" msgid="710742672464447084">"İleti silindi."</item>
-    <item quantity="other" msgid="6574961322865652255">"İletiler silindi."</item>
-  </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"İleti silindi."</string>
-    <string name="message_saved_toast" msgid="8443125659172627665">"İleti taslak olarak kaydedildi."</string>
-    <string name="message_view_display_attachment_toast" msgid="7714482237896346836">"Ek görüntülenemiyor."</string>
-    <string name="message_view_load_attachment_failed_toast" msgid="8605967295095023587">"Ek yüklenemedi: \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
-    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"İleti açılıyor..."</string>
-  <plurals name="message_moved_toast">
-    <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ileti <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> posta kutusuna taşındı"</item>
-    <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ileti <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> posta kutusuna taşındı"</item>
-  </plurals>
     <string name="forward_download_failed_ticker" msgid="6176608320359303255">"Bir veya birden fazla ek yönlendirilemedi."</string>
     <string name="forward_download_failed_title" msgid="6139701848515572511">"Ek yönlendirilmedi"</string>
     <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> oturumu açılamadı."</string>
@@ -227,15 +78,11 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Daha yeni"</string>
-    <string name="message_view_move_to_older" msgid="4993043091356700890">"Daha eski"</string>
-    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Hesap kurulumu"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-posta hesabı"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Hesabınızı birkaç adımda oluşturabilirsiniz."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-posta adresi"</string>
     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Şifre"</string>
-    <string name="account_setup_basics_default_label" msgid="8896222991837026736">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel kurulum"</string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Geçerli bir e-posta adresi ve şifre yazın."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Yinelenen hesap"</string>
@@ -278,12 +125,6 @@
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Oturum açmayı gerektir"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Kullanıcı adı"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Şifre"</string>
-    <string name="account_setup_exchange_title" msgid="396004732514751781">"Hesap kurulumu"</string>
-    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Sunucu ayarları"</string>
-    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Sunucu"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Alan adı/Kullanıcı adı"</string>
-    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Güvenli bağlantıyı kullan (SSL)"</string>
-    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Tüm SSL sertifikalarını kabul et"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"İstemci sertifikası"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Seç"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"İstemci sertifikası kullan"</string>
@@ -308,22 +149,24 @@
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Tamamlanamadı"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Senkronize edilecek gün sayısı"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Otomatik"</string>
-    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Bir gün"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Üç gün"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Bir hafta"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"İki hafta"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Bir ay"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Son 1 gün"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Son üç gün"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"Son 1 hafta"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Son iki hafta"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Son 1 ay"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tümü"</string>
-    <string name="account_setup_options_mail_window_default" msgid="8321351926520165832">"Varsayılanı kullan"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Hesap varsayılanını kullan"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Kullanıcı adı veya şifre hatalı."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Giriş yapılamadı."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Giriş yapılamadı.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Hesap kurulumuyla ilgili sorun"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Kullanıcı adının, şifrenin ve hesap ayarlarının doğru olduğunu onaylayın."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Sunucuya güvenli biçimde bağlanılamıyor."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sunucuya güvenli biçimde bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"Sunucuya güvenli biçimde bağlanılamıyor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"İstemci sertifikası gerekli. Sunucuya bir istemci sertifikası ile bağlanmak ister misiniz?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"Sertifika geçersiz veya erişilemez."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"Sunucu hata gönderdi. Kullanıcı adınızı ve şifrenizi kontrol ettikten sonra tekrar deneyin."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"Sunucuya bağlanılamıyor."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Sunucuya bağlanılamıyor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"Sunucuya bağlanılamıyor.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS gerekli ancak sunucu tarafından desteklenmiyor."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Kimlik doğrulama yöntemleri sunucu tarafından desteklenmiyor."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Güvenlik hatası nedeniyle sunucu bağlantısı açılamadı."</string>
@@ -363,7 +206,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-posta bildirimleri"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sıklığı, bildirimleri vs. senkronize et"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"E-posta geldiğinde bildirim gönder"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Gelen kutusunu denetleme sıklığı"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Senkronizasyon sıklığı"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarlar"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Kullanıcı adı, şifre ve diğer gelen sunucu ayarları"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Giden ayarlar"</string>
@@ -388,7 +231,7 @@
     <string name="system_folders_sent_title" msgid="4265722817877075367">"Gönderilen öğeler klasörü"</string>
     <string name="system_folders_sent_summary" msgid="5529250353569545181">"Sunucunuzun gönderilen öğeler klasörünü seçin"</string>
     <string name="system_folders_sent_dlg" msgid="7071006714702094762">"Sunucunuzun gönderilen öğeler klasörünü seçin"</string>
-    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Hızlı yanıtı düzenle"</string>
+    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Hızlı yanıt"</string>
     <string name="save_action" msgid="1988862706623227093">"Kaydet"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Kişileri senkronize et"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Bu hesaba ilişkin kişileri senkronize et"</string>
@@ -399,26 +242,12 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Titreşim"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Zil sesi seçin"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Sunucu ayarları"</string>
-    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Hesabı kaldır"</string>
-    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı E-postadan kaldırılacak."</string>
-    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Hesabı kaldır"</string>
-    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Hesabı kaldır"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Senkronizasyon seçenekleri"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Senkronizasyon seçenekleri (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_preferences_header" msgid="9077316556563252246">"Senkronizasyon ayarları"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="2957945231022052672">"Senkronize edilecek gün sayısı"</string>
-    <string name="preference_conversation_list_icon_title" msgid="2691641598368725077">"Gönderen resmi"</string>
-  <string-array name="prefEntries_conversationListIconName">
-    <item msgid="228585958140385749">"Resmi göster"</item>
-    <item msgid="2226691218102223696">"Hiçbir şey gösterme"</item>
-  </string-array>
-    <string name="preference_conversation_list_icon_summary" msgid="4654821690566370979">"İleti dizisi görünümünde gönderen resimlerinin gösterilip gösterilmeyeceğini seçin"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Bu klasörü senkronize et"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Bağlandığında iletiler indirilir"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Postanın senkronize edileceği gün sayısı"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Gönderen resmi"</string>
-    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Eposta hes"</string>
-    <string name="account_shortcut_picker_title" msgid="1039929224016048015">"Hesap seçin"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Klasör seçin"</string>
-    <string name="toast_account_not_found" msgid="8144242451730692816">"Hesap bulunamadı. Kaldırılmış olabilir."</string>
-    <string name="toast_mailbox_not_found" msgid="4960014581292378895">"Klasör bulunamadı. Kaldırılmış olabilir."</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Yalnızca bazı \"Plus\" hesapları bu programın bağlanmasına izin veren POP erişimi içerir. Doğru e-posta adresinizle ve şifrenizle oturum açamıyorsanız, ödemeli bir \"Plus\" hesabına sahip olmayabilirsiniz. Bu e-posta hesaplarına erişmek için web tarayıcıyı başlatın."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Bu e-posta hesabını ayarlamadan önce T-Online web sitesini ziyaret edin ve POP3 e-posta erişimi için bir şifre oluşturun."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Kurumsal"</string>
@@ -426,14 +255,8 @@
     <string name="system_account_create_failed" msgid="3673792980526246177">"Hesap oluşturulamadı. Tekrar deneyin."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-posta"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Sunucu tarafından belirlenen güvenlik politikalarını etkinleştirir"</string>
-    <string name="gal_searching_fmt" msgid="6140450617663543464">"<xliff:g id="DOMAIN">%s</xliff:g> aranıyor…"</string>
-  <plurals name="gal_completed_fmt">
-    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="DOMAIN">%2$s</xliff:g> alanından <xliff:g id="RESULTS">%1$d</xliff:g> sonuç"</item>
-    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g> alanından <xliff:g id="RESULTS">%1$d</xliff:g> sonuç"</item>
-  </plurals>
     <string name="settings_activity_title" msgid="5185915603716333904">"Ayarlar"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Genel ayarlar"</string>
-    <string name="category_general_preferences" msgid="2742423840964045801">"Uygulama"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Silmeden önce onayla"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"İletiler"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Göndermeden önce onayla"</string>
@@ -452,24 +275,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Büyük"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Çok büyük"</string>
-    <string name="general_preferences_clear_trusted_senders_summary" msgid="2648501128162793879">"İletilerdeki resimler otomatik olarak gösterilmeyecek"</string>
-    <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> / <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Senkronize etmek için bekleniyor"</string>
-    <string name="waitinf_for_sync_message_2" msgid="5656175205790694016">"E-postanız yakında görüntülenecek."</string>
-    <string name="widget_other_views" msgid="4988574907386539499">"Değiştirmek için simgeye dokunun."</string>
-    <string name="widget_all_mail" msgid="4352573990283094963">"Birleştirlmş Gln Kts"</string>
-    <string name="widget_unread" msgid="4404711399009077833">"Okunmayan"</string>
-    <string name="widget_starred" msgid="8290352707134011791">"Yıldızlı"</string>
-    <string name="widget_loading" msgid="2340962056927255554">"Yükleniyor…"</string>
-    <string name="widget_touch_to_configure" msgid="7062039013915225323">"Kurulum için dokunun."</string>
-    <string name="widget_no_accounts" msgid="2412482205591224408">"Henüz bir e-posta hesabı oluşturmadınız."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"E-postada ara"</string>
-    <string name="search_mailbox_hint" msgid="7854987729678942790">"Ara: <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="search_header_text_fmt" msgid="3857004638127418247">"\"<xliff:g id="ID_1">%1$s</xliff:g>\" sorgusu için arama sonuçları"</string>
-    <string name="search_slow_warning_title" msgid="2826118321880530239">"Sonuçlar bekleniyor"</string>
-    <string name="search_slow_warning_message" msgid="8494483410797387903">"Bazı sunucularda uzun sürebilir."</string>
-    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Klasörler"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Cihaz kamerasının kullanımına izin verme"</string>
     <string name="policy_require_password" msgid="7177274900480984702">"Cihaz şifresi gerektir"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Son şifrelerin tekrar kullanılmasını kısıtla"</string>
@@ -489,6 +296,5 @@
     <string name="folder_picker_title" msgid="860241987640527156">"Klasör seçici"</string>
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g> için sunucunun çöp kutusu klasörünü seçin"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g> için sunucunun gönderilen öğeler klasörünü seçin"</string>
-    <string name="create_new_folder" msgid="2726544180243210741">"Klasör oluştur"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Klasör listesi yükleniyor…"</string>
 </resources>

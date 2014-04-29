@@ -22,11 +22,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 import com.android.mail.utils.LogUtils;
@@ -103,11 +101,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         return isRemote;
     }
 
-    @Override
-    public int getApiLevel() {
-        return Api.LEVEL;
-    }
-
     /**
      * Request an attachment to be loaded; the service MUST give higher priority to
      * non-background loading.  The service MUST use the loadAttachmentStatus callback when
@@ -115,19 +108,20 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * possible.
      *
      * @param cb The {@link IEmailServiceCallback} to use for this operation.
+     * @param accountId the id of the account in question
      * @param attachmentId the id of the attachment record
      * @param background whether or not this request corresponds to a background action (i.e.
      * prefetch) vs a foreground action (user request)
      */
     @Override
-    public void loadAttachment(final IEmailServiceCallback cb, final long attachmentId,
-            final boolean background)
+    public void loadAttachment(final IEmailServiceCallback cb, final long accountId,
+            final long attachmentId, final boolean background)
             throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
                 try {
-                    mService.loadAttachment(cb, attachmentId, background);
+                    mService.loadAttachment(cb, accountId, attachmentId, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
@@ -140,45 +134,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
                 }
             }
         }, "loadAttachment");
-    }
-
-    /**
-     * Request the sync of a mailbox; the service MUST send the syncMailboxStatus callback
-     * indicating "starting" and "finished" (or error), regardless of whether the mailbox is
-     * actually syncable.
-     * TODO: Remove this from IEmailService in favor of ContentResolver.requestSync.
-     *
-     * @param mailboxId the id of the mailbox record
-     * @param userRequest whether or not the user specifically asked for the sync
-     * @param deltaMessageCount amount by which to change the number of messages synced.
-     */
-    @Deprecated
-    @Override
-    public void startSync(final long mailboxId, final boolean userRequest,
-            final int deltaMessageCount) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.startSync(mailboxId, userRequest, deltaMessageCount);
-            }
-        }, "startSync");
-    }
-
-    /**
-     * Request the immediate termination of a mailbox sync. Although the service is not required to
-     * acknowledge this request, it MUST send a "finished" (or error) syncMailboxStatus callback if
-     * the sync was started via the startSync service call.
-     *
-     * @param mailboxId the id of the mailbox record
-     */
-    @Override
-    public void stopSync(final long mailboxId) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.stopSync(mailboxId);
-            }
-        }, "stopSync");
     }
 
     /**
@@ -276,23 +231,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     }
 
     /**
-     * Alert the sync adapter that the account's host information has (or may have) changed; the
-     * service MUST stop all in-process or pending syncs, clear error states related to the
-     * account and its mailboxes, and restart necessary sync adapters (e.g. pushed mailboxes)
-     *
-     * @param accountId the id of the account whose host information has changed
-     */
-    @Override
-    public void hostChanged(final long accountId) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.hostChanged(accountId);
-            }
-        }, "hostChanged");
-    }
-
-    /**
      * Send a meeting response for the specified message
      *
      * @param messageId the id of the message containing the meeting request
@@ -307,56 +245,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
                 mService.sendMeetingResponse(messageId, response);
             }
         }, "sendMeetingResponse");
-    }
-
-    /**
-     * Request the sync adapter to load a complete message
-     *
-     * @param messageId the id of the message to be loaded
-     */
-    @Override
-    public void loadMore(final long messageId) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.loadMore(messageId);
-            }
-        }, "startSync");
-    }
-
-    /**
-     * Not yet used
-     *
-     * @param accountId the account in which the folder is to be created
-     * @param name the name of the folder to be created
-    */
-    @Override
-    public boolean createFolder(long accountId, String name) throws RemoteException {
-        return false;
-    }
-
-    /**
-     * Not yet used
-     *
-     * @param accountId the account in which the folder resides
-     * @param name the name of the folder to be deleted
-     */
-    @Override
-    public boolean deleteFolder(long accountId, String name) throws RemoteException {
-        return false;
-    }
-
-    /**
-     * Not yet used
-     *
-     * @param accountId the account in which the folder resides
-     * @param oldName the name of the existing folder
-     * @param newName the new name for the folder
-     */
-    @Override
-    public boolean renameFolder(long accountId, String oldName, String newName)
-            throws RemoteException {
-        return false;
     }
 
     /**
@@ -423,28 +311,24 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMail");
     }
 
-    @Deprecated
-    @Override
-    public int getCapabilities(final Account acct) throws RemoteException {
-        //This function should not be used; see {@link EmailProvider#getCapabilities} instead.
-        return 0;
-    }
     /**
-     * Request that the account be updated for this service; this call is synchronous
-     *
-     * @param emailAddress the email address of the account to be updated
+     * Request the service to refresh its push notification status (e.g. to start or stop receiving
+     * them, or to change which folders we want notifications for).
+     * @param accountId The account whose push settings to modify.
      */
     @Override
-    public void serviceUpdated(final String emailAddress) throws RemoteException {
+    public void pushModify(final long accountId) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                mService.serviceUpdated(emailAddress);
+                mService.pushModify(accountId);
             }
-        }, "settingsUpdate");
-        waitForCompletion();
+        }, "sendMail");
     }
 
+        @Override
+        public void sync(final long accountId, final boolean updateFolderList,
+                final int mailboxType, final long[] folders) {}
 
     @Override
     public IBinder asBinder() {

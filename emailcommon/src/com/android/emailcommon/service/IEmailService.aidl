@@ -21,45 +21,39 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
+
 import android.os.Bundle;
 
 interface IEmailService {
-    Bundle validate(in HostAuth hostauth);
-
-    oneway void startSync(long mailboxId, boolean userRequest, int deltaMessageCount);
-    oneway void stopSync(long mailboxId);
-
-    // TODO: loadMore appears to be unused; if so, delete it.
-    oneway void loadMore(long messageId);
-    oneway void loadAttachment(IEmailServiceCallback cb, long attachmentId, boolean background);
-
+    // Core email operations.
+    // TODO: is sendMail really necessary, or should we standardize on sync(outbox)?
+    void sendMail(long accountId);
+    oneway void loadAttachment(IEmailServiceCallback cb, long accountId, long attachmentId,
+            boolean background);
     oneway void updateFolderList(long accountId);
 
-    boolean createFolder(long accountId, String name);
-    boolean deleteFolder(long accountId, String name);
-    boolean renameFolder(long accountId, String oldName, String newName);
+    void sync(long accountId, boolean updateFolderList, int mailboxType, in long[] foldersToSync);
 
-    oneway void setLogging(int on);
+    // Push-related functionality.
 
-    oneway void hostChanged(long accountId);
+    // Notify the service that the push configuration has changed for an account.
+    void pushModify(long accountId);
 
-    Bundle autoDiscover(String userName, String password);
-
-    oneway void sendMeetingResponse(long messageId, int response);
-
-    // Must not be oneway; unless an exception is thrown, the caller is guaranteed that the action
-    // has been completed
-    void deleteAccountPIMData(String emailAddress);
-
-    int getApiLevel();
-
-    // API level 2
+    // Other email operations.
+    // TODO: Decouple this call from HostAuth (i.e. use a dedicated data structure, or just pass
+    // the necessary strings directly).
+    Bundle validate(in HostAuth hostauth);
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 
-    void sendMail(long accountId);
+    // PIM functionality (not strictly EAS specific).
+    oneway void sendMeetingResponse(long messageId, int response);
 
-    // API level 3
-    int getCapabilities(in Account acct);
+    // Specific to EAS protocol.
+    Bundle autoDiscover(String userName, String password);
 
-    void serviceUpdated(String emailAddress);
+    // Service control operations (i.e. does not generate a client-server message).
+    oneway void setLogging(int on);
+
+    // Needs to get moved into Email since this is NOT a client-server command.
+    void deleteAccountPIMData(String emailAddress);
 }

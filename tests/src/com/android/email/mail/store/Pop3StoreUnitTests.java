@@ -19,10 +19,9 @@ package com.android.email.mail.store;
 import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 
-import com.android.email.Controller;
 import com.android.email.DBTestHelper;
-import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MockTransport;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.TempDirectory;
@@ -43,6 +42,7 @@ import com.android.emailcommon.provider.HostAuth;
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
  * complete - no server(s) required.
  */
+@Suppress
 @SmallTest
 public class Pop3StoreUnitTests extends AndroidTestCase {
     final String UNIQUE_ID_1 = "20080909002219r1800rrjo9e00";
@@ -54,6 +54,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     private Pop3Store.Pop3Folder mFolder = null;
 
     private Context mMockContext;
+    private HostAuth mHostAuth;
 
     /**
      * Setup code.  We generate a lightweight Pop3Store and Pop3Store.Pop3Folder.
@@ -63,19 +64,17 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         super.setUp();
         mMockContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
                 getContext());
-        Controller.getInstance(mMockContext).setProviderContext(mMockContext);
-        Controller.getInstance(mMockContext).markForTest(true);
 
         // Use the target's (i.e. the Email application) context
         TempDirectory.setTempDirectory(mMockContext);
 
         // These are needed so we can get at the inner classes
-        HostAuth testAuth = new HostAuth();
+        mHostAuth = new HostAuth();
         Account testAccount = ProviderTestUtils.setupAccount("acct1", false, mMockContext);
 
-        testAuth.setLogin("user", "password");
-        testAuth.setConnection("pop3", "server", 999);
-        testAccount.mHostAuthRecv = testAuth;
+        mHostAuth.setLogin("user", "password");
+        mHostAuth.setConnection("pop3", "server", 999);
+        testAccount.mHostAuthRecv = mHostAuth;
         testAccount.save(mMockContext);
         mStore = (Pop3Store) Pop3Store.newInstance(testAccount, mMockContext);
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
@@ -872,8 +871,8 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      */
     private MockTransport openAndInjectMockTransport() {
         // Create mock transport and inject it into the POP3Store that's already set up
-        MockTransport mockTransport = new MockTransport();
-        mockTransport.setSecurity(Transport.CONNECTION_SECURITY_NONE, false);
+        MockTransport mockTransport = new MockTransport(mContext, mHostAuth);
+        mockTransport.setSecurity(HostAuth.FLAG_NONE, false);
         mStore.setTransport(mockTransport);
         return mockTransport;
     }

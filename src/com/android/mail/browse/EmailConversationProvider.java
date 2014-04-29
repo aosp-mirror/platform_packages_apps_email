@@ -16,6 +16,7 @@
 
 package com.android.mail.browse;
 
+import com.android.email.R;
 import com.android.mail.browse.ConversationCursor.ConversationProvider;
 
 import java.lang.Override;
@@ -23,10 +24,13 @@ import java.lang.Override;
 public class EmailConversationProvider extends ConversationProvider {
     // The authority of our conversation provider (a forwarding provider)
     // This string must match the declaration in AndroidManifest.xml
-    private static final String sAuthority = "com.android.email2.conversation.provider";
+    private static String sAuthority;
 
     @Override
     protected String getAuthority() {
+        if (sAuthority == null) {
+            sAuthority = getContext().getString(R.string.authority_conversation_provider);
+        }
         return sAuthority;
     }
 }

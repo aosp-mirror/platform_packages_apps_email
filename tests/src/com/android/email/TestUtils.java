@@ -16,8 +16,6 @@
 
 package com.android.email;
 
-import com.android.emailcommon.Logging;
-
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.PowerManager;
@@ -25,6 +23,9 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.view.ViewParent;
+
+import com.android.emailcommon.Logging;
+import com.android.mail.utils.LogUtils;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
