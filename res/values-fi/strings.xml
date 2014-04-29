@@ -87,13 +87,10 @@
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Sähköpostiosoite"</string>
     <string name="or_label" msgid="2207403489755254427">"TAI"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Kirjaudu Google-tiliin"</string>
-    <!-- no translation found for account_setup_basics_password_label (3402762431598148148) -->
-    <skip />
-    <!-- no translation found for password_hint (8835390747504721561) -->
-    <skip />
+    <string name="account_setup_basics_password_label" msgid="3402762431598148148">"SALASANA"</string>
+    <string name="password_hint" msgid="8835390747504721561">"Salasana"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"Kirjautunut palveluun %s"</string>
-    <!-- no translation found for authentication_label (6917956186120234602) -->
-    <skip />
+    <string name="authentication_label" msgid="6917956186120234602">"TODENNUS"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Lisää todennus"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Poista todennus"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuaalinen määritys"</string>
@@ -117,16 +114,12 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Millainen tili tämä on?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Tilin asetukset"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Saapuvan postin palvelimen asetukset"</string>
-    <!-- no translation found for account_setup_incoming_username_label (406939983633223354) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_password_label (634540235479188709) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_server_label (3528558488000638420) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_port_label (5311652277990186704) -->
-    <skip />
-    <!-- no translation found for account_setup_incoming_security_label (1175710992470593691) -->
-    <skip />
+    <string name="account_setup_incoming_username_label" msgid="406939983633223354">"KÄYTTÄJÄTUNNUS"</string>
+    <string name="account_setup_incoming_password_label" msgid="634540235479188709">"SALASANA"</string>
+    <string name="account_setup_password_subheading" msgid="2072179928666715013">"Salasana"</string>
+    <string name="account_setup_incoming_server_label" msgid="3528558488000638420">"PALVELIN"</string>
+    <string name="account_setup_incoming_port_label" msgid="5311652277990186704">"PORTTI"</string>
+    <string name="account_setup_incoming_security_label" msgid="1175710992470593691">"SUOJAUSTYYPPI"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ei mitään"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (Hyväksy kaikki varmenteet)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
@@ -139,28 +132,21 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Valinnainen"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Tilin asetukset"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Lähtevän postin palvelimen asetukset"</string>
-    <!-- no translation found for account_setup_outgoing_smtp_server_label (1164004960070541473) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_port_label (4670120792135566784) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_security_label (9200220309360082664) -->
-    <skip />
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SMTP-PALVELIN"</string>
+    <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"PORTTI"</string>
+    <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"SUOJAUSTYYPPI"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Vaadi kirjautuminen"</string>
-    <!-- no translation found for account_setup_outgoing_username_label (7239411429115525841) -->
-    <skip />
-    <!-- no translation found for account_setup_outgoing_password_label (3720429254654722208) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_certificate_title (1635140303999054002) -->
-    <skip />
+    <string name="account_setup_outgoing_username_label" msgid="7239411429115525841">"KÄYTTÄJÄTUNNUS"</string>
+    <string name="account_setup_outgoing_password_label" msgid="3720429254654722208">"SALASANA"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="1635140303999054002">"ASIAKASSOVELLUKSEN VARMENNE"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"Valitse"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Käytä asiakasvarmennetta"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Poista"</string>
     <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"Ei mitään"</string>
-    <!-- no translation found for account_setup_exchange_device_id_label (5105898844003459657) -->
-    <skip />
+    <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"MOBIILILAITTEEN TUNNUS"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Tilin asetukset"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Tiliasetukset"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Uusien viestien tarkistustiheys"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Synkronoinnin tiheys:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Ei koskaan"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automaattinen (Push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"5 minuutin välein"</string>
@@ -174,7 +160,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Synkronoi tämän tilin sähköpostit"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Ei onnistunut"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Synkronoitavien päivien määrä"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"Synkronoi sähköpostit kohteesta:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automaattinen"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Viime päivä"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Kolme viime päivää"</string>
