@@ -162,7 +162,7 @@
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Det gick inte att avsluta"</string>
     <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"Synkronisera e-post från:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisk"</string>
-    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Sista dagen"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Det senaste dygnet"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Senaste tre dagarna"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"Förra veckan"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Senaste två veckorna"</string>

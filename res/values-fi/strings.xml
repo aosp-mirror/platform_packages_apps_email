@@ -158,7 +158,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Synkronoi tämän tilin yhteystiedot"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Synkronoi tämän tilin kalenteri"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Synkronoi tämän tilin sähköpostit"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti WiFI-."</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Ei onnistunut"</string>
     <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"Synkronoi sähköpostit kohteesta:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automaattinen"</string>
@@ -215,15 +215,15 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Tilin <xliff:g id="ACCOUNT">%s</xliff:g> käyttäjänimi tai salasana on virheellinen. Haluatko päivittää ne nyt?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Kirjautuminen tiliin <xliff:g id="ACCOUNT">%s</xliff:g> epäonnistui. Palvelimen ilmoittama syy: <xliff:g id="REASON">%s</xliff:g> Haluatko päivittää käyttäjänimesi ja/tai salasanasi?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Lataa liitetiedostoja"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Lataa viimeaikaisten viestien liitteet wifi-yhteyden kautta."</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Lataa viimeaikaisten viestien liitteet WiFi-yhteyden kautta."</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Sähköposti-ilmoitukset"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkronoinnin tiheys, ilmoitukset jne."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Lähetä ilmoitus, kun sähköpostiviesti saapuu"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Synkronoinnin tiheys"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Saapuvan postin asetukset"</string>
-    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Käyttäjänimi, salasana ja muut tulevat palvelimen asetukset"</string>
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Käyttäjänimi, salasana ja muut saapuvan postin palvelimen asetukset"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Lähtevän postin asetukset"</string>
-    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Käyttäjänimi, salasana ja muut lähtevät palvelimen asetukset"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Käyttäjänimi, salasana ja muut lähtevän postin palvelimen asetukset"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Käytännöt otettu käyttöön"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Ei mitään"</string>
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Käytäntöjä ei tueta"</string>

@@ -132,7 +132,7 @@
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"По желанию"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Настройка аккаунта"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Настройки сервера исходящих сообщений"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"СЕРВЕР SMTP"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="1164004960070541473">"SMTP-СЕРВЕР"</string>
     <string name="account_setup_outgoing_port_label" msgid="4670120792135566784">"ПОРТ"</string>
     <string name="account_setup_outgoing_security_label" msgid="9200220309360082664">"ТИП ЗАЩИТЫ"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"Выполнять вход в систему"</string>

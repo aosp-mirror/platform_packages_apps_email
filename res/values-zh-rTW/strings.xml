@@ -217,7 +217,7 @@
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"下載附件"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"透過 Wi-Fi 自動下載最新郵件的附件"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"電子郵件通知"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等其他設定"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等設定"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"收到電子郵件時傳送通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"同步處理頻率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"內收設定"</string>
