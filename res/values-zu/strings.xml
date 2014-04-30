@@ -90,7 +90,7 @@
     <string name="account_password_spaces_error" msgid="8928309156658903257">"Le phasiwedi iqala noma igcina ngezimpawu"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Ilanda ulwazi le-akhawunti..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"Iqinisekisa izilungiselelo zeseva…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Iqinisekisa amasethingi e-smtp…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"Iqinisekisa izilungiselelo ze-smtp…"</string>
     <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"Idala i-akhawunti…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_names_headline" msgid="914858472109729140">"I-akhawunti yakho imisiwe, futhi i-imeyli isendleleni!"</string>
@@ -116,7 +116,7 @@
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Akusoze"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Lapho ngisusa Ebhokisini lokungenayo"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Isiqalo sendlela ye-IMAP"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Okokuzithandela"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Inketho"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Ukumisa i-akhawunti"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Izilungiselelo zeseva eziphumayo"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Iseva ye-SMTP"</string>
@@ -175,18 +175,18 @@
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Awunayo imvume yokuvumelanisa ngalesisiphakeli. Thintana nomqondisi wesiphakeli sakho ukuze uthole ukwazisa okuningi."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ukuphatha ukuphepha kokulawula okukude"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Iseva<xliff:g id="SERVER">%s</xliff:g> idinga ukuba uyivumele ukuba ilawule kude ezinye izici zokuphepha zedivayisi ye-Android yakho.  Ingabe ufuna ukuqedela ukumisa le-akhawunti?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Lesi siphakeli sidinga izici zokuphepha ezingasekelwa idivayisi yakho ye-Android, kuhlanganisa: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Le seva idinga izici zokuphepha ezingasekelwa idivayisi yakho ye-Android, kuhlanganisa: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Awukwazi ukushintsha igama lomsebenzi le-akhawunti. Ukuze wengeze i-akhawunti ngegama lomsebenzi elihlukile, thinta Faka i-akhawunti."</string>
     <string name="disable_admin_warning" msgid="6196985268695592382">"ISEXWAYISO: Yenza kungasebenzi imvume yohlelo lokusebenza lwe-Imeyli ukubhalisa idivaysi yakho kuzosusa wonke ama-akhawunti e-Imeyli ayidingayo, kuhlanganise ne-imeyli yayo, othintana nabo, amakhalenda, izenzakalo, neminye imininingo."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Okwakamuva kwezokuphepha"</string>
-    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> idinga ukuba ubuyekeze izilungiselelo zakho zokuzivikela."</string>
+    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> idinga ubuyekeze izilungiselelo zakho zokuphepha."</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"I-Akhawuni \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ayikwazi ukuvumelanisa ngenxa yezimfuneko sokuphepha."</string>
     <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"I-Akhawunti \"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukubuyekeza izilungiselelo zokuphepha."</string>
     <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"I-Akhawunti \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ishintshe izilungiselelo zayo zokuphepha; asikho isenzo somsebenzisi esidingekayo."</string>
     <string name="security_notification_content_update_title" msgid="2429762903228690154">"Ukubuyekeza ezokuphepha kuyadingeka"</string>
     <string name="security_notification_content_change_title" msgid="443490921895642130">"Izinqubomgomo zokuphepha zishintshiwe"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"Izinqubomgomo zokuphepha azikwazi ukuhlangabezwa"</string>
-    <string name="account_security_title" msgid="3511543138560418587">"Ukuphepha kweDivaysi"</string>
+    <string name="account_security_title" msgid="3511543138560418587">"Ukuphepha kwedivaysi"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Iseva <xliff:g id="SERVER">%s</xliff:g> idinga ukuba uyivumele ukuba ilawule kude ezinye izici zokuphepha kwedivayisi ye-Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Hlela imininingwane"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" idinga ukuba ushintshe iphinikhodi yokuvala isikrini noma iphasiwedi"</string>
@@ -241,7 +241,7 @@
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Vumelanisa i-imeyli yale akhawunti"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Dlidliza"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Khetha ithoni yokukhala"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"Izilungiselelo Zeseva"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Izilungiselelo zeseva"</string>
     <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"Vumelanisa okukhethwa kukho"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Vumelanisa okukhethwa kukho (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Vumelanisa le folda"</string>
@@ -278,7 +278,7 @@
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Sesha i-imeyli"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Ungavumeli ukusebenza kwekhamera yedivayisi"</string>
-    <string name="policy_require_password" msgid="7177274900480984702">"Idinga iphasiwedi yedivayisi"</string>
+    <string name="policy_require_password" msgid="7177274900480984702">"Dinga iphasiwedi yedivayisi"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Khawulela ukusetshenziswa kabusha kwamaphasiwedi wakamuva"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Cela ukuthi amaphasiwedi aphalwe isikhathi"</string>
     <string name="policy_screen_timeout" msgid="414869965358468080">"Dinga idivayisi yokumisa ukukhiya isikrini sayo"</string>

@@ -207,9 +207,9 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"Sıklığı, bildirimleri vs. senkronize et"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"E-posta geldiğinde bildirim gönder"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Senkronizasyon sıklığı"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarlar"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarları"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Kullanıcı adı, şifre ve diğer gelen sunucu ayarları"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Giden ayarlar"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Giden ayarları"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Kullanıcı adı, şifre ve diğer giden sunucu ayarları"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Politikalar uygulandı"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Hiçbiri"</string>
