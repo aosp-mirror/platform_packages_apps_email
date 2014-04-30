@@ -146,7 +146,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"شناسه دستگاه همراه"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"تنظیمات حساب"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"گزینه‌های حساب"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"تکرار همگام‌سازی:"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"تعداد دفعات همگام‌سازی:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"هرگز"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"خودکار (پیام سرویس)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"هر ۵ دقیقه"</string>

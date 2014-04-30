@@ -25,7 +25,7 @@
     <string name="next_action" msgid="3931301986364184415">"Weiter"</string>
     <string name="previous_action" msgid="5181616311579820981">"Zurück"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
-    <string name="create_action" msgid="3062715563215392251">"Neue erstellen"</string>
+    <string name="create_action" msgid="3062715563215392251">"Neue hinzufügen"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Keine Kurzantworten"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Synchronisierungsoptionen"</string>
@@ -111,9 +111,9 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kontoeinrichtung"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsserver"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsservers"</string>
     <string name="account_setup_incoming_username_label" msgid="406939983633223354">"Nutzername"</string>
     <string name="account_setup_incoming_password_label" msgid="634540235479188709">"Passwort"</string>
     <string name="account_setup_password_subheading" msgid="2072179928666715013">"Passwort"</string>
@@ -146,7 +146,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="5105898844003459657">"Mobilgerät-ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Kontoeinstellungen"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Konto-Optionen"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Synchronisierungshäufigkeit:"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Synchronisierung:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nie"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisch (Push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Alle 5 Minuten"</string>
@@ -160,7 +160,7 @@
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"E-Mails dieses Kontos synchronisieren"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Anhänge bei WLAN-Verbindung automatisch herunterladen"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Fertigstellen nicht möglich"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"E-Mails synchronisieren von:"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"E-Mails synchronisieren ab:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisch"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Letzter Tag"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Letzte 3 Tage"</string>
