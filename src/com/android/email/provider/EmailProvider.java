@@ -262,6 +262,7 @@ public class EmailProvider extends ContentProvider {
     private static final int UI_FULL_FOLDERS = UI_BASE + 18;
     private static final int UI_ALL_FOLDERS = UI_BASE + 19;
     private static final int UI_PURGE_FOLDER = UI_BASE + 20;
+    private static final int UI_INBOX = UI_BASE + 21;
 
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
@@ -1129,6 +1130,7 @@ public class EmailProvider extends ContentProvider {
             // We listen to everything trailing uifolder/ since there might be an appVersion
             // as in Utils.appendVersionQueryParameter().
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uifolder/*", UI_FOLDER);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiinbox/#", UI_INBOX);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
@@ -1233,6 +1235,7 @@ public class EmailProvider extends ContentProvider {
                 case UI_MESSAGES:
                 case UI_MESSAGE:
                 case UI_FOLDER:
+                case UI_INBOX:
                 case UI_ACCOUNT:
                 case UI_ATTACHMENT:
                 case UI_ATTACHMENTS:
@@ -3250,6 +3253,9 @@ public class EmailProvider extends ContentProvider {
                 inboxMailboxId != Mailbox.NO_MAILBOX) {
             values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
                     uiUriString("uifolder", inboxMailboxId));
+        } else {
+            values.put(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX,
+                    uiUriString("uiinbox", accountId));
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME) &&
@@ -3821,8 +3827,12 @@ public class EmailProvider extends ContentProvider {
                     new String[] {id});
             c = getFolderListCursor(c, Long.valueOf(id), uiProjection);
             c.setNotificationUri(context.getContentResolver(), notifyUri);
-            Cursor[] cursors = new Cursor[] {vc, c};
-            return new MergeCursor(cursors);
+            if (c.getCount() > 0) {
+                Cursor[] cursors = new Cursor[]{vc, c};
+                return new MergeCursor(cursors);
+            } else {
+                return c;
+            }
         }
     }
 
@@ -4279,7 +4289,11 @@ public class EmailProvider extends ContentProvider {
                             new String[] {id});
                     rawc.setNotificationUri(context.getContentResolver(), notifyUri);
                     vc.setNotificationUri(context.getContentResolver(), notifyUri);
-                    c = new MergeCursor(new Cursor[] {rawc, vc});
+                    if (rawc.getCount() > 0) {
+                        c = new MergeCursor(new Cursor[]{rawc, vc});
+                    } else {
+                        c = rawc;
+                    }
                 }
                 break;
             case UI_FULL_FOLDERS: {
@@ -4363,12 +4377,26 @@ public class EmailProvider extends ContentProvider {
                 notifyUri = UIPROVIDER_ATTACHMENTS_NOTIFIER.buildUpon().appendPath(id).build();
                 break;
             case UI_FOLDER:
-                mailboxId = Long.parseLong(id);
+            case UI_INBOX:
+                if (match == UI_INBOX) {
+                    mailboxId = Mailbox.findMailboxOfType(context, Long.parseLong(id),
+                            Mailbox.TYPE_INBOX);
+                    if (mailboxId == Mailbox.NO_MAILBOX) {
+                        LogUtils.d(LogUtils.TAG, "No inbox found for account %s", id);
+                        return null;
+                    }
+                    LogUtils.d(LogUtils.TAG, "Found inbox id %d", mailboxId);
+                } else {
+                    mailboxId = Long.parseLong(id);
+                }
+                final String mailboxIdString = Long.toString(mailboxId);
                 if (isVirtualMailbox(mailboxId)) {
                     c = getVirtualMailboxCursor(mailboxId, uiProjection);
-                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
+                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(mailboxIdString)
+                            .build();
                 } else {
-                    c = db.rawQuery(genQueryMailbox(uiProjection, id), new String[]{id});
+                    c = db.rawQuery(genQueryMailbox(uiProjection, mailboxIdString),
+                            new String[]{mailboxIdString});
                     final List<String> projectionList = Arrays.asList(uiProjection);
                     final int nameColumn = projectionList.indexOf(UIProvider.FolderColumns.NAME);
                     final int typeColumn = projectionList.indexOf(UIProvider.FolderColumns.TYPE);
@@ -4377,7 +4405,8 @@ public class EmailProvider extends ContentProvider {
                                 new MatrixCursorWithCachedColumns(uiProjection),
                                 uiProjection.length, c, nameColumn, typeColumn);
                     }
-                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(id).build();
+                    notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(mailboxIdString)
+                            .build();
                 }
                 break;
             case UI_ACCOUNT:
