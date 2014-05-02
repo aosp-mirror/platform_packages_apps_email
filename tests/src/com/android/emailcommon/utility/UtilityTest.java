@@ -63,8 +63,10 @@ public class UtilityTest extends TestCase {
                 2010, 2, 23, 16, 1, 5, 0);
         testParseEmailDateTimeHelper("2009-02-11T18:03:31.123Z",
                 2009, 2, 11, 18, 3, 31, 123);
+        testParseEmailDateTimeHelper("2009-02-11",
+                2009, 2, 11, 0, 0, 0, 0);
         try {
-            testParseEmailDateTimeHelper("2010-02-23", 1970, 1, 1, 0, 0, 0, 0);
+            testParseEmailDateTimeHelper("2010-02", 1970, 1, 1, 0, 0, 0, 0);
             fail("Expected ParseException");
         } catch (ParseException e) {
             // expected

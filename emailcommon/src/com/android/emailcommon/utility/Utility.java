@@ -263,6 +263,9 @@ public class Utility {
         return cal;
     }
 
+    private static final ThreadLocalDateFormat mAbbrevEmailDateTimeFormat =
+        new ThreadLocalDateFormat("yyyy-MM-dd");
+
     private static final ThreadLocalDateFormat mEmailDateTimeFormat =
         new ThreadLocalDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -277,7 +280,9 @@ public class Utility {
     @VisibleForTesting
     public static long parseEmailDateTimeToMillis(String date) throws ParseException {
         final GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        if (date.length() <= 20) {
+        if (date.length() <= 10) {
+            cal.setTime(mAbbrevEmailDateTimeFormat.parse(date));
+        } else if (date.length() <= 20) {
             cal.setTime(mEmailDateTimeFormat.parse(date));
         } else {
             cal.setTime(mEmailDateTimeFormatWithMillis.parse(date));
