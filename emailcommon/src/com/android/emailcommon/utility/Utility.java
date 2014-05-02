@@ -16,33 +16,21 @@
 
 package com.android.emailcommon.utility;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
-import android.provider.OpenableColumns;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
-import android.util.Base64;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -57,14 +45,9 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.ThreadLocal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -75,12 +58,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -89,7 +68,6 @@ public class Utility {
     public static final Charset ASCII = Charset.forName("US-ASCII");
 
     public static final String[] EMPTY_STRINGS = new String[0];
-    public static final Long[] EMPTY_LONGS = new Long[0];
 
     // "GMT" + "+" or "-" + 4 digits
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
@@ -109,23 +87,12 @@ public class Utility {
         return sMainThreadHandler;
     }
 
-    public final static String readInputStream(InputStream in, String encoding) throws IOException {
-        InputStreamReader reader = new InputStreamReader(in, encoding);
-        StringBuffer sb = new StringBuffer();
-        int count;
-        char[] buf = new char[512];
-        while ((count = reader.read(buf)) != -1) {
-            sb.append(buf, 0, count);
-        }
-        return sb.toString();
-    }
-
-    public final static boolean arrayContains(Object[] a, Object o) {
+    public static boolean arrayContains(Object[] a, Object o) {
         int index = arrayIndex(a, o);
         return (index >= 0);
     }
 
-    public final static int arrayIndex(Object[] a, Object o) {
+    public static int arrayIndex(Object[] a, Object o) {
         for (int i = 0, count = a.length; i < count; i++) {
             if (a[i].equals(o)) {
                 return i;
@@ -142,7 +109,7 @@ public class Utility {
         if (parts == null) {
             return null;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
             sb.append(parts[i].toString());
             if (i < parts.length - 1) {
@@ -182,7 +149,7 @@ public class Utility {
             return false;
         }
         try {
-            URI uri = new URI(
+            new URI(
                     "http",
                     null,
                     serverName,
@@ -196,44 +163,6 @@ public class Utility {
         }
     }
 
-    /**
-     * A fast version of  URLDecoder.decode() that works only with UTF-8 and does only two
-     * allocations. This version is around 3x as fast as the standard one and I'm using it
-     * hundreds of times in places that slow down the UI, so it helps.
-     */
-    public static String fastUrlDecode(String s) {
-        try {
-            byte[] bytes = s.getBytes("UTF-8");
-            byte ch;
-            int length = 0;
-            for (int i = 0, count = bytes.length; i < count; i++) {
-                ch = bytes[i];
-                if (ch == '%') {
-                    int h = (bytes[i + 1] - '0');
-                    int l = (bytes[i + 2] - '0');
-                    if (h > 9) {
-                        h -= 7;
-                    }
-                    if (l > 9) {
-                        l -= 7;
-                    }
-                    bytes[length] = (byte) ((h << 4) | l);
-                    i += 2;
-                }
-                else if (ch == '+') {
-                    bytes[length] = ' ';
-                }
-                else {
-                    bytes[length] = bytes[i];
-                }
-                length++;
-            }
-            return new String(bytes, 0, length, "UTF-8");
-        }
-        catch (UnsupportedEncodingException uee) {
-            return null;
-        }
-    }
     private final static String HOSTAUTH_WHERE_CREDENTIALS = HostAuthColumns.ADDRESS + " like ?"
             + " and " + HostAuthColumns.LOGIN + " like ?  ESCAPE '\\'"
             + " and " + HostAuthColumns.PROTOCOL + " not like \"smtp\"";
@@ -246,7 +175,7 @@ public class Utility {
      * @param allowAccountId this account Id will not trigger (when editing an existing account)
      * @param hostName the server's address
      * @param userLogin the user's login string
-     * @result null = no matching account found.  Account = matching account
+     * @return null = no matching account found.  Account = matching account
      */
     public static Account findExistingAccount(Context context, long allowAccountId,
             String hostName, String userLogin) {
@@ -280,21 +209,6 @@ public class Utility {
         }
 
         return null;
-    }
-
-    /**
-     * Generate a random message-id header for locally-generated messages.
-     */
-    public static String generateMessageId() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<");
-        for (int i = 0; i < 24; i++) {
-            sb.append(Integer.toString((int)(Math.random() * 35), 36));
-        }
-        sb.append(".");
-        sb.append(Long.toString(System.currentTimeMillis()));
-        sb.append("@email.android.com>");
-        return sb.toString();
     }
 
     private static class ThreadLocalDateFormat extends ThreadLocal<SimpleDateFormat> {
@@ -437,15 +351,6 @@ public class Utility {
      */
     public static void cancelTaskInterrupt(AsyncTask<?, ?, ?> task) {
         cancelTask(task, true);
-    }
-
-    /**
-     * Cancel an {@link EmailAsyncTask}.  If it's already running, it'll be interrupted.
-     */
-    public static void cancelTaskInterrupt(EmailAsyncTask<?, ?, ?> task) {
-        if (task != null) {
-            task.cancel(true);
-        }
     }
 
     /**
@@ -647,7 +552,7 @@ public class Utility {
      * @return a generic in column {@code column} of the first result row, if the query returns at
      * least 1 row.  Otherwise returns {@code defaultValue}.
      */
-    public static <T extends Object> T getFirstRowColumn(Context context, Uri uri,
+    public static <T> T getFirstRowColumn(Context context, Uri uri,
             String[] projection, String selection, String[] selectionArgs, String sortOrder,
             int column, T defaultValue, CursorGetter<T> getter) {
         // Use PARAMETER_LIMIT to restrict the query to the single row we need
@@ -754,7 +659,7 @@ public class Utility {
                     return true;
                 } catch (FileNotFoundException e) {
                     // We weren't able to open the file, try the content uri below
-                    LogUtils.e(Logging.LOG_TAG, e, "not able to open cached file");
+                    LogUtils.e(LogUtils.TAG, e, "not able to open cached file");
                 }
             }
             final String contentUri = attachment.getContentUri();
@@ -776,7 +681,7 @@ public class Utility {
                     return false;
                 }
             } catch (RuntimeException re) {
-                LogUtils.w(Logging.LOG_TAG, "attachmentExists RuntimeException=" + re);
+                LogUtils.w(LogUtils.TAG, re, "attachmentExists RuntimeException");
                 return false;
             }
         }
@@ -802,8 +707,8 @@ public class Utility {
                 // alternative.  In theory, this situation shouldn't be possible.
                 if ((att.mFlags & (Attachment.FLAG_DOWNLOAD_FORWARD |
                         Attachment.FLAG_DOWNLOAD_USER_REQUEST)) == 0) {
-                    LogUtils.d(Logging.LOG_TAG, "Unloaded attachment isn't marked for download: " +
-                            att.mFileName + ", #" + att.mId);
+                    LogUtils.d(LogUtils.TAG, "Unloaded attachment isn't marked for download: %s" +
+                            ", #%d", att.mFileName, att.mId);
                     Account acct = Account.restoreAccountWithId(context, msg.mAccountKey);
                     if (acct == null) return true;
                     // If smart forward is set and the message is a forward, we'll act as though
@@ -869,204 +774,10 @@ public class Utility {
     }
 
     /**
-     * Class that supports running any operation for each account.
-     */
-    public abstract static class ForEachAccount extends AsyncTask<Void, Void, Long[]> {
-        private final Context mContext;
-
-        public ForEachAccount(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected final Long[] doInBackground(Void... params) {
-            ArrayList<Long> ids = new ArrayList<Long>();
-            Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
-                    Account.ID_PROJECTION, null, null, null);
-            try {
-                while (c.moveToNext()) {
-                    ids.add(c.getLong(Account.ID_PROJECTION_COLUMN));
-                }
-            } finally {
-                c.close();
-            }
-            return ids.toArray(EMPTY_LONGS);
-        }
-
-        @Override
-        protected final void onPostExecute(Long[] ids) {
-            if (ids != null && !isCancelled()) {
-                for (long id : ids) {
-                    performAction(id);
-                }
-            }
-            onFinished();
-        }
-
-        /**
-         * This method will be called for each account.
-         */
-        protected abstract void performAction(long accountId);
-
-        /**
-         * Called when the iteration is finished.
-         */
-        protected void onFinished() {
-        }
-    }
-
-    public static long[] toPrimitiveLongArray(Collection<Long> collection) {
-        // Need to do this manually because we're converting to a primitive long array, not
-        // a Long array.
-        final int size = collection.size();
-        final long[] ret = new long[size];
-        // Collection doesn't have get(i).  (Iterable doesn't have size())
-        int i = 0;
-        for (Long value : collection) {
-            ret[i++] = value;
-        }
-        return ret;
-    }
-
-    public static Set<Long> toLongSet(long[] array) {
-        // Need to do this manually because we're converting from a primitive long array, not
-        // a Long array.
-        final int size = array.length;
-        HashSet<Long> ret = new HashSet<Long>(size);
-        for (int i = 0; i < size; i++) {
-            ret.add(array[i]);
-        }
-        return ret;
-    }
-
-    /**
-     * Workaround for the {@link ListView#smoothScrollToPosition} randomly scroll the view bug
-     * if it's called right after {@link ListView#setAdapter}.
-     */
-    public static void listViewSmoothScrollToPosition(final Activity activity,
-            final ListView listView, final int position) {
-        // Workarond: delay-call smoothScrollToPosition()
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (activity.isFinishing()) {
-                    return; // Activity being destroyed
-                }
-                listView.smoothScrollToPosition(position);
-            }
-        });
-    }
-
-    private static final String[] ATTACHMENT_META_NAME_PROJECTION = {
-        OpenableColumns.DISPLAY_NAME
-    };
-    private static final int ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME = 0;
-
-    /**
-     * @return Filename of a content of {@code contentUri}.  If the provider doesn't provide the
-     * filename, returns the last path segment of the URI.
-     */
-    public static String getContentFileName(Context context, Uri contentUri) {
-        String name = getFirstRowString(context, contentUri, ATTACHMENT_META_NAME_PROJECTION, null,
-                null, null, ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME);
-        if (name == null) {
-            name = contentUri.getLastPathSegment();
-        }
-        return name;
-    }
-
-    /**
-     * Append a bold span to a {@link SpannableStringBuilder}.
-     */
-    public static SpannableStringBuilder appendBold(SpannableStringBuilder ssb, String text) {
-        if (!TextUtils.isEmpty(text)) {
-            SpannableString ss = new SpannableString(text);
-            ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ssb.append(ss);
-        }
-
-        return ssb;
-    }
-
-    /**
-     * Stringify a cursor for logging purpose.
-     */
-    public static String dumpCursor(Cursor c) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        while (c != null) {
-            sb.append(c.getClass()); // Class name may not be available if toString() is overridden
-            sb.append("/");
-            sb.append(c.toString());
-            if (c.isClosed()) {
-                sb.append(" (closed)");
-            }
-            if (c instanceof CursorWrapper) {
-                c = ((CursorWrapper) c).getWrappedCursor();
-                sb.append(", ");
-            } else {
-                break;
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    /**
-     * Cursor wrapper that remembers where it was closed.
-     *
-     * Use {@link #get} to create a wrapped cursor.
-     * USe {@link #getTraceIfAvailable} to get the stack trace.
-     * Use {@link #log} to log if/where it was closed.
-     */
-    public static class CloseTraceCursorWrapper extends CursorWrapper {
-        private static final boolean TRACE_ENABLED = false;
-
-        private Exception mTrace;
-
-        private CloseTraceCursorWrapper(Cursor cursor) {
-            super(cursor);
-        }
-
-        @Override
-        public void close() {
-            mTrace = new Exception("STACK TRACE");
-            super.close();
-        }
-
-        public static Exception getTraceIfAvailable(Cursor c) {
-            if (c instanceof CloseTraceCursorWrapper) {
-                return ((CloseTraceCursorWrapper) c).mTrace;
-            } else {
-                return null;
-            }
-        }
-
-        public static void log(Cursor c) {
-            if (c == null) {
-                return;
-            }
-            if (c.isClosed()) {
-                LogUtils.w(Logging.LOG_TAG, "Cursor was closed here: Cursor=" + c,
-                        getTraceIfAvailable(c));
-            } else {
-                LogUtils.w(Logging.LOG_TAG, "Cursor not closed.  Cursor=" + c);
-            }
-        }
-
-        public static Cursor get(Cursor original) {
-            return TRACE_ENABLED ? new CloseTraceCursorWrapper(original) : original;
-        }
-
-        /* package */ static CloseTraceCursorWrapper alwaysCreateForTest(Cursor original) {
-            return new CloseTraceCursorWrapper(original);
-        }
-    }
-
-    /**
      * Test that the given strings are equal in a null-pointer safe fashion.
      */
+    // Use TextUtils.equals()
+    @Deprecated
     public static boolean areStringsEqual(String s1, String s2) {
         return (s1 != null && s1.equals(s2)) || (s1 == null && s2 == null);
     }
@@ -1078,35 +789,5 @@ public class Utility {
         StrictMode.setVmPolicy(enabled
                 ? new StrictMode.VmPolicy.Builder().detectAll().build()
                 : StrictMode.VmPolicy.LAX);
-    }
-
-    public static String dumpFragment(Fragment f) {
-        StringWriter sw = new StringWriter();
-        PrintWriter w = new PrintWriter(sw);
-        f.dump("", new FileDescriptor(), w, new String[0]);
-        return sw.toString();
-    }
-
-    /**
-     * Builds an "in" expression for SQLite.
-     *
-     * e.g. "ID" + 1,2,3 -> "ID in (1,2,3)".  If {@code values} is empty or null, it returns an
-     * empty string.
-     */
-    public static String buildInSelection(String columnName, Collection<? extends Number> values) {
-        if ((values == null) || (values.size() == 0)) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(columnName);
-        sb.append(" in (");
-        String sep = "";
-        for (Number n : values) {
-            sb.append(sep);
-            sb.append(n.toString());
-            sep = ",";
-        }
-        sb.append(')');
-        return sb.toString();
     }
 }
