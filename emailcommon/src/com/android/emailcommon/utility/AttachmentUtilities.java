@@ -410,7 +410,7 @@ public class AttachmentUtilities {
                 size = copyFile(in, resolver.openOutputStream(attUri));
                 contentUri = attUri.toString();
             } else if (Utility.isExternalStorageMounted()) {
-                if (attachment.mFileName == null) {
+                if (TextUtils.isEmpty(attachment.mFileName)) {
                     // TODO: This will prevent a crash but does not surface the underlying problem
                     // to the user correctly.
                     LogUtils.w(Logging.LOG_TAG, "Trying to save an attachment with no name: %d",
