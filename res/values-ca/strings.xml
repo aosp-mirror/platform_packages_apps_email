@@ -49,7 +49,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Destacats"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Esborranys"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Bústia de sortida"</string>
-    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vista combinada"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Visualització combinada"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Missatge original --------\nAssumpte: <xliff:g id="SUBJECT">%1$s</xliff:g>\nDe: <xliff:g id="SENDER">%2$s</xliff:g>\nPer a: <xliff:g id="TO">%3$s</xliff:g>\nCc: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Inserció d\'una resposta ràpida"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"Insereix resposta ràpida"</string>
@@ -157,7 +157,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sincronitza els contactes d\'aquest compte"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sincronitza el calendari d\'aquest compte"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sincronitza el correu d\'aquest compte"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Baixa automàticament els fitxers adjunts en connectar-te a Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Baixa els fitxers adjunts automàticament en connectar a una xarxa Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"No s\'ha pogut acabar"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dies per sincronitzar"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automàtic"</string>
@@ -182,7 +182,7 @@
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS necessari, però no compatible amb el servidor."</string>
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Els mètodes d\'autenticació no són compatibles amb el servidor."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"No s\'ha pogut obrir la connexió al servidor a causa d\'un error de seguretat."</string>
-    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"No s\'ha pogut obrir la connexió amb el servidor."</string>
+    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"No s\'ha pogut establir la connexió amb el servidor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Has introduït una adreça de servidor incorrecta o el servidor requereix una versió de protocol que el correu electrònic no admet."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"No tens permís per sincronitzar amb aquest servidor. Contacta amb l\'administrador del servidor per obtenir més informació."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administració de seguretat remota"</string>
@@ -246,11 +246,11 @@
     <string name="edit_quick_response_dialog" msgid="6479106007607928450">"Resposta ràpida"</string>
     <string name="save_action" msgid="1988862706623227093">"Desa"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Sincronitza els contactes"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronitza contactes del compte"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronitza els contactes del compte"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Sincronitza el calendari"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincronitza esdeveniments del calendari per al compte"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"Sincronitza els esdeveniments del calendari del compte"</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"Sincronitza el correu electrònic"</string>
-    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronitza correu del compte"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Sincronitza el correu del compte"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibra"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Tria un so"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuració del servidor"</string>

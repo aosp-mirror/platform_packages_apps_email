@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"인증"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"인증 추가"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"인증 삭제"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"수동 설정"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에 이 사용자 이름을 사용하고 있습니다."</string>
@@ -247,7 +246,7 @@
     <string name="edit_quick_response_dialog" msgid="6479106007607928450">"빠른 응답"</string>
     <string name="save_action" msgid="1988862706623227093">"저장"</string>
     <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"연락처 동기화"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"이 계정의 주소록을 동기화합니다."</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"이 계정의 연락처를 동기화합니다."</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"캘린더 동기화"</string>
     <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"이 계정의 캘린더 일정을 동기화합니다."</string>
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"이메일 동기화"</string>

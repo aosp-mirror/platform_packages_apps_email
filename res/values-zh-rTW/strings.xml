@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"驗證"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"新增驗證"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"清除驗證"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"手動設定"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"輸入有效的電子郵件地址和密碼。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"複製帳戶"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"您的「<xliff:g id="DUPLICATE">%s</xliff:g>」帳戶已經使用這個使用者名稱。"</string>
@@ -217,7 +216,7 @@
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"下載附件"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"透過 Wi-Fi 自動下載最新郵件的附件"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"電子郵件通知"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等其他設定"</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等設定"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"收到電子郵件時傳送通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"同步處理頻率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"內收設定"</string>

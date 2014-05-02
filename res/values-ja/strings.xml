@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"認証"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"認証を追加"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"認証をクリア"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"手動セットアップ"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"有効なメールアドレスとパスワードを入力してください。"</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"重複するアカウント"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"このユーザー名はアカウント「<xliff:g id="DUPLICATE">%s</xliff:g>」で既に使用しています。"</string>
@@ -112,7 +111,7 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"このフィールドは必須です。"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"アカウント設定"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"アカウントの種類"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントのタイプ"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントの種類を選択します"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"アカウント設定"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"受信サーバーの設定"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ユーザー名"</string>

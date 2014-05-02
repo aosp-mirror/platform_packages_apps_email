@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"Kimlik doğrulama"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"Kimlik doğrulama ekle"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"Kimlik doğrulamayı temizle"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"Manuel kurulum"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"Geçerli bir e-posta adresi ve şifre yazın."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"Yinelenen hesap"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"Bu kullanıcı adını \"<xliff:g id="DUPLICATE">%s</xliff:g>\" hesabı için zaten kullanıyorsunuz."</string>
@@ -220,9 +219,9 @@
     <string name="account_settings_summary" msgid="8403582255413830007">"Sıklığı, bildirimleri vs. senkronize et"</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"E-posta geldiğinde bildirim gönder"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Senkronizasyon sıklığı"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarlar"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarları"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Kullanıcı adı, şifre ve diğer gelen sunucu ayarları"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Giden ayarlar"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Giden ayarları"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Kullanıcı adı, şifre ve diğer giden sunucu ayarları"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Politikalar uygulandı"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Hiçbiri"</string>

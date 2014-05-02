@@ -93,8 +93,7 @@
     <string name="authentication_label" msgid="5210804218348191833">"ການກວດສອບຢືນຢັນ"</string>
     <string name="add_authentication_label" msgid="865206092644419804">"ເພີ່ມການກວດສອບ"</string>
     <string name="clear_authentication_label" msgid="8113966442068335059">"ລຶບລ້າງການກວດສອບຢືນຢັນ"</string>
-    <!-- no translation found for account_setup_basics_manual_setup_action (6640115171889882878) -->
-    <skip />
+    <string name="account_setup_basics_manual_setup_action" msgid="6640115171889882878"><u>"ຕັ້ງ​ຄ່າ​ເອງ"</u></string>
     <string name="account_setup_username_password_toast" msgid="3968270274727947460">"ພິມທີ່ຢູ່ອີເມວ ແລະ ລະຫັດຜ່ານທີ່ຖືກຕ້ອງ."</string>
     <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"ບັນຊີຊ້ຳກັນ"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"ທ່ານໄດ້ໃຊ້ຊື່ຜູ່ໃຊ້ນີ້ສຳລັບບັນຊີ \"<xliff:g id="DUPLICATE">%s</xliff:g>\" ຢູ່ແລ້ວ."</string>
