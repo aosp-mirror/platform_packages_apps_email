@@ -27,7 +27,7 @@
     <string name="cancel_action" msgid="6967435583794021865">"Prekliči"</string>
     <string name="previous_action" msgid="5181616311579820981">"Nazaj"</string>
     <string name="done_action" msgid="7497990549515580249">"Dokončano"</string>
-    <string name="create_action" msgid="3062715563215392251">"Ustvari nov"</string>
+    <string name="create_action" msgid="3062715563215392251">"Ustvari novega"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Ni hitrih odzivov."</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Nastavitve računa"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Možnosti sinhronizacije"</string>
@@ -114,7 +114,7 @@
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Izbriši e-pošto iz strežnika"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nikoli"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Ko sporočilo izbrišem iz nabiralnika"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Ko sporočilo izbrišem iz mape »Prejeto«"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Predpona poti IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Neobvezno"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Nastavitev računa"</string>
@@ -145,7 +145,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sinhroniziraj stike iz tega računa"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Sinhroniziraj koledar iz tega računa"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sinhroniziraj e-pošto iz tega računa"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Samodejni prenos prilog, ko je na voljo povezava Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Samodejno prenesi priloge, ko je na voljo povezava Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Ni mogoče končati"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Dnevi za sinhronizacijo"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Samodejno"</string>

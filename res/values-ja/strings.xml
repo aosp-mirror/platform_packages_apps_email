@@ -99,7 +99,7 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"このフィールドは必須です。"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"アカウント設定"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"アカウントの種類"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントのタイプ"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントの種類を選択します"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"アカウント設定"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"受信サーバーの設定"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ユーザー名"</string>
