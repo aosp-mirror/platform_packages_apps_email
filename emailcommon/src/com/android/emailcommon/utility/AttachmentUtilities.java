@@ -429,12 +429,16 @@ public class AttachmentUtilities {
                 MediaScannerConnection.scanFile(context, new String[] {absolutePath},
                         null, null);
 
+                final String mimeType = TextUtils.isEmpty(attachment.mMimeType) ?
+                        "application/octet-stream" :
+                        attachment.mMimeType;
+
                 try {
                     DownloadManager dm =
                             (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                     long id = dm.addCompletedDownload(attachment.mFileName, attachment.mFileName,
                             false /* do not use media scanner */,
-                            attachment.mMimeType, absolutePath, size,
+                            mimeType, absolutePath, size,
                             true /* show notification */);
                     contentUri = dm.getUriForDownloadedFile(id).toString();
                 } catch (final IllegalArgumentException e) {
