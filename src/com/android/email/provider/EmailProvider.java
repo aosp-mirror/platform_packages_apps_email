@@ -1684,8 +1684,10 @@ public class EmailProvider extends ContentProvider {
                         final String emailAddress = c.getString(INDEX_EMAIL_ADDRESS);
                         final android.accounts.Account account =
                                 getAccountManagerAccount(context, emailAddress, protocol);
-                        restartPush(account);
-                        return true;
+                        if (account != null) {
+                            restartPush(account);
+                            return true;
+                        }
                     }
                 }
             } finally {
@@ -5372,6 +5374,9 @@ public class EmailProvider extends ContentProvider {
     private static android.accounts.Account getAccountManagerAccount(final Context context,
             final String emailAddress, final String protocol) {
         final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(context, protocol);
+        if (info == null) {
+            return null;
+        }
         return new android.accounts.Account(emailAddress, info.accountType);
     }
 
@@ -5444,7 +5449,9 @@ public class EmailProvider extends ContentProvider {
      */
     private void startSync(final Mailbox mailbox, final int deltaMessageCount) {
         final android.accounts.Account account = getAccountManagerAccount(mailbox.mAccountKey);
-        startSync(account, mailbox.mId, deltaMessageCount);
+        if (account != null) {
+            startSync(account, mailbox.mId, deltaMessageCount);
+        }
     }
 
     /**
