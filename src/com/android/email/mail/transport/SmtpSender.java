@@ -161,11 +161,7 @@ public class SmtpSender extends Sender {
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             } else {
-                // TODO: STOPSHIP Currently, if we have no username or password, we skip
-                // the authentication step. We need to figure out if this is intentional and/or
-                // desirable.
-                //LogUtils.w(Logging.LOG_TAG, "No valid username and password found.");
-                //throw new MessagingException(MessagingException.AUTH_REQUIRED);
+                // It is acceptable to hvae no authentication at all for SMTP.
             }
         } catch (SSLException e) {
             if (MailActivityEmail.DEBUG) {

@@ -55,7 +55,7 @@ import com.android.mail.utils.LogUtils;
 public class AccountSecurity extends Activity {
     private static final String TAG = "Email/AccountSecurity";
 
-    private static final boolean DEBUG = false;  // STOPSHIP Don't ship with this set to true
+    private static final boolean DEBUG = false;  // Don't ship with this set to true
 
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_SHOW_DIALOG = "SHOW_DIALOG";
