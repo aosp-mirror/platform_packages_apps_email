@@ -31,8 +31,6 @@ import android.webkit.MimeTypeMap;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.mail.providers.UIProvider;
@@ -431,14 +429,18 @@ public class AttachmentUtilities {
                 MediaScannerConnection.scanFile(context, new String[] {absolutePath},
                         null, null);
 
-                DownloadManager dm =
-                        (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-                long id = dm.addCompletedDownload(attachment.mFileName, attachment.mFileName,
-                        false /* do not use media scanner */,
-                        attachment.mMimeType, absolutePath, size,
-                        true /* show notification */);
-                contentUri = dm.getUriForDownloadedFile(id).toString();
-
+                try {
+                    DownloadManager dm =
+                            (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                    long id = dm.addCompletedDownload(attachment.mFileName, attachment.mFileName,
+                            false /* do not use media scanner */,
+                            attachment.mMimeType, absolutePath, size,
+                            true /* show notification */);
+                    contentUri = dm.getUriForDownloadedFile(id).toString();
+                } catch (final IllegalArgumentException e) {
+                    LogUtils.d(LogUtils.TAG, e, "IAE from DownloadManager while saving attachment");
+                    throw new IOException(e);
+                }
             } else {
                 LogUtils.w(Logging.LOG_TAG,
                         "Trying to save an attachment without external storage?");
