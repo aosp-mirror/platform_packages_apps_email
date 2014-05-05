@@ -2647,7 +2647,7 @@ public class EmailProvider extends ContentProvider {
                 } else if (value.startsWith("@")) {
                     val = value.substring(1) + " AS " + column;
                 } else {
-                    val = "'" + value + "' AS " + column;
+                    val = DatabaseUtils.sqlEscapeString(value) + " AS " + column;
                 }
             } else {
                 // Now, get the standard value for the column from our projection map
