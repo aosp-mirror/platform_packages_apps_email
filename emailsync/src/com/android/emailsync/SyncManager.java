@@ -996,8 +996,6 @@ public abstract class SyncManager extends Service implements Runnable {
                     PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
                     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MAIL_SERVICE");
                     mWakeLock.acquire();
-                    // STOPSHIP Remove
-                    log("+WAKE LOCK ACQUIRED");
                 }
                 mWakeLocks.put(id, System.currentTimeMillis());
              }
@@ -1020,8 +1018,6 @@ public abstract class SyncManager extends Service implements Runnable {
                         mWakeLock.release();
                     }
                     mWakeLock = null;
-                    // STOPSHIP Remove
-                    log("+WAKE LOCK RELEASED");
                 } else {
                     log("Release request for lock not held: " + id);
                 }

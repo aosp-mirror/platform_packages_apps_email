@@ -62,8 +62,8 @@ public class AccountSetupFinal extends AccountSetupActivity
         AccountServerBaseFragment.Callback, AccountSetupCredentialsFragment.Callback,
         DuplicateAccountDialogFragment.Callback, AccountSetupABFragment.Callback {
 
-    // STOPSHIP: Set to false before shipping, logs PII
-    private final static boolean ENTER_DEBUG_SCREEN = true;
+    // Set to false before shipping, logs PII
+    private final static boolean ENTER_DEBUG_SCREEN = false;
 
     /**
      * Direct access for forcing account creation

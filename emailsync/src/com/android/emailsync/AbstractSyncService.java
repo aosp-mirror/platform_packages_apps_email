@@ -63,7 +63,7 @@ public abstract class AbstractSyncService implements Runnable {
     // Whether or not the sync service is valid (usable)
     public boolean mIsValid = true;
 
-    public boolean mUserLog = true; // STOPSHIP
+    public boolean mUserLog = false;
     public boolean mFileLog = false;
 
     protected volatile long mRequestTime = 0;

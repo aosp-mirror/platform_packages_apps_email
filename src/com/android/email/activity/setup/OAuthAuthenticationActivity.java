@@ -182,10 +182,11 @@ public class OAuthAuthenticationActivity extends Activity implements
     public void onLoadFinished(Loader<AuthenticationResult> loader,
         AuthenticationResult data) {
         if (data == null) {
-            // STOPSHIP: need a better way to display errors. We might get IO or
+            // TODO: need a better way to display errors. We might get IO or
             // MessagingExceptions.
             setResult(RESULT_OAUTH_FAILURE, null);
             Toast.makeText(this, R.string.oauth_error_description, Toast.LENGTH_SHORT).show();
+            LogUtils.w(Logging.LOG_TAG, "null oauth result");
         } else {
             final Intent intent = new Intent();
             intent.putExtra(EXTRA_OAUTH_ACCESS_TOKEN, data.mAccessToken);
