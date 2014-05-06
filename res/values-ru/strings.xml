@@ -82,7 +82,7 @@
     <string name="oauth_error_description" msgid="5257268852139229456">"Не удалось выполнить аутентификацию"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"Неверный адрес эл. почты или пароль"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Адрес эл. почты:"</string>
-    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Ярлык Email"</string>
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"Аккаунт эл. почты"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"Укажите ваш эл. адрес и пароль"</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Адрес электронной почты"</string>
     <string name="or_label" msgid="2207403489755254427">"ИЛИ"</string>
@@ -148,16 +148,16 @@
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Параметры аккаунта"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="8321552620846334354">"Частота синхронизации:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Не проверять"</string>
-    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Автоматически (принудительно)"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Автоматически (активная доставка)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Каждые 5 минут"</string>
     <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Каждые 10 минут"</string>
     <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Каждые 15 минут"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Каждые 30 минут"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"Каждый час"</string>
-    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Показывать уведомление при получении новых писем"</string>
+    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Уведомлять о новых письмах"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Синхронизировать контакты из этого аккаунта"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Синхронизировать календарь из этого аккаунта"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Синхронизировать электронную почту из этого аккаунта"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Синхронизировать почту из этого аккаунта"</string>
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Загружать прикрепленные файлы при наличии Wi-Fi-подключения"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Настройка не закончена"</string>
     <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"Синхронизация почты:"</string>
@@ -216,13 +216,13 @@
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Не удалось войти в аккаунт <xliff:g id="ACCOUNT">%s</xliff:g>. Причина проблемы: <xliff:g id="REASON">%s</xliff:g>. Обновить имя пользователя и/или пароль?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Загружать файлы"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Автоматически загружать прикрепленные файлы при наличии Wi-Fi-подключения"</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"Показывать уведомления"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Частота синхронизации, уведомления и другие настройки"</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Показывать уведомление при получении новых писем"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Уведомлять о новых письмах"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Частота синхронизации"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Сервер входящей почты"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Имя пользователя, пароль и др. настройки сервера входящей почты"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Настройки исходящих сообщений"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Сервер исходящей почты"</string>
     <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Имя пользователя, пароль и др. настройки сервера исходящей почты"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"Политики применены"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"Нет"</string>

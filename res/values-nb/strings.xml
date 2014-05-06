@@ -105,7 +105,7 @@
     <string name="account_setup_ab_headline" msgid="7110531768613341908">"Bekreft kontotypen"</string>
     <string name="account_setup_ab_instructions_format" msgid="2107254631013471380">"Du har angitt at <xliff:g id="EMAIL">%1$s</xliff:g> bruker <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, men kontoen bruker kanskje <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Konfigurering av konto"</string>
-    <string name="account_setup_names_headline" msgid="914858472109729140">"Kontoen din er konfigurert, og e-post er på vei."</string>
+    <string name="account_setup_names_headline" msgid="914858472109729140">"Kontoen din er konfigurert, og innkommende e-poster er på vei."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Gi denne kontoen et navn (valgfritt)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Navnet ditt (vises i utgående meldinger)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dette feltet må fylles ut."</string>
@@ -260,7 +260,7 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Synkroniser denne mappen"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Alle e-postene lastes ned når du er tilkoblet"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Antall dager med e-post å synkronisere"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Avsenderbilder"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Bilde av avsender"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Bare noen «Pluss»-kontoer tilbyr POP-tilgangen denne appen trenger for å koble til. Hvis du ikke klarer å logge på med riktig e-postadresse og passord, kan det være du ikke har en betalt «Pluss»-konto. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Før du konfigurerer denne e-postkontoen, må du gå til nettstedet for T-Online og opprette et passord for e-posttilgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
